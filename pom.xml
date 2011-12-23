@@ -127,7 +127,13 @@
 </Private-Package>
               <Export-Package>
 com.fasterxml.jackson.core,
-com.fasterxml.jackson.core.impl
+com.fasterxml.jackson.core.base,
+com.fasterxml.jackson.core.format,
+com.fasterxml.jackson.core.io,
+com.fasterxml.jackson.core.json,
+com.fasterxml.jackson.core.sym,
+com.fasterxml.jackson.core.type,
+com.fasterxml.jackson.core.util
 </Export-Package>
             </instructions>
           </configuration>

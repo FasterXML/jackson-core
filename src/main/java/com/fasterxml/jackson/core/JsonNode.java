@@ -14,15 +14,15 @@ import java.util.*;
  * As a general design rule, most accessors ("getters") are included
  * in this base class, to allow for traversing structure without
  * type casts. Most mutators, however, need to be accessed through
- * specific sub-classes (such as <code>org.codehaus.jackson.node.ObjectNode</code>
- * and <code>org.codehaus.jackson.node.ArrayNode</code>).
+ * specific sub-classes (such as <code>ObjectNode</code>
+ * and <code>ArrayNode</code>).
  * This seems sensible because proper type
  * information is generally available when building or modifying
  * trees, but less often when reading a tree (newly built from
  * parsed JSON content).
  *<p>
  * Actual concrete sub-classes can be found from package
- * {@link org.codehaus.jackson.node}, which is in 'mapper' jar
+ * <code>com.fasterxml.jackson.databind.node</code>, which is in 'mapper' jar
  * (whereas this class is in 'core' jar, since it is declared as
  * nominal type for operations in {@link ObjectCodec})
  */
@@ -91,7 +91,7 @@ public abstract class JsonNode
      * Method that can be used to check if the node is a wrapper
      * for a POJO ("Plain Old Java Object" aka "bean".
      * Returns true only for
-     * instances of {@link org.codehaus.jackson.node.POJONode}.
+     * instances of <code>POJONode</code>.
      *
      * @return True if this node wraps a POJO
      */
@@ -479,7 +479,7 @@ public abstract class JsonNode
 
     /**
      * Similar to {@link #findValues}, but will additionally convert
-     * values into Strings, calling {@link #getValueAsText}.
+     * values into Strings, calling {@link #asText}.
      */
     public final List<String> findValuesAsText(String fieldName)
     {

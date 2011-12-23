@@ -20,11 +20,10 @@
  *  </li>
  *<li>{@link com.fasterxml.jackson.core.ObjectCodec} is included so that
  *  reference to the object capable of serializing/deserializing
- *  Objects to/from JSON (usually, {@link org.codehaus.jackson.map.ObjectMapper})
+ *  Objects to/from JSON (usually, <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
  *  can be exposed, without adding direct dependency to implementation.
  *  </li>
  *</ul>
- * </ul>
  */
 
 package com.fasterxml.jackson.core;

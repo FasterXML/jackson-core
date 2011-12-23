@@ -362,8 +362,8 @@ public class JsonFactory implements Versioned
 
     /**
      * Method for associating a {@link ObjectCodec} (typically
-     * a {@link org.codehaus.jackson.map.ObjectMapper}) with
-     * this factory (and more importantly, parsers and generators
+     * a <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
+     * with this factory (and more importantly, parsers and generators
      * it constructs). This is needed to use data-binding methods
      * of {@link JsonParser} and {@link JsonGenerator} instances.
      */

@@ -12,7 +12,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * Java objects (POJOs aka Beans).
  *<p>
  * The standard implementation of this class is
- * {@link org.codehaus.jackson.map.ObjectMapper}.
+ * <code>com.fasterxml.jackson.databind.ObjectMapper</code>,
+ * defined in the "jackson-databind".
  */
 public abstract class ObjectCodec
 {

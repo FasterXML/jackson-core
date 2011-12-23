@@ -19,5 +19,3 @@ Note that the main differences compared to 1.0 core jar are:
  * [JavaDocs](http://wiki.fasterxml.com/JacksonJavaDocs)
 * [Downloads](http://wiki.fasterxml.com/JacksonDownload)
 
-Check out [Wiki].
-

@@ -7,13 +7,14 @@ Note that the main differences compared to 1.0 core jar are:
 
 * Maven build instead of Ant
 * Annotations carved out to a separate package (that this package depends on)
-* Java package is now `com.fasterxml.jackson.core' (instead of `org.codehaus.jackson`)
+* Java package is now `com.fasterxml.jackson.core` (instead of `org.codehaus.jackson`)
 
 # Further reading
 
+* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)
 * [Documentation](http://wiki.fasterxml.com/JacksonDocumentation)
  * [JavaDocs](http://wiki.fasterxml.com/JacksonJavaDocs)
-* [Downloads] [http://wiki.fasterxml.com/JacksonDownload]
+* [Downloads](http://wiki.fasterxml.com/JacksonDownload)
 
 Check out [Wiki].
 

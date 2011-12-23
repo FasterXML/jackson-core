@@ -1,7 +1,10 @@
 # Overview
 
-This project implements shared core portion of Jackson Data Processor, including (for version 2.0 at least) JSON implementation.
-The only commonly shared part that is not included are annotations; these are found from `jackson-core-annotations` project.
+This project contains shared core abstraction of Jackson Data Processor, including default JSON implementation of handler types (parser, generator).
+
+Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
+
+The only commonly shared part that is not included are annotations; these are found from `jackson-annotations` project.
 
 Note that the main differences compared to 1.0 core jar are:
 

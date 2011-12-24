@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.main;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
 
 /**
@@ -64,9 +65,9 @@ public class TestJsonParserSymbols
     }
 
     /*
-    ////////////////////////////////////
-    // Helper methods
-    ////////////////////////////////////
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
      */
 
     private void _testWithClose(boolean useBytes) throws IOException
@@ -95,7 +96,7 @@ public class TestJsonParserSymbols
             assertEquals(0, f.byteSymbolCount());
         } else {
             jp = f.createJsonParser(doc);
-            assertEquals(UTF8StreamJsonParser.class, jp.getClass());
+            assertEquals(ReaderBasedJsonParser.class, jp.getClass());
             assertEquals(0, f.charSymbolCount());
         }
         return jp;

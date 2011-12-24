@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
@@ -55,7 +55,7 @@ public abstract class ObjectCodec
      * of just a single node if the current event is a
      * value event, not container).
      */
-    public abstract <T> T readValue(JsonParser jp, JavaType valueType)
+    public abstract <T> T readValue(JsonParser jp, ResolvedType valueType)
         throws IOException, JsonProcessingException;
 
     /**
@@ -71,8 +71,6 @@ public abstract class ObjectCodec
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
-     * 
-     * @since 1.9
      */
     public abstract <T> Iterator<T> readValues(JsonParser jp, Class<T> valueType)
         throws IOException, JsonProcessingException;
@@ -80,8 +78,6 @@ public abstract class ObjectCodec
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
-     * 
-     * @since 1.9
      */
     public abstract <T> Iterator<T> readValues(JsonParser jp, TypeReference<?> valueTypeRef)
         throws IOException, JsonProcessingException;
@@ -89,10 +85,8 @@ public abstract class ObjectCodec
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
-     * 
-     * @since 1.9
      */
-    public abstract <T> Iterator<T> readValues(JsonParser jp, JavaType valueType)
+    public abstract <T> Iterator<T> readValues(JsonParser jp, ResolvedType valueType)
         throws IOException, JsonProcessingException;
     
     /*
@@ -124,16 +118,12 @@ public abstract class ObjectCodec
     /**
      * Method for construct root level Object nodes
      * for Tree Model instances.
-     *
-     * @since 1.2
      */
     public abstract JsonNode createObjectNode();
 
     /**
      * Method for construct root level Array nodes
      * for Tree Model instances.
-     *
-     * @since 1.2
      */
     public abstract JsonNode createArrayNode();
 
@@ -141,8 +131,6 @@ public abstract class ObjectCodec
      * Method for constructing a {@link JsonParser} for reading
      * contents of a JSON tree, as if it was external serialized
      * JSON content.
-     *
-     * @since 1.3
      */
     public abstract JsonParser treeAsTokens(JsonNode n);
 
@@ -150,8 +138,6 @@ public abstract class ObjectCodec
      * Convenience method for converting given JSON tree into instance of specified
      * value type. This is equivalent to first constructing a {@link JsonParser} to
      * iterate over contents of the tree, and using that parser for data binding.
-     * 
-     * @since 1.3
      */
     public abstract <T> T treeToValue(JsonNode n, Class<T> valueType)
         throws IOException, JsonProcessingException;

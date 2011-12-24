@@ -4,10 +4,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * This class is used to pass full generics type information, and
- * avoid problems with type erasure (that basically removes most
- * usable type references from runtime Class objects).
- * It is based on ideas from
+ * This generic abstract class is used for obtaining full generics type information
+ * by sub-classing; it must be converted to {@link ResolvedType} implementation
+ * (implemented by <code>JavaType</code> from "databind" bundle) to be used.
+ * Class is based on ideas from
  * <a href="http://gafter.blogspot.com/2006/12/super-type-tokens.html"
  * >http://gafter.blogspot.com/2006/12/super-type-tokens.html</a>,
  * Additional idea (from a suggestion made in comments of the article)
@@ -21,7 +21,8 @@ import java.lang.reflect.Type;
  *<pre>
  *  TypeReference ref = new TypeReference&lt;List&lt;Integer>>() { };
  *</pre>
- * which can be passed to methods that accept TypeReference.
+ * which can be passed to methods that accept TypeReference, or resolved
+ * using <code>TypeFactory</code> to obtain {@link ResolvedType}.
  */
 public abstract class TypeReference<T>
     implements Comparable<TypeReference<T>>

@@ -270,11 +270,9 @@ public abstract class BaseTest
     /**
      * Method that checks whether Unit tests appear to run from Ant build
      * scripts.
-     * 
-     * @since 1.6
      */
-    protected static boolean runsFromAnt() {
-        return "true".equals(System.getProperty("FROM_ANT"));
+    protected static boolean runsFromMaven() {
+        return true;
     }
     
     /*

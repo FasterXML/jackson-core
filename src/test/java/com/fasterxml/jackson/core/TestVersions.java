@@ -21,7 +21,7 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
          *    property is set; and set that flag from Ant unit test. Why? To prevent running
          *    from Eclipse, where this would just fail
          */
-        if (runsFromAnt()) {
+        if (runsFromMaven()) {
             System.out.println("Note: running version tests (FROM_ANT=true)");
             assertVersion(new JsonFactory().version(), MAJOR_VERSION, MINOR_VERSION);
             assertVersion(new ReaderBasedJsonParser(getIOContext(), 0, null, null, null).version(),
@@ -29,7 +29,7 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
             assertVersion(new WriterBasedJsonGenerator(getIOContext(), 0, null, null).version(),
                     MAJOR_VERSION, MINOR_VERSION);
         } else {
-            System.out.println("Skipping version test (FROM_ANT=false)");
+            System.out.println("Skipping version test (test not running from Maven)");
         }
     }
 

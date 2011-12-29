@@ -13,8 +13,6 @@ public class JsonLocation
     /**
      * Shared immutable "N/A location" that can be returned to indicate
      * that no location information is available
-     *
-     * @since 1.3
      */
     public final static JsonLocation NA = new JsonLocation("N/A", -1L, -1L, -1, -1);
 
@@ -39,13 +37,8 @@ public class JsonLocation
         this(srcRef, -1L, totalChars, lineNr, colNr);
     }
 
-    // 22-Dec-2011, tatu: TODO: add deserializer for this type instead:
-    //@JsonCreator
-    public JsonLocation(/*@JsonProperty("sourceRef")*/ Object sourceRef,
-                        /*@JsonProperty("byteOffset")*/ long totalBytes,
-                        /*@JsonProperty("charOffset")*/ long totalChars,
-                        /*@JsonProperty("lineNr")*/ int lineNr,
-                        /*@JsonProperty("columnNr")*/ int columnNr)
+    public JsonLocation(Object sourceRef, long totalBytes, long totalChars,
+            int lineNr, int columnNr)
     {
         _sourceRef = sourceRef;
         _totalBytes = totalBytes;

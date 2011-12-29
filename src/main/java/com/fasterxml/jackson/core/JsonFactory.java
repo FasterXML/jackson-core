@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper;
+import com.fasterxml.jackson.core.json.CoreVersion;
 import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
@@ -211,8 +212,7 @@ public class JsonFactory implements Versioned
 
     @Override
     public Version version() {
-        // VERSION is included under impl, so can't pass this class:
-        return VersionUtil.versionFor(UTF8JsonGenerator.class);
+        return CoreVersion.instance.version();
     }
 
     /*

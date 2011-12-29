@@ -77,7 +77,7 @@ public final class ReaderBasedJsonParser
 
     @Override
     public Version version() {
-        return ModuleVersion.instance.version();
+        return CoreVersion.instance.version();
     }
     
     /*

@@ -196,8 +196,6 @@ public abstract class JsonGenerator
      * @param schema Schema to use
      * 
      * @throws UnsupportedOperationException if generator does not support schema
-     * 
-     * @since 1.8
      */
     public void setSchema(FormatSchema schema)
     {
@@ -212,20 +210,16 @@ public abstract class JsonGenerator
      * @param schema Schema to check
      * 
      * @return True if this generator can use given schema; false if not
-     * 
-     * @since 1.8
      */
     public boolean canUseSchema(FormatSchema schema) {
         return false;
     }
     
     /**
-     * @since 1.6
+     * Accessor for finding out version of the bundle that provided this generator instance.
      */
     @Override
-    public Version version() {
-        return Version.unknownVersion();
-    }
+    public abstract Version version();
 
     /**
      * Method that can be used to get access to object that is used

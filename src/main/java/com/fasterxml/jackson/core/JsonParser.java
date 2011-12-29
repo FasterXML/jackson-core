@@ -323,11 +323,10 @@ public abstract class JsonParser
     
     /**
      * Accessor for getting version of the core package, given a parser instance.
+     * Left for sub-classes to implement.
      */
     @Override
-    public Version version() {
-        return Version.unknownVersion();
-    }
+    public abstract Version version();
 
     /**
      * Method that can be used to get access to object that is used

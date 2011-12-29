@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * Intermediate base class used by all Jackson {@link JsonParser}
@@ -15,8 +16,6 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
  * Note that 'minimal' here mostly refers to minimal number of fields
  * (size) and functionality that is specific to certain types
  * of parser implementations; but not necessarily to number of methods.
- * 
- * @since 1.6
  *
  * @author Tatu Saloranta
  */
@@ -61,6 +60,11 @@ public abstract class ParserMinimalBase
         super(features);
     }
 
+    @Override
+    public Version version() {
+        return VersionUtil.versionFor(getClass());
+    }
+    
     /*
     /**********************************************************
     /* Configuration overrides if any

@@ -133,6 +133,11 @@ public final class UTF8StreamJsonParser
         _objectCodec = c;
     }
 
+    @Override
+    public Version version() {
+        return ModuleVersion.instance.version();
+    }
+    
     /*
     /**********************************************************
     /* Former StreamBasedParserBase methods

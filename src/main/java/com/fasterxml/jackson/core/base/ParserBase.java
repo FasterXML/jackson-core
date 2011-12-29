@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * Intermediate base class used by all Jackson {@link JsonParser}
@@ -296,11 +295,6 @@ public abstract class ParserBase
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
         _parsingContext = JsonReadContext.createRootContext();
-    }
-    
-    @Override
-    public Version version() {
-        return VersionUtil.versionFor(getClass());
     }
     
     /*

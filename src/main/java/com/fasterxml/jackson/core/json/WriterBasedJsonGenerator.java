@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.*;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * {@link JsonGenerator} that outputs JSON content using a {@link java.io.Writer}
@@ -64,16 +65,12 @@ public final class WriterBasedJsonGenerator
      * Definition of custom character escapes to use for generators created
      * by this factory, if any. If null, standard data format specific
      * escapes are used.
-     * 
-     * @since 1.8
      */
     protected CharacterEscapes _characterEscapes;
 
     /**
      * When custom escapes are used, this member variable can be used to
      * store escape to use
-     * 
-     * @since 1.8
      */
     protected SerializableString _currentEscape;
 
@@ -131,7 +128,12 @@ public final class WriterBasedJsonGenerator
             setHighestNonEscapedChar(127);
         }
     }
- 
+
+    @Override
+    public Version version() {
+        return VersionUtil.versionFor(getClass());
+    }
+    
     /*
     /**********************************************************
     /* Overridden configuration methods
@@ -164,8 +166,6 @@ public final class WriterBasedJsonGenerator
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
-     * 
-     * @since 1.8
      */
     @Override
     public CharacterEscapes getCharacterEscapes() {
@@ -1178,7 +1178,6 @@ public final class WriterBasedJsonGenerator
     /**********************************************************
     /* Internal methods, low-level writing, text segment
     /* with additional escaping (ASCII or such)
-    /* (since 1.8; see [JACKSON-102])
     /**********************************************************
      */
 
@@ -1323,7 +1322,6 @@ public final class WriterBasedJsonGenerator
     /**********************************************************
     /* Internal methods, low-level writing, text segment
     /* with custom escaping (possibly coupling with ASCII limits)
-    /* (since 1.8; see [JACKSON-106])
     /**********************************************************
      */
 

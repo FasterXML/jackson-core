@@ -7,12 +7,52 @@ import com.fasterxml.jackson.core.Version;
 
 /**
  * Functionality for supporting exposing of component {@link Version}s.
+ *<p>
+ * Note that this class can be used in two roles: first, as a static
+ * utility class for loading purposes, and second, as a singleton
+ * loader of per-module version information.
+ * In latter case one must sub-class to get proper per-module instance;
+ * and sub-class must reside in same Java package as matching "VERSION.txt"
+ * file.
  */
 public class VersionUtil
 {
     public final static String VERSION_FILE = "VERSION.txt";
 
     private final static Pattern VERSION_SEPARATOR = Pattern.compile("[-_./;:]");
+
+    private final Version _version;
+
+    /*
+    /**********************************************************
+    /* Instance life-cycle, accesso
+    /**********************************************************
+     */
+    
+    protected VersionUtil()
+    {
+        Version v = null;
+        try {
+            /* Class we pass only matters for resource-loading: can't use this Class
+             * (as it's just being loaded at this point), nor anything that depends on it.
+             */
+            v = VersionUtil.versionFor(getClass());
+        } catch (Exception e) { // not good to dump to stderr; but that's all we have at this low level
+            System.err.println("ERROR: Failed to load Version information for bundle (via "+getClass().getName()+").");
+        }
+        if (v == null) {
+            v = Version.unknownVersion();
+        }
+        _version = v;
+    }
+
+    public Version version() { return _version; }
+    
+    /*
+    /**********************************************************
+    /* Static load methods
+    /**********************************************************
+     */
     
     /**
      * Helper method that will try to load version information for specified

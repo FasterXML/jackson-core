@@ -65,9 +65,6 @@ public final class JsonReadContext
         return new JsonReadContext(null, TYPE_ROOT, lineNr, colNr);
     }
 
-    /**
-     * @since 1.9
-     */
     public static JsonReadContext createRootContext()
     {
         return new JsonReadContext(null, TYPE_ROOT, 1, 0);

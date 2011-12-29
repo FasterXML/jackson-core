@@ -75,6 +75,11 @@ public final class ReaderBasedJsonParser
         _symbols = st;
     }
 
+    @Override
+    public Version version() {
+        return ModuleVersion.instance.version();
+    }
+    
     /*
     /**********************************************************
     /* Base method defs, overrides

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 public class UTF8JsonGenerator
     extends GeneratorBase
@@ -92,8 +93,6 @@ public class UTF8JsonGenerator
      * Definition of custom character escapes to use for generators created
      * by this factory, if any. If null, standard data format specific
      * escapes are used.
-     * 
-     * @since 1.8
      */
     protected CharacterEscapes _characterEscapes;
     
@@ -201,6 +200,11 @@ public class UTF8JsonGenerator
         }
     }
 
+    @Override
+    public Version version() {
+        return VersionUtil.versionFor(getClass());
+    }
+    
     /*
     /**********************************************************
     /* Overridden configuration methods

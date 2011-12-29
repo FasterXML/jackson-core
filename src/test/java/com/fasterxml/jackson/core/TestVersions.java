@@ -9,9 +9,7 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
  */
 public class TestVersions extends com.fasterxml.jackson.test.BaseTest
 {
-    /**
-     * 18-Nov-2010, tatu: Not a good to do this, but has to do, for now...
-     */
+    // 18-Nov-2010, tatu: Not a good to do this, but has to do, for now...
     private final static int MAJOR_VERSION = 2;
     private final static int MINOR_VERSION = 0;
     

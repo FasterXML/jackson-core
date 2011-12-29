@@ -29,7 +29,6 @@ import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
 import com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * The main factory class of Jackson package, used to configure and

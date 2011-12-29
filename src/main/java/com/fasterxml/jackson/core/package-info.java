@@ -8,9 +8,8 @@
  * instances.
  * <p>
  * Public API of the higher-level mapping interfaces ("Mapping API")
- * is found from
- * under {@link org.codehaus.jackson.map} and not included here,
- * except for following base interfaces:
+ * is found from the "jackson-databind" bundle, except for following
+ * base interfaces that are defined here:
  * <ul>
  *<li>{@link com.fasterxml.jackson.core.JsonNode} is included
  *within Streaming API to support integration of the Tree Model

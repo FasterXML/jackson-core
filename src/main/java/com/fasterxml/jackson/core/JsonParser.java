@@ -1251,8 +1251,8 @@ public abstract class JsonParser
      * parameterized (generic) container type.
      * <b>Note</b>: method can only be called if the parser has
      * an object codec assigned; this is true for parsers constructed
-     * by {@link org.codehaus.jackson.map.MappingJsonFactory} but
-     * not for {@link JsonFactory} (unless its <code>setCodec</code>
+     * by <code>MappingJsonFactory</code> (defined in 'jackson-databind' bundle)
+     * but not for {@link JsonFactory} (unless its <code>setCodec</code>
      * method has been explicitly called).
      *<p>
      * This method may advance the event stream, for structured types

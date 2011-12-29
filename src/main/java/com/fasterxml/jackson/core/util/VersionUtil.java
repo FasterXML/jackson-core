@@ -7,8 +7,6 @@ import com.fasterxml.jackson.core.Version;
 
 /**
  * Functionality for supporting exposing of component {@link Version}s.
- * 
- * @since 1.6
  */
 public class VersionUtil
 {

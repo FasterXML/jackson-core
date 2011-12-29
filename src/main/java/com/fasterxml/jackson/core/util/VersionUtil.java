@@ -28,7 +28,7 @@ public class VersionUtil
     {
         InputStream in;
         Version version = null;
-        
+
         try {
             in = cls.getResourceAsStream(VERSION_FILE);
             if (in != null) {

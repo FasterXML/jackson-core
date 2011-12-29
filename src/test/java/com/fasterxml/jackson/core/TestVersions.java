@@ -15,22 +15,14 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
     private final static int MAJOR_VERSION = 2;
     private final static int MINOR_VERSION = 0;
     
+    private final static String GROUP_ID = "com.fasterxml.jackson.core";
+    private final static String ARTIFACT_ID = "jackson-core";
+    
     public void testCoreVersions()
     {
-        /* 01-Sep-2010, tatu: Somewhat of a dirty hack; let's only run when specific system
-         *    property is set; and set that flag from Ant unit test. Why? To prevent running
-         *    from Eclipse, where this would just fail
-         */
-        if (runsFromMaven()) {
-            System.out.println("Note: running version tests (FROM_ANT=true)");
-            assertVersion(new JsonFactory().version(), MAJOR_VERSION, MINOR_VERSION);
-            assertVersion(new ReaderBasedJsonParser(getIOContext(), 0, null, null, null).version(),
-                    MAJOR_VERSION, MINOR_VERSION);
-            assertVersion(new WriterBasedJsonGenerator(getIOContext(), 0, null, null).version(),
-                    MAJOR_VERSION, MINOR_VERSION);
-        } else {
-            System.out.println("Skipping version test (test not running from Maven)");
-        }
+        assertVersion(new JsonFactory().version());
+        assertVersion(new ReaderBasedJsonParser(getIOContext(), 0, null, null, null).version());
+        assertVersion(new WriterBasedJsonGenerator(getIOContext(), 0, null, null).version());
     }
 
     /*
@@ -39,14 +31,17 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
     /**********************************************************
      */
     
-    private void assertVersion(Version v, int major, int minor)
+    private void assertVersion(Version v)
     {
         assertFalse("Should find version information (got "+v+")", v.isUknownVersion());
-        assertEquals(major, v.getMajorVersion());
-        assertEquals(minor, v.getMinorVersion());
-        // 07-Jan-2011, tatus: Check patch level initially, comment out for maint versions
+        assertEquals(MAJOR_VERSION, v.getMajorVersion());
+        assertEquals(MINOR_VERSION, v.getMinorVersion());
+        // Check patch level initially, comment out for maint versions
+        assertEquals(0, v.getPatchLevel());
 
-        //assertEquals(0, v.getPatchLevel());
+        // also, group & artifact ids should match:
+        assertEquals(GROUP_ID, v.getGroupId());
+        assertEquals(ARTIFACT_ID, v.getArtifactId());
     }
 
     private IOContext getIOContext() {

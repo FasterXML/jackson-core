@@ -1,35 +1,52 @@
 package com.fasterxml.jackson.core;
 
 /**
- * Object that encapsulates version information of a component,
- * and is return by {@link Versioned#version}.
- * 
- * @since 1.6
+ * Object that encapsulates versioning information of a component.
+ * Version information includes not just version number but also
+ * optionally group and artifact ids of the component being versioned.
+ *<p>
+ * Note that optional group and artifact id properties are new with Jackson 2.0:
+ * if provided, they should align with Maven artifact information.
  */
 public class Version
     implements Comparable<Version>
 {
-    private final static Version UNKNOWN_VERSION = new Version(0, 0, 0, null);
-
+    private final static Version UNKNOWN_VERSION = new Version(0, 0, 0, null, null, null);
+    
     protected final int _majorVersion;
 
     protected final int _minorVersion;
 
     protected final int _patchLevel;
 
+    protected final String _groupId;
+    
+    protected final String _artifactId;
+    
     /**
      * Additional information for snapshot versions; null for non-snapshot
      * (release) versions.
      */
     protected final String _snapshotInfo;
+
+    /**
+     * @deprecated Use variant that takes group and artifact ids
+     */
+    @Deprecated
+    public Version(int major, int minor, int patchLevel, String snapshotInfo)
+    {
+        this(major, minor, patchLevel, snapshotInfo, null, null);
+    }
     
-    public Version(int major, int minor, int patchLevel,
-            String snapshotInfo)
+    public Version(int major, int minor, int patchLevel, String snapshotInfo,
+            String groupId, String artifactId)
     {
         _majorVersion = major;
         _minorVersion = minor;
         _patchLevel = patchLevel;
         _snapshotInfo = snapshotInfo;
+        _groupId = (groupId == null) ? "" : groupId;
+        _artifactId = (artifactId == null) ? "" : artifactId;
     }
 
     /**
@@ -45,6 +62,9 @@ public class Version
     public int getMinorVersion() { return _minorVersion; }
     public int getPatchLevel() { return _patchLevel; }
 
+    public String getGroupId() { return _groupId; }
+    public String getArtifactId() { return _artifactId; }
+    
     @Override
     public String toString()
     {
@@ -60,7 +80,7 @@ public class Version
 
     @Override
     public int hashCode() {
-        return _majorVersion + _minorVersion + _patchLevel;
+        return _artifactId.hashCode() ^ _groupId.hashCode() + _majorVersion - _minorVersion + _patchLevel;
     }
 
     @Override
@@ -72,17 +92,28 @@ public class Version
         Version other = (Version) o;
         return (other._majorVersion == _majorVersion)
             && (other._minorVersion == _minorVersion)
-            && (other._patchLevel == _patchLevel);
+            && (other._patchLevel == _patchLevel)
+            && other._artifactId.equals(_artifactId)
+            && other._groupId.equals(_groupId)
+            ;
     }
 
     @Override
     public int compareTo(Version other)
     {
-        int diff = _majorVersion - other._majorVersion;
+        if (other == this) return 0;
+        
+        int diff = _groupId.compareTo(other._groupId);
         if (diff == 0) {
-            diff = _minorVersion - other._minorVersion;
+            diff = _artifactId.compareTo(other._artifactId);
             if (diff == 0) {
-                diff = _patchLevel - other._patchLevel;
+                diff = _majorVersion - other._majorVersion;
+                if (diff == 0) {
+                    diff = _minorVersion - other._minorVersion;
+                    if (diff == 0) {
+                        diff = _patchLevel - other._patchLevel;
+                    }
+                }
             }
         }
         return diff;

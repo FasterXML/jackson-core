@@ -266,14 +266,6 @@ public abstract class BaseTest
         // First, via textual
         assertEquals(String.valueOf(expValue), jp.getText());
     }
-
-    /**
-     * Method that checks whether Unit tests appear to run from Ant build
-     * scripts.
-     */
-    protected static boolean runsFromMaven() {
-        return true;
-    }
     
     /*
     /**********************************************************

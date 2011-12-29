@@ -32,7 +32,19 @@ public class VersionUtil
             if (in != null) {
                 try {
                     BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                    version = parseVersion(br.readLine());
+                    String groupStr = null, artifactStr = null;
+                    String versionStr = br.readLine();
+                    if (versionStr != null) {
+                        groupStr = br.readLine();
+                        if (groupStr != null) {
+                            groupStr = groupStr.trim();
+                            artifactStr = br.readLine();
+                            if (artifactStr != null) {
+                                artifactStr = artifactStr.trim();
+                            }
+                        }
+                    }
+                    version = parseVersion(versionStr, groupStr, artifactStr);
                 } finally {
                     try {
                         in.close();
@@ -45,21 +57,33 @@ public class VersionUtil
         return (version == null) ? Version.unknownVersion() : version;
     }
 
-    public static Version parseVersion(String versionStr)
+    /**
+     * Use variant that takes three arguments instead
+     * 
+     * @deprecated
+     */
+    @Deprecated
+    public static Version parseVersion(String versionStr) {
+        return parseVersion(versionStr, null, null);
+    }
+
+    public static Version parseVersion(String versionStr, String groupId, String artifactId)
     {
-        if (versionStr == null) return null;
-        versionStr = versionStr.trim();
-        if (versionStr.length() == 0) return null;
-        String[] parts = VERSION_SEPARATOR.split(versionStr);
-        // Let's not bother if there's no separate parts; otherwise use whatever we got
-        if (parts.length < 2) {
+        if (versionStr == null) {
             return null;
         }
+        versionStr = versionStr.trim();
+        if (versionStr.length() == 0) {
+            return null;
+        }
+        String[] parts = VERSION_SEPARATOR.split(versionStr);
         int major = parseVersionPart(parts[0]);
-        int minor = parseVersionPart(parts[1]);
+        int minor = (parts.length > 1) ? parseVersionPart(parts[1]) : 0;
         int patch = (parts.length > 2) ? parseVersionPart(parts[2]) : 0;
         String snapshot = (parts.length > 3) ? parts[3] : null;
-        return new Version(major, minor, patch, snapshot);
+
+        return new Version(major, minor, patch, snapshot,
+                groupId, artifactId);
     }
 
     protected static int parseVersionPart(String partStr)

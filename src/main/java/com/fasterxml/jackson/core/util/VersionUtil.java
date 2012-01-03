@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.*;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.Version;
@@ -95,6 +96,41 @@ public class VersionUtil
             }
         } catch (IOException e) { }
         return (version == null) ? Version.unknownVersion() : version;
+    }
+
+    /**
+     * Will attempt to load the maven version for the given groupId and
+     * artifactId.  Maven puts a pom.properties file in
+     * META-INF/maven/groupId/artifactId, containing the groupId,
+     * artifactId and version of the library.
+     *
+     * @param classLoader the ClassLoader to load the pom.properties file from
+     * @param groupId the groupId of the library
+     * @param artifactId the artifactId of the library
+     * @return The version
+     */
+    public static Version mavenVersionFor(ClassLoader classLoader, String groupId, String artifactId) {
+        InputStream pomPoperties = classLoader.getResourceAsStream("META-INF/maven/" + groupId.replaceAll("\\.", "/")
+                + "/" + artifactId + "/pom.properties");
+        if (pomPoperties != null) {
+            try {
+                Properties props = new Properties();
+                props.load(pomPoperties);
+                String versionStr = props.getProperty("version");
+                String pomPropertiesArtifactId = props.getProperty("artifactId");
+                String pomPropertiesGroupId = props.getProperty("groupId");
+                return parseVersion(versionStr, pomPropertiesGroupId, pomPropertiesArtifactId);
+            } catch (IOException e) {
+                // Ignore
+            } finally {
+                try {
+                    pomPoperties.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
+        return Version.unknownVersion();
     }
 
     /**

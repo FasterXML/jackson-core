@@ -316,6 +316,11 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
+    public Object getEmbeddedObject() throws IOException, JsonParseException {
+        return null;
+    }
+
+    @Override
     public byte[] getBinaryValue(Base64Variant b64variant)
         throws IOException, JsonParseException
     {

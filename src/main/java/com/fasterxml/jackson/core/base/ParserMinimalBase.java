@@ -51,6 +51,26 @@ public abstract class ParserMinimalBase
 
     /*
     /**********************************************************
+    /* Minimal generally useful state
+    /**********************************************************
+     */
+    
+    /**
+     * Last token retrieved via {@link #nextToken}, if any.
+     * Null before the first call to <code>nextToken()</code>,
+     * as well as if token has been explicitly cleared
+     * (by call to {@link #clearCurrentToken})
+     */
+    protected JsonToken _currToken;
+
+    /**
+     * Last cleared token, if any: that is, value that was in
+     * effect when {@link #clearCurrentToken} was called.
+     */
+    protected JsonToken _lastClearedToken;
+    
+    /*
+    /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
@@ -87,7 +107,43 @@ public abstract class ParserMinimalBase
     @Override
     public abstract JsonToken nextToken() throws IOException, JsonParseException;
 
-    //public final JsonToken nextValue()
+    @Override
+    public JsonToken getCurrentToken() {
+        return _currToken;
+    }
+
+    @Override
+    public boolean hasCurrentToken() {
+        return _currToken != null;
+    }
+    
+    @Override
+    public void clearCurrentToken() {
+        if (_currToken != null) {
+            _lastClearedToken = _currToken;
+            _currToken = null;
+        }
+    }
+
+    @Override
+    public JsonToken getLastClearedToken() {
+        return _lastClearedToken;
+    }
+    
+    @Override
+    public JsonToken nextValue()
+        throws IOException, JsonParseException
+    {
+        /* Implementation should be as trivial as follows; only
+         * needs to change if we are to skip other tokens (for
+         * example, if comments were exposed as tokens)
+         */
+        JsonToken t = nextToken();
+        if (t == JsonToken.FIELD_NAME) {
+            t = nextToken();
+        }
+        return t;
+    }
 
     @Override
     public JsonParser skipChildren() throws IOException, JsonParseException

@@ -246,26 +246,6 @@ public abstract class JsonParser
 
     /*
     /**********************************************************
-    /* Minimal generic state
-    /**********************************************************
-     */
-
-    /**
-     * Last token retrieved via {@link #nextToken}, if any.
-     * Null before the first call to <code>nextToken()</code>,
-     * as well as if token has been explicitly cleared
-     * (by call to {@link #clearCurrentToken})
-     */
-    protected JsonToken _currToken;
-
-    /**
-     * Last cleared token, if any: that is, value that was in
-     * effect when {@link #clearCurrentToken} was called.
-     */
-    protected JsonToken _lastClearedToken;
-
-    /*
-    /**********************************************************
     /* Construction, configuration, initialization
     /**********************************************************
      */
@@ -498,19 +478,8 @@ public abstract class JsonParser
      *   parsers, {@link JsonToken#NOT_AVAILABLE} if no tokens were
      *   available yet)
      */
-    public JsonToken nextValue()
-        throws IOException, JsonParseException
-    {
-        /* Implementation should be as trivial as follows; only
-         * needs to change if we are to skip other tokens (for
-         * example, if comments were exposed as tokens)
-         */
-        JsonToken t = nextToken();
-        if (t == JsonToken.FIELD_NAME) {
-            t = nextToken();
-        }
-        return t;
-    }
+    public abstract JsonToken nextValue()
+        throws IOException, JsonParseException;
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
@@ -652,9 +621,7 @@ public abstract class JsonParser
      *   after end-of-input has been encountered, as well as
      *   if the current token has been explicitly cleared.
      */
-    public JsonToken getCurrentToken() {
-        return _currToken;
-    }
+    public abstract JsonToken getCurrentToken();
 
     /**
      * Method for checking whether parser currently points to
@@ -667,10 +634,7 @@ public abstract class JsonParser
      *   and returned null from {@link #nextToken}, or the token
      *   has been consumed)
      */
-    public boolean hasCurrentToken() {
-        return _currToken != null;
-    }
-
+    public abstract boolean hasCurrentToken();
 
     /**
      * Method called to "consume" the current token by effectively
@@ -684,12 +648,7 @@ public abstract class JsonParser
      * it has to be able to consume last token used for binding (so that
      * it will not be used again).
      */
-    public void clearCurrentToken() {
-        if (_currToken != null) {
-            _lastClearedToken = _currToken;
-            _currToken = null;
-        }
-    }
+    public abstract void clearCurrentToken();
 
     /**
      * Method that can be called to get the name associated with
@@ -733,9 +692,7 @@ public abstract class JsonParser
      * Will return null if no tokens have been cleared,
      * or if parser has been closed.
      */
-    public JsonToken getLastClearedToken() {
-        return _lastClearedToken;
-    }
+    public abstract JsonToken getLastClearedToken();
 
     /**
      * Specialized accessor that can be used to verify that the current
@@ -840,9 +797,7 @@ public abstract class JsonParser
      *   be efficiently returned via {@link #getTextCharacters}; false
      *   means that it may or may not exist
      */
-    public boolean hasTextCharacters() {
-        return false;
-    }
+    public abstract boolean hasTextCharacters();
     
     /*
     /**********************************************************
@@ -1019,9 +974,10 @@ public abstract class JsonParser
     public boolean getBooleanValue()
         throws IOException, JsonParseException
     {
-        if (_currToken == JsonToken.VALUE_TRUE) return true;
-        if (_currToken == JsonToken.VALUE_FALSE) return false;
-        throw new JsonParseException("Current token ("+_currToken+") not of boolean type", getCurrentLocation());
+        JsonToken t = getCurrentToken();
+        if (t == JsonToken.VALUE_TRUE) return true;
+        if (t == JsonToken.VALUE_FALSE) return false;
+        throw new JsonParseException("Current token ("+t+") not of boolean type", getCurrentLocation());
     }
 
     /**
@@ -1033,12 +989,8 @@ public abstract class JsonParser
      * embedding of objects (usually ones that are facades on top
      * of non-streaming sources, such as object trees).
      */
-    public Object getEmbeddedObject()
-        throws IOException, JsonParseException
-    {
-        // By default we will always return null
-        return null;
-    }
+    public abstract Object getEmbeddedObject()
+        throws IOException, JsonParseException;
 
     /*
     /**********************************************************

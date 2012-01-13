@@ -218,6 +218,26 @@ public class JsonParserDelegate extends JsonParser
     public Number getNumberValue() throws IOException, JsonParseException {
         return delegate.getNumberValue();
     }
+    
+    /*
+    /**********************************************************
+    /* Public API, access to token information, other
+    /**********************************************************
+     */
+    
+    @Override
+    public boolean getBooleanValue()
+        throws IOException, JsonParseException
+    {
+        return delegate.getBooleanValue();
+    }
+
+    @Override
+    public Object getEmbeddedObject()
+        throws IOException, JsonParseException
+    {
+        return delegate.getEmbeddedObject();
+    }
 
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException {

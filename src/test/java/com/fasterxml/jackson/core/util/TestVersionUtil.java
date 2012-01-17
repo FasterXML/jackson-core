@@ -14,6 +14,7 @@ public class TestVersionUtil extends com.fasterxml.jackson.test.BaseTest
 
     public void testVersionParsing()
     {
-        assertEquals(new Version(1, 2, 15, "foo"), VersionUtil.parseVersion("1.2.15-foo"));
+        assertEquals(new Version(1, 2, 15, "foo", "group", "artifact"),
+                VersionUtil.parseVersion("1.2.15-foo", "group", "artifact"));
     }
 }

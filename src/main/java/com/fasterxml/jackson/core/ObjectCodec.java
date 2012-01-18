@@ -140,5 +140,5 @@ public abstract class ObjectCodec
      * iterate over contents of the tree, and using that parser for data binding.
      */
     public abstract <T> T treeToValue(JsonNode n, Class<T> valueType)
-        throws IOException, JsonProcessingException;
+        throws JsonProcessingException;
 }

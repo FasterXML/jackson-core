@@ -104,6 +104,7 @@ public abstract class JsonNode
     public boolean isNumber() { return false; }
 
     /**
+     * 
      * @return True if this node represents an integral (integer)
      *   numeric JSON value
      */
@@ -116,15 +117,26 @@ public abstract class JsonNode
     public boolean isFloatingPointNumber() { return false; }
 
     /**
-     * @return True if this node represents an integral
-     *   numeric JSON value that withs in Java int value space
+     * Method that can be used to check whether contained value
+     * is a number represented as Java <code>int</code>.
+     * Note, however, that even if this method returns false, it
+     * is possible that conversion would be possible from other numeric
+     * types -- to check if this is possible, use
+     * {@link #canConvertToInt()} instead.
+     * 
+     * @return True if the value contained by this node is stored as Java int
      */
     public boolean isInt() { return false; }
 
     /**
-     * @return True if this node represents an integral
-     *   numeric JSON value that fits in Java long value space
-     *   (but not int value space, i.e. {@link #isInt} returns false)
+     * Method that can be used to check whether contained value
+     * is a number represented as Java <code>long</code>.
+     * Note, however, that even if this method returns false, it
+     * is possible that conversion would be possible from other numeric
+     * types -- to check if this is possible, use
+     * {@link #canConvertToInt()} instead.
+     * 
+     * @return True if the value contained by this node is stored as Java <code>long</code>
      */
     public boolean isLong() { return false; }
 

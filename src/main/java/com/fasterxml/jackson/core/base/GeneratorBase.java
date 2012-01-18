@@ -162,6 +162,10 @@ public abstract class GeneratorBase
     /**********************************************************
      */
 
+    public void writeFieldName(SerializableString name) throws IOException, JsonGenerationException {
+        writeFieldName(name.getValue());
+    }
+    
     //public abstract void writeString(String text) throws IOException, JsonGenerationException;
 
     //public abstract void writeString(char[] text, int offset, int len) throws IOException, JsonGenerationException;
@@ -171,8 +175,12 @@ public abstract class GeneratorBase
     //public abstract void writeRaw(char[] text, int offset, int len) throws IOException, JsonGenerationException;
 
     @Override
-    public void writeRawValue(String text)
-        throws IOException, JsonGenerationException
+    public void writeString(SerializableString text) throws IOException, JsonGenerationException {
+        writeString(text.getValue());
+    }
+    
+    @Override
+    public void writeRawValue(String text) throws IOException, JsonGenerationException
     {
         _verifyValueWrite("write raw value");
         writeRaw(text);

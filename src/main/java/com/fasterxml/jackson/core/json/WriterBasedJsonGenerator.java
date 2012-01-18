@@ -204,18 +204,6 @@ public final class WriterBasedJsonGenerator
         writeFieldName(fieldName);
         writeString(value);
     }
-    
-    @Override
-    public final void writeFieldName(SerializedString name)
-        throws IOException, JsonGenerationException
-    {
-        // Object is a value, need to verify it's allowed
-        int status = _writeContext.writeFieldName(name.getValue());
-        if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a field name, expecting a value");
-        }
-        _writeFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
-    }
 
     @Override
     public final void writeFieldName(SerializableString name)

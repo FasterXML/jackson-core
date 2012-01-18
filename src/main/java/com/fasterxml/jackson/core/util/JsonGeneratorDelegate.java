@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
 
 public class JsonGeneratorDelegate extends JsonGenerator
 {
@@ -124,13 +123,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeFieldName(String name)
-        throws IOException, JsonGenerationException
-    {
-        delegate.writeFieldName(name);
-    }
-
-    @Override
-    public void writeFieldName(SerializedString name)
         throws IOException, JsonGenerationException
     {
         delegate.writeFieldName(name);

@@ -6,11 +6,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.GeneratorBase;
-import com.fasterxml.jackson.core.io.CharTypes;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.NumberOutput;
-import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 public class UTF8JsonGenerator
@@ -237,8 +233,6 @@ public class UTF8JsonGenerator
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
-     * 
-     * @since 1.8
      */
     @Override
     public CharacterEscapes getCharacterEscapes() {
@@ -279,28 +273,6 @@ public class UTF8JsonGenerator
             return;
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) { // need comma
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail++] = BYTE_COMMA;
-        }
-        _writeFieldName(name);
-    }
-    
-    @Override
-    public final void writeFieldName(SerializedString name)
-        throws IOException, JsonGenerationException
-    {
-        // Object is a value, need to verify it's allowed
-        int status = _writeContext.writeFieldName(name.getValue());
-        if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a field name, expecting a value");
-        }
-        if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
-            return;
-        }
-        if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
@@ -442,29 +414,29 @@ public class UTF8JsonGenerator
     protected final void _writeFieldName(SerializableString name)
         throws IOException, JsonGenerationException
     {
-        byte[] raw = name.asQuotedUTF8();
         if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
-            _writeBytes(raw);
+            int len = name.appendQuotedUTF8(_outputBuffer, _outputTail); // different quoting (escaping)
+            if (len < 0) {
+                _writeBytes(name.asQuotedUTF8());
+            } else {
+                _outputTail += len;
+            }
             return;
         }
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
-
-        // Can do it all in buffer?
-        final int len = raw.length;
-        if ((_outputTail + len + 1) < _outputEnd) { // yup
-            System.arraycopy(raw, 0, _outputBuffer, _outputTail, len);
-            _outputTail += len;
-            _outputBuffer[_outputTail++] = BYTE_QUOTE;
+        int len = name.appendQuotedUTF8(_outputBuffer, _outputTail);
+        if (len < 0) { // couldn't append, bit longer processing
+            _writeBytes(name.asQuotedUTF8());
         } else {
-            _writeBytes(raw);
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail++] = BYTE_QUOTE;
+            _outputTail += len;
         }
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }    
     
     /**
@@ -575,7 +547,7 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
-
+    
     private final void _writeLongString(String text)
         throws IOException, JsonGenerationException
     {
@@ -638,7 +610,12 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        _writeBytes(text.asQuotedUTF8());
+        int len = text.appendQuotedUTF8(_outputBuffer, _outputTail);
+        if (len < 0) {
+            _writeBytes(text.asQuotedUTF8());
+        } else {
+            _outputTail += len;
+        }
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -1341,15 +1318,12 @@ public class UTF8JsonGenerator
     /**********************************************************
     /* Internal methods, low-level writing, text segment
     /* with additional escaping (ASCII or such)
-    /* (since 1.8; see [JACKSON-102])
     /**********************************************************
      */
 
     /**
      * Same as <code>_writeStringSegment2(char[], ...)</code., but with
      * additional escaping for high-range code points
-     * 
-     * @since 1.8
      */
     private final void _writeStringSegmentASCII2(final char[] cbuf, int offset, final int end)
         throws IOException, JsonGenerationException
@@ -1406,8 +1380,6 @@ public class UTF8JsonGenerator
     /**
      * Same as <code>_writeStringSegmentASCII2(char[], ...)</code., but with
      * additional checking for completely custom escapes
-     * 
-     * @since 1.8
      */
     private final void _writeCustomStringSegment2(final char[] cbuf, int offset, final int end)
         throws IOException, JsonGenerationException

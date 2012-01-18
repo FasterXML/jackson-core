@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.io.SerializedString;
 
 /**
  * Base class that defines public API for writing JSON content.
@@ -99,8 +98,6 @@ public abstract class JsonGenerator
          * accurately represent (as mantissa is only 51 bit wide).
          *<p>
          * Feature is disabled by default.
-         *
-         * @since 1.3
          */
         WRITE_NUMBERS_AS_STRINGS(false),
 
@@ -114,8 +111,6 @@ public abstract class JsonGenerator
          * party libraries).
          *<p>
          * Feature is enabled by default.
-         * 
-         * @since 1.7
          */
         FLUSH_PASSED_TO_STREAM(true),
         
@@ -125,8 +120,6 @@ public abstract class JsonGenerator
          * using format-specific escapes (for JSON, backslash escapes),
          * if format uses escaping mechanisms (which is generally true
          * for textual formats but not for binary formats).
-         * 
-         * @since 1.8
          */
         ESCAPE_NON_ASCII(false)
         
@@ -479,33 +472,9 @@ public abstract class JsonGenerator
      * Default implementation simple uses unprocessed name container in
      * serialized String; implementations are strongly encouraged to make
      * use of more efficient methods argument object has.
-     * 
-     * @since 1.6
      */
-    public void writeFieldName(SerializedString name)
-        throws IOException, JsonGenerationException
-    {
-        writeFieldName(name.getValue());
-    }
-
-    /**
-     * Method similar to {@link #writeFieldName(String)}, main difference
-     * being that it may perform better as some of processing (such as
-     * quoting of certain characters, or encoding into external encoding
-     * if supported by generator) can be done just once and reused for
-     * later calls.
-     *<p>
-     * Default implementation simple uses unprocessed name container in
-     * serialized String; implementations are strongly encouraged to make
-     * use of more efficient methods argument object has.
-     * 
-     * @since 1.7
-     */
-    public void writeFieldName(SerializableString name)
-        throws IOException, JsonGenerationException
-    {
-        writeFieldName(name.getValue());
-    }
+    public abstract void writeFieldName(SerializableString name)
+        throws IOException, JsonGenerationException;
 
     /*
     /**********************************************************
@@ -542,14 +511,9 @@ public abstract class JsonGenerator
      * Default implementation just calls {@link #writeString(String)};
      * sub-classes should override it with more efficient implementation
      * if possible.
-     * 
-     * @since 1.7
      */
-    public void writeString(SerializableString text)
-        throws IOException, JsonGenerationException
-    {
-        writeString(text.getValue());
-    }
+    public abstract void writeString(SerializableString text)
+        throws IOException, JsonGenerationException;
 
     /**
      * Method similar to {@link #writeString(String)} but that takes as
@@ -564,8 +528,6 @@ public abstract class JsonGenerator
      * If so, implementation may instead choose to throw a
      * {@link UnsupportedOperationException} due to ineffectiveness
      * of having to decode input.
-     * 
-     * @since 1.7
      */
     public abstract void writeRawUTF8String(byte[] text, int offset, int length)
         throws IOException, JsonGenerationException;

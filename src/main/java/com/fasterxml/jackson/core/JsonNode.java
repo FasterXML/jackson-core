@@ -78,12 +78,12 @@ public abstract class JsonNode
     // // (along with defaults to be overridden)
 
     /**
-     * @return True if this node represents Json Array
+     * @return True if this node represents JSON Array
      */
     public boolean isArray() { return false; }
 
     /**
-     * @return True if this node represents Json Object
+     * @return True if this node represents JSON Object
      */
     public boolean isObject() { return false; }
 
@@ -98,32 +98,32 @@ public abstract class JsonNode
     public boolean isPojo() { return false; }
 
     /**
-     * @return True if this node represents a numeric Json
+     * @return True if this node represents a numeric JSON
      *   value
      */
     public boolean isNumber() { return false; }
 
     /**
      * @return True if this node represents an integral (integer)
-     *   numeric Json value
+     *   numeric JSON value
      */
     public boolean isIntegralNumber() { return false; }
 
     /**
      * @return True if this node represents a non-integral
-     *   numeric Json value
+     *   numeric JSON value
      */
     public boolean isFloatingPointNumber() { return false; }
 
     /**
      * @return True if this node represents an integral
-     *   numeric Json value that withs in Java int value space
+     *   numeric JSON value that withs in Java int value space
      */
     public boolean isInt() { return false; }
 
     /**
      * @return True if this node represents an integral
-     *   numeric Json value that fits in Java long value space
+     *   numeric JSON value that fits in Java long value space
      *   (but not int value space, i.e. {@link #isInt} returns false)
      */
     public boolean isLong() { return false; }
@@ -136,20 +136,20 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check if this node was created from
-     * Json boolean value (literals "true" and "false").
+     * JSON boolean value (literals "true" and "false").
      */
     public boolean isBoolean() { return false; }
 
     /**
      * Method that can be used to check if this node was created from
-     * Json liternal null value.
+     * JSON literal null value.
      */
     public boolean isNull() { return false; }
 
     /**
      * Method that can be used to check if this node represents
      * binary data (Base64 encoded). Although this will be externally
-     * written as Json String value, {@link #isTextual} will
+     * written as JSON String value, {@link #isTextual} will
      * return false if this method returns true.
      *
      * @return True if this node represents base64 encoded binary data
@@ -172,6 +172,28 @@ public abstract class JsonNode
      */
     public abstract JsonParser.NumberType getNumberType();
 
+    /**
+     * Method that can be used to check whether this node is a numeric
+     * node ({@link #isNumber} would return true) AND its value fits
+     * within Java's 32-bit signed integer type, <code>int</code>.
+     * Note that floating-point numbers are convertible if the integral
+     * part fits without overflow (as per standard Java coercion rules)
+     * 
+     * @since 2.0
+     */
+    public boolean canConvertToInt() { return false; }
+
+    /**
+     * Method that can be used to check whether this node is a numeric
+     * node ({@link #isNumber} would return true) AND its value fits
+     * within Java's 64-bit signed integer type, <code>long</code>.
+     * Note that floating-point numbers are convertible if the integral
+     * part fits without overflow (as per standard Java coercion rules)
+     * 
+     * @since 2.0
+     */
+    public boolean canConvertToLong() { return false; }
+    
     /*
     /**********************************************************
     /* Public API, straight value access
@@ -186,7 +208,7 @@ public abstract class JsonNode
      * For String values, null is never returned (but empty Strings may be)
      *
      * @return Textual value this node contains, iff it is a textual
-     *   json node (comes from Json String value entry)
+     *   JSON node (comes from JSON String value entry)
      */
     public String getTextValue() { return null; }
 
@@ -211,7 +233,7 @@ public abstract class JsonNode
      * For other types, always returns false.
      *
      * @return Textual value this node contains, iff it is a textual
-     *   json node (comes from Json String value entry)
+     *   json node (comes from JSON String value entry)
      */
     public boolean getBooleanValue() { return false; }
 

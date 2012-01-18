@@ -1,5 +1,9 @@
 package com.fasterxml.jackson.core.io;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+
 import com.fasterxml.jackson.core.SerializableString;
 
 /**
@@ -10,8 +14,6 @@ import com.fasterxml.jackson.core.SerializableString;
  *<p>
  * Class is final for performance reasons and since this is not designed to
  * be extensible or customizable (customizations would occur in calling code)
- *
- * @since 1.6
  */
 public class SerializedString implements SerializableString
 {
@@ -90,6 +92,130 @@ public class SerializedString implements SerializableString
         }
         return result;
     }
+
+    /*
+    /**********************************************************
+    /* Additional 2.0 methods for appending/writing contents
+    /**********************************************************
+     */
+    @Override
+    public int appendQuotedUTF8(byte[] buffer, int offset)
+    {
+        byte[] result = _quotedUTF8Ref;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
+            _quotedUTF8Ref = result;
+        }
+        final int length = result.length;
+        if ((offset + length) > buffer.length) {
+            return -1;
+        }
+        System.arraycopy(result, 0, buffer, offset, length);
+        return length;
+    }
+
+    @Override
+    public int appendQuoted(char[] buffer, int offset)
+    {
+        char[] result = _quotedChars;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().quoteAsString(_value);
+            _quotedChars = result;
+        }
+        final int length = result.length;
+        if ((offset + length) > buffer.length) {
+            return -1;
+        }
+        System.arraycopy(result, 0, buffer, offset, length);
+        return length;
+    }
+
+    @Override
+    public int appendUnquotedUTF8(byte[] buffer, int offset)
+    {
+        byte[] result = _unquotedUTF8Ref;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
+            _unquotedUTF8Ref  = result;
+        }
+        final int length = result.length;
+        if ((offset + length) > buffer.length) {
+            return -1;
+        }
+        System.arraycopy(result, 0, buffer, offset, length);
+        return length;
+    }
+
+    @Override
+    public int appendUnquoted(char[] buffer, int offset)
+    {
+        String str = _value;
+        final int length = str.length();
+        if ((offset + length) > buffer.length) {
+            return -1;
+        }
+        str.getChars(0,  length, buffer, offset);
+        return length;
+    }
+
+    @Override
+    public int writeQuotedUTF8(OutputStream out) throws IOException
+    {
+        byte[] result = _quotedUTF8Ref;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
+            _quotedUTF8Ref = result;
+        }
+        final int length = result.length;
+        out.write(result, 0, length);
+        return length;
+    }
+
+    @Override
+    public int writeUnquotedUTF8(OutputStream out) throws IOException
+    {
+        byte[] result = _unquotedUTF8Ref;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
+            _unquotedUTF8Ref  = result;
+        }
+        final int length = result.length;
+        out.write(result, 0, length);
+        return length;
+    }
+
+    @Override
+    public int putQuotedUTF8(ByteBuffer buffer)
+    {
+        byte[] result = _quotedUTF8Ref;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
+            _quotedUTF8Ref = result;
+        }
+        final int length = result.length;
+        if (length > buffer.remaining()) {
+            return -1;
+        }
+        buffer.put(result, 0, length);
+        return length;
+    }
+
+    @Override
+    public int putUnquotedUTF8(ByteBuffer buffer)
+    {
+        byte[] result = _unquotedUTF8Ref;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
+            _unquotedUTF8Ref  = result;
+        }
+        final int length = result.length;
+        if (length > buffer.remaining()) {
+            return -1;
+        }
+        buffer.put(result, 0, length);
+        return length;
+    }
+
     
     /*
     /**********************************************************

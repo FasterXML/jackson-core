@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 public class TestVersionUtil extends com.fasterxml.jackson.test.BaseTest
 {
@@ -16,5 +15,10 @@ public class TestVersionUtil extends com.fasterxml.jackson.test.BaseTest
     {
         assertEquals(new Version(1, 2, 15, "foo", "group", "artifact"),
                 VersionUtil.parseVersion("1.2.15-foo", "group", "artifact"));
+    }
+
+    public void testMavenVersionParsing() {
+        assertEquals(new Version(1, 2, 3, "SNAPSHOT", "foo.bar", "foo-bar"),
+                VersionUtil.mavenVersionFor(TestVersionUtil.class.getClassLoader(), "foo.bar", "foo-bar"));
     }
 }

@@ -57,7 +57,7 @@ public abstract class ParserBase
      * Index of character after last available one in the buffer.
      */
     protected int _inputEnd = 0;
-
+    
     /*
     /**********************************************************
     /* Current input location information
@@ -122,7 +122,7 @@ public abstract class ParserBase
      * the next token is to be parsed (root, array, object).
      */
     protected JsonReadContext _parsingContext;
-
+    
     /**
      * Secondary token related to the next token after current one;
      * used if its type is known. This may be value token that

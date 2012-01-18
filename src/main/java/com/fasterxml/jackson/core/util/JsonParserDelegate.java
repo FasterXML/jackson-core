@@ -12,8 +12,6 @@ import com.fasterxml.jackson.core.*;
  * to allow for simple overridability of basic parsing functionality.
  * The idea is that any functionality to be modified can be simply
  * overridden; and anything else will be delegated by default.
- * 
- * @since 1.4
  */
 public class JsonParserDelegate extends JsonParser
 {
@@ -148,6 +146,11 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
+    public boolean hasTextCharacters() {
+        return delegate.hasTextCharacters();
+    }
+    
+    @Override
     public char[] getTextCharacters() throws IOException, JsonParseException {
         return delegate.getTextCharacters();
     }
@@ -162,7 +165,6 @@ public class JsonParserDelegate extends JsonParser
         return delegate.getTextOffset();
     }
 
-
     /*
     /**********************************************************
     /* Public API, access to token information, numeric
@@ -174,6 +176,11 @@ public class JsonParserDelegate extends JsonParser
         return delegate.getBigIntegerValue();
     }
 
+    @Override
+    public boolean getBooleanValue() throws IOException, JsonParseException {
+        return delegate.getBooleanValue();
+    }
+    
     @Override
     public byte getByteValue() throws IOException, JsonParseException {
         return delegate.getByteValue();
@@ -219,6 +226,17 @@ public class JsonParserDelegate extends JsonParser
         return delegate.getNumberValue();
     }
 
+    /*
+    /**********************************************************
+    /* Public API, access to token values, other
+    /**********************************************************
+     */
+
+    @Override
+    public Object getEmbeddedObject() throws IOException, JsonParseException {
+        return delegate.getEmbeddedObject();
+    }
+    
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException {
         return delegate.getBinaryValue(b64variant);
@@ -232,6 +250,11 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public JsonToken nextToken() throws IOException, JsonParseException {
         return delegate.nextToken();
+    }
+
+    @Override
+    public JsonToken nextValue() throws IOException, JsonParseException {
+        return delegate.nextValue();
     }
     
     @Override

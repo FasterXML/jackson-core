@@ -391,6 +391,12 @@ public final class UTF8StreamJsonParser
         return 0;
     }
 
+    // No embedded objects with base impl...
+    @Override
+    public Object getEmbeddedObject() throws IOException, JsonParseException {
+        return null;
+    }
+    
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant)
         throws IOException, JsonParseException

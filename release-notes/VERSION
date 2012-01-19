@@ -10,6 +10,8 @@ Fixes:
 
 Improvements
 
+* [JACKSON-730]: Add checks to ensure that Features are applicable for
+  instances (parsers, generators), or if not, throw IllegalArgumentException
 * [JACKSON-742]: Add append-methods in SerializableString
 
 New features:

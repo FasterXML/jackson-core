@@ -40,6 +40,24 @@ public class TestParserFeatures
         _testTabsEnabled(true);
     }
 
+    // [JACKSON-730]
+    public void testFactoryOnlyFeatures() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        JsonParser jp = f.createJsonParser("{ }");
+
+        // should be ok to enable/disable most settings:
+        jp.enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+
+        // but not ones dealing with interning, canonicalization
+        try {
+            jp.enable(JsonParser.Feature.CANONICALIZE_FIELD_NAMES);
+            fail("Should have failed with exception");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Can not change Feature");
+        }
+    }
+    
     /*
     /****************************************************************
     /* Secondary test methods

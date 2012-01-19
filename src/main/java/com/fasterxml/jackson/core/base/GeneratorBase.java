@@ -92,6 +92,7 @@ public abstract class GeneratorBase
 
     @Override
     public JsonGenerator enable(Feature f) {
+        _checkFeature(f, true);
         _features |= f.getMask();
         if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
             _cfgNumbersAsStrings = true;
@@ -103,6 +104,7 @@ public abstract class GeneratorBase
 
     @Override
     public JsonGenerator disable(Feature f) {
+        _checkFeature(f, false);
         _features &= ~f.getMask();
         if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
             _cfgNumbersAsStrings = false;
@@ -119,6 +121,18 @@ public abstract class GeneratorBase
         return (_features & f.getMask()) != 0;
     }
 
+    /**
+     * Helper method called to verify that given feature can be
+     * modified for parser instances.
+     * 
+     * @since 2.0
+     */
+    protected void _checkFeature(Feature f, boolean state) {
+        if (!f.canUseForInstance()) {
+            throw new IllegalArgumentException("Can not change Feature "+f.name()+" for JsonParser instance");
+        }
+    }
+    
     @Override
     public JsonGenerator useDefaultPrettyPrinter() {
         return setPrettyPrinter(new DefaultPrettyPrinter());
@@ -493,9 +507,6 @@ public abstract class GeneratorBase
         throw new RuntimeException("Internal error: this code path should never get executed");
     }
 
-    /**
-     * @since 1.7
-     */
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
     }

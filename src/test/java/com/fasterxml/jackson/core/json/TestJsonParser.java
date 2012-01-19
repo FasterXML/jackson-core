@@ -25,23 +25,9 @@ public class TestJsonParser
         jp.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertFalse(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
 
+        // note: can NOT change interning on parser instance, only factory
+        // but it defaults to true anyway
         assertTrue(jp.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
-        jp.configure(JsonParser.Feature.INTERN_FIELD_NAMES, false);
-        assertFalse(jp.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
-        jp.configure(JsonParser.Feature.INTERN_FIELD_NAMES, true);
-        assertTrue(jp.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
-    }
-
-    public void testConfigDeprecated() throws Exception
-    {
-        JsonParser jp = createParserUsingReader("[ ]");
-        // and then deprecated methods
-        jp.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-        assertTrue(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        jp.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-        assertFalse(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        jp.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
-        assertTrue(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
     }
 
     public void testInterningWithStreams() throws Exception

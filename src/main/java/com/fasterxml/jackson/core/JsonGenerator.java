@@ -32,6 +32,14 @@ public abstract class JsonGenerator
 {
     /**
      * Enumeration that defines all togglable features for generators.
+     * 
+     * Note that some features can only be set for
+     * {@link JsonFactory} (as defaults for generators), while others
+     * can also be changed for generator instances:
+     * ones that can be used with instances return <code>true</code>
+     * from {@link #canUseForInstance}.
+     * Trying enable/disable factory-only feature will result in
+     * an {@link IllegalArgumentException}.
      */
     public enum Feature {
         /**
@@ -45,9 +53,10 @@ public abstract class JsonGenerator
          * this happens when end-of-input is encountered, or generator
          * is closed by a call to {@link JsonGenerator#close}.
          *<p>
-         * Feature is enabled by default.
+         * Feature is enabled by default,
+         * and it can be changed for generator instances.
          */
-        AUTO_CLOSE_TARGET(true),
+        AUTO_CLOSE_TARGET(true, true),
 
         /**
          * Feature that determines what happens when the generator is
@@ -57,9 +66,10 @@ public abstract class JsonGenerator
          * Object(s) are automatically closed; if disabled, nothing
          * specific is done.
          *<p>
-         * Feature is enabled by default.
+         * Feature is enabled by default,
+         * and it can be changed for generator instances.
          */
-        AUTO_CLOSE_JSON_CONTENT(true),
+        AUTO_CLOSE_JSON_CONTENT(true, true),
 
         /**
          * Feature that determines whether JSON Object field names are
@@ -67,8 +77,11 @@ public abstract class JsonGenerator
          * or not. Ability to disable quoting was added to support use
          * cases where they are not usually expected, which most commonly
          * occurs when used straight from Javascript.
+         *<p>
+         * Feature is enabled by default (since it is required by JSON specification),
+         * and it can be changed for generator instances.
          */
-        QUOTE_FIELD_NAMES(true),
+        QUOTE_FIELD_NAMES(true, true),
 
         /**
          * Feature that determines whether "exceptional" (not real number)
@@ -80,9 +93,10 @@ public abstract class JsonGenerator
          * associated literal values, resulting in non-conformant
          * output.
          *<p>
-         * Feature is enabled by default.
+         * Feature is enabled by default,
+         * and it can be changed for generator instances.
          */
-        QUOTE_NON_NUMERIC_NUMBERS(true),
+        QUOTE_NON_NUMERIC_NUMBERS(true, true),
 
         /**
          * Feature that forces all Java numbers to be written as JSON strings.
@@ -97,9 +111,10 @@ public abstract class JsonGenerator
          * result being that some 64-bit integer values can not be
          * accurately represent (as mantissa is only 51 bit wide).
          *<p>
-         * Feature is disabled by default.
+         * Feature is disabled by default,
+         * and it can be changed for generator instances.
          */
-        WRITE_NUMBERS_AS_STRINGS(false),
+        WRITE_NUMBERS_AS_STRINGS(false, true),
 
         /**
          * Feature that specifies that calls to {@link #flush} will cause
@@ -110,9 +125,10 @@ public abstract class JsonGenerator
          * called by other code (like <code>ObjectMapper</code> or third
          * party libraries).
          *<p>
-         * Feature is enabled by default.
+         * Feature is enabled by default,
+         * and it can be changed for generator instances.
          */
-        FLUSH_PASSED_TO_STREAM(true),
+        FLUSH_PASSED_TO_STREAM(true, true),
         
         /**
          * Feature that specifies that all characters beyond 7-bit ASCII
@@ -120,14 +136,23 @@ public abstract class JsonGenerator
          * using format-specific escapes (for JSON, backslash escapes),
          * if format uses escaping mechanisms (which is generally true
          * for textual formats but not for binary formats).
+         *<p>
+         * Feature is disabled by default,
+         * and it can be changed for generator instances.
          */
-        ESCAPE_NON_ASCII(false)
+        ESCAPE_NON_ASCII(false, true),
         
             ;
 
-        final boolean _defaultState;
+        private final boolean _defaultState;
 
-        final int _mask;
+        /**
+         * Whether feature can be used for instances (true), or
+         * just for factory (false).
+         */
+        private final boolean _canUseForInstance;
+        
+        private final int _mask;
         
         /**
          * Method that calculates bit set (flags) of all features that
@@ -144,13 +169,16 @@ public abstract class JsonGenerator
             return flags;
         }
         
-        private Feature(boolean defaultState) {
-            _defaultState = defaultState;
+        private Feature(boolean defaultState, boolean canUseForInstance)
+        {
             _mask = (1 << ordinal());
+            _defaultState = defaultState;
+            _canUseForInstance = canUseForInstance;
         }
         
         public boolean enabledByDefault() { return _defaultState; }
-    
+        public boolean canUseForInstance() { return _canUseForInstance; }
+
         public int getMask() { return _mask; }
     }
 
@@ -228,8 +256,6 @@ public abstract class JsonGenerator
      *<p>
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
-     * 
-     * @since 1.8
      */
     public Object getOutputTarget() {
         return null;
@@ -246,8 +272,6 @@ public abstract class JsonGenerator
      * check {@link Feature} for list of available features.
      *
      * @return Generator itself (this), to allow chaining
-     *
-     * @since 1.2
      */
     public abstract JsonGenerator enable(Feature f);
 
@@ -256,8 +280,6 @@ public abstract class JsonGenerator
      * (check {@link Feature} for list of features)
      *
      * @return Generator itself (this), to allow chaining
-     *
-     * @since 1.2
      */
     public abstract JsonGenerator disable(Feature f);
 
@@ -266,10 +288,8 @@ public abstract class JsonGenerator
      * check {@link Feature} for list of available features.
      *
      * @return Generator itself (this), to allow chaining
-     *
-     * @since 1.2
      */
-    public JsonGenerator configure(Feature f, boolean state)
+    public final JsonGenerator configure(Feature f, boolean state)
     {
         if (state) {
             enable(f);
@@ -282,8 +302,6 @@ public abstract class JsonGenerator
     /**
      * Method for checking whether given feature is enabled.
      * Check {@link Feature} for list of available features.
-     *
-     * @since 1.2
      */
     public abstract boolean isEnabled(Feature f);
 

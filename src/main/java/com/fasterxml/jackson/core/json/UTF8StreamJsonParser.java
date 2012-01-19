@@ -116,11 +116,6 @@ public final class UTF8StreamJsonParser
         _inputPtr = start;
         _inputEnd = end;
         _bufferRecyclable = bufferRecyclable;
-        // 12-Mar-2010, tatus: Sanity check, related to [JACKSON-259]:
-        if (!JsonParser.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(features)) {
-            // should never construct non-canonical UTF-8/byte parser (instead, use Reader)
-            _throwInternal();
-        }
     }
 
     @Override

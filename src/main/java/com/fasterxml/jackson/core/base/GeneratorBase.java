@@ -92,7 +92,6 @@ public abstract class GeneratorBase
 
     @Override
     public JsonGenerator enable(Feature f) {
-        _checkFeature(f, true);
         _features |= f.getMask();
         if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
             _cfgNumbersAsStrings = true;
@@ -104,7 +103,6 @@ public abstract class GeneratorBase
 
     @Override
     public JsonGenerator disable(Feature f) {
-        _checkFeature(f, false);
         _features &= ~f.getMask();
         if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
             _cfgNumbersAsStrings = false;
@@ -119,18 +117,6 @@ public abstract class GeneratorBase
     @Override
     public final boolean isEnabled(Feature f) {
         return (_features & f.getMask()) != 0;
-    }
-
-    /**
-     * Helper method called to verify that given feature can be
-     * modified for parser instances.
-     * 
-     * @since 2.0
-     */
-    protected void _checkFeature(Feature f, boolean state) {
-        if (!f.canUseForInstance()) {
-            throw new IllegalArgumentException("Can not change Feature "+f.name()+" for JsonParser instance");
-        }
     }
     
     @Override

@@ -23,10 +23,10 @@ public class TestJsonFactory
         JsonFactory f = new JsonFactory();
         assertNull(f.getCodec());
 
-        f.configure(JsonParser.Feature.INTERN_FIELD_NAMES, true);
-        assertTrue(f.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
-        f.configure(JsonParser.Feature.INTERN_FIELD_NAMES, false);
-        assertFalse(f.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
+        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, true);
+        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false);
+        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
     }
     
     public void testJsonWithFiles() throws Exception

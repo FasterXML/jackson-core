@@ -48,14 +48,6 @@ public abstract class JsonParser
 
     /**
      * Enumeration that defines all on/off features for parsers.
-     * 
-     * Note that some features can only be set for
-     * {@link JsonFactory} (as defaults for parsers), while others
-     * can also be changed directly for parser instances:
-     * ones that can be used with instances return <code>true</code>
-     * from {@link #canUseForInstance}.
-     * Trying enable/disable factory-only feature will result in
-     * an {@link IllegalArgumentException}.
      */
     public enum Feature {
         
@@ -71,10 +63,9 @@ public abstract class JsonParser
          * this happens when end-of-input is encountered, or parser
          * is closed by a call to {@link JsonParser#close}.
          *<p>
-         * Feature is enabled by default;
-         * and it can be changed for parser instances.
+         * Feature is enabled by default.
          */
-        AUTO_CLOSE_SOURCE(true, true),
+        AUTO_CLOSE_SOURCE(true),
             
         // // // Support for non-standard data format constructs
 
@@ -89,9 +80,8 @@ public abstract class JsonParser
          * this is extensively used. As such, feature is
          * <b>disabled by default</b> for parsers and must be
          * explicitly enabled.
-         * Feature can be changed for parser instances.
          */
-        ALLOW_COMMENTS(false, true),
+        ALLOW_COMMENTS(false),
 
         /**
          * Feature that determines whether parser will allow use
@@ -101,9 +91,8 @@ public abstract class JsonParser
          * Since JSON specification requires use of double quotes for
          * field names,
          * this is a non-standard feature, and as such disabled by default.
-         * Feature can be changed for parser instances.
          */
-        ALLOW_UNQUOTED_FIELD_NAMES(false, true),
+        ALLOW_UNQUOTED_FIELD_NAMES(false),
 
         /**
          * Feature that determines whether parser will allow use
@@ -115,9 +104,8 @@ public abstract class JsonParser
          * Since JSON specification requires use of double quotes for
          * field names,
          * this is a non-standard feature, and as such disabled by default.
-         * Feature can be changed for parser instances.
          */
-        ALLOW_SINGLE_QUOTES(false, true),
+        ALLOW_SINGLE_QUOTES(false),
 
         /**
          * Feature that determines whether parser will allow
@@ -129,9 +117,8 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification requires quoting for all control characters,
          * this is a non-standard feature, and as such disabled by default.
-         * Feature can be changed for parser instances.
          */
-        ALLOW_UNQUOTED_CONTROL_CHARS(false, true),
+        ALLOW_UNQUOTED_CONTROL_CHARS(false),
 
         /**
          * Feature that can be enabled to accept quoting of all character
@@ -141,9 +128,8 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification requires quoting for all control characters,
          * this is a non-standard feature, and as such disabled by default.
-         * Feature can be changed for parser instances.
          */
-        ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false, true),
+        ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false),
 
         /**
          * Feature that determines whether parser will allow
@@ -154,9 +140,8 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification does not allow leading zeroes,
          * this is a non-standard feature, and as such disabled by default.
-         * Feature can be changed for parser instances.
          */
-        ALLOW_NUMERIC_LEADING_ZEROS(false, true),
+        ALLOW_NUMERIC_LEADING_ZEROS(false),
         
         /**
          * Feature that allows parser to recognize set of
@@ -175,54 +160,15 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification does not allow use of such values,
          * this is a non-standard feature, and as such disabled by default.
-         * Feature can be changed for parser instances.
          */
-         ALLOW_NON_NUMERIC_NUMBERS(false, true),
+         ALLOW_NON_NUMERIC_NUMBERS(false),
         
-        // // // Controlling canonicalization (interning etc)
-        
-        /**
-         * Feature that determines whether JSON object field names are
-         * to be canonicalized using {@link String#intern} or not:
-         * if enabled, all field names will be intern()ed (and caller
-         * can count on this being true for all such names); if disabled,
-         * no intern()ing is done. There may still be basic
-         * canonicalization (that is, same String will be used to represent
-         * all identical object property names for a single document).
-         *<p>
-         * Note: this setting only has effect if
-         * {@link #CANONICALIZE_FIELD_NAMES} is true -- otherwise no
-         * canonicalization of any sort is done.
-         *<p>
-         * This feature <b>can not</b> be changed for parser instances;
-         * it <b>must</b> be defined for {@link JsonFactory} before
-         * constructing parser.
-         */
-        INTERN_FIELD_NAMES(true, false),
-
-        /**
-         * Feature that determines whether JSON object field names are
-         * to be canonicalized (details of how canonicalization is done
-         * then further specified by
-         * {@link #INTERN_FIELD_NAMES}).
-         *<p>
-         * This feature <b>can not</b> be changed for parser instances;
-         * it <b>must</b> be defined for {@link JsonFactory} before
-         * constructing parser.
-         */
-        CANONICALIZE_FIELD_NAMES(true, false),
             ;
 
         /**
          * Whether feature is enabled or disabled by default.
          */
         private final boolean _defaultState;
-
-        /**
-         * Whether feature can be used for instances (true), or
-         * just for factory (false).
-         */
-        private final boolean _canUseForInstance;
         
         /**
          * Method that calculates bit set (flags) of all features that
@@ -239,19 +185,14 @@ public abstract class JsonParser
             return flags;
         }
         
-        private Feature(boolean defaultState, boolean canUseForInstance)
-        {
+        private Feature(boolean defaultState) {
             _defaultState = defaultState;
-            _canUseForInstance = canUseForInstance;
         }
         
         public boolean enabledByDefault() { return _defaultState; }
-        public boolean canUseForInstance() { return _canUseForInstance; }
-
-        public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
-        
+//        public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
         public int getMask() { return (1 << ordinal()); }
-    };
+    }
 
     /*
     /**********************************************************
@@ -430,7 +371,6 @@ public abstract class JsonParser
      */
     public JsonParser enable(Feature f)
     {
-        _checkFeature(f, true);
         _features |= f.getMask();
         return this;
     }
@@ -441,7 +381,6 @@ public abstract class JsonParser
      */
     public JsonParser disable(Feature f)
     {
-        _checkFeature(f, false);
         _features &= ~f.getMask();
         return this;
     }
@@ -452,7 +391,6 @@ public abstract class JsonParser
      */
     public JsonParser configure(Feature f, boolean state)
     {
-        _checkFeature(f, state);
         if (state) {
             enable(f);
         } else {
@@ -466,18 +404,6 @@ public abstract class JsonParser
      */
     public boolean isEnabled(Feature f) {
         return (_features & f.getMask()) != 0;
-    }
-
-    /**
-     * Helper method called to verify that given feature can be
-     * modified for parser instances.
-     * 
-     * @since 2.0
-     */
-    protected void _checkFeature(Feature f, boolean state) {
-        if (!f.canUseForInstance()) {
-            throw new IllegalArgumentException("Can not change Feature "+f.name()+" for JsonParser instance");
-        }
     }
     
     /*

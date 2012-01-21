@@ -218,24 +218,24 @@ public final class ByteSourceJsonBootstrapper
         throw new RuntimeException("Internal error"); // should never get here
     }
 
-    public JsonParser constructParser(int features, ObjectCodec codec, BytesToNameCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols)
+    public JsonParser constructParser(int parserFeatures, ObjectCodec codec,
+            BytesToNameCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols,
+            boolean canonicalize, boolean intern)
         throws IOException, JsonParseException
     {
         JsonEncoding enc = detectEncoding();
 
-        // As per [JACKSON-259], may want to fully disable canonicalization:
-        boolean canonicalize = JsonParser.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(features);
-        boolean intern = JsonParser.Feature.INTERN_FIELD_NAMES.enabledIn(features);
         if (enc == JsonEncoding.UTF8) {
             /* and without canonicalization, byte-based approach is not performance; just use std UTF-8 reader
              * (which is ok for larger input; not so hot for smaller; but this is not a common case)
              */
             if (canonicalize) {
                 BytesToNameCanonicalizer can = rootByteSymbols.makeChild(canonicalize, intern);
-                return new UTF8StreamJsonParser(_context, features, _in, codec, can, _inputBuffer, _inputPtr, _inputEnd, _bufferRecyclable);
+                return new UTF8StreamJsonParser(_context, parserFeatures, _in, codec, can, _inputBuffer, _inputPtr, _inputEnd, _bufferRecyclable);
             }
         }
-        return new ReaderBasedJsonParser(_context, features, constructReader(), codec, rootCharSymbols.makeChild(canonicalize, intern));
+        return new ReaderBasedJsonParser(_context, parserFeatures, constructReader(), codec,
+                rootCharSymbols.makeChild(canonicalize, intern));
     }
 
     /*
@@ -249,8 +249,6 @@ public final class ByteSourceJsonBootstrapper
      * ({@link com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper}); 
      * supports UTF-8, for example. But it should work, for now, and can
      * be improved as necessary.
-     * 
-     * @since 1.8
      */
     public static MatchStrength hasJSONFormat(InputAccessor acc) throws IOException
     {

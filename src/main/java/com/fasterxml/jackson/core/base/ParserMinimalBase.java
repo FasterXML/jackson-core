@@ -364,8 +364,6 @@ public abstract class ParserMinimalBase
     /**
      * Helper method that can be used for base64 decoding in cases where
      * encoded content has already been read as a String.
-     * 
-     * @since 1.9.3
      */
     protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant)
         throws IOException, JsonParseException

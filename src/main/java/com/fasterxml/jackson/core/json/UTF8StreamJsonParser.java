@@ -116,11 +116,6 @@ public final class UTF8StreamJsonParser
         _inputPtr = start;
         _inputEnd = end;
         _bufferRecyclable = bufferRecyclable;
-        // 12-Mar-2010, tatus: Sanity check, related to [JACKSON-259]:
-        if (!JsonParser.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(features)) {
-            // should never construct non-canonical UTF-8/byte parser (instead, use Reader)
-            _throwInternal();
-        }
     }
 
     @Override
@@ -195,8 +190,6 @@ public final class UTF8StreamJsonParser
     /**
      * Helper method that will try to load at least specified number bytes in
      * input buffer, possible moving existing data around if necessary
-     * 
-     * @since 1.6
      */
     protected final boolean _loadToHaveAtLeast(int minAvailable)
         throws IOException
@@ -2071,8 +2064,6 @@ public final class UTF8StreamJsonParser
     /**
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
-     *
-     * @since 1.3
      */
     protected JsonToken _handleUnexpectedValue(int c)
         throws IOException, JsonParseException
@@ -2345,8 +2336,6 @@ public final class UTF8StreamJsonParser
     /**
      * Helper method for matching and skipping a colon character,
      * optionally surrounded by white space
-     * 
-     * @since 1.9
      */
     private final int _skipColon()
         throws IOException, JsonParseException

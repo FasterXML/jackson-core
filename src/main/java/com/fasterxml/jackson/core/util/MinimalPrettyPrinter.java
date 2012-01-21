@@ -18,8 +18,6 @@ import com.fasterxml.jackson.core.PrettyPrinter;
  * configurability which may be useful for actual use: for example,
  * it is possible to redefine separator used between root-level
  * values (default is single space; can be changed to line-feed).
- * 
- * @since 1.6
  */
 public class MinimalPrettyPrinter
     implements PrettyPrinter
@@ -41,9 +39,6 @@ public class MinimalPrettyPrinter
         this(DEFAULT_ROOT_VALUE_SEPARATOR);
     }
 
-    /**
-     * @since 1.9
-     */
     public MinimalPrettyPrinter(String rootValueSeparator) {
         _rootValueSeparator = rootValueSeparator;
     }

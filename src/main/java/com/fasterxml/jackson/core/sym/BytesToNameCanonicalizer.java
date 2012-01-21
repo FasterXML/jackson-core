@@ -19,8 +19,6 @@ public final class BytesToNameCanonicalizer
      * Let's not expand symbol tables past some maximum size;
      * this should protected against OOMEs caused by large documents
      * with uniquer (~= random) names.
-     * 
-     * @since 1.5
      */
     protected static final int MAX_TABLE_SIZE = 0x10000; // 64k entries == 256k mem
     
@@ -476,9 +474,6 @@ public final class BytesToNameCanonicalizer
     /**********************************************************
      */
 
-    /**
-     * @since 1.6.0
-     */
     public Name addName(String symbolStr, int q1, int q2)
     {
         if (_intern) {

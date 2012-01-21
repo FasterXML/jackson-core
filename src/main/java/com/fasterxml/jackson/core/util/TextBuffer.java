@@ -286,8 +286,6 @@ public final class TextBuffer
     /**
      * Method that can be used to check whether textual contents can
      * be efficiently accessed using {@link #getTextBuffer}.
-     * 
-     * @since 1.9
      */
     public boolean hasTextAsCharacters()
     {

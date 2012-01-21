@@ -12,9 +12,6 @@ import com.fasterxml.jackson.core.*;
  *<p>
  * Fairly simple use of {@link JsonParserDelegate}: only need
  * to override {@link #nextToken} to handle transition
- * 
- * @author tatu
- * @since 1.5
  */
 public class JsonParserSequence extends JsonParserDelegate
 {

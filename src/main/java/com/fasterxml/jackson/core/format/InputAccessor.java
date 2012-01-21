@@ -7,8 +7,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 /**
  * Interface used to expose beginning of a data file to data format
  * detection code.
- * 
- * @since 1.8
  */
 public interface InputAccessor
 {

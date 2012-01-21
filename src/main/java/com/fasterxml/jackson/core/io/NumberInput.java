@@ -58,8 +58,6 @@ public final class NumberInput
     /**
      * Helper method to (more) efficiently parse integer numbers from
      * String values.
-     * 
-     * @since 1.7
      */
     public final static int parseInt(String str)
     {
@@ -167,8 +165,6 @@ public final class NumberInput
      *
      * @param negative Whether original number had a minus sign (which is
      *    NOT passed to this method) or not
-     *
-     * @since 1.5.0
      */
     public final static boolean inLongRange(String numberStr, boolean negative)
     {
@@ -188,9 +184,6 @@ public final class NumberInput
         return true;
     }
 
-    /**
-     * @since 1.6
-     */
     public static int parseAsInt(String input, int defaultValue)
     {
         if (input == null) {
@@ -229,9 +222,6 @@ public final class NumberInput
         return defaultValue;
     }
 
-    /**
-     * @since 1.6
-     */
     public static long parseAsLong(String input, long defaultValue)
     {
         if (input == null) {
@@ -270,9 +260,6 @@ public final class NumberInput
         return defaultValue;
     }
     
-    /**
-     * @since 1.6
-     */
     public static double parseAsDouble(String input, double defaultValue)
     {
         if (input == null) {
@@ -289,9 +276,6 @@ public final class NumberInput
         return defaultValue;
     }
     
-    /**
-     * @since 1.8
-     */
     public final static double parseDouble(String numStr) throws NumberFormatException
     {
         // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?

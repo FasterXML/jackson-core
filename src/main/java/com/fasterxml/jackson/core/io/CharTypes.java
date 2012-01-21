@@ -70,8 +70,6 @@ public final class CharTypes
      * need to have alternate checking.
      * Basically this is list of 8-bit ASCII characters that are legal
      * as part of Javascript identifier
-     *
-     * @since 1.2
      */
     final static int[] sInputCodesJsNames;
     static {
@@ -217,17 +215,11 @@ public final class CharTypes
         }
     }
 
-    /**
-     * @since 1.6
-     */
     public static char[] copyHexChars()
     {
         return (char[]) HEX_CHARS.clone();
     }
 
-    /**
-     * @since 1.6
-     */
     public static byte[] copyHexBytes()
     {
         return (byte[]) HEX_BYTES.clone();

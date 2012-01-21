@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.*;
  * Simple helper class that allows data format (content type) auto-detection,
  * given an ordered set of {@link JsonFactory} instances to use for actual low-level
  * detection.
- *
- * @since 1.7
  */
 public class DataFormatDetector
 {

@@ -21,11 +21,7 @@ import java.net.URL;
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
-import com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper;
-import com.fasterxml.jackson.core.json.CoreVersion;
-import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
-import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
-import com.fasterxml.jackson.core.json.WriterBasedJsonGenerator;
+import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -59,17 +55,90 @@ public class JsonFactory implements Versioned
     public final static String FORMAT_NAME_JSON = "JSON";
     
     /**
+     * Bitfield (set of flags) of all factory features that are enabled by default.
+     */
+    protected final static int DEFAULT_FACTORY_FEATURE_FLAGS = JsonFactory.Feature.collectDefaults();
+
+    /**
      * Bitfield (set of flags) of all parser features that are enabled
      * by default.
      */
-    final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
-
+    protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
+    
     /**
      * Bitfield (set of flags) of all generator features that are enabled
      * by default.
      */
-    final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
+    protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
 
+    /**
+     * Enumeration that defines all on/off features that can only be
+     * changed for {@link JsonFactory}.
+     */
+    public enum Feature {
+        
+        // // // Symbol handling (interning etc)
+        
+        /**
+         * Feature that determines whether JSON object field names are
+         * to be canonicalized using {@link String#intern} or not:
+         * if enabled, all field names will be intern()ed (and caller
+         * can count on this being true for all such names); if disabled,
+         * no intern()ing is done. There may still be basic
+         * canonicalization (that is, same String will be used to represent
+         * all identical object property names for a single document).
+         *<p>
+         * Note: this setting only has effect if
+         * {@link #CANONICALIZE_FIELD_NAMES} is true -- otherwise no
+         * canonicalization of any sort is done.
+         *<p>
+         * This setting is enabled by default.
+         */
+        INTERN_FIELD_NAMES(true),
+
+        /**
+         * Feature that determines whether JSON object field names are
+         * to be canonicalized (details of how canonicalization is done
+         * then further specified by
+         * {@link #INTERN_FIELD_NAMES}).
+         *<p>
+         * This setting is enabled by default.
+         */
+        CANONICALIZE_FIELD_NAMES(true)
+
+        ;
+
+        /**
+         * Whether feature is enabled or disabled by default.
+         */
+        private final boolean _defaultState;
+        
+        /**
+         * Method that calculates bit set (flags) of all features that
+         * are enabled by default.
+         */
+        public static int collectDefaults()
+        {
+            int flags = 0;
+            for (Feature f : values()) {
+                if (f.enabledByDefault()) {
+                    flags |= f.getMask();
+                }
+            }
+            return flags;
+        }
+        
+        private Feature(boolean defaultState)
+        {
+            _defaultState = defaultState;
+        }
+        
+        public boolean enabledByDefault() { return _defaultState; }
+
+        public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
+        
+        public int getMask() { return (1 << ordinal()); }
+    }    
     /*
     /**********************************************************
     /* Buffer, symbol table management
@@ -115,6 +184,11 @@ public class JsonFactory implements Versioned
      */
     protected ObjectCodec _objectCodec;
 
+    /**
+     * Currently enabled factory features.
+     */
+    protected int _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
+    
     /**
      * Currently enabled parser features.
      */
@@ -216,7 +290,7 @@ public class JsonFactory implements Versioned
 
     /*
     /**********************************************************
-    /* Configuration, parser settings
+    /* Configuration, factory features
     /**********************************************************
      */
 
@@ -224,14 +298,47 @@ public class JsonFactory implements Versioned
      * Method for enabling or disabling specified parser feature
      * (check {@link JsonParser.Feature} for list of features)
      */
-    public final JsonFactory configure(JsonParser.Feature f, boolean state)
-    {
-        if (state) {
-            enable(f);
-        } else {
-            disable(f);
-        }
+    public final JsonFactory configure(JsonFactory.Feature f, boolean state) {
+        return state ? enable(f) : disable(f);
+    }
+
+    /**
+     * Method for enabling specified parser feature
+     * (check {@link JsonFactory.Feature} for list of features)
+     */
+    public JsonFactory enable(JsonFactory.Feature f) {
+        _factoryFeatures |= f.getMask();
         return this;
+    }
+
+    /**
+     * Method for disabling specified parser features
+     * (check {@link JsonFactory.Feature} for list of features)
+     */
+    public JsonFactory disable(JsonFactory.Feature f) {
+        _factoryFeatures &= ~f.getMask();
+        return this;
+    }
+
+    /**
+     * Checked whether specified parser feature is enabled.
+     */
+    public final boolean isEnabled(JsonFactory.Feature f) {
+        return (_factoryFeatures & f.getMask()) != 0;
+    }
+    
+    /*
+    /**********************************************************
+    /* Configuration, parser configuration
+    /**********************************************************
+     */
+    
+    /**
+     * Method for enabling or disabling specified parser feature
+     * (check {@link JsonParser.Feature} for list of features)
+     */
+    public final JsonFactory configure(JsonParser.Feature f, boolean state) {
+        return state ? enable(f) : disable(f);
     }
 
     /**
@@ -286,12 +393,7 @@ public class JsonFactory implements Versioned
      * (check {@link JsonGenerator.Feature} for list of features)
      */
     public final JsonFactory configure(JsonGenerator.Feature f, boolean state) {
-        if (state) {
-            enable(f);
-        } else {
-            disable(f);
-        }
-        return this;
+        return state ? enable(f) : disable(f);
     }
 
 
@@ -675,8 +777,11 @@ public class JsonFactory implements Versioned
     protected JsonParser _createJsonParser(InputStream in, IOContext ctxt)
         throws IOException, JsonParseException
     {
+        // As per [JACKSON-259], may want to fully disable canonicalization:
         return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
-                _objectCodec, _rootByteSymbols, _rootCharSymbols);
+                _objectCodec, _rootByteSymbols, _rootCharSymbols,
+                isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
+                isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
     }
 
     /**
@@ -693,8 +798,8 @@ public class JsonFactory implements Versioned
 	throws IOException, JsonParseException
     {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
-                _rootCharSymbols.makeChild(isEnabled(JsonParser.Feature.CANONICALIZE_FIELD_NAMES),
-                    isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES)));
+                _rootCharSymbols.makeChild(isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
+                    isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES)));
     }
 
     /**
@@ -712,7 +817,9 @@ public class JsonFactory implements Versioned
         throws IOException, JsonParseException
     {
         return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
-                _objectCodec, _rootByteSymbols, _rootCharSymbols);
+                _objectCodec, _rootByteSymbols, _rootCharSymbols,
+                isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
+                isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
     }
 
     /*

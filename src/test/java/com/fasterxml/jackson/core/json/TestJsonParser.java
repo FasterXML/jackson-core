@@ -24,10 +24,6 @@ public class TestJsonParser
         assertTrue(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         jp.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertFalse(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-
-        // note: can NOT change interning on parser instance, only factory
-        // but it defaults to true anyway
-        assertTrue(jp.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
     }
 
     public void testInterningWithStreams() throws Exception
@@ -45,13 +41,11 @@ public class TestJsonParser
     private void _testIntern(boolean useStream, boolean enableIntern, String expName) throws IOException
     {
         JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.INTERN_FIELD_NAMES, enableIntern);
-        assertEquals(enableIntern, f.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
+        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, enableIntern);
+        assertEquals(enableIntern, f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         final String JSON = "{ \""+expName+"\" : 1}";
         JsonParser jp = useStream ?
             createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
-
-        assertEquals(enableIntern, jp.isEnabled(JsonParser.Feature.INTERN_FIELD_NAMES));
             
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());

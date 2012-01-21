@@ -7,8 +7,6 @@ import java.io.*;
  * Typical use is to use a filter abstraction (filtered output stream,
  * writer) around original output destination, and apply additional
  * processing during write operations.
- * 
- * @since 1.8
  */
 public abstract class OutputDecorator
 {

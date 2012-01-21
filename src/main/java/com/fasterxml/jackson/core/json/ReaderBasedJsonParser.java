@@ -1081,8 +1081,6 @@ public final class ReaderBasedJsonParser
      * than double quote, when expecting a field name.
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
-     *
-     * @since 1.2
      */
     protected final String _handleUnusualFieldName(int i)
         throws IOException, JsonParseException
@@ -1172,8 +1170,6 @@ public final class ReaderBasedJsonParser
     /**
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
-     *
-     * @since 1.3
      */
     protected final JsonToken _handleUnexpectedValue(int i)
         throws IOException, JsonParseException
@@ -1211,9 +1207,6 @@ public final class ReaderBasedJsonParser
         return null;
     }
     
-    /**
-     * @since 1.8
-     */
     protected final JsonToken _handleApostropheValue()
         throws IOException, JsonParseException
     {
@@ -1256,9 +1249,6 @@ public final class ReaderBasedJsonParser
         return JsonToken.VALUE_STRING;
     }
     
-    /**
-     * @since 1.2
-     */
     private String _parseUnusualFieldName2(int startPtr, int hash, int[] codes)
         throws IOException, JsonParseException
     {
@@ -1638,8 +1628,6 @@ public final class ReaderBasedJsonParser
     
     /**
      * Helper method for checking whether input matches expected token
-     * 
-     * @since 1.8
      */
     protected final void _matchToken(String matchStr, int i)
         throws IOException, JsonParseException

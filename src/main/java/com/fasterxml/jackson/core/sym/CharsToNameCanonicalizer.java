@@ -55,8 +55,6 @@ public final class CharsToNameCanonicalizer
      * Let's not expand symbol tables past some maximum size;
      * this should protected against OOMEs caused by large documents
      * with uniquer (~= random) names.
-     * 
-     * @since 1.5
      */
     protected static final int MAX_TABLE_SIZE = 0x10000; // 64k entries == 256k mem
 

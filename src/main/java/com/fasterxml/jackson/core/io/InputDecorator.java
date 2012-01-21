@@ -7,8 +7,6 @@ import java.io.*;
  * Typical use is to use a filter abstraction (filtered stream,
  * reader) around original input source, and apply additional
  * processing during read operations.
- * 
- * @since 1.8
  */
 public abstract class InputDecorator
 {

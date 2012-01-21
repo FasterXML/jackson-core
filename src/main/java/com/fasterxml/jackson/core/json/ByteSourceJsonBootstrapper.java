@@ -249,8 +249,6 @@ public final class ByteSourceJsonBootstrapper
      * ({@link com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper}); 
      * supports UTF-8, for example. But it should work, for now, and can
      * be improved as necessary.
-     * 
-     * @since 1.8
      */
     public static MatchStrength hasJSONFormat(InputAccessor acc) throws IOException
     {

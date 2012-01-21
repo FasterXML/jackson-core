@@ -347,8 +347,6 @@ public abstract class JsonGenerator
      * @param charCode Either -1 to indicate that no additional escaping
      *   is to be done; or highest code point not to escape (meaning higher
      *   ones will be), if positive value.
-     * 
-     * @since 1.8
      */
     public JsonGenerator setHighestNonEscapedChar(int charCode) {
         return this;
@@ -372,8 +370,6 @@ public abstract class JsonGenerator
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
-     * 
-     * @since 1.8
      */
     public CharacterEscapes getCharacterEscapes() {
         return null;
@@ -382,8 +378,6 @@ public abstract class JsonGenerator
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
-     * 
-     * @since 1.8
      */
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) {
         return this;
@@ -542,8 +536,6 @@ public abstract class JsonGenerator
      * generator implementation may instead choose to throw a
      * {@link UnsupportedOperationException} due to ineffectiveness
      * of having to decode input.
-     * 
-     * @since 1.7
      */
     public abstract void writeUTF8String(byte[] text, int offset, int length)
         throws IOException, JsonGenerationException;

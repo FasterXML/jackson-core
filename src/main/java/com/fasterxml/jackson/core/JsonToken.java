@@ -22,8 +22,6 @@ public enum JsonToken
      * future. This is the case with non-blocking parsers --
      * they can not block to wait for more data to parse and
      * must return something.
-     *
-     * @since 0.9.7
      */
     NOT_AVAILABLE(null),
 
@@ -66,8 +64,6 @@ public enum JsonToken
      * Note: this token is never returned by regular JSON readers, but
      * only by readers that expose other kinds of source (like
      * {@link JsonNode}-based JSON trees, Maps, Lists and such).
-     *
-     * @since 1.1
      */
     VALUE_EMBEDDED_OBJECT(null),
 

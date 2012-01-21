@@ -6,8 +6,6 @@ import com.fasterxml.jackson.core.SerializableString;
  * Abstract base class that defines interface for customizing character
  * escaping aspects for String values, for formats that use escaping.
  * For JSON this applies to both property names and String values.
- *
- * @since 1.8
  */
 public abstract class CharacterEscapes
 {

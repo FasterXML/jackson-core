@@ -14,8 +14,6 @@ package com.fasterxml.jackson.core;
  * to cast to schema implementations they use. This marker interface is mostly
  * used for tagging "some kind of schema" -- instead of passing opaque
  * {@link java.lang.Object} -- for documentation purposes.
- * 
- * @since 1.8
  */
 public interface FormatSchema
 {

@@ -12,8 +12,6 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * This class is most useful when serializing JSON content as a String:
  * if so, instance of this class can be given as the writer to
  * <code>JsonGenerator</code>.
- *
- * @since 1.3
  */
 public final class SegmentedStringWriter
     extends Writer

@@ -7,8 +7,6 @@ package com.fasterxml.jackson.core;
  * This may be useful for example for ensuring that proper Jackson version is deployed
  * (beyond mechanisms that deployment system may have), as well as for possible
  * workarounds.
- * 
- * @since 1.6
  */
 public interface Versioned {
     /**

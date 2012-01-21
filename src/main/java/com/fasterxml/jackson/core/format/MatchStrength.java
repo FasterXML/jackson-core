@@ -6,8 +6,6 @@ package com.fasterxml.jackson.core.format;
  * Values are in increasing match strength; and detectors should return
  * "strongest" value: that is, it should start with strongest match
  * criteria, and downgrading if criteria is not fulfilled.
- * 
- * @since 1.8
  */
 public enum MatchStrength
 {

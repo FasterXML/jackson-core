@@ -52,8 +52,6 @@ public final class ByteArrayBuilder
     /**
      * Optional buffer recycler instance that we can use for allocating
      * the first block.
-     * 
-     * @since 1.5
      */
     private final BufferRecycler _bufferRecycler;
     
@@ -180,8 +178,6 @@ public final class ByteArrayBuilder
     /**
      * Method called when starting "manual" output: will clear out
      * current state and return the first segment buffer to fill
-     * 
-     * @since 1.6
      */
     public byte[] resetAndGetFirstSegment() {
         reset();
@@ -192,8 +188,6 @@ public final class ByteArrayBuilder
      * Method called when the current segment buffer is full; will
      * append to current contents, allocate a new segment buffer
      * and return it
-     * 
-     * @since 1.6
      */
     public byte[] finishCurrentSegment() {
         _allocMore();

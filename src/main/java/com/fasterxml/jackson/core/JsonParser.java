@@ -251,7 +251,7 @@ public abstract class JsonParser
         public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
         
         public int getMask() { return (1 << ordinal()); }
-    };
+    }
 
     /*
     /**********************************************************

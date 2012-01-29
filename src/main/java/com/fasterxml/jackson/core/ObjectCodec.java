@@ -141,4 +141,17 @@ public abstract class ObjectCodec
      */
     public abstract <T> T treeToValue(JsonNode n, Class<T> valueType)
         throws JsonProcessingException;
+
+    /*
+    /**********************************************************
+    /* Basic accessors
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for finding {@link JsonFactory} codec will use.
+     * 
+     * @since 2.0
+     */
+    public abstract JsonFactory getJsonFactory();
 }

@@ -32,8 +32,33 @@ public abstract class JsonNode
     protected final static List<JsonNode> NO_NODES = Collections.emptyList();
     protected final static List<String> NO_STRINGS = Collections.emptyList();
 
+    /*
+    /**********************************************************
+    /* Construction, related
+    /**********************************************************
+     */
+    
     protected JsonNode() { }
 
+    /**
+     * Method that can be called to get a node that is guaranteed
+     * not to allow changing of this node through mutators on
+     * this node or any of its children.
+     * This means it can either make a copy of this node (and all
+     * mutable children and grand children nodes), or node itself
+     * if it is immutable.
+     *<p>
+     * Note: return type is guaranteed to have same type as the
+     * node method is called on; which is why method is declared
+     * with local generic type.
+     * 
+     * @since 2.0
+     * 
+     * @return Node that is either a copy of this node (and all non-leaf
+     *    children); or, for immutable leaf nodes, node itself.
+     */
+    public abstract <T extends JsonNode> T deepCopy();
+    
     /*
     /**********************************************************
     /* Public API, type introspection
@@ -179,10 +204,13 @@ public abstract class JsonNode
 
     /**
      * If this node is a numeric type (as per {@link #isNumber}),
-     * returns native type that node uses to store the numeric
-     * value.
+     * returns native type that node uses to store the numeric value;
+     * otherwise returns null.
+     * 
+     * @return Type of number contained, if any; or null if node does not
+     *  contain numeric value.
      */
-    public abstract JsonParser.NumberType getNumberType();
+    public abstract JsonParser.NumberType numberType();
 
     /**
      * Method that can be used to check whether this node is a numeric
@@ -222,7 +250,7 @@ public abstract class JsonNode
      * @return Textual value this node contains, iff it is a textual
      *   JSON node (comes from JSON String value entry)
      */
-    public String getTextValue() { return null; }
+    public String textValue() { return null; }
 
     /**
      * Method to use for accessing binary content of binary nodes (nodes
@@ -234,7 +262,7 @@ public abstract class JsonNode
      * @return Binary data this node contains, iff it is a binary
      *   node; null otherwise
      */
-    public byte[] getBinaryValue() throws IOException
+    public byte[] binaryValue() throws IOException
     {
         return null;
     }
@@ -247,7 +275,7 @@ public abstract class JsonNode
      * @return Textual value this node contains, iff it is a textual
      *   json node (comes from JSON String value entry)
      */
-    public boolean getBooleanValue() { return false; }
+    public boolean booleanValue() { return false; }
 
     /**
      * Returns numeric value for this node, <b>if and only if</b>
@@ -257,7 +285,7 @@ public abstract class JsonNode
      * @return Number value this node contains, if any (null for non-number
      *   nodes).
      */
-    public Number getNumberValue() { return null; }
+    public Number numberValue() { return null; }
 
     /**
      * Returns integer value for this node, <b>if and only if</b>
@@ -269,12 +297,12 @@ public abstract class JsonNode
      * @return Integer value this node contains, if any; 0 for non-number
      *   nodes.
      */
-    public int getIntValue() { return 0; }
+    public int intValue() { return 0; }
 
-    public long getLongValue() { return 0L; }
-    public double getDoubleValue() { return 0.0; }
-    public BigDecimal getDecimalValue() { return BigDecimal.ZERO; }
-    public BigInteger getBigIntegerValue() { return BigInteger.ZERO; }
+    public long longValue() { return 0L; }
+    public double doubleValue() { return 0.0; }
+    public BigDecimal decimalValue() { return BigDecimal.ZERO; }
+    public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
 
     /**
      * Method for accessing value of the specified element of
@@ -593,7 +621,7 @@ public abstract class JsonNode
      * of JSON Array constructs.
      */
     @Override
-    public final Iterator<JsonNode> iterator() { return getElements(); }
+    public final Iterator<JsonNode> iterator() { return elements(); }
 
     /**
      * Method for accessing all value nodes of this Node, iff
@@ -601,19 +629,19 @@ public abstract class JsonNode
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.
      */
-    public Iterator<JsonNode> getElements() { return NO_NODES.iterator(); }
+    public Iterator<JsonNode> elements() { return NO_NODES.iterator(); }
 
     /**
      * Method for accessing names of all fields for this Node, iff
      * this node is a JSON Object node.
      */
-    public Iterator<String> getFieldNames() { return NO_STRINGS.iterator(); }
+    public Iterator<String> fieldNames() { return NO_STRINGS.iterator(); }
 
     /**
      * @return Iterator that can be used to traverse all key/value pairs for
      *   object nodes; empty iterator (no contents) for other types
      */
-    public Iterator<Map.Entry<String, JsonNode>> getFields() {
+    public Iterator<Map.Entry<String, JsonNode>> fields() {
         Collection<Map.Entry<String, JsonNode>> coll = Collections.emptyList();
         return coll.iterator();
     }

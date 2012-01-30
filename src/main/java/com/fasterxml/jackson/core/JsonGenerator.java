@@ -806,7 +806,7 @@ public abstract class JsonGenerator
      * for convenience and to make code more explicit in cases
      * where it deals specifically with trees.
      */
-    public abstract void writeTree(JsonNode rootNode)
+    public abstract void writeTree(TreeNode rootNode)
         throws IOException, JsonProcessingException;
 
     /*

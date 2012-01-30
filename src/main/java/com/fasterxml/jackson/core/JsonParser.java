@@ -1220,12 +1220,12 @@ public abstract class JsonParser
     
     /**
      * Method to deserialize JSON content into equivalent "tree model",
-     * represented by root {@link JsonNode} of resulting model.
+     * represented by root {@link TreeNode} of resulting model.
      * For JSON Arrays it will an array node (with child nodes),
      * for objects object node (with child nodes), and for other types
      * matching leaf node type
      */
-    public JsonNode readValueAsTree()
+    public TreeNode readValueAsTree()
         throws IOException, JsonProcessingException
     {
         ObjectCodec codec = getCodec();

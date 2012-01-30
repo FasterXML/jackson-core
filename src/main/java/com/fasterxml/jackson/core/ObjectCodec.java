@@ -49,23 +49,22 @@ public abstract class ObjectCodec
         throws IOException, JsonProcessingException;
 
     /**
-     * Method to deserialize JSON content as tree expressed
-     * using set of {@link JsonNode} instances. Returns
-     * root of the resulting tree (where root can consist
-     * of just a single node if the current event is a
-     * value event, not container).
+     * Method to deserialize JSON content into a POJO, type specified
+     * with fully resolved type object (so it can be a generic type,
+     * including containers like {@link java.util.Collection} and
+     * {@link java.util.Map}).
      */
     public abstract <T> T readValue(JsonParser jp, ResolvedType valueType)
         throws IOException, JsonProcessingException;
 
     /**
      * Method to deserialize JSON content as tree expressed
-     * using set of {@link JsonNode} instances. Returns
+     * using set of {@link TreeNode} instances. Returns
      * root of the resulting tree (where root can consist
      * of just a single node if the current event is a
      * value event, not container).
      */
-    public abstract JsonNode readTree(JsonParser jp)
+    public abstract <T extends TreeNode> T readTree(JsonParser jp)
         throws IOException, JsonProcessingException;
 
     /**
@@ -102,13 +101,6 @@ public abstract class ObjectCodec
     public abstract void writeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonProcessingException;
 
-    /**
-     * Method to serialize given Json Tree, using generator
-     * provided.
-     */
-    public abstract void writeTree(JsonGenerator jgen, JsonNode rootNode)
-        throws IOException, JsonProcessingException;
-
     /*
     /**********************************************************
     /* API for Tree Model handling
@@ -119,27 +111,27 @@ public abstract class ObjectCodec
      * Method for construct root level Object nodes
      * for Tree Model instances.
      */
-    public abstract JsonNode createObjectNode();
+    public abstract TreeNode createObjectNode();
 
     /**
      * Method for construct root level Array nodes
      * for Tree Model instances.
      */
-    public abstract JsonNode createArrayNode();
+    public abstract TreeNode createArrayNode();
 
     /**
      * Method for constructing a {@link JsonParser} for reading
      * contents of a JSON tree, as if it was external serialized
      * JSON content.
      */
-    public abstract JsonParser treeAsTokens(JsonNode n);
+    public abstract JsonParser treeAsTokens(TreeNode n);
 
     /**
      * Convenience method for converting given JSON tree into instance of specified
      * value type. This is equivalent to first constructing a {@link JsonParser} to
      * iterate over contents of the tree, and using that parser for data binding.
      */
-    public abstract <T> T treeToValue(JsonNode n, Class<T> valueType)
+    public abstract <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JsonProcessingException;
 
     /*

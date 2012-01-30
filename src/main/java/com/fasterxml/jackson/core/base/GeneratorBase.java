@@ -251,7 +251,7 @@ public abstract class GeneratorBase
     }
 
     @Override
-    public void writeTree(JsonNode rootNode)
+    public void writeTree(TreeNode rootNode)
         throws IOException, JsonProcessingException
     {
         // As with 'writeObject()', we are not check if write would work
@@ -261,7 +261,7 @@ public abstract class GeneratorBase
             if (_objectCodec == null) {
                 throw new IllegalStateException("No ObjectCodec defined for the generator, can not serialize JsonNode-based trees");
             }
-            _objectCodec.writeTree(this, rootNode);
+            _objectCodec.writeValue(this, rootNode);
         }
     }
 

@@ -259,7 +259,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
     
     @Override
-    public void writeTree(JsonNode rootNode) throws IOException, JsonProcessingException {
+    public void writeTree(TreeNode rootNode) throws IOException, JsonProcessingException {
         delegate.writeTree(rootNode);
     }
 }

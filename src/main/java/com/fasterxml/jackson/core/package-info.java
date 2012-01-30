@@ -11,7 +11,7 @@
  * is found from the "jackson-databind" bundle, except for following
  * base interfaces that are defined here:
  * <ul>
- *<li>{@link com.fasterxml.jackson.core.JsonNode} is included
+ *<li>{@link com.fasterxml.jackson.core.TreeNode} is included
  *within Streaming API to support integration of the Tree Model
  *(which is based on <code>JsonNode</code>) with the basic
  *parsers and generators (iff using mapping-supporting factory: which

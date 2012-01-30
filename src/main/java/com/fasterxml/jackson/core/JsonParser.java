@@ -1225,7 +1225,7 @@ public abstract class JsonParser
      * for objects object node (with child nodes), and for other types
      * matching leaf node type
      */
-    public TreeNode readValueAsTree()
+    public <T extends TreeNode> T readValueAsTree()
         throws IOException, JsonProcessingException
     {
         ObjectCodec codec = getCodec();

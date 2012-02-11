@@ -2452,6 +2452,15 @@ public final class UTF8StreamJsonParser
                 case INT_CR:
                     _skipCR();
                     break;
+                case 2: // 2-byte UTF
+                    _skipUtf8_2(i);
+                    break;
+                case 3: // 3-byte UTF
+                    _skipUtf8_3(i);
+                    break;
+                case 4: // 4-byte UTF
+                    _skipUtf8_4(i);
+                    break;
                 default: // e.g. -1
                     // Is this good enough error message?
                     _reportInvalidChar(i);
@@ -2478,6 +2487,15 @@ public final class UTF8StreamJsonParser
                     _skipCR();
                     return;
                 case INT_ASTERISK: // nop for these comments
+                    break;
+                case 2: // 2-byte UTF
+                    _skipUtf8_2(i);
+                    break;
+                case 3: // 3-byte UTF
+                    _skipUtf8_3(i);
+                    break;
+                case 4: // 4-byte UTF
+                    _skipUtf8_4(i);
                     break;
                 default: // e.g. -1
                     // Is this good enough error message?

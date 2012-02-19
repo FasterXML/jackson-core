@@ -27,8 +27,8 @@ import java.lang.reflect.Type;
 public abstract class TypeReference<T>
     implements Comparable<TypeReference<T>>
 {
-    final Type _type;
-
+    protected final Type _type;
+    
     protected TypeReference()
     {
         Type superClass = getClass().getGenericSuperclass();
@@ -37,16 +37,16 @@ public abstract class TypeReference<T>
         }
         /* 22-Dec-2008, tatu: Not sure if this case is safe -- I suspect
          *   it is possible to make it fail?
-         *   But let's deal with specifc
+         *   But let's deal with specific
          *   case when we know an actual use case, and thereby suitable
-         *   work arounds for valid case(s) and/or error to throw
+         *   workarounds for valid case(s) and/or error to throw
          *   on invalid one(s).
          */
         _type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
     }
 
     public Type getType() { return _type; }
-
+    
     /**
      * The only reason we define this method (and require implementation
      * of <code>Comparable</code>) is to prevent constructing a

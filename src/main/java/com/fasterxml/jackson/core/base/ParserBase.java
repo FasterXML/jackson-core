@@ -320,6 +320,17 @@ public abstract class ParserBase
     }
 
     @Override
+    public void overrideCurrentName(String name)
+    {
+        // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
+        JsonReadContext ctxt = _parsingContext;
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            ctxt = ctxt.getParent();
+        }
+        ctxt.setCurrentName(name);
+    }
+    
+    @Override
     public void close() throws IOException
     {
         if (!_closed) {

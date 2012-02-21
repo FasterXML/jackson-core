@@ -110,11 +110,6 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
-    public void clearCurrentToken() {
-        delegate.clearCurrentToken();        
-    }
-
-    @Override
     public String getCurrentName() throws IOException, JsonParseException {
         return delegate.getCurrentName();
     }
@@ -125,13 +120,29 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
-    public JsonToken getLastClearedToken() {
-        return delegate.getLastClearedToken();
+    public JsonStreamContext getParsingContext() {
+        return delegate.getParsingContext();
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, token state overrides
+    /**********************************************************
+     */
+    
+    @Override
+    public void clearCurrentToken() {
+        delegate.clearCurrentToken();        
     }
 
     @Override
-    public JsonStreamContext getParsingContext() {
-        return delegate.getParsingContext();
+    public JsonToken getLastClearedToken() {
+        return delegate.getLastClearedToken();
+    }
+    
+    @Override
+    public void overrideCurrentName(String name) {
+        delegate.overrideCurrentName(name);
     }
 
     /*

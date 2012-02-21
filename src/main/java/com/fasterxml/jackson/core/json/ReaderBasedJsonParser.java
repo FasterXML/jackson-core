@@ -95,7 +95,7 @@ public final class ReaderBasedJsonParser
     public void setCodec(ObjectCodec c) {
         _objectCodec = c;
     }
-
+    
     @Override
     public int releaseBuffered(Writer w) throws IOException
     {
@@ -137,7 +137,7 @@ public final class ReaderBasedJsonParser
         return false;
     }
 
-    protected char getNextChar(String eofMsg)
+    protected final char getNextChar(String eofMsg)
         throws IOException, JsonParseException
     {
         if (_inputPtr >= _inputEnd) {

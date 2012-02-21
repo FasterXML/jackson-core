@@ -135,7 +135,7 @@ public final class UTF8StreamJsonParser
     
     /*
     /**********************************************************
-    /* Former StreamBasedParserBase methods
+    /* Overrides
     /**********************************************************
      */
 

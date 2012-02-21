@@ -600,20 +600,6 @@ public abstract class JsonParser
     public abstract boolean hasCurrentToken();
 
     /**
-     * Method called to "consume" the current token by effectively
-     * removing it so that {@link #hasCurrentToken} returns false, and
-     * {@link #getCurrentToken} null).
-     * Cleared token value can still be accessed by calling
-     * {@link #getLastClearedToken} (if absolutely needed), but
-     * usually isn't.
-     *<p>
-     * Method was added to be used by the optional data binder, since
-     * it has to be able to consume last token used for binding (so that
-     * it will not be used again).
-     */
-    public abstract void clearCurrentToken();
-
-    /**
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#FIELD_NAME}s it will
      * be the same as what {@link #getText} returns;
@@ -649,15 +635,6 @@ public abstract class JsonParser
     public abstract JsonLocation getCurrentLocation();
 
     /**
-     * Method that can be called to get the last token that was
-     * cleared using {@link #clearCurrentToken}. This is not necessarily
-     * the latest token read.
-     * Will return null if no tokens have been cleared,
-     * or if parser has been closed.
-     */
-    public abstract JsonToken getLastClearedToken();
-
-    /**
      * Specialized accessor that can be used to verify that the current
      * token indicates start array (usually meaning that current token
      * is {@link JsonToken#START_ARRAY}) when start array is expected.
@@ -677,6 +654,50 @@ public abstract class JsonParser
     public boolean isExpectedStartArrayToken() {
         return getCurrentToken() == JsonToken.START_ARRAY;
     }
+
+    /*
+    /**********************************************************
+    /* Public API, token state overrides
+    /**********************************************************
+     */
+
+    /**
+     * Method called to "consume" the current token by effectively
+     * removing it so that {@link #hasCurrentToken} returns false, and
+     * {@link #getCurrentToken} null).
+     * Cleared token value can still be accessed by calling
+     * {@link #getLastClearedToken} (if absolutely needed), but
+     * usually isn't.
+     *<p>
+     * Method was added to be used by the optional data binder, since
+     * it has to be able to consume last token used for binding (so that
+     * it will not be used again).
+     */
+    public abstract void clearCurrentToken();
+
+    /**
+     * Method that can be called to get the last token that was
+     * cleared using {@link #clearCurrentToken}. This is not necessarily
+     * the latest token read.
+     * Will return null if no tokens have been cleared,
+     * or if parser has been closed.
+     */
+    public abstract JsonToken getLastClearedToken();
+    
+    /**
+     * Method that can be used to change what is considered to be
+     * the current (field) name.
+     * May be needed to support non-JSON data formats or unusual binding
+     * conventions; not needed for typical processing.
+     *<p>
+     * Note that use of this method should only be done as sort of last
+     * resort, as it is a work-around for regular operation.
+     * 
+     * @param name Name to use as the current name; may be null.
+     * 
+     * @since 2.0
+     */
+    public abstract void overrideCurrentName(String name);
     
     /*
     /**********************************************************

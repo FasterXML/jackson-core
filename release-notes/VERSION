@@ -16,6 +16,9 @@ Improvements
 
 New features:
 
+* [JACKSON-782]: Add 'JsonParser.overrideCurrentName()', needed as a workaround
+  for some exotic data binding cases (and/or formats)
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

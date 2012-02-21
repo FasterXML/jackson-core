@@ -118,19 +118,6 @@ public abstract class ParserMinimalBase
     }
     
     @Override
-    public void clearCurrentToken() {
-        if (_currToken != null) {
-            _lastClearedToken = _currToken;
-            _currToken = null;
-        }
-    }
-
-    @Override
-    public JsonToken getLastClearedToken() {
-        return _lastClearedToken;
-    }
-    
-    @Override
     public JsonToken nextValue()
         throws IOException, JsonParseException
     {
@@ -206,6 +193,28 @@ public abstract class ParserMinimalBase
 //    public abstract JsonLocation getTokenLocation();
 
 //   public abstract JsonLocation getCurrentLocation();
+
+    /*
+    /**********************************************************
+    /* Public API, token state overrides
+    /**********************************************************
+     */
+
+    @Override
+    public void clearCurrentToken() {
+        if (_currToken != null) {
+            _lastClearedToken = _currToken;
+            _currToken = null;
+        }
+    }
+
+    @Override
+    public JsonToken getLastClearedToken() {
+        return _lastClearedToken;
+    }
+
+    @Override
+    public abstract void overrideCurrentName(String name);
     
     /*
     /**********************************************************

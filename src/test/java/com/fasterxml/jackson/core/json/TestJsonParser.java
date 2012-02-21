@@ -60,30 +60,6 @@ public class TestJsonParser
         jp.close();
     }
 
-    public void testTokenAccess() throws Exception
-    {
-        JsonParser jp = createParserUsingReader("[ ]");
-        assertNull(jp.getCurrentToken());
-        jp.clearCurrentToken();
-        assertNull(jp.getCurrentToken());
-        assertNull(jp.getEmbeddedObject());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.START_ARRAY, jp.getCurrentToken());
-        jp.clearCurrentToken();
-        assertNull(jp.getCurrentToken());
-
-
-        // Also: no codec defined by default
-        try {
-            jp.readValueAsTree();
-            fail("Should get exception without codec");
-        } catch (IllegalStateException e) {
-            verifyException(e, "No ObjectCodec defined");
-        }
-
-        jp.close();
-    }
-
     /**
      * This basic unit test verifies that example given in the Json
      * specification (RFC-4627 or later) is properly parsed at

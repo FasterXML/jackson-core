@@ -5,6 +5,14 @@ for Jackson Data Processor.
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
+This package is the base on which [Jackson data-binding](/FasterXML/jackson-annotations)
+package builds on.
+Alternate data format implementations (like
+[Smile (binary JSON)](/FasterXML/jackson-dataformat-smile),
+[XML](/FasterXML/jackson-dataformat-xml)
+and [CSV](/FasterXML/jackson-dataformat-csv))
+build on this base package, implementing the core interfaces, and making it possible to use standard [data-binding package](/FasterXML/jackson-databind).
+
 ## Differences from Jackson 1.x
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository

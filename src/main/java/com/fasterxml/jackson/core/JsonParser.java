@@ -33,7 +33,8 @@ public abstract class JsonParser
     implements Closeable, Versioned
 {
     private final static int MIN_BYTE_I = (int) Byte.MIN_VALUE;
-    private final static int MAX_BYTE_I = (int) Byte.MAX_VALUE;
+    // as per [JACKSON-804], allow range up to and including 255
+    private final static int MAX_BYTE_I = (int) 255;
 
     private final static int MIN_SHORT_I = (int) Short.MIN_VALUE;
     private final static int MAX_SHORT_I = (int) Short.MAX_VALUE;
@@ -825,6 +826,8 @@ public abstract class JsonParser
     {
         int value = getIntValue();
         // So far so good: but does it fit?
+        // [JACKSON-804]: Let's actually allow range of [-128, 255], as those are uniquely mapped
+        //  (instead of just signed range of [-128, 127])
         if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
             throw _constructError("Numeric value ("+getText()+") out of range of Java byte");
         }

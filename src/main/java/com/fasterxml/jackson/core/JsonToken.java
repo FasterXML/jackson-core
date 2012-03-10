@@ -63,7 +63,7 @@ public enum JsonToken
      *<p>
      * Note: this token is never returned by regular JSON readers, but
      * only by readers that expose other kinds of source (like
-     * {@link JsonNode}-based JSON trees, Maps, Lists and such).
+     * <code>JsonNode</code>-based JSON trees, Maps, Lists and such).
      */
     VALUE_EMBEDDED_OBJECT(null),
 

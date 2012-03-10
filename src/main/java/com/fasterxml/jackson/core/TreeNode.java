@@ -32,7 +32,7 @@ public interface TreeNode
     public abstract JsonToken asToken();
 
     /**
-     * If this node is a numeric type (as per {@link #isNumber}),
+     * If this node is a numeric type (as per {@link JsonToken#isNumeric}),
      * returns native type that node uses to store the numeric value;
      * otherwise returns null.
      * 

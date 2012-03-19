@@ -12,7 +12,7 @@ public class JsonProcessingException
 {
     final static long serialVersionUID = 123; // Stupid eclipse...
 	
-    protected JsonLocation mLocation;
+    protected JsonLocation _location;
 
     protected JsonProcessingException(String msg, JsonLocation loc, Throwable rootCause)
     {
@@ -23,7 +23,7 @@ public class JsonProcessingException
         if (rootCause != null) {
             initCause(rootCause);
         }
-        mLocation = loc;
+        _location = loc;
     }
 
     protected JsonProcessingException(String msg)
@@ -46,11 +46,31 @@ public class JsonProcessingException
         this(null, null, rootCause);
     }
 
-    public JsonLocation getLocation()
-    {
-        return mLocation;
+    public JsonLocation getLocation() {
+        return _location;
+    }
+    
+    /*
+    /**********************************************************
+    /* Methods for sub-classes to use, override
+    /**********************************************************
+     */
+    
+    /**
+     * Accessor that sub-classes can override to append additional
+     * information right after the main message, but before
+     * source location information.
+     */
+    protected String getMessageSuffix() {
+        return null;
     }
 
+    /*
+    /**********************************************************
+    /* Overrides of standard methods
+    /**********************************************************
+     */
+    
     /**
      * Default method overridden so that we can add location information
      */
@@ -62,13 +82,20 @@ public class JsonProcessingException
             msg = "N/A";
         }
         JsonLocation loc = getLocation();
-        if (loc != null) {
-            StringBuilder sb = new StringBuilder();
+        String suffix = getMessageSuffix();
+        // mild optimization, if nothing extra is needed:
+        if (loc != null || suffix != null) {
+            StringBuilder sb = new StringBuilder(100);
             sb.append(msg);
-            sb.append('\n');
-            sb.append(" at ");
-            sb.append(loc.toString());
-            return sb.toString();
+            if (suffix != null) {
+                sb.append(suffix);
+            }
+            if (loc != null) {
+                sb.append('\n');
+                sb.append(" at ");
+                sb.append(loc.toString());
+            }
+            msg = sb.toString();
         }
         return msg;
     }

@@ -1,6 +1,8 @@
 # What is it?
 
-Jackson core project contains core low-level incremental ("streaming") parser and generator abstractions used Jackson Data Processor.
+This project contains core core low-level incremental ("streaming") parser and generator abstractions used by
+[Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
+
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 

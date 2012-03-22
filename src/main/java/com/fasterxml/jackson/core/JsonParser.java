@@ -1256,7 +1256,7 @@ public abstract class JsonParser
         if (codec == null) {
             throw new IllegalStateException("No ObjectCodec defined for the parser, can not deserialize JSON into JsonNode tree");
         }
-        return codec.readTree(this);
+        return (T) codec.readTree(this);
     }
 
     /*

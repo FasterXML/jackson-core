@@ -1,7 +1,6 @@
-# Overview
+# What is it?
 
-This project contains core low-level incremental ("streaming") parser and generator abstractions
-for Jackson Data Processor.
+Jackson core project contains core low-level incremental ("streaming") parser and generator abstractions used Jackson Data Processor.
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
@@ -13,7 +12,7 @@ Alternate data format implementations (like
 and [CSV](/FasterXML/jackson-dataformat-csv))
 build on this base package, implementing the core interfaces, and making it possible to use standard [data-binding package](/FasterXML/jackson-databind).
 
-## Differences from Jackson 1.x
+### Differences from Jackson 1.x
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
 
@@ -25,9 +24,9 @@ Note that the main differences compared to 1.0 core jar are:
 
 ----
 
-## Usage, general
+# Get it!
 
-### Maven, Java package
+## Maven
 
 Functionality of this package is contained in 
 Java package `com.fasterxml.core.databind`.
@@ -45,13 +44,43 @@ Core jar is a functional OSGi bundle, with proper import/export declarations.
 
 Package has no external dependencies, except for testing (which uses `JUnit`).
 
-----
+## Non-Maven
 
-## Usage, simple
+For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Download page](jackson-binding/wiki/JacksonDownload).
+
+Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
+
+-----
+
+# Use it!
+
+## General
+
+Usage typically starts with creation of a reusable (and thread-safe, once configured) `JsonFactory` instance:
+
+    JsonFactory factory = new JsonFactory();
+    // configure, if necessary:
+    factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+
+Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](jackson-databind)) handy; if so, you can do:
+
+    JsonFactory factory = objectMapper.getJsonFactory();
+
+## Usage, simple reading
+
+All reading is by using `JsonParser` (or its sub-classes, in case of data formats other than JSON),
+instance of which is constructed by `JsonFactory':
 
 (TO BE WRITTEN)
 
-----
+## Usage, simple writing
+
+All writing is by using `JsonGenerator` (or its sub-classes, in case of data formats other than JSON),
+instance of which is constructed by `JsonFactory':
+
+(TO BE WRITTEN)
+
+-----
 
 # Further reading
 

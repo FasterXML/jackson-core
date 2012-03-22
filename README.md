@@ -31,7 +31,7 @@ Note that the main differences compared to 1.0 core jar are:
 ## Maven
 
 Functionality of this package is contained in 
-Java package `com.fasterxml.core.databind`.
+Java package `com.fasterxml.jackson.core`.
 
 To use databinding, you need to use following Maven dependency:
 

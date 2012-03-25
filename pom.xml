@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>5</version>
+    <version>7</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
@@ -96,10 +96,10 @@
         </executions>
       </plugin>
       <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.6.1</version>
-                <configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.6.1</version>
+          <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
                     <encoding>UTF-8</encoding>
@@ -107,8 +107,8 @@
                     <links>
                         <link>http://docs.oracle.com/javase/6/docs/api/</link>
                     </links>
-                </configuration>
-                <executions>
+          </configuration>
+          <executions>
                     <execution>
                         <id>attach-javadocs</id>
                         <phase>verify</phase>
@@ -116,7 +116,7 @@
                             <goal>jar</goal>
                         </goals>
                     </execution>
-                </executions>
+          </executions>
         </plugin>
 
         <!-- Plus, let's make jars OSGi bundles as well  -->

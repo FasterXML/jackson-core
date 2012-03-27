@@ -73,14 +73,14 @@ Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](jackso
 ## Usage, simple reading
 
 All reading is by using `JsonParser` (or its sub-classes, in case of data formats other than JSON),
-instance of which is constructed by `JsonFactory':
+instance of which is constructed by `JsonFactory`:
 
 (TO BE WRITTEN)
 
 ## Usage, simple writing
 
 All writing is by using `JsonGenerator` (or its sub-classes, in case of data formats other than JSON),
-instance of which is constructed by `JsonFactory':
+instance of which is constructed by `JsonFactory`:
 
 (TO BE WRITTEN)
 
@@ -95,5 +95,4 @@ Project-specific documentation:
 
 Related:
 
-* [Jackson Core Annotations](http://github.com/FasterXML/jackson-annotations) can be used for configuration databinding.
 * [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)

@@ -1,18 +1,20 @@
-# What is it?
+# Overview
 
 This project contains core core low-level incremental ("streaming") parser and generator abstractions used by
 [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
-
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
-This package is the base on which [Jackson data-binding](/FasterXML/jackson-annotations)
-package builds on.
+This package is the base on which [Jackson data-binding](/FasterXML/jackson-annotations) package builds on.
+
 Alternate data format implementations (like
 [Smile (binary JSON)](/FasterXML/jackson-dataformat-smile),
 [XML](/FasterXML/jackson-dataformat-xml)
 and [CSV](/FasterXML/jackson-dataformat-csv))
-build on this base package, implementing the core interfaces, and making it possible to use standard [data-binding package](/FasterXML/jackson-databind).
+also build on this base package, implementing the core interfaces,
+making it possible to use standard [data-binding package](/FasterXML/jackson-databind) regardless of underlying data format.
+
+Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
 
 ### Differences from Jackson 1.x
 
@@ -86,8 +88,12 @@ instance of which is constructed by `JsonFactory':
 
 # Further reading
 
-* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)
-* [Documentation](http://wiki.fasterxml.com/JacksonDocumentation)
- * [JavaDocs](http://wiki.fasterxml.com/JacksonJavaDocs)
-* [Downloads](http://wiki.fasterxml.com/JacksonDownload)
+Project-specific documentation:
 
+* [Javadocs](http://fasterxml.github.com/jackson-core/javadoc/2.0.0/)
+* [Documentation](jackson-core/wiki/Documentation) has other project documentation
+
+Related:
+
+* [Jackson Core Annotations](http://github.com/FasterXML/jackson-annotations) can be used for configuration databinding.
+* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)

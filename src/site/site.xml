@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 http://maven.apache.org/xsd/decoration-1.1.0.xsd"
+  name="${project.name}">
+
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-fluido-skin</artifactId>
+    <version>1.1</version>
+  </skin>
+
+  <custom>
+    <fluidoSkin>
+      <topBarEnabled>true</topBarEnabled>
+      <sideBarEnabled>false</sideBarEnabled>
+      <twitter>
+        <user>cowtowncoder</user>
+        <showUser>true</showUser>
+        <showFollowers>true</showFollowers>
+      </twitter>
+    </fluidoSkin>
+  </custom>
+
+  <publishDate format="dd MMMM yyyy" position="left" />
+  <version position="left" />
+
+  <body>
+    <menu name="User guide">
+      <!-- TODO -->
+    </menu>
+
+    <menu ref="reports" inherit="bottom" />
+  </body>
+</project>

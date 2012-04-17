@@ -279,8 +279,11 @@ public final class NumberInput
     public final static double parseDouble(String numStr) throws NumberFormatException
     {
         // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
+        /* as per [JACKSON-827], let's use MIN_VALUE as it is available on all JDKs; normalized
+         * only in JDK 1.6. In practice, should not really matter.
+         */
         if (NASTY_SMALL_DOUBLE.equals(numStr)) {
-            return Double.MIN_NORMAL;
+            return Double.MIN_VALUE;
         }
         return Double.parseDouble(numStr);
     }

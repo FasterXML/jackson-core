@@ -43,16 +43,16 @@ public class SerializedString implements SerializableString
     /**********************************************************
      */
 
-    @Override
+//  @Override
     public final String getValue() { return _value; }
     
     /**
      * Returns length of the String as characters
      */
-    @Override
+//  @Override
     public final int charLength() { return _value.length(); }
     
-    @Override
+//  @Override
     public final char[] asQuotedChars()
     {
         char[] result = _quotedChars;
@@ -67,7 +67,7 @@ public class SerializedString implements SerializableString
      * Accessor for accessing value that has been quoted using JSON
      * quoting rules, and encoded using UTF-8 encoding.
      */
-    @Override
+//  @Override
     public final byte[] asUnquotedUTF8()
     {
         byte[] result = _unquotedUTF8Ref;
@@ -82,7 +82,7 @@ public class SerializedString implements SerializableString
      * Accessor for accessing value as is (without JSON quoting)
      * encoded using UTF-8 encoding.
      */
-    @Override
+//  @Override
     public final byte[] asQuotedUTF8()
     {
         byte[] result = _quotedUTF8Ref;
@@ -98,7 +98,8 @@ public class SerializedString implements SerializableString
     /* Additional 2.0 methods for appending/writing contents
     /**********************************************************
      */
-    @Override
+
+//  @Override
     public int appendQuotedUTF8(byte[] buffer, int offset)
     {
         byte[] result = _quotedUTF8Ref;
@@ -114,7 +115,7 @@ public class SerializedString implements SerializableString
         return length;
     }
 
-    @Override
+//  @Override
     public int appendQuoted(char[] buffer, int offset)
     {
         char[] result = _quotedChars;
@@ -130,7 +131,7 @@ public class SerializedString implements SerializableString
         return length;
     }
 
-    @Override
+//  @Override
     public int appendUnquotedUTF8(byte[] buffer, int offset)
     {
         byte[] result = _unquotedUTF8Ref;
@@ -146,7 +147,7 @@ public class SerializedString implements SerializableString
         return length;
     }
 
-    @Override
+//  @Override
     public int appendUnquoted(char[] buffer, int offset)
     {
         String str = _value;
@@ -158,7 +159,7 @@ public class SerializedString implements SerializableString
         return length;
     }
 
-    @Override
+//  @Override
     public int writeQuotedUTF8(OutputStream out) throws IOException
     {
         byte[] result = _quotedUTF8Ref;
@@ -171,7 +172,7 @@ public class SerializedString implements SerializableString
         return length;
     }
 
-    @Override
+//  @Override
     public int writeUnquotedUTF8(OutputStream out) throws IOException
     {
         byte[] result = _unquotedUTF8Ref;
@@ -184,7 +185,7 @@ public class SerializedString implements SerializableString
         return length;
     }
 
-    @Override
+//  @Override
     public int putQuotedUTF8(ByteBuffer buffer)
     {
         byte[] result = _quotedUTF8Ref;
@@ -200,7 +201,7 @@ public class SerializedString implements SerializableString
         return length;
     }
 
-    @Override
+//  @Override
     public int putUnquotedUTF8(ByteBuffer buffer)
     {
         byte[] result = _unquotedUTF8Ref;

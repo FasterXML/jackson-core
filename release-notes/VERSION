@@ -6,6 +6,10 @@ Release date:
 Description:
   First patch release for 2.0
 
+* [JACKSON-827] Fix incompatibilities with JDK 1.5 (2.0.0 accidentally
+  required 1.6)
+ (reported Pascal G)
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

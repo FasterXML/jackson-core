@@ -198,6 +198,16 @@ public abstract class JsonGenerator
         throw new UnsupportedOperationException("Generator of type "+getClass().getName()+" does not support schema of type '"
                 +schema.getSchemaType()+"'");
     }
+
+    /**
+     * Method for accessing Schema that this parser uses, if any.
+     * Default implementation returns null.
+     *
+     * @since 2.1
+     */
+    public FormatSchema getSchema() {
+	return null;
+    }
     
     /**
      * Method that can be used to verify that given schema can be used with
@@ -214,7 +224,7 @@ public abstract class JsonGenerator
     /**
      * Accessor for finding out version of the bundle that provided this generator instance.
      */
-    @Override
+//  @Override
     public abstract Version version();
 
     /**
@@ -1110,7 +1120,6 @@ public abstract class JsonGenerator
      * If either of above is true, the target is also closed. Otherwise
      * (not managing, feature not enabled), target is not closed.
      */
-    @Override
-    public abstract void close()
-        throws IOException;
+//    @Override
+    public abstract void close() throws IOException;
 }

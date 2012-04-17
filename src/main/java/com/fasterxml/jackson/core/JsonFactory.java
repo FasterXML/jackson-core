@@ -283,7 +283,7 @@ public class JsonFactory implements Versioned
     /**********************************************************
      */
 
-    @Override
+//  @Override
     public Version version() {
         return CoreVersion.instance.version();
     }

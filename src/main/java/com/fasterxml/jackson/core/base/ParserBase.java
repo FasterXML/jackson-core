@@ -405,9 +405,9 @@ public abstract class ParserBase
     /**********************************************************
      */
 
-    public final long getTokenCharacterOffset() { return _tokenInputTotal; }
-    public final int getTokenLineNr() { return _tokenInputRow; }
-    public final int getTokenColumnNr() {
+    public long getTokenCharacterOffset() { return _tokenInputTotal; }
+    public int getTokenLineNr() { return _tokenInputRow; }
+    public int getTokenColumnNr() {
         // note: value of -1 means "not available"; otherwise convert from 0-based to 1-based
         int col = _tokenInputCol;
         return (col < 0) ? col : (col + 1);

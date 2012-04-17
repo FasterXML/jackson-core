@@ -79,7 +79,7 @@ public interface InputAccessor
             _bufferedAmount = inputDocument.length;
         }
         
-        @Override
+//      @Override
         public boolean hasMoreBytes() throws IOException
         {
             if (_ptr < _bufferedAmount) { // already got more
@@ -97,7 +97,7 @@ public interface InputAccessor
             return true;
         }
 
-        @Override
+//      @Override
         public byte nextByte() throws IOException
         {
             // should we just try loading more automatically?
@@ -109,7 +109,7 @@ public interface InputAccessor
             return _buffer[_ptr++];
         }
 
-        @Override
+//      @Override
         public void reset() {
             _ptr = 0;
         }

@@ -1,0 +1,12 @@
+Here are people who have contributed to development Jackson JSON process 
+core component, version 2.x
+(version numbers in brackets indicate release in which the problem was fixed)
+
+(note: for older credits, check out release notes for 1.x versions)
+
+Tatu Saloranta, tatu.saloranta@iki.fi: author
+
+Pascal GÂlinas:
+  * Reported [JACKSON-827]: 2.0.0 was accidentally requiring JDK 1.6
+    (should still be 1.5)
+   [2.0.1]

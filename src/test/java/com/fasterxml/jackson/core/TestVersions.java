@@ -35,7 +35,7 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
         assertEquals(MAJOR_VERSION, v.getMajorVersion());
         assertEquals(MINOR_VERSION, v.getMinorVersion());
         // Check patch level initially, comment out for maint versions
-        assertEquals(0, v.getPatchLevel());
+//        assertEquals(0, v.getPatchLevel());
 
         // also, group & artifact ids should match:
         assertEquals(GROUP_ID, v.getGroupId());

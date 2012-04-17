@@ -1077,7 +1077,7 @@ public abstract class JsonParser
      * default value of <b>0</b> will be returned; no exceptions are thrown.
      */
     public long getValueAsLong() throws IOException, JsonParseException {
-        return getValueAsInt(0);
+        return getValueAsLong(0);
     }
     
     /**

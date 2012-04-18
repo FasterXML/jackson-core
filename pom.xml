@@ -40,11 +40,6 @@
 
   <properties>
     <!--
-     | Compilation: require JDK 1.6
-    -->
-    <javac.src.version>1.6</javac.src.version>
-    <javac.target.version>1.6</javac.target.version>
-    <!--
      | Configuration properties for the OSGi maven-bundle-plugin
     -->
     <osgi.export>${project.groupId}.*;version=${project.version}</osgi.export>

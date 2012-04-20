@@ -68,7 +68,9 @@ public class TestBase64Parsing
                 try {
                     data = jp.getBinaryValue(variant);
                 } catch (Exception e) {
-                    throw new IOException("Failed (variant "+variant+", data length "+len+"): "+e.getMessage(), e);
+                    IOException ioException = new IOException("Failed (variant "+variant+", data length "+len+"): "+e.getMessage());
+                    ioException.initCause(e);
+                    throw ioException;
                 }
                 assertNotNull(data);
                 assertArrayEquals(data, input);

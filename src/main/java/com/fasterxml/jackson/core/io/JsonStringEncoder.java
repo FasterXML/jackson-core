@@ -167,7 +167,7 @@ public final class JsonStringEncoder
         while (inputPtr < inputEnd) {
             final int[] escCodes = CharTypes.get7BitOutputEscapes();
 
-            inner_loop: // ascii and escapes
+            inner_loop: // ASCII and escapes
             while (true) {
                 int ch = text.charAt(inputPtr);
                 if (ch > 0x7F || escCodes[ch] != 0) {
@@ -401,5 +401,4 @@ public final class JsonStringEncoder
         // should we ever get this?
         throw new IllegalArgumentException("Illegal character point (0x"+Integer.toHexString(code)+") to output");
     }
-
 }

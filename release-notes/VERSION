@@ -4,15 +4,23 @@ Release date:
   22-Apr-2012
 
 Description:
-  First patch release for 2.0
+  Second patch release for 2.0
 
-* [JACKSON-827] Fix incompatibilities with JDK 1.5 (2.0.0 accidentally
-  required 1.6)
- (reported Pascal G)
+Fixes:
+
+(and all fixes up to 1.9.7)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.0.1 (22-Apr-2012)
+
+Fixes:
+
+* [JACKSON-827] Fix incompatibilities with JDK 1.5 (2.0.0 accidentally
+  required 1.6)
+ (reported Pascal G)
 
 2.0.0 (25-Mar-2012)
 

@@ -192,11 +192,17 @@ public abstract class ParserBase
 
     // Also, we need some numeric constants
 
-    final static BigDecimal BD_MIN_LONG = new BigDecimal(Long.MIN_VALUE);
-    final static BigDecimal BD_MAX_LONG = new BigDecimal(Long.MAX_VALUE);
+    final static BigInteger BI_MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
+    final static BigInteger BI_MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
 
-    final static BigDecimal BD_MIN_INT = new BigDecimal(Long.MIN_VALUE);
-    final static BigDecimal BD_MAX_INT = new BigDecimal(Long.MAX_VALUE);
+    final static BigInteger BI_MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+    final static BigInteger BI_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+    
+    final static BigDecimal BD_MIN_LONG = new BigDecimal(BI_MIN_LONG);
+    final static BigDecimal BD_MAX_LONG = new BigDecimal(BI_MAX_LONG);
+
+    final static BigDecimal BD_MIN_INT = new BigDecimal(BI_MIN_INT);
+    final static BigDecimal BD_MAX_INT = new BigDecimal(BI_MAX_INT);
 
     final static long MIN_INT_L = (long) Integer.MIN_VALUE;
     final static long MAX_INT_L = (long) Integer.MAX_VALUE;
@@ -830,7 +836,10 @@ public abstract class ParserBase
             }
             _numberInt = result;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            // !!! Should check for range...
+            if (BI_MIN_INT.compareTo(_numberBigInt) > 0 
+                    || BI_MAX_INT.compareTo(_numberBigInt) < 0) {
+                reportOverflowInt();
+            }
             _numberInt = _numberBigInt.intValue();
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Need to check boundaries
@@ -857,7 +866,10 @@ public abstract class ParserBase
         if ((_numTypesValid & NR_INT) != 0) {
             _numberLong = (long) _numberInt;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            // !!! Should check for range...
+            if (BI_MIN_LONG.compareTo(_numberBigInt) > 0 
+                    || BI_MAX_LONG.compareTo(_numberBigInt) < 0) {
+                reportOverflowLong();
+            }
             _numberLong = _numberBigInt.longValue();
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             // Need to check boundaries

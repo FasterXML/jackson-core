@@ -1,12 +1,14 @@
-Version: 2.0.3
+Version: 21.0
 
 Release date:
   xx-Jun-2012
 
 Description:
-  Another patch release for 2.0.
+  A new minor version for 2.x.
 
 Fixes:
+
+New features:
 
 ------------------------------------------------------------------------
 === History: ===

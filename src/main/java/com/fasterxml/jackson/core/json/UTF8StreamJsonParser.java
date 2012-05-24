@@ -2273,7 +2273,6 @@ public final class UTF8StreamJsonParser
             if (!Character.isJavaIdentifierPart(c)) {
                 break;
             }
-            ++_inputPtr;
             sb.append(c);
         }
         _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);

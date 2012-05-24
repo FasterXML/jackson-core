@@ -10,6 +10,9 @@ Fixes:
 
 New features:
 
+* [JACKSON-837]: Made JsonGenerator implement Flushable.
+  (suggested by Matt G)
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

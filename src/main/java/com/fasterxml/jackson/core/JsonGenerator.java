@@ -28,7 +28,8 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
  * @author Tatu Saloranta
  */
 public abstract class JsonGenerator
-    implements Closeable, Versioned
+    implements Closeable, Flushable, // as of 2.1
+        Versioned
 {
     /**
      * Enumeration that defines all togglable features for generators.

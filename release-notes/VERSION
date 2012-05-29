@@ -1,4 +1,4 @@
-Version: 21.0
+Version: 2.1.0
 
 Release date:
   xx-Jun-2012
@@ -12,6 +12,11 @@ New features:
 
 * [JACKSON-837]: Made JsonGenerator implement Flushable.
   (suggested by Matt G)
+
+Other:
+
+* [Issue-7]: Add 'createParser' and 'createGenerator' (as eventual replacements
+  for 'createJsonParser'/'createJsonGenerator') in 'JsonFactory'
 
 ------------------------------------------------------------------------
 === History: ===

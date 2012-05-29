@@ -503,7 +503,7 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             in = _inputDecorator.decorate(ctxt, in);
         }
-        return _createJsonParser(in, ctxt);
+        return _createParser(in, ctxt);
     }
 
     /**
@@ -529,7 +529,7 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             in = _inputDecorator.decorate(ctxt, in);
         }
-        return _createJsonParser(in, ctxt);
+        return _createParser(in, ctxt);
     }
 
     /**
@@ -555,7 +555,7 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             in = _inputDecorator.decorate(ctxt, in);
         }
-        return _createJsonParser(in, ctxt);
+        return _createParser(in, ctxt);
     }
 
     /**
@@ -580,7 +580,7 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             r = _inputDecorator.decorate(ctxt, r);
         }
-	return _createJsonParser(r, ctxt);
+	return _createParser(r, ctxt);
     }
 
     /**
@@ -595,10 +595,10 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ctxt, data, 0, data.length);
             if (in != null) {
-                return _createJsonParser(in, ctxt);
+                return _createParser(in, ctxt);
             }
         }
-        return _createJsonParser(data, 0, data.length, ctxt);
+        return _createParser(data, 0, data.length, ctxt);
     }
 
     /**
@@ -617,10 +617,10 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ctxt, data, offset, len);
             if (in != null) {
-                return _createJsonParser(in, ctxt);
+                return _createParser(in, ctxt);
             }
         }
-	return _createJsonParser(data, offset, len, ctxt);
+	return _createParser(data, offset, len, ctxt);
     }
 
     /**
@@ -637,7 +637,7 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             r = _inputDecorator.decorate(ctxt, r);
         }
-	return _createJsonParser(r, ctxt);
+	return _createParser(r, ctxt);
     }
 
     /*
@@ -684,7 +684,7 @@ public class JsonFactory implements Versioned
         if (_outputDecorator != null) {
             w = _outputDecorator.decorate(ctxt, w);
         }
-	return _createJsonGenerator(w, ctxt);
+	return _createGenerator(w, ctxt);
     }
 
     /**
@@ -708,7 +708,7 @@ public class JsonFactory implements Versioned
         if (_outputDecorator != null) {
             out = _outputDecorator.decorate(ctxt, out);
         }
-	return _createJsonGenerator(out, ctxt);
+	return _createGenerator(out, ctxt);
     }
 
     /**
@@ -754,7 +754,7 @@ public class JsonFactory implements Versioned
         if (_outputDecorator != null) {
             w = _outputDecorator.decorate(ctxt, w);
         }
-	return _createJsonGenerator(w, ctxt);
+	return _createGenerator(w, ctxt);
     }
 
     /*
@@ -773,17 +773,30 @@ public class JsonFactory implements Versioned
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     * 
+     * @since 2.1
      */
-    protected JsonParser _createJsonParser(InputStream in, IOContext ctxt)
+    protected JsonParser _createParser(InputStream in, IOContext ctxt)
         throws IOException, JsonParseException
     {
+        /* NOTE: MUST call the deprecated method until it is deleted, just so
+         * that override still works as expected, for now.
+         */
+        return _createJsonParser(in, ctxt);
+    }
+
+    /**
+     * @deprecated since 2.1 -- use {@link #_createParser(InputStream, IOContext)} instead
+     */
+    @Deprecated
+    protected JsonParser _createJsonParser(InputStream in, IOContext ctxt) throws IOException, JsonParseException {
         // As per [JACKSON-259], may want to fully disable canonicalization:
         return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
                 _objectCodec, _rootByteSymbols, _rootCharSymbols,
                 isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
                 isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
     }
-
+    
     /**
      * Overridable factory method that actually instantiates parser
      * using given {@link Reader} object for reading content.
@@ -793,10 +806,23 @@ public class JsonFactory implements Versioned
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     * 
+     * @since 2.1
      */
-    protected JsonParser _createJsonParser(Reader r, IOContext ctxt)
-	throws IOException, JsonParseException
+    protected JsonParser _createParser(Reader r, IOContext ctxt)
+        throws IOException, JsonParseException
     {
+        /* NOTE: MUST call the deprecated method until it is deleted, just so
+         * that override still works as expected, for now.
+         */
+        return _createJsonParser(r, ctxt);
+    }
+
+    /**
+     * @deprecated since 2.1 -- use {@link #_createParser(Reader, IOContext)} instead
+     */
+    @Deprecated
+    protected JsonParser _createJsonParser(Reader r, IOContext ctxt) throws IOException, JsonParseException {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
                 _rootCharSymbols.makeChild(isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
                     isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES)));
@@ -813,15 +839,26 @@ public class JsonFactory implements Versioned
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
      */
-    protected JsonParser _createJsonParser(byte[] data, int offset, int len, IOContext ctxt)
+    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt)
         throws IOException, JsonParseException
     {
+        /* NOTE: MUST call the deprecated method until it is deleted, just so
+         * that override still works as expected, for now.
+         */
+        return _createJsonParser(data, offset, len, ctxt);
+    }
+
+    /**
+     * @deprecated since 2.1 -- use {@link #_createParser(byte[], int, int, IOContext)} instead
+     */
+    @Deprecated
+    protected JsonParser _createJsonParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException, JsonParseException {
         return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
                 _objectCodec, _rootByteSymbols, _rootCharSymbols,
                 isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
                 isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
     }
-
+    
     /*
     /**********************************************************
     /* Factory methods used by factory for creating generator instances,
@@ -839,6 +876,19 @@ public class JsonFactory implements Versioned
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
      */
+    protected JsonGenerator _createGenerator(Writer out, IOContext ctxt)
+        throws IOException
+    {
+        /* NOTE: MUST call the deprecated method until it is deleted, just so
+         * that override still works as expected, for now.
+         */
+        return _createJsonGenerator(out, ctxt);
+    }
+
+    /**
+     * @deprecated since 2.1 -- use {@link #_createGenerator(Writer, ctxt)} instead
+     */
+    @Deprecated
     protected JsonGenerator _createJsonGenerator(Writer out, IOContext ctxt)
         throws IOException
     {
@@ -859,6 +909,14 @@ public class JsonFactory implements Versioned
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
      */
+    protected JsonGenerator _createUTF8Generator(OutputStream out, IOContext ctxt) throws IOException {
+        return _createUTF8JsonGenerator(out, ctxt);
+    }
+
+    /**
+     * @deprecated since 2.1 -- use {@link #_createGenerator(OutputStream, ctxt)} instead
+     */
+    @Deprecated
     protected JsonGenerator _createUTF8JsonGenerator(OutputStream out, IOContext ctxt)
         throws IOException
     {

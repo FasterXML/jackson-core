@@ -27,7 +27,7 @@ public class BufferRecycler
         ,WRITE_CONCAT_BUFFER(2000)
         ;
             
-        private final int size;
+        protected final int size;
 
         ByteBufferType(int size) { this.size = size; }
     }
@@ -39,7 +39,7 @@ public class BufferRecycler
             ,NAME_COPY_BUFFER(200) // Temporary buffer for getting name characters
             ;
         
-        private final int size;
+        protected final int size;
 
         CharBufferType(int size) { this.size = size; }
     }

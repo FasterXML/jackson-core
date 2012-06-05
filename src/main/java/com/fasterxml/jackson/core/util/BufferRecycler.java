@@ -25,6 +25,14 @@ public class BufferRecycler
          * example when requesting output as byte array.
          */
         ,WRITE_CONCAT_BUFFER(2000)
+        
+        /**
+         * Buffer used for concatenating binary data that is either being
+         * encoded as base64 output, or decoded from base64 input.
+         * 
+         * @since 2.1
+         */
+        ,BASE64_CODEC_BUFFER(2000)
         ;
             
         protected final int size;

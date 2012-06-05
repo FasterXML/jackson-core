@@ -682,6 +682,46 @@ public abstract class JsonGenerator
         writeBinary(Base64Variants.getDefaultVariant(), data, 0, data.length);
     }
 
+    /**
+     * Similar to {@link #writeBinary(Base64Variant,InputStream)},
+     * but assumes default to using the Jackson default Base64 variant 
+     * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
+     * 
+     * @param data InputStream to use for reading binary data to write.
+     *    Will be closed after successful write operation
+     * @param dataLength (optional) number of bytes that will be available;
+     *    or -1 to be indicate it is not known. Note that implementations
+     *    need not support cases where length is not known in advance; this
+     *    depends on underlying data format: JSON output does NOT require length,
+     *    other formats may
+     */
+    public int writeBinary(InputStream data, int dataLength)
+        throws IOException, JsonGenerationException {
+        return writeBinary(Base64Variants.getDefaultVariant(), data, dataLength);
+    }
+    
+    /**
+     * Method similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
+     * but where input is provided through a stream, allowing for incremental
+     * writes without holding the whole input in memory.
+     * 
+     * @param b64variant Base64 variant to use
+     * @param data InputStream to use for reading binary data to write.
+     *    Will be closed after successful write operation
+     * @param dataLength (optional) number of bytes that will be available;
+     *    or -1 to be indicate it is not known. Note that implementations
+     *    need not support cases where length is not known in advance; this
+     *    depends on underlying data format: JSON output does NOT require length,
+     *    other formats may
+     * 
+     * @return Number of bytes read from {@link data} and written as binary payload
+     * 
+     * @since 2.1
+     */
+    public abstract int writeBinary(Base64Variant b64variant,
+            InputStream data, int dataLength)
+        throws IOException, JsonGenerationException;
+    
     /*
     /**********************************************************
     /* Public API, write methods, other value types

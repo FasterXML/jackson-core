@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -106,6 +107,12 @@ public class JsonGeneratorDelegate extends JsonGenerator
         delegate.writeBinary(b64variant, data, offset, len);
     }
 
+    @Override
+    public int writeBinary(Base64Variant b64variant, InputStream data)
+        throws IOException, JsonGenerationException {
+        return delegate.writeBinary(b64variant, data);
+    }
+    
     @Override
     public void writeBoolean(boolean state) throws IOException, JsonGenerationException {
         delegate.writeBoolean(state);

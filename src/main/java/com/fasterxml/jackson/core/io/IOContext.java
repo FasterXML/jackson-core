@@ -63,6 +63,12 @@ public final class IOContext
     protected byte[] _writeEncodingBuffer = null;
     
     /**
+     * Reference to the buffer allocated for temporary use with
+     * base64 encoding or decoding.
+     */
+    protected byte[] _base64Buffer = null;
+
+    /**
      * Reference to the buffer allocated for tokenization purposes,
      * in which character input is read, and from which it can be
      * further returned.
@@ -144,6 +150,18 @@ public final class IOContext
         _writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.WRITE_ENCODING_BUFFER);
         return _writeEncodingBuffer;
     }
+
+    /**
+     * @since 2.1
+     */
+    public final byte[] allocBase64Buffer()
+    {
+        if (_base64Buffer != null) {
+            throw new IllegalStateException("Trying to call allocBase64Buffer() second time");
+        }
+        _base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.BASE64_CODEC_BUFFER);
+        return _base64Buffer;
+    }
     
     public final char[] allocTokenBuffer()
     {
@@ -201,6 +219,17 @@ public final class IOContext
             }
             _writeEncodingBuffer = null;
             _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.WRITE_ENCODING_BUFFER, buf);
+        }
+    }
+
+    public final void releaseBase64Buffer(byte[] buf)
+    {
+        if (buf != null) { // sanity checks, release once-and-only-once, must be one owned
+            if (buf != _base64Buffer) {
+                throw new IllegalArgumentException("Trying to release buffer not owned by the context");
+            }
+            _base64Buffer = null;
+            _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.BASE64_CODEC_BUFFER, buf);
         }
     }
     

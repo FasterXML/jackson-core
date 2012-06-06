@@ -2434,12 +2434,16 @@ public final class UTF8StreamJsonParser
         final int[] codes = CharTypes.getInputCodeComment();
 
         // Ok: need the matching '*/'
+        main_loop:
         while ((_inputPtr < _inputEnd) || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++] & 0xFF;
             int code = codes[i];
             if (code != 0) {
                 switch (code) {
                 case INT_ASTERISK:
+                    if (_inputPtr >= _inputEnd && !loadMore()) {
+                        break main_loop;
+                    }
                     if (_inputBuffer[_inputPtr] == INT_SLASH) {
                         ++_inputPtr;
                         return;

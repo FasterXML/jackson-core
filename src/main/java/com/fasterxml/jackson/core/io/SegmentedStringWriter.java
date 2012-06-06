@@ -77,7 +77,7 @@ public final class SegmentedStringWriter
 
     @Override
     public void write(String str, int off, int len) {
-        _buffer.append(str, 0, str.length());
+        _buffer.append(str, off, len);
     }
 
     /*

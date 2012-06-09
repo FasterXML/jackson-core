@@ -688,7 +688,7 @@ public abstract class JsonGenerator
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
      * 
      * @param data InputStream to use for reading binary data to write.
-     *    Will be closed after successful write operation
+     *    Will not be closed after successful write operation
      * @param dataLength (optional) number of bytes that will be available;
      *    or -1 to be indicate it is not known. Note that implementations
      *    need not support cases where length is not known in advance; this
@@ -707,12 +707,15 @@ public abstract class JsonGenerator
      * 
      * @param b64variant Base64 variant to use
      * @param data InputStream to use for reading binary data to write.
-     *    Will be closed after successful write operation
+     *    Will not be closed after successful write operation
      * @param dataLength (optional) number of bytes that will be available;
-     *    or -1 to be indicate it is not known. Note that implementations
+     *    or -1 to be indicate it is not known.
+     *    If a positive length is given, {@link data} MUST provide at least
+     *    that many bytes: if not, an exception will be thrown.
+     *    Note that implementations
      *    need not support cases where length is not known in advance; this
      *    depends on underlying data format: JSON output does NOT require length,
-     *    other formats may
+     *    other formats may.
      * 
      * @return Number of bytes read from {@link data} and written as binary payload
      * 

@@ -162,6 +162,7 @@ public abstract class GeneratorBase
     /**********************************************************
      */
 
+    @Override
     public void writeFieldName(SerializableString name) throws IOException, JsonGenerationException {
         writeFieldName(name.getValue());
     }

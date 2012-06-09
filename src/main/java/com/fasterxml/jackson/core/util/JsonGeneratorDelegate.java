@@ -108,9 +108,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     @Override
-    public int writeBinary(Base64Variant b64variant, InputStream data)
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength)
         throws IOException, JsonGenerationException {
-        return delegate.writeBinary(b64variant, data);
+        return delegate.writeBinary(b64variant, data, dataLength);
     }
     
     @Override

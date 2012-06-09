@@ -631,6 +631,40 @@ public final class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = '"';
     }
 
+    @Override
+    public int writeBinary(Base64Variant b64variant,
+            InputStream data, int dataLength)
+        throws IOException, JsonGenerationException
+    {
+        _verifyValueWrite("write binary value");
+        // Starting quotes
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = '"';
+        byte[] encodingBuffer = _ioContext.allocBase64Buffer();
+        int bytes;
+        try {
+            if (dataLength < 0) { // length unknown
+                bytes = _writeBinary(b64variant, data, encodingBuffer);
+            } else {
+                int missing = _writeBinary(b64variant, data, encodingBuffer, dataLength);
+                if (missing > 0) {
+                    _reportError("Too few bytes available: missing "+missing+" bytes (out of "+dataLength+")");
+                }
+                bytes = dataLength;
+            }
+        } finally {
+            _ioContext.releaseBase64Buffer(encodingBuffer);
+        }
+        // and closing quotes
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = '"';
+        return bytes;
+    }
+    
     /*
     /**********************************************************
     /* Output method implementations, primitive
@@ -1517,6 +1551,146 @@ public final class WriterBasedJsonGenerator
         }
     }
 
+    // write-method called when length is definitely known
+    protected int _writeBinary(Base64Variant b64variant,
+            InputStream data, byte[] readBuffer, int bytesLeft)
+        throws IOException, JsonGenerationException
+    {
+        int inputPtr = 0;
+        int inputEnd = 0;
+        int lastFullOffset = -3;       
+        
+        // Let's also reserve room for possible (and quoted) lf char each round
+        int safeOutputEnd = _outputEnd - 6;
+        int chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
+
+        while (bytesLeft > 2) { // main loop for full triplets
+            if (inputPtr > lastFullOffset) {
+                inputEnd = _readMore(data, readBuffer, inputPtr, inputEnd, bytesLeft);
+                inputPtr = 0;
+                if (inputEnd < 3) { // required to try to read to have at least 3 bytes
+                    break;
+                }
+                lastFullOffset = inputEnd-3;
+            }
+            if (_outputTail > safeOutputEnd) { // need to flush
+                _flushBuffer();
+            }
+            int b24 = ((int) readBuffer[inputPtr++]) << 8;
+            b24 |= ((int) readBuffer[inputPtr++]) & 0xFF;
+            b24 = (b24 << 8) | (((int) readBuffer[inputPtr++]) & 0xFF);
+            bytesLeft -= 3;
+            _outputTail = b64variant.encodeBase64Chunk(b24, _outputBuffer, _outputTail);
+            if (--chunksBeforeLF <= 0) {
+                _outputBuffer[_outputTail++] = '\\';
+                _outputBuffer[_outputTail++] = 'n';
+                chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
+            }
+        }
+        
+        // And then we may have 1 or 2 leftover bytes to encode
+        if (bytesLeft > 0) {
+            inputEnd = _readMore(data, readBuffer, inputPtr, inputEnd, bytesLeft);
+            inputPtr = 0;
+            if (inputEnd > 0) { // yes, but do we have room for output?
+                if (_outputTail > safeOutputEnd) { // don't really need 6 bytes but...
+                    _flushBuffer();
+                }
+                int b24 = ((int) readBuffer[inputPtr++]) << 16;
+                int amount;
+                if (inputPtr < inputEnd) {
+                    b24 |= (((int) readBuffer[inputPtr]) & 0xFF) << 8;
+                    amount = 2;
+                } else {
+                    amount = 1;
+                }
+                _outputTail = b64variant.encodeBase64Partial(b24, amount, _outputBuffer, _outputTail);
+                bytesLeft -= amount;
+            }
+        }
+        return bytesLeft;
+    }
+    
+    // write method when length is unknown
+    protected int _writeBinary(Base64Variant b64variant,
+            InputStream data, byte[] readBuffer)
+        throws IOException, JsonGenerationException
+    {
+        int inputPtr = 0;
+        int inputEnd = 0;
+        int lastFullOffset = -3;
+        int bytesDone = 0;
+        
+        // Let's also reserve room for possible (and quoted) LF char each round
+        int safeOutputEnd = _outputEnd - 6;
+        int chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
+
+        // Ok, first we loop through all full triplets of data:
+        while (true) {
+            if (inputPtr > lastFullOffset) { // need to load more
+                inputEnd = _readMore(data, readBuffer, inputPtr, inputEnd, readBuffer.length);
+                inputPtr = 0;
+                if (inputEnd < 3) { // required to try to read to have at least 3 bytes
+                    break;
+                }
+                lastFullOffset = inputEnd-3;
+            }
+            if (_outputTail > safeOutputEnd) { // need to flush
+                _flushBuffer();
+            }
+            // First, mash 3 bytes into lsb of 32-bit int
+            int b24 = ((int) readBuffer[inputPtr++]) << 8;
+            b24 |= ((int) readBuffer[inputPtr++]) & 0xFF;
+            b24 = (b24 << 8) | (((int) readBuffer[inputPtr++]) & 0xFF);
+            bytesDone += 3;
+            _outputTail = b64variant.encodeBase64Chunk(b24, _outputBuffer, _outputTail);
+            if (--chunksBeforeLF <= 0) {
+                _outputBuffer[_outputTail++] = '\\';
+                _outputBuffer[_outputTail++] = 'n';
+                chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
+            }
+        }
+
+        // And then we may have 1 or 2 leftover bytes to encode
+        if (inputPtr < inputEnd) { // yes, but do we have room for output?
+            if (_outputTail > safeOutputEnd) { // don't really need 6 bytes but...
+                _flushBuffer();
+            }
+            int b24 = ((int) readBuffer[inputPtr++]) << 16;
+            int amount = 1;
+            if (inputPtr < inputEnd) {
+                b24 |= (((int) readBuffer[inputPtr]) & 0xFF) << 8;
+                amount = 2;
+            }
+            bytesDone += amount;
+            _outputTail = b64variant.encodeBase64Partial(b24, amount, _outputBuffer, _outputTail);
+        }
+        return bytesDone;
+    }
+    
+    private int _readMore(InputStream in,
+            byte[] readBuffer, int inputPtr, int inputEnd,
+            int maxRead) throws IOException
+    {
+        // anything to shift to front?
+        int i = 0;
+        while (inputPtr < inputEnd) {
+            readBuffer[i++]  = readBuffer[inputPtr++];
+        }
+        inputPtr = 0;
+        inputEnd = i;
+        maxRead = Math.min(maxRead, readBuffer.length);
+        
+        do {
+            int count = in.read(readBuffer, inputEnd, maxRead - inputEnd);
+            if (count < 0) {
+                return inputEnd;
+            }
+            inputEnd += count;
+        } while (inputEnd < 3);
+        return inputEnd;
+    }
+    
     /*
     /**********************************************************
     /* Internal methods, low-level writing, other

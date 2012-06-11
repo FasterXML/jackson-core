@@ -50,7 +50,7 @@ Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Download page](jackson-binding/wiki/JacksonDownload).
+For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Download page](jackson-core/wiki/Downloads).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 

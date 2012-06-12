@@ -420,6 +420,14 @@ public final class UTF8StreamJsonParser
         }
         return _binaryValue;
     }
+
+    @Override
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
+        throws IOException, JsonParseException
+    {
+        // !!! TODO
+        throw new UnsupportedOperationException();
+    }
     
     /*
     /**********************************************************

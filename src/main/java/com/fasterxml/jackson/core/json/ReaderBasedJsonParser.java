@@ -351,6 +351,14 @@ public final class ReaderBasedJsonParser
         return _binaryValue;
     }
     
+    @Override
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
+        throws IOException, JsonParseException
+    {
+        // !!! TODO
+        throw new UnsupportedOperationException();
+    }
+
     /*
     /**********************************************************
     /* Public API, traversal

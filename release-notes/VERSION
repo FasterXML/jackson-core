@@ -12,6 +12,8 @@ New features:
 
 * [JACKSON-837]: Made JsonGenerator implement Flushable.
   (suggested by Matt G)
+* [Issue-16]: add 'writeBinary(InputStream, int)' method in JsonGenerator
+  (and implement for JSON backend)
 
 Other:
 

@@ -1647,7 +1647,7 @@ public class UTF8JsonGenerator
         int inputEnd = 0;
         int lastFullOffset = -3;       
         
-        // Let's also reserve room for possible (and quoted) lf char each round
+        // Let's also reserve room for possible (and quoted) LF char each round
         int safeOutputEnd = _outputEnd - 6;
         int chunksBeforeLF = b64variant.getMaxLineLength() >> 2;
 

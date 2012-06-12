@@ -1,14 +1,15 @@
 Version: 2.0.3
 
 Release date:
-  xx-Jun-2012
+  xx-Jul-2012
 
 Description:
   Another patch release for 2.0.
 
 Fixes:
 
-  * all 1.9.x fixes up to 1.9.8
+* [Issue-6] PrettyPrinter, count wrong for end-object case
+* all 1.9.x fixes up to 1.9.8
 
 ------------------------------------------------------------------------
 === History: ===

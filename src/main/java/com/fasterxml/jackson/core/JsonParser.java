@@ -1024,11 +1024,42 @@ public abstract class JsonParser
      * that defaults to using
      * {@link Base64Variants#getDefaultVariant} as the default encoding.
      */
-    public byte[] getBinaryValue() throws IOException, JsonParseException
-    {
+    public byte[] getBinaryValue() throws IOException, JsonParseException {
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }
 
+    /**
+     * Method that can be used as an alternative to {@link #getBigIntegerValue()},
+     * especially when value can be large. The main difference (beyond method
+     * of returning content using {@link OutputStream} instead of as byte array)
+     * is that content will NOT remain accessible after method returns: any content
+     * processed will be consumed and is not buffered in any way. If caller needs
+     * buffering, it has to implement it.
+     * 
+     * @param out Output stream to use for passing decoded binary data
+     * 
+     * @return Number of bytes that were decoded and written via {@link OutputStream}
+     * 
+     * @since 2.1
+     */
+    public int readBinaryValue(OutputStream out) throws IOException, JsonParseException {
+        return readBinaryValue(Base64Variants.getDefaultVariant(), out);
+    }
+
+    /**
+     * Similar to {@link #readBinaryValue(OutputStream)} but allows explicitly
+     * specifying base64 variant to use.
+     * 
+     * @param b64variant base64 variant to use
+     * @param out Output stream to use for passing decoded binary data
+     * 
+     * @return Number of bytes that were decoded and written via {@link OutputStream}
+     * 
+     * @since 2.1
+     */
+    public abstract int readBinaryValue(Base64Variant b64variant, OutputStream out)
+            throws IOException, JsonParseException;
+    
     /*
     /**********************************************************
     /* Public API, access to token information, coercion/conversion

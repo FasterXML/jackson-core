@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -253,6 +254,12 @@ public class JsonParserDelegate extends JsonParser
         return delegate.getBinaryValue(b64variant);
     }
 
+    @Override
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
+            throws IOException, JsonParseException {
+        return delegate.readBinaryValue(b64variant, out);
+    }
+    
     @Override
     public JsonLocation getTokenLocation() {
         return delegate.getTokenLocation();

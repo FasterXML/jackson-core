@@ -12,6 +12,83 @@ import java.io.*;
 public class TestPrettyPrinter
     extends com.fasterxml.jackson.test.BaseTest
 {
+    static class CountPrinter extends MinimalPrettyPrinter
+    {
+        @Override
+        public void writeEndObject(JsonGenerator jg, int nrOfEntries)
+                throws IOException, JsonGenerationException
+        {
+            jg.writeRaw("("+nrOfEntries+")}");
+        }
+
+        @Override
+        public void writeEndArray(JsonGenerator jg, int nrOfValues)
+            throws IOException, JsonGenerationException
+        {
+            jg.writeRaw("("+nrOfValues+")]");
+        }
+    }
+    
+    public void testObjectCount() throws Exception
+    {
+        final String EXP = "{\"x\":{\"a\":1,\"b\":2(2)}(1)}";
+        final JsonFactory jf = new JsonFactory();
+
+        for (int i = 0; i < 2; ++i) {
+            boolean useBytes = (i > 0);
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            StringWriter sw = new StringWriter();
+            JsonGenerator gen = useBytes ? jf.createJsonGenerator(bytes)
+                    : jf.createJsonGenerator(sw);
+            gen.setPrettyPrinter(new CountPrinter());
+            gen.writeStartObject();
+            gen.writeFieldName("x");
+            gen.writeStartObject();
+            gen.writeNumberField("a", 1);
+            gen.writeNumberField("b", 2);
+            gen.writeEndObject();
+            gen.writeEndObject();
+            gen.close();
+
+            String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
+            assertEquals(EXP, json);
+        }
+    }
+
+    public void testArrayCount() throws Exception
+    {
+        final String EXP = "[6,[1,2,9(3)](2)]";
+        
+        final JsonFactory jf = new JsonFactory();
+
+        for (int i = 0; i < 2; ++i) {
+            boolean useBytes = (i > 0);
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            StringWriter sw = new StringWriter();
+            JsonGenerator gen = useBytes ? jf.createJsonGenerator(bytes)
+                    : jf.createJsonGenerator(sw);
+            gen.setPrettyPrinter(new CountPrinter());
+            gen.writeStartArray();
+            gen.writeNumber(6);
+            gen.writeStartArray();
+            gen.writeNumber(1);
+            gen.writeNumber(2);
+            gen.writeNumber(9);
+            gen.writeEndArray();
+            gen.writeEndArray();
+            gen.close();
+
+            String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
+            assertEquals(EXP, json);
+        }
+    }
+    
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
     public void testSimpleDocWithDefault() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -45,7 +122,13 @@ public class TestPrettyPrinter
         assertEquals(-1, docStr.indexOf('\n'));
         assertTrue(docStr.indexOf('\t') >= 0);
     }
-    
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
     private String _verifyPrettyPrinter(JsonGenerator gen, StringWriter sw) throws Exception
     {    
         gen.writeStartArray();

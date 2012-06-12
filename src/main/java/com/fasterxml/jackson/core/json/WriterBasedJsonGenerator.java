@@ -276,7 +276,6 @@ public final class WriterBasedJsonGenerator
         if (!_writeContext.inObject()) {
             _reportError("Current context not an object but "+_writeContext.getTypeDesc());
         }
-        _writeContext = _writeContext.getParent();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeEndObject(this, _writeContext.getEntryCount());
         } else {
@@ -285,6 +284,7 @@ public final class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '}';
         }
+        _writeContext = _writeContext.getParent();
     }
 
     protected void _writeFieldName(String name, boolean commaBefore)

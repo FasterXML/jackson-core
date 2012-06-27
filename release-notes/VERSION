@@ -1,7 +1,7 @@
 Version: 2.0.4
 
 Release date:
-  xx-Jul-2012
+  26-Jun-2012
 
 Description:
   Another patch release for 2.0.
@@ -9,7 +9,7 @@ Description:
 Fixes:
 
 * [Issue-6] PrettyPrinter, count wrong for end-object case
-* all 1.9.x fixes up to 1.9.8
+* 1.9.x fixes up to 1.9.8
 
 ------------------------------------------------------------------------
 === History: ===
@@ -19,7 +19,7 @@ Fixes:
 
 2.0.2 (14-May-2012)
 
-(all fixes up to 1.9.7)
+* 1.9.x fixes up to 1.9.7
 
 2.0.1 (22-Apr-2012)
 

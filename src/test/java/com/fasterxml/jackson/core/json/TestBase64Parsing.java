@@ -19,6 +19,13 @@ public class TestBase64Parsing
         _testBase64Text(false);
     }
 
+    // [Issue-15] (streaming binary reads)
+    public void testStreaming() throws IOException
+    {
+        _testStreaming(false);
+        _testStreaming(true);
+    }
+
     /*
     /**********************************************************
     /* Test helper methods
@@ -80,4 +87,65 @@ public class TestBase64Parsing
         }
     }
 
+    private byte[] _generateData(int size)
+    {
+        byte[] result = new byte[size];
+        for (int i = 0; i < size; ++i) {
+            result[i] = (byte) (i % 255);
+        }
+        return result;
+    }
+
+    private void _testStreaming(boolean useBytes) throws IOException
+    {
+        final int[] SIZES = new int[] {
+            1, 2, 3, 4, 5, 6,
+            7, 8, 12,
+            100, 350, 1900, 6000, 19000, 65000,
+            139000
+        };
+
+        JsonFactory jsonFactory = new JsonFactory();
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        StringWriter chars = null;
+
+        for (int size : SIZES) {
+            byte[] data = _generateData(size);
+            JsonGenerator g;
+            if (useBytes) {
+                bytes.reset();
+                g = jsonFactory.createJsonGenerator(bytes, JsonEncoding.UTF8);
+            } else {
+                chars = new StringWriter();
+                g = jsonFactory.createJsonGenerator(chars);
+            }
+
+            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
+            g.writeStartObject();
+            g.writeFieldName("b");
+            g.writeBinary(data);
+            g.writeEndObject();
+            g.close();
+
+            // and verify
+            JsonParser p;
+            if (useBytes) {
+                p = jsonFactory.createJsonParser(bytes.toByteArray());
+            } else {
+                p = jsonFactory.createJsonParser(chars.toString());
+            }
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+    
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("b", p.getCurrentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            ByteArrayOutputStream result = new ByteArrayOutputStream(size);
+            int gotten = p.readBinaryValue(result);
+            assertEquals(size, gotten);
+            assertArrayEquals(data, result.toByteArray());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertNull(p.nextToken());
+            p.close();
+        }
+    }
 }

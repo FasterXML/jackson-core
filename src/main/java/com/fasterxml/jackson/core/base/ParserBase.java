@@ -287,7 +287,7 @@ public abstract class ParserBase
      * Not used for  pure integer values.
      */
     protected int _expLength;
-    
+
     /*
     /**********************************************************
     /* Life-cycle

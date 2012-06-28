@@ -202,15 +202,20 @@ public abstract class GeneratorBase
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
     }
-    
-    //public abstract void writeBinary(byte[] data, int offset, int len, boolean includeLFs) throws IOException, JsonGenerationException;
 
-    
+    @Override
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength)
+        throws IOException, JsonGenerationException {
+        // Let's implement this as "unsupported" to make it easier to add new parser impls
+        _reportUnsupportedOperation();
+        return 0;
+    }
+
     /*
-    /**********************************************************
-    /* Public API, write methods, primitive
-    /**********************************************************
-     */
+   /**********************************************************
+   /* Public API, write methods, primitive
+   /**********************************************************
+    */
 
     // Not implemented at this level, added as placeholders
 

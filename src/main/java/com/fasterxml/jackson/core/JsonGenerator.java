@@ -683,7 +683,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Similar to {@link #writeBinary(Base64Variant,InputStream)},
+     * Similar to {@link #writeBinary(Base64Variant,InputStream,int)},
      * but assumes default to using the Jackson default Base64 variant 
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
      * 
@@ -710,21 +710,21 @@ public abstract class JsonGenerator
      *    Will not be closed after successful write operation
      * @param dataLength (optional) number of bytes that will be available;
      *    or -1 to be indicate it is not known.
-     *    If a positive length is given, {@link data} MUST provide at least
+     *    If a positive length is given, <code>data</code> MUST provide at least
      *    that many bytes: if not, an exception will be thrown.
      *    Note that implementations
      *    need not support cases where length is not known in advance; this
      *    depends on underlying data format: JSON output does NOT require length,
      *    other formats may.
      * 
-     * @return Number of bytes read from {@link data} and written as binary payload
+     * @return Number of bytes read from <code>data</code> and written as binary payload
      * 
      * @since 2.1
      */
     public abstract int writeBinary(Base64Variant b64variant,
             InputStream data, int dataLength)
         throws IOException, JsonGenerationException;
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, other value types

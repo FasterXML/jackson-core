@@ -580,7 +580,7 @@ public class JsonFactory implements Versioned
         if (_inputDecorator != null) {
             r = _inputDecorator.decorate(ctxt, r);
         }
-	return _createParser(r, ctxt);
+        return _createParser(r, ctxt);
     }
 
     /**
@@ -630,14 +630,14 @@ public class JsonFactory implements Versioned
     public JsonParser createJsonParser(String content)
         throws IOException, JsonParseException
     {
-	Reader r = new StringReader(content);
+        Reader r = new StringReader(content);
         // true -> we own the Reader (and must close); not a big deal
         IOContext ctxt = _createContext(r, true);
         // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
             r = _inputDecorator.decorate(ctxt, r);
         }
-	return _createParser(r, ctxt);
+        return _createParser(r, ctxt);
     }
 
     /*

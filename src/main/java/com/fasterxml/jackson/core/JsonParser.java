@@ -260,7 +260,7 @@ public abstract class JsonParser
      * @since 2.1
      */
     public FormatSchema getSchema() {
-	return null;
+        return null;
     }
     
     /**
@@ -1057,8 +1057,12 @@ public abstract class JsonParser
      * 
      * @since 2.1
      */
-    public abstract int readBinaryValue(Base64Variant b64variant, OutputStream out)
-            throws IOException, JsonParseException;
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
+            throws IOException, JsonParseException
+    {
+        _reportUnsupportedOperation();
+        return 0; // never gets here
+    }
     
     /*
     /**********************************************************
@@ -1314,5 +1318,15 @@ public abstract class JsonParser
     protected JsonParseException _constructError(String msg)
     {
         return new JsonParseException(msg, getCurrentLocation());
+    }
+
+    /**
+     * Helper method to call for operations that are not supported by
+     * parser implementation.
+     *
+     * @since 2.1
+     */
+    protected void _reportUnsupportedOperation() {
+        throw new UnsupportedOperationException("Operation not supported by parser of type "+getClass().getName());
     }
 }

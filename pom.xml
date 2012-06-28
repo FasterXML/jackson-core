@@ -141,6 +141,8 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
+              <!-- Note: fully-qualified name as of 2.1 (was just artifactId prior)
+                -->
               <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Vendor>fasterml.com</Bundle-Vendor>
               <Import-Package>

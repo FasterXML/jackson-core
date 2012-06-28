@@ -1,54 +1,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion> 
   <parent>
-    <groupId>org.sonatype.oss</groupId>
+    <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <version>2</version>
   </parent>
+
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
   <version>2.1.0-SNAPSHOT</version>
-  <packaging>bundle</packaging>
   <description>Core Jackson abstractions, basic JSON streaming API implementation
   </description>
+
   <url>http://wiki.fasterxml.com/JacksonHome</url>
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-core.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-core.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-core</url>    
   </scm>
-  <developers>
-        <developer>
-            <id>tatu</id>
-            <name>Tatu Saloranta</name>
-            <email>tatu@fasterxml.com</email>
-        </developer>
-  </developers>
 
-  <prerequisites>
-    <maven>2.2.1</maven>
-  </prerequisites>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <surefire.version>2.12</surefire.version>
+    <!--
+     | Configuration properties for the OSGi maven-bundle-plugin
+    -->
+    <osgi.export>com.fasterxml.jackson.core;version=${project.version},
+com.fasterxml.jackson.core.*;version=${project.version}
+    </osgi.export>
   </properties>
 
-  <!-- Licensing -->
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <organization>
-    <name>fasterxml.com</name>
-    <url>http://fasterxml.com</url>
-  </organization>
-
   <dependencies>
-     <!-- and for testing, JUnit is needed -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -65,37 +46,8 @@
         <filtering>true</filtering>
       </resource>  
     </resources>
-  
+
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.1</version>
-        <configuration>
-          <mavenExecutorId>forked-path</mavenExecutorId>
-        </configuration>
-      </plugin>
-      <plugin><!-- plug-in to attach source bundle in repo -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.1.2</version>
-        <executions>
-            <execution>
-              <id>attach-sources</id>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
@@ -131,36 +83,6 @@
             <configuration>
                 <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
             </configuration>
-        </plugin>
-
-        <!-- Plus, let's make jars OSGi bundles as well  -->
-        <plugin>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>maven-bundle-plugin</artifactId>
-          <version>2.3.7</version>
-          <extensions>true</extensions>
-          <configuration>
-            <instructions>
-              <!-- Note: fully-qualified name as of 2.1 (was just artifactId prior)
-                -->
-              <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-              <Bundle-Vendor>fasterml.com</Bundle-Vendor>
-              <Import-Package>
-</Import-Package>
-              <Private-Package>
-</Private-Package>
-              <Export-Package>
-com.fasterxml.jackson.core,
-com.fasterxml.jackson.core.base,
-com.fasterxml.jackson.core.format,
-com.fasterxml.jackson.core.io,
-com.fasterxml.jackson.core.json,
-com.fasterxml.jackson.core.sym,
-com.fasterxml.jackson.core.type,
-com.fasterxml.jackson.core.util
-</Export-Package>
-            </instructions>
-          </configuration>
         </plugin>
     </plugins>
     <extensions>
@@ -228,43 +150,7 @@ com.fasterxml.jackson.core.util
               </reportSet>
           </reportSets>
       </plugin>
-      <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>${surefire.version}</version>
-      </plugin>
     </plugins>
   </reporting>
-
-  <profiles>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.1</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-  </profiles>
-  <!-- NOTE: repositories from parent POM -->
 
 </project>

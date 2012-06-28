@@ -120,7 +120,6 @@ public class TestBase64Parsing
                 g = jsonFactory.createJsonGenerator(chars);
             }
 
-            ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
             g.writeStartObject();
             g.writeFieldName("b");
             g.writeBinary(data);

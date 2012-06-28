@@ -886,7 +886,7 @@ public class JsonFactory implements Versioned
     }
 
     /**
-     * @deprecated since 2.1 -- use {@link #_createGenerator(Writer, ctxt)} instead
+     * @deprecated since 2.1 -- use {@link #_createGenerator(Writer, IOContext)} instead
      */
     @Deprecated
     protected JsonGenerator _createJsonGenerator(Writer out, IOContext ctxt)
@@ -914,7 +914,7 @@ public class JsonFactory implements Versioned
     }
 
     /**
-     * @deprecated since 2.1 -- use {@link #_createGenerator(OutputStream, ctxt)} instead
+     * @deprecated since 2.1
      */
     @Deprecated
     protected JsonGenerator _createUTF8JsonGenerator(OutputStream out, IOContext ctxt)

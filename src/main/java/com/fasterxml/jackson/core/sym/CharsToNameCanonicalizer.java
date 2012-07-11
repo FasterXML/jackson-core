@@ -372,6 +372,8 @@ public final class CharsToNameCanonicalizer
      * Method mostly needed by unit tests; calculates number of
      * entries that are in collision list. Value can be at most
      * ({@link #size} - 1), but should usually be much lower, ideally 0.
+     * 
+     * @since 2.1
      */
     public int collisionCount()
     {
@@ -396,7 +398,7 @@ public final class CharsToNameCanonicalizer
     {
         return _longestCollisionList;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, accessing symbols:
@@ -576,7 +578,6 @@ public final class CharsToNameCanonicalizer
                 }
             }
         }
-        _longestCollisionList = maxColl;
 
         size >>= 1;
         for (int i = 0; i < size; ++i) {
@@ -596,6 +597,7 @@ public final class CharsToNameCanonicalizer
                 b = b.getNext();
             }
         }
+        _longestCollisionList = maxColl;
 
         if (count != _size) {
             throw new Error("Internal error on SymbolTable.rehash(): had "+_size+" entries; now have "+count+".");

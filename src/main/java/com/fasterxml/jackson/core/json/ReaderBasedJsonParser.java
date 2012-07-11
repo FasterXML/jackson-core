@@ -45,6 +45,8 @@ public final class ReaderBasedJsonParser
     protected ObjectCodec _objectCodec;
 
     final protected CharsToNameCanonicalizer _symbols;
+    
+    final protected int _hashSeed;
 
     /*
     /**********************************************************
@@ -66,13 +68,14 @@ public final class ReaderBasedJsonParser
      */
 
     public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
-                             ObjectCodec codec, CharsToNameCanonicalizer st)
+            ObjectCodec codec, CharsToNameCanonicalizer st)
     {
         super(ctxt, features);
         _reader = r;
         _inputBuffer = ctxt.allocTokenBuffer();
         _objectCodec = codec;
         _symbols = st;
+        _hashSeed = st.hashSeed();
     }
 
     @Override
@@ -993,7 +996,7 @@ public final class ReaderBasedJsonParser
          * sequences.
          */
         int ptr = _inputPtr;
-        int hash = 0;
+        int hash = _hashSeed;
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {
@@ -1108,7 +1111,7 @@ public final class ReaderBasedJsonParser
             _reportUnexpectedChar(i, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
         }
         int ptr = _inputPtr;
-        int hash = 0;
+        int hash = _hashSeed;
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {
@@ -1139,7 +1142,7 @@ public final class ReaderBasedJsonParser
     {
         // Note: mostly copy of_parseFieldName
         int ptr = _inputPtr;
-        int hash = 0;
+        int hash = _hashSeed;
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {

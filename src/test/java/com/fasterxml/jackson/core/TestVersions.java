@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 /**
@@ -19,7 +20,8 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
     public void testCoreVersions()
     {
         assertVersion(new JsonFactory().version());
-        assertVersion(new ReaderBasedJsonParser(getIOContext(), 0, null, null, null).version());
+        assertVersion(new ReaderBasedJsonParser(getIOContext(), 0, null, null,
+                CharsToNameCanonicalizer.createRoot()).version());
         assertVersion(new WriterBasedJsonGenerator(getIOContext(), 0, null, null).version());
     }
 

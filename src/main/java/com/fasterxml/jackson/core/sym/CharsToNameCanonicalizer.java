@@ -576,7 +576,6 @@ public final class CharsToNameCanonicalizer
                 }
             }
         }
-        _longestCollisionList = maxColl;
 
         size >>= 1;
         for (int i = 0; i < size; ++i) {
@@ -596,6 +595,7 @@ public final class CharsToNameCanonicalizer
                 b = b.getNext();
             }
         }
+        _longestCollisionList = maxColl;
 
         if (count != _size) {
             throw new Error("Internal error on SymbolTable.rehash(): had "+_size+" entries; now have "+count+".");

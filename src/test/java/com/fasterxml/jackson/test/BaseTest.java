@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.*;
 public abstract class BaseTest
     extends TestCase
 {
+    protected final static String FIELD_BASENAME = "f";
+    
     /*
     /**********************************************************
     /* Some sample documents:
@@ -398,4 +400,33 @@ public abstract class BaseTest
     public String quote(String str) {
         return '"'+str+'"';
     }
+
+    protected void fieldNameFor(StringBuilder sb, int index)
+    {
+        /* let's do something like "f1.1" to exercise different
+         * field names (important for byte-based codec)
+         * Other name shuffling done mostly just for fun... :)
+         */
+        sb.append(FIELD_BASENAME);
+        sb.append(index);
+        if (index > 50) {
+            sb.append('.');
+            if (index > 200) {
+                sb.append(index);
+                if (index > 4000) { // and some even longer symbols...
+                    sb.append(".").append(index);
+                }
+            } else {
+                sb.append(index >> 3); // divide by 8
+            }
+        }
+    }
+
+    protected String fieldNameFor(int index)
+    {
+        StringBuilder sb = new StringBuilder(16);
+        fieldNameFor(sb, index);
+        return sb.toString();
+    }
+
 }

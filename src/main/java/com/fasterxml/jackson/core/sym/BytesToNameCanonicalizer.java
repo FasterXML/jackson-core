@@ -18,7 +18,7 @@ public final class BytesToNameCanonicalizer
     /**
      * Let's not expand symbol tables past some maximum size;
      * this should protected against OOMEs caused by large documents
-     * with uniquer (~= random) names.
+     * with unique (~= random) names.
      */
     protected static final int MAX_TABLE_SIZE = 0x10000; // 64k entries == 256k mem
     
@@ -28,6 +28,29 @@ public final class BytesToNameCanonicalizer
      * names for almost any case.
      */
     final static int MAX_ENTRIES_FOR_REUSE = 6000;
+
+    /**
+     * Also: to thwart attacks based on hash collisions (which may or may not
+     * be cheap to calculate), we will need to detect "too long"
+     * collision chains. Let's start with static value of 255 entries
+     * for the longest legal chain.
+     *<p>
+     * Note: longest chain we have been able to produce without malicious
+     * intent has been 60 (with "com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
+     * our setting should be reasonable here.
+     * 
+     * @since 2.1
+     */
+    final static int MAX_COLL_CHAIN_LENGTH = 255;
+
+    /**
+     * And to support reduce likelihood of accidental collisions causing
+     * exceptions, let's prevent reuse of tables with long collision
+     * overflow lists as well.
+     * 
+     * @since 2.1
+     */
+    final static int MAX_COLL_CHAIN_FOR_REUSE  = 63;
 
     final static int MIN_HASH_SIZE = 16;
 
@@ -57,7 +80,7 @@ public final class BytesToNameCanonicalizer
      * Whether canonial symbol Strings are to be intern()ed before added
      * to the table or not
      */
-    final boolean _intern;
+    private final boolean _intern;
     
     // // // First, global information
 
@@ -66,6 +89,15 @@ public final class BytesToNameCanonicalizer
      */
     private int _count;
 
+    /**
+     * We need to keep track of the longest collision list; this is needed
+     * both to indicate problems with attacks and to allow flushing for
+     * other cases.
+     * 
+     * @since 2.1
+     */
+    protected int _longestCollisionList;
+    
     // // // Then information regarding primary hash array and its
     // // // matching Name array
 
@@ -234,6 +266,7 @@ public final class BytesToNameCanonicalizer
         _collList = parent._collList;
         _collCount = parent._collCount;
         _collEnd = parent._collEnd;
+        _longestCollisionList = parent._longestCollisionList;
         _needRehash = false;
         // And consider all shared, so far:
         _mainHashShared = true;
@@ -244,6 +277,7 @@ public final class BytesToNameCanonicalizer
     private void initTables(int hashSize)
     {
         _count = 0;
+        _longestCollisionList = 0;
         _mainHash = new int[hashSize];
         _mainNames = new Name[hashSize];
         _mainHashShared = false;
@@ -271,7 +305,8 @@ public final class BytesToNameCanonicalizer
          * One way to do this is to just purge tables if they grow
          * too large, and that's what we'll do here.
          */
-        if (child.size() > MAX_ENTRIES_FOR_REUSE) {
+        if (child.size() > MAX_ENTRIES_FOR_REUSE
+                || child._longestCollisionList > MAX_COLL_CHAIN_FOR_REUSE) {
             /* Should there be a way to get notified about this
              * event, to log it or such? (as it's somewhat abnormal
              * thing to happen)
@@ -280,6 +315,7 @@ public final class BytesToNameCanonicalizer
             initTables(DEFAULT_TABLE_SIZE);
         } else {
             _count = child._count;
+            _longestCollisionList = child._longestCollisionList;
             _mainHash = child._mainHash;
             _mainNames = child._mainNames;
             _mainHashShared = true; // shouldn't matter for parent
@@ -307,6 +343,11 @@ public final class BytesToNameCanonicalizer
     public int size() { return _count; }
 
     /**
+     * @since 2.1
+     */
+    public int bucketCount() { return _mainHash.length; }
+    
+    /**
      * Method called to check to quickly see if a child symbol table
      * may have gotten additional entries. Used for checking to see
      * if a child table should be merged into shared table.
@@ -316,6 +357,34 @@ public final class BytesToNameCanonicalizer
         return !_mainHashShared;
     }
 
+    /**
+     * Method mostly needed by unit tests; calculates number of
+     * entries that are in collision list. Value can be at most
+     * ({@link #size} - 1), but should usually be much lower, ideally 0.
+     * 
+     * @since 2.1
+     */
+    public int collisionCount() {
+        return _collCount;
+    }
+
+    /**
+     * Method mostly needed by unit tests; calculates length of the
+     * longest collision chain. This should typically be a low number,
+     * but may be up to {@link #size} - 1 in the pathological case
+     * 
+     * @since 2.1
+     */
+    public int maxCollisionLength() {
+        return _longestCollisionList;
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, accessing symbols:
+    /**********************************************************
+     */
+    
     public static Name getEmptyName()
     {
         return Name1.getEmptyName();
@@ -502,6 +571,11 @@ public final class BytesToNameCanonicalizer
     /**********************************************************
      */
 
+    
+    // JDK uses 33; other fine choices are 31 and 65599
+    // (see [http://www.cse.yorku.ca/~oz/hash.html] for details)
+    private final static int MULT = 33;
+    
     public final static int calcHash(int firstQuad)
     {
         int hash = firstQuad;
@@ -512,10 +586,10 @@ public final class BytesToNameCanonicalizer
 
     public final static int calcHash(int firstQuad, int secondQuad)
     {
-        int hash = (firstQuad * 31) + secondQuad;
+        int hash = (firstQuad * MULT) + secondQuad;
 
         // If this was called for single-quad instance:
-        //int hash = (secondQuad == 0) ? firstQuad : ((firstQuad * 31) + secondQuad);
+        //int hash = (secondQuad == 0) ? firstQuad : ((firstQuad * MULT) + secondQuad);
 
         hash ^= (hash >>> 16); // to xor hi- and low- 16-bits
         hash ^= (hash >>> 8); // as well as lowest 2 bytes
@@ -527,20 +601,16 @@ public final class BytesToNameCanonicalizer
         // Note: may be called for qlen < 3
         int hash = quads[0];
         for (int i = 1; i < qlen; ++i) {
-            hash = (hash * 31) + quads[i];
+            hash = (hash * MULT) + quads[i];
         }
 
         hash ^= (hash >>> 16); // to xor hi- and low- 16-bits
         hash ^= (hash >>> 8); // as well as lowest 2 bytes
-
         return hash;
     }
 
-    /* 26-Nov-2008, tatu: not used currently; if not used in near future,
-     *   let's just delete it.
-     */
-    /*
-    public static int[] calcQuads(byte[] wordBytes)
+    // Method only used by unit tests
+    protected static int[] calcQuads(byte[] wordBytes)
     {
         int blen = wordBytes.length;
         int[] result = new int[(blen + 3) / 4];
@@ -560,7 +630,6 @@ public final class BytesToNameCanonicalizer
         }
         return result;
     }
-    */
 
     /*
     /**********************************************************
@@ -642,7 +711,6 @@ public final class BytesToNameCanonicalizer
             if (_collListShared) {
                 unshareCollision(); // also allocates if list was null
             }
-
             ++_collCount;
             int entryValue = _mainHash[ix];
             int bucket = entryValue & 0xFF;
@@ -664,7 +732,13 @@ public final class BytesToNameCanonicalizer
             }
             
             // And then just need to link the new bucket entry in
-            _collList[bucket] = new Bucket(symbol, _collList[bucket]);
+            Bucket newB = new Bucket(symbol, _collList[bucket]);
+            _collList[bucket] = newB;
+            // but, be careful wrt attacks
+            _longestCollisionList = Math.max(newB.length(), _longestCollisionList);
+            if (_longestCollisionList > MAX_COLL_CHAIN_LENGTH) {
+                reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
+            }
         }
 
         /* Ok. Now, do we need a rehash next time? Need to have at least
@@ -730,6 +804,7 @@ public final class BytesToNameCanonicalizer
          */
         int oldEnd = _collEnd;
         if (oldEnd == 0) { // no prior collisions...
+            _longestCollisionList = 0;
             return;
         }
 
@@ -737,6 +812,8 @@ public final class BytesToNameCanonicalizer
         _collEnd = 0;
         _collListShared = false;
 
+        int maxColl = 0;
+        
         Bucket[] oldBuckets = _collList;
         _collList = new Bucket[oldBuckets.length];
         for (int i = 0; i < oldEnd; ++i) {
@@ -769,11 +846,15 @@ public final class BytesToNameCanonicalizer
                         --bucket; // 1-based index in value
                     }
                     // And then just need to link the new bucket entry in
-                    _collList[bucket] = new Bucket(symbol, _collList[bucket]);
+                    Bucket newB = new Bucket(symbol, _collList[bucket]);
+                    _collList[bucket] = newB;
+                    maxColl = Math.max(maxColl, newB.length());
                 }
             } // for (... buckets in the chain ...)
         } // for (... list of bucket heads ... )
 
+        _longestCollisionList = maxColl;
+        
         if (symbolsSeen != _count) { // sanity check
             throw new RuntimeException("Internal error: count after rehash "+symbolsSeen+"; should be "+_count);
         }
@@ -786,6 +867,7 @@ public final class BytesToNameCanonicalizer
     private void nukeSymbols()
     {
         _count = 0;
+        _longestCollisionList = 0;
         Arrays.fill(_mainHash, 0);
         Arrays.fill(_mainNames, null);
         Arrays.fill(_collList, null);
@@ -901,6 +983,21 @@ public final class BytesToNameCanonicalizer
 
     /*
     /**********************************************************
+    /* Other helper methods
+    /**********************************************************
+     */
+    
+    /**
+     * @since 2.1
+     */
+    protected void reportTooManyCollisions(int maxLen)
+    {
+        throw new IllegalStateException("Longest collision chain in symbol table (of size "+_count
+                +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
+    }
+    
+    /*
+    /**********************************************************
     /* Helper classes
     /**********************************************************
      */
@@ -909,21 +1006,16 @@ public final class BytesToNameCanonicalizer
     {
         protected final Name _name;
         protected final Bucket _next;
+        private final int _length;
 
         Bucket(Name name, Bucket next)
         {
             _name = name;
             _next = next;
+            _length = (next == null) ? 1 : next._length+1;
         }
 
-        public int length()
-        {
-            int len = 1;
-            for (Bucket curr = _next; curr != null; curr = curr._next) {
-                ++len;
-            }
-            return len;
-        }
+        public int length() { return _length; }
 
         public Name find(int hash, int firstQuad, int secondQuad)
         {

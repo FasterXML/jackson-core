@@ -13,8 +13,6 @@ import java.io.*;
 public class TestWithTonsaSymbols
     extends BaseTest
 {
-    final static String FIELD_BASENAME = "f";
-
     /**
      * How many fields to generate? Since maximum symbol table
      * size is defined as 6000 (above which table gets cleared,
@@ -34,9 +32,9 @@ public class TestWithTonsaSymbols
     }
 
     /*
-    //////////////////////////////////////////////////////
-    // Helper methods
-    //////////////////////////////////////////////////////
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
      */
 
     private void _testWith(boolean useStream)
@@ -62,34 +60,6 @@ public class TestWithTonsaSymbols
             assertToken(JsonToken.END_OBJECT, jp.nextToken());
             jp.close();
         }
-    }
-
-    private void fieldNameFor(StringBuilder sb, int index)
-    {
-        /* let's do something like "f1.1" to exercise different
-         * field names (important for byte-based codec)
-         * Other name shuffling done mostly just for fun... :)
-         */
-        sb.append(FIELD_BASENAME);
-        sb.append(index);
-        if (index > 50) {
-            sb.append('.');
-            if (index > 200) {
-                sb.append(index);
-                if (index > 4000) { // and some even longer symbols...
-                    sb.append(".").append(index);
-                }
-            } else {
-                sb.append(index >> 3); // divide by 8
-            }
-        }
-    }
-
-    private String fieldNameFor(int index)
-    {
-        StringBuilder sb = new StringBuilder(16);
-        fieldNameFor(sb, index);
-        return sb.toString();
     }
         
     private String buildDoc(int len)

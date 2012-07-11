@@ -69,6 +69,10 @@ public final class CharsToNameCanonicalizer
      * be cheap to calculate), we will need to detect "too long"
      * collision chains. Let's start with static value of 255 entries
      * for the longest legal chain.
+     *<p>
+     * Note: longest chain we have been able to produce without malicious
+     * intent has been 38 (with "com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
+     * our setting should be reasonable here.
      * 
      * @since 2.1
      */
@@ -241,9 +245,13 @@ public final class CharsToNameCanonicalizer
         _size = 0;
         _longestCollisionList = 0;
         // Hard-coded fill factor is 75%
-        _sizeThreshold = (initialSize - (initialSize >> 2));
+        _sizeThreshold = _thresholdSize(initialSize);
     }
 
+    private final static int _thresholdSize(int hashAreaSize) {
+        return hashAreaSize - (hashAreaSize >> 2);
+    }
+    
     /**
      * Internal constructor used when creating child instances.
      */
@@ -262,7 +270,7 @@ public final class CharsToNameCanonicalizer
         _hashSeed = hashSeed;
         // Hard-coded fill factor, 75%
         int arrayLen = (symbols.length);
-        _sizeThreshold = arrayLen - (arrayLen >> 2);
+        _sizeThreshold = _thresholdSize(arrayLen);
         _indexMask =  (arrayLen - 1);
         _longestCollisionList = longestColl;
 
@@ -364,6 +372,15 @@ public final class CharsToNameCanonicalizer
 
     public int size() { return _size; }
 
+    /**
+     * Method for checking number of primary hash buckets this symbol
+     * table uses.
+     * 
+     * @since 2.1
+     */
+    public int bucketCount() { 
+       return _symbols.length; }
+    
     public boolean maybeDirty() { return _dirty; }
 
     public int hashSeed() { return _hashSeed; }
@@ -372,6 +389,8 @@ public final class CharsToNameCanonicalizer
      * Method mostly needed by unit tests; calculates number of
      * entries that are in collision list. Value can be at most
      * ({@link #size} - 1), but should usually be much lower, ideally 0.
+     * 
+     * @since 2.1
      */
     public int collisionCount()
     {
@@ -396,7 +415,7 @@ public final class CharsToNameCanonicalizer
     {
         return _longestCollisionList;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, accessing symbols:
@@ -553,7 +572,7 @@ public final class CharsToNameCanonicalizer
         _buckets = new Bucket[newSize >> 1];
         // Let's update index mask, threshold, now (needed for rehashing)
         _indexMask = newSize - 1;
-        _sizeThreshold += _sizeThreshold;
+        _sizeThreshold = _thresholdSize(newSize);
         
         int count = 0; // let's do sanity check
 
@@ -661,27 +680,5 @@ public final class CharsToNameCanonicalizer
             }
             return null;
         }
-
-    /* 26-Nov-2008, tatu: not used currently; if not used in near future,
-     *   let's just delete it.
-     */
-        /*
-        public String find(String str) {
-            String sym = _symbol;
-            Bucket b = mNext;
-
-            while (true) {
-                if (sym.equals(str)) {
-                    return sym;
-                }
-                if (b == null) {
-                    break;
-                }
-                sym = b.getSymbol();
-                b = b.getNext();
-            }
-            return null;
-        }
-        */
     }
 }

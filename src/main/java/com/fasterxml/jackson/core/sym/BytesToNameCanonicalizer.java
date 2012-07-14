@@ -491,7 +491,7 @@ public final class BytesToNameCanonicalizer
      */
     public Name findName(int firstQuad, int secondQuad)
     {
-        int hash = calcHash(firstQuad, secondQuad);
+        int hash = (secondQuad == 0) ? calcHash(firstQuad) : calcHash(firstQuad, secondQuad);
         int ix = (hash & _mainHashMask);
         int val = _mainHash[ix];
         

@@ -7,26 +7,29 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
     // 11 3-char snippets that hash to 0xFFFF (with default JDK hashCode() calc),
     // and which can be combined as
     // sequences, like, say, 11x11x11 (1331) 9-character thingies
-    final static String[] CHAR_COLLISION_SNIPPETS = {
-        "@~}", "@^", "A_}", "A`^", 
+    final static String[] CHAR_COLLISION_SNIPPETS_31 = {
+        "@~}", "@\u007f^", "A_}", "A`^", 
         "Aa?", "B@}", "BA^", "BB?", 
         "C!}", "C\"^", "C#?"
     };
+
     final static String[] CHAR_COLLISIONS;
     static {
-        final int len = CHAR_COLLISION_SNIPPETS.length;
+        final String[] SNIPPETS = CHAR_COLLISION_SNIPPETS_31;
+        
+        final int len = SNIPPETS.length;
         CHAR_COLLISIONS = new String[len*len*len];
         int ix = 0;
         for (int i1 = 0; i1 < len; ++i1) {
             for (int i2 = 0; i2 < len; ++i2) {
                 for (int i3 = 0; i3 < len; ++i3) {
-                    CHAR_COLLISIONS[ix++] = CHAR_COLLISION_SNIPPETS[i1]
-                            +CHAR_COLLISION_SNIPPETS[i2] + CHAR_COLLISION_SNIPPETS[i3];
+                    CHAR_COLLISIONS[ix++] = SNIPPETS[i1]+SNIPPETS[i2] + SNIPPETS[i3];
                 }
             }
         }
     }
-    
+
+    /*
     public void testCharBasedCollisions()
     {
         CharsToNameCanonicalizer sym = CharsToNameCanonicalizer.createRoot(0);
@@ -53,42 +56,53 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
             assertEquals(CharsToNameCanonicalizer.MAX_COLL_CHAIN_LENGTH+2, sym.size());
         }
     }
+    */
 
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and character-based input
     public void testSyntheticWithChars()
     {
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(0);
-        for (int i = 0; i < 5000; ++i) {
+        // pass seed, to keep results consistent:
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1);
+        final int COUNT = 6000;
+        for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
             char[] ch = id.toCharArray();
             symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(id));
         }
 
         assertEquals(8192, symbols.bucketCount());
-        assertEquals(5000, symbols.size());
-        // holy guacamoley... there are way too many:
-        assertEquals(3053, symbols.collisionCount());
-        // but spread more evenly than byte-based ones?
-        assertEquals(29, symbols.maxCollisionLength());
+        assertEquals(COUNT, symbols.size());
+        
+//System.out.printf("Char stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
+        
+        // holy guacamoley... there are way too many. 31 gives 3567 (!), 33 gives 2747
+        // ... at least before shuffling. Shuffling helps quite a lot, so:
+        assertEquals(1401, symbols.collisionCount());
+        // esp. with collisions; first got about 30
+        assertEquals(4, symbols.maxCollisionLength());
     }
 
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and byte-based input (UTF-8)
     public void testSyntheticWithBytes() throws IOException
     {
-        BytesToNameCanonicalizer symbols = BytesToNameCanonicalizer.createRoot();
-        for (int i = 0; i < 5000; ++i) {
+        // pass seed, to keep results consistent:
+        BytesToNameCanonicalizer symbols = BytesToNameCanonicalizer.createRoot(1);
+        final int COUNT = 6000;
+        for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
             int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
             symbols.addName(id, quads, quads.length);
         }
-        assertEquals(5000, symbols.size());
+        assertEquals(COUNT, symbols.size());
         assertEquals(8192, symbols.bucketCount());
-        
-        // holy guacamoley... even here we have too many; but surprisingly (?)
-        // less than with chars
-        assertEquals(1697, symbols.collisionCount());
+
+//System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
+    
+        // Fewer collisions than with chars, but still quite a few
+        assertEquals(1770, symbols.collisionCount());
+        // but not super long collision chains:
         assertEquals(9, symbols.maxCollisionLength());
     }
 }

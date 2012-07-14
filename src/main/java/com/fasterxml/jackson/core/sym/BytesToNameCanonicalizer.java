@@ -68,8 +68,19 @@ public final class BytesToNameCanonicalizer
     /**********************************************************
      */
 
-    final BytesToNameCanonicalizer _parent;
+    final protected BytesToNameCanonicalizer _parent;
 
+    /**
+     * Seed value we use as the base to make hash codes non-static between
+     * different runs, but still stable for lifetime of a single symbol table
+     * instance.
+     * This is done for security reasons, to avoid potential DoS attack via
+     * hash collisions.
+     * 
+     * @since 2.1
+     */
+    final private int _hashSeed;
+    
     /*
     /**********************************************************
     /* Main table state
@@ -192,11 +203,29 @@ public final class BytesToNameCanonicalizer
     /**********************************************************
      */
 
+    /**
+     * Factory method to call to create a symbol table instance with a
+     * randomized seed value.
+     */
     public static BytesToNameCanonicalizer createRoot()
     {
-        return new BytesToNameCanonicalizer(DEFAULT_TABLE_SIZE, true);
+        /* [Issue-21]: Need to use a variable seed, to thwart hash-collision
+         * based attacks.
+         */
+        long now = System.currentTimeMillis();
+        // ensure it's not 0; and might as well require to be odd so:
+        int seed = (((int) now) + ((int) now >>> 32)) | 1;
+        return createRoot(seed);
     }
 
+    /**
+     * Factory method that should only be called from unit tests, where seed
+     * value should remain the same.
+     */
+    protected static BytesToNameCanonicalizer createRoot(int hashSeed) {
+        return new BytesToNameCanonicalizer(DEFAULT_TABLE_SIZE, true, hashSeed);
+    }
+    
     /**
      * @param intern Whether canonical symbol Strings should be interned
      *   or not
@@ -204,7 +233,7 @@ public final class BytesToNameCanonicalizer
     public synchronized BytesToNameCanonicalizer makeChild(boolean canonicalize,
         boolean intern)
     {
-        return new BytesToNameCanonicalizer(this, intern);
+        return new BytesToNameCanonicalizer(this, intern, _hashSeed);
     }
 
     /**
@@ -226,13 +255,12 @@ public final class BytesToNameCanonicalizer
         }
     }
 
-    private BytesToNameCanonicalizer(int hashSize, boolean intern)
+    private BytesToNameCanonicalizer(int hashSize, boolean intern, int seed)
     {
         _parent = null;
+        _hashSeed = seed;
         _intern = intern;
-        /* Sanity check: let's now allow hash sizes below certain
-         * min. value
-         */
+        // Sanity check: let's now allow hash sizes below certain minimum value
         if (hashSize < MIN_HASH_SIZE) {
             hashSize = MIN_HASH_SIZE;
         } else {
@@ -253,9 +281,11 @@ public final class BytesToNameCanonicalizer
     /**
      * Constructor used when creating a child instance
      */
-    private BytesToNameCanonicalizer(BytesToNameCanonicalizer parent, boolean intern)
+    private BytesToNameCanonicalizer(BytesToNameCanonicalizer parent, boolean intern,
+            int seed)
     {
         _parent = parent;
+        _hashSeed = seed;
         _intern = intern;
 
         // First, let's copy the state as is:
@@ -352,11 +382,15 @@ public final class BytesToNameCanonicalizer
      * may have gotten additional entries. Used for checking to see
      * if a child table should be merged into shared table.
      */
-    public boolean maybeDirty()
-    {
+    public boolean maybeDirty() {
         return !_mainHashShared;
     }
 
+    /**
+     * @since 2.1
+     */
+    public int hashSeed() { return _hashSeed; }
+    
     /**
      * Method mostly needed by unit tests; calculates number of
      * entries that are in collision list. Value can be at most
@@ -508,11 +542,9 @@ public final class BytesToNameCanonicalizer
      */
     public Name findName(int[] quads, int qlen)
     {
-        /* // Not needed, never gets called
         if (qlen < 3) { // another sanity check
             return findName(quads[0], (qlen < 2) ? 0 : quads[1]);
         }
-        */
         int hash = calcHash(quads, qlen);
         // (for rest of comments regarding logic, see method above)
         int ix = (hash & _mainHashMask);
@@ -559,7 +591,12 @@ public final class BytesToNameCanonicalizer
         if (_intern) {
             symbolStr = InternCache.instance.intern(symbolStr);
         }
-        int hash = calcHash(quads, qlen);
+        int hash;
+        if (qlen < 3) {
+            hash = (qlen == 1) ? calcHash(quads[0]) : calcHash(quads[0], quads[1]);
+        } else {
+            hash = calcHash(quads, qlen);
+        }
         Name symbol = constructName(hash, symbolStr, quads, qlen);
         _addSymbol(hash, symbol);
         return symbol;
@@ -571,41 +608,67 @@ public final class BytesToNameCanonicalizer
     /**********************************************************
      */
 
+    /* Note on hash calculation: we try to make it more difficult to
+     * generate collisions automatically; part of this is to avoid
+     * simple "multiply-add" algorithm (like JDK String.hashCode()),
+     * and add bit of shifting. And other part is to make this
+     * non-linear, at least for shorter symbols.
+     */
     
-    // JDK uses 33; other fine choices are 31 and 65599
+    // JDK uses 31; other fine choices are 33 and 65599, let's use 33
+    // as it seems to give fewest collisions for us
     // (see [http://www.cse.yorku.ca/~oz/hash.html] for details)
     private final static int MULT = 33;
     
-    public final static int calcHash(int firstQuad)
+    public final int calcHash(int firstQuad)
     {
+        int hash = firstQuad ^ _hashSeed;
+        hash += (hash >>> 15); // to xor hi- and low- 16-bits
+        hash ^= (hash >>> 9); // as well as lowest 2 bytes
+        return hash;
+    }
+
+    public final int calcHash(int firstQuad, int secondQuad)
+    {
+        /* For two quads, let's change algorithm a bit, to spice
+         * things up (can do bit more processing anyway)
+         */
+        
         int hash = firstQuad;
-        hash ^= (hash >>> 16); // to xor hi- and low- 16-bits
-        hash ^= (hash >>> 8); // as well as lowest 2 bytes
+        hash += (hash >>> 15); // try mixing first and second byte pairs first
+        hash ^= ((secondQuad + _hashSeed) * MULT); // then add second quad
+        hash += (hash >>> 9); // and shuffle some more
         return hash;
     }
 
-    public final static int calcHash(int firstQuad, int secondQuad)
+    public final int calcHash(int[] quads, int qlen)
     {
-        int hash = (firstQuad * MULT) + secondQuad;
-
-        // If this was called for single-quad instance:
-        //int hash = (secondQuad == 0) ? firstQuad : ((firstQuad * MULT) + secondQuad);
-
-        hash ^= (hash >>> 16); // to xor hi- and low- 16-bits
-        hash ^= (hash >>> 8); // as well as lowest 2 bytes
-        return hash;
-    }
-
-    public final static int calcHash(int[] quads, int qlen)
-    {
-        // Note: may be called for qlen < 3
-        int hash = quads[0];
-        for (int i = 1; i < qlen; ++i) {
-            hash = (hash * MULT) + quads[i];
+        // Note: may be called for qlen < 3; but has at least one int
+        if (qlen < 3) {
+            throw new IllegalArgumentException();
         }
 
-        hash ^= (hash >>> 16); // to xor hi- and low- 16-bits
-        hash ^= (hash >>> 8); // as well as lowest 2 bytes
+        /* And then change handling again for "multi-quad" case; mostly
+         * to make calculation of collisions less fun. For example,
+         * add seed bit later in the game, and switch plus/xor around,
+         * use different shift lengths.
+         */
+        int hash = quads[0];
+        hash ^= (hash >>> 9);
+        hash += ((quads[1] + _hashSeed) * MULT);
+        hash ^= (hash >>> 15);
+        hash ^= (quads[2] * MULT);
+        hash += (hash >>> 17);
+        
+        for (int i = 3; i < qlen; ++i) {
+            hash = (hash * MULT) + (quads[i] + 1);
+            // for longer entries, mess a bit in-between too
+            hash ^= (hash >>> 3);
+        }
+
+        // and finally shuffle some more once done
+        hash += (hash >>> 15); // to get high-order bits to mix more
+        hash ^= (hash >>> 9); // as well as lowest 2 bytes
         return hash;
     }
 

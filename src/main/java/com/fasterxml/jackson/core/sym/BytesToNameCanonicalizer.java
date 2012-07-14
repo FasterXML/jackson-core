@@ -619,6 +619,8 @@ public final class BytesToNameCanonicalizer
     // as it seems to give fewest collisions for us
     // (see [http://www.cse.yorku.ca/~oz/hash.html] for details)
     private final static int MULT = 33;
+    private final static int MULT2 = 65599;
+    private final static int MULT3 = 31;
     
     public final int calcHash(int firstQuad)
     {
@@ -653,22 +655,25 @@ public final class BytesToNameCanonicalizer
          * add seed bit later in the game, and switch plus/xor around,
          * use different shift lengths.
          */
-        int hash = quads[0];
-        hash ^= (hash >>> 9);
-        hash += ((quads[1] + _hashSeed) * MULT);
-        hash ^= (hash >>> 15);
-        hash ^= (quads[2] * MULT);
+        int hash = quads[0] ^ _hashSeed;
+        hash += (hash >>> 9);
+        hash *= MULT;
+        int x = quads[1];
+        hash += quads[1];
+        hash *= MULT2;
+        hash += (hash >>> 15);
+        hash ^= quads[2];
         hash += (hash >>> 17);
         
         for (int i = 3; i < qlen; ++i) {
-            hash = (hash * MULT) + (quads[i] + 1);
+            hash = (hash * MULT3) ^ quads[i];
             // for longer entries, mess a bit in-between too
-            hash ^= (hash >>> 3);
+            hash += (hash >>> 3);
+            hash ^= (hash << 7);
         }
-
         // and finally shuffle some more once done
         hash += (hash >>> 15); // to get high-order bits to mix more
-        hash ^= (hash >>> 9); // as well as lowest 2 bytes
+        hash ^= (hash << 9); // as well as lowest 2 bytes
         return hash;
     }
 

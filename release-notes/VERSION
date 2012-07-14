@@ -1,21 +1,28 @@
-Version: 2.0.4
+Version: 2.0.5
 
 Release date:
-  26-Jun-2012
+  xx-Jul-2012
 
 Description:
   Another patch release for 2.0.
 
 Fixes:
 
-* [Issue-6] PrettyPrinter, count wrong for end-object case
-* 1.9.x fixes up to 1.9.8
+* [Issue-21]: Improve calculation and use of String hashCodes for
+ symbol tables, to prevent String.hashCode() collision based attacks
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
 
 (note: skipped 2.0.3 -- only some modules used that version)
+
+2.0.4 (26-Jun-2012)
+
+Fixes:
+
+* [Issue-6] PrettyPrinter, count wrong for end-object case
+* 1.9.x fixes up to 1.9.8
 
 2.0.2 (14-May-2012)
 

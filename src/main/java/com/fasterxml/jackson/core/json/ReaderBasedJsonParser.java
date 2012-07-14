@@ -1013,7 +1013,7 @@ public final class ReaderBasedJsonParser
                     }
                     break;
                 }
-                hash = (hash * 31) + ch;
+                hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
                 ++ptr;
             } while (ptr < inputLen);
         }
@@ -1058,7 +1058,7 @@ public final class ReaderBasedJsonParser
                     }
                 }
             }
-            hash = (hash * 31) + i;
+            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + i;
             // Ok, let's add char to output:
             outBuf[outPtr++] = c;
 
@@ -1128,7 +1128,7 @@ public final class ReaderBasedJsonParser
                     _inputPtr = ptr;
                     return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
-                hash = (hash * 31) + ch;
+                hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
                 ++ptr;
             } while (ptr < inputLen);
         }
@@ -1159,7 +1159,7 @@ public final class ReaderBasedJsonParser
                 if (ch < maxCode && codes[ch] != 0) {
                     break;
                 }
-                hash = (hash * 31) + ch;
+                hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
                 ++ptr;
             } while (ptr < inputLen);
         }
@@ -1276,7 +1276,7 @@ public final class ReaderBasedJsonParser
                 break;
             }
             ++_inputPtr;
-            hash = (hash * 31) + i;
+            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + i;
             // Ok, let's add char to output:
             outBuf[outPtr++] = c;
 

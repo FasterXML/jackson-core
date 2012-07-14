@@ -41,6 +41,11 @@ import com.fasterxml.jackson.core.util.InternCache;
  */
 public final class CharsToNameCanonicalizer
 {
+    /* If we use "multiply-add" based hash algorithm, this is the multiplier
+     * we use.
+     */
+    public final static int HASH_MULT = 33;
+    
     /**
      * Default initial table size. Shouldn't be miniscule (as there's
      * cost to both array realloc and rehashing), but let's keep
@@ -115,7 +120,7 @@ public final class CharsToNameCanonicalizer
      * 
      * @since 2.1
      */
-    final protected int _hashSeed;
+    final private int _hashSeed;
     
     /**
      * Whether canonical symbol Strings are to be intern()ed before added
@@ -210,7 +215,8 @@ public final class CharsToNameCanonicalizer
          * based attacks.
          */
         long now = System.currentTimeMillis();
-        int seed = ((int) now) + ((int) now >>> 32);
+        // ensure it's not 0; and might as well require to be odd so:
+        int seed = (((int) now) + ((int) now >>> 32)) | 1;
         return createRoot(seed);
     }
     
@@ -422,7 +428,7 @@ public final class CharsToNameCanonicalizer
     /**********************************************************
      */
 
-    public String findSymbol(char[] buffer, int start, int len, int hash)
+    public String findSymbol(char[] buffer, int start, int len, int h)
     {
         if (len < 1) { // empty Strings are simplest to handle up front
             return "";
@@ -431,9 +437,13 @@ public final class CharsToNameCanonicalizer
             return new String(buffer, start, len);
         }
 
-        hash &= _indexMask;
-
-        String sym = _symbols[hash];
+        /* Related to problems with sub-standard hashing (somewhat
+         * relevant for collision attacks too), let's try little
+         * bit of shuffling to improve hash codes.
+         * (note, however, that this can't help with full collisions)
+         */
+        int index = _hashToIndex(h);
+        String sym = _symbols[index];
 
         // Optimal case; checking existing primary symbol for hash index:
         if (sym != null) {
@@ -451,7 +461,7 @@ public final class CharsToNameCanonicalizer
                 }
             }
             // How about collision bucket?
-            Bucket b = _buckets[hash >> 1];
+            Bucket b = _buckets[index >> 1];
             if (b != null) {
                 sym = b.find(buffer, start, len);
                 if (sym != null) {
@@ -465,10 +475,10 @@ public final class CharsToNameCanonicalizer
             _dirty = true;
         } else if (_size >= _sizeThreshold) { // Need to expand?
            rehash();
-            /* Need to recalc hash; rare occurence (index mask has been
-             * recalculated as part of rehash)
-             */
-            hash = calcHash(buffer, start, len) & _indexMask;
+           /* Need to recalc hash; rare occurence (index mask has been
+            * recalculated as part of rehash)
+            */
+           index = _hashToIndex(calcHash(buffer, start, len));
         }
 
         String newSymbol = new String(buffer, start, len);
@@ -477,10 +487,10 @@ public final class CharsToNameCanonicalizer
         }
         ++_size;
         // Ok; do we need to add primary entry, or a bucket?
-        if (_symbols[hash] == null) {
-            _symbols[hash] = newSymbol;
+        if (_symbols[index] == null) {
+            _symbols[index] = newSymbol;
         } else {
-            int bix = (hash >> 1);
+            int bix = (index >> 1);
             Bucket newB = new Bucket(newSymbol, _buckets[bix]);
             _buckets[bix] = newB;
             _longestCollisionList = Math.max(newB.length(), _longestCollisionList);
@@ -493,6 +503,16 @@ public final class CharsToNameCanonicalizer
     }
 
     /**
+     * Helper method that takes in a "raw" hash value, shuffles it as necessary,
+     * and truncates to be used as the index.
+     */
+    public final int _hashToIndex(int rawHash)
+    {
+        rawHash += (rawHash >>> 15); // this seems to help quite a bit, at least for our tests
+        return (rawHash & _indexMask);
+    }
+    
+    /**
      * Implementation of a hashing method for variable length
      * Strings. Most of the time intention is that this calculation
      * is done by caller during parsing, not here; however, sometimes
@@ -501,20 +521,26 @@ public final class CharsToNameCanonicalizer
      * @param len Length of String; has to be at least 1 (caller guarantees
      *   this pre-condition)
      */
-    public int calcHash(char[] buffer, int start, int len) {
+    public int calcHash(char[] buffer, int start, int len)
+    {
         int hash = _hashSeed;
         for (int i = 0; i < len; ++i) {
-            hash = (hash * 31) + (int) buffer[i];
+            hash = (hash * HASH_MULT) + (int) buffer[i];
         }
-        return hash;
+        // NOTE: shuffling, if any, is done in 'findSymbol()', not here:
+        return (hash == 0) ? 1 : hash;
     }
 
-    public int calcHash(String key) {
+    public int calcHash(String key)
+    {
+        final int len = key.length();
+        
         int hash = _hashSeed;
-        for (int i = 0, len = key.length(); i < len; ++i) {
-            hash = (hash * 31) + (int) key.charAt(i);
+        for (int i = 0; i < len; ++i) {
+            hash = (hash * HASH_MULT) + (int) key.charAt(i);
         }
-        return hash;
+        // NOTE: shuffling, if any, is done in 'findSymbol()', not here:
+        return (hash == 0) ? 1 : hash;
     }
 
     /*
@@ -584,7 +610,7 @@ public final class CharsToNameCanonicalizer
             String symbol = oldSyms[i];
             if (symbol != null) {
                 ++count;
-                int index = calcHash(symbol) & _indexMask;
+                int index = _hashToIndex(calcHash(symbol));
                 if (_symbols[index] == null) {
                     _symbols[index] = symbol;
                 } else {
@@ -602,7 +628,7 @@ public final class CharsToNameCanonicalizer
             while (b != null) {
                 ++count;
                 String symbol = b.getSymbol();
-                int index = calcHash(symbol) & _indexMask;
+                int index = _hashToIndex(calcHash(symbol));
                 if (_symbols[index] == null) {
                     _symbols[index] = symbol;
                 } else {

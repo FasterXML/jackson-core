@@ -18,9 +18,13 @@ public final class InternCache
 {
     /**
      * Size to use is somewhat arbitrary, so let's choose something that's
-     * neither too small (low hit ratio) nor too large (waste of memory)
+     * neither too small (low hit ratio) nor too large (waste of memory).
+     *<p>
+     * 11-Jul-2012, tatu: Also, consider the nasty case of String hashCode()
+     *    collisions; size needs to be small enough to survive linear list
+     *    lookup... so let's go down a notch (from 192 to 100)
      */
-    private final static int MAX_ENTRIES = 192;
+    private final static int MAX_ENTRIES = 100;
 
     public final static InternCache instance = new InternCache();
 

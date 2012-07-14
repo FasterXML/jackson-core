@@ -88,7 +88,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
     public void testSyntheticWithBytes() throws IOException
     {
         // pass seed, to keep results consistent:
-        BytesToNameCanonicalizer symbols = BytesToNameCanonicalizer.createRoot(1);
+        BytesToNameCanonicalizer symbols = BytesToNameCanonicalizer.createRoot(33333);
         final int COUNT = 6000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
@@ -101,7 +101,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
 //System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
     
         // Fewer collisions than with chars, but still quite a few
-        assertEquals(1770, symbols.collisionCount());
+        assertEquals(1702, symbols.collisionCount());
         // but not super long collision chains:
         assertEquals(9, symbols.maxCollisionLength());
     }

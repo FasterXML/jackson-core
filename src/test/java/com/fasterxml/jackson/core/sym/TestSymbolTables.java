@@ -101,8 +101,8 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
 //System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
     
         // Fewer collisions than with chars, but still quite a few
-        assertEquals(1760, symbols.collisionCount());
+        assertEquals(1702, symbols.collisionCount());
         // but not super long collision chains:
-        assertEquals(8, symbols.maxCollisionLength());
+        assertEquals(9, symbols.maxCollisionLength());
     }
 }

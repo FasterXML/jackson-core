@@ -25,9 +25,18 @@ Other:
 === History: ===
 ------------------------------------------------------------------------
 
+2.0.4 (26-Jun-2012)
+
+Fixes:
+
+* [Issue-6] PrettyPrinter, count wrong for end-object case
+* 1.9.x fixes up to 1.9.8
+
+2.0.3: skipped;	 only some modules use this version
+
 2.0.2 (14-May-2012)
 
-(all fixes up to 1.9.7)
+* 1.9.x fixes up to 1.9.7
 
 2.0.1 (22-Apr-2012)
 

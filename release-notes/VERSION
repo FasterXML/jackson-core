@@ -10,6 +10,7 @@ Fixes:
 
 * [Issue-21]: Improve calculation and use of String hashCodes for
  symbol tables, to prevent String.hashCode() collision based attacks
+* [JACKSON-853]: JsonStringEncoder.quoteAsString() problem with buffer boundary
 
 ------------------------------------------------------------------------
 === History: ===

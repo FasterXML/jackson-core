@@ -455,19 +455,26 @@ public final class TextBuffer
         if (max >= len) {
             System.arraycopy(c, start, curr, _currentSize, len);
             _currentSize += len;
-        } else {
-            // No room for all, need to copy part(s):
-            if (max > 0) {
-                System.arraycopy(c, start, curr, _currentSize, max);
-                start += max;
-                len -= max;
-            }
-            // And then allocate new segment; we are guaranteed to now
-            // have enough room in segment.
-            expand(len); // note: curr != _currentSegment after this
-            System.arraycopy(c, start, _currentSegment, 0, len);
-            _currentSize = len;
+            return;
         }
+        // No room for all, need to copy part(s):
+        if (max > 0) {
+            System.arraycopy(c, start, curr, _currentSize, max);
+            start += max;
+            len -= max;
+        }
+        /* And then allocate new segment; we are guaranteed to now
+         * have enough room in segment.
+         */
+        // Except, as per [Issue-24], not for HUGE appends... so:
+        do {
+            expand(len);
+            int amount = Math.min(_currentSegment.length, len);
+            System.arraycopy(c, start, _currentSegment, 0, amount);
+            _currentSize += amount;
+            start += amount;
+            len -= amount;
+        } while (len > 0);
     }
 
     public void append(String str, int offset, int len)
@@ -485,20 +492,26 @@ public final class TextBuffer
         if (max >= len) {
             str.getChars(offset, offset+len, curr, _currentSize);
             _currentSize += len;
-        } else {
-            // No room for all, need to copy part(s):
-            if (max > 0) {
-                str.getChars(offset, offset+max, curr, _currentSize);
-                len -= max;
-                offset += max;
-            }
-            /* And then allocate new segment; we are guaranteed to now
-             * have enough room in segment.
-             */
-            expand(len);
-            str.getChars(offset, offset+len, _currentSegment, 0);
-            _currentSize = len;
+            return;
         }
+        // No room for all, need to copy part(s):
+        if (max > 0) {
+            str.getChars(offset, offset+max, curr, _currentSize);
+            len -= max;
+            offset += max;
+        }
+        /* And then allocate new segment; we are guaranteed to now
+         * have enough room in segment.
+         */
+        // Except, as per [Issue-24], not for HUGE appends... so:
+        do {
+            expand(len);
+            int amount = Math.min(_currentSegment.length, len);
+            str.getChars(offset, offset+amount, _currentSegment, 0);
+            _currentSize += amount;
+            offset += amount;
+            len -= amount;
+        } while (len > 0);
     }
 
     /*

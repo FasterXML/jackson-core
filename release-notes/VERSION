@@ -10,6 +10,9 @@ Fixes:
 
 * [Issue-21]: Improve calculation and use of String hashCodes for
  symbol tables, to prevent String.hashCode() collision based attacks
+* [Issue-24]: Copy String chars to char array by TextBuffer fails with
+  ArrayIndexOutOfBoundsException (with huge Strings)
+ (reported by farfalena@github)
 * [JACKSON-853]: JsonStringEncoder.quoteAsString() problem with buffer boundary
 
 ------------------------------------------------------------------------

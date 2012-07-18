@@ -35,4 +35,31 @@ public class TestTextBuffer
         tb.resetWithShared(new char[] { 'a' }, 0, 1);
         assertEquals(1, tb.toString().length());
     }
+
+      public void testLongAppend()
+      {
+          final int len = TextBuffer.MAX_SEGMENT_LEN * 3 / 2;
+          StringBuilder sb = new StringBuilder(len);
+          for (int i = 0; i < len; ++i) {
+              sb.append('x');
+          }
+         final String STR = sb.toString();
+         final String EXP = "a" + STR + "c";
+ 
+         // ok: first test with String:
+         TextBuffer tb = new TextBuffer(new BufferRecycler());
+         tb.append('a');
+         tb.append(STR, 0, len);
+         tb.append('c');
+         assertEquals(len+2, tb.size());
+         assertEquals(EXP, tb.contentsAsString());
+ 
+         // then char[]
+         tb = new TextBuffer(new BufferRecycler());
+         tb.append('a');
+         tb.append(STR.toCharArray(), 0, len);
+         tb.append('c');
+         assertEquals(len+2, tb.size());
+         assertEquals(EXP, tb.contentsAsString());
+      }
 }

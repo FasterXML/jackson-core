@@ -18,7 +18,7 @@ New features:
 
 Other:
 
-* [Issue-7]: Add 'createParser' and 'createGenerator' (as eventual replacements
+* [Issue-25]: Add 'createParser' and 'createGenerator' (as eventual replacements
   for 'createJsonParser'/'createJsonGenerator') in 'JsonFactory'
 
 ------------------------------------------------------------------------

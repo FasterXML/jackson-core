@@ -477,7 +477,7 @@ public class JsonFactory implements Versioned
 
     /*
     /**********************************************************
-    /* Reader factories
+    /* Parser factories (new ones, as per [Issue-25])
     /**********************************************************
      */
 
@@ -490,6 +490,153 @@ public class JsonFactory implements Versioned
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
      * the parser, since caller has no access to it.
+     *
+     * @param f File that contains JSON content to parse
+     * 
+     * @since 2.1
+     */
+    public JsonParser createParser(File f)
+        throws IOException, JsonParseException
+    {
+        // Must delegate to old version, until 2.2
+        // TODO: change direction in 2.2; after ensuring impls support new method
+        return createJsonParser(f);
+    }
+
+    /**
+     * Method for constructing JSON parser instance to parse
+     * contents of resource reference by given URL.
+     * Encoding is auto-detected
+     * from contents according to JSON specification recommended
+     * mechanism.
+     *<p>
+     * Underlying input stream (needed for reading contents)
+     * will be <b>owned</b> (and managed, i.e. closed as need be) by
+     * the parser, since caller has no access to it.
+     *
+     * @param url URL pointing to resource that contains JSON content to parse
+     * 
+     * @since 2.1
+     */
+    public JsonParser createParser(URL url)
+        throws IOException, JsonParseException
+    {
+        // Must delegate to old version, until 2.2
+        // TODO: change direction in 2.2; after ensuring impls support new method
+        return createJsonParser(url);
+    }
+
+    /**
+     * Method for constructing JSON parser instance to parse
+     * the contents accessed via specified input stream.
+     *<p>
+     * The input stream will <b>not be owned</b> by
+     * the parser, it will still be managed (i.e. closed if
+     * end-of-stream is reacher, or parser close method called)
+     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * is enabled.
+     *<p>
+     * Note: no encoding argument is taken since it can always be
+     * auto-detected as suggested by JSON RFC.
+     *
+     * @param in InputStream to use for reading JSON content to parse
+     * 
+     * @since 2.1
+     */
+    public JsonParser createParser(InputStream in)
+        throws IOException, JsonParseException
+    {
+        // Must delegate to old version, until 2.2
+        // TODO: change direction in 2.2; after ensuring impls support new method
+        return createJsonParser(in);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * the contents accessed via specified Reader.
+     <p>
+     * The read stream will <b>not be owned</b> by
+     * the parser, it will still be managed (i.e. closed if
+     * end-of-stream is reacher, or parser close method called)
+     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * is enabled.
+     *
+     * @param r Reader to use for reading JSON content to parse
+     * 
+     * @since 2.1
+     */
+    public JsonParser createParser(Reader r)
+        throws IOException, JsonParseException
+    {
+        // Must delegate to old version, until 2.2
+        // TODO: change direction in 2.2; after ensuring impls support new method
+        return createJsonParser(r);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * the contents of given byte array.
+     * 
+     * @since 2.1
+     */
+    public JsonParser createParser(byte[] data)
+        throws IOException, JsonParseException
+    {
+        // Must delegate to old version, until 2.2
+        // TODO: change direction in 2.2; after ensuring impls support new method
+        return createJsonParser(data);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * the contents of given byte array.
+     * 
+     * @param data Buffer that contains data to parse
+     * @param offset Offset of the first data byte within buffer
+     * @param len Length of contents to parse within buffer
+     * 
+     * @since 2.1
+     */
+    public JsonParser createParser(byte[] data, int offset, int len)
+        throws IOException, JsonParseException
+    {
+        // Must delegate to old version, until 2.2
+        // TODO: change direction in 2.2; after ensuring impls support new method
+        return createJsonParser(data, offset, len);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * contents of given String.
+     * 
+     * @since 2.1
+     */
+    public JsonParser createParser(String content)
+        throws IOException, JsonParseException
+    {
+        // Must delegate to old version, until 2.2
+        // TODO: change direction in 2.2; after ensuring impls support new method
+        return createJsonParser(content);
+    }
+
+    /*
+    /**********************************************************
+    /* Parser factories (old ones, as per [Issue-25])
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing JSON parser instance to parse
+     * contents of specified file. Encoding is auto-detected
+     * from contents according to JSON specification recommended
+     * mechanism.
+     *<p>
+     * Underlying input stream (needed for reading contents)
+     * will be <b>owned</b> (and managed, i.e. closed as need be) by
+     * the parser, since caller has no access to it.
+     *<p>
+     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createParser</code>.
      *
      * @param f File that contains JSON content to parse
      */
@@ -516,6 +663,9 @@ public class JsonFactory implements Versioned
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
      * the parser, since caller has no access to it.
+     *<p>
+     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createParser</code>.
      *
      * @param url URL pointing to resource that contains JSON content to parse
      */
@@ -543,7 +693,10 @@ public class JsonFactory implements Versioned
      * is enabled.
      *<p>
      * Note: no encoding argument is taken since it can always be
-     * auto-detected as suggested by Json RFC.
+     * auto-detected as suggested by JSON RFC.
+     *<p>
+     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createParser</code>.
      *
      * @param in InputStream to use for reading JSON content to parse
      */
@@ -568,6 +721,8 @@ public class JsonFactory implements Versioned
      * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *<p>
+     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createParser</code>.
      *
      * @param r Reader to use for reading JSON content to parse
      */
@@ -586,6 +741,9 @@ public class JsonFactory implements Versioned
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
+     *<p>
+     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createParser</code>.
      */
     public JsonParser createJsonParser(byte[] data)
         throws IOException, JsonParseException
@@ -604,6 +762,9 @@ public class JsonFactory implements Versioned
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
+     *<p>
+     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createParser</code>.
      * 
      * @param data Buffer that contains data to parse
      * @param offset Offset of the first data byte within buffer
@@ -626,6 +787,9 @@ public class JsonFactory implements Versioned
     /**
      * Method for constructing parser for parsing
      * contents of given String.
+     *<p>
+     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createParser</code>.
      */
     public JsonParser createJsonParser(String content)
         throws IOException, JsonParseException
@@ -642,7 +806,7 @@ public class JsonFactory implements Versioned
 
     /*
     /**********************************************************
-    /* Generator factories
+    /* Generator factories, new (as per [Issue-25]
     /**********************************************************
      */
 
@@ -662,6 +826,110 @@ public class JsonFactory implements Versioned
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats)
      * and that ignore passed in encoding.
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
+     * 
+     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
+     *
+     * @param out OutputStream to use for writing JSON content 
+     * @param enc Character encoding to use
+     */
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
+        throws IOException
+    {
+        return createJsonGenerator(out, enc);
+    }
+
+    /**
+     * Method for constructing JSON generator for writing JSON content
+     * using specified Writer.
+     *<p>
+     * Underlying stream <b>is NOT owned</b> by the generator constructed,
+     * so that generator will NOT close the Reader when
+     * {@link JsonGenerator#close} is called (unless auto-closing
+     * feature,
+     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
+     * Using application needs to close it explicitly.
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
+     * 
+     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
+     *
+     * @param out Writer to use for writing JSON content 
+     */
+    public JsonGenerator createGenerator(Writer out)
+        throws IOException
+    {
+        return createJsonGenerator(out);
+    }
+
+    /**
+     * Convenience method for constructing generator that uses default
+     * encoding of the format (UTF-8 for JSON and most other data formats).
+     *<p>
+     * Note: there are formats that use fixed encoding (like most binary data formats).
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
+     * 
+     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
+     */
+    public JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return createJsonGenerator(out);
+    }
+    
+    /**
+     * Method for constructing JSON generator for writing JSON content
+     * to specified file, overwriting contents it might have (or creating
+     * it if such file does not yet exist).
+     * Encoding to use must be specified, and needs to be one of available
+     * types (as per JSON specification).
+     *<p>
+     * Underlying stream <b>is owned</b> by the generator constructed,
+     * i.e. generator will handle closing of file when
+     * {@link JsonGenerator#close} is called.
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
+     * 
+     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
+     *
+     * @param f File to write contents to
+     * @param enc Character encoding to use
+     */
+    public JsonGenerator createGenerator(File f, JsonEncoding enc)
+        throws IOException
+    {
+        return createJsonGenerator(f, enc);
+    }    
+
+    /*
+    /**********************************************************
+    /* Generator factories, old (as per [Issue-25]
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing JSON generator for writing JSON content
+     * using specified output stream.
+     * Encoding to use must be specified, and needs to be one of available
+     * types (as per JSON specification).
+     *<p>
+     * Underlying stream <b>is NOT owned</b> by the generator constructed,
+     * so that generator will NOT close the output stream when
+     * {@link JsonGenerator#close} is called (unless auto-closing
+     * feature,
+     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET}
+     * is enabled).
+     * Using application needs to close it explicitly if this is the case.
+     *<p>
+     * Note: there are formats that use fixed encoding (like most binary data formats)
+     * and that ignore passed in encoding.
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
      *
      * @param out OutputStream to use for writing JSON content 
      * @param enc Character encoding to use
@@ -697,6 +965,9 @@ public class JsonFactory implements Versioned
      * feature,
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
      *
      * @param out Writer to use for writing JSON content 
      */
@@ -716,6 +987,9 @@ public class JsonFactory implements Versioned
      * encoding of the format (UTF-8 for JSON and most other data formats).
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
      */
     public JsonGenerator createJsonGenerator(OutputStream out) throws IOException {
         return createJsonGenerator(out, JsonEncoding.UTF8);
@@ -731,6 +1005,9 @@ public class JsonFactory implements Versioned
      * Underlying stream <b>is owned</b> by the generator constructed,
      * i.e. generator will handle closing of file when
      * {@link JsonGenerator#close} is called.
+     *<p>
+     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
+     * instead, should call <code>createGenerator</code>.
      *
      * @param f File to write contents to
      * @param enc Character encoding to use

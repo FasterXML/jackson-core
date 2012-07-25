@@ -82,7 +82,8 @@ public class TestByteBasedSymbols
         final int A_BYTES = 0x41414141; // "AAAA"
         final int B_BYTES = 0x42424242; // "BBBB"
 
-        BytesToNameCanonicalizer nc = BytesToNameCanonicalizer.createRoot();
+        BytesToNameCanonicalizer nc = BytesToNameCanonicalizer.createRoot()
+                .makeChild(true, true);
         assertNull(nc.findName(A_BYTES));
         assertNull(nc.findName(A_BYTES, B_BYTES));
 

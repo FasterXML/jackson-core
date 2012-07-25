@@ -199,62 +199,19 @@ public final class BytesToNameCanonicalizer
 
     /*
     /**********************************************************
-    /* Construction, merging
+    /* Life-cycle: constructors
     /**********************************************************
      */
 
     /**
-     * Factory method to call to create a symbol table instance with a
-     * randomized seed value.
+     * Constructor used for creating per-<code>JsonFactory</code> "root"
+     * symbol tables: ones used for merging and sharing common symbols
+     * 
+     * @param hashSize Initial hash area size
+     * @param intern Whether Strings contained should be {@link String#intern}ed
+     * @param seed Random seed valued used to make it more difficult to cause
+     *   collisions (used for collision-based DoS attacks).
      */
-    public static BytesToNameCanonicalizer createRoot()
-    {
-        /* [Issue-21]: Need to use a variable seed, to thwart hash-collision
-         * based attacks.
-         */
-        long now = System.currentTimeMillis();
-        // ensure it's not 0; and might as well require to be odd so:
-        int seed = (((int) now) + ((int) now >>> 32)) | 1;
-        return createRoot(seed);
-    }
-
-    /**
-     * Factory method that should only be called from unit tests, where seed
-     * value should remain the same.
-     */
-    protected static BytesToNameCanonicalizer createRoot(int hashSeed) {
-        return new BytesToNameCanonicalizer(DEFAULT_TABLE_SIZE, true, hashSeed);
-    }
-    
-    /**
-     * @param intern Whether canonical symbol Strings should be interned
-     *   or not
-     */
-    public synchronized BytesToNameCanonicalizer makeChild(boolean canonicalize,
-        boolean intern)
-    {
-        return new BytesToNameCanonicalizer(this, intern, _hashSeed);
-    }
-
-    /**
-     * Method called by the using code to indicate it is done
-     * with this instance. This lets instance merge accumulated
-     * changes into parent (if need be), safely and efficiently,
-     * and without calling code having to know about parent
-     * information
-     */
-    public void release()
-    {
-        if (maybeDirty() && _parent != null) {
-            _parent.mergeChild(this);
-            /* Let's also mark this instance as dirty, so that just in
-             * case release was too early, there's no corruption
-             * of possibly shared data.
-             */
-            markAsShared();
-        }
-    }
-
     private BytesToNameCanonicalizer(int hashSize, boolean intern, int seed)
     {
         _parent = null;
@@ -281,24 +238,27 @@ public final class BytesToNameCanonicalizer
     /**
      * Constructor used when creating a child instance
      */
-    private BytesToNameCanonicalizer(BytesToNameCanonicalizer parent, boolean intern,
-            int seed)
+    private BytesToNameCanonicalizer(BytesToNameCanonicalizer parent, boolean intern, int seed,
+            int count, int mainHashMask,
+            int[] mainHash, Name[] mainNames,
+            Bucket[] collList, int collCount, int collEnd, int longestCollisionList)
     {
         _parent = parent;
         _hashSeed = seed;
         _intern = intern;
 
-        // First, let's copy the state as is:
-        _count = parent._count;
-        _mainHashMask = parent._mainHashMask;
-        _mainHash = parent._mainHash;
-        _mainNames = parent._mainNames;
-        _collList = parent._collList;
-        _collCount = parent._collCount;
-        _collEnd = parent._collEnd;
-        _longestCollisionList = parent._longestCollisionList;
+        // Then copy shared state
+        _count = count;
+        _mainHashMask = mainHashMask;
+        _mainHash = mainHash;
+        _mainNames = mainNames;
+        _collList = collList;
+        _collCount = collCount;
+        _collEnd = collEnd;
+        _longestCollisionList = longestCollisionList;
+
+        // and then set other state to reflect sharing status
         _needRehash = false;
-        // And consider all shared, so far:
         _mainHashShared = true;
         _mainNamesShared = true;
         _collListShared = true;
@@ -320,8 +280,93 @@ public final class BytesToNameCanonicalizer
 
         _needRehash = false;
     }
+    
+    /*
+    /**********************************************************
+    /* Life-cycle: factory methods, merging
+    /**********************************************************
+     */
+    
+    /**
+     * Factory method to call to create a symbol table instance with a
+     * randomized seed value.
+     */
+    public static BytesToNameCanonicalizer createRoot()
+    {
+        /* [Issue-21]: Need to use a variable seed, to thwart hash-collision
+         * based attacks.
+         */
+        long now = System.currentTimeMillis();
+        // ensure it's not 0; and might as well require to be odd so:
+        int seed = (((int) now) + ((int) now >>> 32)) | 1;
+        return createRoot(seed);
+    }
 
-    private synchronized void mergeChild(BytesToNameCanonicalizer child)
+    /**
+     * Factory method that should only be called from unit tests, where seed
+     * value should remain the same.
+     */
+    protected static BytesToNameCanonicalizer createRoot(int hashSeed) {
+        return new BytesToNameCanonicalizer(DEFAULT_TABLE_SIZE, true, hashSeed);
+    }
+    
+    /**
+     * Factory method used to create actual symbol table instance to
+     * use for parsing.
+     * 
+     * @param intern Whether canonical symbol Strings should be interned
+     *   or not
+     */
+    public BytesToNameCanonicalizer makeChild(boolean canonicalize,
+        boolean intern)
+    {
+        final int hashSeed;
+        final int count;
+        final int mainHashMask;
+        final int[] mainHash;
+        final Name[] mainNames;
+        final Bucket[] collList;
+        final int collCount;
+        final int collEnd;
+        final int longestCollisionList;
+
+        // 24-Jul-2012, tatu: Try to reduce synchronized scope, to exclude actual ctor:
+        synchronized (this) {
+            hashSeed = _hashSeed;
+            count = _count;
+            mainHashMask = _mainHashMask;
+            mainHash = _mainHash;
+            mainNames = _mainNames;
+            collList = _collList;
+            collCount = _collCount;
+            collEnd = _collEnd;
+            longestCollisionList = _longestCollisionList;
+        }
+        return new BytesToNameCanonicalizer(this, intern, hashSeed,
+                count,mainHashMask, mainHash, mainNames,
+                collList,collCount, collEnd, longestCollisionList);
+    }
+
+    /**
+     * Method called by the using code to indicate it is done
+     * with this instance. This lets instance merge accumulated
+     * changes into parent (if need be), safely and efficiently,
+     * and without calling code having to know about parent
+     * information
+     */
+    public void release()
+    {
+        if (maybeDirty() && _parent != null) {
+            _parent.mergeChild(this);
+            /* Let's also mark this instance as dirty, so that just in
+             * case release was too early, there's no corruption
+             * of possibly shared data.
+             */
+            markAsShared();
+        }
+    }
+
+    private void mergeChild(BytesToNameCanonicalizer child)
     {
         // Only makes sense if child has more entries
         int childCount = child._count;
@@ -342,8 +387,13 @@ public final class BytesToNameCanonicalizer
              * thing to happen)
              */
             // At any rate, need to clean up the tables, then:
-            initTables(DEFAULT_TABLE_SIZE);
-        } else {
+            synchronized (this) {
+                initTables(DEFAULT_TABLE_SIZE);
+            }
+            return;
+        }
+
+        synchronized (this) {
             _count = child._count;
             _longestCollisionList = child._longestCollisionList;
             _mainHash = child._mainHash;

@@ -296,10 +296,29 @@ public final class CharsToNameCanonicalizer
      * on which only makeChild/mergeChild are called, but instance itself
      * is not used as a symbol table.
      */
-    public synchronized CharsToNameCanonicalizer makeChild(boolean canonicalize, boolean intern)
+    public synchronized CharsToNameCanonicalizer makeChild(final boolean canonicalize,
+            final boolean intern)
     {
+        /* 24-Jul-2012, tatu: Trying to reduce scope of synchronization, assuming
+         *   that synchronizing construction is the (potentially) expensive part,
+         *   and not so much short copy-the-variables thing.
+         */
+        final String[] symbols;
+        final Bucket[] buckets;
+        final int size;
+        final int hashSeed;
+        final int longestCollisionList;
+        
+        synchronized (this) {
+            symbols = _symbols;
+            buckets = _buckets;
+            size = _size;
+            hashSeed = _hashSeed;
+            longestCollisionList = _longestCollisionList;
+        }
+        
         return new CharsToNameCanonicalizer(this, canonicalize, intern,
-                _symbols, _buckets, _size, _hashSeed, _longestCollisionList);
+                symbols, buckets, size, hashSeed, longestCollisionList);
     }
 
     private CharsToNameCanonicalizer makeOrphan(int seed)
@@ -315,7 +334,7 @@ public final class CharsToNameCanonicalizer
      * Note that caller has to make sure symbol table passed in is
      * really a child or sibling of this symbol table.
      */
-    private synchronized void mergeChild(CharsToNameCanonicalizer child)
+    private void mergeChild(CharsToNameCanonicalizer child)
     {
         /* One caveat: let's try to avoid problems with
          * degenerate cases of documents with generated "random"
@@ -325,33 +344,34 @@ public final class CharsToNameCanonicalizer
          */
         if (child.size() > MAX_ENTRIES_FOR_REUSE
                 || child._longestCollisionList > MAX_COLL_CHAIN_FOR_REUSE) {
-            /* Should there be a way to get notified about this
-             * event, to log it or such? (as it's somewhat abnormal
-             * thing to happen)
-             */
+            // Should there be a way to get notified about this event, to log it or such?
+            // (as it's somewhat abnormal thing to happen)
             // At any rate, need to clean up the tables, then:
-            initTables(DEFAULT_TABLE_SIZE);
+            synchronized (this) {
+                initTables(DEFAULT_TABLE_SIZE);
+                // Dirty flag... well, let's just clear it. Shouldn't really matter for master tables
+                // (which this is, given something is merged to it)
+                _dirty = false;
+            }
         } else {
-            /* Otherwise, we'll merge changed stuff in, if there are
-             * more entries (which may not be the case if one of siblings
-             * has added symbols first or such)
-             */
+            // Otherwise, we'll merge changed stuff in, if there are  more entries (which
+            // may not be the case if one of siblings has added symbols first or such)
             if (child.size() <= size()) { // nothing to add
                 return;
             }
             // Okie dokie, let's get the data in!
-            _symbols = child._symbols;
-            _buckets = child._buckets;
-            _size = child._size;
-            _sizeThreshold = child._sizeThreshold;
-            _indexMask = child._indexMask;
-            _longestCollisionList = child._longestCollisionList;
+            synchronized (this) {
+                _symbols = child._symbols;
+                _buckets = child._buckets;
+                _size = child._size;
+                _sizeThreshold = child._sizeThreshold;
+                _indexMask = child._indexMask;
+                _longestCollisionList = child._longestCollisionList;
+                // Dirty flag... well, let's just clear it. Shouldn't really matter for master tables
+                // (which this is, given something is merged to it)
+                _dirty = false;
+            }
         }
-        /* Dirty flag... well, let's just clear it, to force copying just
-         * in case. Shouldn't really matter, for master tables.
-         * (which this is, given something is merged to it etc)
-         */
-        _dirty = false;
     }
 
     public void release()

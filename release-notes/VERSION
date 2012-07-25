@@ -1,7 +1,7 @@
 Version: 2.1.0
 
 Release date:
-  xx-Jun-2012
+  xx-Aug-2012
 
 Description:
   A new minor version for 2.x.
@@ -20,6 +20,8 @@ Other:
 
 * [Issue-25]: Add 'createParser' and 'createGenerator' (as eventual replacements
   for 'createJsonParser'/'createJsonGenerator') in 'JsonFactory'
+* Try to improve locking aspects of symbol tables, by reducing scope of
+  synchronized sections when creating, merging table contents.
 
 ------------------------------------------------------------------------
 === History: ===

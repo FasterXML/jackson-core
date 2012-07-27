@@ -90,7 +90,7 @@ instance of which is constructed by `JsonFactory`:
 
 Project-specific documentation:
 
-* [Javadocs](http://fasterxml.github.com/jackson-core/javadoc/2.0.2/)
+* [Javadocs](http://fasterxml.github.com/jackson-core/javadoc/2.0.5/)
 * [Documentation](jackson-core/wiki/Documentation) has other project documentation
 
 Related:

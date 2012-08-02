@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.*;
  * used, which will use an instance of this class for operation.
  */
 public class DefaultPrettyPrinter
-    implements PrettyPrinter
+    implements PrettyPrinter, Instantiatable<DefaultPrettyPrinter>
 {
     /**
      * Interface that defines objects that can produce indentation used
@@ -73,6 +73,13 @@ public class DefaultPrettyPrinter
 
     public DefaultPrettyPrinter() { }
 
+    public DefaultPrettyPrinter(DefaultPrettyPrinter base) {
+        _arrayIndenter = base._arrayIndenter;
+        _objectIndenter = base._objectIndenter;
+        _spacesInObjectEntries = base._spacesInObjectEntries;
+        _nesting = base._nesting;
+    }
+    
     public void indentArraysWith(Indenter i)
     {
         _arrayIndenter = (i == null) ? new NopIndenter() : i;
@@ -85,6 +92,17 @@ public class DefaultPrettyPrinter
 
     public void spacesInObjectEntries(boolean b) { _spacesInObjectEntries = b; }
 
+    /*
+    /**********************************************************
+    /* Instantiatable impl
+    /**********************************************************
+     */
+    
+    // @Override
+    public DefaultPrettyPrinter createInstance() {
+        return new DefaultPrettyPrinter(this);
+    }
+    
     /*
     /**********************************************************
     /* PrettyPrinter impl

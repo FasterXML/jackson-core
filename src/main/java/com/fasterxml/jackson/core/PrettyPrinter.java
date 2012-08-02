@@ -8,6 +8,12 @@ import java.io.IOException;
  * Pretty printers are used to add white space in output JSON content,
  * to make results more human readable. Usually this means things like adding
  * linefeeds and indentation.
+ *<p>
+ * Note: since Jackson 2.1, stateful implementations MUST implement
+ * {@link com.fasterxml.jackson.core.util.Instantiatable} interface,
+ * to allow for constructing  per-generation instances and avoid
+ * state corruption (see [JACKSON-851] for details).
+ * Stateless implementations need not do this; but those are less common.
  */
 public interface PrettyPrinter
 {

@@ -238,6 +238,35 @@ public class JsonFactory implements Versioned
 
     public JsonFactory(ObjectCodec oc) { _objectCodec = oc; }
 
+    /**
+     * Method for constructing a new {@link JsonFactory} that has
+     * the same settings as this instance, but is otherwise
+     * independent (i.e. nothing is actually shared, symbol tables
+     * are separate).
+     * Note that {@link ObjectCodec} reference is not copied but is
+     * set to null; caller typically needs to set it after calling
+     * this method.
+     * 
+     * @since 2.1
+     */
+    public JsonFactory copy()
+    {
+        _checkInvalidCopy(JsonFactory.class);
+        return new JsonFactory(null);
+    }
+
+    /**
+     * @since 2.1
+     * @param exp
+     */
+    protected void _checkInvalidCopy(Class<?> exp)
+    {
+        if (getClass() != exp) {
+            throw new IllegalStateException("Failed copy(): "+getClass().getName()
+                    +" (version: "+version()+") does not override copy(); it has to");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Format detection functionality (since 1.8)

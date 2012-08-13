@@ -217,6 +217,14 @@ public class JsonFactory implements Versioned
      * additional processing on output during content generation.
      */
     protected OutputDecorator _outputDecorator;
+
+    /**
+     * Default {@link Base64Variant} to use for encoding and decoding
+     * Base64 content, unless variant is explicitly specified.
+     * 
+     * @since 2.1
+     */
+    protected Base64Variant _defaultBase64 = Base64Variants.getDefaultVariant();
     
     /*
     /**********************************************************
@@ -504,6 +512,21 @@ public class JsonFactory implements Versioned
 
     public ObjectCodec getCodec() { return _objectCodec; }
 
+    /**
+     * Method for overriding default {@link Base64Variant} to use
+     * for Base64 encoding
+     * 
+     * @since 2.1
+     */
+    public JsonFactory setDefaultBase64(Base64Variant v) {
+        _defaultBase64 = (v == null) ? Base64Variants.getDefaultVariant() : v;
+        return this;
+    }
+
+    public Base64Variant getDefaultBase64() {
+        return _defaultBase64;
+    }
+    
     /*
     /**********************************************************
     /* Parser factories (new ones, as per [Issue-25])

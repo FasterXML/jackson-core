@@ -296,7 +296,7 @@ public final class CharsToNameCanonicalizer
      * on which only makeChild/mergeChild are called, but instance itself
      * is not used as a symbol table.
      */
-    public synchronized CharsToNameCanonicalizer makeChild(final boolean canonicalize,
+    public CharsToNameCanonicalizer makeChild(final boolean canonicalize,
             final boolean intern)
     {
         /* 24-Jul-2012, tatu: Trying to reduce scope of synchronization, assuming

@@ -20,7 +20,12 @@ public class DataFormatMatcher
     protected final byte[] _bufferedData;
 
     /**
-     * Number of bytes in {@link #_bufferedData} that were read.
+     * Pointer to the first byte in buffer available for reading
+     */
+    protected final int _bufferedStart;
+    
+    /**
+     * Number of bytes available in buffer.
      */
     protected final int _bufferedLength;
 
@@ -34,11 +39,13 @@ public class DataFormatMatcher
      */
     protected final MatchStrength _matchStrength;
     
-    protected DataFormatMatcher(InputStream in, byte[] buffered, int bufferedLength,
+    protected DataFormatMatcher(InputStream in, byte[] buffered,
+            int bufferedStart, int bufferedLength,
             JsonFactory match, MatchStrength strength)
     {
         _originalStream = in;
         _bufferedData = buffered;
+        _bufferedStart = bufferedStart;
         _bufferedLength = bufferedLength;
         _match = match;
         _matchStrength = strength;
@@ -96,7 +103,7 @@ public class DataFormatMatcher
             return null;
         }
         if (_originalStream == null) {
-            return _match.createJsonParser(_bufferedData, 0, _bufferedLength);
+            return _match.createJsonParser(_bufferedData, _bufferedStart, _bufferedLength);
         }
         return _match.createJsonParser(getDataStream());
     }
@@ -110,8 +117,8 @@ public class DataFormatMatcher
      */
     public InputStream getDataStream() {
         if (_originalStream == null) {
-            return new ByteArrayInputStream(_bufferedData, 0, _bufferedLength);
+            return new ByteArrayInputStream(_bufferedData, _bufferedStart, _bufferedLength);
         }
-        return new MergedStream(null, _originalStream, _bufferedData, 0, _bufferedLength);
+        return new MergedStream(null, _originalStream, _bufferedData, _bufferedStart, _bufferedLength);
     }
 }

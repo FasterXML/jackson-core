@@ -138,6 +138,20 @@ public class DataFormatDetector
     {
         return _findFormat(new InputAccessor.Std(fullInputData));
     }
+
+    /**
+     * Method to call to find format that given content (full document)
+     * has, as per configuration of this detector instance.
+     * 
+     * @return Matcher object which contains result; never null, even in cases
+     *    where no match (with specified minimal match strength) is found.
+     * 
+     * @since 2.1
+     */
+    public DataFormatMatcher findFormat(byte[] fullInputData, int offset, int len) throws IOException
+    {
+        return _findFormat(new InputAccessor.Std(fullInputData, offset, len));
+    }
     
     /*
     /**********************************************************

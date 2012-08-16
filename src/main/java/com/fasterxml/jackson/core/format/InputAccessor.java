@@ -45,11 +45,12 @@ public interface InputAccessor
 
         protected final byte[] _buffer;
 
+        protected final int _bufferedStart;
+
         /**
-         * Number of bytes in {@link #_buffer} that are valid
-         * buffered content.
+         * End of valid bytes in the buffer (points to one past last valid)
          */
-        protected int _bufferedAmount;
+        protected int _bufferedEnd;
         
         /**
          * Pointer to next available buffered byte in {@link #_buffer}.
@@ -64,7 +65,9 @@ public interface InputAccessor
         {
             _in = in;
             _buffer = buffer;
-            _bufferedAmount = 0;
+            _bufferedStart = 0;
+            _ptr = 0;
+            _bufferedEnd = 0;
         }
 
         /**
@@ -76,14 +79,33 @@ public interface InputAccessor
             _in = null;
             _buffer = inputDocument;
             // we have it all:
-            _bufferedAmount = inputDocument.length;
+            _bufferedStart = 0;
+            _bufferedEnd = inputDocument.length;
+        }
+
+        /**
+         * Constructor used when the full input (or at least enough leading bytes
+         * of full input) is available.
+         * 
+         * @since 2.1
+         */
+        public Std(byte[] inputDocument, int start, int len)
+        {
+            _in = null;
+            _buffer = inputDocument;
+            _ptr = start;
+            _bufferedStart = start;
+            _bufferedEnd = start+len;
         }
         
 //      @Override
         public boolean hasMoreBytes() throws IOException
         {
-            if (_ptr < _bufferedAmount) { // already got more
+            if (_ptr < _bufferedEnd) { // already got more
                 return true;
+            }
+            if (_in == null) { // nowhere to read from
+                return false;
             }
             int amount = _buffer.length - _ptr;
             if (amount < 1) { // can not load any more
@@ -93,7 +115,7 @@ public interface InputAccessor
             if (count <= 0) { // EOF
                 return false;
             }
-            _bufferedAmount += count;
+            _bufferedEnd += count;
             return true;
         }
 
@@ -101,9 +123,9 @@ public interface InputAccessor
         public byte nextByte() throws IOException
         {
             // should we just try loading more automatically?
-            if (_ptr >- _bufferedAmount) {
+            if (_ptr >= _bufferedEnd) {
                 if (!hasMoreBytes()) {
-                    throw new EOFException("Could not read more than "+_ptr+" bytes (max buffer size: "+_buffer.length+")");
+                    throw new EOFException("Failed auto-detect: could not read more than "+_ptr+" bytes (max buffer size: "+_buffer.length+")");
                 }
             }
             return _buffer[_ptr++];
@@ -111,7 +133,7 @@ public interface InputAccessor
 
 //      @Override
         public void reset() {
-            _ptr = 0;
+            _ptr = _bufferedStart;
         }
 
         /*
@@ -122,7 +144,8 @@ public interface InputAccessor
 
         public DataFormatMatcher createMatcher(JsonFactory match, MatchStrength matchStrength)
         {
-            return new DataFormatMatcher(_in, _buffer, _bufferedAmount, match, matchStrength);
+            return new DataFormatMatcher(_in, _buffer, _bufferedStart, (_bufferedEnd - _bufferedStart),
+                    match, matchStrength);
         }
     }
 }

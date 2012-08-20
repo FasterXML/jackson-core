@@ -155,6 +155,29 @@ public class DataFormatDetector
     
     /*
     /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        final int len = _detectors.length;
+        if (len > 0) {
+            sb.append(_detectors[0].getFormatName());
+            for (int i = 1; i < len; ++i) {
+                sb.append(", ");
+                sb.append(_detectors[i].getFormatName());
+            }
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+    
+    /*
+    /**********************************************************
     /* Internal methods
     /**********************************************************
      */

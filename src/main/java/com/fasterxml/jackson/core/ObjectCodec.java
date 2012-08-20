@@ -141,9 +141,18 @@ public abstract class ObjectCodec
      */
 
     /**
-     * Accessor for finding {@link JsonFactory} codec will use.
-     * 
-     * @since 2.0
+     * @deprecated Since 2.1: Use {@link #getFactory} instead.
      */
+    @Deprecated
     public abstract JsonFactory getJsonFactory();
+
+    /**
+     * Accessor for finding underlying data format factory
+     * ({@link JsonFactory}) codec will use for data binding.
+     * 
+     * @since 2.1
+     */
+    public JsonFactory getFactory() {
+        return getJsonFactory();
+    }
 }

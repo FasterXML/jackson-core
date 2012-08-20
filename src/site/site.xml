@@ -12,6 +12,11 @@
         <showUser>true</showUser>
         <showFollowers>true</showFollowers>
       </twitter>
+      <gitHub>
+        <projectId>FasterXML/jackson-core</projectId>
+        <ribbonOrientation>right</ribbonOrientation>
+        <ribbonColor>red</ribbonColor>
+      </gitHub>
     </fluidoSkin>
   </custom>
 

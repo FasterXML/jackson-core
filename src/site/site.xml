@@ -37,10 +37,6 @@
   <version position="left" />
 
   <body>
-    <menu name="User guide">
-      <!-- TODO -->
-    </menu>
-
     <menu ref="reports" inherit="bottom" />
   </body>
 </project>

@@ -20,8 +20,6 @@
 
   <custom>
     <fluidoSkin>
-      <topBarEnabled>true</topBarEnabled>
-      <sideBarEnabled>false</sideBarEnabled>
       <twitter>
         <user>cowtowncoder</user>
         <showUser>true</showUser>

@@ -57,6 +57,7 @@ public class TestScopeMatching
             } catch (JsonParseException jpe) {
                 verifyException(jpe, "Unexpected end-of-input");
             }
+            jp.close();
         }
     }
 
@@ -74,6 +75,7 @@ public class TestScopeMatching
             } catch (JsonParseException jpe) {
                 verifyException(jpe, "Unrecognized token");
             }
+            jp.close();
         }
     }
 
@@ -93,6 +95,7 @@ public class TestScopeMatching
             } catch (JsonParseException jpe) {
                 verifyException(jpe, "Unexpected close marker '}': expected ']'");
             }
+            jp.close();
         }
     }
 
@@ -111,6 +114,7 @@ public class TestScopeMatching
             } catch (JsonParseException jpe) {
                 verifyException(jpe, "Unexpected close marker ']': expected '}'");
             }
+            jp.close();
         }
     }
 
@@ -130,6 +134,7 @@ public class TestScopeMatching
             } catch (JsonParseException jpe) {
                 verifyException(jpe, "was expecting a colon");
             }
+            jp.close();
         }
     }
 }

@@ -61,6 +61,8 @@ public class TestParserFeatures
             jp.nextToken();
         } catch (JsonParseException je) {
             verifyException(je, EXP_ERROR_FRAGMENT);
+        } finally {
+            jp.close();
         }
     }
 
@@ -79,6 +81,8 @@ public class TestParserFeatures
             fail("Expected exception");
         } catch (JsonParseException e) {
             verifyException(e, "Illegal unquoted character");
+        } finally {
+            jp.close();
         }
     }
 
@@ -98,5 +102,6 @@ public class TestParserFeatures
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals(VALUE, jp.getText());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
     }
 }

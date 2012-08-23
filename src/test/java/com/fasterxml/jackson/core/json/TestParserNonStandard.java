@@ -111,6 +111,7 @@ public class TestParserNonStandard
             assertToken(JsonToken.END_OBJECT, jp.nextToken());
         }
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
     }
 
     
@@ -143,6 +144,7 @@ public class TestParserNonStandard
         assertToken(JsonToken.VALUE_NULL, jp.nextToken());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
     }
 
     /**
@@ -163,6 +165,8 @@ public class TestParserNonStandard
             fail("Expected exception");
         } catch (JsonParseException e) {
             verifyException(e, "Unexpected character ('''");
+        } finally {
+            jp.close();
         }
 
         JSON = "{ 'a':1 }";
@@ -174,6 +178,8 @@ public class TestParserNonStandard
             fail("Expected exception");
         } catch (JsonParseException e) {
             verifyException(e, "Unexpected character ('''");
+        } finally {
+            jp.close();
         }
     }
 
@@ -216,6 +222,7 @@ public class TestParserNonStandard
         assertEquals("", jp.getText());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
     }
 
     // test to verify that we implicitly allow escaping of apostrophe [JACKSON-548]
@@ -232,6 +239,7 @@ public class TestParserNonStandard
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("16'", jp.getText());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
     }
     
     private void _testNonStandardNameChars(boolean useStream) throws Exception
@@ -287,6 +295,8 @@ public class TestParserNonStandard
             fail("Should have thrown an exception for doc <"+JSON+">");
         } catch (JsonParseException e) {
             verifyException(e, "unrecognized character escape");
+        } finally {
+            jp.close();
         }
         // and then verify it's ok...
         f.configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true);
@@ -295,6 +305,7 @@ public class TestParserNonStandard
                 : createParserUsingReader(f, JSON);
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("'", jp.getText());
+        jp.close();
     }
 
     private void _testLeadingZeroes(boolean useStream, boolean appendSpace) throws Exception
@@ -314,6 +325,8 @@ public class TestParserNonStandard
             fail("Should have thrown an exception for doc <"+JSON+">");
         } catch (JsonParseException e) {
             verifyException(e, "invalid numeric value");
+        } finally {
+            jp.close();
         }
         
         // and then verify it's ok when enabled
@@ -356,6 +369,8 @@ public class TestParserNonStandard
             fail("Expected exception");
         } catch (Exception e) {
             verifyException(e, "non-standard");
+        } finally {
+            jp.close();
         }
 
         // we can enable it dynamically (impl detail)
@@ -397,6 +412,8 @@ public class TestParserNonStandard
             fail("Expected exception");
         } catch (Exception e) {
             verifyException(e, "Non-standard token '-INF'");
+        } finally {
+            jp.close();
         }
 
         f.configure(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS, true);

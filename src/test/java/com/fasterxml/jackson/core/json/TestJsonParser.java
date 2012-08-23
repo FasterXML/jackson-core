@@ -476,6 +476,8 @@ public class TestJsonParser
             fail("Expected an exception for malformed value keyword");
         } catch (JsonParseException jex) {
             verifyException(jex, "Unrecognized token");
+        } finally {
+            jp.close();
         }
     }
 
@@ -495,6 +497,8 @@ public class TestJsonParser
             fail("Expected an exception for malformed value keyword");
         } catch (JsonParseException jex) {
             verifyException(jex, "expected a valid value");
+        } finally {
+            jp.close();
         }
     }
 }

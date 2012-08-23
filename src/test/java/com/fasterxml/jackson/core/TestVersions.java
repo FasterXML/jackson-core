@@ -17,12 +17,16 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
     private final static String GROUP_ID = "com.fasterxml.jackson.core";
     private final static String ARTIFACT_ID = "jackson-core";
     
-    public void testCoreVersions()
+    public void testCoreVersions() throws Exception
     {
         assertVersion(new JsonFactory().version());
-        assertVersion(new ReaderBasedJsonParser(getIOContext(), 0, null, null,
-                CharsToNameCanonicalizer.createRoot()).version());
-        assertVersion(new WriterBasedJsonGenerator(getIOContext(), 0, null, null).version());
+        JsonParser jp = new ReaderBasedJsonParser(getIOContext(), 0, null, null,
+                CharsToNameCanonicalizer.createRoot());
+        assertVersion(jp.version());
+        jp.close();
+        JsonGenerator jgen = new WriterBasedJsonGenerator(getIOContext(), 0, null, null);
+        assertVersion(jgen.version());
+        jgen.close();
     }
 
     /*

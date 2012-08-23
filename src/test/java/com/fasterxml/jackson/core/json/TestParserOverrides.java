@@ -95,6 +95,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.test.BaseTest
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.clearCurrentToken();
         assertNull(jp.getCurrentToken());
+        jp.close();
     }
     
 

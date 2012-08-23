@@ -24,5 +24,6 @@ public class TestUtf8Generator
         }
         gen.writeString(str);
         gen.flush();
+        gen.close();
     }
 }

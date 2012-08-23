@@ -42,7 +42,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <!--  need to enable filtering to add version info -->
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
+        <directory>${basedir}/src/main/resources</directory>
         <filtering>true</filtering>
       </resource>  
     </resources>

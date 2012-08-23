@@ -23,6 +23,7 @@ Other:
 * Try to improve locking aspects of symbol tables, by reducing scope of
   synchronized sections when creating, merging table contents.
 * Added 'JsonFactory.copy()' method to support databinding's 'ObjectMapper.copy()'
+* Added method 'requiresCustomCodec()' for JsonFactory and JsonParser
 
 ------------------------------------------------------------------------
 === History: ===

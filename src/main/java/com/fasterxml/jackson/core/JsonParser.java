@@ -234,6 +234,31 @@ public abstract class JsonParser
     public abstract void setCodec(ObjectCodec c);
 
     /**
+     * Method that can be used to get access to object that is used
+     * to access input being parsed; this is usually either
+     * {@link InputStream} or {@link Reader}, depending on what
+     * parser was constructed with.
+     * Note that returned value may be null in some cases; including
+     * case where parser implementation does not want to exposed raw
+     * source to caller.
+     * In cases where input has been decorated, object returned here
+     * is the decorated version; this allows some level of interaction
+     * between users of parser and decorator object.
+     *<p>
+     * In general use of this accessor should be considered as
+     * "last effort", i.e. only used if no other mechanism is applicable.
+     */
+    public Object getInputSource() {
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Format support
+    /**********************************************************
+     */
+    
+    /**
      * Method to call to make this parser use specified schema. Method must
      * be called before trying to parse any content, right after parser instance
      * has been created.
@@ -274,6 +299,29 @@ public abstract class JsonParser
     public boolean canUseSchema(FormatSchema schema) {
         return false;
     }
+
+    /**
+     * Method that can be called to determine if a custom
+     * {@link ObjectCodec} is needed for binding data parsed
+     * using {@link JsonParser} constructed by this factory
+     * (which typically also implies the same for serialization
+     * with {@link JsonGenerator}).
+     * 
+     * @return True if custom codec is needed with parsers and
+     *   generators created by this factory; false if a general
+     *   {@link ObjectCodec} is enough
+     * 
+     * @since 2.1
+     */
+    public boolean requiresCustomCodec() {
+        return false;
+    }
+
+    /*
+    /**********************************************************
+    /* Versioned
+    /**********************************************************
+     */
     
     /**
      * Accessor for getting version of the core package, given a parser instance.
@@ -281,25 +329,6 @@ public abstract class JsonParser
      */
 //  @Override
     public abstract Version version();
-
-    /**
-     * Method that can be used to get access to object that is used
-     * to access input being parsed; this is usually either
-     * {@link InputStream} or {@link Reader}, depending on what
-     * parser was constructed with.
-     * Note that returned value may be null in some cases; including
-     * case where parser implementation does not want to exposed raw
-     * source to caller.
-     * In cases where input has been decorated, object returned here
-     * is the decorated version; this allows some level of interaction
-     * between users of parser and decorator object.
-     *<p>
-     * In general use of this accessor should be considered as
-     * "last effort", i.e. only used if no other mechanism is applicable.
-     */
-    public Object getInputSource() {
-        return null;
-    }
     
     /*
     /**********************************************************

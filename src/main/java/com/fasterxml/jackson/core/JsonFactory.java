@@ -301,11 +301,32 @@ public class JsonFactory implements Versioned
         return null;
     }
 
+    /**
+     * Method that can be called to determine if a custom
+     * {@link ObjectCodec} is needed for binding data parsed
+     * using {@link JsonParser} constructed by this factory
+     * (which typically also implies the same for serialization
+     * with {@link JsonGenerator}).
+     * 
+     * @return True if custom codec is needed with parsers and
+     *   generators created by this factory; false if a general
+     *   {@link ObjectCodec} is enough
+     * 
+     * @since 2.1
+     */
+    public boolean requiresCustomCodec() {
+        return false;
+    }
+    
+    /**
+     * Helper method that can be called to determine if content accessed
+     * using given accessor seems to be JSON content.
+     */
     protected MatchStrength hasJSONFormat(InputAccessor acc) throws IOException
     {
         return ByteSourceJsonBootstrapper.hasJSONFormat(acc);
-    }    
-    
+    }
+
     /*
     /**********************************************************
     /* Versioned

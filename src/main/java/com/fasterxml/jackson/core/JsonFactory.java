@@ -274,6 +274,21 @@ public class JsonFactory implements Versioned
      */
 
     /**
+     * Method that can be used to quickly check whether given schema
+     * is something that parsers and/or generators constructed by this
+     * factory could use. Note that this means possible use, at the level
+     * of data format (i.e. schema is for same data format as parsers and
+     * generators this factory constructs); individual schema instances
+     * may have further usage restrictions.
+     * 
+     * @since 2.1
+     */
+    public boolean canUseSchema(FormatSchema schema) {
+        String ourFormat = getFormatName();
+        return (ourFormat != null) && ourFormat.equals(schema.getSchemaType());
+    }
+
+    /**
      * Method that returns short textual id identifying format
      * this factory supports.
      *<p>

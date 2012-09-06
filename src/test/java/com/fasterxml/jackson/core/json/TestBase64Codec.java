@@ -47,10 +47,11 @@ public class TestBase64Codec
         Assert.assertArrayEquals(exp, act);
     }
 
+    @SuppressWarnings("unused")
     public void testErrors() throws Exception
     {
         try {
-            new Base64Variant("foobar", "xyz", false, '!', 24);
+            Base64Variant b = new Base64Variant("foobar", "xyz", false, '!', 24);
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "length must be exactly");
         }

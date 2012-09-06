@@ -40,7 +40,7 @@ To use databinding, you need to use following Maven dependency:
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.6</version>
     </dependency>
 
 or download jars from Maven repository or [Download page](wiki.fasterxml.com/JacksonDownload).
@@ -90,7 +90,7 @@ instance of which is constructed by `JsonFactory`:
 
 Project-specific documentation:
 
-* [Javadocs](http://fasterxml.github.com/jackson-core/javadoc/2.0.5/)
+* [Javadocs](http://fasterxml.github.com/jackson-core/javadoc/2.0.6/)
 * [Documentation](jackson-core/wiki/Documentation) has other project documentation
 
 Related:

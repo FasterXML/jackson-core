@@ -30,7 +30,7 @@ public final class JsonStringEncoder
     private final static int INT_0 = '0';
     
     /**
-     * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftRerefence}
+     * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
      * to a {@link BufferRecycler} used to provide a low-cost
      * buffer recycling between reader and writer instances.
      */

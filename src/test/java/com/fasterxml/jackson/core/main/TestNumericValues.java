@@ -241,7 +241,6 @@ public class TestNumericValues
         }
     }
 
-    @SuppressWarnings("resource")
     public void testLongOverflow() throws Exception
     {
         BigInteger below = BigInteger.valueOf(Long.MIN_VALUE);

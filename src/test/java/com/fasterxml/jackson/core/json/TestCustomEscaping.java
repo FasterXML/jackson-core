@@ -95,7 +95,6 @@ public class TestCustomEscaping  extends com.fasterxml.jackson.test.BaseTest
     /********************************************************
      */
 
-    @SuppressWarnings("resource") // Eclipse is wrong here
     private void _testEscapeAboveAscii(boolean useStream) throws Exception
     {
         JsonFactory f = new JsonFactory();

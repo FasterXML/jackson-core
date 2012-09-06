@@ -1,10 +1,16 @@
-Version: 2.0.5
+Version: 2.0.6
 
 Release date:
-  27-Jul-2012
+  05-Sep-2012
 
 Description:
-  Another patch release for 2.0.
+  No fixes or changes, released along with other core components
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.0.5 (27-Jul-2012)
 
 Fixes:
 
@@ -18,10 +24,6 @@ Fixes:
   to give more access to specific failiure
  (suggested by HolySamosa@github)
 * [JACKSON-853]: JsonStringEncoder.quoteAsString() problem with buffer boundary
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.0.4 (26-Jun-2012)
 

@@ -59,6 +59,11 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
+    public FormatSchema getSchema() {
+        return delegate.getSchema();
+    }
+    
+    @Override
     public void setSchema(FormatSchema schema) {
         delegate.setSchema(schema);
     }
@@ -66,6 +71,11 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public boolean canUseSchema(FormatSchema schema) {
         return delegate.canUseSchema(schema);
+    }
+
+    @Override
+    public boolean requiresCustomCodec() {
+        return delegate.requiresCustomCodec();
     }
     
     @Override

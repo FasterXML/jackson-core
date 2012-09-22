@@ -24,6 +24,7 @@ Other:
   synchronized sections when creating, merging table contents.
 * Added 'JsonFactory.copy()' method to support databinding's 'ObjectMapper.copy()'
 * Added method 'requiresCustomCodec()' for JsonFactory and JsonParser
+* Added 'JsonParser.getValueAsString()' method (to support flexible conversions)
 
 ------------------------------------------------------------------------
 === History: ===

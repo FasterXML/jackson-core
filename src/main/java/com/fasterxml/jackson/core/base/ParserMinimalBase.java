@@ -364,6 +364,17 @@ public abstract class ParserMinimalBase
         return defaultValue;
     }
 
+    @Override
+    public String getValueAsString(String defaultValue) throws IOException, JsonParseException
+    {
+        if (_currToken != JsonToken.VALUE_STRING) {
+            if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
+                return defaultValue;
+            }
+        }
+        return getText();
+    }
+    
     /*
     /**********************************************************
     /* Base64 decoding

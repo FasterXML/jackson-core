@@ -250,6 +250,62 @@ public class JsonParserDelegate extends JsonParser
 
     /*
     /**********************************************************
+    /* Public API, access to token information, coercion/conversion
+    /**********************************************************
+     */
+    
+    @Override
+    public int getValueAsInt() throws IOException, JsonParseException {
+        return delegate.getValueAsInt();
+    }
+    
+    @Override
+    public int getValueAsInt(int defaultValue) throws IOException, JsonParseException {
+        return delegate.getValueAsInt(defaultValue);
+    }
+
+    @Override
+    public long getValueAsLong() throws IOException, JsonParseException {
+        return delegate.getValueAsLong();
+    }
+    
+    @Override
+    public long getValueAsLong(long defaultValue) throws IOException, JsonParseException {
+        return delegate.getValueAsLong(defaultValue);
+    }
+    
+    @Override
+    public double getValueAsDouble() throws IOException, JsonParseException {
+        return delegate.getValueAsDouble();
+    }
+    
+    @Override
+    public double getValueAsDouble(double defaultValue) throws IOException, JsonParseException {
+        return delegate.getValueAsDouble(defaultValue);
+    }
+
+    @Override
+    public boolean getValueAsBoolean() throws IOException, JsonParseException {
+        return delegate.getValueAsBoolean();
+    }
+
+    @Override
+    public boolean getValueAsBoolean(boolean defaultValue) throws IOException, JsonParseException {
+        return delegate.getValueAsBoolean(defaultValue);
+    }
+
+    @Override
+    public String getValueAsString() throws IOException, JsonParseException {
+        return delegate.getValueAsString();
+    }
+    
+    @Override
+    public String getValueAsString(String defaultValue) throws IOException, JsonParseException {
+        return delegate.getValueAsString(defaultValue);
+    }
+    
+    /*
+    /**********************************************************
     /* Public API, access to token values, other
     /**********************************************************
      */

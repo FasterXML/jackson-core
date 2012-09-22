@@ -1218,6 +1218,35 @@ public abstract class JsonParser
     public boolean getValueAsBoolean(boolean defaultValue) throws IOException, JsonParseException {
         return defaultValue;
     }
+
+    /**
+     * Method that will try to convert value of current token to a
+     * {@link java.lang.String}.
+     * JSON Strings map naturally; scalar values get converted to
+     * their textual representation.
+     * If representation can not be converted to a String value (including structured types
+     * like Objects and Arrays and null token), default value of
+     * <b>null</b> will be returned; no exceptions are thrown.
+     * 
+     * @since 2.1
+     */
+    public String getValueAsString() throws IOException, JsonParseException {
+        return getValueAsString(null);
+    }
+    
+    /**
+     * Method that will try to convert value of current token to a
+     * {@link java.lang.String}.
+     * JSON Strings map naturally; scalar values get converted to
+     * their textual representation.
+     * If representation can not be converted to a String value (including structured types
+     * like Objects and Arrays and null token), specified default value
+     * will be returned; no exceptions are thrown.
+     * 
+     * @since 2.1
+     */
+    public abstract String getValueAsString(String defaultValue)
+        throws IOException, JsonParseException;
     
     /*
     /**********************************************************

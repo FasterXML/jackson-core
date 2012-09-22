@@ -213,6 +213,37 @@ public final class ReaderBasedJsonParser
         }
         return _getText2(t);
     }
+
+    // // // Let's override default impls for improved performance
+    
+    // @since 2.1
+    @Override
+    public String getValueAsString() throws IOException, JsonParseException
+    {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            if (_tokenIncomplete) {
+                _tokenIncomplete = false;
+                _finishString(); // only strings can be incomplete
+            }
+            return _textBuffer.contentsAsString();
+        }
+        return super.getValueAsString(null);
+    }
+    
+    // @since 2.1
+    @Override
+    public String getValueAsString(String defValue) throws IOException, JsonParseException
+    {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            if (_tokenIncomplete) {
+                _tokenIncomplete = false;
+                _finishString(); // only strings can be incomplete
+            }
+            return _textBuffer.contentsAsString();
+        }
+        return super.getValueAsString(defValue);
+    }
+    
     
     protected final String _getText2(JsonToken t)
     {

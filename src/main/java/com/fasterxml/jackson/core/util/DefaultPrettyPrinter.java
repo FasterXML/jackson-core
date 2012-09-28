@@ -73,7 +73,8 @@ public class DefaultPrettyPrinter
 
     public DefaultPrettyPrinter() { }
 
-    public DefaultPrettyPrinter(DefaultPrettyPrinter base) {
+    public DefaultPrettyPrinter(DefaultPrettyPrinter base)
+    {
         _arrayIndenter = base._arrayIndenter;
         _objectIndenter = base._objectIndenter;
         _spacesInObjectEntries = base._spacesInObjectEntries;
@@ -306,12 +307,14 @@ public class DefaultPrettyPrinter
             throws IOException, JsonGenerationException
         {
             jg.writeRaw(SYSTEM_LINE_SEPARATOR);
-            level += level; // 2 spaces per level
-            while (level > SPACE_COUNT) { // should never happen but...
-                jg.writeRaw(SPACES, 0, SPACE_COUNT); 
-                level -= SPACES.length;
+            if (level > 0) { // should we err on negative values (as there's some flaw?)
+                level += level; // 2 spaces per level
+                while (level > SPACE_COUNT) { // should never happen but...
+                    jg.writeRaw(SPACES, 0, SPACE_COUNT); 
+                    level -= SPACES.length;
+                }
+                jg.writeRaw(SPACES, 0, level);
             }
-            jg.writeRaw(SPACES, 0, level);
         }
     }
 }

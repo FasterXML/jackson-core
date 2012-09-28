@@ -5,81 +5,27 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.*;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * {@link JsonGenerator} that outputs JSON content using a {@link java.io.Writer}
  * which handles character encoding.
  */
 public final class WriterBasedJsonGenerator
-    extends GeneratorBase
+    extends JsonGeneratorImpl
 {
     final protected static int SHORT_WRITE = 32;
 
     final protected static char[] HEX_CHARS = CharTypes.copyHexChars();
-
-    /**
-     * This is the default set of escape codes, over 7-bit ASCII range
-     * (first 128 character codes), used for single-byte UTF-8 characters.
-     */
-    protected final static int[] sOutputEscapes = CharTypes.get7BitOutputEscapes();
     
-    /*
-    /**********************************************************
-    /* Configuration
-    /**********************************************************
-     */
-
-    final protected IOContext _ioContext;
-
-    final protected Writer _writer;
-    
-    /*
-    /**********************************************************
-    /* Configuration, output escaping
-    /**********************************************************
-     */
-
-    /**
-     * Currently active set of output escape code definitions (whether
-     * and how to escape or not) for 7-bit ASCII range (first 128
-     * character codes). Defined separately to make potentially
-     * customizable
-     */
-    protected int[] _outputEscapes = sOutputEscapes;
-
-    /**
-     * Value between 128 (0x80) and 65535 (0xFFFF) that indicates highest
-     * Unicode code point that will not need escaping; or 0 to indicate
-     * that all characters can be represented without escaping.
-     * Typically used to force escaping of some portion of character set;
-     * for example to always escape non-ASCII characters (if value was 127).
-     *<p>
-     * NOTE: not all sub-classes make use of this setting.
-     */
-    protected int _maximumNonEscapedChar;
-
-    /**
-     * Definition of custom character escapes to use for generators created
-     * by this factory, if any. If null, standard data format specific
-     * escapes are used.
-     */
-    protected CharacterEscapes _characterEscapes;
-
-    /**
-     * When custom escapes are used, this member variable can be used to
-     * store escape to use
-     */
-    protected SerializableString _currentEscape;
-
     /*
     /**********************************************************
     /* Output buffering
     /**********************************************************
      */
 
+    final protected Writer _writer;
+    
     /**
      * Intermediate buffer in which contents are buffered before
      * being written using {@link #_writer}.
@@ -109,29 +55,26 @@ public final class WriterBasedJsonGenerator
      */
     protected char[] _entityBuffer;
 
+    /**
+     * When custom escapes are used, this member variable is used
+     * internally to hold a reference to currently used escape
+     */
+    protected SerializableString _currentEscape;
+    
+    
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    public WriterBasedJsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
-            Writer w)
+    public WriterBasedJsonGenerator(IOContext ctxt, int features,
+            ObjectCodec codec, Writer w)
     {
-        super(features, codec);
-        _ioContext = ctxt;
+        super(ctxt, features, codec);
         _writer = w;
         _outputBuffer = ctxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
-
-        if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
-            setHighestNonEscapedChar(127);
-        }
-    }
-
-    @Override
-    public Version version() {
-        return VersionUtil.versionFor(getClass());
     }
     
     /*
@@ -140,38 +83,6 @@ public final class WriterBasedJsonGenerator
     /**********************************************************
      */
     
-    @Override
-    public JsonGenerator setHighestNonEscapedChar(int charCode) {
-        _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;
-        return this;
-    }
-
-    @Override
-    public int getHighestEscapedChar() {
-        return _maximumNonEscapedChar;
-    }
-
-    @Override
-    public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
-    {
-        _characterEscapes = esc;
-        if (esc == null) { // revert to standard escapes
-            _outputEscapes = sOutputEscapes;
-        } else {
-            _outputEscapes = esc.getEscapeCodesForAscii();
-        }
-        return this;
-    }
-
-    /**
-     * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
-     * it creates.
-     */
-    @Override
-    public CharacterEscapes getCharacterEscapes() {
-        return _characterEscapes;
-    }
-
     @Override
     public Object getOutputTarget() {
         return _writer;
@@ -183,10 +94,6 @@ public final class WriterBasedJsonGenerator
     /**********************************************************
      */
 
-    /* Most overrides in this section are just to make methods final,
-     * to allow better inlining...
-     */
-
     @Override
     public final void writeFieldName(String name)  throws IOException, JsonGenerationException
     {
@@ -195,14 +102,6 @@ public final class WriterBasedJsonGenerator
             _reportError("Can not write a field name, expecting a value");
         }
         _writeFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
-    }
-
-    @Override
-    public final void writeStringField(String fieldName, String value)
-        throws IOException, JsonGenerationException
-    {
-        writeFieldName(fieldName);
-        writeString(value);
     }
 
     @Override
@@ -552,6 +451,12 @@ public final class WriterBasedJsonGenerator
         }
     }
 
+    // @since 2.1
+    @Override
+    public void writeRaw(SerializableString text) throws IOException, JsonGenerationException {
+        writeRaw(text.getValue());
+    }
+    
     @Override
     public void writeRaw(char[] text, int offset, int len)
         throws IOException, JsonGenerationException
@@ -866,9 +771,11 @@ public final class WriterBasedJsonGenerator
             case JsonWriteContext.STATUS_OK_AFTER_COLON:
                 c = ':';
                 break;
-            case JsonWriteContext.STATUS_OK_AFTER_SPACE:
-                c = ' ';
-                break;
+            case JsonWriteContext.STATUS_OK_AFTER_SPACE: // root-value separator
+                if (_rootValueSeparator != null) {
+                    writeRaw(_rootValueSeparator.getValue());
+                }
+                return;
             case JsonWriteContext.STATUS_OK_AS_IS:
             default:
                 return;

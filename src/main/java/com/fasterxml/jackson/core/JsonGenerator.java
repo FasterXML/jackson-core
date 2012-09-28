@@ -246,6 +246,19 @@ public abstract class JsonGenerator
     public Object getOutputTarget() {
         return null;
     }
+
+    /**
+     * Method that allows overriding String used for separating root-level
+     * JSON values (default is single space character)
+     * 
+     * @param sep Separator to use, if any; null means that no separator is
+     *   automatically added
+     * 
+     * @since 2.1
+     */
+    public JsonGenerator setRootValueSeparator(SerializableString sep) {
+        throw new UnsupportedOperationException();
+    }
     
     /*
     /**********************************************************
@@ -629,6 +642,30 @@ public abstract class JsonGenerator
 
     /**
      * Method that will force generator to copy
+     * input text verbatim with <b>no</b> modifications (including
+     * that no escaping is done and no separators are added even
+     * if context [array, object] would otherwise require such).
+     * If such separators are desired, use
+     * {@link #writeRawValue(String)} instead.
+     *<p>
+     * Note that not all generator implementations necessarily support
+     * such by-pass methods: those that do not will throw
+     * {@link UnsupportedOperationException}.
+     *<p>
+     * The default implementation delegates to {@link #writeRaw(String)};
+     * other backends that support raw inclusion of text are encouraged
+     * to implement it in more efficient manner (especially if they
+     * use UTF-8 encoding).
+     * 
+     * @since 2.1
+     */
+    public void writeRaw(SerializableString raw)
+        throws IOException, JsonGenerationException {
+        writeRaw(raw.getValue());
+    }
+    
+    /**
+     * Method that will force generator to copy
      * input text verbatim without any modifications, but assuming
      * it must constitute a single legal JSON value (number, string,
      * boolean, null, Array or List). Assuming this, proper separators
@@ -666,7 +703,7 @@ public abstract class JsonGenerator
      *   and also the underlying alphabet to use.
      */
     public abstract void writeBinary(Base64Variant b64variant,
-                                     byte[] data, int offset, int len)
+            byte[] data, int offset, int len)
         throws IOException, JsonGenerationException;
 
     /**

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
  * The main factory class of Jackson package, used to configure and
@@ -71,6 +72,8 @@ public class JsonFactory implements Versioned
      */
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
 
+    private final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+    
     /**
      * Enumeration that defines all on/off features that can only be
      * changed for {@link JsonFactory}.
@@ -217,6 +220,15 @@ public class JsonFactory implements Versioned
      * additional processing on output during content generation.
      */
     protected OutputDecorator _outputDecorator;
+
+    /**
+     * Separator used between root-level values, if any; null indicates
+     * "do not add separator".
+     * Default separator is a single space character.
+     * 
+     * @since 2.1
+     */
+    protected SerializableString _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
     
     /*
     /**********************************************************
@@ -518,6 +530,27 @@ public class JsonFactory implements Versioned
     public JsonFactory setOutputDecorator(OutputDecorator d) {
         _outputDecorator = d;
         return this;
+    }
+
+    /**
+     * Method that allows overriding String used for separating root-level
+     * JSON values (default is single space character)
+     * 
+     * @param sep Separator to use, if any; null means that no separator is
+     *   automatically added
+     * 
+     * @since 2.1
+     */
+    public JsonFactory setRootValueSeparator(String sep) {
+        _rootValueSeparator = (sep == null) ? null : new SerializedString(sep);
+        return this;
+    }
+
+    /**
+     * @since 2.1
+     */
+    public String getRootValueSeparator() {
+        return (_rootValueSeparator == null) ? null : _rootValueSeparator.getValue();
     }
     
     /*
@@ -1234,9 +1267,14 @@ public class JsonFactory implements Versioned
     protected JsonGenerator _createJsonGenerator(Writer out, IOContext ctxt)
         throws IOException
     {
-        WriterBasedJsonGenerator gen = new WriterBasedJsonGenerator(ctxt, _generatorFeatures, _objectCodec, out);
+        WriterBasedJsonGenerator gen = new WriterBasedJsonGenerator(ctxt,
+                _generatorFeatures, _objectCodec, out);
         if (_characterEscapes != null) {
             gen.setCharacterEscapes(_characterEscapes);
+        }
+        SerializableString rootSep = _rootValueSeparator;
+        if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
+            gen.setRootValueSeparator(rootSep);
         }
         return gen;
     }
@@ -1262,9 +1300,14 @@ public class JsonFactory implements Versioned
     protected JsonGenerator _createUTF8JsonGenerator(OutputStream out, IOContext ctxt)
         throws IOException
     {
-        UTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt, _generatorFeatures, _objectCodec, out);
+        UTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt,
+                _generatorFeatures, _objectCodec, out);
         if (_characterEscapes != null) {
             gen.setCharacterEscapes(_characterEscapes);
+        }
+        SerializableString rootSep = _rootValueSeparator;
+        if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
+            gen.setRootValueSeparator(rootSep);
         }
         return gen;
     }

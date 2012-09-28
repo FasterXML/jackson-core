@@ -5,12 +5,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.*;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 public class UTF8JsonGenerator
-    extends GeneratorBase
+    extends JsonGeneratorImpl
 {
     private final static byte BYTE_u = (byte) 'u';
 
@@ -22,7 +20,6 @@ public class UTF8JsonGenerator
     private final static byte BYTE_RCURLY = (byte) '}';
  
     private final static byte BYTE_BACKSLASH = (byte) '\\';
-    private final static byte BYTE_SPACE = (byte) ' ';
     private final static byte BYTE_COMMA = (byte) ',';
     private final static byte BYTE_COLON = (byte) ':';
     private final static byte BYTE_QUOTE = (byte) '"';
@@ -41,62 +38,16 @@ public class UTF8JsonGenerator
     private final static byte[] TRUE_BYTES = { 't', 'r', 'u', 'e' };
     private final static byte[] FALSE_BYTES = { 'f', 'a', 'l', 's', 'e' };
 
-    /**
-     * This is the default set of escape codes, over 7-bit ASCII range
-     * (first 128 character codes), used for single-byte UTF-8 characters.
-     */
-    protected final static int[] sOutputEscapes = CharTypes.get7BitOutputEscapes();
-    
-    /*
-    /**********************************************************
-    /* Configuration, basic I/O
-    /**********************************************************
-     */
-
-    final protected IOContext _ioContext;
-
-    /**
-     * Underlying output stream used for writing JSON content.
-     */
-    final protected OutputStream _outputStream;
-
-    /*
-    /**********************************************************
-    /* Configuration, output escaping
-    /**********************************************************
-     */
-
-    /**
-     * Currently active set of output escape code definitions (whether
-     * and how to escape or not) for 7-bit ASCII range (first 128
-     * character codes). Defined separately to make potentially
-     * customizable
-     */
-    protected int[] _outputEscapes = sOutputEscapes;
-
-    /**
-     * Value between 128 (0x80) and 65535 (0xFFFF) that indicates highest
-     * Unicode code point that will not need escaping; or 0 to indicate
-     * that all characters can be represented without escaping.
-     * Typically used to force escaping of some portion of character set;
-     * for example to always escape non-ASCII characters (if value was 127).
-     *<p>
-     * NOTE: not all sub-classes make use of this setting.
-     */
-    protected int _maximumNonEscapedChar;
-
-    /**
-     * Definition of custom character escapes to use for generators created
-     * by this factory, if any. If null, standard data format specific
-     * escapes are used.
-     */
-    protected CharacterEscapes _characterEscapes;
-    
     /*
     /**********************************************************
     /* Output buffering
     /**********************************************************
      */
+    
+    /**
+     * Underlying output stream used for writing JSON content.
+     */
+    final protected OutputStream _outputStream;
 
     /**
      * Intermediate buffer in which contents are buffered before
@@ -154,13 +105,12 @@ public class UTF8JsonGenerator
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out)
     {
-        
-        super(features, codec);
-        _ioContext = ctxt;
+        super(ctxt, features, codec);
         _outputStream = out;
         _bufferRecyclable = true;
         _outputBuffer = ctxt.allocWriteEncodingBuffer();
         _outputEnd = _outputBuffer.length;
+
         /* To be exact, each char can take up to 6 bytes when escaped (Unicode
          * escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
          * we will actually round down to only do up to 1/8 number of chars
@@ -174,13 +124,13 @@ public class UTF8JsonGenerator
             setHighestNonEscapedChar(127);
         }
     }
-
+    
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
-            OutputStream out, byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
+            OutputStream out,
+            byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
         
-        super(features, codec);
-        _ioContext = ctxt;
+        super(ctxt, features, codec);
         _outputStream = out;
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;
@@ -190,17 +140,8 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
-
-        if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
-            setHighestNonEscapedChar(127);
-        }
     }
 
-    @Override
-    public Version version() {
-        return VersionUtil.versionFor(getClass());
-    }
-    
     /*
     /**********************************************************
     /* Overridden configuration methods
@@ -208,58 +149,15 @@ public class UTF8JsonGenerator
      */
     
     @Override
-    public JsonGenerator setHighestNonEscapedChar(int charCode) {
-        _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;
-        return this;
-    }
-
-    @Override
-    public int getHighestEscapedChar() {
-        return _maximumNonEscapedChar;
-    }
-
-    @Override
-    public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
-    {
-        _characterEscapes = esc;
-        if (esc == null) { // revert to standard escapes
-            _outputEscapes = sOutputEscapes;
-        } else {
-            _outputEscapes = esc.getEscapeCodesForAscii();
-        }
-        return this;
-    }
-
-    /**
-     * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
-     * it creates.
-     */
-    @Override
-    public CharacterEscapes getCharacterEscapes() {
-        return _characterEscapes;
-    }
-
-    @Override
     public Object getOutputTarget() {
         return _outputStream;
     }
-    
+
     /*
     /**********************************************************
     /* Overridden methods
     /**********************************************************
      */
-
-    /* Most overrides in this section are just to make methods final,
-     * to allow better inlining...
-     */
-    @Override
-    public final void writeStringField(String fieldName, String value)
-        throws IOException, JsonGenerationException
-    {
-        writeFieldName(fieldName);
-        writeString(value);
-    }
 
     @Override
     public final void writeFieldName(String name)  throws IOException, JsonGenerationException
@@ -697,6 +595,15 @@ public class UTF8JsonGenerator
         }
     }
 
+    @Override
+    public void writeRaw(SerializableString text) throws IOException, JsonGenerationException
+    {
+        byte[] raw = text.asUnquotedUTF8();
+        if (raw.length > 0) {
+            _writeBytes(raw);
+        }
+    }
+    
     // @TODO: rewrite for speed...
     @Override
     public final void writeRaw(char[] cbuf, int offset, int len)
@@ -1046,9 +953,14 @@ public class UTF8JsonGenerator
             case JsonWriteContext.STATUS_OK_AFTER_COLON:
                 b = BYTE_COLON;
                 break;
-            case JsonWriteContext.STATUS_OK_AFTER_SPACE:
-                b = BYTE_SPACE;
-                break;
+            case JsonWriteContext.STATUS_OK_AFTER_SPACE: // root-value separator
+                if (_rootValueSeparator != null) {
+                    byte[] raw = _rootValueSeparator.asUnquotedUTF8();
+                    if (raw.length > 0) {
+                        _writeBytes(raw);
+                    }
+                }
+                return;
             case JsonWriteContext.STATUS_OK_AS_IS:
             default:
                 return;

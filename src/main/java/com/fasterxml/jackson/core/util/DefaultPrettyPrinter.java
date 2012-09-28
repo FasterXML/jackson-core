@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 
 /**
  * Default {@link PrettyPrinter} implementation that uses 2-space
@@ -15,6 +16,14 @@ import com.fasterxml.jackson.core.*;
 public class DefaultPrettyPrinter
     implements PrettyPrinter, Instantiatable<DefaultPrettyPrinter>
 {
+    /**
+     * Constant that specifies default "root-level" separator to use between
+     * root values: a single space character.
+     * 
+     * @since 2.1
+     */
+    public final static SerializedString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(" ");
+    
     /**
      * Interface that defines objects that can produce indentation used
      * to separate object entries and array values. Indentation in this
@@ -48,6 +57,11 @@ public class DefaultPrettyPrinter
      */
     protected Indenter _objectIndenter = new Lf2SpacesIndenter();
 
+    /**
+     * String printed between root-level values, if any.
+     */
+    protected final SerializableString _rootSeparator;
+    
     // // // Config, other white space configuration
 
     /**
@@ -71,14 +85,59 @@ public class DefaultPrettyPrinter
     /**********************************************************
     */
 
-    public DefaultPrettyPrinter() { }
+    public DefaultPrettyPrinter() {
+        this(DEFAULT_ROOT_VALUE_SEPARATOR);
+    }
 
-    public DefaultPrettyPrinter(DefaultPrettyPrinter base)
+    /**
+     * Constructor that specifies separator String to use between root values;
+     * if null, no separator is printed.
+     *<p>
+     * Note: simply constructs a {@link SerializedString} out of parameter,
+     * calls {@link #DefaultPrettyPrinter(SerializableString)}
+     * 
+     * @param rootSeparator
+     * 
+     * @since 2.1
+     */
+    public DefaultPrettyPrinter(String rootSeparator) {
+        this((rootSeparator == null) ? null : new SerializedString(rootSeparator));
+    }
+
+    /**
+     * Constructor that specifies separator String to use between root values;
+     * if null, no separator is printed.
+     * 
+     * @param rootSeparator
+     * 
+     * @since 2.1
+     */
+    public DefaultPrettyPrinter(SerializableString rootSeparator) {
+        _rootSeparator = rootSeparator;
+    }
+    
+    public DefaultPrettyPrinter(DefaultPrettyPrinter base) {
+        this(base, base._rootSeparator);
+    }
+
+    public DefaultPrettyPrinter(DefaultPrettyPrinter base,
+            SerializableString rootSeparator)
     {
         _arrayIndenter = base._arrayIndenter;
         _objectIndenter = base._objectIndenter;
         _spacesInObjectEntries = base._spacesInObjectEntries;
         _nesting = base._nesting;
+
+        _rootSeparator = rootSeparator;
+    }
+
+    public DefaultPrettyPrinter withRootSeparator(SerializableString rootSeparator)
+    {
+        if (_rootSeparator == rootSeparator ||
+                (rootSeparator != null && rootSeparator.equals(_rootSeparator))) {
+            return this;
+        }
+        return new DefaultPrettyPrinter(this, rootSeparator);
     }
     
     public void indentArraysWith(Indenter i)
@@ -114,7 +173,9 @@ public class DefaultPrettyPrinter
     public void writeRootValueSeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException
     {
-        jg.writeRaw(' ');
+        if (_rootSeparator != null) {
+            jg.writeRaw(_rootSeparator);
+        }
     }
 
 //  @Override

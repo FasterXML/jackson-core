@@ -11,10 +11,12 @@ Fixes:
 New features:
 
 * [JACKSON-837]: Made JsonGenerator implement Flushable.
-  (suggested by Matt G)
-* [Issue-14]: add 'readBinaryValue(...)' method in JsonParser
-* [Issue-16]: add 'writeBinary(InputStream, int)' method in JsonGenerator
+ (suggested by Matt G)
+* [Issue#14]: add 'readBinaryValue(...)' method in JsonParser
+* [Issue#16]: add 'writeBinary(InputStream, int)' method in JsonGenerator
   (and implement for JSON backend)
+* [Issue#26]: Allow overriding "root value separator"
+ (suggested by Henning S)
 
 Other:
 

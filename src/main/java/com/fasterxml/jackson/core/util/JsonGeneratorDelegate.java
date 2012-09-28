@@ -35,12 +35,14 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public JsonGenerator disable(Feature f) {
-        return delegate.disable(f);
+        delegate.disable(f);
+        return this;
     }
 
     @Override
     public JsonGenerator enable(Feature f) {
-        return delegate.enable(f);
+        delegate.enable(f);
+        return this;
     }
 
     @Override
@@ -76,6 +78,12 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public Object getOutputTarget() {
         return delegate.getOutputTarget();
+    }
+
+    @Override
+    public JsonGenerator setRootValueSeparator(SerializableString sep) {
+        delegate.setRootValueSeparator(sep);
+        return this;
     }
     
     @Override
@@ -201,6 +209,12 @@ public class JsonGeneratorDelegate extends JsonGenerator
         delegate.writeRaw(text, offset, len);
     }
 
+    @Override
+    public void writeRaw(SerializableString raw)
+        throws IOException, JsonGenerationException {
+        delegate.writeRaw(raw);
+    }
+    
     @Override
     public void writeRaw(char[] text, int offset, int len) throws IOException, JsonGenerationException {
         delegate.writeRaw(text, offset, len);

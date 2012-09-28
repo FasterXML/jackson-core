@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.main;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
 import java.io.*;
@@ -28,6 +29,12 @@ public class TestPrettyPrinter
             jg.writeRaw("("+nrOfValues+")]");
         }
     }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
     
     public void testObjectCount() throws Exception
     {
@@ -83,12 +90,6 @@ public class TestPrettyPrinter
         }
     }
     
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
-    
     public void testSimpleDocWithDefault() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -123,6 +124,32 @@ public class TestPrettyPrinter
         assertTrue(docStr.indexOf('\t') >= 0);
     }
 
+    // [Issue#26]
+    public void testCustomRootSeparatorWithPP() throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        // first, no pretty-printing (will still separate root values with a space!)
+        assertEquals("{} {} []", _generateRoot(jf, null));
+        // First with default pretty printer, default configs:
+        assertEquals("{ } { } [ ]", _generateRoot(jf, new DefaultPrettyPrinter()));
+        // then custom:
+        assertEquals("{ }|{ }|[ ]", _generateRoot(jf, new DefaultPrettyPrinter("|")));
+    }
+
+    // Alternative solution for [Issue#26]
+    public void testCustomRootSeparatorWithFactory() throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        jf.setRootValueSeparator("##");
+        StringWriter sw = new StringWriter();
+        JsonGenerator gen = jf.createJsonGenerator(sw);
+        gen.writeNumber(13);
+        gen.writeBoolean(false);
+        gen.writeNull();
+        gen.close();
+        assertEquals("13##false##null", sw.toString());
+    }
+    
     /*
     /**********************************************************
     /* Helper methods
@@ -177,5 +204,20 @@ public class TestPrettyPrinter
         jp.close();
 
         return docStr;
+    }
+
+    protected String _generateRoot(JsonFactory jf, PrettyPrinter pp) throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+        gen.setPrettyPrinter(pp);
+        gen.writeStartObject();
+        gen.writeEndObject();
+        gen.writeStartObject();
+        gen.writeEndObject();
+        gen.writeStartArray();
+        gen.writeEndArray();
+        gen.close();
+        return sw.toString();
     }
 }

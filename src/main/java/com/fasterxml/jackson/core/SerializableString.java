@@ -78,8 +78,6 @@ public interface SerializableString
      *</pre>
      * 
      * @return Number of bytes appended, if successful, otherwise -1
-     * 
-     * @since 2.0
      */
     public int appendQuotedUTF8(byte[] buffer, int offset);
 
@@ -93,8 +91,6 @@ public interface SerializableString
      *</pre>
      * 
      * @return Number of characters appended, if successful, otherwise -1
-     * 
-     * @since 2.0
      */
     public int appendQuoted(char[] buffer, int offset);
     
@@ -108,8 +104,6 @@ public interface SerializableString
      *</pre>
      * 
      * @return Number of bytes appended, if successful, otherwise -1
-     * 
-     * @since 2.0
      */
     public int appendUnquotedUTF8(byte[] buffer, int offset);
 
@@ -124,8 +118,6 @@ public interface SerializableString
      *</pre>
      * 
      * @return Number of characters appended, if successful, otherwise -1
-     * 
-     * @since 2.0
      */
     public int appendUnquoted(char[] buffer, int offset);
 
@@ -137,29 +129,21 @@ public interface SerializableString
 
     /**
      * @return Number of bytes written
-     * 
-     * @since 2.0
      */
     public int writeQuotedUTF8(OutputStream out) throws IOException;
 
     /**
      * @return Number of bytes written
-     * 
-     * @since 2.0
      */
     public int writeUnquotedUTF8(OutputStream out) throws IOException;
 
     /**
      * @return Number of bytes put, if successful, otherwise -1
-     * 
-     * @since 2.0
      */
     public int putQuotedUTF8(ByteBuffer buffer) throws IOException;
 
     /**
      * @return Number of bytes put, if successful, otherwise -1
-     * 
-     * @since 2.0
      */
     public int putUnquotedUTF8(ByteBuffer out) throws IOException;
 }

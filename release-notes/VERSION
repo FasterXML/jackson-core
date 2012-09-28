@@ -12,6 +12,8 @@ New features:
 
 * [JACKSON-837]: Made JsonGenerator implement Flushable.
  (suggested by Matt G)
+* [Issue#10]: add 'JsonProcessingException.getOriginalMessage()' for accessing
+  message without location info
 * [Issue#14]: add 'readBinaryValue(...)' method in JsonParser
 * [Issue#16]: add 'writeBinary(InputStream, int)' method in JsonGenerator
   (and implement for JSON backend)

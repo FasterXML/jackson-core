@@ -49,7 +49,25 @@ public class JsonProcessingException
     public JsonLocation getLocation() {
         return _location;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
+
+    /**
+     * Method that allows accessing the original "message" argument,
+     * without additional decorations (like location information)
+     * that overridden {@link #getMessage} adds.
+     * 
+     * @since 2.1
+     */
+    public String getOriginalMessage()
+    {
+        return super.getMessage();
+    }
+
     /*
     /**********************************************************
     /* Methods for sub-classes to use, override

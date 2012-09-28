@@ -116,7 +116,7 @@ public enum JsonToken
     final byte[] _serializedBytes;
 
     /**
-     * @param Textual representation for this token, if there is a
+     * @param token Textual representation for this token, if there is a
      *   single static representation; null otherwise
      */
     JsonToken(String token)

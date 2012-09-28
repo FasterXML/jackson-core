@@ -1,14 +1,24 @@
-Version: 2.0.6
+Version: 2.0.7
 
 Release date:
-  05-Sep-2012
+  xx-Sep-2012
 
 Description:
-  No fixes or changes, released along with other core components
+  Another patch release
+
+Fixes:
+
+* [Issue#84]: ArrayIndexOutOfBoundsException when indenting, generator
+  uses 'writeObject()'
+ (reported by KetothXypack@github)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.0.6 (05-Sep-2012)
+
+  No fixes or changes, released along with other core components
 
 2.0.5 (27-Jul-2012)
 

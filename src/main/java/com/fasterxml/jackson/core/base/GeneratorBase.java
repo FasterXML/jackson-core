@@ -121,6 +121,12 @@ public abstract class GeneratorBase
     
     @Override
     public JsonGenerator useDefaultPrettyPrinter() {
+        /* 28-Sep-2012, tatu: As per [Issue#84], should not override a
+         *  pretty printer if one already assigned.
+         */
+        if (getPrettyPrinter() != null) {
+            return this;
+        }
         return setPrettyPrinter(new DefaultPrettyPrinter());
     }
     

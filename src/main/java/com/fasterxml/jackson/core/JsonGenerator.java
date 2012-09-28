@@ -330,6 +330,16 @@ public abstract class JsonGenerator
     }
 
     /**
+     * Accessor for checking whether this generator has a configured
+     * {@link PrettyPrinter}; returns it if so, null if none configured.
+     * 
+     * @since 2.1
+     */
+    public PrettyPrinter getPrettyPrinter() {
+        return _cfgPrettyPrinter;
+    }
+    
+    /**
      * Convenience method for enabling pretty-printing using
      * the default pretty printer
      * ({@link com.fasterxml.jackson.core.util.DefaultPrettyPrinter}).

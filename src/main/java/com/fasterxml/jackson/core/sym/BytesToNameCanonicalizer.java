@@ -321,7 +321,7 @@ public final class BytesToNameCanonicalizer
          */
         long now = System.currentTimeMillis();
         // ensure it's not 0; and might as well require to be odd so:
-        int seed = (((int) now) + ((int) now >>> 32)) | 1;
+        int seed = (((int) now) + ((int) (now >>> 32))) | 1;
         return createRoot(seed);
     }
 

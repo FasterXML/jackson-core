@@ -23,5 +23,5 @@ public interface FormatSchema
      * it is a short name of format itself, but it can also contain additional information
      * in cases where data format supports multiple types of schemas.
      */
-    public String getSchemaType();
+    String getSchemaType();
 }

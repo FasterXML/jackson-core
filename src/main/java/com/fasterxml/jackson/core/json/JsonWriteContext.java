@@ -58,7 +58,7 @@ public class JsonWriteContext
         return new JsonWriteContext(TYPE_ROOT, null);
     }
 
-    private final JsonWriteContext reset(int type) {
+    private JsonWriteContext reset(int type) {
         _type = type;
         _index = -1;
         _currentName = null;

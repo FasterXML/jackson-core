@@ -269,7 +269,7 @@ public abstract class ParserMinimalBase
                 {
                     Object value = this.getEmbeddedObject();
                     if (value instanceof Boolean) {
-                        return ((Boolean) value).booleanValue();
+                        return (Boolean) value;
                     }
                 }
             case VALUE_STRING:

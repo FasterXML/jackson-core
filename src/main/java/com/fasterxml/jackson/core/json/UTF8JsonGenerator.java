@@ -446,7 +446,7 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
     
-    private final void _writeLongString(String text)
+    private void _writeLongString(String text)
         throws IOException, JsonGenerationException
     {
         if (_outputTail >= _outputEnd) {
@@ -460,7 +460,7 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
 
-    private final void _writeLongString(char[] text, int offset, int len)
+    private void _writeLongString(char[] text, int offset, int len)
         throws IOException, JsonGenerationException
     {
         if (_outputTail >= _outputEnd) {
@@ -670,7 +670,7 @@ public class UTF8JsonGenerator
      * Helper method called when it is possible that output of raw section
      * to output may cross buffer boundary
      */
-    private final void _writeSegmentedRaw(char[] cbuf, int offset, int len)
+    private void _writeSegmentedRaw(char[] cbuf, int offset, int len)
         throws IOException, JsonGenerationException
     {
         final int end = _outputEnd;
@@ -787,7 +787,7 @@ public class UTF8JsonGenerator
         _outputTail = NumberOutput.outputInt(i, _outputBuffer, _outputTail);
     }
 
-    private final void _writeQuotedInt(int i) throws IOException {
+    private void _writeQuotedInt(int i) throws IOException {
         if ((_outputTail + 13) >= _outputEnd) {
             _flushBuffer();
         }
@@ -812,7 +812,7 @@ public class UTF8JsonGenerator
         _outputTail = NumberOutput.outputLong(l, _outputBuffer, _outputTail);
     }
 
-    private final void _writeQuotedLong(long l) throws IOException {
+    private void _writeQuotedLong(long l) throws IOException {
         if ((_outputTail + 23) >= _outputEnd) {
             _flushBuffer();
         }
@@ -895,7 +895,7 @@ public class UTF8JsonGenerator
         }
     }
 
-    private final void _writeQuotedRaw(Object value) throws IOException
+    private void _writeQuotedRaw(Object value) throws IOException
     {
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -1086,7 +1086,7 @@ public class UTF8JsonGenerator
     /**********************************************************
      */
 
-    private final void _writeBytes(byte[] bytes) throws IOException
+    private void _writeBytes(byte[] bytes) throws IOException
     {
         final int len = bytes.length;
         if ((_outputTail + len) > _outputEnd) {
@@ -1101,7 +1101,7 @@ public class UTF8JsonGenerator
         _outputTail += len;
     }
 
-    private final void _writeBytes(byte[] bytes, int offset, int len) throws IOException
+    private void _writeBytes(byte[] bytes, int offset, int len) throws IOException
     {
         if ((_outputTail + len) > _outputEnd) {
             _flushBuffer();
@@ -1128,7 +1128,7 @@ public class UTF8JsonGenerator
      * to single-segment writes (instead of maximum slices that
      * would fit in copy buffer)
      */
-    private final void _writeStringSegments(String text)
+    private void _writeStringSegments(String text)
         throws IOException, JsonGenerationException
     {
         int left = text.length();
@@ -1153,7 +1153,7 @@ public class UTF8JsonGenerator
      * the output buffer. If so, we will need to choose smaller output
      * chunks to write at a time.
      */
-    private final void _writeStringSegments(char[] cbuf, int offset, int totalLen)
+    private void _writeStringSegments(char[] cbuf, int offset, int totalLen)
         throws IOException, JsonGenerationException
     {
         do {
@@ -1181,7 +1181,7 @@ public class UTF8JsonGenerator
      * assuming case of all non-escaped ASCII characters, as well as
      * potentially enough space for other cases (but not necessarily flushed)
      */
-    private final void _writeStringSegment(char[] cbuf, int offset, int len)
+    private void _writeStringSegment(char[] cbuf, int offset, int len)
         throws IOException, JsonGenerationException
     {
         // note: caller MUST ensure (via flushing) there's room for ASCII only
@@ -1221,7 +1221,7 @@ public class UTF8JsonGenerator
      * Secondary method called when content contains characters to escape,
      * and/or multi-byte UTF-8 characters.
      */
-    private final void _writeStringSegment2(final char[] cbuf, int offset, final int end)
+    private void _writeStringSegment2(final char[] cbuf, int offset, final int end)
         throws IOException, JsonGenerationException
     {
         // Ok: caller guarantees buffer can have room; but that may require flushing:
@@ -1272,7 +1272,7 @@ public class UTF8JsonGenerator
      * Same as <code>_writeStringSegment2(char[], ...)</code., but with
      * additional escaping for high-range code points
      */
-    private final void _writeStringSegmentASCII2(final char[] cbuf, int offset, final int end)
+    private void _writeStringSegmentASCII2(final char[] cbuf, int offset, final int end)
         throws IOException, JsonGenerationException
     {
         // Ok: caller guarantees buffer can have room; but that may require flushing:
@@ -1328,7 +1328,7 @@ public class UTF8JsonGenerator
      * Same as <code>_writeStringSegmentASCII2(char[], ...)</code., but with
      * additional checking for completely custom escapes
      */
-    private final void _writeCustomStringSegment2(final char[] cbuf, int offset, final int end)
+    private void _writeCustomStringSegment2(final char[] cbuf, int offset, final int end)
         throws IOException, JsonGenerationException
     {
         // Ok: caller guarantees buffer can have room; but that may require flushing:
@@ -1434,7 +1434,7 @@ public class UTF8JsonGenerator
      * to fit in the output buffer after escaping; as such, we just need to
      * chunk writes.
      */
-    private final void _writeUTF8Segments(byte[] utf8, int offset, int totalLen)
+    private void _writeUTF8Segments(byte[] utf8, int offset, int totalLen)
         throws IOException, JsonGenerationException
     {
         do {
@@ -1445,7 +1445,7 @@ public class UTF8JsonGenerator
         } while (totalLen > 0);
     }
     
-    private final void _writeUTF8Segment(byte[] utf8, final int offset, final int len)
+    private void _writeUTF8Segment(byte[] utf8, final int offset, final int len)
         throws IOException, JsonGenerationException
     {
         // fast loop to see if escaping is needed; don't copy, just look
@@ -1468,7 +1468,7 @@ public class UTF8JsonGenerator
         _outputTail += len;
     }
 
-    private final void _writeUTF8Segment2(final byte[] utf8, int offset, int len)
+    private void _writeUTF8Segment2(final byte[] utf8, int offset, int len)
         throws IOException, JsonGenerationException
     {
         int outputPtr = _outputTail;
@@ -1701,7 +1701,7 @@ public class UTF8JsonGenerator
      * 1- and 2-byte UTF-8 encodings, when outputting "raw" 
      * text (meaning it is not to be escaped or quoted)
      */
-    private final int _outputRawMultiByteChar(int ch, char[] cbuf, int inputOffset, int inputLen)
+    private int _outputRawMultiByteChar(int ch, char[] cbuf, int inputOffset, int inputLen)
         throws IOException
     {
         // Let's handle surrogates gracefully (as 4 byte output):
@@ -1745,7 +1745,7 @@ public class UTF8JsonGenerator
      * 
      * @throws IOException
      */
-    private final int _outputMultiByteChar(int ch, int outputPtr)
+    private int _outputMultiByteChar(int ch, int outputPtr)
         throws IOException
     {
         byte[] bbuf = _outputBuffer;
@@ -1776,7 +1776,7 @@ public class UTF8JsonGenerator
         return c;
     }
     
-    private final void _writeNull() throws IOException
+    private void _writeNull() throws IOException
     {
         if ((_outputTail + 4) >= _outputEnd) {
             _flushBuffer();

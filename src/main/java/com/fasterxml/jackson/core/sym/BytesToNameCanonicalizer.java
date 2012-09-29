@@ -321,7 +321,7 @@ public final class BytesToNameCanonicalizer
          */
         long now = System.currentTimeMillis();
         // ensure it's not 0; and might as well require to be odd so:
-        int seed = (((int) now) + ((int) now >>> 32)) | 1;
+        int seed = (((int) now) + ((int) (now >>> 32))) | 1;
         return createRoot(seed);
     }
 
@@ -659,7 +659,7 @@ public final class BytesToNameCanonicalizer
     private final static int MULT2 = 65599;
     private final static int MULT3 = 31;
     
-    public final int calcHash(int firstQuad)
+    public int calcHash(int firstQuad)
     {
         int hash = firstQuad ^ _hashSeed;
         hash += (hash >>> 15); // to xor hi- and low- 16-bits
@@ -667,7 +667,7 @@ public final class BytesToNameCanonicalizer
         return hash;
     }
 
-    public final int calcHash(int firstQuad, int secondQuad)
+    public int calcHash(int firstQuad, int secondQuad)
     {
         /* For two quads, let's change algorithm a bit, to spice
          * things up (can do bit more processing anyway)
@@ -680,7 +680,7 @@ public final class BytesToNameCanonicalizer
         return hash;
     }
 
-    public final int calcHash(int[] quads, int qlen)
+    public int calcHash(int[] quads, int qlen)
     {
         // Note: may be called for qlen < 3; but has at least one int
         if (qlen < 3) {

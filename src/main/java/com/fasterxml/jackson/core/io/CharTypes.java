@@ -167,13 +167,13 @@ public final class CharTypes
         }
     }
 
-    public final static int[] getInputCodeLatin1() { return sInputCodes; }
-    public final static int[] getInputCodeUtf8() { return sInputCodesUtf8; }
+    public static int[] getInputCodeLatin1() { return sInputCodes; }
+    public static int[] getInputCodeUtf8() { return sInputCodesUtf8; }
 
-    public final static int[] getInputCodeLatin1JsNames() { return sInputCodesJsNames; }
-    public final static int[] getInputCodeUtf8JsNames() { return sInputCodesUtf8JsNames; }
+    public static int[] getInputCodeLatin1JsNames() { return sInputCodesJsNames; }
+    public static int[] getInputCodeUtf8JsNames() { return sInputCodesUtf8JsNames; }
 
-    public final static int[] getInputCodeComment() { return sInputCodesComment; }
+    public static int[] getInputCodeComment() { return sInputCodesComment; }
     
     /**
      * Accessor for getting a read-only encoding table for first 128 Unicode
@@ -182,7 +182,7 @@ public final class CharTypes
      * to use after backslash; and negative values that generic (backslash - u)
      * escaping is to be used.
      */
-    public final static int[] get7BitOutputEscapes() { return sOutputEscapes128; }
+    public static int[] get7BitOutputEscapes() { return sOutputEscapes128; }
 
     public static int charToHex(int ch)
     {

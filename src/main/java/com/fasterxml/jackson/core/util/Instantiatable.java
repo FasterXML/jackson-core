@@ -20,5 +20,5 @@ public interface Instantiatable<T>
      * it is either this object (if stateless), or a newly created object
      * with separate state.
      */
-    public T createInstance();
+    T createInstance();
 }

@@ -52,12 +52,12 @@ public class TestGeneratorMisc
         gen.writeStartArray();
 
         // simple wrappers first
-        gen.writeObject(Integer.valueOf(1));
-        gen.writeObject(Short.valueOf((short)-2));
-        gen.writeObject(Long.valueOf(3));
-        gen.writeObject(Byte.valueOf((byte)-4));
-        gen.writeObject(Double.valueOf(0.25));
-        gen.writeObject(Float.valueOf(-0.125f));
+        gen.writeObject(1);
+        gen.writeObject((short) -2);
+        gen.writeObject((long) 3);
+        gen.writeObject((byte) -4);
+        gen.writeObject(0.25);
+        gen.writeObject(-0.125f);
         gen.writeObject(Boolean.TRUE);
         gen.close();
         String act = sw.toString().trim();

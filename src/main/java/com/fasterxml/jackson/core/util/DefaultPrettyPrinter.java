@@ -32,14 +32,14 @@ public class DefaultPrettyPrinter
      */
     public interface Indenter
     {
-        public void writeIndentation(JsonGenerator jg, int level)
+        void writeIndentation(JsonGenerator jg, int level)
             throws IOException, JsonGenerationException;
 
         /**
          * @return True if indenter is considered inline (does not add linefeeds),
          *   false otherwise
          */
-        public boolean isInline();
+        boolean isInline();
     }
     
     // // // Config, indentation

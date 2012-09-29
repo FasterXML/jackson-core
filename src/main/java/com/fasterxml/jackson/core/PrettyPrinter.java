@@ -37,7 +37,7 @@ public interface PrettyPrinter
      * to output some other suitable and nice-looking separator
      * (tab(s), space(s), linefeed(s) or any combination thereof).
      */
-    public void writeRootValueSeparator(JsonGenerator jg)
+    void writeRootValueSeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 
     // // Object handling
@@ -52,7 +52,7 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      */
-    public void writeStartObject(JsonGenerator jg)
+    void writeStartObject(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 
     /**
@@ -68,7 +68,7 @@ public interface PrettyPrinter
      * @param nrOfEntries Number of direct members of the array that
      *   have been output
      */
-    public void writeEndObject(JsonGenerator jg, int nrOfEntries)
+    void writeEndObject(JsonGenerator jg, int nrOfEntries)
         throws IOException, JsonGenerationException;
 
     /**
@@ -80,7 +80,7 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      */
-    public void writeObjectEntrySeparator(JsonGenerator jg)
+    void writeObjectEntrySeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 
     /**
@@ -92,7 +92,7 @@ public interface PrettyPrinter
      * to output a colon as well, but can surround that with other
      * (white-space) decoration.
      */
-    public void writeObjectFieldValueSeparator(JsonGenerator jg)
+    void writeObjectFieldValueSeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 
     // // // Array handling
@@ -107,7 +107,7 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      */
-    public void writeStartArray(JsonGenerator jg)
+    void writeStartArray(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 
     /**
@@ -123,7 +123,7 @@ public interface PrettyPrinter
      * @param nrOfValues Number of direct members of the array that
      *   have been output
      */
-    public void writeEndArray(JsonGenerator jg, int nrOfValues)
+    void writeEndArray(JsonGenerator jg, int nrOfValues)
         throws IOException, JsonGenerationException;
 
     /**
@@ -135,7 +135,7 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      */
-    public void writeArrayValueSeparator(JsonGenerator jg)
+    void writeArrayValueSeparator(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 
     /*
@@ -154,7 +154,7 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      */
-    public void beforeArrayValues(JsonGenerator jg)
+    void beforeArrayValues(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 
     /**
@@ -166,7 +166,7 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      */
-    public void beforeObjectEntries(JsonGenerator jg)
+    void beforeObjectEntries(JsonGenerator jg)
         throws IOException, JsonGenerationException;
 }
 

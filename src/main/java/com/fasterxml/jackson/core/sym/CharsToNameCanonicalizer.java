@@ -254,7 +254,7 @@ public final class CharsToNameCanonicalizer
         _sizeThreshold = _thresholdSize(initialSize);
     }
 
-    private final static int _thresholdSize(int hashAreaSize) {
+    private static int _thresholdSize(int hashAreaSize) {
         return hashAreaSize - (hashAreaSize >> 2);
     }
     
@@ -526,7 +526,7 @@ public final class CharsToNameCanonicalizer
      * Helper method that takes in a "raw" hash value, shuffles it as necessary,
      * and truncates to be used as the index.
      */
-    public final int _hashToIndex(int rawHash)
+    public int _hashToIndex(int rawHash)
     {
         rawHash += (rawHash >>> 15); // this seems to help quite a bit, at least for our tests
         return (rawHash & _indexMask);

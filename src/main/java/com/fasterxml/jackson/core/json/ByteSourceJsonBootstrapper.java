@@ -339,7 +339,7 @@ public final class ByteSourceJsonBootstrapper
         return MatchStrength.NO_MATCH;
     }
 
-    private final static MatchStrength tryMatch(InputAccessor acc, String matchStr, MatchStrength fullMatchStrength)
+    private static MatchStrength tryMatch(InputAccessor acc, String matchStr, MatchStrength fullMatchStrength)
         throws IOException
     {
         for (int i = 0, len = matchStr.length(); i < len; ++i) {
@@ -353,7 +353,7 @@ public final class ByteSourceJsonBootstrapper
         return fullMatchStrength;
     }
     
-    private final static int skipSpace(InputAccessor acc) throws IOException
+    private static int skipSpace(InputAccessor acc) throws IOException
     {
         if (!acc.hasMoreBytes()) {
             return -1;
@@ -361,7 +361,7 @@ public final class ByteSourceJsonBootstrapper
         return skipSpace(acc, acc.nextByte());
     }
     
-    private final static int skipSpace(InputAccessor acc, byte b) throws IOException
+    private static int skipSpace(InputAccessor acc, byte b) throws IOException
     {
         while (true) {
             int ch = (int) b & 0xFF;

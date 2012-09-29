@@ -491,7 +491,7 @@ public abstract class GeneratorBase
             writeBinary((byte[]) value);
             return;
         } else if (value instanceof Boolean) {
-            writeBoolean(((Boolean) value).booleanValue());
+            writeBoolean((Boolean) value);
             return;
         } else if (value instanceof AtomicBoolean) {
             writeBoolean(((AtomicBoolean) value).get());

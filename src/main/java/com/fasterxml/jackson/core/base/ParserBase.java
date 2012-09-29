@@ -568,10 +568,10 @@ public abstract class ParserBase
         // Separate types for int types
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
             if ((_numTypesValid & NR_INT) != 0) {
-                return Integer.valueOf(_numberInt);
+                return _numberInt;
             }
             if ((_numTypesValid & NR_LONG) != 0) {
-                return Long.valueOf(_numberLong);
+                return _numberLong;
             }
             if ((_numTypesValid & NR_BIGINT) != 0) {
                 return _numberBigInt;
@@ -589,7 +589,7 @@ public abstract class ParserBase
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
-        return Double.valueOf(_numberDouble);
+        return _numberDouble;
     }
     
     @Override

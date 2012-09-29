@@ -15,19 +15,19 @@ public interface InputAccessor
      * Since this may result in more content to be read (at least
      * one more byte), a {@link IOException} may get thrown.
      */
-    public boolean hasMoreBytes() throws IOException;
+    boolean hasMoreBytes() throws IOException;
 
     /**
      * Returns next byte available, if any; if no more bytes are
      * available, will throw {@link java.io.EOFException}.
      */
-    public byte nextByte() throws IOException;
+    byte nextByte() throws IOException;
 
     /**
      * Method that can be called to reset accessor to read from beginning
      * of input.
      */
-    public void reset();
+    void reset();
 
     /*
     /**********************************************************
@@ -39,7 +39,7 @@ public interface InputAccessor
      * Basic implementation that reads data from given
      * {@link InputStream} and buffers it as necessary.
      */
-    public class Std implements InputAccessor
+    class Std implements InputAccessor
     {
         protected final InputStream _in;
 

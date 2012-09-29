@@ -49,7 +49,7 @@ public final class JsonReadContext
         _index = -1;
     }
 
-    protected final void reset(int type, int lineNr, int colNr)
+    protected void reset(int type, int lineNr, int colNr)
     {
         _type = type;
         _index = -1;
@@ -70,7 +70,7 @@ public final class JsonReadContext
         return new JsonReadContext(null, TYPE_ROOT, 1, 0);
     }
     
-    public final JsonReadContext createChildArrayContext(int lineNr, int colNr)
+    public JsonReadContext createChildArrayContext(int lineNr, int colNr)
     {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
@@ -81,7 +81,7 @@ public final class JsonReadContext
         return ctxt;
     }
 
-    public final JsonReadContext createChildObjectContext(int lineNr, int colNr)
+    public JsonReadContext createChildObjectContext(int lineNr, int colNr)
     {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
@@ -99,10 +99,10 @@ public final class JsonReadContext
      */
 
     @Override
-    public final String getCurrentName() { return _currentName; }
+    public String getCurrentName() { return _currentName; }
 
     @Override
-    public final JsonReadContext getParent() { return _parent; }
+    public JsonReadContext getParent() { return _parent; }
 
     /*
     /**********************************************************
@@ -114,7 +114,7 @@ public final class JsonReadContext
      * @return Location pointing to the point where the context
      *   start marker was found
      */
-    public final JsonLocation getStartLocation(Object srcRef)
+    public JsonLocation getStartLocation(Object srcRef)
     {
         /* We don't keep track of offsets at this level (only
          * reader does)
@@ -130,7 +130,7 @@ public final class JsonReadContext
     /**********************************************************
      */
 
-    public final boolean expectComma()
+    public boolean expectComma()
     {
         /* Assumption here is that we will be getting a value (at least
          * before calling this method again), and
@@ -156,7 +156,7 @@ public final class JsonReadContext
      * of the context.
      */
     @Override
-    public final String toString()
+    public String toString()
     {
         StringBuilder sb = new StringBuilder(64);
         switch (_type) {

@@ -105,12 +105,12 @@ public class BufferRecycler
     /**********************************************************
      */
 
-    private final byte[] balloc(int size)
+    private byte[] balloc(int size)
     {
         return new byte[size];
     }
 
-    private final char[] calloc(int size)
+    private char[] calloc(int size)
     {
         return new char[size];
     }

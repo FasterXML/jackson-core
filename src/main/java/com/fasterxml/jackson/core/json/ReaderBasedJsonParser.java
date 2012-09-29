@@ -118,7 +118,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    protected final boolean loadMore() throws IOException
+    protected boolean loadMore() throws IOException
     {
         _currInputProcessed += _inputEnd;
         _currInputRowStart -= _inputEnd;
@@ -140,7 +140,7 @@ public final class ReaderBasedJsonParser
         return false;
     }
 
-    protected final char getNextChar(String eofMsg)
+    protected char getNextChar(String eofMsg)
         throws IOException, JsonParseException
     {
         if (_inputPtr >= _inputEnd) {
@@ -200,7 +200,7 @@ public final class ReaderBasedJsonParser
      * Method can be called for any event.
      */
     @Override
-    public final String getText()
+    public String getText()
         throws IOException, JsonParseException
     {
         JsonToken t = _currToken;
@@ -245,7 +245,7 @@ public final class ReaderBasedJsonParser
     }
     
     
-    protected final String _getText2(JsonToken t)
+    protected String _getText2(JsonToken t)
     {
         if (t == null) {
             return null;
@@ -687,7 +687,7 @@ public final class ReaderBasedJsonParser
         return t;
     }
 
-    private final JsonToken _nextAfterName()
+    private JsonToken _nextAfterName()
     {
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
@@ -844,7 +844,7 @@ public final class ReaderBasedJsonParser
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected final JsonToken parseNumberText(int ch)
+    protected JsonToken parseNumberText(int ch)
         throws IOException, JsonParseException
     {
         /* Although we will always be complete with respect to textual
@@ -967,7 +967,7 @@ public final class ReaderBasedJsonParser
      * that it has to explicitly copy contents to the text buffer
      * instead of just sharing the main input buffer.
      */
-    private final JsonToken parseNumberText2(boolean negative)
+    private JsonToken parseNumberText2(boolean negative)
         throws IOException, JsonParseException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1091,7 +1091,7 @@ public final class ReaderBasedJsonParser
      * Method called when we have seen one zero, and want to ensure
      * it is not followed by another
      */
-    private final char _verifyNoLeadingZeroes()
+    private char _verifyNoLeadingZeroes()
         throws IOException, JsonParseException
     {
         // Ok to have plain "0"
@@ -1163,7 +1163,7 @@ public final class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    protected final String _parseFieldName(int i)
+    protected String _parseFieldName(int i)
         throws IOException, JsonParseException
     {
         if (i != INT_QUOTE) {
@@ -1263,7 +1263,7 @@ public final class ReaderBasedJsonParser
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      */
-    protected final String _handleUnusualFieldName(int i)
+    protected String _handleUnusualFieldName(int i)
         throws IOException, JsonParseException
     {
         // [JACKSON-173]: allow single quotes
@@ -1315,7 +1315,7 @@ public final class ReaderBasedJsonParser
         return _parseUnusualFieldName2(start, hash, codes);
     }
 
-    protected final String _parseApostropheFieldName()
+    protected String _parseApostropheFieldName()
         throws IOException, JsonParseException
     {
         // Note: mostly copy of_parseFieldName
@@ -1352,7 +1352,7 @@ public final class ReaderBasedJsonParser
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
      */
-    protected final JsonToken _handleUnexpectedValue(int i)
+    protected JsonToken _handleUnexpectedValue(int i)
         throws IOException, JsonParseException
     {
         // Most likely an error, unless we are to allow single-quote-strings
@@ -1388,7 +1388,7 @@ public final class ReaderBasedJsonParser
         return null;
     }
     
-    protected final JsonToken _handleApostropheValue()
+    protected JsonToken _handleApostropheValue()
         throws IOException, JsonParseException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1613,7 +1613,7 @@ public final class ReaderBasedJsonParser
      * We actually need to check the character value here
      * (to see if we have \n following \r).
      */
-    protected final void _skipCR() throws IOException
+    protected void _skipCR() throws IOException
     {
         if (_inputPtr < _inputEnd || loadMore()) {
             if (_inputBuffer[_inputPtr] == '\n') {
@@ -1624,13 +1624,13 @@ public final class ReaderBasedJsonParser
         _currInputRowStart = _inputPtr;
     }
 
-    protected final void _skipLF() throws IOException
+    protected void _skipLF() throws IOException
     {
         ++_currInputRow;
         _currInputRowStart = _inputPtr;
     }
 
-    private final int _skipWS()
+    private int _skipWS()
         throws IOException, JsonParseException
     {
         while (_inputPtr < _inputEnd || loadMore()) {
@@ -1653,7 +1653,7 @@ public final class ReaderBasedJsonParser
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
 
-    private final int _skipWSOrEnd()
+    private int _skipWSOrEnd()
         throws IOException, JsonParseException
     {
         while ((_inputPtr < _inputEnd) || loadMore()) {
@@ -1680,7 +1680,7 @@ public final class ReaderBasedJsonParser
         return -1;
     }
 
-    private final void _skipComment()
+    private void _skipComment()
         throws IOException, JsonParseException
     {
         if (!isEnabled(Feature.ALLOW_COMMENTS)) {
@@ -1700,7 +1700,7 @@ public final class ReaderBasedJsonParser
         }
     }
 
-    private final void _skipCComment()
+    private void _skipCComment()
         throws IOException, JsonParseException
     {
         // Ok: need the matching '*/'
@@ -1732,7 +1732,7 @@ public final class ReaderBasedJsonParser
         _reportInvalidEOF(" in a comment");
     }
 
-    private final void _skipCppComment()
+    private void _skipCppComment()
         throws IOException, JsonParseException
     {
         // Ok: need to find EOF or linefeed
@@ -1753,7 +1753,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    protected final char _decodeEscaped()
+    protected char _decodeEscaped()
         throws IOException, JsonParseException
     {
         if (_inputPtr >= _inputEnd) {
@@ -1810,7 +1810,7 @@ public final class ReaderBasedJsonParser
     /**
      * Helper method for checking whether input matches expected token
      */
-    protected final void _matchToken(String matchStr, int i)
+    protected void _matchToken(String matchStr, int i)
         throws IOException, JsonParseException
     {
         final int len = matchStr.length();

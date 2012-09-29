@@ -23,7 +23,7 @@ public final class NumberInput
      *<p>
      * Note: public to let unit tests call it
      */
-    public final static int parseInt(char[] digitChars, int offset, int len)
+    public static int parseInt(char[] digitChars, int offset, int len)
     {
         int num = digitChars[offset] - '0';
         len += offset;
@@ -59,7 +59,7 @@ public final class NumberInput
      * Helper method to (more) efficiently parse integer numbers from
      * String values.
      */
-    public final static int parseInt(String str)
+    public static int parseInt(String str)
     {
         /* Ok: let's keep strategy simple: ignoring optional minus sign,
          * we'll accept 1 - 9 digits and parse things efficiently;
@@ -112,7 +112,7 @@ public final class NumberInput
         return negative ? -num : num;
     }
     
-    public final static long parseLong(char[] digitChars, int offset, int len)
+    public static long parseLong(char[] digitChars, int offset, int len)
     {
         // Note: caller must ensure length is [10, 18]
         int len1 = len-9;
@@ -120,7 +120,7 @@ public final class NumberInput
         return val + (long) parseInt(digitChars, offset+len1, 9);
     }
 
-    public final static long parseLong(String str)
+    public static long parseLong(String str)
     {
         /* Ok, now; as the very first thing, let's just optimize case of "fake longs";
          * that is, if we know they must be ints, call int parsing
@@ -142,7 +142,7 @@ public final class NumberInput
      * @param negative Whether original number had a minus sign (which is
      *    NOT passed to this method) or not
      */
-    public final static boolean inLongRange(char[] digitChars, int offset, int len,
+    public static boolean inLongRange(char[] digitChars, int offset, int len,
             boolean negative)
     {
         String cmpStr = negative ? MIN_LONG_STR_NO_SIGN : MAX_LONG_STR;
@@ -166,7 +166,7 @@ public final class NumberInput
      * @param negative Whether original number had a minus sign (which is
      *    NOT passed to this method) or not
      */
-    public final static boolean inLongRange(String numberStr, boolean negative)
+    public static boolean inLongRange(String numberStr, boolean negative)
     {
         String cmpStr = negative ? MIN_LONG_STR_NO_SIGN : MAX_LONG_STR;
         int cmpLen = cmpStr.length();
@@ -276,7 +276,7 @@ public final class NumberInput
         return defaultValue;
     }
     
-    public final static double parseDouble(String numStr) throws NumberFormatException
+    public static double parseDouble(String numStr) throws NumberFormatException
     {
         // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
         /* as per [JACKSON-827], let's use MIN_VALUE as it is available on all JDKs; normalized

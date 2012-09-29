@@ -22,7 +22,7 @@ public final class Name1
         mQuad = quad;
     }
 
-    final static Name1 getEmptyName() { return sEmptyName; }
+    static Name1 getEmptyName() { return sEmptyName; }
 
     @Override
     public boolean equals(int quad)

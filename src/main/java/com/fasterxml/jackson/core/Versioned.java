@@ -14,5 +14,5 @@ public interface Versioned {
      * returned version should never be null, but may return specific "not available"
      * instance (see {@link Version} for details).
      */
-    public Version version();
+    Version version();
 }

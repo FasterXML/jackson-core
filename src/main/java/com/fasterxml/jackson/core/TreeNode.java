@@ -29,7 +29,7 @@ public interface TreeNode
      * stream event would produce (for most nodes there is just
      * one token but for structured/container types multiple)
      */
-    public abstract JsonToken asToken();
+    JsonToken asToken();
 
     /**
      * If this node is a numeric type (as per {@link JsonToken#isNumeric}),
@@ -39,7 +39,7 @@ public interface TreeNode
      * @return Type of number contained, if any; or null if node does not
      *  contain numeric value.
      */
-    public abstract JsonParser.NumberType numberType();
+    JsonParser.NumberType numberType();
 
     /*
     /**********************************************************
@@ -54,6 +54,6 @@ public interface TreeNode
      * {@link ObjectCodec} and then re-parsing but
      * more efficient.
      */
-    public abstract JsonParser traverse();
+    JsonParser traverse();
 
 }

@@ -229,7 +229,7 @@ public final class TextBuffer
      * Helper method used to find a buffer to use, ideally one
      * recycled earlier.
      */
-    private final char[] findBuffer(int needed)
+    private char[] findBuffer(int needed)
     {
         if (_allocator != null) {
             return _allocator.allocCharBuffer(BufferRecycler.CharBufferType.TEXT_BUFFER, needed);
@@ -237,7 +237,7 @@ public final class TextBuffer
         return new char[Math.max(needed, MIN_SEGMENT_LEN)];
     }
 
-    private final void clearSegments()
+    private void clearSegments()
     {
         _hasSegments = false;
         /* Let's start using _last_ segment from list; for one, it's
@@ -540,7 +540,7 @@ public final class TextBuffer
         return _currentSegment;
     }
 
-    public final char[] emptyAndGetCurrentSegment()
+    public char[] emptyAndGetCurrentSegment()
     {
         // inlined 'resetWithEmpty()'
         _inputStart = -1; // indicates shared buffer not used
@@ -712,7 +712,7 @@ public final class TextBuffer
         return result;
     }
 
-    private final char[] _charArray(int len) {
+    private char[] _charArray(int len) {
         return new char[len];
     }
 }

@@ -19,7 +19,7 @@ public interface SerializableString
      * Returns unquoted String that this object represents (and offers
      * serialized forms for)
      */
-    public String getValue();
+    String getValue();
     
     /**
      * Returns length of the (unquoted) String as characters.
@@ -28,7 +28,7 @@ public interface SerializableString
      *   getValue().length();
      *</pre>
      */
-    public int charLength();
+    int charLength();
 
     
     /*
@@ -41,7 +41,7 @@ public interface SerializableString
      * Returns JSON quoted form of the String, as character array. Result
      * can be embedded as-is in textual JSON as property name or JSON String.
      */
-    public char[] asQuotedChars();
+    char[] asQuotedChars();
 
     /**
      * Returns UTF-8 encoded version of unquoted String.
@@ -50,7 +50,7 @@ public interface SerializableString
      * getValue().getBytes("UTF-8");
      *</pre>
      */
-    public byte[] asUnquotedUTF8();
+    byte[] asUnquotedUTF8();
 
     /**
      * Returns UTF-8 encoded version of JSON-quoted String.
@@ -59,7 +59,7 @@ public interface SerializableString
      * new String(asQuotedChars()).getBytes("UTF-8");
      *</pre>
      */
-    public byte[] asQuotedUTF8();
+    byte[] asQuotedUTF8();
 
     /*
     /**********************************************************
@@ -79,7 +79,7 @@ public interface SerializableString
      * 
      * @return Number of bytes appended, if successful, otherwise -1
      */
-    public int appendQuotedUTF8(byte[] buffer, int offset);
+    int appendQuotedUTF8(byte[] buffer, int offset);
 
     /**
      * Method that will append quoted characters of this String into given
@@ -92,7 +92,7 @@ public interface SerializableString
      * 
      * @return Number of characters appended, if successful, otherwise -1
      */
-    public int appendQuoted(char[] buffer, int offset);
+    int appendQuoted(char[] buffer, int offset);
     
     /**
      * Method that will append unquoted ('raw') UTF-8 bytes of this String into given
@@ -105,7 +105,7 @@ public interface SerializableString
      * 
      * @return Number of bytes appended, if successful, otherwise -1
      */
-    public int appendUnquotedUTF8(byte[] buffer, int offset);
+    int appendUnquotedUTF8(byte[] buffer, int offset);
 
     
     /**
@@ -119,7 +119,7 @@ public interface SerializableString
      * 
      * @return Number of characters appended, if successful, otherwise -1
      */
-    public int appendUnquoted(char[] buffer, int offset);
+    int appendUnquoted(char[] buffer, int offset);
 
     /*
     /**********************************************************
@@ -130,20 +130,20 @@ public interface SerializableString
     /**
      * @return Number of bytes written
      */
-    public int writeQuotedUTF8(OutputStream out) throws IOException;
+    int writeQuotedUTF8(OutputStream out) throws IOException;
 
     /**
      * @return Number of bytes written
      */
-    public int writeUnquotedUTF8(OutputStream out) throws IOException;
+    int writeUnquotedUTF8(OutputStream out) throws IOException;
 
     /**
      * @return Number of bytes put, if successful, otherwise -1
      */
-    public int putQuotedUTF8(ByteBuffer buffer) throws IOException;
+    int putQuotedUTF8(ByteBuffer buffer) throws IOException;
 
     /**
      * @return Number of bytes put, if successful, otherwise -1
      */
-    public int putUnquotedUTF8(ByteBuffer out) throws IOException;
+    int putUnquotedUTF8(ByteBuffer out) throws IOException;
 }

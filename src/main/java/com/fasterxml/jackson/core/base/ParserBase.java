@@ -772,7 +772,7 @@ public abstract class ParserBase
         _reportError("Current token ("+_currToken+") not numeric, can not use numeric value accessors");
     }
     
-    private final void _parseSlowFloatValue(int expType)
+    private void _parseSlowFloatValue(int expType)
         throws IOException, JsonParseException
     {
         /* Nope: floating point. Here we need to be careful to get
@@ -797,7 +797,7 @@ public abstract class ParserBase
         }
     }
     
-    private final void _parseSlowIntValue(int expType, char[] buf, int offset, int len)
+    private void _parseSlowIntValue(int expType, char[] buf, int offset, int len)
         throws IOException, JsonParseException
     {
         String numStr = _textBuffer.contentsAsString();

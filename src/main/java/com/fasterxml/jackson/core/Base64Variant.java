@@ -25,7 +25,11 @@ import java.util.Arrays;
  * @author Tatu Saloranta
  */
 public final class Base64Variant
+    implements java.io.Serializable
 {
+    // We'll only serialize name
+    private static final long serialVersionUID = 1L;
+
     /**
      * Placeholder used by "no padding" variant, to be used when a character
      * value is needed.
@@ -54,19 +58,19 @@ public final class Base64Variant
     /**
      * Decoding table used for base 64 decoding.
      */
-    private final int[] _asciiToBase64 = new int[128];
+    private final transient int[] _asciiToBase64 = new int[128];
 
     /**
      * Encoding table used for base 64 decoding when output is done
      * as characters.
      */
-    private final char[] _base64ToAsciiC = new char[64];
+    private final transient char[] _base64ToAsciiC = new char[64];
 
     /**
      * Alternative encoding table used for base 64 decoding when output is done
      * as ascii bytes.
      */
-    private final byte[] _base64ToAsciiB = new byte[64];
+    private final transient byte[] _base64ToAsciiB = new byte[64];
 
     /*
     /**********************************************************
@@ -76,18 +80,21 @@ public final class Base64Variant
 
     /**
      * Symbolic name of variant; used for diagnostics/debugging.
+     *<p>
+     * Note that this is the only non-transient field; used when reading
+     * back from serialized state
      */
-    final String _name;
+    protected final String _name;
 
     /**
      * Whether this variant uses padding or not.
      */
-    final boolean _usesPadding;
+    protected final transient boolean _usesPadding;
 
     /**
      * Characted used for padding, if any ({@link #PADDING_CHAR_NONE} if not).
      */
-    final char _paddingChar;
+    protected final transient char _paddingChar;
     
     /**
      * Maximum number of encoded base64 characters to output during encoding
@@ -97,7 +104,7 @@ public final class Base64Variant
      * Note: for some output modes (when writing attributes) linefeeds may
      * need to be avoided, and this value ignored.
      */
-    final int _maxLineLength;
+    protected final transient int _maxLineLength;
 
     /*
     /**********************************************************
@@ -165,6 +172,20 @@ public final class Base64Variant
         _maxLineLength = maxLineLength;
     }
 
+    /*
+    /**********************************************************
+    /* Serializable overrides
+    /**********************************************************
+     */
+
+    /**
+     * Method used to "demote" deserialized instances back to 
+     * canonical ones
+     */
+    protected Object readResolve() {
+        return Base64Variants.valueOf(_name);
+    }
+    
     /*
     /**********************************************************
     /* Public accessors

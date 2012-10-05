@@ -15,7 +15,13 @@
 package com.fasterxml.jackson.core;
 
 /**
- * Container for commonly used Base64 variants.
+ * Container for commonly used Base64 variants:
+ *<ul>
+ * <li> {@link #MIME}
+ * <li> {@link #MIME_NO_LINEFEEDS}
+ * <li> {@link #PEM}
+ * <li> {@link #MODIFIED_FOR_URL}
+ * </ul>
  * 
  * @author Tatu Saloranta
  */
@@ -86,5 +92,30 @@ public final class Base64Variants
      */
     public static Base64Variant getDefaultVariant() {
         return MIME_NO_LINEFEEDS;
+    }
+
+    /**
+     * @since 2.1
+     */
+    public static Base64Variant valueOf(String name) throws IllegalArgumentException
+    {
+        if (MIME._name.equals(name)) {
+            return MIME;
+        }
+        if (MIME_NO_LINEFEEDS._name.equals(name)) {
+            return MIME_NO_LINEFEEDS;
+        }
+        if (PEM._name.equals(name)) {
+            return PEM;
+        }
+        if (MODIFIED_FOR_URL._name.equals(name)) {
+            return MODIFIED_FOR_URL;
+        }
+        if (name == null) {
+            name = "<null>";
+        } else {
+            name = "'"+name+"'";
+        }
+        throw new IllegalArgumentException("No Base64Variant with name "+name);
     }
 }

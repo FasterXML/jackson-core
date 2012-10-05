@@ -7,7 +7,7 @@ import com.fasterxml.jackson.test.BaseTest;
 /**
  * Unit tests for [Issue#31] (https://github.com/FasterXML/jackson-core/issues/31)
  */
-public class TestSerializability extends BaseTest
+public class TestJDKSerializability extends BaseTest
 {
     public void testJsonFactorySerializable() throws Exception
     {
@@ -25,6 +25,14 @@ public class TestSerializability extends BaseTest
         assertEquals(origJson, _copyJson(f2, origJson, true));
     }
 
+    public void testBase64Variant() throws Exception
+    {
+        Base64Variant orig = Base64Variants.PEM;
+        byte[] stuff = jdkSerialize(orig);
+        Base64Variant back = jdkDeserialize(stuff);
+        assertSame(orig, back);
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

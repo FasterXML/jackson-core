@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.test.BaseTest;
 
 /**
@@ -31,6 +32,15 @@ public class TestJDKSerializability extends BaseTest
         byte[] stuff = jdkSerialize(orig);
         Base64Variant back = jdkDeserialize(stuff);
         assertSame(orig, back);
+    }
+
+    public void testPrettyPrinter() throws Exception
+    {
+        PrettyPrinter p = new DefaultPrettyPrinter();
+        byte[] stuff = jdkSerialize(p);
+        PrettyPrinter back = jdkDeserialize(stuff);
+        // what should we test?
+        assertNotNull(back);
     }
     
     /*

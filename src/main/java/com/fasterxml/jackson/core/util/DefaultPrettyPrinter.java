@@ -14,8 +14,11 @@ import com.fasterxml.jackson.core.io.SerializedString;
  * used, which will use an instance of this class for operation.
  */
 public class DefaultPrettyPrinter
-    implements PrettyPrinter, Instantiatable<DefaultPrettyPrinter>
+    implements PrettyPrinter, Instantiatable<DefaultPrettyPrinter>,
+        java.io.Serializable
 {
+    private static final long serialVersionUID = -5512586643324525213L;
+
     /**
      * Constant that specifies default "root-level" separator to use between
      * root values: a single space character.
@@ -47,7 +50,7 @@ public class DefaultPrettyPrinter
     /**
      * By default, let's use only spaces to separate array values.
      */
-    protected Indenter _arrayIndenter = new FixedSpaceIndenter();
+    protected Indenter _arrayIndenter = FixedSpaceIndenter.instance;
 
     /**
      * By default, let's use linefeed-adding indenter for separate
@@ -55,7 +58,7 @@ public class DefaultPrettyPrinter
      * system-specific linefeeds, and 2 spaces per level (as opposed to,
      * say, single tabs)
      */
-    protected Indenter _objectIndenter = new Lf2SpacesIndenter();
+    protected Indenter _objectIndenter = Lf2SpacesIndenter.instance;
 
     /**
      * String printed between root-level values, if any.
@@ -77,7 +80,7 @@ public class DefaultPrettyPrinter
      * Number of open levels of nesting. Used to determine amount of
      * indentation to use.
      */
-    protected int _nesting = 0;
+    protected transient int _nesting = 0;
 
     /*
     /**********************************************************
@@ -142,12 +145,12 @@ public class DefaultPrettyPrinter
     
     public void indentArraysWith(Indenter i)
     {
-        _arrayIndenter = (i == null) ? new NopIndenter() : i;
+        _arrayIndenter = (i == null) ? NopIndenter.instance : i;
     }
 
     public void indentObjectsWith(Indenter i)
     {
-        _objectIndenter = (i == null) ? new NopIndenter() : i;
+        _objectIndenter = (i == null) ? NopIndenter.instance : i;
     }
 
     public void spacesInObjectEntries(boolean b) { _spacesInObjectEntries = b; }
@@ -306,8 +309,12 @@ public class DefaultPrettyPrinter
      * Dummy implementation that adds no indentation whatsoever
      */
     public static class NopIndenter
-        implements Indenter
+        implements Indenter, java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
+        public static NopIndenter instance = new NopIndenter();
+        
         public NopIndenter() { }
 //      @Override
         public void writeIndentation(JsonGenerator jg, int level) { }
@@ -321,8 +328,12 @@ public class DefaultPrettyPrinter
      * indenter for array values.
      */
     public static class FixedSpaceIndenter
-        implements Indenter
+        implements Indenter, java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
+        public static FixedSpaceIndenter instance = new FixedSpaceIndenter();
+
         public FixedSpaceIndenter() { }
 
 //      @Override
@@ -341,8 +352,12 @@ public class DefaultPrettyPrinter
      * 2 spaces for indentation per level.
      */
     public static class Lf2SpacesIndenter
-        implements Indenter
+        implements Indenter, java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
+        public static Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
+
         final static String SYSTEM_LINE_SEPARATOR;
         static {
             String lf = null;

@@ -24,8 +24,10 @@ import com.fasterxml.jackson.core.PrettyPrinter;
  * shared between threads.
  */
 public class MinimalPrettyPrinter
-    implements PrettyPrinter
+    implements PrettyPrinter, java.io.Serializable
 {
+    private static final long serialVersionUID = -562765100295218442L;
+
     /**
      * Default String used for separating root values is single space.
      */

@@ -23,6 +23,7 @@ public class TestCustomEscaping  extends com.fasterxml.jackson.test.BaseTest
     /**
      * Trivial simple custom escape definition set.
      */
+    @SuppressWarnings("serial")
     static class MyEscapes extends CharacterEscapes
     {
         

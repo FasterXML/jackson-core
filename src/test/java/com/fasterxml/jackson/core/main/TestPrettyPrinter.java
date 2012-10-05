@@ -10,6 +10,7 @@ import java.io.*;
  * Set of basic unit tests for verifying that indenting
  * option of generator works correctly
  */
+@SuppressWarnings("serial")
 public class TestPrettyPrinter
     extends com.fasterxml.jackson.test.BaseTest
 {

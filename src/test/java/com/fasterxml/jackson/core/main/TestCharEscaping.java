@@ -13,6 +13,7 @@ public class TestCharEscaping
     extends com.fasterxml.jackson.test.BaseTest
 {
     // for [JACKSON-627]
+    @SuppressWarnings("serial")
     private final static CharacterEscapes ESC_627 = new CharacterEscapes() {
         final int[] ascii = CharacterEscapes.standardAsciiEscapesForJSON();
         {

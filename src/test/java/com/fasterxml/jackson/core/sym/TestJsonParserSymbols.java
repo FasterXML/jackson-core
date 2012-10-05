@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
  * Unit tests for verifying that {@link JsonParser} instances properly
  * merge back symbols to the root symbol table
  */
+@SuppressWarnings("serial")
 public class TestJsonParserSymbols
     extends com.fasterxml.jackson.test.BaseTest
 {

@@ -47,8 +47,15 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
  *
  * @author Tatu Saloranta
  */
-public class JsonFactory implements Versioned
+public class JsonFactory
+    implements Versioned,
+        java.io.Serializable // since 2.1 (for Android, mostly)
 {
+    /**
+     * Computed for Jackson 2.1.0 release
+     */
+    private static final long serialVersionUID = -5207101305402257257L;
+
     /**
      * Name used to identify JSON format
      * (and returned by {@link #getFormatName()}
@@ -161,7 +168,7 @@ public class JsonFactory implements Versioned
      * It should not be linked back to the original blueprint, to
      * avoid contents from leaking between factories.
      */
-    protected CharsToNameCanonicalizer _rootCharSymbols = CharsToNameCanonicalizer.createRoot();
+    protected final transient CharsToNameCanonicalizer _rootCharSymbols = CharsToNameCanonicalizer.createRoot();
 
     /**
      * Alternative to the basic symbol table, some stream-based
@@ -170,7 +177,7 @@ public class JsonFactory implements Versioned
      * TODO: should clean up this; looks messy having 2 alternatives
      * with not very clear differences.
      */
-    protected BytesToNameCanonicalizer _rootByteSymbols = BytesToNameCanonicalizer.createRoot();
+    protected final transient BytesToNameCanonicalizer _rootByteSymbols = BytesToNameCanonicalizer.createRoot();
 
     /*
     /**********************************************************
@@ -277,6 +284,21 @@ public class JsonFactory implements Versioned
             throw new IllegalStateException("Failed copy(): "+getClass().getName()
                     +" (version: "+version()+") does not override copy(); it has to");
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Serializable overrides
+    /**********************************************************
+     */
+
+    /**
+     * Method that we need to override to actually make restoration go
+     * through constructors etc.
+     * Also: must be overridden by sub-classes as well.
+     */
+    protected Object readResolve() {
+        return new JsonFactory(_objectCodec);
     }
     
     /*

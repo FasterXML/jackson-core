@@ -9,7 +9,10 @@ import java.io.*;
  * processing during read operations.
  */
 public abstract class InputDecorator
+    implements java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = 1L;
+    
     /**
      * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
      * creating parser given an {@link InputStream}, when this decorator

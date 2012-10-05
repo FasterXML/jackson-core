@@ -8,7 +8,10 @@ import com.fasterxml.jackson.core.SerializableString;
  * For JSON this applies to both property names and String values.
  */
 public abstract class CharacterEscapes
+    implements java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Value used for lookup tables to indicate that matching characters
      * do not need to be escaped.

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.core.SerializableString;
@@ -15,7 +14,8 @@ import com.fasterxml.jackson.core.SerializableString;
  * Class is final for performance reasons and since this is not designed to
  * be extensible or customizable (customizations would occur in calling code)
  */
-public class SerializedString implements SerializableString
+public class SerializedString
+    implements SerializableString, java.io.Serializable
 {
     protected final String _value;
 
@@ -35,7 +35,38 @@ public class SerializedString implements SerializableString
 
     protected /*volatile*/ char[] _quotedChars;
 
-    public SerializedString(String v) { _value = v; }
+    public SerializedString(String v) {
+        if (v == null) {
+            throw new IllegalStateException("Null String illegal for SerializedString");
+        }
+        _value = v;
+    }
+    
+    /*
+    /**********************************************************
+    /* Serializable overrides
+    /**********************************************************
+     */
+
+    /**
+     * Ugly hack, to work through the requirement that _value is indeed final,
+     * and that JDK serialization won't call ctor(s).
+     * 
+     * @since 2.1
+     */
+    protected transient String _jdkSerializeValue;
+
+    private void readObject(ObjectInputStream in) throws IOException {
+        _jdkSerializeValue = in.readUTF();
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeUTF(_value);
+    }
+
+    protected Object readResolve() {
+        return new SerializedString(_jdkSerializeValue);
+    }
 
     /*
     /**********************************************************

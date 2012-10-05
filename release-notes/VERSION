@@ -1,24 +1,34 @@
 Version: 2.1.0
 
 Release date:
-  xx-Aug-2012
+  xx-Oct-2012
 
 Description:
-  A new minor version for 2.x.
+  A new minor version for 2.x. Biggest changes to core streaming module are:
+
+  * Streaming binary read/write methods
+  * Overriding of root-value separator
+
+  Otherwise changes are to support features needed either by databinding module
+  or one of non-JSON dataformat modules.
 
 Fixes:
 
 New features:
 
-* [JACKSON-837]: Made JsonGenerator implement Flushable.
- (suggested by Matt G)
-* [Issue#10]: add 'JsonProcessingException.getOriginalMessage()' for accessing
-  message without location info
 * [Issue#14]: add 'readBinaryValue(...)' method in JsonParser
 * [Issue#16]: add 'writeBinary(InputStream, int)' method in JsonGenerator
   (and implement for JSON backend)
 * [Issue#26]: Allow overriding "root value separator"
  (suggested by Henning S)
+
+Improvements:
+
+* [JACKSON-837]: Made JsonGenerator implement Flushable.
+ (suggested by Matt G)
+* [Issue#10]: add 'JsonProcessingException.getOriginalMessage()' for accessing
+  message without location info
+* [Issue#31]: make `JsonFactory` java.io.Serializable (via JDK)
 
 Other:
 

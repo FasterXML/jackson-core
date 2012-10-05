@@ -54,7 +54,7 @@ public class JsonFactory
     /**
      * Computed for Jackson 2.1.0 release
      */
-    private static final long serialVersionUID = -5207101305402257257L;
+    private static final long serialVersionUID = 8726401676402117450L;
 
     /**
      * Name used to identify JSON format

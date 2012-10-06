@@ -9,8 +9,11 @@ package com.fasterxml.jackson.core;
  * if provided, they should align with Maven artifact information.
  */
 public class Version
-    implements Comparable<Version>
+    implements Comparable<Version>,
+        java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final static Version UNKNOWN_VERSION = new Version(0, 0, 0, null, null, null);
     
     protected final int _majorVersion;
@@ -31,6 +34,8 @@ public class Version
 
     /**
      * @deprecated Use variant that takes group and artifact ids
+     * 
+     * @since 2.1
      */
     @Deprecated
     public Version(int major, int minor, int patchLevel, String snapshotInfo)

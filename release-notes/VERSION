@@ -12,8 +12,6 @@ Description:
   Otherwise changes are to support features needed either by databinding module
   or one of non-JSON dataformat modules.
 
-Fixes:
-
 New features:
 
 * [Issue#14]: add 'readBinaryValue(...)' method in JsonParser
@@ -39,6 +37,8 @@ Other:
 * Added 'JsonFactory.copy()' method to support databinding's 'ObjectMapper.copy()'
 * Added method 'requiresCustomCodec()' for JsonFactory and JsonParser
 * Added 'JsonParser.getValueAsString()' method (to support flexible conversions)
+* Added META-INF/services/com.fasterxml.jackson.core.JsonFactory SPI to register
+  `JsonFactory` for even more automatic format discovery in future.
 
 ------------------------------------------------------------------------
 === History: ===

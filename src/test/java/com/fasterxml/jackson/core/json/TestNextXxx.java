@@ -12,6 +12,12 @@ import com.fasterxml.jackson.core.io.SerializedString;
 public class TestNextXxx
     extends com.fasterxml.jackson.test.BaseTest
 {
+    /*
+    /********************************************************
+    /* Wrappers to test InputStream vs Reader
+    /********************************************************
+     */
+    
     // [JACKSON-653]
     public void testIsNextTokenName() throws Exception
     {
@@ -20,6 +26,19 @@ public class TestNextXxx
         _testIsNextTokenName2(false);
         _testIsNextTokenName2(true);
     }
+
+    // [Issue#34]
+    public void testIssue34() throws Exception
+    {
+        _testIssue34(false);
+        _testIssue34(true);
+    }
+
+    /*
+    /********************************************************
+    /* Actual test code
+    /********************************************************
+     */
 
     private void _testIsNextTokenName1(boolean useStream) throws Exception
     {
@@ -98,5 +117,38 @@ public class TestNextXxx
 
         jp.close();
     }
-    
+
+    private void _testIssue34(boolean useStream) throws Exception
+    {
+        final int TESTROUNDS = 223;
+        final String DOC_PART = "{ \"fieldName\": 1 }";
+        
+        // build the big document to trigger issue
+        StringBuilder sb = new StringBuilder(2000);
+        for (int i = 0; i < TESTROUNDS; ++i) {
+            sb.append(DOC_PART);
+        }
+        final String DOC = sb.toString();
+        
+        SerializableString fieldName = new SerializedString("fieldName");
+        JsonFactory jf = new JsonFactory();
+        JsonParser parser = useStream ?
+            jf.createJsonParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : jf.createJsonParser(new StringReader(DOC));
+
+        for (int i = 0; i < TESTROUNDS - 1; i++) {
+            assertEquals(JsonToken.START_OBJECT, parser.nextToken());
+
+            // These will succeed
+            assertTrue(parser.nextFieldName(fieldName));
+
+            parser.nextLongValue(-1);
+            assertEquals(JsonToken.END_OBJECT, parser.nextToken());
+        }
+
+        assertEquals(JsonToken.START_OBJECT, parser.nextToken());
+
+        // This will fail
+        assertTrue(parser.nextFieldName(fieldName));
+    }
 }

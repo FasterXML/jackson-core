@@ -903,8 +903,7 @@ public final class UTF8StreamJsonParser
                 }
             }
         }
-        _isNextTokenNameNo(i);
-        return false;
+        return _isNextTokenNameMaybe(i, str);
     }
 
     private void _isNextTokenNameYes()
@@ -979,13 +978,18 @@ public final class UTF8StreamJsonParser
         _nextToken = _handleUnexpectedValue(i);
     }
     
-    private void _isNextTokenNameNo(int i)
-            throws IOException, JsonParseException
+    private boolean _isNextTokenNameMaybe(int i, SerializableString str)
+        throws IOException, JsonParseException
     {
         // // // and this is back to standard nextToken()
             
         Name n = _parseFieldName(i);
-        _parsingContext.setCurrentName(n.getName());
+        final boolean match;
+        {
+            String nameStr = n.getName();
+            _parsingContext.setCurrentName(nameStr);
+            match = nameStr.equals(str.getValue());
+        }
         _currToken = JsonToken.FIELD_NAME;
         i = _skipWS();
         if (i != INT_COLON) {
@@ -997,8 +1001,8 @@ public final class UTF8StreamJsonParser
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
             _nextToken = JsonToken.VALUE_STRING;
-            return;
-        }        
+            return match;
+        }
         JsonToken t;
 
         switch (i) {
@@ -1041,6 +1045,7 @@ public final class UTF8StreamJsonParser
             t = _handleUnexpectedValue(i);
         }
         _nextToken = t;
+        return match;
     }
 
     @Override

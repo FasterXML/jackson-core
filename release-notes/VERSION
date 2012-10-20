@@ -1,16 +1,20 @@
-Version: 2.1.0
+Version: 2.1.1
 
 Release date:
-  08-Oct-2012
+  xx-Nov-2012
 
-Description:
-  A new minor version for 2.x. Biggest changes to core streaming module are:
+Fixes:
 
-  * Streaming binary read/write methods
-  * Overriding of root-value separator
+* [Issue#34] `JsonParser.nextFieldName()` fails on buffer boundary
+ (reported by gsson@github)
 
-  Otherwise changes are to support features needed either by databinding module
-  or one of non-JSON dataformat modules.
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.1.0 (08-Oct-2012)
+
+A new minor version for 2.x.
 
 New features:
 
@@ -39,10 +43,6 @@ Other:
 * Added 'JsonParser.getValueAsString()' method (to support flexible conversions)
 * Added META-INF/services/com.fasterxml.jackson.core.JsonFactory SPI to register
   `JsonFactory` for even more automatic format discovery in future.
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.0.4 (26-Jun-2012)
 

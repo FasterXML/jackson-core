@@ -8,9 +8,11 @@ Description:
 
 Fixes:
 
-* [Issue#84]: ArrayIndexOutOfBoundsException when indenting, generator
-  uses 'writeObject()'
+* [Issue#84/Databind]: ArrayIndexOutOfBoundsException when indenting,
+  generator uses 'writeObject()'
  (reported by KetothXypack@github)
+* [Issue#34]: JsonParser.nextFieldName() fails on buffer boundary
+ (reported by gsson@github)
 
 ------------------------------------------------------------------------
 === History: ===

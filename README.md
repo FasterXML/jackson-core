@@ -16,6 +16,8 @@ making it possible to use standard [data-binding package](/FasterXML/jackson-dat
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
 
+[![Build Status](https://fasterxml.ci.cloudbees.com/job/jackson-core-master/badge/icon)](https://fasterxml.ci.cloudbees.com/job/jackson-core-master/)
+
 ### Differences from Jackson 1.x
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository

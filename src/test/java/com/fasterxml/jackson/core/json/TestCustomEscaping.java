@@ -96,6 +96,7 @@ public class TestCustomEscaping  extends com.fasterxml.jackson.test.BaseTest
     /********************************************************
      */
 
+    @SuppressWarnings("resource")
     private void _testEscapeAboveAscii(boolean useStream) throws Exception
     {
         JsonFactory f = new JsonFactory();

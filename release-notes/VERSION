@@ -7,6 +7,9 @@ Fixes:
 
 * [Issue#34] `JsonParser.nextFieldName()` fails on buffer boundary
  (reported by gsson@github)
+* [Issue#38] `JsonParser.nextFieldName()` problems when handling
+ names with trailing spaces
+ (reported by matjazs@github)
 
 ------------------------------------------------------------------------
 === History: ===

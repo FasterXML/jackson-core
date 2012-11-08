@@ -34,6 +34,13 @@ public class TestNextXxx
         _testIssue34(true);
     }
 
+    // [Issue#38] with nextFieldName
+    public void testIssue38() throws Exception
+    {
+        _testIssue38(false);
+        _testIssue38(true);
+    }
+    
     /*
     /********************************************************
     /* Actual test code
@@ -150,5 +157,23 @@ public class TestNextXxx
 
         // This will fail
         assertTrue(parser.nextFieldName(fieldName));
+        parser.close();
+    }
+
+    private void _testIssue38(boolean useStream) throws Exception
+    {
+        final String DOC = "{\"field\" :\"value\"}";
+        SerializableString fieldName = new SerializedString("field");
+        JsonFactory jf = new JsonFactory();
+        JsonParser parser = useStream ?
+            jf.createJsonParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : jf.createJsonParser(new StringReader(DOC));
+        assertEquals(JsonToken.START_OBJECT, parser.nextToken());
+        assertTrue(parser.nextFieldName(fieldName));
+        assertEquals(JsonToken.VALUE_STRING, parser.nextToken());
+        assertEquals("value", parser.getText());
+        assertEquals(JsonToken.END_OBJECT, parser.nextToken());
+        assertNull(parser.nextToken());
+        parser.close();
     }
 }

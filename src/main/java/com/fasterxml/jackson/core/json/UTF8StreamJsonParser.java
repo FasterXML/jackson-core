@@ -2361,12 +2361,13 @@ public final class UTF8StreamJsonParser
         } else {
             // need to skip potential leading space
             i &= 0xFF;
-
+            
             space_loop:
             while (true) {
                 switch (i) {
                 case INT_SPACE:
                 case INT_TAB:
+                    break;
                 case INT_CR:
                     _skipCR();
                     break;
@@ -2382,11 +2383,11 @@ public final class UTF8StreamJsonParser
                     }
                     break space_loop;
                 }
+                if (_inputPtr >= _inputEnd) {
+                    loadMoreGuaranteed();
+                }
+                i = _inputBuffer[_inputPtr++] & 0xFF;
             }
-            if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
-            }
-            i = _inputBuffer[_inputPtr++] & 0xFF;
             if (i != INT_COLON) {
                 _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
             }

@@ -1,7 +1,7 @@
 Version: 2.0.7
 
 Release date:
-  xx-Sep-2012
+  xx-Nov-2012
 
 Description:
   Another patch release
@@ -13,6 +13,9 @@ Fixes:
  (reported by KetothXypack@github)
 * [Issue#34]: JsonParser.nextFieldName() fails on buffer boundary
  (reported by gsson@github)
+* [Issue#38] `JsonParser.nextFieldName()` problems when handling
+  names with trailing spaces
+ (reported by matjazs@github)
 
 ------------------------------------------------------------------------
 === History: ===

@@ -65,37 +65,58 @@ public class VersionUtil
      */
     public static Version versionFor(Class<?> cls)
     {
-        InputStream in;
-        Version version = null;
+        final InputStream in = cls.getResourceAsStream(VERSION_FILE);
+
+        if (in == null)
+            return Version.unknownVersion();
 
         try {
-            in = cls.getResourceAsStream(VERSION_FILE);
-            if (in != null) {
+            InputStreamReader reader = new InputStreamReader(in, "UTF-8");
+            try {
+                return doReadVersion(reader);
+            } finally {
                 try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                    String groupStr = null, artifactStr = null;
-                    String versionStr = br.readLine();
-                    if (versionStr != null) {
-                        groupStr = br.readLine();
-                        if (groupStr != null) {
-                            groupStr = groupStr.trim();
-                            artifactStr = br.readLine();
-                            if (artifactStr != null) {
-                                artifactStr = artifactStr.trim();
-                            }
-                        }
-                    }
-                    version = parseVersion(versionStr, groupStr, artifactStr);
-                } finally {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    reader.close();
+                } catch (IOException ignored) {
                 }
             }
-        } catch (IOException e) { }
-        return (version == null) ? Version.unknownVersion() : version;
+        } catch (UnsupportedEncodingException e) {
+            return Version.unknownVersion();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static Version doReadVersion(final Reader reader)
+    {
+        String version = null, group = null, artifact = null;
+
+        final BufferedReader br = new BufferedReader(reader);
+        try {
+            version = br.readLine();
+            if (version != null) {
+                group = br.readLine();
+                if (group != null)
+                    artifact = br.readLine();
+            }
+        } catch (IOException ignored) {
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ignored) {
+            }
+        }
+
+        // We don't trim() version: parseVersion() takes care ot that
+        if (group != null)
+            group = group.trim();
+        if (artifact != null)
+            artifact = artifact.trim();
+        return parseVersion(version, group, artifact);
     }
 
     /**

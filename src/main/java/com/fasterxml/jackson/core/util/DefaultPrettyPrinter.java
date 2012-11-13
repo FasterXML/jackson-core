@@ -313,7 +313,7 @@ public class DefaultPrettyPrinter
     {
         private static final long serialVersionUID = 1L;
 
-        public static NopIndenter instance = new NopIndenter();
+        public static final NopIndenter instance = new NopIndenter();
         
         public NopIndenter() { }
 //      @Override
@@ -332,7 +332,7 @@ public class DefaultPrettyPrinter
     {
         private static final long serialVersionUID = 1L;
 
-        public static FixedSpaceIndenter instance = new FixedSpaceIndenter();
+        public static final FixedSpaceIndenter instance = new FixedSpaceIndenter();
 
         public FixedSpaceIndenter() { }
 
@@ -356,7 +356,7 @@ public class DefaultPrettyPrinter
     {
         private static final long serialVersionUID = 1L;
 
-        public static Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
+        public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
 
         final static String SYSTEM_LINE_SEPARATOR;
         static {

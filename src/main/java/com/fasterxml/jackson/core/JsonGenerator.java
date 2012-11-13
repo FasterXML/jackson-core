@@ -173,12 +173,28 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************
-    /* Construction, configuration, initialization
+    /* Construction, initialization
     /**********************************************************
      */
     
     protected JsonGenerator() { }
 
+    /**
+     * Method that can be called to set or reset the object to
+     * use for writing Java objects as JsonContent
+     * (using method {@link #writeObject}).
+     *
+     * @return Generator itself (this), to allow chaining
+     */
+    public abstract JsonGenerator setCodec(ObjectCodec oc);
+
+    /**
+     * Method for accessing the object used for writing Java
+     * object as Json content
+     * (using method {@link #writeObject}).
+     */
+    public abstract ObjectCodec getCodec();
+    
     /**
      * Method to call to make this generator use specified schema.
      * Method must be called before generating any content, right after instance
@@ -207,7 +223,7 @@ public abstract class JsonGenerator
      * @since 2.1
      */
     public FormatSchema getSchema() {
-	return null;
+        return null;
     }
     
     /**
@@ -304,22 +320,6 @@ public abstract class JsonGenerator
      */
     public abstract boolean isEnabled(Feature f);
 
-    /**
-     * Method that can be called to set or reset the object to
-     * use for writing Java objects as JsonContent
-     * (using method {@link #writeObject}).
-     *
-     * @return Generator itself (this), to allow chaining
-     */
-    public abstract JsonGenerator setCodec(ObjectCodec oc);
-
-    /**
-     * Method for accessing the object used for writing Java
-     * object as Json content
-     * (using method {@link #writeObject}).
-     */
-    public abstract ObjectCodec getCodec();
-
     /*
     /**********************************************************
     /* Configuring generator
@@ -401,6 +401,7 @@ public abstract class JsonGenerator
     public int getHighestEscapedChar() {
         return 0;
     }
+
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.

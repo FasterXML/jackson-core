@@ -1,7 +1,14 @@
-Version: 2.1.1
+Version: 2.1.2 (xx-xxx-2012)
 
-Release date:
-  11-Nov-2012
+Fixes:
+
+* Added missing methods (like 'setPrettyPrinter()' in JsonGeneratorDelegate
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.1.1 (11-Nov-2012)
 
 Fixes:
 
@@ -10,10 +17,6 @@ Fixes:
 * [Issue#38] `JsonParser.nextFieldName()` problems when handling
  names with trailing spaces
  (reported by matjazs@github)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.1.0 (08-Oct-2012)
 

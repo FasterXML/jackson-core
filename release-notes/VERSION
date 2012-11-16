@@ -8,6 +8,8 @@ Fixes:
 === History: ===
 ------------------------------------------------------------------------
 
+2.1.1 (11-Nov-2012)
+
 Fixes:
 
 * [Issue#34] `JsonParser.nextFieldName()` fails on buffer boundary
@@ -15,8 +17,6 @@ Fixes:
 * [Issue#38] `JsonParser.nextFieldName()` problems when handling
  names with trailing spaces
  (reported by matjazs@github)
-
-2.1.1 (11-Nov-2012)
 
 2.1.0 (08-Oct-2012)
 

@@ -25,9 +25,9 @@ public class TestJsonGenerator
                     JsonGenerator gen;
                     ByteArrayOutputStream bout = new ByteArrayOutputStream();
                     if (useReader != 0) {
-                        gen = jf.createJsonGenerator(new OutputStreamWriter(bout, "UTF-8"));
+                        gen = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
                     } else {
-                        gen = jf.createJsonGenerator(bout, JsonEncoding.UTF8);
+                        gen = jf.createGenerator(bout, JsonEncoding.UTF8);
                     }
                     if (writeString > 0) {
                         gen.writeString(input);
@@ -40,7 +40,7 @@ public class TestJsonGenerator
                     }
                     gen.flush();
                     gen.close();
-                    JsonParser jp = jf.createJsonParser(new ByteArrayInputStream(bout.toByteArray()));
+                    JsonParser jp = jf.createParser(new ByteArrayInputStream(bout.toByteArray()));
                 
                     JsonToken t = jp.nextToken();
                     assertNotNull("Document \""+bout.toString("UTF-8")+"\" yielded no tokens", t);
@@ -74,7 +74,7 @@ public class TestJsonGenerator
             boolean state = (i & 1) == 0;
             boolean pad = (i & 2) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+            JsonGenerator gen = new JsonFactory().createGenerator(sw);
             gen.writeBoolean(state);
             if (pad) {
                 gen.writeRaw(" ");
@@ -99,7 +99,7 @@ public class TestJsonGenerator
         for (int i = 0; i < 2; ++i) {
             boolean pad = (i & 1) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+            JsonGenerator gen = new JsonFactory().createGenerator(sw);
             gen.writeNull();
             if (pad) {
                 gen.writeRaw(" ");
@@ -124,7 +124,7 @@ public class TestJsonGenerator
          throws Exception
      {
          StringWriter sw = new StringWriter();
-         JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+         JsonGenerator gen = new JsonFactory().createGenerator(sw);
          gen.writeNumber(1);
          gen.writeNumber(2);
          gen.writeNumber(-13);
@@ -148,7 +148,7 @@ public class TestJsonGenerator
          throws Exception
      {
          StringWriter sw = new StringWriter();
-         JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+         JsonGenerator gen = new JsonFactory().createGenerator(sw);
          gen.writeStartObject();
          gen.writeNumberField("long", 3L);
          gen.writeNumberField("double", 0.25);
@@ -174,7 +174,7 @@ public class TestJsonGenerator
         for (int i = 0; i < VALUES.length; ++i) {
             int VALUE = VALUES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+            JsonGenerator gen = new JsonFactory().createGenerator(sw);
             gen.writeNumber(VALUE);
             if (pad) {
                 gen.writeRaw(" ");
@@ -205,7 +205,7 @@ public class TestJsonGenerator
         for (int i = 0; i < VALUES.length; ++i) {
             long VALUE = VALUES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+            JsonGenerator gen = new JsonFactory().createGenerator(sw);
             gen.writeNumber(VALUE);
             if (pad) {
                 gen.writeRaw(" ");

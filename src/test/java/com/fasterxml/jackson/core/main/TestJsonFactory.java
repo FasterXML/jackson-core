@@ -37,21 +37,21 @@ public class TestJsonFactory
         JsonFactory f = new JsonFactory();
 
         // First: create file via generator.. and use an odd encoding
-        JsonGenerator jg = f.createJsonGenerator(file, JsonEncoding.UTF16_LE);
+        JsonGenerator jg = f.createGenerator(file, JsonEncoding.UTF16_LE);
         jg.writeStartObject();
         jg.writeRaw("   ");
         jg.writeEndObject();
         jg.close();
 
         // Ok: first read file directly
-        JsonParser jp = f.createJsonParser(file);
+        JsonParser jp = f.createParser(file);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         assertNull(jp.nextToken());
         jp.close();
 
         // Then via URL:
-        jp = f.createJsonParser(file.toURI().toURL());
+        jp = f.createParser(file.toURI().toURL());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         assertNull(jp.nextToken());

@@ -92,7 +92,7 @@ public class TestStringGeneration
         for (int i = 0; i < SAMPLES.length; ++i) {
             String VALUE = SAMPLES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+            JsonGenerator gen = new JsonFactory().createGenerator(sw);
             gen.writeStartArray();
             if (charArray) {
                 char[] buf = new char[VALUE.length() + i];
@@ -119,7 +119,7 @@ public class TestStringGeneration
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(bow, JsonEncoding.UTF8);
+        JsonGenerator gen = new JsonFactory().createGenerator(bow, JsonEncoding.UTF8);
 
         gen.writeStartArray();
         if (charArray) {
@@ -132,7 +132,7 @@ public class TestStringGeneration
         gen.writeEndArray();
         gen.close();
         byte[] docData = bow.toByteArray();
-        JsonParser jp = new JsonFactory().createJsonParser(new ByteArrayInputStream(docData));
+        JsonParser jp = new JsonFactory().createParser(new ByteArrayInputStream(docData));
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         JsonToken t = jp.nextToken();
         assertEquals(JsonToken.VALUE_STRING, t);
@@ -158,14 +158,14 @@ public class TestStringGeneration
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(bow, JsonEncoding.UTF8);
+        JsonGenerator gen = new JsonFactory().createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
 
         gen.writeString(text);
         gen.writeEndArray();
         gen.close();
         
-        gen = new JsonFactory().createJsonGenerator(bow, JsonEncoding.UTF8);
+        gen = new JsonFactory().createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         gen.writeStartArray();
 
@@ -197,7 +197,7 @@ public class TestStringGeneration
         gen.writeEndArray();
         gen.close();
         byte[] docData = bow.toByteArray();
-        JsonParser jp = new JsonFactory().createJsonParser(new ByteArrayInputStream(docData));
+        JsonParser jp = new JsonFactory().createParser(new ByteArrayInputStream(docData));
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
 
         offset = 0;

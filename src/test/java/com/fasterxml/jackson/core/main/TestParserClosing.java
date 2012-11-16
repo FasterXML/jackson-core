@@ -33,7 +33,7 @@ public class TestParserClosing
         f.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         assertFalse(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         MyReader input = new MyReader(DOC);
-        JsonParser jp = f.createJsonParser(input);
+        JsonParser jp = f.createParser(input);
 
         // shouldn't be closed to begin with...
         assertFalse(input.isClosed());
@@ -57,7 +57,7 @@ public class TestParserClosing
         f.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         MyReader input = new MyReader(DOC);
-        JsonParser jp = f.createJsonParser(input);
+        JsonParser jp = f.createParser(input);
         assertFalse(input.isClosed());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         // but can close half-way through
@@ -66,7 +66,7 @@ public class TestParserClosing
 
         // And then let's test implicit close at the end too:
         input = new MyReader(DOC);
-        jp = f.createJsonParser(input);
+        jp = f.createParser(input);
         assertFalse(input.isClosed());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -83,7 +83,7 @@ public class TestParserClosing
 
         f.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         MyStream input = new MyStream(DOC.getBytes("UTF-8"));
-        JsonParser jp = f.createJsonParser(input);
+        JsonParser jp = f.createParser(input);
 
         // shouldn't be closed to begin with...
         assertFalse(input.isClosed());
@@ -102,7 +102,7 @@ public class TestParserClosing
     public void testReleaseContentBytes() throws Exception
     {
         byte[] input = "[1]foobar".getBytes("UTF-8");
-        JsonParser jp = new JsonFactory().createJsonParser(input);
+        JsonParser jp = new JsonFactory().createParser(input);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
@@ -114,7 +114,7 @@ public class TestParserClosing
 
     public void testReleaseContentChars() throws Exception
     {
-        JsonParser jp = new JsonFactory().createJsonParser("[true]xyz");
+        JsonParser jp = new JsonFactory().createParser("[true]xyz");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());

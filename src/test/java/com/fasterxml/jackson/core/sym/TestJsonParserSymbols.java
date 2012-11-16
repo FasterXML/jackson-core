@@ -92,11 +92,11 @@ public class TestJsonParserSymbols
     {
         JsonParser jp;
         if (useBytes) {
-            jp = f.createJsonParser(doc.getBytes("UTF-8"));
+            jp = f.createParser(doc.getBytes("UTF-8"));
             assertEquals(UTF8StreamJsonParser.class, jp.getClass());
             assertEquals(0, f.byteSymbolCount());
         } else {
-            jp = f.createJsonParser(doc);
+            jp = f.createParser(doc);
             assertEquals(ReaderBasedJsonParser.class, jp.getClass());
             assertEquals(0, f.charSymbolCount());
         }

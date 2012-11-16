@@ -107,9 +107,9 @@ public class TestCustomEscaping  extends com.fasterxml.jackson.test.BaseTest
 
         // First: output normally; should not add escaping
         if (useStream) {
-            jgen = f.createJsonGenerator(bytes, JsonEncoding.UTF8);
+            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createJsonGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         jgen.writeStartArray();
         jgen.writeString(VALUE);
@@ -123,9 +123,9 @@ public class TestCustomEscaping  extends com.fasterxml.jackson.test.BaseTest
 
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            jgen = f.createJsonGenerator(bytes, JsonEncoding.UTF8);
+            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createJsonGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         jgen.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         jgen.writeStartArray();
@@ -138,9 +138,9 @@ public class TestCustomEscaping  extends com.fasterxml.jackson.test.BaseTest
         // and then keys
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            jgen = f.createJsonGenerator(bytes, JsonEncoding.UTF8);
+            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createJsonGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         jgen.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         jgen.writeStartObject();
@@ -162,9 +162,9 @@ public class TestCustomEscaping  extends com.fasterxml.jackson.test.BaseTest
         
         // First: output normally; should not add escaping
         if (useStream) {
-            jgen = f.createJsonGenerator(bytes, JsonEncoding.UTF8);
+            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createJsonGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         jgen.writeStartObject();
         jgen.writeStringField(STR_IN, STR_IN);

@@ -101,7 +101,7 @@ public class TestGeneratorClosing
         f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         assertFalse(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         MyWriter output = new MyWriter();
-        JsonGenerator jg = f.createJsonGenerator(output);
+        JsonGenerator jg = f.createGenerator(output);
 
         // shouldn't be closed to begin with...
         assertFalse(output.isClosed());
@@ -117,7 +117,7 @@ public class TestGeneratorClosing
         JsonFactory f = new JsonFactory();
         f.enable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         MyWriter output = new MyWriter();
-        JsonGenerator jg = f.createJsonGenerator(output);
+        JsonGenerator jg = f.createGenerator(output);
 
         // shouldn't be closed to begin with...
         assertFalse(output.isClosed());
@@ -133,7 +133,7 @@ public class TestGeneratorClosing
         JsonFactory f = new JsonFactory();
         f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         MyStream output = new MyStream();
-        JsonGenerator jg = f.createJsonGenerator(output, JsonEncoding.UTF8);
+        JsonGenerator jg = f.createGenerator(output, JsonEncoding.UTF8);
 
         assertFalse(output.isClosed());
         jg.writeNumber(39);
@@ -150,14 +150,14 @@ public class TestGeneratorClosing
         StringWriter sw = new StringWriter();
 
         // First, test arrays:
-        JsonGenerator jg = f.createJsonGenerator(sw);
+        JsonGenerator jg = f.createGenerator(sw);
         jg.writeStartArray();
         jg.close();
         assertEquals("[]", sw.toString());
 
         // Then objects
         sw = new StringWriter();
-        jg = f.createJsonGenerator(sw);
+        jg = f.createGenerator(sw);
         jg.writeStartObject();
         jg.close();
         assertEquals("{}", sw.toString());
@@ -169,7 +169,7 @@ public class TestGeneratorClosing
         JsonFactory f = new JsonFactory();
         f.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = f.createJsonGenerator(sw);
+        JsonGenerator jg = f.createGenerator(sw);
         jg.writeStartArray();
         jg.close();
         // shouldn't close
@@ -177,7 +177,7 @@ public class TestGeneratorClosing
 
         // Then objects
         sw = new StringWriter();
-        jg = f.createJsonGenerator(sw);
+        jg = f.createGenerator(sw);
         jg.writeStartObject();
         jg.close();
         assertEquals("{", sw.toString());
@@ -189,7 +189,7 @@ public class TestGeneratorClosing
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM));
         MyChars sw = new MyChars();
-        JsonGenerator jg = f.createJsonGenerator(sw);
+        JsonGenerator jg = f.createGenerator(sw);
         jg.writeStartArray();
         jg.writeEndArray();
         assertEquals(0, sw.flushed);
@@ -199,7 +199,7 @@ public class TestGeneratorClosing
         
         // ditto with stream
         MyBytes bytes = new MyBytes();
-        jg = f.createJsonGenerator(bytes, JsonEncoding.UTF8);
+        jg = f.createGenerator(bytes, JsonEncoding.UTF8);
         jg.writeStartArray();
         jg.writeEndArray();
         assertEquals(0, bytes.flushed);
@@ -212,7 +212,7 @@ public class TestGeneratorClosing
         f.disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM);
         // first with a Writer
         sw = new MyChars();
-        jg = f.createJsonGenerator(sw);
+        jg = f.createGenerator(sw);
         jg.writeStartArray();
         jg.writeEndArray();
         assertEquals(0, sw.flushed);
@@ -223,7 +223,7 @@ public class TestGeneratorClosing
 
         // and then with OutputStream
         bytes = new MyBytes();
-        jg = f.createJsonGenerator(bytes, JsonEncoding.UTF8);
+        jg = f.createGenerator(bytes, JsonEncoding.UTF8);
         jg.writeStartArray();
         jg.writeEndArray();
         assertEquals(0, bytes.flushed);

@@ -34,7 +34,7 @@ public class TestComments
     {
         JsonFactory jf = new JsonFactory();
         assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        JsonParser jp = jf.createJsonParser(new StringReader("[ 1 ]"));
+        JsonParser jp = jf.createParser(new StringReader("[ 1 ]"));
         assertFalse(jp.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
     }
 
@@ -107,8 +107,8 @@ public class TestComments
         JsonFactory jf = new JsonFactory();
         jf.configure(JsonParser.Feature.ALLOW_COMMENTS, enabled);
         JsonParser jp = useStream ?
-            jf.createJsonParser(doc.getBytes("UTF-8"))
-            : jf.createJsonParser(doc);
+            jf.createParser(doc.getBytes("UTF-8"))
+            : jf.createParser(doc);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         return jp;
     }

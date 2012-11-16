@@ -159,7 +159,7 @@ public class TestUtf8Parser
 
         byte[] data = bout.toByteArray();
 
-        JsonParser jp = new JsonFactory().createJsonParser(new ByteArrayInputStream(data));
+        JsonParser jp = new JsonFactory().createParser(new ByteArrayInputStream(data));
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         String act = jp.getText();

@@ -48,8 +48,8 @@ public class TestWithTonsaSymbols
          */
         for (int x = 0; x < 3; ++x) {
             JsonParser jp = useStream ?
-                jf.createJsonParser(new ByteArrayInputStream(doc.getBytes("UTF-8")))
-                : jf.createJsonParser(new StringReader(doc));
+                jf.createParser(new ByteArrayInputStream(doc.getBytes("UTF-8")))
+                : jf.createParser(new StringReader(doc));
             assertToken(JsonToken.START_OBJECT, jp.nextToken());
             for (int i = 0; i < FIELD_COUNT; ++i) {
                 assertToken(JsonToken.FIELD_NAME, jp.nextToken());

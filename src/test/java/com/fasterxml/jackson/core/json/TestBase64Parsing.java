@@ -57,18 +57,18 @@ public class TestBase64Parsing
                 JsonGenerator jgen;
                 if (useBytes) {
                     bytes.reset();
-                    jgen = jsonFactory.createJsonGenerator(bytes, JsonEncoding.UTF8);
+                    jgen = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
                 } else {
                     chars = new StringWriter();
-                    jgen = jsonFactory.createJsonGenerator(chars);
+                    jgen = jsonFactory.createGenerator(chars);
                 }
                 jgen.writeBinary(variant, input, 0, input.length);
                 jgen.close();
                 JsonParser jp;
                 if (useBytes) {
-                    jp = jsonFactory.createJsonParser(bytes.toByteArray());
+                    jp = jsonFactory.createParser(bytes.toByteArray());
                 } else {
-                    jp = jsonFactory.createJsonParser(chars.toString());
+                    jp = jsonFactory.createParser(chars.toString());
                 }
                 assertToken(JsonToken.VALUE_STRING, jp.nextToken());
                 byte[] data = null;
@@ -114,10 +114,10 @@ public class TestBase64Parsing
             JsonGenerator g;
             if (useBytes) {
                 bytes.reset();
-                g = jsonFactory.createJsonGenerator(bytes, JsonEncoding.UTF8);
+                g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
             } else {
                 chars = new StringWriter();
-                g = jsonFactory.createJsonGenerator(chars);
+                g = jsonFactory.createGenerator(chars);
             }
 
             g.writeStartObject();
@@ -129,9 +129,9 @@ public class TestBase64Parsing
             // and verify
             JsonParser p;
             if (useBytes) {
-                p = jsonFactory.createJsonParser(bytes.toByteArray());
+                p = jsonFactory.createParser(bytes.toByteArray());
             } else {
-                p = jsonFactory.createJsonParser(chars.toString());
+                p = jsonFactory.createParser(chars.toString());
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
     

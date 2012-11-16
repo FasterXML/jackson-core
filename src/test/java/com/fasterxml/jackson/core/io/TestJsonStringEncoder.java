@@ -49,7 +49,7 @@ public class TestJsonStringEncoder
         for (int length : lengths) {
             String str = generateRandom(length);
             StringWriter sw = new StringWriter(length*2);
-            JsonGenerator jgen = f.createJsonGenerator(sw);
+            JsonGenerator jgen = f.createGenerator(sw);
             jgen.writeString(str);
             jgen.close();
             String encoded = sw.toString();

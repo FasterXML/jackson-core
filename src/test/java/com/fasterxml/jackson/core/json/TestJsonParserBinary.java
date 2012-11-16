@@ -82,7 +82,7 @@ public class TestJsonParserBinary
         final int entryCount = 7;
 
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createJsonGenerator(sw);
+        JsonGenerator jg = jf.createGenerator(sw);
         jg.writeStartArray();
 
         byte[][] entries = new byte[entryCount][];
@@ -146,8 +146,8 @@ public class TestJsonParserBinary
     {
         JsonFactory jf = new JsonFactory();
         if (useStream) {
-            return jf.createJsonParser(doc.getBytes("UTF-8"));
+            return jf.createParser(doc.getBytes("UTF-8"));
         }
-        return jf.createJsonParser(new StringReader(doc));
+        return jf.createParser(new StringReader(doc));
     }
 }

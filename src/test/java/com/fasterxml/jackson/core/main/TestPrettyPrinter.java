@@ -46,8 +46,8 @@ public class TestPrettyPrinter
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? jf.createJsonGenerator(bytes)
-                    : jf.createJsonGenerator(sw);
+            JsonGenerator gen = useBytes ? jf.createGenerator(bytes)
+                    : jf.createGenerator(sw);
             gen.setPrettyPrinter(new CountPrinter());
             gen.writeStartObject();
             gen.writeFieldName("x");
@@ -73,8 +73,8 @@ public class TestPrettyPrinter
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? jf.createJsonGenerator(bytes)
-                    : jf.createJsonGenerator(sw);
+            JsonGenerator gen = useBytes ? jf.createGenerator(bytes)
+                    : jf.createGenerator(sw);
             gen.setPrettyPrinter(new CountPrinter());
             gen.writeStartArray();
             gen.writeNumber(6);
@@ -94,7 +94,7 @@ public class TestPrettyPrinter
     public void testSimpleDocWithDefault() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
         gen.useDefaultPrettyPrinter();
         _verifyPrettyPrinter(gen, sw);
     }
@@ -102,7 +102,7 @@ public class TestPrettyPrinter
     public void testSimpleDocWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
         // first with standard minimal
         gen.setPrettyPrinter(new MinimalPrettyPrinter());
         String docStr = _verifyPrettyPrinter(gen, sw);
@@ -111,7 +111,7 @@ public class TestPrettyPrinter
         assertEquals(-1, docStr.indexOf('\t'));
 
         // And then with slightly customized variant
-        gen = new JsonFactory().createJsonGenerator(sw);
+        gen = new JsonFactory().createGenerator(sw);
         gen.setPrettyPrinter(new MinimalPrettyPrinter() {
             @Override
             // use TAB between array values
@@ -143,7 +143,7 @@ public class TestPrettyPrinter
         JsonFactory jf = new JsonFactory();
         jf.setRootValueSeparator("##");
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createJsonGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(sw);
         gen.writeNumber(13);
         gen.writeBoolean(false);
         gen.writeNull();
@@ -210,7 +210,7 @@ public class TestPrettyPrinter
     protected String _generateRoot(JsonFactory jf, PrettyPrinter pp) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
         gen.setPrettyPrinter(pp);
         gen.writeStartObject();
         gen.writeEndObject();

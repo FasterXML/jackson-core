@@ -136,8 +136,8 @@ public class TestCharEscaping
         }
 
         StringWriter writer = new StringWriter();
-        // must call #createJsonGenerator(Writer), #createJsonGenerator(OutputStream) doesn't trigger bug
-        JsonGenerator jgen = jf.createJsonGenerator(writer);
+        // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
+        JsonGenerator jgen = jf.createGenerator(writer);
         jgen.setHighestNonEscapedChar(127); // must set to trigger bug
         jgen.writeString(longString.toString());
       }      

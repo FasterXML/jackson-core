@@ -163,8 +163,8 @@ public class TestParserWithObjects
     {
         JsonFactory jf = new JsonFactory();
         if (useStream) {
-            return jf.createJsonParser(doc.getBytes("UTF-8"));
+            return jf.createParser(doc.getBytes("UTF-8"));
         }
-        return jf.createJsonParser(new StringReader(doc));
+        return jf.createParser(new StringReader(doc));
     }
 }

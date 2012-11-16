@@ -52,8 +52,8 @@ public class TestNextXxx
         final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
         JsonFactory jf = new JsonFactory();
         JsonParser jp = useStream ?
-            jf.createJsonParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-            : jf.createJsonParser(new StringReader(DOC));
+            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : jf.createParser(new StringReader(DOC));
         SerializedString NAME = new SerializedString("name");
         assertFalse(jp.nextFieldName(NAME));
         assertToken(JsonToken.START_OBJECT, jp.getCurrentToken());
@@ -91,8 +91,8 @@ public class TestNextXxx
         final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
         JsonFactory jf = new JsonFactory();
         JsonParser jp = useStream ?
-            jf.createJsonParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-            : jf.createJsonParser(new StringReader(DOC));
+            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : jf.createParser(new StringReader(DOC));
         SerializableString NAME = new SerializedString("name");
         assertFalse(jp.nextFieldName(NAME));
         assertToken(JsonToken.START_OBJECT, jp.getCurrentToken());
@@ -140,8 +140,8 @@ public class TestNextXxx
         SerializableString fieldName = new SerializedString("fieldName");
         JsonFactory jf = new JsonFactory();
         JsonParser parser = useStream ?
-            jf.createJsonParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-            : jf.createJsonParser(new StringReader(DOC));
+            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : jf.createParser(new StringReader(DOC));
 
         for (int i = 0; i < TESTROUNDS - 1; i++) {
             assertEquals(JsonToken.START_OBJECT, parser.nextToken());
@@ -166,8 +166,8 @@ public class TestNextXxx
         SerializableString fieldName = new SerializedString("field");
         JsonFactory jf = new JsonFactory();
         JsonParser parser = useStream ?
-            jf.createJsonParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-            : jf.createJsonParser(new StringReader(DOC));
+            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : jf.createParser(new StringReader(DOC));
         assertEquals(JsonToken.START_OBJECT, parser.nextToken());
         assertTrue(parser.nextFieldName(fieldName));
         assertEquals(JsonToken.VALUE_STRING, parser.nextToken());

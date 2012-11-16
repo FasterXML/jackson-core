@@ -15,7 +15,7 @@ public class TestGeneratorArray
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
 
         JsonStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
@@ -52,7 +52,7 @@ public class TestGeneratorArray
 
         // Ok, then array with nested empty array
         sw = new StringWriter();
-        gen = new JsonFactory().createJsonGenerator(sw);
+        gen = new JsonFactory().createGenerator(sw);
         gen.writeStartArray();
         gen.writeStartArray();
         gen.writeEndArray();
@@ -72,7 +72,7 @@ public class TestGeneratorArray
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
         gen.writeStartArray();
         // Mismatch:
         try {
@@ -87,7 +87,7 @@ public class TestGeneratorArray
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
         gen.writeStartArray();
         gen.writeNumber(13);
         gen.writeBoolean(true);

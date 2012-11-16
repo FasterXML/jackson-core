@@ -245,6 +245,7 @@ public final class JsonStringEncoder
      * Will encode given String as UTF-8 (without any quoting), return
      * resulting byte array.
      */
+    @SuppressWarnings("resource")
     public byte[] encodeAsUTF8(String text)
     {
         ByteArrayBuilder byteBuilder = _byteBuilder;

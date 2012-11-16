@@ -269,8 +269,8 @@ public class TestJsonParser
             String expResult = en.getValue();
             final String DOC = "{ \""+input+"\":null}";
             JsonParser jp = useStream ?
-                jf.createJsonParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-                : jf.createJsonParser(new StringReader(DOC));
+                jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+                : jf.createParser(new StringReader(DOC));
 
             assertToken(JsonToken.START_OBJECT, jp.nextToken());
             assertToken(JsonToken.FIELD_NAME, jp.nextToken());
@@ -327,7 +327,7 @@ public class TestJsonParser
         
         // Let's use real generator to get json done right
         StringWriter sw = new StringWriter(LEN + (LEN >> 2));
-        JsonGenerator jg = jf.createJsonGenerator(sw);
+        JsonGenerator jg = jf.createGenerator(sw);
         jg.writeStartObject();
         jg.writeFieldName("doc");
         jg.writeString(VALUE);
@@ -341,13 +341,13 @@ public class TestJsonParser
 
             switch (type) {
             default:
-                jp = jf.createJsonParser(DOC.getBytes("UTF-8"));
+                jp = jf.createParser(DOC.getBytes("UTF-8"));
                 break;
             case 1:
-                jp = jf.createJsonParser(DOC);
+                jp = jf.createParser(DOC);
                 break;
             case 2: // NEW: let's also exercise UTF-32...
-                jp = jf.createJsonParser(encodeInUTF32BE(DOC));
+                jp = jf.createParser(encodeInUTF32BE(DOC));
                 break;
             }
             assertToken(JsonToken.START_OBJECT, jp.nextToken());
@@ -386,7 +386,7 @@ public class TestJsonParser
         System.arraycopy(b, 0, src, offset, len);
 
         JsonFactory jf = new JsonFactory();
-        JsonParser jp = jf.createJsonParser(src, offset, len);
+        JsonParser jp = jf.createParser(src, offset, len);
 
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -413,7 +413,7 @@ public class TestJsonParser
         bytes.write(0xBF);
         bytes.write("[ 1 ]".getBytes("UTF-8"));
         JsonFactory jf = new JsonFactory();
-        JsonParser jp = jf.createJsonParser(bytes.toByteArray());
+        JsonParser jp = jf.createParser(bytes.toByteArray());
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         // should also have skipped first 3 bytes of BOM; but do we have offset available?
         /*

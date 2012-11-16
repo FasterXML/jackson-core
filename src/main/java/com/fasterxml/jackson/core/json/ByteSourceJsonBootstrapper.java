@@ -185,6 +185,7 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
     
+    @SuppressWarnings("resource")
     public Reader constructReader()
         throws IOException
     {

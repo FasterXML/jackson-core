@@ -16,7 +16,7 @@ public class TestJsonGeneratorFeatures
     public void testConfigDefaults() throws IOException
     {
         JsonFactory jf = new JsonFactory();
-        JsonGenerator jg = jf.createJsonGenerator(new StringWriter());
+        JsonGenerator jg = jf.createGenerator(new StringWriter());
         assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
     }
 
@@ -66,7 +66,7 @@ public class TestJsonGeneratorFeatures
     private String _writeNumbers(JsonFactory jf) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createJsonGenerator(sw);
+        JsonGenerator jg = jf.createGenerator(sw);
     
         jg.writeStartArray();
         jg.writeNumber(1);
@@ -92,7 +92,7 @@ public class TestJsonGeneratorFeatures
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createJsonGenerator(sw);
+        JsonGenerator jg = jf.createGenerator(sw);
         jg.writeStartObject();
         jg.writeFieldName("foo");
         jg.writeNumber(1);
@@ -110,7 +110,7 @@ public class TestJsonGeneratorFeatures
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createJsonGenerator(sw);
+        JsonGenerator jg = jf.createGenerator(sw);
         jg.writeStartObject();
         jg.writeFieldName("double");
         jg.writeNumber(Double.NaN);

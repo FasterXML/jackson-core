@@ -103,9 +103,9 @@ public class TestByteBasedSymbols
     }
 
     /*
-    ////////////////////////////////////////////
-    // Helper methods
-    ////////////////////////////////////////////
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
      */
 
     protected JsonParser createParser(JsonFactory jf, String input)
@@ -113,7 +113,7 @@ public class TestByteBasedSymbols
     {
         byte[] data = input.getBytes("UTF-8");
         InputStream is = new ByteArrayInputStream(data);
-        return jf.createJsonParser(is);
+        return jf.createParser(is);
     }
 
     private String createDoc(String[] fieldNames, boolean add)

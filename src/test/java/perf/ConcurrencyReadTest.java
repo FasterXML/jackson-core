@@ -60,7 +60,7 @@ public class ConcurrencyReadTest
 
     protected void parse(JsonFactory jf, byte[] input) throws IOException
     {
-        JsonParser jp = jf.createJsonParser(input, 0, input.length);
+        JsonParser jp = jf.createParser(input, 0, input.length);
         while (jp.nextToken() != null) {
             ;
         }

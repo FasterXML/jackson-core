@@ -11,7 +11,7 @@ public class TestDelegates extends com.fasterxml.jackson.test.BaseTest
      */
     public void testParserDelegate() throws IOException
     {
-        JsonParser jp = new JsonFactory().createJsonParser("[ 1, true ]");
+        JsonParser jp = new JsonFactory().createParser("[ 1, true ]");
         assertNull(jp.getCurrentToken());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertEquals("[", jp.getText());
@@ -30,7 +30,7 @@ public class TestDelegates extends com.fasterxml.jackson.test.BaseTest
     public void testGeneratorDelegate() throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator jg = new JsonFactory().createGenerator(sw);
         jg.writeStartArray();
         jg.writeNumber(13);
         jg.writeNull();

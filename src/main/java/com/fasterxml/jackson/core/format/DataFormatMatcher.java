@@ -103,9 +103,9 @@ public class DataFormatMatcher
             return null;
         }
         if (_originalStream == null) {
-            return _match.createJsonParser(_bufferedData, _bufferedStart, _bufferedLength);
+            return _match.createParser(_bufferedData, _bufferedStart, _bufferedLength);
         }
-        return _match.createJsonParser(getDataStream());
+        return _match.createParser(getDataStream());
     }
     
     /**

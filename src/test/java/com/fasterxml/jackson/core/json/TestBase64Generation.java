@@ -77,9 +77,9 @@ public class TestBase64Generation
                     
                     final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                     if (useBytes) {
-                        jgen = jf.createJsonGenerator(bytes);
+                        jgen = jf.createGenerator(bytes);
                     } else {
-                        jgen = jf.createJsonGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+                        jgen = jf.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
                     }
                     jgen.writeStartArray();
                     int length = passLength ? INPUT.length : -1;

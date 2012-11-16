@@ -27,8 +27,8 @@ public class TestGeneratorMisc
         for (int i = 0; i < 2; ++i) {
             boolean stream = ((i & 1) == 0);
             JsonGenerator jg = stream ?
-                jf.createJsonGenerator(new StringWriter())
-                : jf.createJsonGenerator(new ByteArrayOutputStream(), JsonEncoding.UTF8)
+                jf.createGenerator(new StringWriter())
+                : jf.createGenerator(new ByteArrayOutputStream(), JsonEncoding.UTF8)
                 ;
             assertFalse(jg.isClosed());
             jg.writeStartArray();
@@ -48,7 +48,7 @@ public class TestGeneratorMisc
         // note: NOT mapping factory, for this test
         JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createJsonGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(sw);
         gen.writeStartArray();
 
         // simple wrappers first
@@ -65,7 +65,7 @@ public class TestGeneratorMisc
         
         // then other basic types
         sw = new StringWriter();
-        gen = jf.createJsonGenerator(sw);
+        gen = jf.createGenerator(sw);
         gen.writeStartArray();
         gen.writeObject(BigInteger.valueOf(1234));
         gen.writeObject(new BigDecimal(0.5));
@@ -76,7 +76,7 @@ public class TestGeneratorMisc
 
         // then Atomic types
         sw = new StringWriter();
-        gen = jf.createJsonGenerator(sw);
+        gen = jf.createGenerator(sw);
         gen.writeStartArray();
         gen.writeObject(new AtomicBoolean(false));
         gen.writeObject(new AtomicInteger(13));
@@ -97,7 +97,7 @@ public class TestGeneratorMisc
     {
         JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createJsonGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(sw);
         gen.writeStartArray();
         gen.writeRaw("-123, true");
         gen.writeRaw(", \"x\"  ");
@@ -120,7 +120,7 @@ public class TestGeneratorMisc
     {
         JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createJsonGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(sw);
         gen.writeStartArray();
         gen.writeRawValue("7");
         gen.writeRawValue("[ null ]");
@@ -185,9 +185,9 @@ public class TestGeneratorMisc
             JsonGenerator gen;
             ByteArrayOutputStream bout = new ByteArrayOutputStream(200);
             if (useCharBased) {
-                gen = jf.createJsonGenerator(new OutputStreamWriter(bout, "UTF-8"));
+                gen = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
             } else {
-                gen = jf.createJsonGenerator(bout, JsonEncoding.UTF8);
+                gen = jf.createGenerator(bout, JsonEncoding.UTF8);
             }
 
             switch (i) {
@@ -208,7 +208,7 @@ public class TestGeneratorMisc
             }
             gen.close();
 
-            JsonParser jp = jf.createJsonParser(new ByteArrayInputStream(bout.toByteArray()));
+            JsonParser jp = jf.createParser(new ByteArrayInputStream(bout.toByteArray()));
             
             // Need to skip other events before binary data:
             switch (i) {
@@ -246,9 +246,9 @@ public class TestGeneratorMisc
             JsonGenerator jgen;
             ByteArrayOutputStream bout = new ByteArrayOutputStream(200);
             if (useChars) {
-                jgen = jf.createJsonGenerator(new OutputStreamWriter(bout, "UTF-8"));
+                jgen = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
             } else {
-                jgen = jf.createJsonGenerator(bout, JsonEncoding.UTF8);
+                jgen = jf.createGenerator(bout, JsonEncoding.UTF8);
             }
 
             jgen.writeStartObject();
@@ -274,7 +274,7 @@ public class TestGeneratorMisc
             jgen.close();
 
             byte[] json = bout.toByteArray();
-            JsonParser jp = jf.createJsonParser(json);
+            JsonParser jp = jf.createParser(json);
             assertToken(JsonToken.START_OBJECT, jp.nextToken());
             for (int rounds = 0; rounds < 1500; ++rounds) {
             for (int letter = 'a'; letter <= 'z'; ++letter) {

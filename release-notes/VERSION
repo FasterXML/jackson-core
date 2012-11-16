@@ -2,6 +2,8 @@ Version: 2.1.2 (xx-xxx-2012)
 
 Fixes:
 
+* [Issue#42] Problems with UTF32Reader
+ (reported by James R [jroper@github])
 * Added missing methods (like 'setPrettyPrinter()' in JsonGeneratorDelegate
 
 ------------------------------------------------------------------------

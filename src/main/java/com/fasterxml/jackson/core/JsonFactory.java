@@ -951,21 +951,45 @@ public class JsonFactory
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats)
      * and that ignore passed in encoding.
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
-     * 
-     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
      *
      * @param out OutputStream to use for writing JSON content 
      * @param enc Character encoding to use
+     * 
+     * @since 2.1
      */
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
         throws IOException
     {
-        return createJsonGenerator(out, enc);
+        // false -> we won't manage the stream unless explicitly directed to
+        IOContext ctxt = _createContext(out, false);
+        ctxt.setEncoding(enc);
+        if (enc == JsonEncoding.UTF8) {
+            // [JACKSON-512]: allow wrapping with _outputDecorator
+            if (_outputDecorator != null) {
+                out = _outputDecorator.decorate(ctxt, out);
+            }
+            return _createUTF8Generator(out, ctxt);
+        }
+        Writer w = _createWriter(out, enc, ctxt);
+        // [JACKSON-512]: allow wrapping with _outputDecorator
+        if (_outputDecorator != null) {
+            w = _outputDecorator.decorate(ctxt, w);
+        }
+        return _createGenerator(w, ctxt);
     }
 
+    /**
+     * Convenience method for constructing generator that uses default
+     * encoding of the format (UTF-8 for JSON and most other data formats).
+     *<p>
+     * Note: there are formats that use fixed encoding (like most binary data formats).
+     * 
+     * @since 2.1
+     */
+    public JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return createGenerator(out, JsonEncoding.UTF8);
+    }
+    
     /**
      * Method for constructing JSON generator for writing JSON content
      * using specified Writer.
@@ -976,33 +1000,20 @@ public class JsonFactory
      * feature,
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
      * 
-     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
+     * @since 2.1
      *
      * @param out Writer to use for writing JSON content 
      */
     public JsonGenerator createGenerator(Writer out)
         throws IOException
     {
-        return createJsonGenerator(out);
-    }
-
-    /**
-     * Convenience method for constructing generator that uses default
-     * encoding of the format (UTF-8 for JSON and most other data formats).
-     *<p>
-     * Note: there are formats that use fixed encoding (like most binary data formats).
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
-     * 
-     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
-     */
-    public JsonGenerator createGenerator(OutputStream out) throws IOException {
-        return createJsonGenerator(out);
+        IOContext ctxt = _createContext(out, false);
+        // [JACKSON-512]: allow wrapping with _outputDecorator
+        if (_outputDecorator != null) {
+            out = _outputDecorator.decorate(ctxt, out);
+        }
+        return _createGenerator(out, ctxt);
     }
     
     /**
@@ -1015,19 +1026,32 @@ public class JsonFactory
      * Underlying stream <b>is owned</b> by the generator constructed,
      * i.e. generator will handle closing of file when
      * {@link JsonGenerator#close} is called.
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
-     * 
-     * @since 2.1 Will eventually replace <code>createJsonGenerator</code> variant.
      *
      * @param f File to write contents to
      * @param enc Character encoding to use
+     * 
+     * @since 2.1
      */
     public JsonGenerator createGenerator(File f, JsonEncoding enc)
         throws IOException
     {
-        return createJsonGenerator(f, enc);
+        OutputStream out = new FileOutputStream(f);
+        // true -> yes, we have to manage the stream since we created it
+        IOContext ctxt = _createContext(out, true);
+        ctxt.setEncoding(enc);
+        if (enc == JsonEncoding.UTF8) {
+            // [JACKSON-512]: allow wrapping with _outputDecorator
+            if (_outputDecorator != null) {
+                out = _outputDecorator.decorate(ctxt, out);
+            }
+            return _createUTF8Generator(out, ctxt);
+        }
+        Writer w = _createWriter(out, enc, ctxt);
+        // [JACKSON-512]: allow wrapping with _outputDecorator
+        if (_outputDecorator != null) {
+            w = _outputDecorator.decorate(ctxt, w);
+        }
+        return _createGenerator(w, ctxt);
     }    
 
     /*
@@ -1052,32 +1076,17 @@ public class JsonFactory
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats)
      * and that ignore passed in encoding.
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
      *
      * @param out OutputStream to use for writing JSON content 
      * @param enc Character encoding to use
+     *
+     * @deprecated Since 2.2, use {@link #createGenerator(OutputStream, JsonEncoding)} instead.
      */
+    @Deprecated
     public JsonGenerator createJsonGenerator(OutputStream out, JsonEncoding enc)
         throws IOException
     {
-	// false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false);
-        ctxt.setEncoding(enc);
-        if (enc == JsonEncoding.UTF8) {
-            // [JACKSON-512]: allow wrapping with _outputDecorator
-            if (_outputDecorator != null) {
-                out = _outputDecorator.decorate(ctxt, out);
-            }
-            return _createUTF8JsonGenerator(out, ctxt);
-        }
-        Writer w = _createWriter(out, enc, ctxt);
-        // [JACKSON-512]: allow wrapping with _outputDecorator
-        if (_outputDecorator != null) {
-            w = _outputDecorator.decorate(ctxt, w);
-        }
-	return _createGenerator(w, ctxt);
+        return createGenerator(out, enc);
     }
 
     /**
@@ -1090,21 +1099,16 @@ public class JsonFactory
      * feature,
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
      *
      * @param out Writer to use for writing JSON content 
+     * 
+     * @deprecated Since 2.2, use {@link #createGenerator(Writer)} instead.
      */
+    @Deprecated
     public JsonGenerator createJsonGenerator(Writer out)
         throws IOException
     {
-        IOContext ctxt = _createContext(out, false);
-        // [JACKSON-512]: allow wrapping with _outputDecorator
-        if (_outputDecorator != null) {
-            out = _outputDecorator.decorate(ctxt, out);
-        }
-        return _createGenerator(out, ctxt);
+        return createGenerator(out);
     }
 
     /**
@@ -1112,12 +1116,12 @@ public class JsonFactory
      * encoding of the format (UTF-8 for JSON and most other data formats).
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
+     * 
+     * @deprecated Since 2.2, use {@link #createGenerator(OutputStream)} instead.
      */
+    @Deprecated
     public JsonGenerator createJsonGenerator(OutputStream out) throws IOException {
-        return createJsonGenerator(out, JsonEncoding.UTF8);
+        return createGenerator(out, JsonEncoding.UTF8);
     }
     
     /**
@@ -1130,33 +1134,18 @@ public class JsonFactory
      * Underlying stream <b>is owned</b> by the generator constructed,
      * i.e. generator will handle closing of file when
      * {@link JsonGenerator#close} is called.
-     *<p>
-     * NOTE: starting with 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createGenerator</code>.
      *
      * @param f File to write contents to
      * @param enc Character encoding to use
+     * 
+     * 
+     * @deprecated Since 2.2, use {@link #createGenerator(File,JsonEncoding)} instead.
      */
+    @Deprecated
     public JsonGenerator createJsonGenerator(File f, JsonEncoding enc)
         throws IOException
     {
-        OutputStream out = new FileOutputStream(f);
-        // true -> yes, we have to manage the stream since we created it
-        IOContext ctxt = _createContext(out, true);
-        ctxt.setEncoding(enc);
-        if (enc == JsonEncoding.UTF8) {
-            // [JACKSON-512]: allow wrapping with _outputDecorator
-            if (_outputDecorator != null) {
-                out = _outputDecorator.decorate(ctxt, out);
-            }
-            return _createUTF8JsonGenerator(out, ctxt);
-        }
-        Writer w = _createWriter(out, enc, ctxt);
-        // [JACKSON-512]: allow wrapping with _outputDecorator
-        if (_outputDecorator != null) {
-            w = _outputDecorator.decorate(ctxt, w);
-        }
-        return _createGenerator(w, ctxt);
+        return createGenerator(f, enc);
     }
 
     /*

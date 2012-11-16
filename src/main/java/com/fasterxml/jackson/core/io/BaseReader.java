@@ -36,7 +36,7 @@ abstract class BaseReader
      */
 
     protected BaseReader(IOContext context,
-                         InputStream in, byte[] buf, int ptr, int len)
+            InputStream in, byte[] buf, int ptr, int len)
     {
         _context = context;
         _in = in;

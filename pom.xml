@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>4</version>
+    <version>5-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -28,6 +28,10 @@
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>
+
+    <!-- Generate PackageVersion.java into this directory. -->
+    <packageVersion.dir>src/main/java/com/fasterxml/jackson/core/json</packageVersion.dir>
+    <packageVersion.package>com.fasterxml.jackson.core.json</packageVersion.package>
   </properties>
 
   <dependencies>
@@ -85,6 +89,17 @@ com.fasterxml.jackson.core.*;version=${project.version}
                 <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
             </configuration>
         </plugin>
+      <plugin>
+        <!-- Inherited from oss-base. Generate PackageVersion.java.-->
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <executions>
+          <execution>
+            <id>process-packageVersion</id>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
     <extensions>
         <!-- Enabling the use of SSH -->

@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.Version;
 public class VersionUtil
 {
     public final static String VERSION_FILE = "VERSION.txt";
+    public final static String PACKAGE_VERSION_CLASS_NAME = "PackageVersion";
+    public final static String PACKAGE_VERSION_FIELD = "VERSION";
 
     private final static Pattern VERSION_SEPARATOR = Pattern.compile("[-_./;:]");
 
@@ -57,14 +59,24 @@ public class VersionUtil
     
     /**
      * Helper method that will try to load version information for specified
-     * class. Implementation is simple: class loader that loaded specified
-     * class is asked to load resource with name "VERSION" from same
-     * location (package) as class itself had.
-     * If no version information is found, {@link Version#unknownVersion()} is
-     * returned.
+     * class. Implementation is as follows:
+     *
+     * First, tries to load version info from a class named
+     * "PackageVersion" in the same package as the class.
+     *
+     * Next, if that fails, class loader that loaded specified class is
+     * asked to load resource with name "VERSION" from same location
+     * (package) as class itself had.
+     *
+     * If no version information is found, {@link Version#unknownVersion()} is returned.
      */
     public static Version versionFor(Class<?> cls)
     {
+        Version packageVersion = packageVersionFor(cls);
+        if (packageVersion != null) {
+            return packageVersion;
+        }
+
         final InputStream in = cls.getResourceAsStream(VERSION_FILE);
 
         if (in == null)
@@ -88,6 +100,30 @@ public class VersionUtil
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    /**
+     * Loads version information by introspecting a class named
+     * "PackageVersion" in the same package as the given class.
+     *
+     * If the class could not be found or does not have a public
+     * static Version field named "VERSION", returns null.
+     */
+    public static Version packageVersionFor(Class<?> cls)
+    {
+        try {
+            Package p = cls.getPackage();
+            String versionInfoClassName =
+                new StringBuilder(p.getName())
+                    .append(".")
+                    .append(PACKAGE_VERSION_CLASS_NAME)
+                    .toString();
+            Class<?> versionInfoClass = Class.forName(
+                versionInfoClassName, true, cls.getClassLoader());
+            return (Version)versionInfoClass.getField(PACKAGE_VERSION_FIELD).get(null);
+        } catch (Exception e) {
+            return null;
         }
     }
 

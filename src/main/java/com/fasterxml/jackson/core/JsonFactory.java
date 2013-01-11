@@ -382,9 +382,9 @@ public class JsonFactory
     /**********************************************************
      */
 
-//  @Override
+    @Override
     public Version version() {
-        return CoreVersion.instance.version();
+        return PackageVersion.VERSION;
     }
 
     /*

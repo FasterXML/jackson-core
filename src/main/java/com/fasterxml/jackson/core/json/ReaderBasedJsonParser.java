@@ -80,7 +80,7 @@ public final class ReaderBasedJsonParser
 
     @Override
     public Version version() {
-        return CoreVersion.instance.version();
+        return PackageVersion.VERSION;
     }
     
     /*

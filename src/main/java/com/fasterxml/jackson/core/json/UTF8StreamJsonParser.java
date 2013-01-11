@@ -130,7 +130,7 @@ public final class UTF8StreamJsonParser
 
     @Override
     public Version version() {
-        return CoreVersion.instance.version();
+        return PackageVersion.VERSION;
     }
     
     /*

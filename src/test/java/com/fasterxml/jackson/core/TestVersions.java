@@ -10,13 +10,6 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
  */
 public class TestVersions extends com.fasterxml.jackson.test.BaseTest
 {
-    // 18-Nov-2010, tatu: Not a good to do this, but has to do, for now...
-    private final static int MAJOR_VERSION = 2;
-    private final static int MINOR_VERSION = 2;
-    
-    private final static String GROUP_ID = "com.fasterxml.jackson.core";
-    private final static String ARTIFACT_ID = "jackson-core";
-    
     public void testCoreVersions() throws Exception
     {
         assertVersion(new JsonFactory().version());
@@ -37,15 +30,7 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
     
     private void assertVersion(Version v)
     {
-        assertFalse("Should find version information (got "+v+")", v.isUknownVersion());
-        assertEquals(MAJOR_VERSION, v.getMajorVersion());
-        assertEquals(MINOR_VERSION, v.getMinorVersion());
-        // Check patch level initially, comment out for maint versions
-//        assertEquals(0, v.getPatchLevel());
-
-        // also, group & artifact ids should match:
-        assertEquals(GROUP_ID, v.getGroupId());
-        assertEquals(ARTIFACT_ID, v.getArtifactId());
+    	assertEquals(PackageVersion.VERSION, v);
     }
 
     private IOContext getIOContext() {

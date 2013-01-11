@@ -5,6 +5,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.Versioned;
 
 /**
  * Functionality for supporting exposing of component {@link Version}s.
@@ -112,6 +113,7 @@ public class VersionUtil
      */
     public static Version packageVersionFor(Class<?> cls)
     {
+    	Class<?> versionInfoClass = null;
         try {
             Package p = cls.getPackage();
             String versionInfoClassName =
@@ -119,12 +121,28 @@ public class VersionUtil
                     .append(".")
                     .append(PACKAGE_VERSION_CLASS_NAME)
                     .toString();
-            Class<?> versionInfoClass = Class.forName(
-                versionInfoClassName, true, cls.getClassLoader());
-            return (Version)versionInfoClass.getField(PACKAGE_VERSION_FIELD).get(null);
-        } catch (Exception e) {
+            versionInfoClass = Class.forName(versionInfoClassName, true, cls.getClassLoader());
+        } catch (Exception e) { // ok to be missing (not good, acceptable)
             return null;
         }
+        if (versionInfoClass == null) {
+        	return null;
+        }
+        // However, if class exists, it better work correctly, no swallowing exceptions
+        Object v;
+        try {
+        	v = versionInfoClass.newInstance();
+        } catch (RuntimeException e) {
+        	throw e;
+        } catch (Exception e) {
+        	throw new IllegalArgumentException("Failed to instantiate "+versionInfoClass.getName()
+        			+" to find version information, problem: "+e.getMessage(), e);
+        }
+        if (!(v instanceof Versioned)) {
+        	throw new IllegalArgumentException("Bad version class "+versionInfoClass.getName()
+        			+": does not implement "+Versioned.class.getName());
+        }
+        return ((Versioned) v).version();
     }
 
     private static Version doReadVersion(final Reader reader)

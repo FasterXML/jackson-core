@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>6</version>
+    <version>7-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -30,7 +30,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>
 
     <!-- Generate PackageVersion.java into this directory. -->
-    <packageVersion.dir>src/main/java/com/fasterxml/jackson/core/json</packageVersion.dir>
+    <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.core.json</packageVersion.package>
   </properties>
 

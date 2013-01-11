@@ -70,6 +70,16 @@ public class Version
     public String getGroupId() { return _groupId; }
     public String getArtifactId() { return _artifactId; }
     
+    public String toFullString() {
+        return new StringBuilder()
+        	.append(_groupId)
+        	.append('/')
+        	.append(_artifactId)
+        	.append('/')
+        	.append(toString())
+        	.toString();
+    }
+    
     @Override
     public String toString()
     {

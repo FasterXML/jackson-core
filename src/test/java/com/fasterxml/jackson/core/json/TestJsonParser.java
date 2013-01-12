@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.*;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -421,6 +422,23 @@ public class TestJsonParser
         assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         */
+    }
+
+
+    // [Issue#48]
+    public void testSpacesInURL() throws Exception
+    {
+        File f = File.createTempFile("pre fix&stuff", ".txt");
+        BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
+        w.write("{ }");
+        w.close();
+        URL url = f.toURI().toURL();
+
+        JsonFactory jf = new JsonFactory();
+        JsonParser jp = jf.createParser(url);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
     }
     
     /*

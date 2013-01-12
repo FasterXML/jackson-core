@@ -1379,7 +1379,13 @@ public class JsonFactory
              */
             String host = url.getHost();
             if (host == null || host.length() == 0) {
-                return new FileInputStream(url.getPath());
+                // [Issue#48]: Let's try to avoid probs with URL encoded stuff
+                String path = url.getPath();
+                if (path.indexOf('%') < 0) {
+                    return new FileInputStream(url.getPath());
+
+                }
+                // otherwise, let's fall through and let URL decoder do its magic
             }
         }
         return url.openStream();

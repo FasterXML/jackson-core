@@ -4,6 +4,9 @@ New minor version.
 
 Fixes:
 
+* [Issue#48]: Problem with URLs, spaces
+ (reported by KlausBrunner@github)
+
 Improvements
 
 * [Issue#49]: Improve VersionUtil to generate PackageVersion, instead of

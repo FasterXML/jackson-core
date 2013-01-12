@@ -21,6 +21,7 @@ public class ConcurrencyReadTest
         
         for (int i = 0; i < THREADS; ++i) {
             new Thread(new Runnable() {
+                @Override
                 public void run()
                 {
                     try {

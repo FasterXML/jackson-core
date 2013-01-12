@@ -6,7 +6,7 @@ core component, version 2.x
 
 Tatu Saloranta, tatu.saloranta@iki.fi: author
 
-Pascal GÂlinas:
+Pascal Gï¿½linas:
   * Reported [JACKSON-827]: 2.0.0 was accidentally requiring JDK 1.6
     (should still be 1.5)
    [2.0.1]
@@ -16,3 +16,6 @@ Ben Gertzfield (bgertzfield@github):
     read dynamically generated/embedded version information, to improve
     Android startup time
    [2.2.0]
+
+Klaus Brunner (KlausBrunner@github)
+  * Reported [Issue#48]: Problem with URLs, spaces

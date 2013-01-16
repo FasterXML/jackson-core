@@ -75,6 +75,14 @@ public class TestJsonStringEncoder
         }
     }
 
+    // [JACKSON-884]
+    public void testCtrlChars() throws Exception
+    {
+        char[] input = new char[] { 0, 1, 2, 3, 4 };
+        char[] quoted = JsonStringEncoder.getInstance().quoteAsString(new String(input));
+        assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", new String(quoted));
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

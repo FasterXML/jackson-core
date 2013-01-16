@@ -19,6 +19,11 @@ import com.fasterxml.jackson.core.Versioned;
  */
 public class VersionUtil
 {
+    /**
+     * @deprecated Since 2.2, use of version file is deprecated, and generated
+     *    class should be used instead.
+     */
+    @Deprecated
     public final static String VERSION_FILE = "VERSION.txt";
     public final static String PACKAGE_VERSION_CLASS_NAME = "PackageVersion";
     public final static String PACKAGE_VERSION_FIELD = "VERSION";

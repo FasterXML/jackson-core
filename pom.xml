@@ -140,7 +140,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
               <links>
                   <!-- JDK, other Jackson pkgs -->
                   <link>http://docs.oracle.com/javase/6/docs/api/</link>
-                  <link>http://fasterxml.github.com/jackson-core/javadoc/2.0.0/</link>
+                  <link>http://fasterxml.github.com/jackson-core/javadoc/2.2.0/</link>
               </links>
               <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
               <bootclasspath>${sun.boot.class.path}</bootclasspath>

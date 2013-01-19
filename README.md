@@ -42,7 +42,7 @@ To use the package, you need to use following Maven dependency:
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.1.1</version>
+      <version>2.1.3</version>
     </dependency>
 
 or download jars from Maven repository or [Download page](wiki.fasterxml.com/JacksonDownload).

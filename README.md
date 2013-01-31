@@ -57,7 +57,6 @@ For non-Maven use cases, you download jars from [Central Maven repository](http:
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
 -----
-
 # Use it!
 
 ## General
@@ -72,19 +71,22 @@ Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](jackso
 
     JsonFactory factory = objectMapper.getJsonFactory();
 
+More information can be found from [Streaming API](http://wiki.fasterxml.com/JacksonStreamingApi
+) at Jackson Wiki.
+
 ## Usage, simple reading
 
 All reading is by using `JsonParser` (or its sub-classes, in case of data formats other than JSON),
-instance of which is constructed by `JsonFactory`:
+instance of which is constructed by `JsonFactory`.
 
-(TO BE WRITTEN)
+An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 ## Usage, simple writing
 
 All writing is by using `JsonGenerator` (or its sub-classes, in case of data formats other than JSON),
 instance of which is constructed by `JsonFactory`:
 
-(TO BE WRITTEN)
+An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 -----
 

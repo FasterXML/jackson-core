@@ -8,7 +8,7 @@ Fixes:
 
 Improvements
 
-* [Issue#49]: Improve VersionUtil to generate PackageVersion, instead of
+* [Issue#46], [Issue#49]: Improve VersionUtil to generate PackageVersion, instead of
   reading VERSION.txt from jar -- improves startup perf on Android significantly
  (contributed by Ben G)
 

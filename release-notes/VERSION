@@ -4,8 +4,7 @@ New minor version.
 
 Fixes:
 
-* [Issue#48]: Problem with URLs, spaces
- (reported by KlausBrunner@github)
+* [Issue#51]: JsonLocation had non-serializable field, mark as transient
 
 Improvements
 
@@ -17,9 +16,20 @@ Improvements
 === History: ===
 ------------------------------------------------------------------------
 
-2.1.1 (11-Nov-2012)
+2.1.3 (19-Jan-2013)
 
-Fixes:
+* [JACKSON-884]: JsonStringEncoder.quoteAsStringValue() fails to encode 
+  ctrl chars correctly.
+* [Issue#48] Problems with spaces in URLs
+ (reported by KlausBrunner)
+
+2.1.2 (04-Dec-2012)
+
+* [Issue#42] Problems with UTF32Reader
+ (reported by James R [jroper@github])
+* Added missing methods (like 'setPrettyPrinter()' in JsonGeneratorDelegate
+
+2.1.1 (11-Nov-2012)
 
 * [Issue#34] `JsonParser.nextFieldName()` fails on buffer boundary
  (reported by gsson@github)

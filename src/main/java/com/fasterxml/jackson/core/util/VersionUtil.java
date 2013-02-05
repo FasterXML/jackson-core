@@ -13,9 +13,11 @@ import com.fasterxml.jackson.core.Versioned;
  * Note that this class can be used in two roles: first, as a static
  * utility class for loading purposes, and second, as a singleton
  * loader of per-module version information.
- * In latter case one must sub-class to get proper per-module instance;
- * and sub-class must reside in same Java package as matching "VERSION.txt"
- * file.
+ *<p>
+ * Note that method for accessing version information changed between versions
+ * 2.1 and 2.2; earlier code used file named "VERSION.txt"; but this has serious
+ * performance issues on some platforms (Android), so a replacement system
+ * was implemented to use class generation and dynamic class loading.
  */
 public class VersionUtil
 {
@@ -26,7 +28,7 @@ public class VersionUtil
     @Deprecated
     public final static String VERSION_FILE = "VERSION.txt";
     public final static String PACKAGE_VERSION_CLASS_NAME = "PackageVersion";
-    public final static String PACKAGE_VERSION_FIELD = "VERSION";
+//    public final static String PACKAGE_VERSION_FIELD = "VERSION";
 
     private final static Pattern VERSION_SEPARATOR = Pattern.compile("[-_./;:]");
 
@@ -118,7 +120,7 @@ public class VersionUtil
      */
     public static Version packageVersionFor(Class<?> cls)
     {
-    	Class<?> versionInfoClass = null;
+        Class<?> versionInfoClass = null;
         try {
             Package p = cls.getPackage();
             String versionInfoClassName =
@@ -131,20 +133,20 @@ public class VersionUtil
             return null;
         }
         if (versionInfoClass == null) {
-        	return null;
+            return null;
         }
         // However, if class exists, it better work correctly, no swallowing exceptions
         Object v;
         try {
-        	v = versionInfoClass.newInstance();
+            v = versionInfoClass.newInstance();
         } catch (RuntimeException e) {
-        	throw e;
+            throw e;
         } catch (Exception e) {
-        	throw new IllegalArgumentException("Failed to instantiate "+versionInfoClass.getName()
-        			+" to find version information, problem: "+e.getMessage(), e);
+            throw new IllegalArgumentException("Failed to instantiate "+versionInfoClass.getName()
+                    +" to find version information, problem: "+e.getMessage(), e);
         }
         if (!(v instanceof Versioned)) {
-        	throw new IllegalArgumentException("Bad version class "+versionInfoClass.getName()
+            throw new IllegalArgumentException("Bad version class "+versionInfoClass.getName()
         			+": does not implement "+Versioned.class.getName());
         }
         return ((Versioned) v).version();

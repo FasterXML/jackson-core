@@ -75,6 +75,7 @@ public abstract class GeneratorBase
         _objectCodec = codec;
         _cfgNumbersAsStrings = isEnabled(Feature.WRITE_NUMBERS_AS_STRINGS);
     }
+
     /**
      * Implemented with detection that tries to find "VERSION.txt" in same
      * package as the implementation class.

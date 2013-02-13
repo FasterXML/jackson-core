@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.json;
 
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.test.BaseTest;
 
 import java.io.*;
@@ -168,4 +169,26 @@ public class TestUtf8Parser
         assertEquals(VALUE, act);
         jp.close();
     }
+
+    // [JACKSON-889]
+	public void testNextFieldName() throws IOException
+	{
+		JsonFactory f = new JsonFactory();
+		SerializedString id = new SerializedString("id");
+
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		os.write('{');
+		for (int i = 0; i < 3994; i++) {
+			os.write(' ');
+		}
+		os.write("\"id\":2".getBytes("UTF-8"));
+		os.write('}');
+
+		JsonParser parser = f.createParser(new ByteArrayInputStream(os.toByteArray()));
+		assertEquals(parser.nextToken(), JsonToken.START_OBJECT);
+		assertTrue(parser.nextFieldName(id));
+		assertEquals(parser.nextToken(), JsonToken.VALUE_NUMBER_INT);
+		assertEquals(parser.nextToken(), JsonToken.END_OBJECT);
+		parser.close();
+	}
 }

@@ -39,11 +39,13 @@ Java package `com.fasterxml.jackson.core`.
 
 To use the package, you need to use following Maven dependency:
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.1.1</version>
-    </dependency>
+```xml
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+  <version>2.1.1</version>
+</dependency>
+```
 
 or download jars from Maven repository or [Download page](http://wiki.fasterxml.com/JacksonDownload).
 Core jar is a functional OSGi bundle, with proper import/export declarations.
@@ -63,13 +65,17 @@ Core jar is also a functional OSGi bundle, with proper import/export declaration
 
 Usage typically starts with creation of a reusable (and thread-safe, once configured) `JsonFactory` instance:
 
-    JsonFactory factory = new JsonFactory();
-    // configure, if necessary:
-    factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+```java
+JsonFactory factory = new JsonFactory();
+// configure, if necessary:
+factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+```
 
 Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](https://github.com/FasterXML/jackson-databind)) handy; if so, you can do:
 
-    JsonFactory factory = objectMapper.getJsonFactory();
+```java
+JsonFactory factory = objectMapper.getJsonFactory();
+```
 
 More information can be found from [Streaming API](http://wiki.fasterxml.com/JacksonStreamingApi
 ) at Jackson Wiki.

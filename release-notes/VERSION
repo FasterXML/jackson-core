@@ -1,27 +1,27 @@
-Version: 2.1.3 (19-Jan-2013)
+Project: jackson-core
+Version: 2.1.4 (xx-Feb-2013)
 
-Fixes:
+* [JACKSON-889]: ArrayIndexOutOfBoundsException in UTF8StreamJsonParser.nextFieldName()
+ (reported by Johan T)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.1.3 (19-Jan-2013)
 
 * [JACKSON-884]: JsonStringEncoder.quoteAsStringValue() fails to encode	
   ctrl chars correctly.
 * [Issue#48] Problems with spaces in URLs
  (reported by KlausBrunner)
 
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
-
 2.1.2 (04-Dec-2012)
-
-Fixes:
 
 * [Issue#42] Problems with UTF32Reader
  (reported by James R [jroper@github])
 * Added missing methods (like 'setPrettyPrinter()' in JsonGeneratorDelegate
 
 2.1.1 (11-Nov-2012)
-
-Fixes:
 
 * [Issue#34] `JsonParser.nextFieldName()` fails on buffer boundary
  (reported by gsson@github)

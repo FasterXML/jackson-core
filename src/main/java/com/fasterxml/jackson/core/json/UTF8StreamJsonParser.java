@@ -911,9 +911,9 @@ public final class UTF8StreamJsonParser
     {
         // very first thing: common case, colon, value, no white space
         int i;
-        if (_inputPtr < _inputEnd && _inputBuffer[_inputPtr] == INT_COLON) { // fast case first
+        if (_inputPtr < (_inputEnd-1) && _inputBuffer[_inputPtr] == INT_COLON) { // fast case first
+            i = _inputBuffer[++_inputPtr];
             ++_inputPtr;
-            i = _inputBuffer[_inputPtr++];
             if (i == INT_QUOTE) {
                 _tokenIncomplete = true;
                 _nextToken = JsonToken.VALUE_STRING;
@@ -929,7 +929,7 @@ public final class UTF8StreamJsonParser
             }
             i &= 0xFF;
             if (i <= INT_SPACE || i == INT_SLASH) {
-                --_inputPtr;
+            	--_inputPtr;
                 i = _skipWS();
             }
         } else {

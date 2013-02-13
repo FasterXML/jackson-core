@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.core;
 
+import java.util.Iterator;
+
 /**
  * Marker interface used to denote JSON Tree nodes, as far as
  * the core package knows them (which is very little): mostly
  * needed to allow {@link ObjectCodec} to have some level
  * of interoperability.
- * All real functionality is within <code>JsonNode</code>
+ * Most functionality is within <code>JsonNode</code>
  * base class in <code>mapper</code> package.
  *<p>
  * Note that in Jackson 1.x <code>JsonNode</code> itself
@@ -13,6 +15,14 @@ package com.fasterxml.jackson.core;
  * since conceptually Tree Model is part of mapper package,
  * and so part visible to <code>core</code> package should
  * be minimized.
+ *<p>
+ * NOTE: starting with Jackson 2.2, there is more functionality
+ * available via this class, and the intent is that this should
+ * form actual base for multiple alternative tree representations;
+ * for example, immutable trees could use different implementation
+ * than mutable trees. It should also be possible to move actual
+ * Tree Model implementation out of databind package eventually
+ * (Jackson 3?).
  */
 public interface TreeNode
 {
@@ -41,9 +51,132 @@ public interface TreeNode
      */
     JsonParser.NumberType numberType();
 
+    /**
+     * Method that returns number of child nodes this node contains:
+     * for Array nodes, number of child elements, for Object nodes,
+     * number of fields, and for all other nodes 0.
+     *
+     * @return For non-container nodes returns 0; for arrays number of
+     *   contained elements, and for objects number of fields.
+     * 
+     * @since 2.2
+     */
+    int size();
+
+    /**
+     * Method that returns true for all value nodes: ones that 
+     * are not containers, and that do not represent "missing" nodes
+     * in the path. Such value nodes represent String, Number, Boolean
+     * and null values from JSON.
+     *<p>
+     * Note: one and only one of methods {@link #isValueNode},
+     * {@link #isContainerNode} and {@link #isMissingNode} ever
+     * returns true for any given node.
+     * 
+     * @since 2.2
+     */
+    boolean isValueNode();
+
+    /**
+     * Method that returns true for container nodes: Arrays and Objects.
+     *<p>
+     * Note: one and only one of methods {@link #isValueNode},
+     * {@link #isContainerNode} and {@link #isMissingNode} ever
+     * returns true for any given node.
+     * 
+     * @since 2.2
+     */
+    boolean isContainerNode();
+    
+    /**
+     * Method that returns true for "virtual" nodes which represent
+     * missing entries constructed by path accessor methods when
+     * there is no actual node matching given criteria.
+     *<p>
+     * Note: one and only one of methods {@link #isValueNode},
+     * {@link #isContainerNode} and {@link #isMissingNode} ever
+     * returns true for any given node.
+     * 
+     * @since 2.2
+     */
+    boolean isMissingNode();
+    
+    /**
+     * Method that returns true if this node is an Array node, false
+     * otherwise.
+     * Note that if true is returned, {@link #isContainerNode}
+     * must also return true.
+     * 
+     * @since 2.2
+     */
+    boolean isArray();
+
+    /**
+     * Method that returns true if this node is an Object node, false
+     * otherwise.
+     * Note that if true is returned, {@link #isContainerNode}
+     * must also return true.
+     * 
+     * @since 2.2
+     */
+    boolean isObject();
+    
     /*
     /**********************************************************
-    /* Public API: converting to/from Streaming API
+    /* Basic traversal through structured entries (Arrays, Objects)
+    /**********************************************************
+     */
+
+    /**
+     * Method for accessing value of the specified field of
+     * an object node. If this node is not an object (or it
+     * does not have a value for specified field name), or
+     * if there is no field with such name, null is returned.
+     *<p>
+     * NOTE: handling of explicit null values may vary between
+     * implementations; some trees may retain explicit nulls, others
+     * not.
+     * 
+     * @return Node that represent value of the specified field,
+     *   if this node is an object and has value for the specified
+     *   field. Null otherwise.
+     * 
+     * @since 2.2
+     */
+    TreeNode get(String fieldName);
+
+    /**
+     * Method for accessing value of the specified element of
+     * an array node. For other nodes, null is returned.
+     *<p>
+     * For array nodes, index specifies
+     * exact location within array and allows for efficient iteration
+     * over child elements (underlying storage is guaranteed to
+     * be efficiently indexable, i.e. has random-access to elements).
+     * If index is less than 0, or equal-or-greater than
+     * <code>node.size()</code>, null is returned; no exception is
+     * thrown for any index.
+     *
+     * @return Node that represent value of the specified element,
+     *   if this node is an array and has specified element.
+     *   Null otherwise.
+     * 
+     * @since 2.2
+     */
+    TreeNode get(int index);
+    
+    /**
+     * Method for accessing names of all fields for this node, iff
+     * this node is an Object node. Number of field names accessible
+     * will be {@link #size}.
+     * 
+     * @since 2.2
+     */
+    Iterator<String> fieldNames();
+    
+    /*
+    /**********************************************************
+    /* Converting to/from Streaming API
     /**********************************************************
      */
 

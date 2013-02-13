@@ -11,6 +11,8 @@ Improvements
 * [Issue#46], [Issue#49]: Improve VersionUtil to generate PackageVersion, instead of
   reading VERSION.txt from jar -- improves startup perf on Android significantly
  (contributed by Ben G)
+* [Issue#59]: Add more functionality in `TreeNode` interface, to allow some
+ level of traversal over any and all Tree Model implementations
 
 ------------------------------------------------------------------------
 === History: ===

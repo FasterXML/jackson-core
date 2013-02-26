@@ -43,10 +43,38 @@ public class TestBase64Generation
     public void testStreamingWrites() throws Exception
     {
         final JsonFactory f = new JsonFactory();
-//        _testStreamingWrites(f, true);
+        _testStreamingWrites(f, true);
         _testStreamingWrites(f, false);
     }
 
+    // For [#55]
+    public void testIssue55() throws Exception
+    {
+        final JsonFactory f = new JsonFactory();
+
+        // First,  byte-backed:
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        JsonGenerator gen = f.createGenerator(bytes);
+        ByteArrayInputStream data = new ByteArrayInputStream(new byte[2000]);
+        gen.writeBinary(data, 1999);       
+        gen.close();
+
+        final int EXP_LEN = 2670;
+        
+        assertEquals(EXP_LEN, bytes.size());
+
+        // Then char-backed
+        StringWriter sw = new StringWriter();
+        
+        gen = f.createGenerator(sw);
+        data = new ByteArrayInputStream(new byte[2000]);
+        gen.writeBinary(data, 1999);       
+        gen.close();
+        
+        assertEquals(EXP_LEN, sw.toString().length());
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

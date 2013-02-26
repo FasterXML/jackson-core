@@ -1681,7 +1681,11 @@ public class UTF8JsonGenerator
         maxRead = Math.min(maxRead, readBuffer.length);
         
         do {
-            int count = in.read(readBuffer, inputEnd, maxRead - inputEnd);
+            int length = maxRead - inputEnd;
+            if (length == 0) {
+                break;
+            }
+            int count = in.read(readBuffer, inputEnd, length);            
             if (count < 0) {
                 return inputEnd;
             }

@@ -189,4 +189,12 @@ public interface TreeNode
      */
     JsonParser traverse();
 
+    /**
+     * Same as {@link #traverse()}, but additionally passes {@link com.fasterxml.jackson.core.ObjectCodec}
+     * to use if {@link JsonParser#readValueAs(Class)} is used (otherwise caller must call
+     * {@link JsonParser#setCodec} on response explicitly).
+     * 
+     * @since 2.1
+     */
+    JsonParser traverse(ObjectCodec codec);
 }

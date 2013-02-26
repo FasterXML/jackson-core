@@ -1,5 +1,5 @@
 Project: jackson-core
-Version: 2.1.4 (xx-Feb-2013)
+Version: 2.1.4 (26-Feb-2013)
 
 * [JACKSON-889]: ArrayIndexOutOfBoundsException in UTF8StreamJsonParser.nextFieldName()
  (reported by Johan T)

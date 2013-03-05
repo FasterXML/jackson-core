@@ -323,8 +323,9 @@ public final class UTF8StreamJsonParser
         case VALUE_NUMBER_INT:
         case VALUE_NUMBER_FLOAT:
             return _textBuffer.contentsAsString();
+        default:
+        	return t.asString();
         }
-        return t.asString();
     }
 
     @Override
@@ -408,6 +409,7 @@ public final class UTF8StreamJsonParser
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
                 return _textBuffer.getTextOffset();
+            default:
             }
         }
         return 0;
@@ -1152,8 +1154,9 @@ public final class UTF8StreamJsonParser
             return Boolean.TRUE;
         case VALUE_FALSE:
             return Boolean.FALSE;
+        default:
+        	return null;
         }
-        return null;
     }
     
     /*
@@ -2410,11 +2413,11 @@ public final class UTF8StreamJsonParser
         do {
             if (_inputPtr >= _inputEnd) {
                 if (!loadMore()) {
-                    _reportInvalidEOF(" in a value");
+                    _reportInvalidToken(matchStr.substring(0, i));
                 }
             }
             if (_inputBuffer[_inputPtr] != matchStr.charAt(i)) {
-                _reportInvalidToken(matchStr.substring(0, i), "'null', 'true', 'false' or NaN");
+                _reportInvalidToken(matchStr.substring(0, i));
             }
             ++_inputPtr;
         } while (++i < len);
@@ -2432,15 +2435,21 @@ public final class UTF8StreamJsonParser
         // but actually only alphanums are problematic
         char c = (char) _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            ++_inputPtr;
-            _reportInvalidToken(matchStr.substring(0, i), "'null', 'true', 'false' or NaN");
+            _reportInvalidToken(matchStr.substring(0, i));
         }
+    }
+
+    protected void _reportInvalidToken(String matchedPart)
+            throws IOException, JsonParseException
+    {
+    	_reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }
     
     protected void _reportInvalidToken(String matchedPart, String msg)
         throws IOException, JsonParseException
     {
         StringBuilder sb = new StringBuilder(matchedPart);
+
         /* Let's just try to find what appears to be the token, using
          * regular Java identifier character rules. It's just a heuristic,
          * nothing fancy here (nor fast).
@@ -2458,7 +2467,7 @@ public final class UTF8StreamJsonParser
         }
         _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, ws skipping, escape/unescape

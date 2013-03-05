@@ -3,8 +3,10 @@ Version: 2.1.4 (26-Feb-2013)
 
 * [JACKSON-889]: ArrayIndexOutOfBoundsException in UTF8StreamJsonParser.nextFieldName()
  (reported by Johan T)
-* [#55]: Fix an infinite loop in 'JsonGenerator.writeBinary(InputStream)'
+* #55: Fix an infinite loop in 'JsonGenerator.writeBinary(InputStream)'
  (reported by lseeker@github)
+* #64: Incomplete error message for some malformed tokens
+ (reported by fge@github)
 
 ------------------------------------------------------------------------
 === History: ===

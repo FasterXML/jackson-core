@@ -171,26 +171,21 @@ public class TestJsonParser
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
     }
 
-    public void testInvalidKeywordsStream() throws Exception {
+    public void testInvalidKeywords() throws Exception
+    {
         _testInvalidKeywords(true);
-    }
-    
-    public void testInvalidKeywordsReader() throws Exception {
         _testInvalidKeywords(false);
     }
 
     private void _testInvalidKeywords(boolean useStream) throws Exception
     {
         doTestInvalidKeyword1(useStream, "nul");
-        doTestInvalidKeyword1(useStream, "Null");
         doTestInvalidKeyword1(useStream, "nulla");
         doTestInvalidKeyword1(useStream, "fal");
         doTestInvalidKeyword3(useStream, "False");
-        doTestInvalidKeyword1(useStream, "fals0");
         doTestInvalidKeyword1(useStream, "falsett0");
         doTestInvalidKeyword1(useStream, "tr");
         doTestInvalidKeyword1(useStream, "truE");
-        doTestInvalidKeyword1(useStream, "treu");
         doTestInvalidKeyword1(useStream, "trueenough");
     }
 
@@ -492,7 +487,7 @@ public class TestJsonParser
     {
         final String doc = "{ \"key1\" : "+value+" }";
         JsonParser jp = useStream ? createParserUsingStream(doc, "UTF-8")
-                : createParserUsingReader(doc);
+                : this.createParserUsingReader(doc);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         /* 24-Nov-2008, tatu: Note that depending on parser impl, we may
          *   get the exception early or late...

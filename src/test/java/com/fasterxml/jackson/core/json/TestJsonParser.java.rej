@@ -1,0 +1,23 @@
+--- src/test/java/com/fasterxml/jackson/core/json/TestJsonParser.java
++++ src/test/java/com/fasterxml/jackson/core/json/TestJsonParser.java
+@@ -500,6 +505,20 @@
+             fail("Expected an exception for malformed value keyword");
+         } catch (JsonParseException jex) {
+             verifyException(jex, "Unrecognized token");
++            verifyException(jex, value);
++        } finally {
++            jp.close();
++        }
++
++        // Try as root-level value as well:
++        jp = useStream ? createParserUsingStream(value, "UTF-8")
++                : createParserUsingReader(value);
++        try {
++            jp.nextToken();
++            fail("Expected an exception for malformed value keyword");
++        } catch (JsonParseException jex) {
++            verifyException(jex, "Unrecognized token");
++            verifyException(jex, value);
+         } finally {
+             jp.close();
+         }

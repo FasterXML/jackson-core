@@ -1,5 +1,14 @@
 Project: jackson-core
-Version: 2.1.4 (26-Feb-2013)
+Version: 2.1.5 (xx-xxx-2013)
+
+* [Issue#48] Problems with spaces in URLs (NOTE: was NOT fixed in 2.1.3)
+ (reported by KlausBrunner)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.1.4 (26-Feb-2013)
 
 * [JACKSON-889]: ArrayIndexOutOfBoundsException in UTF8StreamJsonParser.nextFieldName()
  (reported by Johan T)
@@ -8,16 +17,10 @@ Version: 2.1.4 (26-Feb-2013)
 * #64: Incomplete error message for some malformed tokens
  (reported by fge@github)
 
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
-
 2.1.3 (19-Jan-2013)
 
 * [JACKSON-884]: JsonStringEncoder.quoteAsStringValue() fails to encode	
   ctrl chars correctly.
-* [Issue#48] Problems with spaces in URLs
- (reported by KlausBrunner)
 
 2.1.2 (04-Dec-2012)
 

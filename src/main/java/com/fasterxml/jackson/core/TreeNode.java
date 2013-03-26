@@ -164,6 +164,42 @@ public interface TreeNode
      * @since 2.2
      */
     TreeNode get(int index);
+
+    /**
+     * Method for accessing value of the specified field of
+     * an object node.
+     * For other nodes, a "missing node" (virtual node
+     * for which {@link #isMissingNode} returns true) is returned.
+     * 
+     * @return Node that represent value of the specified field,
+     *   if this node is an object and has value for the specified field;
+     *   otherwise "missing node" is returned.
+     * 
+     * @since 2.2
+     */
+    TreeNode path(String fieldName);
+
+    /**
+     * Method for accessing value of the specified element of
+     * an array node.
+     * For other nodes, a "missing node" (virtual node
+     * for which {@link #isMissingNode} returns true) is returned.
+     *<p>
+     * For array nodes, index specifies
+     * exact location within array and allows for efficient iteration
+     * over child elements (underlying storage is guaranteed to
+     * be efficiently indexable, i.e. has random-access to elements).
+     * If index is less than 0, or equal-or-greater than
+     * <code>node.size()</code>, "missing node" is returned; no exception is
+     * thrown for any index.
+     *
+     * @return Node that represent value of the specified element,
+     *   if this node is an array and has specified element;
+     *   otherwise "missing node" is returned.
+     * 
+     * @since 2.2
+     */
+    TreeNode path(int index);
     
     /**
      * Method for accessing names of all fields for this node, iff

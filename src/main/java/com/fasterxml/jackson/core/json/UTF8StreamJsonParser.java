@@ -2398,22 +2398,16 @@ public final class UTF8StreamJsonParser
         final int len = matchStr.length();
     
         do {
-            if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
-                    _reportInvalidToken(matchStr.substring(0, i));
-                }
-            }
-            if (_inputBuffer[_inputPtr] != matchStr.charAt(i)) {
+            if (((_inputPtr >= _inputEnd) && !loadMore())
+                ||  (_inputBuffer[_inputPtr] != matchStr.charAt(i))) {
                 _reportInvalidToken(matchStr.substring(0, i));
             }
             ++_inputPtr;
         } while (++i < len);
     
         // but let's also ensure we either get EOF, or non-alphanum char...
-        if (_inputPtr >= _inputEnd) {
-            if (!loadMore()) {
-                return;
-            }
+        if (_inputPtr >= _inputEnd && !loadMore()) {
+            return;
         }
         int ch = _inputBuffer[_inputPtr] & 0xFF;
         if (ch < '0' || ch == ']' || ch == '}') { // expected/allowed chars
@@ -2427,7 +2421,7 @@ public final class UTF8StreamJsonParser
     }
 
     protected void _reportInvalidToken(String matchedPart)
-            throws IOException, JsonParseException
+       throws IOException, JsonParseException
     {
         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }

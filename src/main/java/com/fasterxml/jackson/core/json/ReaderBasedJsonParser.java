@@ -77,18 +77,13 @@ public final class ReaderBasedJsonParser
         _symbols = st;
         _hashSeed = st.hashSeed();
     }
-
-    @Override
-    public Version version() {
-        return PackageVersion.VERSION;
-    }
     
     /*
     /**********************************************************
     /* Base method defs, overrides
     /**********************************************************
      */
-    
+
     @Override
     public ObjectCodec getCodec() {
         return _objectCodec;
@@ -352,11 +347,6 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public Object getEmbeddedObject() throws IOException, JsonParseException {
-        return null;
-    }
-
-    @Override
     public byte[] getBinaryValue(Base64Variant b64variant)
         throws IOException, JsonParseException
     {
@@ -406,8 +396,7 @@ public final class ReaderBasedJsonParser
         }
     }
 
-    protected int _readBinary(Base64Variant b64variant, OutputStream out,
-                              byte[] buffer)
+    protected int _readBinary(Base64Variant b64variant, OutputStream out, byte[] buffer)
             throws IOException, JsonParseException
     {
         int outputPtr = 0;
@@ -1973,8 +1962,8 @@ public final class ReaderBasedJsonParser
      */
 
     protected void _reportInvalidToken(String matchedPart)
-		    throws IOException, JsonParseException {
-    	_reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
+            throws IOException, JsonParseException {
+        _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }
     
     protected void _reportInvalidToken(String matchedPart, String msg)

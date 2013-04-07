@@ -514,4 +514,3 @@ public final class ByteSourceJsonBootstrapper
         return true;
     }
 }
-

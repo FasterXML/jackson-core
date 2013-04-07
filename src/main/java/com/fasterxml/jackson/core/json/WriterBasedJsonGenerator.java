@@ -814,7 +814,7 @@ public final class WriterBasedJsonGenerator
             }
             break;
         default:
-            _cantHappen();
+            _throwInternal();
             break;
         }
     }

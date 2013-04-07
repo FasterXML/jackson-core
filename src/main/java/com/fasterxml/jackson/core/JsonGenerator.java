@@ -241,7 +241,7 @@ public abstract class JsonGenerator
     /**
      * Accessor for finding out version of the bundle that provided this generator instance.
      */
-//  @Override
+    @Override
     public abstract Version version();
 
     /**
@@ -1186,6 +1186,7 @@ public abstract class JsonGenerator
      * target (output stream, writer), and to flush the target itself
      * as well.
      */
+    @Override
     public abstract void flush() throws IOException;
 
     /**
@@ -1212,6 +1213,6 @@ public abstract class JsonGenerator
      * If either of above is true, the target is also closed. Otherwise
      * (not managing, feature not enabled), target is not closed.
      */
-//    @Override
+    @Override
     public abstract void close() throws IOException;
 }

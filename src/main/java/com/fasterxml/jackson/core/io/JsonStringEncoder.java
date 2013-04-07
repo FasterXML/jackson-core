@@ -212,15 +212,15 @@ public final class JsonStringEncoder
                     ch = (0x80 | (ch & 0x3f));
                 } else { // yes, surrogate pair
                     if (ch > SURR1_LAST) { // must be from first range
-                        _throwIllegalSurrogate(ch);
+                        _illegalSurrogate(ch);
                     }
                     // and if so, followed by another from next range
                     if (inputPtr >= inputEnd) {
-                        _throwIllegalSurrogate(ch);
+                        _illegalSurrogate(ch);
                     }
                     ch = _convertSurrogate(ch, text.charAt(inputPtr++));
                     if (ch > 0x10FFFF) { // illegal, as per RFC 4627
-                        _throwIllegalSurrogate(ch);
+                        _illegalSurrogate(ch);
                     }
                     outputBuffer[outputPtr++] = (byte) (0xf0 | (ch >> 18));
                     if (outputPtr >= outputBuffer.length) {
@@ -301,15 +301,15 @@ public final class JsonStringEncoder
                     outputBuffer[outputPtr++] = (byte) (0x80 | ((c >> 6) & 0x3f));
                 } else { // yes, surrogate pair
                     if (c > SURR1_LAST) { // must be from first range
-                        _throwIllegalSurrogate(c);
+                        _illegalSurrogate(c);
                     }
                     // and if so, followed by another from next range
                     if (inputPtr >= inputEnd) {
-                        _throwIllegalSurrogate(c);
+                        _illegalSurrogate(c);
                     }
                     c = _convertSurrogate(c, text.charAt(inputPtr++));
                     if (c > 0x10FFFF) { // illegal, as per RFC 4627
-                        _throwIllegalSurrogate(c);
+                        _illegalSurrogate(c);
                     }
                     outputBuffer[outputPtr++] = (byte) (0xf0 | (c >> 18));
                     if (outputPtr >= outputEnd) {
@@ -379,11 +379,8 @@ public final class JsonStringEncoder
         }
         return byteBuilder.getCurrentSegmentLength();
     }
-    
-    /**
-     * Method called to calculate UTF code point, from a surrogate pair.
-     */
-    private int _convertSurrogate(int firstPart, int secondPart)
+
+    protected static int _convertSurrogate(int firstPart, int secondPart)
     {
         // Ok, then, is the second part valid?
         if (secondPart < SURR2_FIRST || secondPart > SURR2_LAST) {
@@ -391,19 +388,8 @@ public final class JsonStringEncoder
         }
         return 0x10000 + ((firstPart - SURR1_FIRST) << 10) + (secondPart - SURR2_FIRST);
     }
-    
-    private void _throwIllegalSurrogate(int code)
-    {
-        if (code > 0x10FFFF) { // over max?
-            throw new IllegalArgumentException("Illegal character point (0x"+Integer.toHexString(code)+") to output; max is 0x10FFFF as per RFC 4627");
-        }
-        if (code >= SURR1_FIRST) {
-            if (code <= SURR1_LAST) { // Unmatched first part (closing without second part?)
-                throw new IllegalArgumentException("Unmatched first part of surrogate pair (0x"+Integer.toHexString(code)+")");
-            }
-            throw new IllegalArgumentException("Unmatched second part of surrogate pair (0x"+Integer.toHexString(code)+")");
-        }
-        // should we ever get this?
-        throw new IllegalArgumentException("Illegal character point (0x"+Integer.toHexString(code)+") to output");
+
+    protected static void _illegalSurrogate(int code) {
+        throw new IllegalArgumentException(UTF8Writer.illegalSurrogateDesc(code));
     }
 }

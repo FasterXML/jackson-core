@@ -999,7 +999,7 @@ public class UTF8JsonGenerator
             }
             break;
         default:
-            _cantHappen();
+            _throwInternal();
             break;
         }
     }

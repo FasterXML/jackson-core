@@ -272,7 +272,7 @@ public abstract class GeneratorBase
             writeNull();
         } else {
             if (_objectCodec == null) {
-                throw new IllegalStateException("No ObjectCodec defined for the generator, can not serialize JsonNode-based trees");
+                throw new IllegalStateException("No ObjectCodec defined");
             }
             _objectCodec.writeValue(this, rootNode);
         }
@@ -371,7 +371,7 @@ public abstract class GeneratorBase
             writeObject(jp.getEmbeddedObject());
             break;
         default:
-            _cantHappen();
+            _throwInternal();
         }
     }
 
@@ -423,11 +423,6 @@ public abstract class GeneratorBase
         throws JsonGenerationException
     {
         throw new JsonGenerationException(msg);
-    }
-
-    protected void _cantHappen()
-    {
-        throw new RuntimeException("Internal error: should never end up through this code path");
     }
 
     /**

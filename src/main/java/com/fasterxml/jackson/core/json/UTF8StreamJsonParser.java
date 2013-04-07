@@ -127,11 +127,6 @@ public final class UTF8StreamJsonParser
     public void setCodec(ObjectCodec c) {
         _objectCodec = c;
     }
-
-    @Override
-    public Version version() {
-        return PackageVersion.VERSION;
-    }
     
     /*
     /**********************************************************
@@ -413,12 +408,6 @@ public final class UTF8StreamJsonParser
             }
         }
         return 0;
-    }
-
-    // No embedded objects with base impl...
-    @Override
-    public Object getEmbeddedObject() throws IOException, JsonParseException {
-        return null;
     }
     
     @Override

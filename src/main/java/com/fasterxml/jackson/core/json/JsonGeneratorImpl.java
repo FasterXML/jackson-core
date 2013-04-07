@@ -169,5 +169,4 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         writeFieldName(fieldName);
         writeString(value);
     }
-    
 }

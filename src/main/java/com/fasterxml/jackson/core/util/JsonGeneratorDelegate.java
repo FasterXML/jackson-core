@@ -406,5 +406,4 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public boolean isClosed() {
         return delegate.isClosed();
     }
-    
 }

@@ -103,8 +103,7 @@ public final class IOContext
         _managedResource = managedResource;
     }
 
-    public void setEncoding(JsonEncoding enc)
-    {
+    public void setEncoding(JsonEncoding enc) {
         _encoding = enc;
     }
 
@@ -117,7 +116,7 @@ public final class IOContext
     public Object getSourceReference() { return _sourceRef; }
     public JsonEncoding getEncoding() { return _encoding; }
     public boolean isResourceManaged() { return _managedResource; }
-    
+
     /*
     /**********************************************************
     /* Public API, buffer management
@@ -135,20 +134,14 @@ public final class IOContext
      */
     public byte[] allocReadIOBuffer()
     {
-        if (_readIOBuffer != null) {
-            throw new IllegalStateException("Trying to call allocReadIOBuffer() second time");
-        }
-        _readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.READ_IO_BUFFER);
-        return _readIOBuffer;
+        _verifyAlloc(_readIOBuffer);
+        return (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.READ_IO_BUFFER));
     }
 
     public byte[] allocWriteEncodingBuffer()
     {
-        if (_writeEncodingBuffer != null) {
-            throw new IllegalStateException("Trying to call allocWriteEncodingBuffer() second time");
-        }
-        _writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.WRITE_ENCODING_BUFFER);
-        return _writeEncodingBuffer;
+        _verifyAlloc(_writeEncodingBuffer);
+        return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.WRITE_ENCODING_BUFFER));
     }
 
     /**
@@ -156,38 +149,26 @@ public final class IOContext
      */
     public byte[] allocBase64Buffer()
     {
-        if (_base64Buffer != null) {
-            throw new IllegalStateException("Trying to call allocBase64Buffer() second time");
-        }
-        _base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.BASE64_CODEC_BUFFER);
-        return _base64Buffer;
+        _verifyAlloc(_base64Buffer);
+        return (_base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.BASE64_CODEC_BUFFER));
     }
     
     public char[] allocTokenBuffer()
     {
-        if (_tokenCBuffer != null) {
-            throw new IllegalStateException("Trying to call allocTokenBuffer() second time");
-        }
-        _tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.TOKEN_BUFFER);
-        return _tokenCBuffer;
+        _verifyAlloc(_tokenCBuffer);
+        return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.TOKEN_BUFFER));
     }
 
     public char[] allocConcatBuffer()
     {
-        if (_concatCBuffer != null) {
-            throw new IllegalStateException("Trying to call allocConcatBuffer() second time");
-        }
-        _concatCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.CONCAT_BUFFER);
-        return _concatCBuffer;
+        _verifyAlloc(_concatCBuffer);
+        return (_concatCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.CONCAT_BUFFER));
     }
 
     public char[] allocNameCopyBuffer(int minSize)
     {
-        if (_nameCopyBuffer != null) {
-            throw new IllegalStateException("Trying to call allocNameCopyBuffer() second time");
-        }
-        _nameCopyBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.NAME_COPY_BUFFER, minSize);
-        return _nameCopyBuffer;
+        _verifyAlloc(_nameCopyBuffer);
+        return (_nameCopyBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.NAME_COPY_BUFFER, minSize));
     }
 
     /**
@@ -200,9 +181,7 @@ public final class IOContext
             /* Let's do sanity checks to ensure once-and-only-once release,
              * as well as avoiding trying to release buffers not owned
              */
-            if (buf != _readIOBuffer) {
-                throw new IllegalArgumentException("Trying to release buffer not owned by the context");
-            }
+            _verifyRelease(buf, _readIOBuffer);
             _readIOBuffer = null;
             _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.READ_IO_BUFFER, buf);
         }
@@ -214,9 +193,7 @@ public final class IOContext
             /* Let's do sanity checks to ensure once-and-only-once release,
              * as well as avoiding trying to release buffers not owned
              */
-            if (buf != _writeEncodingBuffer) {
-                throw new IllegalArgumentException("Trying to release buffer not owned by the context");
-            }
+            _verifyRelease(buf, _writeEncodingBuffer);
             _writeEncodingBuffer = null;
             _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.WRITE_ENCODING_BUFFER, buf);
         }
@@ -225,9 +202,7 @@ public final class IOContext
     public void releaseBase64Buffer(byte[] buf)
     {
         if (buf != null) { // sanity checks, release once-and-only-once, must be one owned
-            if (buf != _base64Buffer) {
-                throw new IllegalArgumentException("Trying to release buffer not owned by the context");
-            }
+            _verifyRelease(buf, _base64Buffer);
             _base64Buffer = null;
             _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.BASE64_CODEC_BUFFER, buf);
         }
@@ -236,9 +211,7 @@ public final class IOContext
     public void releaseTokenBuffer(char[] buf)
     {
         if (buf != null) {
-            if (buf != _tokenCBuffer) {
-                throw new IllegalArgumentException("Trying to release buffer not owned by the context");
-            }
+            _verifyRelease(buf, _tokenCBuffer);
             _tokenCBuffer = null;
             _bufferRecycler.releaseCharBuffer(BufferRecycler.CharBufferType.TOKEN_BUFFER, buf);
         }
@@ -247,9 +220,7 @@ public final class IOContext
     public void releaseConcatBuffer(char[] buf)
     {
         if (buf != null) {
-            if (buf != _concatCBuffer) {
-                throw new IllegalArgumentException("Trying to release buffer not owned by the context");
-            }
+            _verifyRelease(buf, _concatCBuffer);
             _concatCBuffer = null;
             _bufferRecycler.releaseCharBuffer(BufferRecycler.CharBufferType.CONCAT_BUFFER, buf);
         }
@@ -258,11 +229,29 @@ public final class IOContext
     public void releaseNameCopyBuffer(char[] buf)
     {
         if (buf != null) {
-            if (buf != _nameCopyBuffer) {
-                throw new IllegalArgumentException("Trying to release buffer not owned by the context");
-            }
+            _verifyRelease(buf, _nameCopyBuffer);
             _nameCopyBuffer = null;
             _bufferRecycler.releaseCharBuffer(BufferRecycler.CharBufferType.NAME_COPY_BUFFER, buf);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Internal helpers
+    /**********************************************************
+     */
+
+    private final void _verifyAlloc(Object buffer)
+    {
+        if (buffer != null) {
+            throw new IllegalStateException("Trying to call same allocXxx() method second time");
+        }
+    }
+    
+    private final void _verifyRelease(Object toRelease, Object src)
+    {
+        if (toRelease != src) {
+            throw new IllegalArgumentException("Trying to release buffer not owned by the context");
         }
     }
 }

@@ -2,31 +2,29 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
-
-public final class UTF8Writer
-    extends Writer
+public final class UTF8Writer extends Writer
 {
     final static int SURR1_FIRST = 0xD800;
     final static int SURR1_LAST = 0xDBFF;
     final static int SURR2_FIRST = 0xDC00;
     final static int SURR2_LAST = 0xDFFF;
 
-    final protected IOContext _context;
+    final private IOContext _context;
 
-    OutputStream _out;
+    private OutputStream _out;
 
-    byte[] _outBuffer;
+    private byte[] _outBuffer;
 
-    final int _outBufferEnd;
+    final private int _outBufferEnd;
 
-    int _outPtr;
+    private int _outPtr;
 
     /**
      * When outputting chars from BMP, surrogate pairs need to be coalesced.
      * To do this, both pairs must be known first; and since it is possible
      * pairs may be split, we need temporary storage for the first half
      */
-    int _surrogate = 0;
+    private int _surrogate = 0;
 
     public UTF8Writer(IOContext ctxt, OutputStream out)
     {
@@ -76,7 +74,7 @@ public final class UTF8Writer
             int code = _surrogate;
             _surrogate = 0;
             if (code > 0) {
-                throwIllegal(code);
+                illegalSurrogate(code);
             }
         }
     }
@@ -177,7 +175,7 @@ public final class UTF8Writer
                 // Yup, a surrogate:
                 if (c > SURR1_LAST) { // must be from first range
                     _outPtr = outPtr;
-                    throwIllegal(c);
+                    illegalSurrogate(c);
                 }
                 _surrogate = c;
                 // and if so, followed by another from next range
@@ -187,7 +185,7 @@ public final class UTF8Writer
                 c = convertSurrogate(cbuf[off++]);
                 if (c > 0x10FFFF) { // illegal in JSON as well as in XML
                     _outPtr = outPtr;
-                    throwIllegal(c);
+                    illegalSurrogate(c);
                 }
                 outBuf[outPtr++] = (byte) (0xf0 | (c >> 18));
                 outBuf[outPtr++] = (byte) (0x80 | ((c >> 12) & 0x3f));
@@ -208,7 +206,7 @@ public final class UTF8Writer
         } else if (c >= SURR1_FIRST && c <= SURR2_LAST) {
             // Illegal to get second part without first:
             if (c > SURR1_LAST) {
-                throwIllegal(c);
+                illegalSurrogate(c);
             }
             // First part just needs to be held for now
             _surrogate = c;
@@ -233,7 +231,7 @@ public final class UTF8Writer
                 _outBuffer[ptr++] = (byte) (0x80 | (c & 0x3f));
             } else { // 4 bytes
                 if (c > 0x10FFFF) { // illegal
-                    throwIllegal(c);
+                    illegalSurrogate(c);
                 }
                 _outBuffer[ptr++] = (byte) (0xf0 | (c >> 18));
                 _outBuffer[ptr++] = (byte) (0x80 | ((c >> 12) & 0x3f));
@@ -325,7 +323,7 @@ public final class UTF8Writer
                 // Yup, a surrogate:
                 if (c > SURR1_LAST) { // must be from first range
                     _outPtr = outPtr;
-                    throwIllegal(c);
+                    illegalSurrogate(c);
                 }
                 _surrogate = c;
                 // and if so, followed by another from next range
@@ -335,7 +333,7 @@ public final class UTF8Writer
                 c = convertSurrogate(str.charAt(off++));
                 if (c > 0x10FFFF) { // illegal, as per RFC 4627
                     _outPtr = outPtr;
-                    throwIllegal(c);
+                    illegalSurrogate(c);
                 }
                 outBuf[outPtr++] = (byte) (0xf0 | (c >> 18));
                 outBuf[outPtr++] = (byte) (0x80 | ((c >> 12) & 0x3f));
@@ -355,7 +353,7 @@ public final class UTF8Writer
     /**
      * Method called to calculate UTF codepoint, from a surrogate pair.
      */
-    private int convertSurrogate(int secondPart)
+    protected int convertSurrogate(int secondPart)
         throws IOException
     {
         int firstPart = _surrogate;
@@ -367,21 +365,23 @@ public final class UTF8Writer
         }
         return 0x10000 + ((firstPart - SURR1_FIRST) << 10) + (secondPart - SURR2_FIRST);
     }
-
-    private void throwIllegal(int code)
-        throws IOException
+    
+    protected static void illegalSurrogate(int code) throws IOException {
+        throw new IOException(illegalSurrogateDesc(code));
+    }
+    
+    protected static String illegalSurrogateDesc(int code)
     {
         if (code > 0x10FFFF) { // over max?
-            throw new IOException("Illegal character point (0x"+Integer.toHexString(code)+") to output; max is 0x10FFFF as per RFC 4627");
+            return "Illegal character point (0x"+Integer.toHexString(code)+") to output; max is 0x10FFFF as per RFC 4627";
         }
         if (code >= SURR1_FIRST) {
             if (code <= SURR1_LAST) { // Unmatched first part (closing without second part?)
-                throw new IOException("Unmatched first part of surrogate pair (0x"+Integer.toHexString(code)+")");
+                return "Unmatched first part of surrogate pair (0x"+Integer.toHexString(code)+")";
             }
-            throw new IOException("Unmatched second part of surrogate pair (0x"+Integer.toHexString(code)+")");
+            return "Unmatched second part of surrogate pair (0x"+Integer.toHexString(code)+")";
         }
-
         // should we ever get this?
-        throw new IOException("Illegal character point (0x"+Integer.toHexString(code)+") to output");
+        return "Illegal character point (0x"+Integer.toHexString(code)+") to output";
     }
 }

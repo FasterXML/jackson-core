@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonReadContext;
+import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -302,7 +303,12 @@ public abstract class ParserBase
         _textBuffer = ctxt.constructTextBuffer();
         _parsingContext = JsonReadContext.createRootContext();
     }
-    
+
+    @Override
+    public Version version() {
+        return PackageVersion.VERSION;
+    }
+
     /*
     /**********************************************************
     /* JsonParser impl
@@ -389,7 +395,7 @@ public abstract class ParserBase
 
     /*
     /**********************************************************
-    /* Public API, access to token information, text
+    /* Public API, access to token information, text and similar
     /**********************************************************
      */
 
@@ -403,6 +409,12 @@ public abstract class ParserBase
             return _nameCopied;
         }
         return false;
+    }
+
+    // No embedded objects with base impl...
+    @Override
+    public Object getEmbeddedObject() throws IOException, JsonParseException {
+        return null;
     }
     
     /*

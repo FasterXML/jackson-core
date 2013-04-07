@@ -327,7 +327,7 @@ public abstract class JsonParser
      * Accessor for getting version of the core package, given a parser instance.
      * Left for sub-classes to implement.
      */
-//  @Override
+    @Override
     public abstract Version version();
     
     /*
@@ -351,7 +351,7 @@ public abstract class JsonParser
      * {@link java.io.File} or {@link java.net.URL} and creates
      * stream or reader it does own them.
      */
-//  @Override
+    @Override
     public abstract void close() throws IOException;
 
     /*

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
  * method {@link JsonGenerator#useDefaultPrettyPrinter} is
  * used, which will use an instance of this class for operation.
  */
+@SuppressWarnings("serial")
 public class DefaultPrettyPrinter
     implements PrettyPrinter, Instantiatable<DefaultPrettyPrinter>,
         java.io.Serializable
@@ -311,13 +312,13 @@ public class DefaultPrettyPrinter
     public static class NopIndenter
         implements Indenter, java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
-
         public static final NopIndenter instance = new NopIndenter();
-        
-        public NopIndenter() { }
+
         @Override
-        public void writeIndentation(JsonGenerator jg, int level) { }
+        public void writeIndentation(JsonGenerator jg, int level)
+            throws IOException, JsonGenerationException
+        { }
+
         @Override
         public boolean isInline() { return true; }
     }
@@ -328,13 +329,9 @@ public class DefaultPrettyPrinter
      * indenter for array values.
      */
     public static class FixedSpaceIndenter
-        implements Indenter, java.io.Serializable
+        extends NopIndenter
     {
-        private static final long serialVersionUID = 1L;
-
         public static final FixedSpaceIndenter instance = new FixedSpaceIndenter();
-
-        public FixedSpaceIndenter() { }
 
         @Override
         public void writeIndentation(JsonGenerator jg, int level)
@@ -352,19 +349,17 @@ public class DefaultPrettyPrinter
      * 2 spaces for indentation per level.
      */
     public static class Lf2SpacesIndenter
-        implements Indenter, java.io.Serializable
+        extends NopIndenter
     {
-        private static final long serialVersionUID = 1L;
-
         public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
 
-        final static String SYSTEM_LINE_SEPARATOR;
+        private final static String SYS_LF;
         static {
             String lf = null;
             try {
                 lf = System.getProperty("line.separator");
             } catch (Throwable t) { } // access exception?
-            SYSTEM_LINE_SEPARATOR = (lf == null) ? "\n" : lf;
+            SYS_LF = (lf == null) ? "\n" : lf;
         }
 
         final static int SPACE_COUNT = 64;
@@ -373,8 +368,6 @@ public class DefaultPrettyPrinter
             Arrays.fill(SPACES, ' ');
         }
 
-        public Lf2SpacesIndenter() { }
-
         @Override
         public boolean isInline() { return false; }
 
@@ -382,7 +375,7 @@ public class DefaultPrettyPrinter
         public void writeIndentation(JsonGenerator jg, int level)
             throws IOException, JsonGenerationException
         {
-            jg.writeRaw(SYSTEM_LINE_SEPARATOR);
+            jg.writeRaw(SYS_LF);
             if (level > 0) { // should we err on negative values (as there's some flaw?)
                 level += level; // 2 spaces per level
                 while (level > SPACE_COUNT) { // should never happen but...

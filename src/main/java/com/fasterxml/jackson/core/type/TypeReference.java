@@ -52,7 +52,7 @@ public abstract class TypeReference<T>
      * of <code>Comparable</code>) is to prevent constructing a
      * reference without type information.
      */
-//  @Override
+    @Override
     public int compareTo(TypeReference<T> o) {
         // just need an implementation, not a good one... hence:
         return 0;

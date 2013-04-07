@@ -498,7 +498,7 @@ public abstract class GeneratorBase
     }    
 
     protected final void _throwInternal() {
-        throw new RuntimeException("Internal error: this code path should never get executed");
+        VersionUtil.throwInternal();
     }
 
     protected void _reportUnsupportedOperation() {

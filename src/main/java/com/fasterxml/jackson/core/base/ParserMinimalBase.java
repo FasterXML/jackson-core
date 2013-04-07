@@ -605,9 +605,8 @@ public abstract class ParserMinimalBase
         throw _constructError(msg, t);
     }
 
-    protected final void _throwInternal()
-    {
-        throw new RuntimeException("Internal error: this code path should never get executed");
+    protected final void _throwInternal() {
+        VersionUtil.throwInternal();
     }
 
     protected final JsonParseException _constructError(String msg, Throwable t)

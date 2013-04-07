@@ -866,9 +866,8 @@ public abstract class ParserBase
             }
             _numberInt = _numberBigDecimal.intValue();
         } else {
-            _throwInternal(); // should never get here
+            _throwInternal();
         }
-    
         _numTypesValid |= NR_INT;
     }
     
@@ -896,9 +895,8 @@ public abstract class ParserBase
             }
             _numberLong = _numberBigDecimal.longValue();
         } else {
-            _throwInternal(); // should never get here
+            _throwInternal();
         }
-    
         _numTypesValid |= NR_LONG;
     }
     
@@ -915,7 +913,7 @@ public abstract class ParserBase
         } else if ((_numTypesValid & NR_DOUBLE) != 0) {
             _numberBigInt = BigDecimal.valueOf(_numberDouble).toBigInteger();
         } else {
-            _throwInternal(); // should never get here
+            _throwInternal();
         }
         _numTypesValid |= NR_BIGINT;
     }
@@ -938,9 +936,8 @@ public abstract class ParserBase
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberDouble = (double) _numberInt;
         } else {
-            _throwInternal(); // should never get here
+            _throwInternal();
         }
-    
         _numTypesValid |= NR_DOUBLE;
     }
     
@@ -966,7 +963,7 @@ public abstract class ParserBase
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberBigDecimal = BigDecimal.valueOf((long) _numberInt);
         } else {
-            _throwInternal(); // should never get here
+            _throwInternal();
         }
         _numTypesValid |= NR_BIGDECIMAL;
     }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.Versioned;
 
 /**
  * Functionality for supporting exposing of component {@link Version}s.
+ * Also contains other misc methods that have no other place to live in.
  *<p>
  * Note that this class can be used in two roles: first, as a static
  * utility class for loading purposes, and second, as a singleton
@@ -255,5 +256,15 @@ public class VersionUtil
             number = (number * 10) + (c - '0');
         }
         return number;
+    }
+
+    /*
+    /**********************************************************
+    /* Orphan utility methods
+    /**********************************************************
+     */
+
+    public final static void throwInternal() {
+        throw new RuntimeException("Internal error: this code path should never get executed");
     }
 }

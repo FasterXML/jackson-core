@@ -2984,13 +2984,13 @@ public final class UTF8StreamJsonParser
 
     protected void _reportInvalidChar(int c)
         throws JsonParseException
-        {
-            // Either invalid WS or illegal UTF-8 start char
-            if (c < INT_SPACE) {
-                _throwInvalidSpace(c);
-            }
-            _reportInvalidInitial(c);
+    {
+        // Either invalid WS or illegal UTF-8 start char
+        if (c < INT_SPACE) {
+            _throwInvalidSpace(c);
         }
+        _reportInvalidInitial(c);
+    }
 
     protected void _reportInvalidInitial(int mask)
         throws JsonParseException

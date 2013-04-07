@@ -2364,36 +2364,34 @@ public final class UTF8StreamJsonParser
      * Method called if expected numeric value (due to leading sign) does not
      * look like a number
      */
-    protected JsonToken _handleInvalidNumberStart(int ch, boolean negative)
+    protected JsonToken _handleInvalidNumberStart(int ch, boolean neg)
         throws IOException, JsonParseException
     {
-        if (ch == 'I') {
+        while (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
                 if (!loadMore()) {
                     _reportInvalidEOFInValue();
                 }
             }
             ch = _inputBuffer[_inputPtr++];
+            String match;
             if (ch == 'N') {
-                String match = negative ? "-INF" :"+INF";
-                _matchToken(match, 3);
-                if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
-                    return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
-                }
-                _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+                match = neg ? "-INF" :"+INF";
             } else if (ch == 'n') {
-                String match = negative ? "-Infinity" :"+Infinity";
-                _matchToken(match, 3);
-                if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
-                    return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
-                }
-                _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+                match = neg ? "-Infinity" :"+Infinity";
+            } else {
+                break;
             }
+            _matchToken(match, 3);
+            if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+                return resetAsNaN(match, neg ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
+            }
+            _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
         }
         reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;
     }
-
+    
     protected void _matchToken(String matchStr, int i)
         throws IOException, JsonParseException
     {
@@ -2431,7 +2429,7 @@ public final class UTF8StreamJsonParser
     protected void _reportInvalidToken(String matchedPart)
             throws IOException, JsonParseException
     {
-    	_reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
+        _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }
     
     protected void _reportInvalidToken(String matchedPart, String msg)

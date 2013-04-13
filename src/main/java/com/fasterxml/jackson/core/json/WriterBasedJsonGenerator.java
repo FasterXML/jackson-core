@@ -577,6 +577,31 @@ public final class WriterBasedJsonGenerator
      */
 
     @Override
+    public void writeNumber(short s)
+        throws IOException, JsonGenerationException
+    {
+        _verifyValueWrite("write number");
+        if (_cfgNumbersAsStrings) {
+            _writeQuotedShort(s);
+            return;
+        }
+        // up to 5 digits and possible minus sign
+        if ((_outputTail + 6) >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+    }
+
+    private void _writeQuotedShort(short s) throws IOException {
+        if ((_outputTail + 8) >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = '"';
+        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = '"';
+    }    
+
+    @Override
     public void writeNumber(int i)
         throws IOException, JsonGenerationException
     {

@@ -414,11 +414,30 @@ public abstract class GeneratorBase
     /**********************************************************
      */
 
+    /**
+     * Method called to release any buffers generator may be holding,
+     * once generator is being closed.
+     */
     protected abstract void _releaseBuffers();
 
+    /**
+     * Method called before trying to write a value (scalar or structured),
+     * to verify that this is legal in current output state, as well as to
+     * output separators if and as necessary.
+     * 
+     * @param typeMsg Additional message used for generating exception message
+     *   if value output is NOT legal in current generator output state.
+     */
     protected abstract void _verifyValueWrite(String typeMsg)
         throws IOException, JsonGenerationException;
 
+    /**
+     * Helper method used for constructing and throwing
+     * {@link JsonGenerationException} with given base message.
+     *<p>
+     * Note that sub-classes may override this method to add more detail
+     * or use a {@link JsonGenerationException} sub-class.
+     */
     protected void _reportError(String msg)
         throws JsonGenerationException
     {

@@ -784,7 +784,7 @@ public class UTF8JsonGenerator
             _writeQuotedShort(s);
             return;
         }
-        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+        _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
     }
     
     private void _writeQuotedShort(short s) throws IOException {
@@ -792,7 +792,7 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+        _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     } 
     

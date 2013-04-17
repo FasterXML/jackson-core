@@ -62,14 +62,6 @@ public final class NumberOutput
     /**********************************************************
      */
 
-    public static int outputShort(int value, char[] buffer, int offset) {
-    	return outputInt(value, buffer, offset);
-    }
-
-    public static int outputShort(int value, byte[] buffer, int offset) {
-    	return outputInt(value, buffer, offset);
-    }
-    
     /**
      * @return Offset within buffer after outputting int
      */

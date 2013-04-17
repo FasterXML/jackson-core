@@ -785,9 +785,12 @@ public abstract class JsonGenerator
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @since 2.2
      */
-    public abstract void writeNumber(short v)
-        throws IOException, JsonGenerationException;
+    public void writeNumber(short v) throws IOException, JsonGenerationException {
+        writeNumber((int) v);
+    }
 
     /**
      * Method for outputting given value as Json number.

@@ -589,7 +589,7 @@ public final class WriterBasedJsonGenerator
         if ((_outputTail + 6) >= _outputEnd) {
             _flushBuffer();
         }
-        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+        _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
     }
 
     private void _writeQuotedShort(short s) throws IOException {
@@ -597,7 +597,7 @@ public final class WriterBasedJsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = '"';
-        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+        _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
         _outputBuffer[_outputTail++] = '"';
     }    
 

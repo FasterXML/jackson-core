@@ -772,6 +772,31 @@ public class UTF8JsonGenerator
      */
 
     @Override
+    public void writeNumber(short s)
+        throws IOException, JsonGenerationException
+    {
+        _verifyValueWrite("write number");
+        // up to 5 digits and possible minus sign
+        if ((_outputTail + 6) >= _outputEnd) {
+            _flushBuffer();
+        }
+        if (_cfgNumbersAsStrings) {
+            _writeQuotedShort(s);
+            return;
+        }
+        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+    }
+    
+    private void _writeQuotedShort(short s) throws IOException {
+        if ((_outputTail + 8) >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = BYTE_QUOTE;
+        _outputTail = NumberOutput.outputShort(s, _outputBuffer, _outputTail);
+        _outputBuffer[_outputTail++] = BYTE_QUOTE;
+    } 
+    
+    @Override
     public void writeNumber(int i)
         throws IOException, JsonGenerationException
     {

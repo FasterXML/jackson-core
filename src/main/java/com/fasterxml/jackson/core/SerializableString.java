@@ -1,3 +1,8 @@
+/* Jackson JSON-processor.
+ *
+ * Copyright (c) 2007- Tatu Saloranta, tatu.saloranta@iki.fi
+ */
+
 package com.fasterxml.jackson.core;
 
 import java.io.IOException;

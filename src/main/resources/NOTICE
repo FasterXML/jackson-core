@@ -1,0 +1,15 @@
+# Jackson JSON processor
+
+Jackson is a high-performance, Free/Open Source JSON processing library.
+It was originally written by Tatu Saloranta (tatu.saloranta@iki.fi), and has
+been in development since 2007. Nowadays it is developed by a community
+of developers, and supported commercially by FasterXML.com.
+
+Licensing details that apply to this artifact should be explained in accompanying
+LICENSE file. For more information, including possible other licensing options,
+contact FasterXML (http://fasterxml.com).
+
+A list of contributors may be found from CREDITS file, which is included
+in some artifacts (usually source distributions); but is always available
+from the source code management (SCM) system project uses.
+

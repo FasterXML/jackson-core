@@ -98,11 +98,5 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 # Further reading
 
-Project-specific documentation:
-
-* [Javadocs](http://fasterxml.github.com/jackson-core/javadoc/2.0.6/)
 * [Documentation](https://github.com/FasterXML/jackson-core/wiki/Documentation) has other project documentation
-
-Related:
-
 * [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)

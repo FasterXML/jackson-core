@@ -1,7 +1,16 @@
 Project: jackson-core
-Version: 2.2.0 (22-Apr-2013)
+Version: 2.2.1 (xx-May-2013)
 
-New minor version.
+Changes:
+
+- Moved VERSION/LICENSE contained in jars under META-INF/, to resolve
+  Android packaging (APK) issues
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.2.0 (22-Apr-2013)
 
 Fixes:
 
@@ -15,10 +24,6 @@ Improvements
 #59: Add more functionality in `TreeNode` interface, to allow some
  level of traversal over any and all Tree Model implementations
 #69: Add support for writing `short` values in JsonGenerator
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.1.3 (19-Jan-2013)
 

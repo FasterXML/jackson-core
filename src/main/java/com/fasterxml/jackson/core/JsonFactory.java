@@ -327,7 +327,7 @@ public class JsonFactory
      * Also: must be overridden by sub-classes as well.
      */
     protected Object readResolve() {
-        return new JsonFactory(_objectCodec);
+        return new JsonFactory(this, _objectCodec);
     }
     
     /*

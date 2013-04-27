@@ -3,6 +3,8 @@ Version: 2.2.1 (xx-May-2013)
 
 Changes:
 
+#72: JsonFactory.copy() was not copying settings properly
+ (reported by Christian S (squiddle@github))
 - Moved VERSION/LICENSE contained in jars under META-INF/, to resolve
   Android packaging (APK) issues
 

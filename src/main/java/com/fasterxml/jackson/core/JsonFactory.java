@@ -42,34 +42,15 @@ public class JsonFactory
         java.io.Serializable // since 2.1 (for Android, mostly)
 {
     /**
-     * Computed for Jackson 2.1.0 release
+     * Computed for Jackson 2.2.0 release
      */
     private static final long serialVersionUID = 8726401676402117450L;
 
-    /**
-     * Name used to identify JSON format
-     * (and returned by {@link #getFormatName()}
+    /*
+    /**********************************************************
+    /* Helper types
+    /**********************************************************
      */
-    public final static String FORMAT_NAME_JSON = "JSON";
-    
-    /**
-     * Bitfield (set of flags) of all factory features that are enabled by default.
-     */
-    protected final static int DEFAULT_FACTORY_FEATURE_FLAGS = JsonFactory.Feature.collectDefaults();
-
-    /**
-     * Bitfield (set of flags) of all parser features that are enabled
-     * by default.
-     */
-    protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
-    
-    /**
-     * Bitfield (set of flags) of all generator features that are enabled
-     * by default.
-     */
-    protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
-
-    private final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
     
     /**
      * Enumeration that defines all on/off features that can only be
@@ -138,7 +119,39 @@ public class JsonFactory
         public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
         
         public int getMask() { return (1 << ordinal()); }
-    }    
+    }
+
+    /*
+    /**********************************************************
+    /* Constants
+    /**********************************************************
+     */
+    
+    /**
+     * Name used to identify JSON format
+     * (and returned by {@link #getFormatName()}
+     */
+    public final static String FORMAT_NAME_JSON = "JSON";
+    
+    /**
+     * Bitfield (set of flags) of all factory features that are enabled by default.
+     */
+    protected final static int DEFAULT_FACTORY_FEATURE_FLAGS = JsonFactory.Feature.collectDefaults();
+
+    /**
+     * Bitfield (set of flags) of all parser features that are enabled
+     * by default.
+     */
+    protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
+    
+    /**
+     * Bitfield (set of flags) of all generator features that are enabled
+     * by default.
+     */
+    protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
+
+    private final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+    
     /*
     /**********************************************************
     /* Buffer, symbol table management
@@ -243,10 +256,32 @@ public class JsonFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    public JsonFactory() { this(null); }
+    public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) { _objectCodec = oc; }
 
+    /**
+     * Constructor used when copy()ing a factory instance.
+     * 
+     * @since 2.2.1
+     */
+    protected JsonFactory(JsonFactory src, ObjectCodec codec)
+    {
+        _objectCodec = null;
+        _factoryFeatures = src._factoryFeatures;
+        _parserFeatures = src._parserFeatures;
+        _generatorFeatures = src._generatorFeatures;
+        _characterEscapes = src._characterEscapes;
+        _inputDecorator = src._inputDecorator;
+        _outputDecorator = src._outputDecorator;
+        _rootValueSeparator = src._rootValueSeparator;
+        
+        /* 27-Apr-2013, tatu: How about symbol table; should we try to
+         *   reuse shared symbol tables? Could be more efficient that way;
+         *   although can slightly add to concurrency overhead.
+         */
+    }
+    
     /**
      * Method for constructing a new {@link JsonFactory} that has
      * the same settings as this instance, but is otherwise
@@ -254,16 +289,20 @@ public class JsonFactory
      * are separate).
      * Note that {@link ObjectCodec} reference is not copied but is
      * set to null; caller typically needs to set it after calling
-     * this method.
+     * this method. Reason for this is that the codec is used for
+     * callbacks, and assumption is that there is strict 1-to-1
+     * mapping between codec, factory. Caller has to, then, explicitly
+     * set codec after making the copy.
      * 
      * @since 2.1
      */
     public JsonFactory copy()
     {
         _checkInvalidCopy(JsonFactory.class);
-        return new JsonFactory(null);
+        // as per above, do clear ObjectCodec
+        return new JsonFactory(this, null);
     }
-
+    
     /**
      * @since 2.1
      * @param exp

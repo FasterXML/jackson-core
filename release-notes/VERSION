@@ -1,16 +1,18 @@
 Project: jackson-core
-Version: 2.2.1 (03-May-2013)
+Version: 2.2.2 (26-May-2013)
 
-Changes:
+No changes since previous version.
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.2.1 (03-May-2013)
 
 #72: JsonFactory.copy() was not copying settings properly
  (reported by Christian S (squiddle@github))
 - Moved VERSION/LICENSE contained in jars under META-INF/, to resolve
   Android packaging (APK) issues
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.2.0 (22-Apr-2013)
 

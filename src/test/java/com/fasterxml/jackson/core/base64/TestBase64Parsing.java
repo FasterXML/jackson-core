@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.base64;
 
 import static org.junit.Assert.assertArrayEquals;
 

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.base64;
 
 import org.junit.Assert;
 

@@ -30,7 +30,7 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
     
     private void assertVersion(Version v)
     {
-    	assertEquals(PackageVersion.VERSION, v);
+        assertEquals(PackageVersion.VERSION, v);
     }
 
     private IOContext getIOContext() {

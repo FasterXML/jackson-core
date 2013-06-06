@@ -1217,6 +1217,10 @@ public final class UTF8StreamJsonParser
                 break;
             }
             ++intLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
             outBuf[outPtr++] = (char) c;
         }
         if (c == '.' || c == 'e' || c == 'E') {

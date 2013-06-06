@@ -1011,11 +1011,8 @@ public final class BytesToNameCanonicalizer
      */
     private void unshareMain()
     {
-        int[] old = _mainHash;
-        int len = _mainHash.length;
-
-        _mainHash = new int[len];
-        System.arraycopy(old, 0, _mainHash, 0, len);
+        final int[] old = _mainHash;
+        _mainHash = Arrays.copyOf(old, old.length);
         _mainHashShared = false;
     }
 
@@ -1025,30 +1022,23 @@ public final class BytesToNameCanonicalizer
         if (old == null) {
             _collList = new Bucket[INITIAL_COLLISION_LEN];
         } else {
-            int len = old.length;
-            _collList = new Bucket[len];
-            System.arraycopy(old, 0, _collList, 0, len);
+            _collList = Arrays.copyOf(old, old.length);
         }
         _collListShared = false;
     }
 
     private void unshareNames()
     {
-        Name[] old = _mainNames;
-        int len = old.length;
-        _mainNames = new Name[len];
-        System.arraycopy(old, 0, _mainNames, 0, len);
+        final Name[] old = _mainNames;
+        _mainNames = Arrays.copyOf(old, old.length);
         _mainNamesShared = false;
     }
 
     private void expandCollision()
     {
-        Bucket[] old = _collList;
-        int len = old.length;
-        _collList = new Bucket[len+len];
-        System.arraycopy(old, 0, _collList, 0, len);
+        final Bucket[] old = _collList;
+        _collList = Arrays.copyOf(old, old.length * 2);
     }
-
 
     /*
     /**********************************************************

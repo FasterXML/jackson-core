@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.core.io.NumberInput;
 
@@ -589,20 +590,18 @@ public final class TextBuffer
 
     /**
      * Method called to expand size of the current segment, to
-     * accomodate for more contiguous content. Usually only
-     * used when parsing tokens like names.
+     * accommodate for more contiguous content. Usually only
+     * used when parsing tokens like names if even then.
      */
     public char[] expandCurrentSegment()
     {
-        char[] curr = _currentSegment;
+        final char[] curr = _currentSegment;
         // Let's grow by 50%
-        int len = curr.length;
+        final int len = curr.length;
         // Must grow by at least 1 char, no matter what
         int newLen = (len == MAX_SEGMENT_LEN) ?
             (MAX_SEGMENT_LEN + 1) : Math.min(MAX_SEGMENT_LEN, len + (len >> 1));
-        _currentSegment = _charArray(newLen);
-        System.arraycopy(curr, 0, _currentSegment, 0, len);
-        return _currentSegment;
+        return (_currentSegment = Arrays.copyOf(curr, newLen));
     }
 
     /*
@@ -672,9 +671,8 @@ public final class TextBuffer
         if (sizeAddition < minNewSegmentSize) {
             sizeAddition = minNewSegmentSize;
         }
-        curr = _charArray(Math.min(MAX_SEGMENT_LEN, oldLen + sizeAddition));
         _currentSize = 0;
-        _currentSegment = curr;
+        _currentSegment = _charArray(Math.min(MAX_SEGMENT_LEN, oldLen + sizeAddition));
     }
 
     private char[] buildResultArray()
@@ -682,33 +680,34 @@ public final class TextBuffer
         if (_resultString != null) { // Can take a shortcut...
             return _resultString.toCharArray();
         }
-        char[] result;
-        
         // Do we use shared array?
         if (_inputStart >= 0) {
-            if (_inputLen < 1) {
+            final int len = _inputLen;
+            if (len < 1) {
                 return NO_CHARS;
             }
-            result = _charArray(_inputLen);
-            System.arraycopy(_inputBuffer, _inputStart, result, 0,
-                             _inputLen);
-        } else { // nope 
-            int size = size();
-            if (size < 1) {
-                return NO_CHARS;
+            final int start = _inputStart;
+            if (start == 0) {
+                return Arrays.copyOf(_inputBuffer, len);
             }
-            int offset = 0;
-            result = _charArray(size);
-            if (_segments != null) {
-                for (int i = 0, len = _segments.size(); i < len; ++i) {
-                    char[] curr = (char[]) _segments.get(i);
-                    int currLen = curr.length;
-                    System.arraycopy(curr, 0, result, offset, currLen);
-                    offset += currLen;
-                }
-            }
-            System.arraycopy(_currentSegment, 0, result, offset, _currentSize);
+            return Arrays.copyOfRange(_inputBuffer, start, start+len);
         }
+        // nope, not shared
+        int size = size();
+        if (size < 1) {
+            return NO_CHARS;
+        }
+        int offset = 0;
+        final char[] result = _charArray(size);
+        if (_segments != null) {
+            for (int i = 0, len = _segments.size(); i < len; ++i) {
+                char[] curr = (char[]) _segments.get(i);
+                int currLen = curr.length;
+                System.arraycopy(curr, 0, result, offset, currLen);
+                offset += currLen;
+            }
+        }
+        System.arraycopy(_currentSegment, 0, result, offset, _currentSize);
         return result;
     }
 

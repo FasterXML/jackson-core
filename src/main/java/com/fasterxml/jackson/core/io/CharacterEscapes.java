@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.core.SerializableString;
 
 /**
@@ -65,9 +67,6 @@ public abstract class CharacterEscapes
     public static int[] standardAsciiEscapesForJSON()
     {
         int[] esc = CharTypes.get7BitOutputEscapes();
-        int len = esc.length;
-        int[] result = new int[len];
-        System.arraycopy(esc, 0, result, 0, esc.length);
-        return result;
+        return Arrays.copyOf(esc, esc.length);
     }
 }

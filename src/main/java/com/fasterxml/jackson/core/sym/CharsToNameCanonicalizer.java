@@ -573,15 +573,12 @@ public final class CharsToNameCanonicalizer
      * Method called when copy-on-write is needed; generally when first
      * change is made to a derived symbol table.
      */
-    private void copyArrays() {
-        String[] oldSyms = _symbols;
-        int size = oldSyms.length;
-        _symbols = new String[size];
-        System.arraycopy(oldSyms, 0, _symbols, 0, size);
-        Bucket[] oldBuckets = _buckets;
-        size = oldBuckets.length;
-        _buckets = new Bucket[size];
-        System.arraycopy(oldBuckets, 0, _buckets, 0, size);
+    private void copyArrays()
+    {
+        final String[] oldSyms = _symbols;
+        _symbols = Arrays.copyOf(oldSyms, oldSyms.length);
+        final Bucket[] oldBuckets = _buckets;
+        _buckets = Arrays.copyOf(oldBuckets, oldBuckets.length);
     }
 
     /**

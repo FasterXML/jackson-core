@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.misc;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.test.BaseTest;

@@ -12,8 +12,16 @@ import com.fasterxml.jackson.core.*;
 public class TestNumericValues
     extends com.fasterxml.jackson.test.BaseTest
 {
-    public void testSimpleInt()
-        throws Exception
+    public void testSimpleBoolean() throws Exception
+    {
+        JsonParser jp = createParserUsingReader("[ true ]");
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        assertEquals(true, jp.getBooleanValue());
+        jp.close();
+    }
+
+    public void testSimpleInt() throws Exception
     {
         int EXP_I = 1234;
 
@@ -27,10 +35,10 @@ public class TestNumericValues
         assertEquals((long) EXP_I, jp.getLongValue());
         assertEquals((double) EXP_I, jp.getDoubleValue());
         assertEquals(BigDecimal.valueOf((long) EXP_I), jp.getDecimalValue());
+        jp.close();
     }
 
-    public void testIntRange()
-        throws Exception
+    public void testIntRange() throws Exception
     {
         // let's test with readers and streams, separate code paths:
         for (int i = 0; i < 2; ++i) {
@@ -49,20 +57,6 @@ public class TestNumericValues
             assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
             assertEquals(JsonParser.NumberType.INT, jp.getNumberType());
             assertEquals(Integer.MIN_VALUE, jp.getIntValue());
-        }
-    }
-    
-    public void testInvalidIntAccess()
-        throws Exception
-    {
-        JsonParser jp = createParserUsingReader("[ \"abc\" ]");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        try {
-            jp.getIntValue();
-            fail("Expected error trying to call getIntValue on non-numeric value");
-        } catch (JsonParseException e) {
-            verifyException(e, "can not use numeric value accessors");
         }
     }
 
@@ -151,7 +145,32 @@ public class TestNumericValues
             assertToken(JsonToken.END_ARRAY, jp.nextToken());        
             jp.close();
         }
-}
+    }
+
+    // for [Issue#78]
+    public void testBigNumbers() throws Exception
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 520; ++i) { // input buffer is 512 bytes by default
+            sb.append('1');
+        }
+        final String NUMBER_STR = sb.toString();
+        BigInteger biggie = new BigInteger(NUMBER_STR);
+        
+        for (int i = 0; i < 2; ++i) {
+            JsonParser jp;
+            if (i == 0) {
+                jp = createParserUsingReader(NUMBER_STR);                
+            } else {
+                jp = this.createParserUsingStream(NUMBER_STR, "UTF-8");
+            }
+            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, jp.getNumberType());
+            assertEquals(NUMBER_STR, jp.getText());
+            assertEquals(biggie, jp.getBigIntegerValue());
+            jp.close();
+        }
+    }
     
     public void testSimpleDouble()
         throws Exception
@@ -346,19 +365,10 @@ public class TestNumericValues
 
     /*
     /**********************************************************
-    /* New tests for 1.3 features
+    /* Tests for invalid access
     /**********************************************************
      */
-
-    public void testSimpleBoolean()
-        throws Exception
-    {
-        JsonParser jp = createParserUsingReader("[ true ]");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertEquals(true, jp.getBooleanValue());
-    }
-
+    
     public void testInvalidBooleanAccess()
         throws Exception
     {
@@ -370,6 +380,19 @@ public class TestNumericValues
             fail("Expected error trying to call getBooleanValue on non-boolean value");
         } catch (JsonParseException e) {
             verifyException(e, "not of boolean type");
+        }
+    }
+
+    public void testInvalidIntAccess() throws Exception
+    {
+        JsonParser jp = createParserUsingReader("[ \"abc\" ]");
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        try {
+            jp.getIntValue();
+            fail("Expected error trying to call getIntValue on non-numeric value");
+        } catch (JsonParseException e) {
+            verifyException(e, "can not use numeric value accessors");
         }
     }
 }

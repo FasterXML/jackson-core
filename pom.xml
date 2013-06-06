@@ -9,7 +9,7 @@
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
-  <version>2.2.3-SNAPSHOT</version>
+  <version>2.3.0-SNAPSHOT</version>
   <description>Core Jackson abstractions, basic JSON streaming API implementation
   </description>
 
@@ -132,7 +132,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
               <links>
                   <!-- JDK, other Jackson pkgs -->
                   <link>http://docs.oracle.com/javase/6/docs/api/</link>
-                  <link>http://fasterxml.github.com/jackson-core/javadoc/2.2.0/</link>
+                  <link>http://fasterxml.github.com/jackson-core/javadoc/2.3.0/</link>
               </links>
               <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
               <bootclasspath>${sun.boot.class.path}</bootclasspath>

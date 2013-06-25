@@ -1368,6 +1368,13 @@ public final class ReaderBasedJsonParser
             }
             _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             break;
+        case 'I':
+            _matchToken("Infinity", 1);
+            if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+                return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
+            }
+            _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            break;
         case '+': // note: '-' is taken as number
             if (_inputPtr >= _inputEnd) {
                 if (!loadMore()) {

@@ -398,7 +398,7 @@ public class TestParserNonStandard
 
     private void _testAllowInf(boolean useStream) throws Exception
     {
-        final String JSON = "[ -INF, +INF, +Infinity,-Infinity ]";
+        final String JSON = "[ -INF, +INF, +Infinity, Infinity, -Infinity ]";
         JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
 
@@ -419,7 +419,7 @@ public class TestParserNonStandard
         f.configure(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS, true);
         jp = useStream ? createParserUsingStream(f, JSON, "UTF-8")
                 : createParserUsingReader(f, JSON);
-        
+
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
@@ -439,7 +439,13 @@ public class TestParserNonStandard
         assertEquals("+Infinity", jp.getText());
         assertTrue(Double.isInfinite(d));
         assertTrue(d == Double.POSITIVE_INFINITY);
-        
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
+        d = jp.getDoubleValue();
+        assertEquals("Infinity", jp.getText());
+        assertTrue(Double.isInfinite(d));
+        assertTrue(d == Double.POSITIVE_INFINITY);
+
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
         d = jp.getDoubleValue();
         assertEquals("-Infinity", jp.getText());
@@ -455,6 +461,7 @@ public class TestParserNonStandard
                 : createParserUsingReader(f, JSON);
 
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());

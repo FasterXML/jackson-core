@@ -2,14 +2,8 @@ package com.fasterxml.jackson.core.io;
 
 import java.util.Arrays;
 
-
 public final class CharTypes
 {
-    /**
-     * Utility class - not for instantiation
-     */
-    private CharTypes() {}
-
     private final static char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
     private final static byte[] HEX_BYTES;
     static {
@@ -138,7 +132,7 @@ public final class CharTypes
         int[] table = new int[128];
         // Control chars need generic escape sequence
         for (int i = 0; i < 32; ++i) {
-            // 04-Mar-2011, tatu: Used to use "-(i + 1)", replaced with constants
+            // 04-Mar-2011, tatu: Used to use "-(i + 1)", replaced with constant
             table[i] = CharacterEscapes.ESCAPE_STANDARD;
         }
         /* Others (and some within that range too) have explicit shorter
@@ -207,8 +201,6 @@ public final class CharTypes
             sb.append('\\');
             int escCode = escCodes[c];
             if (escCode < 0) { // generic quoting (hex value)
-                assert escCode == CharacterEscapes.ESCAPE_STANDARD :
-                        "Unexpected/unsupported ESCAPE_XXX sentinel value";
                 // The only negative value sOutputEscapes128 returns
                 // is CharacterEscapes.ESCAPE_STANDARD, which mean
                 // appendQuotes should encode using the Unicode encoding;

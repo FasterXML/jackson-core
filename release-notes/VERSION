@@ -3,6 +3,8 @@ Version: 2.2.3 (xx-Jul-2013)
 
 #78: ArrayIndexOutOfBoundsException for very long numbers (>500 digits)
  (reported by boothen@github)
+#84: Support for parsing 'Infinity' when feature ALLOW_NON_NUMERIC_NUMBERS is on
+ (contributed by ebrevdo@github)
 
 ------------------------------------------------------------------------
 === History: ===

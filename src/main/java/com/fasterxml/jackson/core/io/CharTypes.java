@@ -5,6 +5,11 @@ import java.util.Arrays;
 
 public final class CharTypes
 {
+    /**
+     * Utility class - not for instantiation
+     */
+    private CharTypes() {}
+
     private final static char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
     private final static byte[] HEX_BYTES;
     static {
@@ -101,7 +106,7 @@ public final class CharTypes
     final static int[] sInputCodesUtf8JsNames;
     static {
         int[] table = new int[256];
-        // start with 8-bit JS names 
+        // start with 8-bit JS names
         System.arraycopy(sInputCodesJsNames, 0, table, 0, sInputCodesJsNames.length);
         Arrays.fill(table, 128, 128, 0);
         sInputCodesUtf8JsNames = table;
@@ -115,7 +120,7 @@ public final class CharTypes
     static {
         // but first: let's start with UTF-8 multi-byte markers:
         System.arraycopy(sInputCodesUtf8, 128, sInputCodesComment, 128, 128);
-    
+
         // default (0) means "ok" (skip); -1 invalid, others marked by char itself
         Arrays.fill(sInputCodesComment, 0, 32, -1); // invalid white space
         sInputCodesComment['\t'] = 0; // tab is still fine
@@ -125,7 +130,7 @@ public final class CharTypes
     }
 
     /**
-     * Lookup table used for determining which output characters in 
+     * Lookup table used for determining which output characters in
      * 7-bit ASCII range need to be quoted.
      */
     final static int[] sOutputEscapes128;
@@ -174,7 +179,7 @@ public final class CharTypes
     public static int[] getInputCodeUtf8JsNames() { return sInputCodesUtf8JsNames; }
 
     public static int[] getInputCodeComment() { return sInputCodesComment; }
-    
+
     /**
      * Accessor for getting a read-only encoding table for first 128 Unicode
      * code points (single-byte UTF-8 characters).
@@ -202,11 +207,20 @@ public final class CharTypes
             sb.append('\\');
             int escCode = escCodes[c];
             if (escCode < 0) { // generic quoting (hex value)
+                assert escCode == CharacterEscapes.ESCAPE_STANDARD :
+                        "Unexpected/unsupported ESCAPE_XXX sentinel value";
+                // The only negative value sOutputEscapes128 returns
+                // is CharacterEscapes.ESCAPE_STANDARD, which mean
+                // appendQuotes should encode using the Unicode encoding;
+                // not sure if this is the right way to encode for
+                // CharacterEscapes.ESCAPE_CUSTOM or other (future)
+                // CharacterEscapes.ESCAPE_XXX values.
+
                 // We know that it has to fit in just 2 hex chars
                 sb.append('u');
                 sb.append('0');
                 sb.append('0');
-                int value = -(escCode + 1);
+                int value = c;  // widening
                 sb.append(HEX_CHARS[value >> 4]);
                 sb.append(HEX_CHARS[value & 0xF]);
             } else { // "named", i.e. prepend with slash

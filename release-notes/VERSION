@@ -3,6 +3,8 @@ Version: 2.2.3 (xx-Jul-2013)
 
 #78: ArrayIndexOutOfBoundsException for very long numbers (>500 digits)
  (reported by boothen@github)
+#81: CharTypes.appendQuoted misencodes first 32 Unicode values as '\0000'
+ (reported by githubaff0@github)
 #84: Support for parsing 'Infinity' when feature ALLOW_NON_NUMERIC_NUMBERS is on
  (contributed by ebrevdo@github)
 

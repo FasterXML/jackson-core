@@ -9,13 +9,17 @@ Tatu Saloranta, tatu.saloranta@iki.fi: author
 Pascal G�linas:
   * Reported [JACKSON-827]: 2.0.0 was accidentally requiring JDK 1.6
     (should still be 1.5)
-   [2.0.1]
+   (2.0.1)
 
 Ben Gertzfield (bgertzfield@github):
   * Contributed [Issue#49]: Improvements to VersionUtil to more efficiently
     read dynamically generated/embedded version information, to improve
     Android startup time
-   [2.2.0]
+   (2.2.0)
 
 Klaus Brunner (KlausBrunner@github)
   * Reported [Issue#48]: Problem with URLs, spaces
+
+Eugene Brevdo (ebrevdo@github)
+  * Contributed #84: Support 'Infinity' as alternative (no leading plus)
+   (2.2.3)

@@ -6,6 +6,8 @@ package com.fasterxml.jackson.core;
 
 import java.util.Arrays;
 
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+
 /**
  * Abstract base class used to define specific details of which
  * variant of Base64 encoding/decoding is to be used. Although there is
@@ -17,6 +19,8 @@ import java.util.Arrays;
 public final class Base64Variant
     implements java.io.Serializable
 {
+    private final static int INT_SPACE = 0x20;
+    
     // We'll only serialize name
     private static final long serialVersionUID = 1L;
 
@@ -336,6 +340,13 @@ public final class Base64Variant
         return outPtr;
     }
 
+    /*
+    /**********************************************************
+    /* Convenience conversion methods for String to/from bytes
+    /* use case.
+    /**********************************************************
+     */
+    
     /**
      * Convenience method for converting given byte array as base64 encoded
      * String using this variant's settings.
@@ -349,9 +360,9 @@ public final class Base64Variant
     }
 
     /**
-     * Convenience method for converting given byte array as base64 encoded
-     * String using this variant's settings, optionally enclosed in
-     * double-quotes.
+     * Convenience method for converting given byte array as base64 encoded String
+     * using this variant's settings,
+     * optionally enclosed in double-quotes.
      * 
      * @param input Byte array to encode
      * @param addQuotes Whether to surround resulting value in double quotes or not
@@ -404,14 +415,178 @@ public final class Base64Variant
         }
         return sb.toString();
     }
-    
+
+    /**
+     * Convenience method for decoding contents of a Base64-encoded String,
+     * using this variant's settings.
+     * 
+     * @param input
+     * 
+     * @since 2.2.3
+     *
+     * @throws IllegalArgumentException if input is not valid base64 encoded data
+     */
+    public byte[] decode(String input) throws IllegalArgumentException
+    {
+        ByteArrayBuilder b = new ByteArrayBuilder();
+        decode(input, b);
+        return b.toByteArray();
+    }
+
+    /**
+     * Convenience method for decoding contents of a Base64-encoded String,
+     * using this variant's settings
+     * and appending decoded binary data using provided {@link ByteArrayBuilder}.
+     *<p>
+     * NOTE: builder will NOT be reset before decoding (nor cleared afterwards);
+     * assumption is that caller will ensure it is given in proper state, and
+     * used as appropriate afterwards.
+     * 
+     * @since 2.2.3
+     *
+     * @throws IllegalArgumentException if input is not valid base64 encoded data
+     */
+    public void decode(String str, ByteArrayBuilder builder) throws IllegalArgumentException
+    {
+        int ptr = 0;
+        int len = str.length();
+        
+        main_loop:
+        while (ptr < len) {
+            // first, we'll skip preceding white space, if any
+            char ch;
+            do {
+                ch = str.charAt(ptr++);
+                if (ptr >= len) {
+                    break main_loop;
+                }
+            } while (ch <= INT_SPACE);
+            int bits = decodeBase64Char(ch);
+            if (bits < 0) {
+                _reportInvalidBase64(ch, 0, null);
+            }
+            int decodedData = bits;
+            // then second base64 char; can't get padding yet, nor ws
+            if (ptr >= len) {
+                _reportBase64EOF();
+            }
+            ch = str.charAt(ptr++);
+            bits = decodeBase64Char(ch);
+            if (bits < 0) {
+                _reportInvalidBase64(ch, 1, null);
+            }
+            decodedData = (decodedData << 6) | bits;
+            // third base64 char; can be padding, but not ws
+            if (ptr >= len) {
+                // but as per [JACKSON-631] can be end-of-input, iff not using padding
+                if (!usesPadding()) {
+                    decodedData >>= 4;
+                    builder.append(decodedData);
+                    break;
+                }
+                _reportBase64EOF();
+            }
+            ch = str.charAt(ptr++);
+            bits = decodeBase64Char(ch);
+            
+            // First branch: can get padding (-> 1 byte)
+            if (bits < 0) {
+                if (bits != Base64Variant.BASE64_VALUE_PADDING) {
+                    _reportInvalidBase64(ch, 2, null);
+                }
+                // Ok, must get padding
+                if (ptr >= len) {
+                    _reportBase64EOF();
+                }
+                ch = str.charAt(ptr++);
+                if (!usesPaddingChar(ch)) {
+                    _reportInvalidBase64(ch, 3, "expected padding character '"+getPaddingChar()+"'");
+                }
+                // Got 12 bits, only need 8, need to shift
+                decodedData >>= 4;
+                builder.append(decodedData);
+                continue;
+            }
+            // Nope, 2 or 3 bytes
+            decodedData = (decodedData << 6) | bits;
+            // fourth and last base64 char; can be padding, but not ws
+            if (ptr >= len) {
+                // but as per [JACKSON-631] can be end-of-input, iff not using padding
+                if (!usesPadding()) {
+                    decodedData >>= 2;
+                    builder.appendTwoBytes(decodedData);
+                    break;
+                }
+                _reportBase64EOF();
+            }
+            ch = str.charAt(ptr++);
+            bits = decodeBase64Char(ch);
+            if (bits < 0) {
+                if (bits != Base64Variant.BASE64_VALUE_PADDING) {
+                    _reportInvalidBase64(ch, 3, null);
+                }
+                decodedData >>= 2;
+                builder.appendTwoBytes(decodedData);
+            } else {
+                // otherwise, our triple is now complete
+                decodedData = (decodedData << 6) | bits;
+                builder.appendThreeBytes(decodedData);
+            }
+        }
+    }
+
     /*
     /**********************************************************
-    /* other methods
+    /* Overridden standard methods
     /**********************************************************
      */
 
     @Override
     public String toString() { return _name; }
+    
+    @Override
+    public boolean equals(Object o) {
+        // identity comparison should be dine
+        return (o == this);
+    }
+
+    @Override
+    public int hashCode() {
+        return _name.hashCode();
+    }
+    
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+    
+    /**
+     * @param bindex Relative index within base64 character unit; between 0
+     *   and 3 (as unit has exactly 4 characters)
+     */
+    protected void _reportInvalidBase64(char ch, int bindex, String msg)
+        throws IllegalArgumentException
+    {
+        String base;
+        if (ch <= INT_SPACE) {
+            base = "Illegal white space character (code 0x"+Integer.toHexString(ch)+") as character #"+(bindex+1)+" of 4-char base64 unit: can only used between units";
+        } else if (usesPaddingChar(ch)) {
+            base = "Unexpected padding character ('"+getPaddingChar()+"') as character #"+(bindex+1)+" of 4-char base64 unit: padding only legal as 3rd or 4th character";
+        } else if (!Character.isDefined(ch) || Character.isISOControl(ch)) {
+            // Not sure if we can really get here... ? (most illegal xml chars are caught at lower level)
+            base = "Illegal character (code 0x"+Integer.toHexString(ch)+") in base64 content";
+        } else {
+            base = "Illegal character '"+ch+"' (code 0x"+Integer.toHexString(ch)+") in base64 content";
+        }
+        if (msg != null) {
+            base = base + ": " + msg;
+        }
+        throw new IllegalArgumentException(base);
+    }
+
+    protected void _reportBase64EOF() throws IllegalArgumentException {
+        throw new IllegalArgumentException("Unexpected end-of-String in base64 content");
+    }
 }
 

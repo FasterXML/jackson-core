@@ -132,6 +132,7 @@ public abstract class ParserMinimalBase
         return t;
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public JsonParser skipChildren() throws IOException, JsonParseException
     {
@@ -253,6 +254,7 @@ public abstract class ParserMinimalBase
     /**********************************************************
      */
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public boolean getValueAsBoolean(boolean defaultValue) throws IOException, JsonParseException
     {
@@ -283,6 +285,7 @@ public abstract class ParserMinimalBase
         return defaultValue;
     }
     
+    @SuppressWarnings("incomplete-switch")
     @Override
     public int getValueAsInt(int defaultValue) throws IOException, JsonParseException
     {
@@ -332,11 +335,13 @@ public abstract class ParserMinimalBase
                         return ((Number) value).longValue();
                     }
                 }
+            default:
             }
         }
         return defaultValue;
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public double getValueAsDouble(double defaultValue) throws IOException, JsonParseException
     {
@@ -388,97 +393,21 @@ public abstract class ParserMinimalBase
     protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant)
         throws IOException, JsonParseException
     {
-        int ptr = 0;
-        int len = str.length();
-        
-        main_loop:
-        while (ptr < len) {
-            // first, we'll skip preceding white space, if any
-            char ch;
-            do {
-                ch = str.charAt(ptr++);
-                if (ptr >= len) {
-                    break main_loop;
-                }
-            } while (ch <= INT_SPACE);
-            int bits = b64variant.decodeBase64Char(ch);
-            if (bits < 0) {
-                _reportInvalidBase64(b64variant, ch, 0, null);
-            }
-            int decodedData = bits;
-            // then second base64 char; can't get padding yet, nor ws
-            if (ptr >= len) {
-                _reportBase64EOF();
-            }
-            ch = str.charAt(ptr++);
-            bits = b64variant.decodeBase64Char(ch);
-            if (bits < 0) {
-                _reportInvalidBase64(b64variant, ch, 1, null);
-            }
-            decodedData = (decodedData << 6) | bits;
-            // third base64 char; can be padding, but not ws
-            if (ptr >= len) {
-                // but as per [JACKSON-631] can be end-of-input, iff not using padding
-                if (!b64variant.usesPadding()) {
-                    decodedData >>= 4;
-                    builder.append(decodedData);
-                    break;
-                }
-                _reportBase64EOF();
-            }
-            ch = str.charAt(ptr++);
-            bits = b64variant.decodeBase64Char(ch);
-            
-            // First branch: can get padding (-> 1 byte)
-            if (bits < 0) {
-                if (bits != Base64Variant.BASE64_VALUE_PADDING) {
-                    _reportInvalidBase64(b64variant, ch, 2, null);
-                }
-                // Ok, must get padding
-                if (ptr >= len) {
-                    _reportBase64EOF();
-                }
-                ch = str.charAt(ptr++);
-                if (!b64variant.usesPaddingChar(ch)) {
-                    _reportInvalidBase64(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
-                }
-                // Got 12 bits, only need 8, need to shift
-                decodedData >>= 4;
-                builder.append(decodedData);
-                continue;
-            }
-            // Nope, 2 or 3 bytes
-            decodedData = (decodedData << 6) | bits;
-            // fourth and last base64 char; can be padding, but not ws
-            if (ptr >= len) {
-                // but as per [JACKSON-631] can be end-of-input, iff not using padding
-                if (!b64variant.usesPadding()) {
-                    decodedData >>= 2;
-                    builder.appendTwoBytes(decodedData);
-                    break;
-                }
-                _reportBase64EOF();
-            }
-            ch = str.charAt(ptr++);
-            bits = b64variant.decodeBase64Char(ch);
-            if (bits < 0) {
-                if (bits != Base64Variant.BASE64_VALUE_PADDING) {
-                    _reportInvalidBase64(b64variant, ch, 3, null);
-                }
-                decodedData >>= 2;
-                builder.appendTwoBytes(decodedData);
-            } else {
-                // otherwise, our triple is now complete
-                decodedData = (decodedData << 6) | bits;
-                builder.appendThreeBytes(decodedData);
-            }
+        // just call helper method introduced in 2.2.3
+        try {
+            b64variant.decode(str, builder);
+        } catch (IllegalArgumentException e) {
+            _reportError(e.getMessage());
         }
     }
 
     /**
      * @param bindex Relative index within base64 character unit; between 0
      *   and 3 (as unit has exactly 4 characters)
+     *   
+     * @deprecated in 2.2.3; should migrate away
      */
+    @Deprecated
     protected void _reportInvalidBase64(Base64Variant b64variant, char ch, int bindex, String msg)
         throws JsonParseException
     {
@@ -499,10 +428,14 @@ public abstract class ParserMinimalBase
         throw _constructError(base);
     }
 
+    /**
+     *   
+     * @deprecated in 2.2.3; should migrate away
+     */
+    @Deprecated
     protected void _reportBase64EOF() throws JsonParseException {
         throw _constructError("Unexpected end-of-String in base64 content");
     }
-    
     
     /*
     /**********************************************************

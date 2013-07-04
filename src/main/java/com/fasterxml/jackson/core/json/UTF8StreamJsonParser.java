@@ -2275,11 +2275,15 @@ public final class UTF8StreamJsonParser
             }
             return _handleInvalidNumberStart(_inputBuffer[_inputPtr++] & 0xFF, false);
         }
-
+        // [Issue#77] Try to decode most likely token
+        if (Character.isJavaIdentifierStart(c)) {
+            _reportInvalidToken(""+((char) c), "('true', 'false' or 'null')");
+        }
+        // but if it doesn't look like a token:
         _reportUnexpectedChar(c, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
         return null;
     }
-    
+
     protected JsonToken _handleApostropheValue()
         throws IOException, JsonParseException
     {
@@ -2403,7 +2407,7 @@ public final class UTF8StreamJsonParser
         reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;
     }
-    
+
     protected void _matchToken(String matchStr, int i)
         throws IOException, JsonParseException
     {

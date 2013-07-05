@@ -18,6 +18,7 @@ public class TestJsonGeneratorFeatures
         JsonFactory jf = new JsonFactory();
         JsonGenerator jg = jf.createGenerator(new StringWriter());
         assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
+        assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
     }
 
     public void testFieldNameQuoting() throws IOException
@@ -63,6 +64,26 @@ public class TestJsonGeneratorFeatures
                      _writeNumbers(jf));
     }
 
+    // [Issue#85]
+    public void testBigDecimalAsPlain() throws IOException
+    {
+        JsonFactory jf = new JsonFactory();
+        BigDecimal ENG = new BigDecimal("1E+2");
+
+        StringWriter sw = new StringWriter();
+        JsonGenerator jg = jf.createGenerator(sw);
+        jg.writeNumber(ENG);
+        jg.close();
+        assertEquals("1E+2", sw.toString());
+
+        jf.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        sw = new StringWriter();
+        jg = jf.createGenerator(sw);
+        jg.writeNumber(ENG);
+        jg.close();
+        assertEquals("100", sw.toString());
+    }
+    
     private String _writeNumbers(JsonFactory jf) throws IOException
     {
         StringWriter sw = new StringWriter();

@@ -710,6 +710,8 @@ public final class WriterBasedJsonGenerator
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
             _writeQuotedRaw(value);
+        } else if (isEnabled(Feature.WRITE_BIGDECIMAL_AS_PLAIN)) {
+            writeRaw(value.toPlainString());
         } else {
             writeRaw(value.toString());
         }

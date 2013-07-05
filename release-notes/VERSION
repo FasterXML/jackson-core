@@ -5,6 +5,7 @@ New minor version.
 
 #77: Improve error reporting for unrecognized tokens
  (requested by cowwoc@github)
+#85: Add `JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN`
 
 ------------------------------------------------------------------------
 === History: ===

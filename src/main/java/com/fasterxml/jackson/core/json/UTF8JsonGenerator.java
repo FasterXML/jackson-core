@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.core.io.*;
 
 public class UTF8JsonGenerator
@@ -903,6 +904,8 @@ public class UTF8JsonGenerator
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
             _writeQuotedRaw(value);
+        } else if (isEnabled(Feature.WRITE_BIGDECIMAL_AS_PLAIN)) {
+            writeRaw(value.toPlainString());
         } else {
             writeRaw(value.toString());
         }

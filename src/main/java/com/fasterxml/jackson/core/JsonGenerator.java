@@ -95,6 +95,18 @@ public abstract class JsonGenerator
         WRITE_NUMBERS_AS_STRINGS(false),
 
         /**
+         * Feature that determines whether {@link java.math.BigDecimal} entries are
+         * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
+         * values to be written using scientific notation.
+         *<p>
+         * Feature is disabled by default, so default output mode is used; this generally
+         * depends on how {@link BigDecimal} has been created.
+         * 
+         * @since 2.3
+         */
+        WRITE_BIGDECIMAL_AS_PLAIN(false),
+        
+        /**
          * Feature that specifies that calls to {@link #flush} will cause
          * matching <code>flush()</code> to underlying {@link OutputStream}
          * or {@link Writer}; if disabled this will not be done.

@@ -19,6 +19,7 @@ public class TestJsonGeneratorFeatures
         JsonGenerator jg = jf.createGenerator(new StringWriter());
         assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
         assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        jg.close();
     }
 
     public void testFieldNameQuoting() throws IOException

@@ -32,6 +32,7 @@ public class TestParserClosing
         // then change
         f.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         assertFalse(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        @SuppressWarnings("resource")
         MyReader input = new MyReader(DOC);
         JsonParser jp = f.createParser(input);
 
@@ -46,9 +47,9 @@ public class TestParserClosing
         // regular close won't close it either:
         jp.close();
         assertFalse(input.isClosed());
-
     }
 
+    @SuppressWarnings("resource")
     public void testAutoCloseReader() throws Exception
     {
         final String DOC = "[ 1 ]";
@@ -75,8 +76,8 @@ public class TestParserClosing
         assertTrue(input.isClosed());
     }
 
-    public void testNoAutoCloseInputStream()
-        throws Exception
+    @SuppressWarnings("resource")
+    public void testNoAutoCloseInputStream() throws Exception
     {
         final String DOC = "[ 1 ]";
         JsonFactory f = new JsonFactory();
@@ -110,6 +111,7 @@ public class TestParserClosing
         // theoretically could have only read subset; but current impl is more greedy
         assertEquals(6, jp.releaseBuffered(out));
         assertArrayEquals("foobar".getBytes("UTF-8"), out.toByteArray());
+        jp.close();
     }
 
     public void testReleaseContentChars() throws Exception
@@ -122,6 +124,7 @@ public class TestParserClosing
         // theoretically could have only read subset; but current impl is more greedy
         assertEquals(3, jp.releaseBuffered(sw));
         assertEquals("xyz", sw.toString());
+        jp.close();
     }
     
     /*

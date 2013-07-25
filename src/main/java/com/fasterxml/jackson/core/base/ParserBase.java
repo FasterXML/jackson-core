@@ -961,7 +961,7 @@ public abstract class ParserBase
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberBigDecimal = BigDecimal.valueOf(_numberLong);
         } else if ((_numTypesValid & NR_INT) != 0) {
-            _numberBigDecimal = BigDecimal.valueOf((long) _numberInt);
+            _numberBigDecimal = BigDecimal.valueOf(_numberInt);
         } else {
             _throwInternal();
         }

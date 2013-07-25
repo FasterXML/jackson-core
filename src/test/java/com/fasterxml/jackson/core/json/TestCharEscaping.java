@@ -56,6 +56,7 @@ public class TestCharEscaping
         } catch (JsonParseException jex) {
             verifyException(jex, "has to be escaped");
         }
+        jp.close();
     }
 
     public void testSimpleEscaping()
@@ -81,18 +82,21 @@ public class TestCharEscaping
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("NULL:\0!", jp.getText());
+        jp.close();
 
         // Then just a single char escaping
         jp = createParserUsingReader("[\"\\u0123\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("\u0123", jp.getText());
+        jp.close();
 
         // And then double sequence
         jp = createParserUsingReader("[\"\\u0041\\u0043\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("AC", jp.getText());
+        jp.close();
     }
 
     public void testInvalid()
@@ -109,6 +113,7 @@ public class TestCharEscaping
         } catch (JsonParseException jpe) {
             verifyException(jpe, "for character escape");
         }
+        jp.close();
     }
 
     /**
@@ -123,6 +128,7 @@ public class TestCharEscaping
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("A1234", jp.getText());
+        jp.close();
     }
 
     // for [JACKSON-627]
@@ -140,7 +146,7 @@ public class TestCharEscaping
         JsonGenerator jgen = jf.createGenerator(writer);
         jgen.setHighestNonEscapedChar(127); // must set to trigger bug
         jgen.writeString(longString.toString());
-      }      
-
+        jgen.close();
+    }
 }
 

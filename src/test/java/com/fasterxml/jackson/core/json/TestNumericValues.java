@@ -57,6 +57,7 @@ public class TestNumericValues
             assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
             assertEquals(JsonParser.NumberType.INT, jp.getNumberType());
             assertEquals(Integer.MIN_VALUE, jp.getIntValue());
+            jp.close();
         }
     }
 
@@ -81,6 +82,7 @@ public class TestNumericValues
         }
         assertEquals((double) EXP_L, jp.getDoubleValue());
         assertEquals(BigDecimal.valueOf((long) EXP_L), jp.getDecimalValue());
+        jp.close();
     }
 
     public void testLongRange()
@@ -255,8 +257,10 @@ public class TestNumericValues
             assertEquals(-2L, jp.getLongValue());
             assertEquals(-2.033, jp.getDoubleValue());
             assertEquals("-2.033", jp.getText());
-            
+
             assertToken(JsonToken.END_ARRAY, jp.nextToken());
+
+            jp.close();
         }
     }
 
@@ -360,6 +364,7 @@ public class TestNumericValues
                 }
             }
             assertToken(JsonToken.END_ARRAY, jp.nextToken());
+            jp.close();
         }
     }
 
@@ -381,6 +386,7 @@ public class TestNumericValues
         } catch (JsonParseException e) {
             verifyException(e, "not of boolean type");
         }
+        jp.close();
     }
 
     public void testInvalidIntAccess() throws Exception
@@ -394,5 +400,6 @@ public class TestNumericValues
         } catch (JsonParseException e) {
             verifyException(e, "can not use numeric value accessors");
         }
+        jp.close();
     }
 }

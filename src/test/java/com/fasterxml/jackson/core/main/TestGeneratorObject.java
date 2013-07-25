@@ -52,6 +52,7 @@ public class TestGeneratorObject
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
         assertEquals(null, jp.nextToken());
+        jp.close();
     }
 
     public void testInvalidObjectWrite()
@@ -67,6 +68,7 @@ public class TestGeneratorObject
         } catch (JsonGenerationException e) {
             verifyException(e, "Current context not an array");
         }
+        gen.close();
     }
 
     public void testSimpleObjectWrite()
@@ -204,5 +206,6 @@ public class TestGeneratorObject
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
     }
 }

@@ -74,6 +74,7 @@ public class TestByteBasedSymbols
             jp1.close();
             jp2.close();
         }
+        jp0.close();
     }
 
     public void testAuxMethods()

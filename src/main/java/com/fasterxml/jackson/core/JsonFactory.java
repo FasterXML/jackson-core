@@ -37,21 +37,22 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
  *
  * @author Tatu Saloranta
  */
+@SuppressWarnings("resource")
 public class JsonFactory
     implements Versioned,
         java.io.Serializable // since 2.1 (for Android, mostly)
 {
     /**
-     * Computed for Jackson 2.2.0 release
+     * Computed for Jackson 2.3.0 release
      */
-    private static final long serialVersionUID = 8726401676402117450L;
+    private static final long serialVersionUID = 3194418244231611666L;
 
     /*
     /**********************************************************
     /* Helper types
     /**********************************************************
      */
-    
+
     /**
      * Enumeration that defines all on/off features that can only be
      * changed for {@link JsonFactory}.
@@ -644,7 +645,6 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    @SuppressWarnings("resource")
     public JsonParser createParser(File f)
         throws IOException, JsonParseException
     {

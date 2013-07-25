@@ -78,6 +78,7 @@ public class TestJDKSerializability extends BaseTest
         }
     }
     
+    @SuppressWarnings("resource")
     protected String _copyJson(JsonFactory f, String json, boolean useBytes) throws IOException
     {
         if (useBytes) {

@@ -81,6 +81,7 @@ public class TestGeneratorArray
         } catch (JsonGenerationException e) {
             verifyException(e, "Current context not an object");
         }
+        gen.close();
     }
 
     public void testSimpleArrayWrite()

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.io;
 
-import static junit.framework.Assert.assertEquals;
-
 public class TestCharTypes
     extends com.fasterxml.jackson.test.BaseTest
 {

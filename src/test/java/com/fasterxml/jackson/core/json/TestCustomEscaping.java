@@ -152,6 +152,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.test.BaseTest
         assertEquals("{"+quote("fun:\\u0088:\\u3456")+":true}", json);
     }
 
+    @SuppressWarnings("resource")
     private void _testEscapeCustom(boolean useStream) throws Exception
     {
         JsonFactory f = new JsonFactory().setCharacterEscapes(new MyEscapes());

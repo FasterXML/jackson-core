@@ -97,8 +97,10 @@ public class TestPrettyPrinter
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
         gen.useDefaultPrettyPrinter();
         _verifyPrettyPrinter(gen, sw);
+        gen.close();
     }
 
+    @SuppressWarnings("resource")
     public void testSimpleDocWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
@@ -123,6 +125,7 @@ public class TestPrettyPrinter
         docStr = _verifyPrettyPrinter(gen, sw);
         assertEquals(-1, docStr.indexOf('\n'));
         assertTrue(docStr.indexOf('\t') >= 0);
+        gen.close();
     }
 
     // [Issue#26]

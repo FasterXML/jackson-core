@@ -295,6 +295,7 @@ public class TestGeneratorMisc
             }
             }
             assertToken(JsonToken.END_OBJECT, jp.nextToken());
+            jp.close();
         }
     }
 }

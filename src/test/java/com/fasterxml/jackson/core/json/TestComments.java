@@ -36,6 +36,7 @@ public class TestComments
         assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         JsonParser jp = jf.createParser(new StringReader("[ 1 ]"));
         assertFalse(jp.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        jp.close();
     }
 
     public void testCommentsDisabled()
@@ -90,6 +91,7 @@ public class TestComments
             // Should have something denoting that user may want to enable 'ALLOW_COMMENTS'
             verifyException(je, "ALLOW_COMMENTS");
         }
+        jp.close();
     }
 
     private void _testEnabled(String doc, boolean useStream)
@@ -99,6 +101,7 @@ public class TestComments
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(1, jp.getIntValue());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
     }
 
     private JsonParser _createParser(String doc, boolean useStream, boolean enabled)

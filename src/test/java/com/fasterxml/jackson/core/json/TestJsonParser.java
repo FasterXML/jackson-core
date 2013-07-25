@@ -25,6 +25,7 @@ public class TestJsonParser
         assertTrue(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         jp.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertFalse(jp.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        jp.close();
     }
 
     public void testInterningWithStreams() throws Exception
@@ -170,6 +171,8 @@ public class TestJsonParser
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+
+        jp.close();
     }
 
     public void testSkipping()
@@ -278,6 +281,7 @@ public class TestJsonParser
      * correctly; mostly to stress-test underlying segment-based
      * text buffer(s).
      */
+    @SuppressWarnings("resource")
     public void testLongText() throws Exception
     {
         final int LEN = 96000;
@@ -404,6 +408,7 @@ public class TestJsonParser
         assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         */
+        jp.close();
     }
 
 

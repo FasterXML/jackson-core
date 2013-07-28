@@ -54,7 +54,7 @@ Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Wiki](../../jackson-core/wiki/Downloads).
+For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Wiki](../../wiki).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
@@ -98,7 +98,7 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 # Further reading
 
-* Project  [Wiki](../../jackson-core/wiki/Downloads) has JavaDocs and links to downloadable artifacts
+* Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
 * [Documentation](https://github.com/FasterXML/jackson-core/wiki/Documentation) has other project documentation
 * [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)
 * Commercial support available from [FasterXML.com](http://fasterxml.com)

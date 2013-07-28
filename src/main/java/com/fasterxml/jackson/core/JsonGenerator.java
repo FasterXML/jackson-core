@@ -196,50 +196,7 @@ public abstract class JsonGenerator
      * (using method {@link #writeObject}).
      */
     public abstract ObjectCodec getCodec();
-    
-    /**
-     * Method to call to make this generator use specified schema.
-     * Method must be called before generating any content, right after instance
-     * has been created.
-     * Note that not all generators support schemas; and those that do usually only
-     * accept specific types of schemas: ones defined for data format this generator
-     * produces.
-     *<p>
-     * If generator does not support specified schema, {@link UnsupportedOperationException}
-     * is thrown.
-     * 
-     * @param schema Schema to use
-     * 
-     * @throws UnsupportedOperationException if generator does not support schema
-     */
-    public void setSchema(FormatSchema schema)
-    {
-        throw new UnsupportedOperationException("Generator of type "+getClass().getName()+" does not support schema of type '"
-                +schema.getSchemaType()+"'");
-    }
 
-    /**
-     * Method for accessing Schema that this parser uses, if any.
-     * Default implementation returns null.
-     *
-     * @since 2.1
-     */
-    public FormatSchema getSchema() {
-        return null;
-    }
-    
-    /**
-     * Method that can be used to verify that given schema can be used with
-     * this generator (using {@link #setSchema}).
-     * 
-     * @param schema Schema to check
-     * 
-     * @return True if this generator can use given schema; false if not
-     */
-    public boolean canUseSchema(FormatSchema schema) {
-        return false;
-    }
-    
     /**
      * Accessor for finding out version of the bundle that provided this generator instance.
      */
@@ -265,22 +222,9 @@ public abstract class JsonGenerator
         return null;
     }
 
-    /**
-     * Method that allows overriding String used for separating root-level
-     * JSON values (default is single space character)
-     * 
-     * @param sep Separator to use, if any; null means that no separator is
-     *   automatically added
-     * 
-     * @since 2.1
-     */
-    public JsonGenerator setRootValueSeparator(SerializableString sep) {
-        throw new UnsupportedOperationException();
-    }
-    
     /*
     /**********************************************************
-    /* Public API, configuration
+    /* Public API, Feature configuration
     /**********************************************************
      */
 
@@ -324,7 +268,56 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************
-    /* Configuring generator
+    /* Public API, Schema configuration
+    /**********************************************************
+     */
+
+    /**
+     * Method to call to make this generator use specified schema.
+     * Method must be called before generating any content, right after instance
+     * has been created.
+     * Note that not all generators support schemas; and those that do usually only
+     * accept specific types of schemas: ones defined for data format this generator
+     * produces.
+     *<p>
+     * If generator does not support specified schema, {@link UnsupportedOperationException}
+     * is thrown.
+     * 
+     * @param schema Schema to use
+     * 
+     * @throws UnsupportedOperationException if generator does not support schema
+     */
+    public void setSchema(FormatSchema schema)
+    {
+        throw new UnsupportedOperationException("Generator of type "+getClass().getName()+" does not support schema of type '"
+                +schema.getSchemaType()+"'");
+    }
+
+    /**
+     * Method for accessing Schema that this parser uses, if any.
+     * Default implementation returns null.
+     *
+     * @since 2.1
+     */
+    public FormatSchema getSchema() {
+        return null;
+    }
+    
+    /**
+     * Method that can be used to verify that given schema can be used with
+     * this generator (using {@link #setSchema}).
+     * 
+     * @param schema Schema to check
+     * 
+     * @return True if this generator can use given schema; false if not
+     */
+    public boolean canUseSchema(FormatSchema schema) {
+        return false;
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, other configuration
     /**********************************************************
       */
 
@@ -418,6 +411,40 @@ public abstract class JsonGenerator
      */
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) {
         return this;
+    }
+
+    /**
+     * Method that allows overriding String used for separating root-level
+     * JSON values (default is single space character)
+     * 
+     * @param sep Separator to use, if any; null means that no separator is
+     *   automatically added
+     * 
+     * @since 2.1
+     */
+    public JsonGenerator setRootValueSeparator(SerializableString sep) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Introspection method that may be called to see if the underlying
+     * data format would allow writing a type id at this point in
+     * output stream: this requires both that data format supports
+     * some kind of Type Ids natively (many do not; for example, JSON
+     * doesn't); and that id is legal in this point in output.
+     *<p>
+     * This method <b>must</b> be called prior to calling
+     * {@link #writeTypeId}.
+     *<p>
+     * Default implementation returns true; overridden by data formats
+     * that do support native Type Ids. Caller is expected to either
+     * use a non-native notation (explicit property or such), or fail,
+     * in case it can not use native type ids.
+     * 
+     * @since 2.3
+     */
+    public boolean canWriteTypeId() {
+        return false;
     }
 
     /*
@@ -895,6 +922,28 @@ public abstract class JsonGenerator
     public abstract void writeNull()
         throws IOException, JsonGenerationException;
 
+    /*
+    /**********************************************************
+    /* Public API, write methods, Native Ids
+    /**********************************************************
+     */
+    
+    /**
+     * Method that can be called to output so-called native Type Id.
+     * Note that it may only be called after ensuring this is legal
+     * (with {@link #canWriteTypeId()}), as not all data formats
+     * have native type id support; and some may only allow them in
+     * certain positions or locations.
+     * If output is not allowed by the data format in this position,
+     * a {@link JsonGenerationException} will be thrown.
+     * 
+     * @since 2.3
+     */
+    public void writeTypeId(String typeId)
+        throws IOException, JsonGenerationException {
+        throw new JsonGenerationException("No native support for writing Type Ids");
+    }
+    
     /*
     /**********************************************************
     /* Public API, write methods, serializing Java objects

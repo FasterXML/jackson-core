@@ -60,12 +60,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public Object getOutputTarget() {
         return delegate.getOutputTarget();
     }
-
-    @Override
-    public JsonGenerator setRootValueSeparator(SerializableString sep) {
-        delegate.setRootValueSeparator(sep);
-        return this;
-    }
     
     /*
     /**********************************************************
@@ -136,6 +130,17 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) {
         delegate.setCharacterEscapes(esc);
         return this;
+    }
+
+    @Override
+    public JsonGenerator setRootValueSeparator(SerializableString sep) {
+        delegate.setRootValueSeparator(sep);
+        return this;
+    }
+
+    @Override
+    public boolean canWriteTypeId() {
+        return delegate.canWriteTypeId();
     }
 
     /*
@@ -332,6 +337,18 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public void writeNull() throws IOException, JsonGenerationException {
         delegate.writeNull();
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, write methods, Native Ids
+    /**********************************************************
+     */
+
+    @Override
+    public void writeTypeId(String typeId)
+        throws IOException, JsonGenerationException {
+        
     }
 
     /*

@@ -5,7 +5,7 @@ This project contains core low-level incremental ("streaming") parser and genera
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
-This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on.
+This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on. It is licensed under Apache License 2.0.
 
 Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),
@@ -54,7 +54,7 @@ Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Download page](https://github.com/FasterXML/jackson-core/wiki/Downloads).
+For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Wiki](../../jackson-core/wiki/Downloads).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
@@ -98,5 +98,7 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 # Further reading
 
+* Project  [Wiki](../../jackson-core/wiki/Downloads) has JavaDocs and links to downloadable artifacts
 * [Documentation](https://github.com/FasterXML/jackson-core/wiki/Documentation) has other project documentation
 * [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)
+* Commercial support available from [FasterXML.com](http://fasterxml.com)

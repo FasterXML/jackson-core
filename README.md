@@ -5,7 +5,8 @@ This project contains core low-level incremental ("streaming") parser and genera
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
-This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on. It is licensed under Apache License 2.0.
+This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on.
+It is licensed under Apache License 2.0.
 
 Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),
@@ -47,7 +48,7 @@ To use the package, you need to use following Maven dependency:
 </dependency>
 ```
 
-or download jars from Maven repository or [Download page](http://wiki.fasterxml.com/JacksonDownload).
+or download jars from Maven repository or links on [Wiki]](../../wiki).
 Core jar is a functional OSGi bundle, with proper import/export declarations.
 
 Package has no external dependencies, except for testing (which uses `JUnit`).
@@ -74,7 +75,7 @@ factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
 Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](https://github.com/FasterXML/jackson-databind)) handy; if so, you can do:
 
 ```java
-JsonFactory factory = objectMapper.getJsonFactory();
+JsonFactory factory = objectMapper.getFactory();
 ```
 
 More information can be found from [Streaming API](http://wiki.fasterxml.com/JacksonStreamingApi
@@ -99,6 +100,7 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 # Further reading
 
 * Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
-* [Documentation](https://github.com/FasterXML/jackson-core/wiki/Documentation) has other project documentation
-* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)
-* Commercial support available from [FasterXML.com](http://fasterxml.com)
+* [Jackson Github Hub](https://github.com/FasterXML/jackson) has links to all official Jackson components
+* [Jackson Github Doc](https://github.com/FasterXML/jackson-docs) is the hub for official Jackson documentation
+* [FasterXML Jackson Project Wiki](http://wiki.fasterxml.com/JacksonHome) has additional documentation (especailly for older Jackson versions)
+* Commercial support (including alternative licensing arrangements) is available by [FasterXML.com](http://fasterxml.com)

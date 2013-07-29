@@ -426,27 +426,6 @@ public abstract class JsonGenerator
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Introspection method that may be called to see if the underlying
-     * data format would allow writing a type id at this point in
-     * output stream: this requires both that data format supports
-     * some kind of Type Ids natively (many do not; for example, JSON
-     * doesn't); and that id is legal in this point in output.
-     *<p>
-     * This method <b>must</b> be called prior to calling
-     * {@link #writeTypeId}.
-     *<p>
-     * Default implementation returns true; overridden by data formats
-     * that do support native Type Ids. Caller is expected to either
-     * use a non-native notation (explicit property or such), or fail,
-     * in case it can not use native type ids.
-     * 
-     * @since 2.3
-     */
-    public boolean canWriteTypeId() {
-        return false;
-    }
-
     /*
     /**********************************************************
     /* Public API, write methods, structural
@@ -927,7 +906,25 @@ public abstract class JsonGenerator
     /* Public API, write methods, Native Ids
     /**********************************************************
      */
-    
+
+    /**
+     * Introspection method that may be called to see if the underlying
+     * data format supports some kind of Type Ids natively (many do not;
+     * for example, JSON doesn't).
+     * This method <b>must</b> be called prior to calling
+     * {@link #writeTypeId}.
+     *<p>
+     * Default implementation returns true; overridden by data formats
+     * that do support native Type Ids. Caller is expected to either
+     * use a non-native notation (explicit property or such), or fail,
+     * in case it can not use native type ids.
+     * 
+     * @since 2.3
+     */
+    public boolean canWriteTypeId() {
+        return false;
+    }
+
     /**
      * Method that can be called to output so-called native Type Id.
      * Note that it may only be called after ensuring this is legal

@@ -138,11 +138,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
         return this;
     }
 
-    @Override
-    public boolean canWriteTypeId() {
-        return delegate.canWriteTypeId();
-    }
-
     /*
     /**********************************************************
     /* Public API, write methods, structural
@@ -345,6 +340,11 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /**********************************************************
      */
 
+    @Override
+    public boolean canWriteTypeId() {
+        return delegate.canWriteTypeId();
+    }
+    
     @Override
     public void writeTypeId(String typeId)
         throws IOException, JsonGenerationException {

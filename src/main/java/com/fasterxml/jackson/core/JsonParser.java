@@ -1238,7 +1238,46 @@ public abstract class JsonParser
      */
     public abstract String getValueAsString(String defaultValue)
         throws IOException, JsonParseException;
-    
+
+    /*
+    /**********************************************************
+    /* Public API, Native Ids (type)
+    /**********************************************************
+     */
+
+    /**
+     * Introspection method that may be called to see if the underlying
+     * data format supports some kind of Type Ids natively (many do not;
+     * for example, JSON doesn't).
+     *<p>
+     * Default implementation returns true; overridden by data formats
+     * that do support native Type Ids. Caller is expected to either
+     * use a non-native notation (explicit property or such), or fail,
+     * in case it can not use native type ids.
+     * 
+     * @since 2.3
+     */
+    public boolean canReadTypeId() {
+        return false;
+    }
+
+    /**
+     * Method that can be called to check whether current token
+     * (one that was just read) has an associated type id, and if
+     * so, return it.
+     * Note that while typically caller should check with {@link #canReadTypeId}
+     * first, it is not illegal to call this method even if that method returns
+     * true; but if so, it will return null. This may be used to simplify calling
+     * code.
+     *<p>
+     * Default implementation will simply return null.
+     * 
+     * @since 2.3
+     */
+    public String getTypeId() throws IOException, JsonGenerationException {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Public API, optional data binding functionality

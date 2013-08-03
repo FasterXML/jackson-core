@@ -7,6 +7,7 @@ New minor version.
  (requested by cowwoc@github)
 #85: Add `JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN`
 #91: Add methods in `JsonGenerator` for writing native Type Ids
+#92: Add methods in `JsonParser` for reading native Type Ids
 
 ------------------------------------------------------------------------
 === History: ===

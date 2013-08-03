@@ -914,7 +914,7 @@ public abstract class JsonGenerator
      * This method <b>must</b> be called prior to calling
      * {@link #writeTypeId}.
      *<p>
-     * Default implementation returns true; overridden by data formats
+     * Default implementation returns false; overridden by data formats
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native type ids.

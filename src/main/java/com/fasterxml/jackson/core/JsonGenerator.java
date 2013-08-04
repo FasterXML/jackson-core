@@ -912,7 +912,7 @@ public abstract class JsonGenerator
      * data format supports some kind of Object Ids natively (many do not;
      * for example, JSON doesn't).
      * This method <b>must</b> be called prior to calling
-     * {@link #writeObjectId}.
+     * {@link #writeObjectId} or {@link #writeObjectRef}.
      *<p>
      * Default implementation returns false; overridden by data formats
      * that do support native Object Ids. Caller is expected to either
@@ -956,6 +956,20 @@ public abstract class JsonGenerator
      */
     public void writeObjectId(String typeId)
         throws IOException, JsonGenerationException {
+        throw new JsonGenerationException("No native support for writing Object Ids");
+    }
+
+    /**
+     * Method that can be called to output references to native Object Ids.
+     * Note that it may only be called after ensuring this is legal
+     * (with {@link #canWriteObjectId()}), as not all data formats
+     * have native type id support; and some may only allow them in
+     * certain positions or locations.
+     * If output is not allowed by the data format in this position,
+     * a {@link JsonGenerationException} will be thrown.
+     */
+    public void writeObjectRef(String typeId)
+            throws IOException, JsonGenerationException {
         throw new JsonGenerationException("No native support for writing Object Ids");
     }
     

@@ -954,7 +954,7 @@ public abstract class JsonGenerator
      * 
      * @since 2.3
      */
-    public void writeObjectId(String typeId)
+    public void writeObjectId(String id)
         throws IOException, JsonGenerationException {
         throw new JsonGenerationException("No native support for writing Object Ids");
     }
@@ -968,7 +968,7 @@ public abstract class JsonGenerator
      * If output is not allowed by the data format in this position,
      * a {@link JsonGenerationException} will be thrown.
      */
-    public void writeObjectRef(String typeId)
+    public void writeObjectRef(String id)
             throws IOException, JsonGenerationException {
         throw new JsonGenerationException("No native support for writing Object Ids");
     }
@@ -984,7 +984,7 @@ public abstract class JsonGenerator
      * 
      * @since 2.3
      */
-    public void writeTypeId(String typeId)
+    public void writeTypeId(String id)
         throws IOException, JsonGenerationException {
         throw new JsonGenerationException("No native support for writing Type Ids");
     }

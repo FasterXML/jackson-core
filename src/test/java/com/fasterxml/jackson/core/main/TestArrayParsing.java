@@ -9,8 +9,7 @@ import com.fasterxml.jackson.core.*;
 public class TestArrayParsing
     extends com.fasterxml.jackson.test.BaseTest
 {
-    public void testValidEmpty()
-        throws Exception
+    public void testValidEmpty() throws Exception
     {
         final String DOC = "[   \n  ]";
 
@@ -21,8 +20,7 @@ public class TestArrayParsing
         jp.close();
     }
 
-    public void testInvalidEmptyMissingClose()
-        throws Exception
+    public void testInvalidEmptyMissingClose() throws Exception
     {
         final String DOC = "[ ";
 
@@ -35,10 +33,10 @@ public class TestArrayParsing
         } catch (JsonParseException jex) {
             verifyException(jex, "expected close marker for ARRAY");
         }
+        jp.close();
     }
 
-    public void testInvalidMissingFieldName()
-        throws Exception
+    public void testInvalidMissingFieldName() throws Exception
     {
         final String DOC = "[  : 3 ] ";
 
@@ -51,10 +49,10 @@ public class TestArrayParsing
         } catch (JsonParseException jex) {
             verifyException(jex, "Unexpected character");
         }
+        jp.close();
     }
 
-    public void testInvalidExtraComma()
-        throws Exception
+    public void testInvalidExtraComma() throws Exception
     {
         final String DOC = "[ 24, ] ";
 
@@ -69,5 +67,6 @@ public class TestArrayParsing
         } catch (JsonParseException jex) {
             verifyException(jex, "expected a value");
         }
+        jp.close();
     }
 }

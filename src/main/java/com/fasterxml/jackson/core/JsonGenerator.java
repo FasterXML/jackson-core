@@ -903,9 +903,27 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************
-    /* Public API, write methods, Native Ids
+    /* Public API, write methods, Native Ids (type, object)
     /**********************************************************
      */
+
+    /**
+     * Introspection method that may be called to see if the underlying
+     * data format supports some kind of Object Ids natively (many do not;
+     * for example, JSON doesn't).
+     * This method <b>must</b> be called prior to calling
+     * {@link #writeObjectId}.
+     *<p>
+     * Default implementation returns false; overridden by data formats
+     * that do support native Object Ids. Caller is expected to either
+     * use a non-native notation (explicit property or such), or fail,
+     * in case it can not use native object ids.
+     * 
+     * @since 2.3
+     */
+    public boolean canWriteObjectId() {
+        return false;
+    }
 
     /**
      * Introspection method that may be called to see if the underlying
@@ -925,6 +943,22 @@ public abstract class JsonGenerator
         return false;
     }
 
+    /**
+     * Method that can be called to output so-called native Object Id.
+     * Note that it may only be called after ensuring this is legal
+     * (with {@link #canWriteObjectId()}), as not all data formats
+     * have native type id support; and some may only allow them in
+     * certain positions or locations.
+     * If output is not allowed by the data format in this position,
+     * a {@link JsonGenerationException} will be thrown.
+     * 
+     * @since 2.3
+     */
+    public void writeObjectId(String typeId)
+        throws IOException, JsonGenerationException {
+        throw new JsonGenerationException("No native support for writing Object Ids");
+    }
+    
     /**
      * Method that can be called to output so-called native Type Id.
      * Note that it may only be called after ensuring this is legal

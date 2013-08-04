@@ -41,6 +41,7 @@ public class TestRawStringWriting extends com.fasterxml.jackson.test.BaseTest
             assertArrayEquals(inputBytes, outputBytes);
         }
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
     }
 
     /**
@@ -76,6 +77,7 @@ public class TestRawStringWriting extends com.fasterxml.jackson.test.BaseTest
             assertArrayEquals(inputBytes, outputBytes);
         }
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
     }
     
     /*

@@ -328,9 +328,9 @@ public class DefaultPrettyPrinter
      * single space for indentation. It is used as the default
      * indenter for array values.
      */
-    public static class FixedSpaceIndenter
-        extends NopIndenter
+    public static class FixedSpaceIndenter extends NopIndenter
     {
+        @SuppressWarnings("hiding")
         public static final FixedSpaceIndenter instance = new FixedSpaceIndenter();
 
         @Override
@@ -348,9 +348,9 @@ public class DefaultPrettyPrinter
      * Default linefeed-based indenter uses system-specific linefeeds and
      * 2 spaces for indentation per level.
      */
-    public static class Lf2SpacesIndenter
-        extends NopIndenter
+    public static class Lf2SpacesIndenter extends NopIndenter
     {
+        @SuppressWarnings("hiding")
         public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
 
         private final static String SYS_LF;

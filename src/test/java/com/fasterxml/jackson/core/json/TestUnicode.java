@@ -34,5 +34,6 @@ public class TestUnicode extends com.fasterxml.jackson.test.BaseTest
             assertEquals("\uD83D\uDE03", jp.getText());
         }
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
     }
 }

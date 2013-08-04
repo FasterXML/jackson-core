@@ -72,6 +72,7 @@ public class TestJsonParserBinary
         byte[] data = jp.getBinaryValue();
         assertNotNull(data);
         assertArrayEquals(RESULT_BYTES, data);
+        jp.close();
     }
 
     private void _testInArray(boolean useStream)
@@ -108,6 +109,7 @@ public class TestJsonParserBinary
             assertArrayEquals(entries[i], b);
         }
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
     }
 
     private void _testEscaped(boolean useStream) throws IOException

@@ -33,6 +33,7 @@ public class TestBase64Parsing
      */
     
     // Test for [JACKSON-631]
+    @SuppressWarnings("resource")
     public void _testBase64Text(boolean useBytes) throws Exception
     {
         // let's actually iterate over sets of encoding modes, lengths

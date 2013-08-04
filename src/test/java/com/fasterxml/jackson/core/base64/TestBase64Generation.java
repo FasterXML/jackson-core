@@ -92,6 +92,7 @@ public class TestBase64Generation
             +" be long enough include a line wrap or two...";
     private final static String TEXT4 = TEXT + TEXT + TEXT + TEXT;
 
+    @SuppressWarnings("resource")
     private void _testStreamingWrites(JsonFactory jf, boolean useBytes) throws Exception
     {
         final byte[] INPUT = TEXT4.getBytes("UTF-8");

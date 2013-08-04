@@ -33,8 +33,8 @@ public class TestParserWithObjects
         _testNextValueNested(true);
     }
 
-    public void testIsClosed()
-        throws IOException
+    @SuppressWarnings("resource")
+    public void testIsClosed() throws IOException
     {
         for (int i = 0; i < 4; ++i) {
             String JSON = "[ 1, 2, 3 ]";

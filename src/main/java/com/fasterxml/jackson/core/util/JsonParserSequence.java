@@ -68,6 +68,7 @@ public class JsonParserSequence extends JsonParserDelegate
         return new JsonParserSequence(p.toArray(new JsonParser[p.size()]));
     }
 
+    @SuppressWarnings("resource")
     protected void addFlattenedActiveParsers(List<JsonParser> result)
     {
         for (int i = _nextParser-1, len = _parsers.length; i < len; ++i) {

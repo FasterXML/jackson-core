@@ -11,9 +11,9 @@ import com.fasterxml.jackson.test.BaseTest;
 public class TestScopeMatching
     extends BaseTest
 {
-    public void testUnclosedArray()
-        throws Exception
+    public void testUnclosedArray() throws Exception
     {
+        @SuppressWarnings("resource")
         JsonParser jp = createParserUsingReader("[ 1, 2");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -27,9 +27,9 @@ public class TestScopeMatching
         }
     }
 
-    public void testUnclosedObject()
-        throws Exception
+    public void testUnclosedObject() throws Exception
     {
+        @SuppressWarnings("resource")
         JsonParser jp = createParserUsingReader("{ \"key\" : 3  ");
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());

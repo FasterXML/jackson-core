@@ -18,8 +18,7 @@ import java.io.*;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-public class TestGeneratorClosing
-    extends BaseTest
+public class TestGeneratorClosing extends BaseTest
 {
     /*
     /**********************************************************
@@ -29,30 +28,30 @@ public class TestGeneratorClosing
 
     final static class MyWriter extends StringWriter
     {
-        boolean mIsClosed = false;
+        boolean _isClosed = false;
 
         public MyWriter() { }
 
         @Override
         public void close() throws IOException {
-            mIsClosed = true;
+            _isClosed = true;
             super.close();
         }
-        public boolean isClosed() { return mIsClosed; }
+        public boolean isClosed() { return _isClosed; }
     }
 
     final static class MyStream extends ByteArrayOutputStream
     {
-        boolean mIsClosed = false;
+        boolean _isClosed = false;
 
         public MyStream() { }
 
         @Override
         public void close() throws IOException {
-            mIsClosed = true;
+            _isClosed = true;
             super.close();
         }
-        public boolean isClosed() { return mIsClosed; }
+        public boolean isClosed() { return _isClosed; }
     }
 
     static class MyBytes extends ByteArrayOutputStream
@@ -90,8 +89,7 @@ public class TestGeneratorClosing
      * automatic closing should occur, nor explicit one unless specific
      * forcing method is used.
      */
-    public void testNoAutoCloseGenerator()
-        throws Exception
+    public void testNoAutoCloseGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
 
@@ -100,6 +98,7 @@ public class TestGeneratorClosing
         // then change
         f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         assertFalse(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
         JsonGenerator jg = f.createGenerator(output);
 
@@ -111,11 +110,11 @@ public class TestGeneratorClosing
         assertFalse(output.isClosed());
     }
 
-    public void testCloseGenerator()
-        throws Exception
+    public void testCloseGenerator() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.enable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
         JsonGenerator jg = f.createGenerator(output);
 
@@ -127,11 +126,11 @@ public class TestGeneratorClosing
         assertTrue(output.isClosed());
     }
 
-    public void testNoAutoCloseOutputStream()
-        throws Exception
+    public void testNoAutoCloseOutputStream() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        @SuppressWarnings("resource")
         MyStream output = new MyStream();
         JsonGenerator jg = f.createGenerator(output, JsonEncoding.UTF8);
 
@@ -184,6 +183,7 @@ public class TestGeneratorClosing
     }
 
     // [JACKSON-401]
+    @SuppressWarnings("resource")
     public void testAutoFlushOrNot() throws Exception
     {
         JsonFactory f = new JsonFactory();

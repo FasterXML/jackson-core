@@ -13,7 +13,7 @@ package com.fasterxml.jackson.core;
 public class JsonParseException
     extends JsonProcessingException
 {
-    final static long serialVersionUID = 123; // Stupid eclipse...
+    private static final long serialVersionUID = 1L;
 
     public JsonParseException(String msg, JsonLocation loc)
     {

@@ -154,6 +154,7 @@ public final class JsonStringEncoder
      * Will quote given JSON String value using standard quoting, encode
      * results as UTF-8, and return result as a byte array.
      */
+    @SuppressWarnings("resource")
     public byte[] quoteAsUTF8(String text)
     {
         ByteArrayBuilder byteBuilder = _byteBuilder;

@@ -26,5 +26,6 @@ public class TestJDKSerializable
         
         assertEquals(loc.getLineNr(), loc2.getLineNr());
         assertEquals(loc.getColumnNr(), loc2.getColumnNr());
+        jp.close();
     }
 }

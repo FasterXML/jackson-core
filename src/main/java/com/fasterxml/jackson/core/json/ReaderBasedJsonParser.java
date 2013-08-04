@@ -369,6 +369,7 @@ public final class ReaderBasedJsonParser
             _tokenIncomplete = false;
         } else { // may actually require conversion...
             if (_binaryValue == null) {
+                @SuppressWarnings("resource")
                 ByteArrayBuilder builder = _getByteArrayBuilder();
                 _decodeBase64(getText(), builder, b64variant);
                 _binaryValue = builder.toByteArray();
@@ -1858,6 +1859,7 @@ public final class ReaderBasedJsonParser
      * Efficient handling for incremental parsing of base64-encoded
      * textual content.
      */
+    @SuppressWarnings("resource")
     protected byte[] _decodeBase64(Base64Variant b64variant)
         throws IOException, JsonParseException
     {

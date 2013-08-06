@@ -347,4 +347,30 @@ public class JsonParserDelegate extends JsonParser
         // NOTE: must NOT delegate this method to delegate, needs to be self-reference for chaining
         return this;
     }
+
+    /*
+    /**********************************************************
+    /* Public API, Native Ids (type, object)
+    /**********************************************************
+     */
+
+    @Override
+    public boolean canReadObjectId() {
+        return delegate.canReadObjectId();
+    }
+
+    @Override
+    public boolean canReadTypeId() {
+        return delegate.canReadTypeId();
+    }
+
+    @Override
+    public Object getObjectId() throws IOException, JsonGenerationException {
+        return delegate.getObjectId();
+    }
+
+    @Override
+    public Object getTypeId() throws IOException, JsonGenerationException {
+        return delegate.getTypeId();
+    }
 }

@@ -23,7 +23,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     
     public JsonGeneratorDelegate(JsonGenerator d) {
         delegate = d;
-    }   
+    }
 
     @Override
     public ObjectCodec getCodec() {
@@ -344,13 +344,30 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public boolean canWriteTypeId() {
         return delegate.canWriteTypeId();
     }
+
+    @Override
+    public boolean canWriteObjectId() {
+        return delegate.canWriteObjectId();
+    }
     
     @Override
-    public void writeTypeId(String typeId)
+    public void writeObjectId(Object id)
         throws IOException, JsonGenerationException {
-        
+        delegate.writeObjectId(id);
     }
 
+    @Override
+    public void writeObjectRef(Object id)
+            throws IOException, JsonGenerationException {
+        delegate.writeObjectRef(id);
+    }
+    
+    @Override
+    public void writeTypeId(Object id)
+        throws IOException, JsonGenerationException {
+        delegate.writeTypeId(id);
+    }
+    
     /*
     /**********************************************************
     /* Public API, write methods, serializing Java objects

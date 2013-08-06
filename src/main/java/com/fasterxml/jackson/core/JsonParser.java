@@ -1241,9 +1241,25 @@ public abstract class JsonParser
 
     /*
     /**********************************************************
-    /* Public API, Native Ids (type)
+    /* Public API, Native Ids (type, object)
     /**********************************************************
      */
+
+    /**
+     * Introspection method that may be called to see if the underlying
+     * data format supports some kind of Object Ids natively (many do not;
+     * for example, JSON doesn't).
+     *<p>
+     * Default implementation returns true; overridden by data formats
+     * that do support native Object Ids. Caller is expected to either
+     * use a non-native notation (explicit property or such), or fail,
+     * in case it can not use native object ids.
+     * 
+     * @since 2.3
+     */
+    public boolean canReadObjectId() {
+        return false;
+    }
 
     /**
      * Introspection method that may be called to see if the underlying
@@ -1263,6 +1279,23 @@ public abstract class JsonParser
 
     /**
      * Method that can be called to check whether current token
+     * (one that was just read) has an associated Object id, and if
+     * so, return it.
+     * Note that while typically caller should check with {@link #canReadObjectId}
+     * first, it is not illegal to call this method even if that method returns
+     * true; but if so, it will return null. This may be used to simplify calling
+     * code.
+     *<p>
+     * Default implementation will simply return null.
+     * 
+     * @since 2.3
+     */
+    public Object getObjectId() throws IOException, JsonGenerationException {
+        return null;
+    }
+
+    /**
+     * Method that can be called to check whether current token
      * (one that was just read) has an associated type id, and if
      * so, return it.
      * Note that while typically caller should check with {@link #canReadTypeId}
@@ -1274,7 +1307,7 @@ public abstract class JsonParser
      * 
      * @since 2.3
      */
-    public String getTypeId() throws IOException, JsonGenerationException {
+    public Object getTypeId() throws IOException, JsonGenerationException {
         return null;
     }
 

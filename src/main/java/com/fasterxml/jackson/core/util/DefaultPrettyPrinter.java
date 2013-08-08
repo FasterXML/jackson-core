@@ -134,7 +134,7 @@ public class DefaultPrettyPrinter
 
         _rootSeparator = rootSeparator;
     }
-
+    
     public DefaultPrettyPrinter withRootSeparator(SerializableString rootSeparator)
     {
         if (_rootSeparator == rootSeparator ||
@@ -144,18 +144,84 @@ public class DefaultPrettyPrinter
         return new DefaultPrettyPrinter(this, rootSeparator);
     }
     
-    public void indentArraysWith(Indenter i)
-    {
+    public void indentArraysWith(Indenter i) {
         _arrayIndenter = (i == null) ? NopIndenter.instance : i;
     }
 
-    public void indentObjectsWith(Indenter i)
-    {
+    public void indentObjectsWith(Indenter i) {
         _objectIndenter = (i == null) ? NopIndenter.instance : i;
     }
 
+    /**
+     * @deprecated Since 2.3 use {@link #withSpacesInObjectEntries} and {@link #withoutSpacesInObjectEntries()}
+     */
+    @Deprecated
     public void spacesInObjectEntries(boolean b) { _spacesInObjectEntries = b; }
 
+    /**
+     * @since 2.3
+     */
+    public DefaultPrettyPrinter withArrayIndenter(Indenter i) {
+        if (i == null) {
+            i = NopIndenter.instance;
+        }
+        if (_arrayIndenter == i) {
+            return this;
+        }
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(this);
+        pp._arrayIndenter = i;
+        return pp;
+    }
+
+    /**
+     * @since 2.3
+     */
+    public DefaultPrettyPrinter withObjectIndenter(Indenter i) {
+        if (i == null) {
+            i = NopIndenter.instance;
+        }
+        if (_objectIndenter == i) {
+            return this;
+        }
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(this);
+        pp._objectIndenter = i;
+        return pp;
+    }
+
+    /**
+     * "Mutant factory" method that will return a pretty printer instance
+     * that does use spaces inside object entries; if 'this' instance already
+     * does this, it is returned; if not, a new instance will be constructed
+     * and returned.
+     *
+     * @since 2.3
+     */
+    public DefaultPrettyPrinter withSpacesInObjectEntries() {
+        return _withSpaces(true);
+    }
+
+    /**
+     * "Mutant factory" method that will return a pretty printer instance
+     * that does not use spaces inside object entries; if 'this' instance already
+     * does this, it is returned; if not, a new instance will be constructed
+     * and returned.
+     * 
+     * @since 2.3
+     */
+    public DefaultPrettyPrinter withoutSpacesInObjectEntries() {
+        return _withSpaces(false);
+    }
+
+    protected DefaultPrettyPrinter _withSpaces(boolean state)
+    {
+        if (_spacesInObjectEntries == state) {
+            return this;
+        }
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter(this);
+        pp._spacesInObjectEntries = state;
+        return pp;
+    }
+    
     /*
     /**********************************************************
     /* Instantiatable impl
@@ -350,9 +416,6 @@ public class DefaultPrettyPrinter
      */
     public static class Lf2SpacesIndenter extends NopIndenter
     {
-        @SuppressWarnings("hiding")
-        public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
-
         private final static String SYS_LF;
         static {
             String lf = null;
@@ -368,6 +431,37 @@ public class DefaultPrettyPrinter
             Arrays.fill(SPACES, ' ');
         }
 
+        @SuppressWarnings("hiding")
+        public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
+
+        /**
+         * Linefeed used; default value is the platform-specific linefeed.
+         */
+        protected final String _lf;
+
+        public Lf2SpacesIndenter() { this(SYS_LF); }
+        
+        /**
+         * @since 2.3
+         */
+        public Lf2SpacesIndenter(String lf) {
+            _lf = lf;
+        }
+
+        /**
+         * "Mutant factory" method that will return an instance that uses
+         * specified String as linefeed.
+         * 
+         * @since 2.3
+         */
+        public Lf2SpacesIndenter withLinefeed(String lf)
+        {
+            if (lf.equals(_lf)) {
+                return this;
+            }
+            return new Lf2SpacesIndenter(lf);
+        }
+        
         @Override
         public boolean isInline() { return false; }
 
@@ -375,7 +469,7 @@ public class DefaultPrettyPrinter
         public void writeIndentation(JsonGenerator jg, int level)
             throws IOException, JsonGenerationException
         {
-            jg.writeRaw(SYS_LF);
+            jg.writeRaw(_lf);
             if (level > 0) { // should we err on negative values (as there's some flaw?)
                 level += level; // 2 spaces per level
                 while (level > SPACE_COUNT) { // should never happen but...

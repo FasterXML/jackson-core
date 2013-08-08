@@ -10,6 +10,7 @@ New minor version.
 #91: Add methods in `JsonGenerator` for writing native Type Ids
 #92: Add methods in `JsonParser` for reading native Type Ids
 #93: Add `getFeatureMask()`, `setFeatureMask()` in `JsonGenerator`/`JsonParser`
+- Improve `DefaultPrettyPrinter`, `Lf2SpacesIndenter` (from databind #276)
 
 ------------------------------------------------------------------------
 === History: ===

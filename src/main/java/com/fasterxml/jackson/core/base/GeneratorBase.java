@@ -119,6 +119,17 @@ public abstract class GeneratorBase
     public final boolean isEnabled(Feature f) {
         return (_features & f.getMask()) != 0;
     }
+
+    @Override
+    public int getFeatureMask() {
+        return _features;
+    }
+
+    @Override
+    public JsonGenerator setFeatureMask(int mask) {
+        _features = mask;
+        return this;
+    }
     
     @Override
     public JsonGenerator useDefaultPrettyPrinter() {

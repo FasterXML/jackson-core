@@ -435,6 +435,29 @@ public abstract class JsonParser
     public boolean isEnabled(Feature f) {
         return (_features & f.getMask()) != 0;
     }
+
+    /**
+     * Bulk access method for getting state of all standard {@link Feature}s.
+     * 
+     * @return Bit mask that defines current states of all standard {@link Feature}s.
+     * 
+     * @since 2.3
+     */
+    public int getFeatureMask() {
+        return _features;
+    }
+
+    /**
+     * Bulk set method for (re)settting states of all standard {@link Feature}s
+     * 
+     * @since 2.3
+     * 
+     * @return This parser object, to allow chaining of calls
+     */
+    public JsonParser setFeatureMask(int mask) {
+        _features = mask;
+        return this;
+    }
     
     /*
     /**********************************************************

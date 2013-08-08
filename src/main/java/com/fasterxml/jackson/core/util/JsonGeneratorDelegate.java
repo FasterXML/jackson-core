@@ -87,6 +87,17 @@ public class JsonGeneratorDelegate extends JsonGenerator
     // final, can't override (and no need to)
     //public final JsonGenerator configure(Feature f, boolean state)
 
+    @Override
+    public int getFeatureMask() {
+        return delegate.getFeatureMask();
+    }
+
+    @Override
+    public JsonGenerator setFeatureMask(int mask) {
+        delegate.setFeatureMask(mask);
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Configuring generator

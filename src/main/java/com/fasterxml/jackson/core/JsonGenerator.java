@@ -266,6 +266,25 @@ public abstract class JsonGenerator
      */
     public abstract boolean isEnabled(Feature f);
 
+
+    /**
+     * Bulk access method for getting state of all standard {@link Feature}s.
+     * 
+     * @return Bit mask that defines current states of all standard {@link Feature}s.
+     * 
+     * @since 2.3
+     */
+    public abstract int getFeatureMask();
+
+    /**
+     * Bulk set method for (re)settting states of all standard {@link Feature}s
+     * 
+     * @since 2.3
+     * 
+     * @return This parser object, to allow chaining of calls
+     */
+    public abstract JsonGenerator setFeatureMask(int mask);
+    
     /*
     /**********************************************************
     /* Public API, Schema configuration

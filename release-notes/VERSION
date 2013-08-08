@@ -3,13 +3,13 @@ Version: 2.3.0 (xx-xxx-2013)
 
 New minor version.
 
+#8: Add methods in `JsonParser`/`JsonGenerator` for reading/writing Object Ids
 #77: Improve error reporting for unrecognized tokens
  (requested by cowwoc@github)
 #85: Add `JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN`
 #91: Add methods in `JsonGenerator` for writing native Type Ids
 #92: Add methods in `JsonParser` for reading native Type Ids
 #93: Add `getFeatureMask()`, `setFeatureMask()` in `JsonGenerator`/`JsonParser`
-- Add similar Object Id reading/writing methods in `JsonGenerator`/`JsonParser`
 
 ------------------------------------------------------------------------
 === History: ===

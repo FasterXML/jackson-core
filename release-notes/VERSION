@@ -11,6 +11,8 @@ New minor version.
 #92: Add methods in `JsonParser` for reading native Type Ids
 #93: Add `getFeatureMask()`, `setFeatureMask()` in `JsonGenerator`/`JsonParser`
 - Improve `DefaultPrettyPrinter`, `Lf2SpacesIndenter` (from databind #276)
+- Add `JsonGenerator.canOmitFields()` method to support discovery of
+  positional formats, needed for handling of filtering for CSV
 
 ------------------------------------------------------------------------
 === History: ===

@@ -45,11 +45,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public FormatSchema getSchema() {
         return delegate.getSchema();
     }
-    
-    @Override
-    public boolean canUseSchema(FormatSchema schema) {
-        return delegate.canUseSchema(schema);
-    }
 
     @Override
     public Version version() {
@@ -59,6 +54,32 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public Object getOutputTarget() {
         return delegate.getOutputTarget();
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, capability introspection (since 2.3, mostly)
+    /**********************************************************
+     */
+
+    @Override
+    public boolean canUseSchema(FormatSchema schema) {
+        return delegate.canUseSchema(schema);
+    }
+
+    @Override
+    public boolean canWriteTypeId() {
+        return delegate.canWriteTypeId();
+    }
+
+    @Override
+    public boolean canWriteObjectId() {
+        return delegate.canWriteObjectId();
+    }
+
+    @Override
+    public boolean canOmitFields() {
+        return delegate.canOmitFields();
     }
     
     /*
@@ -350,16 +371,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Public API, write methods, Native Ids
     /**********************************************************
      */
-
-    @Override
-    public boolean canWriteTypeId() {
-        return delegate.canWriteTypeId();
-    }
-
-    @Override
-    public boolean canWriteObjectId() {
-        return delegate.canWriteObjectId();
-    }
     
     @Override
     public void writeObjectId(Object id)

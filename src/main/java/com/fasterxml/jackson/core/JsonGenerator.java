@@ -321,18 +321,6 @@ public abstract class JsonGenerator
     public FormatSchema getSchema() {
         return null;
     }
-    
-    /**
-     * Method that can be used to verify that given schema can be used with
-     * this generator (using {@link #setSchema}).
-     * 
-     * @param schema Schema to check
-     * 
-     * @return True if this generator can use given schema; false if not
-     */
-    public boolean canUseSchema(FormatSchema schema) {
-        return false;
-    }
 
     /*
     /**********************************************************
@@ -443,6 +431,72 @@ public abstract class JsonGenerator
      */
     public JsonGenerator setRootValueSeparator(SerializableString sep) {
         throw new UnsupportedOperationException();
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, capability introspection methods
+    /**********************************************************
+     */
+
+    /**
+     * Method that can be used to verify that given schema can be used with
+     * this generator (using {@link #setSchema}).
+     * 
+     * @param schema Schema to check
+     * 
+     * @return True if this generator can use given schema; false if not
+     */
+    public boolean canUseSchema(FormatSchema schema) {
+        return false;
+    }
+    
+    /**
+     * Introspection method that may be called to see if the underlying
+     * data format supports some kind of Object Ids natively (many do not;
+     * for example, JSON doesn't).
+     * This method <b>must</b> be called prior to calling
+     * {@link #writeObjectId} or {@link #writeObjectRef}.
+     *<p>
+     * Default implementation returns false; overridden by data formats
+     * that do support native Object Ids. Caller is expected to either
+     * use a non-native notation (explicit property or such), or fail,
+     * in case it can not use native object ids.
+     * 
+     * @since 2.3
+     */
+    public boolean canWriteObjectId() {
+        return false;
+    }
+
+    /**
+     * Introspection method that may be called to see if the underlying
+     * data format supports some kind of Type Ids natively (many do not;
+     * for example, JSON doesn't).
+     * This method <b>must</b> be called prior to calling
+     * {@link #writeTypeId}.
+     *<p>
+     * Default implementation returns false; overridden by data formats
+     * that do support native Type Ids. Caller is expected to either
+     * use a non-native notation (explicit property or such), or fail,
+     * in case it can not use native type ids.
+     * 
+     * @since 2.3
+     */
+    public boolean canWriteTypeId() {
+        return false;
+    }
+
+    /**
+     * Introspection method to call to check whether it is ok to omit
+     * writing of Object fields or not. Most formats do allow omission,
+     * but certain positional formats (such as CSV) require output of
+     * placeholders, even if no real values are to be emitted.
+     * 
+     * @since 2.3
+     */
+    public boolean canOmitFields() {
+        return true;
     }
 
     /*
@@ -925,42 +979,6 @@ public abstract class JsonGenerator
     /* Public API, write methods, Native Ids (type, object)
     /**********************************************************
      */
-
-    /**
-     * Introspection method that may be called to see if the underlying
-     * data format supports some kind of Object Ids natively (many do not;
-     * for example, JSON doesn't).
-     * This method <b>must</b> be called prior to calling
-     * {@link #writeObjectId} or {@link #writeObjectRef}.
-     *<p>
-     * Default implementation returns false; overridden by data formats
-     * that do support native Object Ids. Caller is expected to either
-     * use a non-native notation (explicit property or such), or fail,
-     * in case it can not use native object ids.
-     * 
-     * @since 2.3
-     */
-    public boolean canWriteObjectId() {
-        return false;
-    }
-
-    /**
-     * Introspection method that may be called to see if the underlying
-     * data format supports some kind of Type Ids natively (many do not;
-     * for example, JSON doesn't).
-     * This method <b>must</b> be called prior to calling
-     * {@link #writeTypeId}.
-     *<p>
-     * Default implementation returns false; overridden by data formats
-     * that do support native Type Ids. Caller is expected to either
-     * use a non-native notation (explicit property or such), or fail,
-     * in case it can not use native type ids.
-     * 
-     * @since 2.3
-     */
-    public boolean canWriteTypeId() {
-        return false;
-    }
 
     /**
      * Method that can be called to output so-called native Object Id.

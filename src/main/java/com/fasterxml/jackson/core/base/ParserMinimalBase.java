@@ -279,6 +279,9 @@ public abstract class ParserMinimalBase
                 if ("true".equals(str)) {
                     return true;
                 }
+                if (_hasTextualNull(str)) {
+                    return false;
+                }
                 break;
             }
         }
@@ -300,7 +303,11 @@ public abstract class ParserMinimalBase
             case VALUE_NULL:
                 return 0;
             case VALUE_STRING:
-                return NumberInput.parseAsInt(getText(), defaultValue);
+                String str = getText();
+                if (_hasTextualNull(str)) {
+                    return 0;
+                }
+                return NumberInput.parseAsInt(str, defaultValue);
             case VALUE_EMBEDDED_OBJECT:
                 {
                     Object value = this.getEmbeddedObject();
@@ -327,7 +334,11 @@ public abstract class ParserMinimalBase
             case VALUE_NULL:
                 return 0;
             case VALUE_STRING:
-                return NumberInput.parseAsLong(getText(), defaultValue);
+                String str = getText();
+                if (_hasTextualNull(str)) {
+                    return 0L;
+                }
+                return NumberInput.parseAsLong(str, defaultValue);
             case VALUE_EMBEDDED_OBJECT:
                 {
                     Object value = this.getEmbeddedObject();
@@ -356,7 +367,11 @@ public abstract class ParserMinimalBase
             case VALUE_NULL:
                 return 0;
             case VALUE_STRING:
-                return NumberInput.parseAsDouble(getText(), defaultValue);
+                String str = getText();
+                if (_hasTextualNull(str)) {
+                    return 0;
+                }
+                return NumberInput.parseAsDouble(str, defaultValue);
             case VALUE_EMBEDDED_OBJECT:
                 {
                     Object value = this.getEmbeddedObject();
@@ -435,6 +450,23 @@ public abstract class ParserMinimalBase
     @Deprecated
     protected void _reportBase64EOF() throws JsonParseException {
         throw _constructError("Unexpected end-of-String in base64 content");
+    }
+
+    /*
+    /**********************************************************
+    /* Coercion helper methods (overridable)
+    /**********************************************************
+     */
+    
+    /**
+     * Helper method used to determine whether we are currently pointing to
+     * a String value of "null" (NOT a null token); and, if so, that parser
+     * is to recognize and return it similar to if it was real null token.
+     * 
+     * @since 2.3
+     */
+    protected boolean _hasTextualNull(String value) {
+        return "null".equals(value);
     }
     
     /*

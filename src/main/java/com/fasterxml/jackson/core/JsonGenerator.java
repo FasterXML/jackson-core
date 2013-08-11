@@ -1110,6 +1110,7 @@ public abstract class JsonGenerator
         writeFieldName(fieldName);
         writeNull();
     }
+
     /**
      * Convenience method for outputting a field entry ("member")
      * that has the specified numeric value. Equivalent to:
@@ -1258,6 +1259,21 @@ public abstract class JsonGenerator
         writeObject(pojo);
     }
 
+    /**
+     * Method called to indicate that a property in this position was
+     * skipped. It is usually only called for generators that return
+     * <code>false</code> from {@link #canOmitFields()}.
+     *<p>
+     * Default implementation does nothing.
+     * 
+     * @since 2.3
+     */
+    public void writeOmittedField(String fieldName)
+        throws IOException, JsonGenerationException
+    {
+        // default implementation does nothing
+    }
+    
     /*
     /**********************************************************
     /* Public API, copy-through methods

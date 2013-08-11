@@ -368,6 +368,19 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     /*
     /**********************************************************
+    /* Overridden field methods
+    /**********************************************************
+     */
+
+    @Override
+    public void writeOmittedField(String fieldName)
+        throws IOException, JsonGenerationException
+    {
+        delegate.writeOmittedField(fieldName);
+    }
+    
+    /*
+    /**********************************************************
     /* Public API, write methods, Native Ids
     /**********************************************************
      */

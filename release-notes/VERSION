@@ -1,5 +1,5 @@
 Project: jackson-core
-Version: 2.2.3 (xx-Jul-2013)
+Version: 2.2.3 (22-Aug-2013)
 
 #78: ArrayIndexOutOfBoundsException for very long numbers (>500 digits)
  (reported by boothen@github)

@@ -6,7 +6,7 @@ It also includes the default implementation of handler types (parser, generator)
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
 This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on.
-It is licensed under Apache License 2.0.
+It is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),

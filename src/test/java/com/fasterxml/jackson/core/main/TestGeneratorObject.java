@@ -81,7 +81,7 @@ public class TestGeneratorObject
         gen.writeNumber(-901);
         gen.writeFieldName("sec");
         gen.writeBoolean(false);
-        gen.writeFieldName("3rd!"); // json field names are just strings, not ids with restrictions
+        gen.writeFieldName("3rd!"); // JSON field names are just strings, not ids with restrictions
         gen.writeString("yee-haw");
         gen.writeEndObject();
         gen.close();

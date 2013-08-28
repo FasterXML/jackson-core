@@ -143,8 +143,10 @@ public class TestJsonParser
         assertTrue(ctxt.inObject());
         assertEquals(1, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
+        assertEquals("key1", ctxt.getCurrentName());
 
         assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertEquals("key1", ctxt.getCurrentName());
 
         ctxt = jp.getParsingContext();
         assertEquals(1, ctxt.getEntryCount());
@@ -155,8 +157,10 @@ public class TestJsonParser
         ctxt = jp.getParsingContext();
         assertEquals(2, ctxt.getEntryCount());
         assertEquals(1, ctxt.getCurrentIndex());
+        assertEquals("key2", ctxt.getCurrentName());
 
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        assertEquals("key2", ctxt.getCurrentName());
 
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         verifyFieldName(jp, "key3");
@@ -164,13 +168,25 @@ public class TestJsonParser
 
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         verifyFieldName(jp, "key4");
+
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        ctxt = jp.getParsingContext();
+        assertTrue(ctxt.inArray());
+        assertNull(ctxt.getCurrentName());
+        assertEquals("key4", ctxt.getParent().getCurrentName());
+        
         assertToken(JsonToken.VALUE_FALSE, jp.nextToken());
         assertToken(JsonToken.VALUE_NULL, jp.nextToken());
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
 
+        ctxt = jp.getParsingContext();
+        assertTrue(ctxt.inObject());
+
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        ctxt = jp.getParsingContext();
+        assertTrue(ctxt.inRoot());
+        assertNull(ctxt.getCurrentName());
 
         jp.close();
     }

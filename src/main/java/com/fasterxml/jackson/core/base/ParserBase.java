@@ -955,7 +955,7 @@ public abstract class ParserBase
              * to avoid rounding errors that non-decimal floating operations
              * would incur
              */
-            _numberBigDecimal = new BigDecimal(getText());
+            _numberBigDecimal = NumberInput.parseBigDecimal(getText());
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_numberBigInt);
         } else if ((_numTypesValid & NR_LONG) != 0) {

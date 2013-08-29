@@ -380,9 +380,20 @@ public class TestParserNonStandard
         
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
+        
         double d = jp.getDoubleValue();
         assertTrue(Double.isNaN(d));
         assertEquals("NaN", jp.getText());
+
+        // [Issue#98]
+        try {
+            /*BigDecimal dec =*/ jp.getDecimalValue();
+            fail("Should fail when trying to access NaN as BigDecimal");
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            verifyException(e, "can not be represented as BigDecimal");
+        }
+       
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
 

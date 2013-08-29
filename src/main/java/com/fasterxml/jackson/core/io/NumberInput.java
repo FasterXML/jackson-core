@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import java.math.BigDecimal;
+
 public final class NumberInput
 {
     /**
@@ -275,7 +277,7 @@ public final class NumberInput
         } catch (NumberFormatException e) { }
         return defaultValue;
     }
-    
+
     public static double parseDouble(String numStr) throws NumberFormatException
     {
         // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
@@ -286,5 +288,32 @@ public final class NumberInput
             return Double.MIN_VALUE;
         }
         return Double.parseDouble(numStr);
+    }
+
+    public static BigDecimal parseBigDecimal(String numStr) throws NumberFormatException
+    {
+        try {
+            return new BigDecimal(numStr);
+        } catch (NumberFormatException e) {
+            throw _badBigDecimal(numStr);
+        }
+    }
+
+    public static BigDecimal parseBigDecimal(char[] buffer) throws NumberFormatException {
+        return parseBigDecimal(buffer, 0, buffer.length);
+    }
+    
+    public static BigDecimal parseBigDecimal(char[] buffer, int offset, int len)
+            throws NumberFormatException
+    {
+        try {
+            return new BigDecimal(buffer, offset, len);
+        } catch (NumberFormatException e) {
+            throw _badBigDecimal(new String(buffer, offset, len));
+        }
+    }
+
+    private static NumberFormatException _badBigDecimal(String str) {
+        return new NumberFormatException("Value \""+str+"\" can not be represented as BigDecimal");
     }
 }

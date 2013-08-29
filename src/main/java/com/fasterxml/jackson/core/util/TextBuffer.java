@@ -384,18 +384,18 @@ public final class TextBuffer
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
-            return new BigDecimal(_resultArray);
+            return NumberInput.parseBigDecimal(_resultArray);
         }
         // Or a shared buffer?
-        if (_inputStart >= 0) {
-            return new BigDecimal(_inputBuffer, _inputStart, _inputLen);
+        if ((_inputStart >= 0) && (_inputBuffer != null)) {
+            return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen);
         }
         // Or if not, just a single buffer (the usual case)
-        if (_segmentSize == 0) {
-            return new BigDecimal(_currentSegment, 0, _currentSize);
+        if ((_segmentSize == 0) && (_currentSegment != null)) {
+            return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize);
         }
         // If not, let's just get it aggregated...
-        return new BigDecimal(contentsAsArray());
+        return NumberInput.parseBigDecimal(contentsAsArray());
     }
 
     /**

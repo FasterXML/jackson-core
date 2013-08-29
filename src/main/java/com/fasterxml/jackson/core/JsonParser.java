@@ -290,6 +290,12 @@ public abstract class JsonParser
         return false;
     }
 
+    /*
+    /**********************************************************
+    /* Capability introspection
+    /**********************************************************
+     */
+    
     /**
      * Method that can be called to determine if a custom
      * {@link ObjectCodec} is needed for binding data parsed
@@ -307,6 +313,25 @@ public abstract class JsonParser
         return false;
     }
 
+    /**
+     * Introspection method that higher-level functionality may call
+     * to see whether underlying data format requires a stable ordering
+     * of object properties or not.
+     * This is usually used for determining
+     * whether to force a stable ordering (like alphabetic ordering by name)
+     * if no ordering if explicitly specified.
+     *<p>
+     * Default implementation returns <code>false</code> as JSON does NOT
+     * require stable ordering. Formats that require ordering include positional
+     * textual formats like <code>CSV</code>, and schema-based binary formats
+     * like <code>Avro</code>.
+     * 
+     * @since 2.3
+     */
+    public boolean requiresPropertyOrdering() {
+        return false;
+    }
+    
     /*
     /**********************************************************
     /* Versioned

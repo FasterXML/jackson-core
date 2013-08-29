@@ -83,11 +83,6 @@ public class JsonParserDelegate extends JsonParser
     public boolean canUseSchema(FormatSchema schema) {
         return delegate.canUseSchema(schema);
     }
-
-    @Override
-    public boolean requiresCustomCodec() {
-        return delegate.requiresCustomCodec();
-    }
     
     @Override
     public Version version() {
@@ -97,6 +92,22 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public Object getInputSource() {
         return delegate.getInputSource();
+    }
+
+    /*
+    /**********************************************************
+    /* Capability introspection
+    /**********************************************************
+     */
+
+    @Override
+    public boolean requiresCustomCodec() {
+        return delegate.requiresCustomCodec();
+    }
+
+    @Override
+    public boolean requiresPropertyOrdering() {
+        return delegate.requiresPropertyOrdering();
     }
     
     /*

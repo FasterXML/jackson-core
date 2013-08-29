@@ -159,6 +159,77 @@ public class TestJsonGenerator
          assertEquals("{\"long\":3,\"double\":0.25,\"float\":-0.25}", sw.toString().trim());
      }
 
+    /**
+     * Test to verify that output context actually contains useful information
+     */
+    public void testOutputContext() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonStreamContext ctxt = gen.getOutputContext();
+        assertTrue(ctxt.inRoot());
+
+        gen.writeStartObject();
+        assertTrue(gen.getOutputContext().inObject());
+
+        gen.writeFieldName("a");
+        assertEquals("a", gen.getOutputContext().getCurrentName());
+
+        gen.writeStartArray();
+        assertTrue(gen.getOutputContext().inArray());
+
+        gen.writeStartObject();
+        assertTrue(gen.getOutputContext().inObject());
+
+        gen.writeFieldName("b");
+        ctxt = gen.getOutputContext();
+        assertEquals("b", ctxt.getCurrentName());
+        gen.writeNumber(123);
+        assertEquals("b", ctxt.getCurrentName());
+
+        gen.writeFieldName("c");
+        assertEquals("c", gen.getOutputContext().getCurrentName());
+        gen.writeNumber(5);
+//        assertEquals("c", gen.getOutputContext().getCurrentName());
+
+        gen.writeFieldName("d");
+        assertEquals("d", gen.getOutputContext().getCurrentName());
+
+        gen.writeStartArray();
+        ctxt = gen.getOutputContext();
+        assertTrue(ctxt.inArray());
+        assertEquals(0, ctxt.getCurrentIndex());
+        assertEquals(0, ctxt.getEntryCount());
+
+        gen.writeBoolean(true);
+        ctxt = gen.getOutputContext();
+        assertTrue(ctxt.inArray());
+        // NOTE: index still refers to currently output entry
+        assertEquals(0, ctxt.getCurrentIndex());
+        assertEquals(1, ctxt.getEntryCount());
+
+        gen.writeNumber(3);
+        ctxt = gen.getOutputContext();
+        assertTrue(ctxt.inArray());
+        assertEquals(1, ctxt.getCurrentIndex());
+        assertEquals(2, ctxt.getEntryCount());
+        
+        gen.writeEndArray();
+        assertTrue(gen.getOutputContext().inObject());
+        
+        gen.writeEndObject();
+        assertTrue(gen.getOutputContext().inArray());
+
+        gen.writeEndArray();
+        assertTrue(gen.getOutputContext().inObject());
+
+        gen.writeEndObject();
+
+        assertTrue(gen.getOutputContext().inRoot());
+        
+        gen.close();
+    }
+    
     /*
     /**********************************************************
     /* Internal methods

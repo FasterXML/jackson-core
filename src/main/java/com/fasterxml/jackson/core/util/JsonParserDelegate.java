@@ -105,11 +105,6 @@ public class JsonParserDelegate extends JsonParser
         return delegate.requiresCustomCodec();
     }
 
-    @Override
-    public boolean requiresPropertyOrdering() {
-        return delegate.requiresPropertyOrdering();
-    }
-    
     /*
     /**********************************************************
     /* Closeable impl

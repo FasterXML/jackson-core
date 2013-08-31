@@ -19,14 +19,11 @@ public class JsonWriteContext
     public final static int STATUS_EXPECT_VALUE = 4;
     public final static int STATUS_EXPECT_NAME = 5;
 
+    /**
+     * Parent context for this context; null for root context.
+     */
     protected final JsonWriteContext _parent;
 
-    /**
-     * Name of the field of which value is to be parsed; only
-     * used for OBJECT contexts
-     */
-    protected String _currentName;
-    
     /*
     /**********************************************************
     /* Simple instance reuse slots; speed up things
@@ -37,6 +34,18 @@ public class JsonWriteContext
 
     protected JsonWriteContext _child = null;
 
+    /**
+     * Name of the field of which value is to be parsed; only
+     * used for OBJECT contexts
+     */
+    protected String _currentName;
+
+    /**
+     * Marker used to indicate that we just received a name, and
+     * now expect a value
+     */
+    protected boolean _gotName;
+    
     /*
     /**********************************************************
     /* Life-cycle
@@ -58,14 +67,15 @@ public class JsonWriteContext
         return new JsonWriteContext(TYPE_ROOT, null);
     }
 
-    private JsonWriteContext reset(int type) {
+    protected JsonWriteContext reset(int type) {
         _type = type;
         _index = -1;
         _currentName = null;
+        _gotName = false;
         return this;
     }
     
-    public final JsonWriteContext createChildArrayContext()
+    public JsonWriteContext createChildArrayContext()
     {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
@@ -75,7 +85,7 @@ public class JsonWriteContext
         return ctxt.reset(TYPE_ARRAY);
     }
 
-    public final JsonWriteContext createChildObjectContext()
+    public JsonWriteContext createChildObjectContext()
     {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
@@ -102,24 +112,16 @@ public class JsonWriteContext
      */
     public final int writeFieldName(String name)
     {
-        if (_type == TYPE_OBJECT) {
-            if (_currentName != null) { // just wrote a name...
-                return STATUS_EXPECT_VALUE;
-            }
-            _currentName = name;
-            return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
-        }
-        return STATUS_EXPECT_VALUE;
+        _gotName = true;            
+        _currentName = name;
+        return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
     }
     
     public final int writeValue()
     {
         // Most likely, object:
         if (_type == TYPE_OBJECT) {
-            if (_currentName == null) {
-                return STATUS_EXPECT_NAME;
-            }
-            _currentName = null;
+            _gotName = false;
             ++_index;
             return STATUS_OK_AFTER_COLON;
         }

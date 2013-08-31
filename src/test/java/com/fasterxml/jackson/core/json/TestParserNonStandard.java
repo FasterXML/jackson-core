@@ -390,7 +390,6 @@ public class TestParserNonStandard
             /*BigDecimal dec =*/ jp.getDecimalValue();
             fail("Should fail when trying to access NaN as BigDecimal");
         } catch (NumberFormatException e) {
-            e.printStackTrace();
             verifyException(e, "can not be represented as BigDecimal");
         }
        

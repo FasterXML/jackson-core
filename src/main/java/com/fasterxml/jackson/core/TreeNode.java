@@ -28,6 +28,8 @@ import java.util.Iterator;
  * than mutable trees. It should also be possible to move actual
  * Tree Model implementation out of databind package eventually
  * (Jackson 3?).
+ * 
+ * @since 2.2
  */
 public interface TreeNode
 {
@@ -125,7 +127,7 @@ public interface TreeNode
      * @since 2.2
      */
     boolean isObject();
-    
+
     /*
     /**********************************************************
     /* Basic traversal through structured entries (Arrays, Objects)
@@ -214,6 +216,17 @@ public interface TreeNode
      * @since 2.2
      */
     Iterator<String> fieldNames();
+
+    /**
+     * Method for traversing node using given JSON Pointer instance
+     * 
+     * @return Node that matches given JSON Pointer: if no match exists,
+     *   will return a node for which {@link TreeNode#isMissingNode()} returns
+     *   true.
+     * 
+     * @since 2.3
+     */
+    <T extends TreeNode> T find(JsonPointer ptr);
     
     /*
     /**********************************************************

@@ -45,7 +45,7 @@ public class JsonWriteContext
      * now expect a value
      */
     protected boolean _gotName;
-    
+
     /*
     /**********************************************************
     /* Life-cycle

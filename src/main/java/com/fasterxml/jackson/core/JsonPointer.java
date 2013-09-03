@@ -70,7 +70,7 @@ public class JsonPointer
         _matchingPropertyName = segment;
         _matchingElementIndex = _parseInt(segment);
     }
-
+    
     /*
     /**********************************************************
     /* Factory methods
@@ -86,7 +86,7 @@ public class JsonPointer
      *   expression: currently the only such expression is one that does NOT start with
      *   a slash ('/').
      */
-    public static JsonPointer parse(String input)
+    public static JsonPointer compile(String input)
         throws IllegalArgumentException
     {
         // First quick checks for well-known 'empty' pointer
@@ -100,6 +100,12 @@ public class JsonPointer
         }
         return _parseTail(input);
     }
+
+    /**
+     * Alias for {@link #compile}; added to make instances automatically
+     * deserializable by Jackson databind.
+     */
+    public static JsonPointer valueOf(String input) { return compile(input); }
 
     /*
     

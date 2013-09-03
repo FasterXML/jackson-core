@@ -10,6 +10,7 @@
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
   <version>2.3.0-SNAPSHOT</version>
+  <packaging>bundle</packaging>
   <description>Core Jackson abstractions, basic JSON streaming API implementation
   </description>
 

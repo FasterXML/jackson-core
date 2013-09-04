@@ -171,6 +171,14 @@ public class JsonPointer
         }
         return _nextSegment;
     }
+
+    /**
+     * Accessor for getting a "sub-pointer", instance where current segment
+     * has been removed and pointer includes rest of segments;
+     */
+    public JsonPointer tail() {
+        return _nextSegment;
+    }
     
     /*
     /**********************************************************

@@ -1,6 +1,5 @@
-package com.fasterxml.jackson.core.misc;
+package com.fasterxml.jackson.core;
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.test.BaseTest;
 
 public class TestExceptions extends BaseTest

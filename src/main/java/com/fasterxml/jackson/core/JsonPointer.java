@@ -234,12 +234,13 @@ public class JsonPointer
         final int end = input.length();
 
         // first char is the contextual slash, skip
-        for (int i = 1; i < end; ++i) {
-            char c = input.charAt(i++);
+        for (int i = 1; i < end; ) {
+            char c = input.charAt(i);
             if (c == '/') { // common case, got a segment
-                return new JsonPointer(input, input.substring(1, i-1),
+                return new JsonPointer(input, input.substring(1, i),
                         _parseTail(input.substring(i)));
             }
+            ++i;
             // quoting is different; offline this case
             if (c == '~' && i < end) { // possibly, quote
                 return _parseQuotedTail(input, i);
@@ -266,13 +267,14 @@ public class JsonPointer
         }
         _appendEscape(sb, input.charAt(i++));
         while (i < end) {
-            char c = input.charAt(i++);
+            char c = input.charAt(i);
             if (c == '/') { // end is nigh!
                 return new JsonPointer(input, sb.toString(),
-                        _parseTail(input.substring(i)));
+                        _parseTail(input.substring(i))); // need to push back slash
             }
+            ++i;
             if (c == '~' && i < end) {
-                _appendEscape(sb, c);
+                _appendEscape(sb, input.charAt(i++));
                 continue;
             }
             sb.append(c);
@@ -285,7 +287,7 @@ public class JsonPointer
     {
         if (c == '0') {
             c = '~';
-        } else if ( c == '1') {
+        } else if (c == '1') {
             c = '/';
         } else {
             sb.append('~');

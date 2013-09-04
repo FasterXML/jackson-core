@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.misc;
+package com.fasterxml.jackson.core;
 
 import java.io.*;
 

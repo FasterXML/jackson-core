@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * <a href="http://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-03">JSON Pointer</a>
  * specification.
  * Pointer instances can be used to locate logical JSON nodes for things like
- * tree traversal (see {@link TreeNode#find}) and filtering of streaming JSON content
+ * tree traversal (see {@link TreeNode#at}) and filtering of streaming JSON content
  * (see {@link JsonParser#filter}).
  *<p>
  * Instances are fully immutable and can be shared, cached.

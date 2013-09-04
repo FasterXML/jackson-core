@@ -227,7 +227,7 @@ public interface TreeNode
      * 
      * @since 2.3
      */
-    <T extends TreeNode> T at(JsonPointer ptr);
+    TreeNode at(JsonPointer ptr);
 
     /**
      * Convenience method that is functionally equivalent to:
@@ -247,7 +247,7 @@ public interface TreeNode
      * 
      * @since 2.3
      */
-    <T extends TreeNode> T at(String jsonPointerExpression)
+    TreeNode at(String jsonPointerExpression)
         throws IllegalArgumentException;
     
     /*

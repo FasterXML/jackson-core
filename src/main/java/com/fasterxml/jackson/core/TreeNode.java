@@ -227,24 +227,27 @@ public interface TreeNode
      * 
      * @since 2.3
      */
-    <T extends TreeNode> T find(JsonPointer ptr);
+    <T extends TreeNode> T at(JsonPointer ptr);
 
     /**
      * Convenience method that is functionally equivalent to:
      *<pre>
-     *   return find(JsonPointer.valueOf(jsonPointerExpression));
+     *   return at(JsonPointer.valueOf(jsonPointerExpression));
      *</pre>
      *<p>
      * Note that if the same expression is used often, it is preferable to construct
      * {@link JsonPointer} instance once and reuse it: this method will not perform
      * any caching of compiled expressions.
      * 
+     * @param jsonPointerExpression Expression to compile as a {@link JsonPointer}
+     *   instance
+     * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
      * 
      * @since 2.3
      */
-    <T extends TreeNode> T find(String jsonPointerExpression)
+    <T extends TreeNode> T at(String jsonPointerExpression)
         throws IllegalArgumentException;
     
     /*

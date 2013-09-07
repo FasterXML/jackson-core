@@ -100,29 +100,18 @@ public class VersionUtil
      */
     public static Version packageVersionFor(Class<?> cls)
     {
-        Class<?> vClass = null;
         try {
             String versionInfoClassName = cls.getPackage().getName() + ".PackageVersion";
-            vClass = Class.forName(versionInfoClassName, true, cls.getClassLoader());
+            Class<?> vClass = Class.forName(versionInfoClassName, true, cls.getClassLoader());
+            // However, if class exists, it better work correctly, no swallowing exceptions
+            try {
+                return ((Versioned) vClass.newInstance()).version();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to get Versioned out of "+vClass);
+            }
         } catch (Exception e) { // ok to be missing (not good, acceptable)
             return null;
         }
-        if (vClass == null) {
-            return null;
-        }
-        // However, if class exists, it better work correctly, no swallowing exceptions
-        Object v;
-        try {
-            v = vClass.newInstance();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to create "+vClass+": "+e.getMessage(), e);
-        }
-        if (!(v instanceof Versioned)) {
-            throw new IllegalArgumentException(""+vClass+": does not implement Versioned");
-        }
-        return ((Versioned) v).version();
     }
 
     private static Version doReadVersion(final Reader reader)
@@ -132,17 +121,16 @@ public class VersionUtil
         final BufferedReader br = new BufferedReader(reader);
         try {
             version = br.readLine();
-                if (version != null) {
-                    group = br.readLine();
-                    if (group != null) {
-                        artifact = br.readLine();
-                    }
+            if (version != null) {
+                group = br.readLine();
+                if (group != null) {
+                    artifact = br.readLine();
                 }
-            } catch (IOException ignored) {
+            }
+        } catch (IOException ignored) {
         } finally {
             _close(br);
         }
-
         // We don't trim() version: parseVersion() takes care ot that
         if (group != null) {
             group = group.trim();
@@ -167,8 +155,8 @@ public class VersionUtil
     @SuppressWarnings("resource")
     public static Version mavenVersionFor(ClassLoader classLoader, String groupId, String artifactId)
     {
-        InputStream pomProperties = classLoader.getResourceAsStream("META-INF/maven/" + groupId.replaceAll("\\.", "/")
-                + "/" + artifactId + "/pom.properties");
+        InputStream pomProperties = classLoader.getResourceAsStream("META-INF/maven/"
+                + groupId.replaceAll("\\.", "/")+ "/" + artifactId + "/pom.properties");
         if (pomProperties != null) {
             try {
                 Properties props = new Properties();
@@ -190,11 +178,11 @@ public class VersionUtil
     {
         if (versionStr != null && (versionStr = versionStr.trim()).length() > 0) {
             String[] parts = VERSION_SEPARATOR.split(versionStr);
-            int major = parseVersionPart(parts[0]);
-            int minor = (parts.length > 1) ? parseVersionPart(parts[1]) : 0;
-            int patch = (parts.length > 2) ? parseVersionPart(parts[2]) : 0;
-            String snapshot = (parts.length > 3) ? parts[3] : null;
-            return new Version(major, minor, patch, snapshot, groupId, artifactId);
+            return new Version(parseVersionPart(parts[0]),
+                    (parts.length > 1) ? parseVersionPart(parts[1]) : 0,
+                    (parts.length > 2) ? parseVersionPart(parts[2]) : 0,
+                    (parts.length > 3) ? parts[3] : null,
+                    groupId, artifactId);
         }
         return null;
     }

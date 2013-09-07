@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
  */
 public abstract class ObjectCodec
     extends TreeCodec // since 2.3
+    implements Versioned // since 2.3
 {
     protected ObjectCodec() { }
 

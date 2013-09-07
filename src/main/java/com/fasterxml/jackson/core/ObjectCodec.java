@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * defined in the "jackson-databind".
  */
 public abstract class ObjectCodec
+    extends TreeCodec // since 2.3
 {
     protected ObjectCodec() { }
 
@@ -63,16 +64,6 @@ public abstract class ObjectCodec
         throws IOException, JsonProcessingException;
 
     /**
-     * Method to deserialize JSON content as tree expressed
-     * using set of {@link TreeNode} instances. Returns
-     * root of the resulting tree (where root can consist
-     * of just a single node if the current event is a
-     * value event, not container).
-     */
-    public abstract <T extends TreeNode> T readTree(JsonParser jp)
-        throws IOException, JsonProcessingException;
-
-    /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
      */
@@ -108,20 +99,37 @@ public abstract class ObjectCodec
 
     /*
     /**********************************************************
-    /* API for Tree Model handling
+    /* TreeCodec pass-through methods
     /**********************************************************
      */
 
     /**
+     * Method to deserialize JSON content as tree expressed
+     * using set of {@link TreeNode} instances. Returns
+     * root of the resulting tree (where root can consist
+     * of just a single node if the current event is a
+     * value event, not container).
+     */
+    @Override
+    public abstract <T extends TreeNode> T readTree(JsonParser jp)
+        throws IOException, JsonProcessingException;
+    
+    @Override
+    public abstract void writeTree(JsonGenerator jg, TreeNode tree)
+        throws IOException, JsonProcessingException;
+    
+    /**
      * Method for construct root level Object nodes
      * for Tree Model instances.
      */
+    @Override
     public abstract TreeNode createObjectNode();
 
     /**
      * Method for construct root level Array nodes
      * for Tree Model instances.
      */
+    @Override
     public abstract TreeNode createArrayNode();
 
     /**
@@ -129,8 +137,15 @@ public abstract class ObjectCodec
      * contents of a JSON tree, as if it was external serialized
      * JSON content.
      */
+    @Override
     public abstract JsonParser treeAsTokens(TreeNode n);
 
+    /*
+    /**********************************************************
+    /* Extended tree conversions beyond TreeCodec
+    /**********************************************************
+     */
+    
     /**
      * Convenience method for converting given JSON tree into instance of specified
      * value type. This is equivalent to first constructing a {@link JsonParser} to

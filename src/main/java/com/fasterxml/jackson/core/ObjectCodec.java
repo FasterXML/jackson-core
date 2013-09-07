@@ -26,6 +26,12 @@ public abstract class ObjectCodec
 {
     protected ObjectCodec() { }
 
+    // Since 2.3: need baseline implementation to avoid backwards compatibility
+    @Override
+    public Version version() {
+        return Version.unknownVersion();
+    }
+    
     /*
     /**********************************************************
     /* API for de-serialization (JSON-to-Object)

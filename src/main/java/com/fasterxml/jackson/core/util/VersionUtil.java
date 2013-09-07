@@ -189,10 +189,8 @@ public class VersionUtil
 
     protected static int parseVersionPart(String partStr)
     {
-        partStr = partStr.toString();
-        int len = partStr.length();
         int number = 0;
-        for (int i = 0; i < len; ++i) {
+        for (int i = 0, len = partStr.length(); i < len; ++i) {
             char c = partStr.charAt(i);
             if (c > '9' || c < '0') break;
             number = (number * 10) + (c - '0');

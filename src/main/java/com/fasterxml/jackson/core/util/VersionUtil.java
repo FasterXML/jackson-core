@@ -22,22 +22,13 @@ import com.fasterxml.jackson.core.Versioned;
  */
 public class VersionUtil
 {
-    /**
-     * @deprecated Since 2.2, use of version file is deprecated, and generated
-     *    class should be used instead.
-     */
-    @Deprecated
-    public final static String VERSION_FILE = "VERSION.txt";
-    public final static String PACKAGE_VERSION_CLASS_NAME = "PackageVersion";
-//    public final static String PACKAGE_VERSION_FIELD = "VERSION";
-
     private final static Pattern VERSION_SEPARATOR = Pattern.compile("[-_./;:]");
 
     private final Version _version;
 
     /*
     /**********************************************************
-    /* Instance life-cycle, accesso
+    /* Instance life-cycle
     /**********************************************************
      */
     
@@ -50,7 +41,7 @@ public class VersionUtil
              */
             v = VersionUtil.versionFor(getClass());
         } catch (Exception e) { // not good to dump to stderr; but that's all we have at this low level
-            System.err.println("ERROR: Failed to load Version information for bundle (via "+getClass().getName()+").");
+            System.err.println("ERROR: Failed to load Version information from "+getClass());
         }
         if (v == null) {
             v = Version.unknownVersion();
@@ -79,36 +70,24 @@ public class VersionUtil
      *
      * If no version information is found, {@link Version#unknownVersion()} is returned.
      */
+    @SuppressWarnings("resource")
     public static Version versionFor(Class<?> cls)
     {
         Version packageVersion = packageVersionFor(cls);
         if (packageVersion != null) {
             return packageVersion;
         }
-
-        final InputStream in = cls.getResourceAsStream(VERSION_FILE);
-
-        if (in == null)
+        final InputStream in = cls.getResourceAsStream("VERSION.txt");
+        if (in == null) {
             return Version.unknownVersion();
-
+        }
         try {
             InputStreamReader reader = new InputStreamReader(in, "UTF-8");
-            try {
-                return doReadVersion(reader);
-            } finally {
-                try {
-                    reader.close();
-                } catch (IOException ignored) {
-                }
-            }
+            return doReadVersion(reader);
         } catch (UnsupportedEncodingException e) {
             return Version.unknownVersion();
         } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            _close(in);
         }
     }
 
@@ -121,34 +100,27 @@ public class VersionUtil
      */
     public static Version packageVersionFor(Class<?> cls)
     {
-        Class<?> versionInfoClass = null;
+        Class<?> vClass = null;
         try {
-            Package p = cls.getPackage();
-            String versionInfoClassName =
-                new StringBuilder(p.getName())
-                    .append(".")
-                    .append(PACKAGE_VERSION_CLASS_NAME)
-                    .toString();
-            versionInfoClass = Class.forName(versionInfoClassName, true, cls.getClassLoader());
+            String versionInfoClassName = cls.getPackage().getName() + ".PackageVersion";
+            vClass = Class.forName(versionInfoClassName, true, cls.getClassLoader());
         } catch (Exception e) { // ok to be missing (not good, acceptable)
             return null;
         }
-        if (versionInfoClass == null) {
+        if (vClass == null) {
             return null;
         }
         // However, if class exists, it better work correctly, no swallowing exceptions
         Object v;
         try {
-            v = versionInfoClass.newInstance();
+            v = vClass.newInstance();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to instantiate "+versionInfoClass.getName()
-                    +" to find version information, problem: "+e.getMessage(), e);
+            throw new IllegalArgumentException("Failed to create "+vClass+": "+e.getMessage(), e);
         }
         if (!(v instanceof Versioned)) {
-            throw new IllegalArgumentException("Bad version class "+versionInfoClass.getName()
-        			+": does not implement "+Versioned.class.getName());
+            throw new IllegalArgumentException(""+vClass+": does not implement Versioned");
         }
         return ((Versioned) v).version();
     }
@@ -160,24 +132,24 @@ public class VersionUtil
         final BufferedReader br = new BufferedReader(reader);
         try {
             version = br.readLine();
-            if (version != null) {
-                group = br.readLine();
-                if (group != null)
-                    artifact = br.readLine();
-            }
-        } catch (IOException ignored) {
-        } finally {
-            try {
-                br.close();
+                if (version != null) {
+                    group = br.readLine();
+                    if (group != null) {
+                        artifact = br.readLine();
+                    }
+                }
             } catch (IOException ignored) {
-            }
+        } finally {
+            _close(br);
         }
 
         // We don't trim() version: parseVersion() takes care ot that
-        if (group != null)
+        if (group != null) {
             group = group.trim();
-        if (artifact != null)
+        }
+        if (artifact != null) {
             artifact = artifact.trim();
+        }
         return parseVersion(version, group, artifact);
     }
 
@@ -192,13 +164,15 @@ public class VersionUtil
      * @param artifactId the artifactId of the library
      * @return The version
      */
-    public static Version mavenVersionFor(ClassLoader classLoader, String groupId, String artifactId) {
-        InputStream pomPoperties = classLoader.getResourceAsStream("META-INF/maven/" + groupId.replaceAll("\\.", "/")
+    @SuppressWarnings("resource")
+    public static Version mavenVersionFor(ClassLoader classLoader, String groupId, String artifactId)
+    {
+        InputStream pomProperties = classLoader.getResourceAsStream("META-INF/maven/" + groupId.replaceAll("\\.", "/")
                 + "/" + artifactId + "/pom.properties");
-        if (pomPoperties != null) {
+        if (pomProperties != null) {
             try {
                 Properties props = new Properties();
-                props.load(pomPoperties);
+                props.load(pomProperties);
                 String versionStr = props.getProperty("version");
                 String pomPropertiesArtifactId = props.getProperty("artifactId");
                 String pomPropertiesGroupId = props.getProperty("groupId");
@@ -206,43 +180,23 @@ public class VersionUtil
             } catch (IOException e) {
                 // Ignore
             } finally {
-                try {
-                    pomPoperties.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
+                _close(pomProperties);
             }
         }
         return Version.unknownVersion();
     }
 
-    /**
-     * Use variant that takes three arguments instead
-     * 
-     * @deprecated
-     */
-    @Deprecated
-    public static Version parseVersion(String versionStr) {
-        return parseVersion(versionStr, null, null);
-    }
-
     public static Version parseVersion(String versionStr, String groupId, String artifactId)
     {
-        if (versionStr == null) {
-            return null;
+        if (versionStr != null && (versionStr = versionStr.trim()).length() > 0) {
+            String[] parts = VERSION_SEPARATOR.split(versionStr);
+            int major = parseVersionPart(parts[0]);
+            int minor = (parts.length > 1) ? parseVersionPart(parts[1]) : 0;
+            int patch = (parts.length > 2) ? parseVersionPart(parts[2]) : 0;
+            String snapshot = (parts.length > 3) ? parts[3] : null;
+            return new Version(major, minor, patch, snapshot, groupId, artifactId);
         }
-        versionStr = versionStr.trim();
-        if (versionStr.length() == 0) {
-            return null;
-        }
-        String[] parts = VERSION_SEPARATOR.split(versionStr);
-        int major = parseVersionPart(parts[0]);
-        int minor = (parts.length > 1) ? parseVersionPart(parts[1]) : 0;
-        int patch = (parts.length > 2) ? parseVersionPart(parts[2]) : 0;
-        String snapshot = (parts.length > 3) ? parts[3] : null;
-
-        return new Version(major, minor, patch, snapshot,
-                groupId, artifactId);
+        return null;
     }
 
     protected static int parseVersionPart(String partStr)
@@ -258,6 +212,12 @@ public class VersionUtil
         return number;
     }
 
+    private final static void _close(Closeable c) {
+        try {
+            c.close();
+        } catch (IOException e) { }
+    }
+    
     /*
     /**********************************************************
     /* Orphan utility methods

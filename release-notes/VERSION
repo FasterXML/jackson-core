@@ -16,6 +16,8 @@ New minor version.
   current field name
  (reported by Sam R)
 #98: Improve handling of failures for `BigDecimal`, for "NaN" (and infinity)
+#103: Add `JsonFactory.canHandleBinaryNatively`, `JsonGenerator.canWriteBinaryNatively`
+ to let databind module detect level of support for binary data.
 - Improve `DefaultPrettyPrinter`, `Lf2SpacesIndenter` (from databind #276)
 - Add `JsonGenerator.canOmitFields()` method to support discovery of
   positional formats, needed for handling of filtering for CSV

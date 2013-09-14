@@ -78,6 +78,11 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     @Override
+    public boolean canWriteBinaryNatively() {
+        return delegate.canWriteBinaryNatively();
+    }
+    
+    @Override
     public boolean canOmitFields() {
         return delegate.canOmitFields();
     }

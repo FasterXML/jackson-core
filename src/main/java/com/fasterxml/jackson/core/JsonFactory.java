@@ -355,7 +355,23 @@ public class JsonFactory
     public boolean requiresPropertyOrdering() {
         return false;
     }
-    
+
+    /**
+     * Introspection method that higher-level functionality may call
+     * to see whether underlying data format can read and write binary
+     * data natively; that is, embeded it as-is without using encodings
+     * such as Base64.
+     *<p>
+     * Default implementation returns <code>false</code> as JSON does not
+     * support native access: all binary content must use Base64 encoding.
+     * Most binary formats (like Smile and Avro) support native binary content.
+     * 
+     * @since 2.3
+     */
+    public boolean canHandleBinaryNatively(FormatSchema schema) {
+        return false;
+    }
+
     /*
     /**********************************************************
     /* Format detection functionality (since 1.8)

@@ -368,7 +368,7 @@ public class JsonFactory
      * 
      * @since 2.3
      */
-    public boolean canHandleBinaryNatively(FormatSchema schema) {
+    public boolean canHandleBinaryNatively() {
         return false;
     }
 

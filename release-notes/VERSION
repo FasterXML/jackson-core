@@ -21,6 +21,9 @@ New minor version.
 - Improve `DefaultPrettyPrinter`, `Lf2SpacesIndenter` (from databind #276)
 - Add `JsonGenerator.canOmitFields()` method to support discovery of
   positional formats, needed for handling of filtering for CSV
+- Rewrite `InternCache` to use `ConcurrentHashMap`, to work more efficiently both
+  for common case of few misses (no block on access), and slowest cases (lots of
+  misses).
 
 ------------------------------------------------------------------------
 === History: ===

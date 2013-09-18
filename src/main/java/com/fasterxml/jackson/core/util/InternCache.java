@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
-import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Singleton class that adds a simple first-level cache in front of
@@ -14,40 +14,56 @@ import java.util.LinkedHashMap;
  */
 @SuppressWarnings("serial")
 public final class InternCache
-    extends LinkedHashMap<String,String>
+    extends ConcurrentHashMap<String,String> // since 2.3
 {
     /**
      * Size to use is somewhat arbitrary, so let's choose something that's
      * neither too small (low hit ratio) nor too large (waste of memory).
      *<p>
-     * 11-Jul-2012, tatu: Also, consider the nasty case of String hashCode()
-     *    collisions; size needs to be small enough to survive linear list
-     *    lookup... so let's go down a notch (from 192 to 100)
+     * One consideration is possible attack via colliding {@link String#hashCode};
+     * because of this, limit to reasonably low setting.
      */
-    private final static int MAX_ENTRIES = 100;
+    private final static int MAX_ENTRIES = 180;
 
     public final static InternCache instance = new InternCache();
 
+    /**
+     * As minor optimization let's try to avoid "flush storms",
+     * cases where multiple threads might try to concurrently
+     * flush the map.
+     */
+    private final static Object _flushLock = new Object();
+    
     private InternCache() {
-        super(MAX_ENTRIES, 0.8f, true);
+        super(MAX_ENTRIES, 0.8f, 4);
     }
 
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<String,String> eldest)
-    {
-        return size() > MAX_ENTRIES;
-    }
-
-    public synchronized String intern(String input)
+    public String intern(String input)
     {
         String result = get(input);
-        if (result == null) {
-            result = input.intern();
-            put(result, result);
+        if (result != null) {
+            return result;
         }
+
+        /* 18-Sep-2013, tatu: We used to use LinkedHashMap, which has simple LRU
+         *   method. No such functionality exists with CHM; and let's use simplest
+         *   possible limitation: just clear all contents. This because otherwise
+         *   we are simply likely to keep on clearing same, commonly used entries.
+         */
+        if (size() >= MAX_ENTRIES) {
+            /* Not incorrect wrt well-known double-locking anti-pattern because underlying
+             * storage gives close enough answer to real one here; and we are
+             * more concerned with flooding than starvation.
+             */
+            synchronized (_flushLock) {
+                if (size() >= MAX_ENTRIES) {
+                    clear();
+                }
+            }
+        }
+        result = input.intern();
+        put(result, result);
         return result;
     }
-
-
 }
 

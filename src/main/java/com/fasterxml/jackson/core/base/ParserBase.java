@@ -215,8 +215,7 @@ public abstract class ParserBase
 
     final static double MIN_INT_D = (double) Integer.MIN_VALUE;
     final static double MAX_INT_D = (double) Integer.MAX_VALUE;
-    
-    
+
     // Digits, numeric
     final protected static int INT_0 = '0';
     final protected static int INT_1 = '1';
@@ -231,10 +230,6 @@ public abstract class ParserBase
 
     final protected static int INT_MINUS = '-';
     final protected static int INT_PLUS = '+';
-    final protected static int INT_DECIMAL_POINT = '.';
-
-    final protected static int INT_e = 'e';
-    final protected static int INT_E = 'E';
 
     final protected static char CHAR_NULL = '\0';
     

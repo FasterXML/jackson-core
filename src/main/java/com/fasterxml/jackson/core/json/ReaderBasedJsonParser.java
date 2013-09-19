@@ -699,7 +699,7 @@ public final class ReaderBasedJsonParser
          throws IOException, JsonParseException
      */
 
-    // note: identical to one in Utf8StreamParser
+    // note: identical to one in UTF8StreamJsonParser
     @Override
     public String nextTextValue()
         throws IOException, JsonParseException
@@ -897,7 +897,7 @@ public final class ReaderBasedJsonParser
             int fractLen = 0;
             
             // And then see if we get other parts
-            if (ch == INT_DECIMAL_POINT) { // yes, fraction
+            if (ch == '.') { // yes, fraction
                 fract_loop:
                 while (true) {
                     if (ptr >= inputLen) {
@@ -916,7 +916,7 @@ public final class ReaderBasedJsonParser
             }
 
             int expLen = 0;
-            if (ch == INT_e || ch == INT_E) { // and/or exponent
+            if (ch == 'e' || ch == 'E') { // and/or exponent
                 if (ptr >= inputLen) {
                     break dummy_loop;
                 }

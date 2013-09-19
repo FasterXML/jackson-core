@@ -615,55 +615,56 @@ public final class ReaderBasedJsonParser
         JsonToken t;
 
         switch (i) {
-        case INT_QUOTE:
+        case '"':
             _tokenIncomplete = true;
             t = JsonToken.VALUE_STRING;
             break;
-        case INT_LBRACKET:
+        case '[':
             if (!inObject) {
                 _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             }
             t = JsonToken.START_ARRAY;
             break;
-        case INT_LCURLY:
+        case '{':
             if (!inObject) {
                 _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             t = JsonToken.START_OBJECT;
             break;
-        case INT_RBRACKET:
-        case INT_RCURLY:
+        case ']':
+        case '}':
             // Error: neither is valid at this point; valid closers have
             // been handled earlier
             _reportUnexpectedChar(i, "expected a value");
-        case INT_t:
+        case 't':
             _matchToken("true", 1);
             t = JsonToken.VALUE_TRUE;
             break;
-        case INT_f:
+        case 'f':
             _matchToken("false", 1);
             t = JsonToken.VALUE_FALSE;
             break;
-        case INT_n:
+        case 'n':
             _matchToken("null", 1);
             t = JsonToken.VALUE_NULL;
             break;
 
-        case INT_MINUS:
+        case '-':
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicate by a more specific error message.
              */
-        case INT_0:
-        case INT_1:
-        case INT_2:
-        case INT_3:
-        case INT_4:
-        case INT_5:
-        case INT_6:
-        case INT_7:
-        case INT_8:
-        case INT_9:
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+
             t = parseNumberText(i);
             break;
         default:
@@ -1260,7 +1261,7 @@ public final class ReaderBasedJsonParser
         throws IOException, JsonParseException
     {
         // [JACKSON-173]: allow single quotes
-        if (i == INT_APOSTROPHE && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+        if (i == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
             return _parseApostropheFieldName();
         }
         // [JACKSON-69]: allow unquoted names if feature enabled:
@@ -1338,7 +1339,7 @@ public final class ReaderBasedJsonParser
         int start = _inputPtr;
         _inputPtr = ptr;
 
-        return _parseFieldName2(start, hash, INT_APOSTROPHE);
+        return _parseFieldName2(start, hash, '\'');
     }
 
     /**
@@ -1407,15 +1408,15 @@ public final class ReaderBasedJsonParser
             }
             char c = _inputBuffer[_inputPtr++];
             int i = (int) c;
-            if (i <= INT_BACKSLASH) {
-                if (i == INT_BACKSLASH) {
+            if (i <= '\'') {
+                if (i == '\'') {
                     /* Although chars outside of BMP are to be escaped as
                      * an UTF-16 surrogate pair, does that affect decoding?
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
-                } else if (i <= INT_APOSTROPHE) {
-                    if (i == INT_APOSTROPHE) {
+                } else if (i <= '\'') {
+                    if (i == '\'') {
                         break;
                     }
                     if (i < INT_SPACE) {
@@ -1712,8 +1713,8 @@ public final class ReaderBasedJsonParser
         main_loop:
         while ((_inputPtr < _inputEnd) || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
-            if (i <= INT_ASTERISK) {
-                if (i == INT_ASTERISK) { // end?
+            if (i <= '*') {
+                if (i == '*') { // end?
                     if ((_inputPtr >= _inputEnd) && !loadMore()) {
                         break main_loop;
                     }
@@ -1770,24 +1771,24 @@ public final class ReaderBasedJsonParser
 
         switch ((int) c) {
             // First, ones that are mapped
-        case INT_b:
+        case 'b':
             return '\b';
-        case INT_t:
+        case 't':
             return '\t';
-        case INT_n:
+        case 'n':
             return '\n';
-        case INT_f:
+        case 'f':
             return '\f';
-        case INT_r:
+        case 'r':
             return '\r';
 
             // And these are to be returned as they are
-        case INT_QUOTE:
-        case INT_SLASH:
-        case INT_BACKSLASH:
+        case '"':
+        case '/':
+        case '\\':
             return c;
 
-        case INT_u: // and finally hex-escaped
+        case 'u': // and finally hex-escaped
             break;
 
         default:

@@ -38,16 +38,6 @@ public abstract class ParserMinimalBase
     protected final static int INT_SLASH = '/';
     protected final static int INT_COLON = ':';
     protected final static int INT_COMMA = ',';
-    protected final static int INT_ASTERISK = '*';
-    protected final static int INT_APOSTROPHE = '\'';
-
-    // Letters we need
-    protected final static int INT_b = 'b';
-    protected final static int INT_f = 'f';
-    protected final static int INT_n = 'n';
-    protected final static int INT_r = 'r';
-    protected final static int INT_t = 't';
-    protected final static int INT_u = 'u';
 
     /*
     /**********************************************************

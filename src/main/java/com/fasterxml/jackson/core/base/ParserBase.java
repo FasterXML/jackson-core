@@ -218,14 +218,6 @@ public abstract class ParserBase
 
     // Digits, numeric
     final protected static int INT_0 = '0';
-    final protected static int INT_1 = '1';
-    final protected static int INT_2 = '2';
-    final protected static int INT_3 = '3';
-    final protected static int INT_4 = '4';
-    final protected static int INT_5 = '5';
-    final protected static int INT_6 = '6';
-    final protected static int INT_7 = '7';
-    final protected static int INT_8 = '8';
     final protected static int INT_9 = '9';
 
     final protected static int INT_MINUS = '-';

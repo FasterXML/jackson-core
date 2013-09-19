@@ -685,45 +685,45 @@ public final class UTF8StreamJsonParser
         JsonToken t;
 
         switch (i) {
-        case INT_LBRACKET:
+        case '[':
             t = JsonToken.START_ARRAY;
             break;
-        case INT_LCURLY:
+        case '{':
             t = JsonToken.START_OBJECT;
             break;
-        case INT_RBRACKET:
-        case INT_RCURLY:
+        case ']':
+        case '}':
             // Error: neither is valid at this point; valid closers have
             // been handled earlier
             _reportUnexpectedChar(i, "expected a value");
-        case INT_t:
+        case 't':
             _matchToken("true", 1);
             t = JsonToken.VALUE_TRUE;
             break;
-        case INT_f:
+        case 'f':
             _matchToken("false", 1);
              t = JsonToken.VALUE_FALSE;
             break;
-        case INT_n:
+        case 'n':
             _matchToken("null", 1);
             t = JsonToken.VALUE_NULL;
             break;
 
-        case INT_MINUS:
+        case '-':
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicate by a more specific error message.
              */
-        case INT_0:
-        case INT_1:
-        case INT_2:
-        case INT_3:
-        case INT_4:
-        case INT_5:
-        case INT_6:
-        case INT_7:
-        case INT_8:
-        case INT_9:
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
             t = parseNumberText(i);
             break;
         default:
@@ -741,41 +741,41 @@ public final class UTF8StreamJsonParser
             return (_currToken = JsonToken.VALUE_STRING);
         }
         switch (i) {
-        case INT_LBRACKET:
+        case '[':
             _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_ARRAY);
-        case INT_LCURLY:
+        case '{':
             _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_OBJECT);
-        case INT_RBRACKET:
-        case INT_RCURLY:
+        case ']':
+        case '}':
             // Error: neither is valid at this point; valid closers have
             // been handled earlier
             _reportUnexpectedChar(i, "expected a value");
-        case INT_t:
+        case 't':
             _matchToken("true", 1);
             return (_currToken = JsonToken.VALUE_TRUE);
-        case INT_f:
+        case 'f':
             _matchToken("false", 1);
             return (_currToken = JsonToken.VALUE_FALSE);
-        case INT_n:
+        case 'n':
             _matchToken("null", 1);
             return (_currToken = JsonToken.VALUE_NULL);
-        case INT_MINUS:
+        case '-':
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicate by a more specific error message.
              */
-        case INT_0:
-        case INT_1:
-        case INT_2:
-        case INT_3:
-        case INT_4:
-        case INT_5:
-        case INT_6:
-        case INT_7:
-        case INT_8:
-        case INT_9:
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
             return (_currToken = parseNumberText(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
@@ -929,42 +929,42 @@ public final class UTF8StreamJsonParser
             i = _skipColon();
         }
         switch (i) {
-        case INT_QUOTE:
+        case '"':
             _tokenIncomplete = true;
             _nextToken = JsonToken.VALUE_STRING;
             return;
-        case INT_LBRACKET:
+        case '[':
             _nextToken = JsonToken.START_ARRAY;
             return;
-        case INT_LCURLY:
+        case '{':
             _nextToken = JsonToken.START_OBJECT;
             return;
-        case INT_RBRACKET:
-        case INT_RCURLY:
+        case ']':
+        case '}':
             _reportUnexpectedChar(i, "expected a value");
-        case INT_t:
+        case 't':
             _matchToken("true", 1);
             _nextToken = JsonToken.VALUE_TRUE;
             return;
-        case INT_f:
+        case 'f':
             _matchToken("false", 1);
             _nextToken = JsonToken.VALUE_FALSE;
             return;
-        case INT_n:
+        case 'n':
             _matchToken("null", 1);
             _nextToken = JsonToken.VALUE_NULL;
             return;
-        case INT_MINUS:
-        case INT_0:
-        case INT_1:
-        case INT_2:
-        case INT_3:
-        case INT_4:
-        case INT_5:
-        case INT_6:
-        case INT_7:
-        case INT_8:
-        case INT_9:
+        case '-':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
             _nextToken = parseNumberText(i);
             return;
         }
@@ -999,39 +999,40 @@ public final class UTF8StreamJsonParser
         JsonToken t;
 
         switch (i) {
-        case INT_LBRACKET:
+        case '[':
             t = JsonToken.START_ARRAY;
             break;
-        case INT_LCURLY:
+        case '{':
             t = JsonToken.START_OBJECT;
             break;
-        case INT_RBRACKET:
-        case INT_RCURLY:
+        case ']':
+        case '}':
             _reportUnexpectedChar(i, "expected a value");
-        case INT_t:
+        case 't':
             _matchToken("true", 1);
             t = JsonToken.VALUE_TRUE;
             break;
-        case INT_f:
+        case 'f':
             _matchToken("false", 1);
              t = JsonToken.VALUE_FALSE;
             break;
-        case INT_n:
+        case 'n':
             _matchToken("null", 1);
             t = JsonToken.VALUE_NULL;
             break;
 
-        case INT_MINUS:
-        case INT_0:
-        case INT_1:
-        case INT_2:
-        case INT_3:
-        case INT_4:
-        case INT_5:
-        case INT_6:
-        case INT_7:
-        case INT_8:
-        case INT_9:
+        case '-':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+
             t = parseNumberText(i);
             break;
         default:
@@ -1714,7 +1715,7 @@ public final class UTF8StreamJsonParser
         throws IOException, JsonParseException
     {
         // [JACKSON-173]: allow single quotes
-        if (ch == INT_APOSTROPHE && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+        if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
             return _parseApostropheFieldName();
         }
         // [JACKSON-69]: allow unquoted names if feature enabled:
@@ -1792,7 +1793,7 @@ public final class UTF8StreamJsonParser
             }
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
-        if (ch == INT_APOSTROPHE) { // special case, ''
+        if (ch == '\'') { // special case, ''
             return BytesToNameCanonicalizer.getEmptyName();
         }
         int[] quads = _quadBuffer;
@@ -1805,12 +1806,12 @@ public final class UTF8StreamJsonParser
         final int[] codes = sInputCodesLatin1;
 
         while (true) {
-            if (ch == INT_APOSTROPHE) {
+            if (ch == '\'') {
                 break;
             }
             // additional check to skip handling of double-quotes
-            if (ch != INT_QUOTE && codes[ch] != 0) {
-                if (ch != INT_BACKSLASH) {
+            if (ch != '"' && codes[ch] != 0) {
+                if (ch != '\\') {
                     // Unquoted white space?
                     // As per [JACKSON-208], call can now return:
                     _throwUnquotedSpace(ch, "name");
@@ -2318,7 +2319,7 @@ public final class UTF8StreamJsonParser
                 }
                 while (_inputPtr < max) {
                     c = (int) inputBuffer[_inputPtr++] & 0xFF;
-                    if (c == INT_APOSTROPHE || codes[c] != 0) {
+                    if (c == '\'' || codes[c] != 0) {
                         break ascii_loop;
                     }
                     outBuf[outPtr++] = (char) c;
@@ -2326,13 +2327,13 @@ public final class UTF8StreamJsonParser
             }
 
             // Ok: end marker, escape or multi-byte?
-            if (c == INT_APOSTROPHE) {
+            if (c == '\'') {
                 break main_loop;
             }
 
             switch (codes[c]) {
             case 1: // backslash
-                if (c != INT_QUOTE) { // marked as special, isn't here
+                if (c != '\'') { // marked as special, isn't here
                     c = _decodeEscaped();
                 }
                 break;
@@ -2547,8 +2548,8 @@ public final class UTF8StreamJsonParser
             space_loop:
             while (true) {
                 switch (i) {
-                case INT_SPACE:
-                case INT_TAB:
+                case ' ':
+                case '\t':
                     break;
                 case INT_CR:
                     _skipCR();
@@ -2556,7 +2557,7 @@ public final class UTF8StreamJsonParser
                 case INT_LF:
                     _skipLF();
                     break;
-                case INT_SLASH:
+                case '/':
                     _skipComment();
                     break;
                 default:
@@ -2607,9 +2608,9 @@ public final class UTF8StreamJsonParser
             _reportInvalidEOF(" in a comment");
         }
         int c = _inputBuffer[_inputPtr++] & 0xFF;
-        if (c == INT_SLASH) {
+        if (c == '/') {
             _skipCppComment();
-        } else if (c == INT_ASTERISK) {
+        } else if (c == '*') {
             _skipCComment();
         } else {
             _reportUnexpectedChar(c, "was expecting either '*' or '/' for a comment");
@@ -2629,7 +2630,7 @@ public final class UTF8StreamJsonParser
             int code = codes[i];
             if (code != 0) {
                 switch (code) {
-                case INT_ASTERISK:
+                case '*':
                     if (_inputPtr >= _inputEnd && !loadMore()) {
                         break main_loop;
                     }
@@ -2678,7 +2679,7 @@ public final class UTF8StreamJsonParser
                 case INT_CR:
                     _skipCR();
                     return;
-                case INT_ASTERISK: // nop for these comments
+                case '*': // nop for these comments
                     break;
                 case 2: // 2-byte UTF
                     _skipUtf8_2(i);
@@ -2710,24 +2711,24 @@ public final class UTF8StreamJsonParser
 
         switch ((int) c) {
             // First, ones that are mapped
-        case INT_b:
+        case 'b':
             return '\b';
-        case INT_t:
+        case 't':
             return '\t';
-        case INT_n:
+        case 'n':
             return '\n';
-        case INT_f:
+        case 'f':
             return '\f';
-        case INT_r:
+        case 'r':
             return '\r';
 
             // And these are to be returned as they are
-        case INT_QUOTE:
-        case INT_SLASH:
-        case INT_BACKSLASH:
+        case '"':
+        case '/':
+        case '\\':
             return (char) c;
 
-        case INT_u: // and finally hex-escaped
+        case 'u': // and finally hex-escaped
             break;
 
         default:

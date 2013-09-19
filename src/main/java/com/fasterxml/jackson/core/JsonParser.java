@@ -76,6 +76,20 @@ public abstract class JsonParser
 
         /**
          * Feature that determines whether parser will allow use
+         * of YAML comments, ones starting with '#' and continuing
+         * until the end of the line. This commenting style is common
+         * with scripting languages as well.
+         *<p>
+         * Since JSON specification does not mention comments as legal
+         * construct,
+         * this is a non-standard feature. As such, feature is
+         * <b>disabled by default</b> for parsers and must be
+         * explicitly enabled.
+         */
+        ALLOW_YAML_COMMENTS(false),
+        
+        /**
+         * Feature that determines whether parser will allow use
          * of unquoted field names (which is allowed by Javascript,
          * but not by JSON specification).
          *<p>

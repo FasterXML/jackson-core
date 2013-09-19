@@ -64,7 +64,48 @@ public class TestComments
         _testWithUTF8Chars(JSON, false);
         _testWithUTF8Chars(JSON, true);
     }
+
+    public void testYAMLCommentsBytes() throws Exception {
+        _testYAMLComments(true);
+    }
+
+    public void testYAMLCommentsChars() throws Exception {
+        _testYAMLComments(false);
+    }
     
+    private void _testYAMLComments(boolean useStream) throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        jf.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
+        final String DOC = "# foo\n"
+                +" {\"a\" # xyz\n"
+                +" : # foo\n"
+                +" 1, # more\n"
+                +"\"b\": [ \n"
+                +" #all!\n"
+                +" 3 #yay!\n"
+                +"] # foobar\n"
+                +"} # x"
+                ;
+        JsonParser jp = useStream ?
+                jf.createParser(DOC.getBytes("UTF-8"))
+                : jf.createParser(DOC);
+        assertEquals(JsonToken.START_OBJECT, jp.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("a", jp.getCurrentName());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(1, jp.getIntValue());
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("b", jp.getCurrentName());
+        assertEquals(JsonToken.START_ARRAY, jp.nextToken());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(3, jp.getIntValue());
+        assertEquals(JsonToken.END_ARRAY, jp.nextToken());
+        assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+        assertNull(jp.nextToken());
+        jp.close();
+    }
+
     /*
     /**********************************************************
     /* Helper methods

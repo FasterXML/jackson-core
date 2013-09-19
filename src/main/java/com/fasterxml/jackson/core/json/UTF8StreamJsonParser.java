@@ -19,13 +19,15 @@ public final class UTF8StreamJsonParser
 {
     final static byte BYTE_LF = (byte) '\n';
 
-    private final static int[] sInputCodesUtf8 = CharTypes.getInputCodeUtf8();
+    // This is the main input-code lookup table, fetched eagerly
+    private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
 
-    /**
-     * Latin1 encoding is not supported, but we do use 8-bit subset for
-     * pre-processing task, to simplify first pass, keep it fast.
-     */
-    private final static int[] sInputCodesLatin1 = CharTypes.getInputCodeLatin1();
+    // Latin1 encoding is not supported, but we do use 8-bit subset for
+    // pre-processing task, to simplify first pass, keep it fast.
+    protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
+
+    // White-space processing is done all the time, pre-fetch as well
+    private final static int[] _icWS = CharTypes.getInputCodeWS();
     
     /*
     /**********************************************************
@@ -1416,11 +1418,11 @@ public final class UTF8StreamJsonParser
         throws IOException, JsonParseException
     {
         if (i != INT_QUOTE) {
-            return _handleUnusualFieldName(i);
+            return _handleOddName(i);
         }
         // First: can we optimize out bounds checks?
         if ((_inputPtr + 9) > _inputEnd) { // Need 8 chars, plus one trailing (quote)
-            return slowParseFieldName();
+            return slowParseName();
         }
 
         // If so, can also unroll loops nicely
@@ -1430,7 +1432,7 @@ public final class UTF8StreamJsonParser
          *   later on), and just handle quotes and backslashes here.
          */
         final byte[] input = _inputBuffer;
-        final int[] codes = sInputCodesLatin1;
+        final int[] codes = _icLatin1;
 
         int q = input[_inputPtr++] & 0xFF;
 
@@ -1447,35 +1449,35 @@ public final class UTF8StreamJsonParser
                         i = input[_inputPtr++] & 0xFF;
                         if (codes[i] == 0) {
                             _quad1 = q;
-                            return parseMediumFieldName(i, codes);
+                            return parseMediumName(i, codes);
                         }
                         if (i == INT_QUOTE) { // one byte/char case or broken
                             return findName(q, 4);
                         }
-                        return parseFieldName(q, i, 4);
+                        return parseName(q, i, 4);
                     }
                     if (i == INT_QUOTE) { // one byte/char case or broken
                         return findName(q, 3);
                     }
-                    return parseFieldName(q, i, 3);
+                    return parseName(q, i, 3);
                 }                
                 if (i == INT_QUOTE) { // one byte/char case or broken
                     return findName(q, 2);
                 }
-                return parseFieldName(q, i, 2);
+                return parseName(q, i, 2);
             }
             if (i == INT_QUOTE) { // one byte/char case or broken
                 return findName(q, 1);
             }
-            return parseFieldName(q, i, 1);
+            return parseName(q, i, 1);
         }     
         if (q == INT_QUOTE) { // special case, ""
             return BytesToNameCanonicalizer.getEmptyName();
         }
-        return parseFieldName(0, q, 0); // quoting or invalid char
+        return parseName(0, q, 0); // quoting or invalid char
     }
 
-    protected Name parseMediumFieldName(int q2, final int[] codes)
+    protected Name parseMediumName(int q2, final int[] codes)
         throws IOException, JsonParseException
     {
         // Ok, got 5 name bytes so far
@@ -1484,7 +1486,7 @@ public final class UTF8StreamJsonParser
             if (i == INT_QUOTE) { // 5 bytes
                 return findName(_quad1, q2, 1);
             }
-            return parseFieldName(_quad1, q2, i, 1); // quoting or invalid char
+            return parseName(_quad1, q2, i, 1); // quoting or invalid char
         }
         q2 = (q2 << 8) | i;
         i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -1492,7 +1494,7 @@ public final class UTF8StreamJsonParser
             if (i == INT_QUOTE) { // 6 bytes
                 return findName(_quad1, q2, 2);
             }
-            return parseFieldName(_quad1, q2, i, 2);
+            return parseName(_quad1, q2, i, 2);
         }
         q2 = (q2 << 8) | i;
         i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -1500,7 +1502,7 @@ public final class UTF8StreamJsonParser
             if (i == INT_QUOTE) { // 7 bytes
                 return findName(_quad1, q2, 3);
             }
-            return parseFieldName(_quad1, q2, i, 3);
+            return parseName(_quad1, q2, i, 3);
         }
         q2 = (q2 << 8) | i;
         i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -1508,18 +1510,18 @@ public final class UTF8StreamJsonParser
             if (i == INT_QUOTE) { // 8 bytes
                 return findName(_quad1, q2, 4);
             }
-            return parseFieldName(_quad1, q2, i, 4);
+            return parseName(_quad1, q2, i, 4);
         }
         _quadBuffer[0] = _quad1;
         _quadBuffer[1] = q2;
-        return parseLongFieldName(i);
+        return parseLongName(i);
     }
 
-    protected Name parseLongFieldName(int q)
+    protected Name parseLongName(int q)
         throws IOException, JsonParseException
     {
         // As explained above, will ignore UTF-8 encoding at this point
-        final int[] codes = sInputCodesLatin1;
+        final int[] codes = _icLatin1;
         int qlen = 2;
 
         while (true) {
@@ -1528,7 +1530,7 @@ public final class UTF8StreamJsonParser
              * and may not always be possible)
              */
             if ((_inputEnd - _inputPtr) < 4) {
-                return parseEscapedFieldName(_quadBuffer, qlen, 0, q, 0);
+                return parseEscapedName(_quadBuffer, qlen, 0, q, 0);
             }
             // Otherwise can skip boundary checks for 4 bytes in loop
 
@@ -1537,7 +1539,7 @@ public final class UTF8StreamJsonParser
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 1);
                 }
-                return parseEscapedFieldName(_quadBuffer, qlen, q, i, 1);
+                return parseEscapedName(_quadBuffer, qlen, q, i, 1);
             }
 
             q = (q << 8) | i;
@@ -1546,7 +1548,7 @@ public final class UTF8StreamJsonParser
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 2);
                 }
-                return parseEscapedFieldName(_quadBuffer, qlen, q, i, 2);
+                return parseEscapedName(_quadBuffer, qlen, q, i, 2);
             }
 
             q = (q << 8) | i;
@@ -1555,7 +1557,7 @@ public final class UTF8StreamJsonParser
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 3);
                 }
-                return parseEscapedFieldName(_quadBuffer, qlen, q, i, 3);
+                return parseEscapedName(_quadBuffer, qlen, q, i, 3);
             }
 
             q = (q << 8) | i;
@@ -1564,7 +1566,7 @@ public final class UTF8StreamJsonParser
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 4);
                 }
-                return parseEscapedFieldName(_quadBuffer, qlen, q, i, 4);
+                return parseEscapedName(_quadBuffer, qlen, q, i, 4);
             }
 
             // Nope, no end in sight. Need to grow quad array etc
@@ -1581,7 +1583,7 @@ public final class UTF8StreamJsonParser
      * to come consequtively. Happens rarely, so this is offlined;
      * plus we'll also do full checks for escaping etc.
      */
-    protected Name slowParseFieldName()
+    protected Name slowParseName()
         throws IOException, JsonParseException
     {
         if (_inputPtr >= _inputEnd) {
@@ -1593,20 +1595,20 @@ public final class UTF8StreamJsonParser
         if (i == INT_QUOTE) { // special case, ""
             return BytesToNameCanonicalizer.getEmptyName();
         }
-        return parseEscapedFieldName(_quadBuffer, 0, 0, i, 0);
+        return parseEscapedName(_quadBuffer, 0, 0, i, 0);
     }
 
-    private Name parseFieldName(int q1, int ch, int lastQuadBytes)
+    private Name parseName(int q1, int ch, int lastQuadBytes)
         throws IOException, JsonParseException
     {
-        return parseEscapedFieldName(_quadBuffer, 0, q1, ch, lastQuadBytes);
+        return parseEscapedName(_quadBuffer, 0, q1, ch, lastQuadBytes);
     }
 
-    private Name parseFieldName(int q1, int q2, int ch, int lastQuadBytes)
+    private Name parseName(int q1, int q2, int ch, int lastQuadBytes)
         throws IOException, JsonParseException
     {
         _quadBuffer[0] = q1;
-        return parseEscapedFieldName(_quadBuffer, 1, q2, ch, lastQuadBytes);
+        return parseEscapedName(_quadBuffer, 1, q2, ch, lastQuadBytes);
     }
 
     /**
@@ -1616,8 +1618,8 @@ public final class UTF8StreamJsonParser
      * needs to be able to handle more exceptional cases, gets
      * slower, and hance is offlined to a separate method.
      */
-    protected Name parseEscapedFieldName(int[] quads, int qlen, int currQuad, int ch,
-                                         int currQuadBytes)
+    protected Name parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
+            int currQuadBytes)
         throws IOException, JsonParseException
     {
         /* 25-Nov-2008, tatu: This may seem weird, but here we do
@@ -1625,7 +1627,7 @@ public final class UTF8StreamJsonParser
          *   assume that part is ok (if not it will get caught
          *   later on), and just handle quotes and backslashes here.
          */
-        final int[] codes = sInputCodesLatin1;
+        final int[] codes = _icLatin1;
 
         while (true) {
             if (codes[ch] != 0) {
@@ -1717,12 +1719,12 @@ public final class UTF8StreamJsonParser
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      */
-    protected Name _handleUnusualFieldName(int ch)
+    protected Name _handleOddName(int ch)
         throws IOException, JsonParseException
     {
         // [JACKSON-173]: allow single quotes
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
-            return _parseApostropheFieldName();
+            return _parseAposName();
         }
         // [JACKSON-69]: allow unquoted names if feature enabled:
         if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
@@ -1790,7 +1792,7 @@ public final class UTF8StreamJsonParser
      * for valid JSON -- more alternatives, more code, generally
      * bit slower execution.
      */
-    protected Name _parseApostropheFieldName()
+    protected Name _parseAposName()
         throws IOException, JsonParseException
     {
         if (_inputPtr >= _inputEnd) {
@@ -1809,7 +1811,7 @@ public final class UTF8StreamJsonParser
 
         // Copied from parseEscapedFieldName, with minor mods:
 
-        final int[] codes = sInputCodesLatin1;
+        final int[] codes = _icLatin1;
 
         while (true) {
             if (ch == '\'') {
@@ -2075,7 +2077,7 @@ public final class UTF8StreamJsonParser
         }
         int outPtr = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        final int[] codes = sInputCodesUtf8;
+        final int[] codes = _icUTF8;
 
         final int max = Math.min(_inputEnd, (ptr + outBuf.length));
         final byte[] inputBuffer = _inputBuffer;
@@ -2102,7 +2104,7 @@ public final class UTF8StreamJsonParser
         int c;
 
         // Here we do want to do full decoding, hence:
-        final int[] codes = sInputCodesUtf8;
+        final int[] codes = _icUTF8;
         final byte[] inputBuffer = _inputBuffer;
 
         main_loop:
@@ -2190,7 +2192,7 @@ public final class UTF8StreamJsonParser
         _tokenIncomplete = false;
 
         // Need to be fully UTF-8 aware here:
-        final int[] codes = sInputCodesUtf8;
+        final int[] codes = _icUTF8;
         final byte[] inputBuffer = _inputBuffer;
 
         main_loop:
@@ -2299,7 +2301,7 @@ public final class UTF8StreamJsonParser
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
 
         // Here we do want to do full decoding, hence:
-        final int[] codes = sInputCodesUtf8;
+        final int[] codes = _icUTF8;
         final byte[] inputBuffer = _inputBuffer;
 
         main_loop:
@@ -2476,10 +2478,10 @@ public final class UTF8StreamJsonParser
     /* Internal methods, ws skipping, escape/unescape
     /**********************************************************
      */
-
+    
     private final int _skipWS() throws IOException
     {
-        final int[] codes = CharTypes.getInputCodeWS();
+        final int[] codes = _icWS;
         while (_inputPtr < _inputEnd || loadMore()) {
             final int i = _inputBuffer[_inputPtr++] & 0xFF;
             switch (codes[i]) {
@@ -2507,7 +2509,7 @@ public final class UTF8StreamJsonParser
                 _skipComment();
                 break;
             case '#':
-                if (!_skipHashComment()) {
+                if (!_skipYAMLComment()) {
                     return i;
                 }
                 break;
@@ -2524,7 +2526,7 @@ public final class UTF8StreamJsonParser
 
     private int _skipWSOrEnd() throws IOException
     {
-        final int[] codes = CharTypes.getInputCodeWS();
+        final int[] codes = _icWS;
         while ((_inputPtr < _inputEnd) || loadMore()) {
             final int i = _inputBuffer[_inputPtr++] & 0xFF;
             switch (codes[i]) {
@@ -2552,7 +2554,7 @@ public final class UTF8StreamJsonParser
                 _skipComment();
                 break;
             case '#':
-                if (!_skipHashComment()) {
+                if (!_skipYAMLComment()) {
                     return i;
                 }
                 break;
@@ -2657,7 +2659,7 @@ public final class UTF8StreamJsonParser
         }
         int c = _inputBuffer[_inputPtr++] & 0xFF;
         if (c == '/') {
-            _skipCppComment();
+            _skipLine();
         } else if (c == '*') {
             _skipCComment();
         } else {
@@ -2711,7 +2713,20 @@ public final class UTF8StreamJsonParser
         _reportInvalidEOF(" in a comment");
     }
 
-    private void _skipCppComment() throws IOException
+    private boolean _skipYAMLComment() throws IOException
+    {
+        if (!isEnabled(Feature.ALLOW_YAML_COMMENTS)) {
+            return false;
+        }
+        _skipLine();
+        return true;
+    }
+
+    /**
+     * Method for skipping contents of an input line; usually for CPP
+     * and YAML style comments.
+     */
+    private void _skipLine() throws IOException
     {
         // Ok: need to find EOF or linefeed
         final int[] codes = CharTypes.getInputCodeComment();
@@ -2739,49 +2754,13 @@ public final class UTF8StreamJsonParser
                     _skipUtf8_4(i);
                     break;
                 default: // e.g. -1
-                    // Is this good enough error message?
-                    _reportInvalidChar(i);
+                    if (code < 0) {
+                        // Is this good enough error message?
+                        _reportInvalidChar(i);
+                    }
                 }
             }
         }
-    }
-
-    protected boolean _skipHashComment() throws IOException
-    {
-        if (!isEnabled(Feature.ALLOW_YAML_COMMENTS)) {
-            return false;
-        }
-        // would plain UTF-8 work?
-        final int[] codes = CharTypes.getInputCodeComment();
-        // Skip until line-feed
-        while ((_inputPtr < _inputEnd) || loadMore()) {
-            int i = (int) _inputBuffer[_inputPtr++] & 0xFF;
-            int code = codes[i];
-            if (code != 0) {
-                switch (code) {
-                case '\n':
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                    return true;
-                case '\r':
-                    _skipCR();
-                    return true;
-                case 2: // 2-byte UTF
-                    _skipUtf8_2(i);
-                    break;
-                case 3: // 3-byte UTF
-                    _skipUtf8_3(i);
-                    break;
-                case 4: // 4-byte UTF
-                    _skipUtf8_4(i);
-                    break;
-                default: // e.g. -1
-                    // Is this good enough error message?
-                    _reportInvalidChar(i);
-                }
-            }
-        }
-        return true;
     }
     
     @Override

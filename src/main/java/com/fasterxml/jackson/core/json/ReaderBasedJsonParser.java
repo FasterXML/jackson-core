@@ -17,6 +17,13 @@ import com.fasterxml.jackson.core.util.*;
 public final class ReaderBasedJsonParser
     extends ParserBase
 {
+    // Latin1 encoding is not supported, but we do use 8-bit subset for
+    // pre-processing task, to simplify first pass, keep it fast.
+    protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
+
+    // White-space processing is done all the time, pre-fetch as well
+    private final static int[] _icWS = CharTypes.getInputCodeWS();
+
     /*
     /**********************************************************
     /* Input configuration
@@ -664,10 +671,10 @@ public final class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            t = parseNumberText(i);
+            t = _parseNumber(i);
             break;
         default:
-            t = _handleUnexpectedValue(i);
+            t = _handleOddValue(i);
             break;
         }
 
@@ -818,7 +825,6 @@ public final class ReaderBasedJsonParser
     /*
     /**********************************************************
     /* Internal methods, number parsing
-    /* (note: in 1.8 and prior, part of "ReaderBasedNumericParser"
     /**********************************************************
      */
 
@@ -837,8 +843,7 @@ public final class ReaderBasedJsonParser
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected JsonToken parseNumberText(int ch)
-        throws IOException, JsonParseException
+    protected JsonToken _parseNumber(int ch) throws IOException
     {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),
@@ -950,7 +955,7 @@ public final class ReaderBasedJsonParser
         } while (false);
 
         _inputPtr = negative ? (startPtr+1) : startPtr;
-        return parseNumberText2(negative);
+        return _parseNumber2(negative);
     }
 
     /**
@@ -960,8 +965,7 @@ public final class ReaderBasedJsonParser
      * that it has to explicitly copy contents to the text buffer
      * instead of just sharing the main input buffer.
      */
-    private JsonToken parseNumberText2(boolean negative)
-        throws IOException, JsonParseException
+    private JsonToken _parseNumber2(boolean negative) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
@@ -1084,8 +1088,7 @@ public final class ReaderBasedJsonParser
      * Method called when we have seen one zero, and want to ensure
      * it is not followed by another
      */
-    private char _verifyNoLeadingZeroes()
-        throws IOException, JsonParseException
+    private char _verifyNoLeadingZeroes() throws IOException
     {
         // Ok to have plain "0"
         if (_inputPtr >= _inputEnd && !loadMore()) {
@@ -1120,8 +1123,7 @@ public final class ReaderBasedJsonParser
      * Method called if expected numeric value (due to leading sign) does not
      * look like a number
      */
-    protected JsonToken _handleInvalidNumberStart(int ch, boolean negative)
-        throws IOException, JsonParseException
+    protected JsonToken _handleInvalidNumberStart(int ch, boolean negative) throws IOException
     {
         if (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
@@ -1170,7 +1172,7 @@ public final class ReaderBasedJsonParser
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {
-            final int[] codes = CharTypes.getInputCodeLatin1();
+            final int[] codes = _icLatin1;
             final int maxCode = codes.length;
 
             do {
@@ -1190,10 +1192,10 @@ public final class ReaderBasedJsonParser
 
         int start = _inputPtr;
         _inputPtr = ptr;
-        return _parseFieldName2(start, hash, INT_QUOTE);
+        return _parseName2(start, hash, INT_QUOTE);
     }
 
-    private String _parseFieldName2(int startPtr, int hash, int endChar) throws IOException
+    private String _parseName2(int startPtr, int hash, int endChar) throws IOException
     {
         _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
 
@@ -1313,7 +1315,7 @@ public final class ReaderBasedJsonParser
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {
-            final int[] codes = CharTypes.getInputCodeLatin1();
+            final int[] codes = _icLatin1;
             final int maxCode = codes.length;
 
             do {
@@ -1334,14 +1336,14 @@ public final class ReaderBasedJsonParser
         int start = _inputPtr;
         _inputPtr = ptr;
 
-        return _parseFieldName2(start, hash, '\'');
+        return _parseName2(start, hash, '\'');
     }
 
     /**
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
      */
-    protected JsonToken _handleUnexpectedValue(int i) throws IOException
+    protected JsonToken _handleOddValue(int i) throws IOException
     {
         // Most likely an error, unless we are to allow single-quote-strings
         switch (i) {
@@ -1484,7 +1486,7 @@ public final class ReaderBasedJsonParser
         final int inputLen = _inputEnd;
 
         if (ptr < inputLen) {
-            final int[] codes = CharTypes.getInputCodeLatin1();
+            final int[] codes = _icLatin1;
             final int maxCode = codes.length;
 
             do {
@@ -1621,22 +1623,34 @@ public final class ReaderBasedJsonParser
 
     private int _skipWS() throws IOException
     {
+        final int[] codes = _icWS;
         while (_inputPtr < _inputEnd || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
-            if (i > INT_SPACE) {
-                if (i != INT_SLASH) {
+            if (i >= 64) {
+                return i;
+            }
+            switch (codes[i]) {
+            case -1:
+                _throwInvalidSpace(i);
+            case 0:
+                return i;
+            case 1:
+                continue;
+            case '\n':
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
+                break;
+            case '\r':
+                _skipCR();
+                break;
+            case '/':
+                _skipComment();
+                break;
+            case '#':
+                if (!_skipYAMLComment()) {
                     return i;
                 }
-                _skipComment();
-            } else if (i != INT_SPACE) {
-                if (i == INT_LF) {
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                } else if (i == INT_CR) {
-                    _skipCR();
-                } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
-                }
+                break;
             }
         }
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
@@ -1644,24 +1658,34 @@ public final class ReaderBasedJsonParser
 
     private int _skipWSOrEnd() throws IOException
     {
-        while ((_inputPtr < _inputEnd) || loadMore()) {
+        final int[] codes = _icWS;
+        while (_inputPtr < _inputEnd || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
-            if (i > INT_SPACE) {
-                 if (i == INT_SLASH) {
-                     _skipComment();
-                     continue;
-                }
-                 return i;
+            if (i >= 64) {
+                return i;
             }
-            if (i != INT_SPACE) {
-                if (i == INT_LF) {
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                } else if (i == INT_CR) {
-                    _skipCR();
-                } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
+            switch (codes[i]) {
+            case -1:
+                _throwInvalidSpace(i);
+            case 0:
+                return i;
+            case 1:
+                continue;
+            case '\n':
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
+                break;
+            case '\r':
+                _skipCR();
+                break;
+            case '/':
+                _skipComment();
+                break;
+            case '#':
+                if (!_skipYAMLComment()) {
+                    return i;
                 }
+                break;
             }
         }
         // We ran out of input...
@@ -1680,7 +1704,7 @@ public final class ReaderBasedJsonParser
         }
         char c = _inputBuffer[_inputPtr++];
         if (c == '/') {
-            _skipCppComment();
+            _skipLine();
         } else if (c == '*') {
             _skipCComment();
         } else {
@@ -1720,7 +1744,16 @@ public final class ReaderBasedJsonParser
         _reportInvalidEOF(" in a comment");
     }
 
-    private void _skipCppComment() throws IOException
+    private boolean _skipYAMLComment() throws IOException
+    {
+        if (!isEnabled(Feature.ALLOW_YAML_COMMENTS)) {
+            return false;
+        }
+        _skipLine();
+        return true;
+    }
+    
+    private void _skipLine() throws IOException
     {
         // Ok: need to find EOF or linefeed
         while ((_inputPtr < _inputEnd) || loadMore()) {

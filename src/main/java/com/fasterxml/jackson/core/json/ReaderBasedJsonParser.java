@@ -600,7 +600,7 @@ public final class ReaderBasedJsonParser
         boolean inObject = _parsingContext.inObject();
         if (inObject) {
            // First, field name itself:
-            String name = _parseFieldName(i);
+            String name = _parseName(i);
             _parsingContext.setCurrentName(name);
             _currToken = JsonToken.FIELD_NAME;
             i = _skipWS();
@@ -664,7 +664,6 @@ public final class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-
             t = parseNumberText(i);
             break;
         default:
@@ -1157,10 +1156,10 @@ public final class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    protected String _parseFieldName(int i) throws IOException
+    protected String _parseName(int i) throws IOException
     {
         if (i != INT_QUOTE) {
-            return _handleUnusualFieldName(i);
+            return _handleOddName(i);
         }
         /* First: let's try to see if we have a simple name: one that does
          * not cross input buffer boundary, and does not contain escape
@@ -1255,11 +1254,11 @@ public final class ReaderBasedJsonParser
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      */
-    protected String _handleUnusualFieldName(int i) throws IOException
+    protected String _handleOddName(int i) throws IOException
     {
         // [JACKSON-173]: allow single quotes
         if (i == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
-            return _parseApostropheFieldName();
+            return _parseAposName();
         }
         // [JACKSON-69]: allow unquoted names if feature enabled:
         if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
@@ -1303,10 +1302,10 @@ public final class ReaderBasedJsonParser
         }
         int start = _inputPtr-1;
         _inputPtr = ptr;
-        return _parseUnusualFieldName2(start, hash, codes);
+        return _handleOddName2(start, hash, codes);
     }
 
-    protected String _parseApostropheFieldName() throws IOException
+    protected String _parseAposName() throws IOException
     {
         // Note: mostly copy of_parseFieldName
         int ptr = _inputPtr;
@@ -1430,8 +1429,7 @@ public final class ReaderBasedJsonParser
         return JsonToken.VALUE_STRING;
     }
     
-    private String _parseUnusualFieldName2(int startPtr, int hash, int[] codes)
-        throws IOException
+    private String _handleOddName2(int startPtr, int hash, int[] codes) throws IOException
     {
         _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
         char[] outBuf = _textBuffer.getCurrentSegment();
@@ -1621,12 +1619,6 @@ public final class ReaderBasedJsonParser
         _currInputRowStart = _inputPtr;
     }
 
-    protected void _skipLF() throws IOException
-    {
-        ++_currInputRow;
-        _currInputRowStart = _inputPtr;
-    }
-
     private int _skipWS() throws IOException
     {
         while (_inputPtr < _inputEnd || loadMore()) {
@@ -1638,7 +1630,8 @@ public final class ReaderBasedJsonParser
                 _skipComment();
             } else if (i != INT_SPACE) {
                 if (i == INT_LF) {
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
@@ -1662,7 +1655,8 @@ public final class ReaderBasedJsonParser
             }
             if (i != INT_SPACE) {
                 if (i == INT_LF) {
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
@@ -1713,7 +1707,8 @@ public final class ReaderBasedJsonParser
                 }
                 if (i < INT_SPACE) {
                     if (i == INT_LF) {
-                        _skipLF();
+                        ++_currInputRow;
+                        _currInputRowStart = _inputPtr;
                     } else if (i == INT_CR) {
                         _skipCR();
                     } else if (i != INT_TAB) {
@@ -1732,7 +1727,8 @@ public final class ReaderBasedJsonParser
             int i = (int) _inputBuffer[_inputPtr++];
             if (i < INT_SPACE) {
                 if (i == INT_LF) {
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                     break;
                 } else if (i == INT_CR) {
                     _skipCR();

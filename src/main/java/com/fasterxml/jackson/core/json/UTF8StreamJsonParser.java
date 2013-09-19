@@ -2497,7 +2497,8 @@ public final class UTF8StreamJsonParser
                 _skipUtf8_4(i);
                 break;
             case INT_LF:
-                _skipLF();
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
                 break;
             case INT_CR:
                 _skipCR();
@@ -2541,7 +2542,8 @@ public final class UTF8StreamJsonParser
                 _skipUtf8_4(i);
                 break;
             case INT_LF:
-                _skipLF();
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
                 break;
             case INT_CR:
                 _skipCR();
@@ -2600,7 +2602,8 @@ public final class UTF8StreamJsonParser
                     _skipCR();
                     break;
                 case INT_LF:
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                     break;
                 case '/':
                     _skipComment();
@@ -2631,7 +2634,8 @@ public final class UTF8StreamJsonParser
                 _skipComment();
             } else if (i != INT_SPACE) {
                 if (i == INT_LF) {
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                 } else if (i == INT_CR) {
                     _skipCR();
                 } else if (i != INT_TAB) {
@@ -2683,7 +2687,8 @@ public final class UTF8StreamJsonParser
                     }
                     break;
                 case INT_LF:
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                     break;
                 case INT_CR:
                     _skipCR();
@@ -2716,7 +2721,8 @@ public final class UTF8StreamJsonParser
             if (code != 0) {
                 switch (code) {
                 case INT_LF:
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                     return;
                 case INT_CR:
                     _skipCR();
@@ -2754,7 +2760,8 @@ public final class UTF8StreamJsonParser
             if (code != 0) {
                 switch (code) {
                 case '\n':
-                    _skipLF();
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
                     return true;
                 case '\r':
                     _skipCR();
@@ -3049,13 +3056,7 @@ public final class UTF8StreamJsonParser
         _currInputRowStart = _inputPtr;
     }
 
-    protected void _skipLF() throws IOException
-    {
-        ++_currInputRow;
-        _currInputRowStart = _inputPtr;
-    }
-
-    private int nextByte() throws IOException
+        private int nextByte() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();

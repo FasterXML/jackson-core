@@ -5,6 +5,7 @@ syntax: glob
 *.bak
 *.off
 *.old
+*.java.orig
 .DS_Store
 
 # building

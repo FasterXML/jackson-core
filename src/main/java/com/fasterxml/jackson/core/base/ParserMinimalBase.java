@@ -468,6 +468,9 @@ public abstract class ParserMinimalBase
     protected void _reportUnexpectedChar(int ch, String comment)
         throws JsonParseException
     {
+        if (ch < 0) { // sanity check
+            _reportInvalidEOF();
+        }
         String msg = "Unexpected character ("+_getCharDesc(ch)+")";
         if (comment != null) {
             msg += ": "+comment;

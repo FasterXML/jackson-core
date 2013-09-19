@@ -1157,8 +1157,7 @@ public final class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    protected String _parseFieldName(int i)
-        throws IOException, JsonParseException
+    protected String _parseFieldName(int i) throws IOException
     {
         if (i != INT_QUOTE) {
             return _handleUnusualFieldName(i);
@@ -1195,8 +1194,7 @@ public final class ReaderBasedJsonParser
         return _parseFieldName2(start, hash, INT_QUOTE);
     }
 
-    private String _parseFieldName2(int startPtr, int hash, int endChar)
-        throws IOException, JsonParseException
+    private String _parseFieldName2(int startPtr, int hash, int endChar) throws IOException
     {
         _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
 
@@ -1257,8 +1255,7 @@ public final class ReaderBasedJsonParser
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      */
-    protected String _handleUnusualFieldName(int i)
-        throws IOException, JsonParseException
+    protected String _handleUnusualFieldName(int i) throws IOException
     {
         // [JACKSON-173]: allow single quotes
         if (i == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
@@ -1309,8 +1306,7 @@ public final class ReaderBasedJsonParser
         return _parseUnusualFieldName2(start, hash, codes);
     }
 
-    protected String _parseApostropheFieldName()
-        throws IOException, JsonParseException
+    protected String _parseApostropheFieldName() throws IOException
     {
         // Note: mostly copy of_parseFieldName
         int ptr = _inputPtr;
@@ -1346,8 +1342,7 @@ public final class ReaderBasedJsonParser
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
      */
-    protected JsonToken _handleUnexpectedValue(int i)
-        throws IOException, JsonParseException
+    protected JsonToken _handleUnexpectedValue(int i) throws IOException
     {
         // Most likely an error, unless we are to allow single-quote-strings
         switch (i) {
@@ -1360,7 +1355,7 @@ public final class ReaderBasedJsonParser
              * one regular (~= slowish) parsing, to keep code simple
              */
             if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
-                return _handleApostropheValue();
+                return _handleApos();
             }
             break;
         case 'N':
@@ -1394,8 +1389,7 @@ public final class ReaderBasedJsonParser
         return null;
     }
     
-    protected JsonToken _handleApostropheValue()
-        throws IOException, JsonParseException
+    protected JsonToken _handleApos() throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
@@ -1408,8 +1402,8 @@ public final class ReaderBasedJsonParser
             }
             char c = _inputBuffer[_inputPtr++];
             int i = (int) c;
-            if (i <= '\'') {
-                if (i == '\'') {
+            if (i <= '\\') {
+                if (i == '\\') {
                     /* Although chars outside of BMP are to be escaped as
                      * an UTF-16 surrogate pair, does that affect decoding?
                      * For now let's assume it does not.
@@ -1437,7 +1431,7 @@ public final class ReaderBasedJsonParser
     }
     
     private String _parseUnusualFieldName2(int startPtr, int hash, int[] codes)
-        throws IOException, JsonParseException
+        throws IOException
     {
         _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
         char[] outBuf = _textBuffer.getCurrentSegment();
@@ -1482,8 +1476,7 @@ public final class ReaderBasedJsonParser
     }
   
     @Override
-    protected void _finishString()
-        throws IOException, JsonParseException
+    protected void _finishString() throws IOException
     {
         /* First: let's try to see if we have simple String value: one
          * that does not cross input buffer boundary, and does not
@@ -1519,8 +1512,7 @@ public final class ReaderBasedJsonParser
         _finishString2();
     }
 
-    protected void _finishString2()
-        throws IOException, JsonParseException
+    protected void _finishString2() throws IOException
     {
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
@@ -1565,8 +1557,7 @@ public final class ReaderBasedJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      */
-    protected void _skipString()
-        throws IOException, JsonParseException
+    protected void _skipString() throws IOException
     {
         _tokenIncomplete = false;
 
@@ -1636,8 +1627,7 @@ public final class ReaderBasedJsonParser
         _currInputRowStart = _inputPtr;
     }
 
-    private int _skipWS()
-        throws IOException, JsonParseException
+    private int _skipWS() throws IOException
     {
         while (_inputPtr < _inputEnd || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
@@ -1659,8 +1649,7 @@ public final class ReaderBasedJsonParser
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
 
-    private int _skipWSOrEnd()
-        throws IOException, JsonParseException
+    private int _skipWSOrEnd() throws IOException
     {
         while ((_inputPtr < _inputEnd) || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
@@ -1686,8 +1675,7 @@ public final class ReaderBasedJsonParser
         return -1;
     }
 
-    private void _skipComment()
-        throws IOException, JsonParseException
+    private void _skipComment() throws IOException
     {
         if (!isEnabled(Feature.ALLOW_COMMENTS)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
@@ -1706,8 +1694,7 @@ public final class ReaderBasedJsonParser
         }
     }
 
-    private void _skipCComment()
-        throws IOException, JsonParseException
+    private void _skipCComment() throws IOException
     {
         // Ok: need the matching '*/'
         main_loop:
@@ -1738,8 +1725,7 @@ public final class ReaderBasedJsonParser
         _reportInvalidEOF(" in a comment");
     }
 
-    private void _skipCppComment()
-        throws IOException, JsonParseException
+    private void _skipCppComment() throws IOException
     {
         // Ok: need to find EOF or linefeed
         while ((_inputPtr < _inputEnd) || loadMore()) {
@@ -1759,8 +1745,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    protected char _decodeEscaped()
-        throws IOException, JsonParseException
+    protected char _decodeEscaped() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {
@@ -1816,8 +1801,7 @@ public final class ReaderBasedJsonParser
     /**
      * Helper method for checking whether input matches expected token
      */
-    protected void _matchToken(String matchStr, int i)
-        throws IOException, JsonParseException
+    protected void _matchToken(String matchStr, int i) throws IOException
     {
         final int len = matchStr.length();
 
@@ -1861,8 +1845,7 @@ public final class ReaderBasedJsonParser
      * textual content.
      */
     @SuppressWarnings("resource")
-    protected byte[] _decodeBase64(Base64Variant b64variant)
-        throws IOException, JsonParseException
+    protected byte[] _decodeBase64(Base64Variant b64variant) throws IOException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
 
@@ -1976,13 +1959,12 @@ public final class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    protected void _reportInvalidToken(String matchedPart)
-            throws IOException, JsonParseException {
+    protected void _reportInvalidToken(String matchedPart) throws IOException {
         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }
     
     protected void _reportInvalidToken(String matchedPart, String msg)
-        throws IOException, JsonParseException
+        throws IOException
     {
         StringBuilder sb = new StringBuilder(matchedPart);
         /* Let's just try to find what appears to be the token, using

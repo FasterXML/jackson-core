@@ -670,9 +670,15 @@ public final class UTF8StreamJsonParser
         Name n = _parseFieldName(i);
         _parsingContext.setCurrentName(n.getName());
         _currToken = JsonToken.FIELD_NAME;
-        i = _skipWS();
-        if (i != INT_COLON) {
-            _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+
+        // Let's do a quickie check:
+        if (_inputPtr < _inputEnd && _inputBuffer[_inputPtr] == ':') {
+            ++_inputPtr;
+        } else {
+            i = _skipWS();
+            if (i != INT_COLON) {
+                _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+            }
         }
         i = _skipWS();
 
@@ -2059,8 +2065,7 @@ public final class UTF8StreamJsonParser
      */
 
     @Override
-    protected void _finishString()
-        throws IOException, JsonParseException
+    protected void _finishString() throws IOException
     {
         // First, single tight loop for ASCII content, not split across input buffer boundary:        
         int ptr = _inputPtr;
@@ -2092,7 +2097,7 @@ public final class UTF8StreamJsonParser
     }
 
     private void _finishString2(char[] outBuf, int outPtr)
-        throws IOException, JsonParseException
+        throws IOException
     {
         int c;
 
@@ -2180,8 +2185,7 @@ public final class UTF8StreamJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      */
-    protected void _skipString()
-        throws IOException, JsonParseException
+    protected void _skipString() throws IOException
     {
         _tokenIncomplete = false;
 
@@ -2246,13 +2250,13 @@ public final class UTF8StreamJsonParser
      * of an expected value token is not legal for standard JSON content.
      */
     protected JsonToken _handleUnexpectedValue(int c)
-        throws IOException, JsonParseException
+        throws IOException
     {
         // Most likely an error, unless we are to allow single-quote-strings
         switch (c) {
         case '\'':
             if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
-                return _handleApostropheValue();
+                return _handleApos();
             }
             break;
         case 'N':
@@ -2286,8 +2290,8 @@ public final class UTF8StreamJsonParser
         return null;
     }
 
-    protected JsonToken _handleApostropheValue()
-        throws IOException, JsonParseException
+    protected JsonToken _handleApos()
+        throws IOException
     {
         int c = 0;
         // Otherwise almost verbatim copy of _finishString()
@@ -2377,13 +2381,13 @@ public final class UTF8StreamJsonParser
 
         return JsonToken.VALUE_STRING;
     }
-
+    
     /**
      * Method called if expected numeric value (due to leading sign) does not
      * look like a number
      */
     protected JsonToken _handleInvalidNumberStart(int ch, boolean neg)
-        throws IOException, JsonParseException
+        throws IOException
     {
         while (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
@@ -2411,7 +2415,7 @@ public final class UTF8StreamJsonParser
     }
 
     protected void _matchToken(String matchStr, int i)
-        throws IOException, JsonParseException
+        throws IOException
     {
         final int len = matchStr.length();
     
@@ -2439,13 +2443,13 @@ public final class UTF8StreamJsonParser
     }
 
     protected void _reportInvalidToken(String matchedPart)
-       throws IOException, JsonParseException
+       throws IOException
     {
         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }
     
     protected void _reportInvalidToken(String matchedPart, String msg)
-        throws IOException, JsonParseException
+        throws IOException
     {
         StringBuilder sb = new StringBuilder(matchedPart);
 
@@ -2473,47 +2477,89 @@ public final class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    private int _skipWS()
-        throws IOException, JsonParseException
+    private final int _skipWS() throws IOException
     {
+        final int[] codes = CharTypes.getInputCodeWS();
         while (_inputPtr < _inputEnd || loadMore()) {
-            int i = _inputBuffer[_inputPtr++] & 0xFF;
-            if (i > INT_SPACE) {
-                if (i != INT_SLASH) {
+            final int i = _inputBuffer[_inputPtr++] & 0xFF;
+            switch (codes[i]) {
+            case 0: // done!
+                return i;
+            case 1: // skip
+                continue;
+            case 2: // 2-byte UTF
+                _skipUtf8_2(i);
+                break;
+            case 3: // 3-byte UTF
+                _skipUtf8_3(i);
+                break;
+            case 4: // 4-byte UTF
+                _skipUtf8_4(i);
+                break;
+            case INT_LF:
+                _skipLF();
+                break;
+            case INT_CR:
+                _skipCR();
+                break;
+            case '/':
+                _skipComment();
+                break;
+            case '#':
+                if (!_skipHashComment()) {
                     return i;
                 }
-                _skipComment();
-            } else if (i != INT_SPACE) {
-                if (i == INT_LF) {
-                    _skipLF();
-                } else if (i == INT_CR) {
-                    _skipCR();
-                } else if (i != INT_TAB) {
+                break;
+            default: // e.g. -1
+                // Is this good enough error message?
+                if (i < 32) {
                     _throwInvalidSpace(i);
                 }
+                _reportInvalidChar(i);
             }
         }
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
 
-    private int _skipWSOrEnd()
-        throws IOException, JsonParseException
+    private int _skipWSOrEnd() throws IOException
     {
+        final int[] codes = CharTypes.getInputCodeWS();
         while ((_inputPtr < _inputEnd) || loadMore()) {
-            int i = _inputBuffer[_inputPtr++] & 0xFF;
-            if (i > INT_SPACE) {
-                if (i != INT_SLASH) {
+            final int i = _inputBuffer[_inputPtr++] & 0xFF;
+            switch (codes[i]) {
+            case 0: // done!
+                return i;
+            case 1: // skip
+                continue;
+            case 2: // 2-byte UTF
+                _skipUtf8_2(i);
+                break;
+            case 3: // 3-byte UTF
+                _skipUtf8_3(i);
+                break;
+            case 4: // 4-byte UTF
+                _skipUtf8_4(i);
+                break;
+            case INT_LF:
+                _skipLF();
+                break;
+            case INT_CR:
+                _skipCR();
+                break;
+            case '/':
+                _skipComment();
+                break;
+            case '#':
+                if (!_skipHashComment()) {
                     return i;
                 }
-                _skipComment();
-            } else if (i != INT_SPACE) {
-                if (i == INT_LF) {
-                    _skipLF();
-                } else if (i == INT_CR) {
-                    _skipCR();
-                } else if (i != INT_TAB) {
+                break;
+            default: // e.g. -1
+                // Is this good enough error message?
+                if (i < 32) {
                     _throwInvalidSpace(i);
                 }
+                _reportInvalidChar(i);
             }
         }
         // We ran out of input...
@@ -2525,8 +2571,7 @@ public final class UTF8StreamJsonParser
      * Helper method for matching and skipping a colon character,
      * optionally surrounded by white space
      */
-    private int _skipColon()
-        throws IOException, JsonParseException
+    private int _skipColon() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -2597,8 +2642,7 @@ public final class UTF8StreamJsonParser
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
     
-    private void _skipComment()
-        throws IOException, JsonParseException
+    private void _skipComment() throws IOException
     {
         if (!isEnabled(Feature.ALLOW_COMMENTS)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
@@ -2617,8 +2661,7 @@ public final class UTF8StreamJsonParser
         }
     }
 
-    private void _skipCComment()
-        throws IOException, JsonParseException
+    private void _skipCComment() throws IOException
     {
         // Need to be UTF-8 aware here to decode content (for skipping)
         final int[] codes = CharTypes.getInputCodeComment();
@@ -2663,8 +2706,7 @@ public final class UTF8StreamJsonParser
         _reportInvalidEOF(" in a comment");
     }
 
-    private void _skipCppComment()
-        throws IOException, JsonParseException
+    private void _skipCppComment() throws IOException
     {
         // Ok: need to find EOF or linefeed
         final int[] codes = CharTypes.getInputCodeComment();
@@ -2698,9 +2740,45 @@ public final class UTF8StreamJsonParser
         }
     }
 
+    protected boolean _skipHashComment() throws IOException
+    {
+        if (!isEnabled(Feature.ALLOW_YAML_COMMENTS)) {
+            return false;
+        }
+        // would plain UTF-8 work?
+        final int[] codes = CharTypes.getInputCodeComment();
+        // Skip until line-feed
+        while ((_inputPtr < _inputEnd) || loadMore()) {
+            int i = (int) _inputBuffer[_inputPtr++] & 0xFF;
+            int code = codes[i];
+            if (code != 0) {
+                switch (code) {
+                case '\n':
+                    _skipLF();
+                    return true;
+                case '\r':
+                    _skipCR();
+                    return true;
+                case 2: // 2-byte UTF
+                    _skipUtf8_2(i);
+                    break;
+                case 3: // 3-byte UTF
+                    _skipUtf8_3(i);
+                    break;
+                case 4: // 4-byte UTF
+                    _skipUtf8_4(i);
+                    break;
+                default: // e.g. -1
+                    // Is this good enough error message?
+                    _reportInvalidChar(i);
+                }
+            }
+        }
+        return true;
+    }
+    
     @Override
-    protected char _decodeEscaped()
-        throws IOException, JsonParseException
+    protected char _decodeEscaped() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {
@@ -2753,8 +2831,7 @@ public final class UTF8StreamJsonParser
         return (char) value;
     }
 
-    protected int _decodeCharForError(int firstByte)
-        throws IOException, JsonParseException
+    protected int _decodeCharForError(int firstByte) throws IOException
     {
         int c = (int) firstByte;
         if (c < 0) { // if >= 0, is ascii and fine as is
@@ -2806,8 +2883,7 @@ public final class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    private int _decodeUtf8_2(int c)
-        throws IOException, JsonParseException
+    private int _decodeUtf8_2(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -2819,8 +2895,7 @@ public final class UTF8StreamJsonParser
         return ((c & 0x1F) << 6) | (d & 0x3F);
     }
 
-    private int _decodeUtf8_3(int c1)
-        throws IOException, JsonParseException
+    private int _decodeUtf8_3(int c1) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -2842,8 +2917,7 @@ public final class UTF8StreamJsonParser
         return c;
     }
 
-    private int _decodeUtf8_3fast(int c1)
-        throws IOException, JsonParseException
+    private int _decodeUtf8_3fast(int c1) throws IOException
     {
         c1 &= 0x0F;
         int d = (int) _inputBuffer[_inputPtr++];
@@ -2863,8 +2937,7 @@ public final class UTF8StreamJsonParser
      * @return Character value <b>minus 0x10000</c>; this so that caller
      *    can readily expand it to actual surrogates
      */
-    private int _decodeUtf8_4(int c)
-        throws IOException, JsonParseException
+    private int _decodeUtf8_4(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -2897,8 +2970,7 @@ public final class UTF8StreamJsonParser
         return ((c << 6) | (d & 0x3F)) - 0x10000;
     }
 
-    private void _skipUtf8_2(int c)
-        throws IOException, JsonParseException
+    private void _skipUtf8_2(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -2912,8 +2984,7 @@ public final class UTF8StreamJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private void _skipUtf8_3(int c)
-        throws IOException, JsonParseException
+    private void _skipUtf8_3(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -2932,8 +3003,7 @@ public final class UTF8StreamJsonParser
         }
     }
 
-    private void _skipUtf8_4(int c)
-        throws IOException, JsonParseException
+    private void _skipUtf8_4(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -2985,8 +3055,7 @@ public final class UTF8StreamJsonParser
         _currInputRowStart = _inputPtr;
     }
 
-    private int nextByte()
-        throws IOException, JsonParseException
+    private int nextByte() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             loadMoreGuaranteed();
@@ -3048,8 +3117,7 @@ public final class UTF8StreamJsonParser
      * textual content.
      */
     @SuppressWarnings("resource")
-    protected byte[] _decodeBase64(Base64Variant b64variant)
-        throws IOException, JsonParseException
+    protected byte[] _decodeBase64(Base64Variant b64variant) throws IOException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
 

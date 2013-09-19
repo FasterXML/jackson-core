@@ -25,7 +25,7 @@ public final class CharTypes
          * but if we want to do lookups by raw bytes it's better
          * to have full table
          */
-        int[] table = new int[256];
+        final int[] table = new int[256];
         // Control chars and non-space white space are not allowed unquoted
         for (int i = 0; i < 32; ++i) {
             table[i] = -1;
@@ -40,10 +40,10 @@ public final class CharTypes
      * Additionally we can combine UTF-8 decoding info into similar
      * data table.
      */
-    final static int[] sInputCodesUtf8;
+    final static int[] sInputCodesUTF8;
     static {
-        int[] table = new int[sInputCodes.length];
-        System.arraycopy(sInputCodes, 0, table, 0, sInputCodes.length);
+        final int[] table = new int[sInputCodes.length];
+        System.arraycopy(sInputCodes, 0, table, 0, table.length);
         for (int c = 128; c < 256; ++c) {
             int code;
 
@@ -61,7 +61,7 @@ public final class CharTypes
             }
             table[c] = code;
         }
-        sInputCodesUtf8 = table;
+        sInputCodesUTF8 = table;
     }
 
     /**
@@ -72,7 +72,7 @@ public final class CharTypes
      */
     final static int[] sInputCodesJsNames;
     static {
-        int[] table = new int[256];
+        final int[] table = new int[256];
         // Default is "not a name char", mark ones that are
         Arrays.fill(table, -1);
         // Assume rules with JS same as Java (change if/as needed)
@@ -99,30 +99,56 @@ public final class CharTypes
      */
     final static int[] sInputCodesUtf8JsNames;
     static {
-        int[] table = new int[256];
+        final int[] table = new int[256];
         // start with 8-bit JS names
-        System.arraycopy(sInputCodesJsNames, 0, table, 0, sInputCodesJsNames.length);
+        System.arraycopy(sInputCodesJsNames, 0, table, 0, table.length);
         Arrays.fill(table, 128, 128, 0);
         sInputCodesUtf8JsNames = table;
     }
 
     /**
      * Decoding table used to quickly determine characters that are
-     * relevant within comment content
+     * relevant within comment content.
      */
-    final static int[] sInputCodesComment = new int[256];
+    final static int[] sInputCodesComment;
     static {
+        final int[] buf = new int[256];
         // but first: let's start with UTF-8 multi-byte markers:
-        System.arraycopy(sInputCodesUtf8, 128, sInputCodesComment, 128, 128);
+        System.arraycopy(sInputCodesUTF8, 128, buf, 128, 128);
 
         // default (0) means "ok" (skip); -1 invalid, others marked by char itself
-        Arrays.fill(sInputCodesComment, 0, 32, -1); // invalid white space
-        sInputCodesComment['\t'] = 0; // tab is still fine
-        sInputCodesComment['\n'] = '\n'; // lf/cr need to be observed, ends cpp comment
-        sInputCodesComment['\r'] = '\r';
-        sInputCodesComment['*'] = '*'; // end marker for c-style comments
+        Arrays.fill(buf, 0, 32, -1); // invalid white space
+        buf['\t'] = 0; // tab is still fine
+        buf['\n'] = '\n'; // lf/cr need to be observed, ends cpp comment
+        buf['\r'] = '\r';
+        buf['*'] = '*'; // end marker for c-style comments
+        sInputCodesComment = buf;
     }
 
+    /**
+     * Decoding table used for skipping white space and comments.
+     * 
+     * @since 2.3
+     */
+    final static int[] sInputCodesWS;
+    static {
+        // but first: let's start with UTF-8 multi-byte markers:
+        final int[] buf = new int[256];
+        System.arraycopy(sInputCodesUTF8, 128, buf, 128, 128);
+
+        // default (0) means "not whitespace" (end); 1 "whitespace", -1 invalid,
+        // 2-4 UTF-8 multi-bytes, others marked by char itself
+        //
+        Arrays.fill(buf, 0, 32, -1); // invalid white space
+        buf[' '] = 1;
+        buf['\t'] = 1;
+        buf['\n'] = '\n'; // lf/cr need to be observed, ends cpp comment
+        buf['\r'] = '\r';
+        buf['/'] = '/'; // start marker for c/cpp comments
+        buf['#'] = '#'; // start marker for YAML comments
+        sInputCodesWS = buf;
+    }
+    
     /**
      * Lookup table used for determining which output characters in
      * 7-bit ASCII range need to be quoted.
@@ -167,12 +193,13 @@ public final class CharTypes
     }
 
     public static int[] getInputCodeLatin1() { return sInputCodes; }
-    public static int[] getInputCodeUtf8() { return sInputCodesUtf8; }
+    public static int[] getInputCodeUtf8() { return sInputCodesUTF8; }
 
     public static int[] getInputCodeLatin1JsNames() { return sInputCodesJsNames; }
     public static int[] getInputCodeUtf8JsNames() { return sInputCodesUtf8JsNames; }
 
     public static int[] getInputCodeComment() { return sInputCodesComment; }
+    public static int[] getInputCodeWS() { return sInputCodesWS; }
 
     /**
      * Accessor for getting a read-only encoding table for first 128 Unicode

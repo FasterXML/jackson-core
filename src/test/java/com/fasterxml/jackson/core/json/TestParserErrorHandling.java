@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonToken;
 public class TestParserErrorHandling
     extends com.fasterxml.jackson.test.BaseTest
 {
-
     public void testInvalidKeywordsStream() throws Exception {
         _testInvalidKeywords(true);
     }
@@ -18,6 +17,15 @@ public class TestParserErrorHandling
         _testInvalidKeywords(false);
     }
 
+    // Tests for #105 ("eager number parsing misses errors")
+    public void testMangledNumbersBytes() throws Exception {
+        _testMangledNumbers(true);
+    }
+
+    public void testMangledNumbersChars() throws Exception {
+        _testMangledNumbers(false);
+    }
+    
     /*
     /**********************************************************
     /* Helper methods
@@ -73,5 +81,31 @@ public class TestParserErrorHandling
         } finally {
             jp.close();
         }
+    }
+
+    private void _testMangledNumbers(boolean useStream) throws Exception
+    {
+        String doc = "123true";
+        JsonParser jp = useStream ? createParserUsingStream(doc, "UTF-8")
+                : createParserUsingReader(doc);
+        try {
+            JsonToken t = jp.nextToken();
+            fail("Should have gotten an exception; instead got token: "+t);
+        } catch (JsonParseException e) {
+            verifyException(e, "expected space");
+        }
+        jp.close();
+
+        // Also test with floats
+        doc = "1.5false";
+        jp = useStream ? createParserUsingStream(doc, "UTF-8")
+                : createParserUsingReader(doc);
+        try {
+            JsonToken t = jp.nextToken();
+            fail("Should have gotten an exception; instead got token: "+t);
+        } catch (JsonParseException e) {
+            verifyException(e, "expected space");
+        }
+        jp.close();
     }
 }

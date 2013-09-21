@@ -732,7 +732,7 @@ public final class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            t = parseNumberText(i);
+            t = _parseNumber(i);
             break;
         default:
             t = _handleUnexpectedValue(i);
@@ -784,7 +784,7 @@ public final class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = parseNumberText(i));
+            return (_currToken = _parseNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
     }
@@ -973,7 +973,7 @@ public final class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            _nextToken = parseNumberText(i);
+            _nextToken = _parseNumber(i);
             return;
         }
         _nextToken = _handleUnexpectedValue(i);
@@ -1041,7 +1041,7 @@ public final class UTF8StreamJsonParser
         case '8':
         case '9':
 
-            t = parseNumberText(i);
+            t = _parseNumber(i);
             break;
         default:
             t = _handleUnexpectedValue(i);
@@ -1181,7 +1181,7 @@ public final class UTF8StreamJsonParser
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected JsonToken parseNumberText(int c)
+    protected JsonToken _parseNumber(int c)
         throws IOException, JsonParseException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1235,11 +1235,15 @@ public final class UTF8StreamJsonParser
             outBuf[outPtr++] = (char) c;
         }
         if (c == '.' || c == 'e' || c == 'E') {
-            return _parseFloatText(outBuf, outPtr, c, negative, intLen);
+            return _parseFloat(outBuf, outPtr, c, negative, intLen);
         }
-
+        
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
+        // As per #105, need separating space between root values; check here
+        if (_parsingContext.inRoot()) {
+            _verifyRootSpace(c);
+        }
 
         // And there we have it!
         return resetInt(negative, intLen);
@@ -1262,7 +1266,7 @@ public final class UTF8StreamJsonParser
             int c = (int) _inputBuffer[_inputPtr++] & 0xFF;
             if (c > INT_9 || c < INT_0) {
                 if (c == '.' || c == 'e' || c == 'E') {
-                    return _parseFloatText(outBuf, outPtr, c, negative, intPartLength);
+                    return _parseFloat(outBuf, outPtr, c, negative, intPartLength);
                 }
                 break;
             }
@@ -1275,6 +1279,10 @@ public final class UTF8StreamJsonParser
         }
         --_inputPtr; // to push back trailing char (comma etc)
         _textBuffer.setCurrentLength(outPtr);
+        // As per #105, need separating space between root values; check here
+        if (_parsingContext.inRoot()) {
+            _verifyRootSpace(_inputBuffer[_inputPtr++] & 0xFF);
+        }
 
         // And there we have it!
         return resetInt(negative, intPartLength);
@@ -1318,7 +1326,7 @@ public final class UTF8StreamJsonParser
         return ch;
     }
     
-    private JsonToken _parseFloatText(char[] outBuf, int outPtr, int c,
+    private JsonToken _parseFloat(char[] outBuf, int outPtr, int c,
             boolean negative, int integerPartLength)
         throws IOException, JsonParseException
     {
@@ -1401,13 +1409,44 @@ public final class UTF8StreamJsonParser
         // Ok; unless we hit end-of-input, need to push last char read back
         if (!eof) {
             --_inputPtr;
+            // As per #105, need separating space between root values; check here
+            if (_parsingContext.inRoot()) {
+                _verifyRootSpace(c);
+            }
         }
         _textBuffer.setCurrentLength(outPtr);
 
         // And there we have it!
         return resetFloat(negative, integerPartLength, fractLen, expLen);
     }
-    
+
+    /**
+     * Method called to ensure that a root-value is followed by a space
+     * token.
+     *<p>
+     * NOTE: caller MUST ensure there is at least one character available;
+     * and that input pointer is AT given char (not past)
+     */
+    private final void _verifyRootSpace(int ch) throws IOException
+    {
+        // caller had pushed it back, before calling; reset
+        ++_inputPtr;
+        // TODO? Handle UTF-8 char decoding for error reporting
+        switch (ch) {
+        case ' ':
+        case '\t':
+            return;
+        case '\r':
+            _skipCR();
+            return;
+        case '\n':
+            ++_currInputRow;
+            _currInputRowStart = _inputPtr;
+            return;
+        }
+        _reportMissingRootWS(ch);
+    }
+
     /*
     /**********************************************************
     /* Internal methods, secondary parsing
@@ -2559,10 +2598,6 @@ public final class UTF8StreamJsonParser
                 }
                 break;
             default: // e.g. -1
-                // Is this good enough error message?
-                if (i < 32) {
-                    _throwInvalidSpace(i);
-                }
                 _reportInvalidChar(i);
             }
         }

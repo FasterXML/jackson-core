@@ -761,17 +761,17 @@ public abstract class ParserBase
                 _numTypesValid = NR_LONG;
                 return;
             }
-            _parseSlowIntValue(expType, buf, offset, len);
+            _parseSlowInt(expType, buf, offset, len);
             return;
         }
         if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
-            _parseSlowFloatValue(expType);
+            _parseSlowFloat(expType);
             return;
         }
         _reportError("Current token ("+_currToken+") not numeric, can not use numeric value accessors");
     }
     
-    private void _parseSlowFloatValue(int expType)
+    private void _parseSlowFloat(int expType)
         throws IOException, JsonParseException
     {
         /* Nope: floating point. Here we need to be careful to get
@@ -796,7 +796,7 @@ public abstract class ParserBase
         }
     }
     
-    private void _parseSlowIntValue(int expType, char[] buf, int offset, int len)
+    private void _parseSlowInt(int expType, char[] buf, int offset, int len)
         throws IOException, JsonParseException
     {
         String numStr = _textBuffer.contentsAsString();

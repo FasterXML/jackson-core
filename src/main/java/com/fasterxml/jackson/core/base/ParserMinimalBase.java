@@ -488,9 +488,12 @@ public abstract class ParserMinimalBase
         _reportError("Unexpected end-of-input"+msg);
     }
 
-    protected void _reportInvalidEOFInValue() throws JsonParseException
-    {
+    protected void _reportInvalidEOFInValue() throws JsonParseException {
         _reportInvalidEOF(" in a value");
+    }
+
+    protected void _reportMissingRootWS(int ch) throws JsonParseException {
+        _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
     
     protected void _throwInvalidSpace(int i)

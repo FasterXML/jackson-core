@@ -945,10 +945,13 @@ public final class ReaderBasedJsonParser
                     reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
                 }
             }
-
             // Got it all: let's add to text buffer for parsing, access
             --ptr; // need to push back following separator
             _inputPtr = ptr;
+            // As per #105, need separating space between root values; check here
+            if (_parsingContext.inRoot()) {
+                _verifyRootSpace(ch);
+            }
             int len = ptr-startPtr;
             _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
             return reset(negative, intLen, fractLen, expLen);
@@ -1078,6 +1081,9 @@ public final class ReaderBasedJsonParser
         // Ok; unless we hit end-of-input, need to push last char read back
         if (!eof) {
             --_inputPtr;
+            if (_parsingContext.inRoot()) {
+                _verifyRootSpace(c);
+            }
         }
         _textBuffer.setCurrentLength(outPtr);
         // And there we have it!
@@ -1152,6 +1158,32 @@ public final class ReaderBasedJsonParser
         return null;
     }
 
+    /**
+     * Method called to ensure that a root-value is followed by a space
+     * token.
+     *<p>
+     * NOTE: caller MUST ensure there is at least one character available;
+     * and that input pointer is AT given char (not past)
+     */
+    private final void _verifyRootSpace(int ch) throws IOException
+    {
+        // caller had pushed it back, before calling; reset
+        ++_inputPtr;
+        switch (ch) {
+        case ' ':
+        case '\t':
+            return;
+        case '\r':
+            _skipCR();
+            return;
+        case '\n':
+            ++_currInputRow;
+            _currInputRowStart = _inputPtr;
+            return;
+        }
+        _reportMissingRootWS(ch);
+    }
+    
     /*
     /**********************************************************
     /* Internal methods, secondary parsing

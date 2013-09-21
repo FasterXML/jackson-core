@@ -120,7 +120,6 @@ public abstract class ParserMinimalBase
         return t;
     }
 
-    @SuppressWarnings("incomplete-switch")
     @Override
     public JsonParser skipChildren() throws IOException, JsonParseException
     {
@@ -143,17 +142,12 @@ public abstract class ParserMinimalBase
                  */
                 return this;
             }
-            switch (t) {
-            case START_OBJECT:
-            case START_ARRAY:
+            if (t.isStructStart()) {
                 ++open;
-                break;
-            case END_OBJECT:
-            case END_ARRAY:
+            } else if (t.isStructEnd()) {
                 if (--open == 0) {
                     return this;
                 }
-                break;
             }
         }
     }
@@ -242,7 +236,6 @@ public abstract class ParserMinimalBase
     /**********************************************************
      */
 
-    @SuppressWarnings("incomplete-switch")
     @Override
     public boolean getValueAsBoolean(boolean defaultValue) throws IOException, JsonParseException
     {
@@ -271,12 +264,12 @@ public abstract class ParserMinimalBase
                     return false;
                 }
                 break;
+            default:
             }
         }
         return defaultValue;
     }
-    
-    @SuppressWarnings("incomplete-switch")
+
     @Override
     public int getValueAsInt(int defaultValue) throws IOException, JsonParseException
     {
@@ -303,6 +296,7 @@ public abstract class ParserMinimalBase
                         return ((Number) value).intValue();
                     }
                 }
+            default:
             }
         }
         return defaultValue;
@@ -340,7 +334,6 @@ public abstract class ParserMinimalBase
         return defaultValue;
     }
 
-    @SuppressWarnings("incomplete-switch")
     @Override
     public double getValueAsDouble(double defaultValue) throws IOException, JsonParseException
     {
@@ -367,6 +360,7 @@ public abstract class ParserMinimalBase
                         return ((Number) value).doubleValue();
                     }
                 }
+            default:
             }
         }
         return defaultValue;

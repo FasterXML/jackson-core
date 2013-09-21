@@ -28,37 +28,37 @@ public enum JsonToken
      * they can not block to wait for more data to parse and
      * must return something.
      */
-    NOT_AVAILABLE(null),
+    NOT_AVAILABLE(null, '?'),
 
     /**
      * START_OBJECT is returned when encountering '{'
      * which signals starting of an Object value.
      */
-    START_OBJECT("{"),
+    START_OBJECT("{", '('),
         
     /**
      * END_OBJECT is returned when encountering '}'
      * which signals ending of an Object value
      */
-    END_OBJECT("}"),
+    END_OBJECT("}", ')'),
         
     /**
      * START_ARRAY is returned when encountering '['
      * which signals starting of an Array value
      */
-    START_ARRAY("["),
+    START_ARRAY("[", '('),
 
     /**
      * END_ARRAY is returned when encountering ']'
      * which signals ending of an Array value
      */
-    END_ARRAY("]"),
+    END_ARRAY("]", ')'),
         
     /**
      * FIELD_NAME is returned when a String token is encountered
      * as a field name (same lexical value, different function)
      */
-    FIELD_NAME(null),
+    FIELD_NAME(null, '?'),
         
     /**
      * Placeholder token returned when the input source has a concept
@@ -70,14 +70,14 @@ public enum JsonToken
      * only by readers that expose other kinds of source (like
      * <code>JsonNode</code>-based JSON trees, Maps, Lists and such).
      */
-    VALUE_EMBEDDED_OBJECT(null),
+    VALUE_EMBEDDED_OBJECT(null, 's'),
 
     /**
      * VALUE_STRING is returned when a String token is encountered
      * in value context (array element, field value, or root-level
      * stand-alone value)
      */
-    VALUE_STRING(null),
+    VALUE_STRING(null, 's'),
 
     /**
      * VALUE_NUMBER_INT is returned when an integer numeric token is
@@ -85,7 +85,7 @@ public enum JsonToken
      * not have floating point or exponent marker in it (consists
      * only of an optional sign, followed by one or more digits)
      */
-    VALUE_NUMBER_INT(null),
+    VALUE_NUMBER_INT(null, 'n'),
 
     /**
      * VALUE_NUMBER_INT is returned when a numeric token other
@@ -93,25 +93,25 @@ public enum JsonToken
      * have floating point or exponent marker in it, in addition
      * to one or more digits.
      */
-    VALUE_NUMBER_FLOAT(null),
+    VALUE_NUMBER_FLOAT(null, 'n'),
 
     /**
      * VALUE_TRUE is returned when encountering literal "true" in
      * value context
      */
-    VALUE_TRUE("true"),
+    VALUE_TRUE("true", 's'),
 
     /**
      * VALUE_FALSE is returned when encountering literal "false" in
      * value context
      */
-    VALUE_FALSE("false"),
+    VALUE_FALSE("false", 's'),
 
     /**
      * VALUE_NULL is returned when encountering literal "null" in
      * value context
      */
-    VALUE_NULL("null")
+    VALUE_NULL("null", 's'),
         ;
 
     final String _serialized;
@@ -120,11 +120,17 @@ public enum JsonToken
 
     final byte[] _serializedBytes;
 
+    final boolean _isStructStart, _isStructEnd;
+
+    final boolean _isScalar;
+
+    final boolean _isNumber;
+    
     /**
      * @param token representation for this token, if there is a
      *   single static representation; null otherwise
      */
-    JsonToken(String token)
+    JsonToken(String token, char typeChar)
     {
         if (token == null) {
             _serialized = null;
@@ -140,6 +146,10 @@ public enum JsonToken
                 _serializedBytes[i] = (byte) _serializedChars[i];
             }
         }
+        _isNumber = (typeChar == 'n');
+        _isStructStart = (typeChar == '(');
+        _isStructEnd = (typeChar == ')');
+        _isScalar = (typeChar == 'n' || typeChar == 's');
     }
 
     public String asString() { return _serialized; }
@@ -147,16 +157,29 @@ public enum JsonToken
     public byte[] asByteArray() { return _serializedBytes; }
 
     public boolean isNumeric() {
-        return (this == VALUE_NUMBER_INT) || (this == VALUE_NUMBER_FLOAT);
+        return _isNumber;
     }
 
+    /**
+     * @since 2.3
+     */
+    public boolean isStructStart() {
+        return _isStructStart;
+    }
+
+    /**
+     * @since 2.3
+     */
+    public boolean isStructEnd() {
+        return _isStructEnd;
+    }
+    
     /**
      * Method that can be used to check whether this token represents
      * a valid non-structured value. This means all tokens other than
      * Object/Array start/end markers all field names.
      */
     public boolean isScalarValue() {
-        // note: up to 1.5, VALUE_EMBEDDED_OBJECT was incorrectly considered non-scalar!
-        return ordinal() >= VALUE_EMBEDDED_OBJECT.ordinal();
+        return _isScalar;
     }
 }

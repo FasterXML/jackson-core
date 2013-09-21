@@ -17,6 +17,7 @@ New minor version.
   current field name
  (reported by Sam R)
 #98: Improve handling of failures for `BigDecimal`, for "NaN" (and infinity)
+#102: Unquoted field names can not start with a digit
 #103: Add `JsonFactory.canHandleBinaryNatively`, `JsonGenerator.canWriteBinaryNatively`
  to let databind module detect level of support for binary data.
 #105: Parser parsers numbers eagerly; does not report error with missing space

@@ -7,12 +7,14 @@ public class TestParserNonStandard
 {
     // // // And then tests to verify [JACKSON-69]:
 
-    public void testSimpleUnquoted() throws Exception
-    {
-        _testSimpleUnquoted(false);
+    public void testSimpleUnquotedBytes() throws Exception {
         _testSimpleUnquoted(true);
     }
 
+    public void testSimpleUnquotedChars() throws Exception {
+        _testSimpleUnquoted(false);
+    }
+    
     public void testLargeUnquoted() throws Exception
     {
         _testLargeUnquoted(false);
@@ -117,9 +119,10 @@ public class TestParserNonStandard
     
     private void _testSimpleUnquoted(boolean useStream) throws Exception
     {
-        final String JSON = "{ a : 1, _foo:true, $:\"money!\", \" \":null }";
-        JsonFactory f = new JsonFactory();
+        final JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+
+        String JSON = "{ a : 1, _foo:true, $:\"money!\", \" \":null }";
         JsonParser jp = useStream ?
             createParserUsingStream(f, JSON, "UTF-8")
             : createParserUsingReader(f, JSON)
@@ -142,6 +145,25 @@ public class TestParserNonStandard
         assertEquals(" ", jp.getCurrentName());
 
         assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
+
+        // Another thing, as per [Issue#102]: numbers
+
+        JSON = "{ 123:true,4:false }";
+        jp = useStream ?
+            createParserUsingStream(f, JSON, "UTF-8")
+            : createParserUsingReader(f, JSON)
+        ;
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("123", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("4", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_FALSE, jp.nextToken());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.close();

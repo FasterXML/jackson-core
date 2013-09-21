@@ -1304,8 +1304,8 @@ public final class ReaderBasedJsonParser
         // Also: first char must be a valid name char, but NOT be number
         boolean firstOk;
 
-        if (i < maxCode) { // identifier, and not a number
-            firstOk = (codes[i] == 0) && (i < INT_0 || i > INT_9);
+        if (i < maxCode) { // identifier, or a number ([Issue#102])
+            firstOk = (codes[i] == 0);
         } else {
             firstOk = Character.isJavaIdentifierPart((char) i);
         }

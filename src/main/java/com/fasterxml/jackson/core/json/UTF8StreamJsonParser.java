@@ -669,7 +669,7 @@ public final class UTF8StreamJsonParser
             return _nextTokenNotInObject(i);
         }
         // So first parse the field name itself:
-        Name n = _parseFieldName(i);
+        Name n = _parseName(i);
         _parsingContext.setCurrentName(n.getName());
         _currToken = JsonToken.FIELD_NAME;
 
@@ -984,7 +984,7 @@ public final class UTF8StreamJsonParser
     {
         // // // and this is back to standard nextToken()
             
-        Name n = _parseFieldName(i);
+        Name n = _parseName(i);
         final boolean match;
         {
             String nameStr = n.getName();
@@ -1453,8 +1453,7 @@ public final class UTF8StreamJsonParser
     /**********************************************************
      */
     
-    protected Name _parseFieldName(int i)
-        throws IOException, JsonParseException
+    protected Name _parseName(int i) throws IOException
     {
         if (i != INT_QUOTE) {
             return _handleOddName(i);
@@ -1516,8 +1515,7 @@ public final class UTF8StreamJsonParser
         return parseName(0, q, 0); // quoting or invalid char
     }
 
-    protected Name parseMediumName(int q2, final int[] codes)
-        throws IOException, JsonParseException
+    protected Name parseMediumName(int q2, final int[] codes) throws IOException
     {
         // Ok, got 5 name bytes so far
         int i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -1556,8 +1554,7 @@ public final class UTF8StreamJsonParser
         return parseLongName(i);
     }
 
-    protected Name parseLongName(int q)
-        throws IOException, JsonParseException
+    protected Name parseLongName(int q) throws IOException
     {
         // As explained above, will ignore UTF-8 encoding at this point
         final int[] codes = _icLatin1;
@@ -1622,8 +1619,7 @@ public final class UTF8StreamJsonParser
      * to come consequtively. Happens rarely, so this is offlined;
      * plus we'll also do full checks for escaping etc.
      */
-    protected Name slowParseName()
-        throws IOException, JsonParseException
+    protected Name slowParseName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {
@@ -1637,14 +1633,12 @@ public final class UTF8StreamJsonParser
         return parseEscapedName(_quadBuffer, 0, 0, i, 0);
     }
 
-    private Name parseName(int q1, int ch, int lastQuadBytes)
-        throws IOException, JsonParseException
+    private Name parseName(int q1, int ch, int lastQuadBytes) throws IOException
     {
         return parseEscapedName(_quadBuffer, 0, q1, ch, lastQuadBytes);
     }
 
-    private Name parseName(int q1, int q2, int ch, int lastQuadBytes)
-        throws IOException, JsonParseException
+    private Name parseName(int q1, int q2, int ch, int lastQuadBytes) throws IOException
     {
         _quadBuffer[0] = q1;
         return parseEscapedName(_quadBuffer, 1, q2, ch, lastQuadBytes);
@@ -1658,8 +1652,7 @@ public final class UTF8StreamJsonParser
      * slower, and hance is offlined to a separate method.
      */
     protected Name parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
-            int currQuadBytes)
-        throws IOException, JsonParseException
+            int currQuadBytes) throws IOException
     {
         /* 25-Nov-2008, tatu: This may seem weird, but here we do
          *   NOT want to worry about UTF-8 decoding. Rather, we'll
@@ -1758,8 +1751,7 @@ public final class UTF8StreamJsonParser
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      */
-    protected Name _handleOddName(int ch)
-        throws IOException, JsonParseException
+    protected Name _handleOddName(int ch) throws IOException
     {
         // [JACKSON-173]: allow single quotes
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
@@ -1831,8 +1823,7 @@ public final class UTF8StreamJsonParser
      * for valid JSON -- more alternatives, more code, generally
      * bit slower execution.
      */
-    protected Name _parseAposName()
-        throws IOException, JsonParseException
+    protected Name _parseAposName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {

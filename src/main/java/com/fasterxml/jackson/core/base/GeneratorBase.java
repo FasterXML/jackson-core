@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -346,27 +347,27 @@ public abstract class GeneratorBase
             }
             break;
         case VALUE_NUMBER_INT:
-            switch (jp.getNumberType()) {
-            case INT:
-                writeNumber(jp.getIntValue());
-                break;
-            case BIG_INTEGER:
-                writeNumber(jp.getBigIntegerValue());
-                break;
-            default:
-                writeNumber(jp.getLongValue());
+            {
+                NumberType n = jp.getNumberType();
+                if (n == NumberType.INT) {
+                    writeNumber(jp.getIntValue());
+                } else if (n == NumberType.BIG_INTEGER) {
+                    writeNumber(jp.getBigIntegerValue());
+                } else {
+                    writeNumber(jp.getLongValue());
+                }
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            switch (jp.getNumberType()) {
-            case BIG_DECIMAL:
-                writeNumber(jp.getDecimalValue());
-                break;
-            case FLOAT:
-                writeNumber(jp.getFloatValue());
-                break;
-            default:
-                writeNumber(jp.getDoubleValue());
+            {
+                NumberType n = jp.getNumberType();
+                if (n == NumberType.BIG_DECIMAL) {
+                    writeNumber(jp.getDecimalValue());
+                } else if (n == NumberType.FLOAT) {
+                    writeNumber(jp.getFloatValue());
+                } else {
+                    writeNumber(jp.getDoubleValue());
+                }
             }
             break;
         case VALUE_TRUE:
@@ -391,34 +392,29 @@ public abstract class GeneratorBase
         throws IOException, JsonProcessingException
     {
         JsonToken t = jp.getCurrentToken();
-
         // Let's handle field-name separately first
         if (t == JsonToken.FIELD_NAME) {
             writeFieldName(jp.getCurrentName());
             t = jp.nextToken();
             // fall-through to copy the associated value
         }
-
-        switch (t) {
-        case START_ARRAY:
-            writeStartArray();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(jp);
-            }
-            writeEndArray();
-            break;
-        case START_OBJECT:
+        if (t == JsonToken.START_OBJECT) {
             writeStartObject();
             while (jp.nextToken() != JsonToken.END_OBJECT) {
                 copyCurrentStructure(jp);
             }
             writeEndObject();
-            break;
-        default: // others are simple:
+        } else if (t == JsonToken.START_ARRAY) {
+            writeStartArray();
+            while (jp.nextToken() != JsonToken.END_ARRAY) {
+                copyCurrentStructure(jp);
+            }
+            writeEndArray();
+        } else {
             copyCurrentEvent(jp);
         }
     }
-
+    
     /*
     /**********************************************************
     /* Package methods for this, sub-classes

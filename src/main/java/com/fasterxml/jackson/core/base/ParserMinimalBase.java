@@ -239,8 +239,9 @@ public abstract class ParserMinimalBase
     @Override
     public boolean getValueAsBoolean(boolean defaultValue) throws IOException, JsonParseException
     {
-        if (_currToken != null) {
-            switch (_currToken) {
+        JsonToken t = _currToken;
+        if (t != null) {
+            switch (t) {
             case VALUE_NUMBER_INT:
                 return getIntValue() != 0;
             case VALUE_TRUE:
@@ -273,8 +274,9 @@ public abstract class ParserMinimalBase
     @Override
     public int getValueAsInt(int defaultValue) throws IOException, JsonParseException
     {
-        if (_currToken != null) {
-            switch (_currToken) {
+        JsonToken t = _currToken;
+        if (t != null) {
+            switch (t) {
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
                 return getIntValue();
@@ -305,8 +307,9 @@ public abstract class ParserMinimalBase
     @Override
     public long getValueAsLong(long defaultValue) throws IOException, JsonParseException
     {
-        if (_currToken != null) {
-            switch (_currToken) {
+        JsonToken t = _currToken;
+        if (t != null) {
+            switch (t) {
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
                 return getLongValue();
@@ -337,8 +340,9 @@ public abstract class ParserMinimalBase
     @Override
     public double getValueAsDouble(double defaultValue) throws IOException, JsonParseException
     {
-        if (_currToken != null) {
-            switch (_currToken) {
+        JsonToken t = _currToken;
+        if (t != null) {
+            switch (t) {
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
                 return getDoubleValue();

@@ -16,21 +16,24 @@ package com.fasterxml.jackson.core;
  * {@link java.io.Writer} instances as input
  */
 public enum JsonEncoding {
-    UTF8("UTF-8", false), // N/A for big-endian, really
-        UTF16_BE("UTF-16BE", true),
-        UTF16_LE("UTF-16LE", false),
-        UTF32_BE("UTF-32BE", true),
-        UTF32_LE("UTF-32LE", false)
+    UTF8("UTF-8", false, 8), // N/A for big-endian, really
+        UTF16_BE("UTF-16BE", true, 16),
+        UTF16_LE("UTF-16LE", false, 16),
+        UTF32_BE("UTF-32BE", true, 32),
+        UTF32_LE("UTF-32LE", false, 32)
         ;
     
     protected final String _javaName;
 
     protected final boolean _bigEndian;
+
+    protected final int _bits;
     
-    JsonEncoding(String javaName, boolean bigEndian)
+    JsonEncoding(String javaName, boolean bigEndian, int bits)
     {
         _javaName = javaName;
         _bigEndian = bigEndian;
+        _bits = bits;
     }
 
     /**
@@ -49,4 +52,6 @@ public enum JsonEncoding {
      *   (or if not applicable)
      */
     public boolean isBigEndian() { return _bigEndian; }
+
+    public int bits() { return _bits; }
 }

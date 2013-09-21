@@ -190,15 +190,9 @@ public final class ByteSourceJsonBootstrapper
         throws IOException
     {
         JsonEncoding enc = _context.getEncoding();
-        switch (enc) { 
-        case UTF32_BE:
-        case UTF32_LE:
-            return new UTF32Reader(_context, _in, _inputBuffer, _inputPtr, _inputEnd,
-                                   _context.getEncoding().isBigEndian());
-
-        case UTF16_BE:
-        case UTF16_LE:
-        case UTF8: // only in non-common case where we don't want to do direct mapping
+        switch (enc.bits()) {
+        case 8: // only in non-common case where we don't want to do direct mapping
+        case 16:
             {
                 // First: do we have a Stream? If not, need to create one:
                 InputStream in = _in;
@@ -215,6 +209,9 @@ public final class ByteSourceJsonBootstrapper
                 }
                 return new InputStreamReader(in, enc.getJavaName());
             }
+        case 32:
+            return new UTF32Reader(_context, _in, _inputBuffer, _inputPtr, _inputEnd,
+                    _context.getEncoding().isBigEndian());
         }
         throw new RuntimeException("Internal error"); // should never get here
     }
@@ -222,7 +219,7 @@ public final class ByteSourceJsonBootstrapper
     public JsonParser constructParser(int parserFeatures, ObjectCodec codec,
             BytesToNameCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols,
             boolean canonicalize, boolean intern)
-        throws IOException, JsonParseException
+        throws IOException
     {
         JsonEncoding enc = detectEncoding();
 

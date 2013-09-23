@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
+@SuppressWarnings("resource")
 public class TestNumericValues
     extends com.fasterxml.jackson.test.BaseTest
 {
@@ -264,7 +265,6 @@ public class TestNumericValues
         }
     }
 
-    @SuppressWarnings("resource")
     public void testLongOverflow() throws Exception
     {
         BigInteger below = BigInteger.valueOf(Long.MIN_VALUE);

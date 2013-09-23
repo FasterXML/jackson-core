@@ -13,8 +13,8 @@ public class TestJsonGenerator
 {
     // // // First, tests for primitive (non-structured) values
 
-    public void testStringWrite()
-        throws Exception
+    @SuppressWarnings("resource")
+    public void testStringWrite() throws Exception
     {
         JsonFactory jf = new JsonFactory();
         String[] inputStrings = new String[] { "", "X", "1234567890" };

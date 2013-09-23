@@ -3,9 +3,7 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-/**
- * @since 1.6
- */
+@SuppressWarnings("resource")
 public class TestValueConversions
     extends com.fasterxml.jackson.test.BaseTest
 {
@@ -97,7 +95,7 @@ public class TestValueConversions
             jp.close();
         }     
     }
-    
+
     public void testAsLong() throws Exception
     {
         final String input = "[ 1, -3, 4.98, true, false, null, \"-17\", \"foo\" ]";
@@ -106,7 +104,7 @@ public class TestValueConversions
             if (i == 0) {
                 jp = createParserUsingReader(input);                
             } else {
-                jp = this.createParserUsingStream(input, "UTF-8");
+                jp = createParserUsingStream(input, "UTF-8");
             }
             assertToken(JsonToken.START_ARRAY, jp.nextToken());
             assertEquals(0L, jp.getValueAsLong());

@@ -661,6 +661,21 @@ public abstract class JsonParser
     public abstract JsonToken getCurrentToken();
 
     /**
+     * Method similar to {@link #getCurrentToken()} but that returns an
+     * <code>int</code> instead of {@link JsonToken} (enum value).
+     *<p>
+     * Use of int directly is typically more efficient on switch statements,
+     * so this method may be useful when building low-overhead codecs.
+     * Note, however, that effect may not be big enough to matter: make sure
+     * to profile performance before deciding to use this method.
+     * 
+     * @since 2.3
+     * 
+     * @return <code>int</code> matching one of constants from {@link JsonTokenId}.
+     */
+    public abstract int getCurrentTokenId();
+    
+    /**
      * Method for checking whether parser currently points to
      * a token (and data for that token is available).
      * Equivalent to check for <code>parser.getCurrentToken() != null</code>.

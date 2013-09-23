@@ -467,8 +467,8 @@ public class TestJsonParser
         doTestSpecIndividual("UTF-32", verify);
     }
 
-    private void doTestSpecIndividual(String enc, boolean verify)
-        throws IOException
+    @SuppressWarnings("resource")
+    private void doTestSpecIndividual(String enc, boolean verify) throws IOException
     {
         String doc = SAMPLE_DOC_JSON_SPEC;
         JsonParser jp;

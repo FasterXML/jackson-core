@@ -102,6 +102,12 @@ public abstract class ParserMinimalBase
     }
 
     @Override
+    public final int getCurrentTokenId() {
+        final JsonToken t = _currToken;
+        return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
+    }
+    
+    @Override
     public boolean hasCurrentToken() {
         return _currToken != null;
     }

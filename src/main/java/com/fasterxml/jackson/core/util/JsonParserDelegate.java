@@ -133,6 +133,11 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
+    public int getCurrentTokenId() {
+        return delegate.getCurrentTokenId();
+    }
+    
+    @Override
     public boolean hasCurrentToken() {
         return delegate.hasCurrentToken();
     }

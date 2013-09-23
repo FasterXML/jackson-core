@@ -97,6 +97,7 @@ public class TestBase64Parsing
         return result;
     }
 
+    @SuppressWarnings("resource")
     private void _testStreaming(boolean useBytes) throws IOException
     {
         final int[] SIZES = new int[] {

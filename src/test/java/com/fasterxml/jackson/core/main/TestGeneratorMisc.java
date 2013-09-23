@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
  * Set of basic unit tests for verifying basic generator
  * features.
  */
+@SuppressWarnings("resource")
 public class TestGeneratorMisc
     extends com.fasterxml.jackson.test.BaseTest
 {

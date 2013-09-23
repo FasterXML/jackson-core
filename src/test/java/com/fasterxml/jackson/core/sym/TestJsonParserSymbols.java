@@ -88,6 +88,7 @@ public class TestJsonParserSymbols
         assertEquals(2, useBytes ? f.byteSymbolCount() : f.charSymbolCount());
     }
 
+    @SuppressWarnings("resource")
     private JsonParser _getParser(MyJsonFactory f, String doc, boolean useBytes) throws IOException
     {
         JsonParser jp;

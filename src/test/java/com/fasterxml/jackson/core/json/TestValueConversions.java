@@ -83,7 +83,7 @@ public class TestValueConversions
             assertEquals(0, jp.getIntValue());
             assertEquals(false, jp.getValueAsBoolean());
 
-            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+            assertToken(JsonToken.VALUE_STRING, jp.nextToken()); // "true"
             assertEquals(true, jp.getValueAsBoolean());
             assertToken(JsonToken.VALUE_STRING, jp.nextToken());
             assertEquals(false, jp.getValueAsBoolean());

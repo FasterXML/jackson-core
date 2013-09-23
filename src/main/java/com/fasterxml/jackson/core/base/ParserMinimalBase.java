@@ -47,7 +47,6 @@ public abstract class ParserMinimalBase
      * Last token retrieved via {@link #nextToken}, if any.
      * Null before the first call to <code>nextToken()</code>,
      * as well as if token has been explicitly cleared
-     * (by call to {@link #clearCurrentToken})
      */
     protected JsonToken _currToken;
 
@@ -241,31 +240,28 @@ public abstract class ParserMinimalBase
     {
         JsonToken t = _currToken;
         if (t != null) {
-            switch (t) {
-            case VALUE_NUMBER_INT:
+            if (t.isBoolean()) {
+                return (t == JsonToken.VALUE_TRUE);
+            }
+            if (t == JsonToken.VALUE_NUMBER_INT) {
                 return getIntValue() != 0;
-            case VALUE_TRUE:
-                return true;
-            case VALUE_FALSE:
-            case VALUE_NULL:
-                return false;
-            case VALUE_EMBEDDED_OBJECT:
-                {
-                    Object value = this.getEmbeddedObject();
-                    if (value instanceof Boolean) {
-                        return (Boolean) value;
-                    }
+            }
+            if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+                Object value = this.getEmbeddedObject();
+                if (value instanceof Boolean) {
+                    return (Boolean) value;
                 }
-            case VALUE_STRING:
+            } else if (t == JsonToken.VALUE_STRING) {
                 String str = getText().trim();
                 if ("true".equals(str)) {
                     return true;
                 }
+                if ("false".equals(str)) {
+                    return false;
+                }
                 if (_hasTextualNull(str)) {
                     return false;
                 }
-                break;
-            default:
             }
         }
         return defaultValue;
@@ -276,29 +272,27 @@ public abstract class ParserMinimalBase
     {
         JsonToken t = _currToken;
         if (t != null) {
-            switch (t) {
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            if (t.isNumeric()) {
                 return getIntValue();
-            case VALUE_TRUE:
-                return 1;
-            case VALUE_FALSE:
-            case VALUE_NULL:
+            }
+            if (t.isBoolean()) {
+                return (t == JsonToken.VALUE_TRUE) ? 1 : 0;
+            }
+            if (t.isNull()) {
                 return 0;
-            case VALUE_STRING:
+            }
+            if (t == JsonToken.VALUE_STRING) {
                 String str = getText();
                 if (_hasTextualNull(str)) {
                     return 0;
                 }
                 return NumberInput.parseAsInt(str, defaultValue);
-            case VALUE_EMBEDDED_OBJECT:
-                {
-                    Object value = this.getEmbeddedObject();
-                    if (value instanceof Number) {
-                        return ((Number) value).intValue();
-                    }
+            }
+            if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+                Object value = this.getEmbeddedObject();
+                if (value instanceof Number) {
+                    return ((Number) value).intValue();
                 }
-            default:
             }
         }
         return defaultValue;
@@ -309,29 +303,27 @@ public abstract class ParserMinimalBase
     {
         JsonToken t = _currToken;
         if (t != null) {
-            switch (t) {
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            if (t.isNumeric()) {
                 return getLongValue();
-            case VALUE_TRUE:
-                return 1;
-            case VALUE_FALSE:
-            case VALUE_NULL:
-                return 0;
-            case VALUE_STRING:
+            }
+            if (t.isBoolean()) {
+                return (t == JsonToken.VALUE_TRUE) ? 1L : 0L;
+            }
+            if (t.isNull()) {
+                return 0L;
+            }
+            if (t == JsonToken.VALUE_STRING) {
                 String str = getText();
                 if (_hasTextualNull(str)) {
-                    return 0L;
+                    return 0;
                 }
                 return NumberInput.parseAsLong(str, defaultValue);
-            case VALUE_EMBEDDED_OBJECT:
-                {
-                    Object value = this.getEmbeddedObject();
-                    if (value instanceof Number) {
-                        return ((Number) value).longValue();
-                    }
+            }
+            if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+                Object value = this.getEmbeddedObject();
+                if (value instanceof Number) {
+                    return ((Number) value).longValue();
                 }
-            default:
             }
         }
         return defaultValue;
@@ -342,29 +334,27 @@ public abstract class ParserMinimalBase
     {
         JsonToken t = _currToken;
         if (t != null) {
-            switch (t) {
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            if (t.isNumeric()) {
                 return getDoubleValue();
-            case VALUE_TRUE:
-                return 1;
-            case VALUE_FALSE:
-            case VALUE_NULL:
-                return 0;
-            case VALUE_STRING:
+            }
+            if (t.isBoolean()) {
+                return (t == JsonToken.VALUE_TRUE) ? 1.0 : 0.0;
+            }
+            if (t.isNull()) {
+                return 0L;
+            }
+            if (t == JsonToken.VALUE_STRING) {
                 String str = getText();
                 if (_hasTextualNull(str)) {
                     return 0;
                 }
                 return NumberInput.parseAsDouble(str, defaultValue);
-            case VALUE_EMBEDDED_OBJECT:
-                {
-                    Object value = this.getEmbeddedObject();
-                    if (value instanceof Number) {
-                        return ((Number) value).doubleValue();
-                    }
+            }
+            if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
+                Object value = this.getEmbeddedObject();
+                if (value instanceof Number) {
+                    return ((Number) value).doubleValue();
                 }
-            default:
             }
         }
         return defaultValue;

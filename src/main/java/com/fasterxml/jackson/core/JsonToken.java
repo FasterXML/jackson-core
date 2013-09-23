@@ -99,19 +99,19 @@ public enum JsonToken
      * VALUE_TRUE is returned when encountering literal "true" in
      * value context
      */
-    VALUE_TRUE("true", 's'),
+    VALUE_TRUE("true", 'b'),
 
     /**
      * VALUE_FALSE is returned when encountering literal "false" in
      * value context
      */
-    VALUE_FALSE("false", 's'),
+    VALUE_FALSE("false", 'b'),
 
     /**
      * VALUE_NULL is returned when encountering literal "null" in
      * value context
      */
-    VALUE_NULL("null", 's'),
+    VALUE_NULL("null", '0'),
         ;
 
     final String _serialized;
@@ -122,10 +122,14 @@ public enum JsonToken
 
     final boolean _isStructStart, _isStructEnd;
 
-    final boolean _isScalar;
+    final boolean _isNull;
 
     final boolean _isNumber;
-    
+
+    final boolean _isBoolean;
+
+    final boolean _isScalar;
+
     /**
      * @param token representation for this token, if there is a
      *   single static representation; null otherwise
@@ -146,10 +150,13 @@ public enum JsonToken
                 _serializedBytes[i] = (byte) _serializedChars[i];
             }
         }
+        _isBoolean = (typeChar == 'b');
+        _isNull = (typeChar == '0');
         _isNumber = (typeChar == 'n');
+        _isScalar = "bns0".indexOf(typeChar) >= 0;
+
         _isStructStart = (typeChar == '(');
         _isStructEnd = (typeChar == ')');
-        _isScalar = (typeChar == 'n' || typeChar == 's');
     }
 
     public String asString() { return _serialized; }
@@ -181,5 +188,13 @@ public enum JsonToken
      */
     public boolean isScalarValue() {
         return _isScalar;
+    }
+
+    public boolean isBoolean() {
+        return _isBoolean;
+    }
+
+    public boolean isNull() {
+        return _isNull;
     }
 }

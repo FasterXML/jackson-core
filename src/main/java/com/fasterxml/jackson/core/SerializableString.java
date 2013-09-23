@@ -15,6 +15,9 @@ import java.nio.ByteBuffer;
  * Typically implementations store possible serialized version(s) so that
  * serialization of String can be done more efficiently, especially when
  * used multiple times.
+ *<p>
+ * Note that "quoted" in methods means quoting of 'special' characters using
+ * JSON backlash notation (and not use of actual double quotes).
  * 
  * @see com.fasterxml.jackson.core.io.SerializedString
  */
@@ -35,7 +38,6 @@ public interface SerializableString
      */
     int charLength();
 
-    
     /*
     /**********************************************************
     /* Accessors for byte sequences
@@ -43,8 +45,8 @@ public interface SerializableString
      */
     
     /**
-     * Returns JSON quoted form of the String, as character array. Result
-     * can be embedded as-is in textual JSON as property name or JSON String.
+     * Returns JSON quoted form of the String, as character array.
+     * Result can be embedded as-is in textual JSON as property name or JSON String.
      */
     char[] asQuotedChars();
 

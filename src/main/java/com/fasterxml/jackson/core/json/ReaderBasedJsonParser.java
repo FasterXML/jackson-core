@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.*;
 
+import static com.fasterxml.jackson.core.JsonTokenId.*;
+
 /**
  * This is a concrete implementation of {@link JsonParser}, which is
  * based on a {@link java.io.Reader} to handle low-level character
@@ -245,21 +247,20 @@ public final class ReaderBasedJsonParser
         }
         return super.getValueAsString(defValue);
     }
-    
-    
+
     protected String _getText2(JsonToken t)
     {
         if (t == null) {
             return null;
         }
-        switch (t) {
-        case FIELD_NAME:
+        switch (t.id()) {
+        case ID_FIELD_NAME:
             return _parsingContext.getCurrentName();
 
-        case VALUE_STRING:
+        case ID_STRING:
             // fall through
-        case VALUE_NUMBER_INT:
-        case VALUE_NUMBER_FLOAT:
+        case ID_NUMBER_INT:
+        case ID_NUMBER_FLOAT:
             return _textBuffer.contentsAsString();
         default:
             return t.asString();
@@ -271,9 +272,8 @@ public final class ReaderBasedJsonParser
         throws IOException, JsonParseException
     {
         if (_currToken != null) { // null only before/after document
-            switch (_currToken) {
-                
-            case FIELD_NAME:
+            switch (_currToken.id()) {
+            case ID_FIELD_NAME:
                 if (!_nameCopied) {
                     String name = _parsingContext.getCurrentName();
                     int nameLen = name.length();
@@ -287,14 +287,14 @@ public final class ReaderBasedJsonParser
                 }
                 return _nameCopyBuffer;
     
-            case VALUE_STRING:
+            case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
                     _finishString(); // only strings can be incomplete
                 }
                 // fall through
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
                 return _textBuffer.getTextBuffer();
                 
             default:
@@ -309,18 +309,18 @@ public final class ReaderBasedJsonParser
         throws IOException, JsonParseException
     {
         if (_currToken != null) { // null only before/after document
-            switch (_currToken) {
+            switch (_currToken.id()) {
                 
-            case FIELD_NAME:
+            case ID_FIELD_NAME:
                 return _parsingContext.getCurrentName().length();
-            case VALUE_STRING:
+            case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
                     _finishString(); // only strings can be incomplete
                 }
                 // fall through
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
                 return _textBuffer.size();
                 
             default:
@@ -335,17 +335,17 @@ public final class ReaderBasedJsonParser
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
-            switch (_currToken) {
-            case FIELD_NAME:
+            switch (_currToken.id()) {
+            case ID_FIELD_NAME:
                 return 0;
-            case VALUE_STRING:
+            case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
                     _finishString(); // only strings can be incomplete
                 }
                 // fall through
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
                 return _textBuffer.getTextOffset();
             default:
             }
@@ -782,7 +782,7 @@ public final class ReaderBasedJsonParser
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
     }
 
-    // note: identical to one in Utf8StreamParser
+    // note: identical to one in UTF8StreamJsonParser
     @Override
     public Boolean nextBooleanValue()
         throws IOException, JsonParseException
@@ -805,14 +805,13 @@ public final class ReaderBasedJsonParser
             }
             return null;
         }
-        switch (nextToken()) {
-        case VALUE_TRUE:
-            return Boolean.TRUE;
-        case VALUE_FALSE:
-            return Boolean.FALSE;
-        default:
-        	return null;
+        JsonToken t = nextToken();
+        if (t != null) {
+            int id = t.id();
+            if (id == ID_TRUE) return Boolean.TRUE;
+            if (id == ID_FALSE) return Boolean.FALSE;
         }
+        return null;
     }
     
     @Override

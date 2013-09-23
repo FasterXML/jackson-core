@@ -15,9 +15,7 @@ import com.fasterxml.jackson.core.util.TextBuffer;
 /**
  * Intermediate base class used by all Jackson {@link JsonParser}
  * implementations. Contains most common things that are independent
- * of actual underlying input source
- *
- * @author Tatu Saloranta
+ * of actual underlying input source.
  */
 public abstract class ParserBase
     extends ParserMinimalBase

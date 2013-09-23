@@ -13,6 +13,8 @@ import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
+import static com.fasterxml.jackson.core.JsonTokenId.*;
+
 /**
  * This base class implements part of API that a JSON generator exposes
  * to applications, adds shared internal methods that sub-classes
@@ -323,63 +325,65 @@ public abstract class GeneratorBase
         if (t == null) {
             _reportError("No current event to copy");
         }
-        switch(t) {
-        case START_OBJECT:
+        switch (t.id()) {
+        case ID_NOT_AVAILABLE:
+            _reportError("No current event to copy");
+        case ID_START_OBJECT:
             writeStartObject();
             break;
-        case END_OBJECT:
+        case ID_END_OBJECT:
             writeEndObject();
             break;
-        case START_ARRAY:
+        case ID_START_ARRAY:
             writeStartArray();
             break;
-        case END_ARRAY:
+        case ID_END_ARRAY:
             writeEndArray();
             break;
-        case FIELD_NAME:
+        case ID_FIELD_NAME:
             writeFieldName(jp.getCurrentName());
             break;
-        case VALUE_STRING:
+        case ID_STRING:
             if (jp.hasTextCharacters()) {
                 writeString(jp.getTextCharacters(), jp.getTextOffset(), jp.getTextLength());
             } else {
                 writeString(jp.getText());
             }
             break;
-        case VALUE_NUMBER_INT:
-            {
-                NumberType n = jp.getNumberType();
-                if (n == NumberType.INT) {
-                    writeNumber(jp.getIntValue());
-                } else if (n == NumberType.BIG_INTEGER) {
-                    writeNumber(jp.getBigIntegerValue());
-                } else {
-                    writeNumber(jp.getLongValue());
-                }
+        case ID_NUMBER_INT:
+        {
+            NumberType n = jp.getNumberType();
+            if (n == NumberType.INT) {
+                writeNumber(jp.getIntValue());
+            } else if (n == NumberType.BIG_INTEGER) {
+                writeNumber(jp.getBigIntegerValue());
+            } else {
+                writeNumber(jp.getLongValue());
             }
             break;
-        case VALUE_NUMBER_FLOAT:
-            {
-                NumberType n = jp.getNumberType();
-                if (n == NumberType.BIG_DECIMAL) {
-                    writeNumber(jp.getDecimalValue());
-                } else if (n == NumberType.FLOAT) {
-                    writeNumber(jp.getFloatValue());
-                } else {
-                    writeNumber(jp.getDoubleValue());
-                }
+        }
+        case ID_NUMBER_FLOAT:
+        {
+            NumberType n = jp.getNumberType();
+            if (n == NumberType.BIG_DECIMAL) {
+                writeNumber(jp.getDecimalValue());
+            } else if (n == NumberType.FLOAT) {
+                writeNumber(jp.getFloatValue());
+            } else {
+                writeNumber(jp.getDoubleValue());
             }
             break;
-        case VALUE_TRUE:
+        }
+        case ID_TRUE:
             writeBoolean(true);
             break;
-        case VALUE_FALSE:
+        case ID_FALSE:
             writeBoolean(false);
             break;
-        case VALUE_NULL:
+        case ID_NULL:
             writeNull();
             break;
-        case VALUE_EMBEDDED_OBJECT:
+        case ID_EMBEDDED_OBJECT:
             writeObject(jp.getEmbeddedObject());
             break;
         default:
@@ -392,25 +396,33 @@ public abstract class GeneratorBase
         throws IOException, JsonProcessingException
     {
         JsonToken t = jp.getCurrentToken();
+        if (t == null) {
+            _reportError("No current event to copy");
+        }
         // Let's handle field-name separately first
-        if (t == JsonToken.FIELD_NAME) {
+        int id = t.id();
+        if (id == ID_FIELD_NAME) {
             writeFieldName(jp.getCurrentName());
             t = jp.nextToken();
+            id = t.id();
             // fall-through to copy the associated value
         }
-        if (t == JsonToken.START_OBJECT) {
+        switch (id) {
+        case ID_START_OBJECT:
             writeStartObject();
             while (jp.nextToken() != JsonToken.END_OBJECT) {
                 copyCurrentStructure(jp);
             }
             writeEndObject();
-        } else if (t == JsonToken.START_ARRAY) {
+            break;
+        case ID_START_ARRAY:
             writeStartArray();
             while (jp.nextToken() != JsonToken.END_ARRAY) {
                 copyCurrentStructure(jp);
             }
             writeEndArray();
-        } else {
+            break;
+        default:
             copyCurrentEvent(jp);
         }
     }

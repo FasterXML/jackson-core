@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.*;
 import com.fasterxml.jackson.core.util.*;
 
+import static com.fasterxml.jackson.core.JsonTokenId.*;
+
 /**
  * This is a concrete implementation of {@link JsonParser}, which is
  * based on a {@link java.io.InputStream} as the input source.
@@ -312,14 +314,14 @@ public final class UTF8StreamJsonParser
         if (t == null) {
             return null;
         }
-        switch (t) {
-        case FIELD_NAME:
+        switch (t.id()) {
+        case ID_FIELD_NAME:
             return _parsingContext.getCurrentName();
 
-        case VALUE_STRING:
+        case ID_STRING:
             // fall through
-        case VALUE_NUMBER_INT:
-        case VALUE_NUMBER_FLOAT:
+        case ID_NUMBER_INT:
+        case ID_NUMBER_FLOAT:
             return _textBuffer.contentsAsString();
         default:
         	return t.asString();
@@ -331,9 +333,9 @@ public final class UTF8StreamJsonParser
         throws IOException, JsonParseException
     {
         if (_currToken != null) { // null only before/after document
-            switch (_currToken) {
+            switch (_currToken.id()) {
                 
-            case FIELD_NAME:
+            case ID_FIELD_NAME:
                 if (!_nameCopied) {
                     String name = _parsingContext.getCurrentName();
                     int nameLen = name.length();
@@ -347,14 +349,14 @@ public final class UTF8StreamJsonParser
                 }
                 return _nameCopyBuffer;
     
-            case VALUE_STRING:
+            case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
                     _finishString(); // only strings can be incomplete
                 }
                 // fall through
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
                 return _textBuffer.getTextBuffer();
                 
             default:
@@ -369,18 +371,18 @@ public final class UTF8StreamJsonParser
         throws IOException, JsonParseException
     {
         if (_currToken != null) { // null only before/after document
-            switch (_currToken) {
+            switch (_currToken.id()) {
                 
-            case FIELD_NAME:
+            case ID_FIELD_NAME:
                 return _parsingContext.getCurrentName().length();
-            case VALUE_STRING:
+            case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
                     _finishString(); // only strings can be incomplete
                 }
                 // fall through
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
                 return _textBuffer.size();
                 
             default:
@@ -395,17 +397,17 @@ public final class UTF8StreamJsonParser
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
-            switch (_currToken) {
-            case FIELD_NAME:
+            switch (_currToken.id()) {
+            case ID_FIELD_NAME:
                 return 0;
-            case VALUE_STRING:
+            case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
                     _finishString(); // only strings can be incomplete
                 }
                 // fall through
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
                 return _textBuffer.getTextOffset();
             default:
             }
@@ -1149,13 +1151,14 @@ public final class UTF8StreamJsonParser
             }
             return null;
         }
-        switch (nextToken()) {
-        case VALUE_TRUE:
+
+        switch (nextToken().id()) {
+        case ID_TRUE:
             return Boolean.TRUE;
-        case VALUE_FALSE:
+        case ID_FALSE:
             return Boolean.FALSE;
         default:
-        	return null;
+            return null;
         }
     }
     

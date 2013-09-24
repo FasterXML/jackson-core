@@ -27,6 +27,7 @@ New minor version.
 - Rewrite `InternCache` to use `ConcurrentHashMap`, to work more efficiently both
   for common case of few misses (no block on access), and slowest cases (lots of
   misses).
+- Add `JsonPointer` implementation, to be used by tree model, streaming
 
 ------------------------------------------------------------------------
 === History: ===

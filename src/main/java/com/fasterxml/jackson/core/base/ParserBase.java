@@ -286,7 +286,11 @@ public abstract class ParserBase
         _features = features;
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
-        _parsingContext = JsonReadContext.createRootContext();
+        JsonReadContext readCtxt = JsonReadContext.createRootContext();
+        if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)) {
+            readCtxt.trackDups(this);
+        }
+        _parsingContext = readCtxt;
     }
 
     @Override
@@ -324,7 +328,14 @@ public abstract class ParserBase
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             ctxt = ctxt.getParent();
         }
-        ctxt.setCurrentName(name);
+        /* 24-Sep-2013, tatu: Unfortunate, but since we did not expose exceptions,
+         *   need to wrap this here
+         */
+        try {
+            ctxt.setCurrentName(name);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
     
     @Override

@@ -167,7 +167,21 @@ public abstract class JsonParser
          * this is a non-standard feature, and as such disabled by default.
          */
          ALLOW_NON_NUMERIC_NUMBERS(false),
-        
+
+         /**
+          * Feature that determines whether {@link JsonParser} will explicitly
+          * check that no duplicate JSON Object field names are encountered.
+          * If enabled, parser will check all names within context and report
+          * duplicates by throwing a {@link JsonParseException}; if disabled,
+          * parser will not do such checking. Assumption in latter case is
+          * that caller takes care of handling duplicates at a higher level:
+          * data-binding, for example, has features to specify detection to
+          * be done there.
+          * 
+          * @since 2.3
+          */
+         STRICT_DUPLICATE_DETECTION(false),
+         
             ;
 
         /**
@@ -195,7 +209,12 @@ public abstract class JsonParser
         }
         
         public boolean enabledByDefault() { return _defaultState; }
-//        public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
+        
+        /**
+         * @since 2.3
+         */
+        public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
+
         public int getMask() { return (1 << ordinal()); }
     }
 

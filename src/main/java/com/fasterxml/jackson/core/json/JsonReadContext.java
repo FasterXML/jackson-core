@@ -14,7 +14,7 @@ public final class JsonReadContext
     // // // Configuration
 
     protected final JsonReadContext _parent;
-
+    
     // // // Location information (minus source reference)
 
     protected int _lineNr;
@@ -22,6 +22,10 @@ public final class JsonReadContext
 
     protected String _currentName;
 
+    // // // Optional duplicate detection
+
+    protected DupDetector _dups;
+    
     /*
     /**********************************************************
     /* Simple instance reuse slots; speeds up things
@@ -56,6 +60,13 @@ public final class JsonReadContext
         _lineNr = lineNr;
         _columnNr = colNr;
         _currentName = null;
+        if (_dups != null) {
+            _dups.reset();
+        }
+    }
+
+    public void trackDups(JsonParser jp) {
+        _dups = DupDetector.rootDetector(jp);
     }
 
     // // // Factory methods
@@ -75,9 +86,13 @@ public final class JsonReadContext
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonReadContext(this, TYPE_ARRAY, lineNr, colNr);
-            return ctxt;
+        } else {
+            ctxt.reset(TYPE_ARRAY, lineNr, colNr);
         }
-        ctxt.reset(TYPE_ARRAY, lineNr, colNr);
+        if (_dups != null) {
+            // must pass a placeholder to indicate that tracking is on; not used
+            ctxt._dups = _dups;
+        }
         return ctxt;
     }
 
@@ -86,6 +101,9 @@ public final class JsonReadContext
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonReadContext(this, TYPE_OBJECT, lineNr, colNr);
+            if (_dups != null) {
+                ctxt._dups = _dups.child();
+            }
             return ctxt;
         }
         ctxt.reset(TYPE_OBJECT, lineNr, colNr);
@@ -140,11 +158,21 @@ public final class JsonReadContext
         return (_type != TYPE_ROOT && ix > 0);
     }
 
-    public void setCurrentName(String name)
+    public void setCurrentName(String name) throws JsonProcessingException
     {
         _currentName = name;
+        if (_dups != null) {
+            _checkDup(_dups, name);
+        }
     }
 
+    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException
+    {
+        if (dd.isDup(name)) {
+            throw new JsonParseException("Duplicate field '"+name+"'", dd.findLocation());
+        }
+    }
+    
     /*
     /**********************************************************
     /* Overridden standard methods

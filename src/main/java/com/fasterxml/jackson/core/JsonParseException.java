@@ -14,7 +14,7 @@ public class JsonParseException
     extends JsonProcessingException
 {
     private static final long serialVersionUID = 1L;
-
+    
     public JsonParseException(String msg, JsonLocation loc)
     {
         super(msg, loc);

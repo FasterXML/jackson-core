@@ -8,11 +8,14 @@ public class TestParserDupHandling
     public void testSimpleDups() throws Exception
     {
         for (String doc : new String[] {
-                "{ \"a\":1, \"a\":2 }",
-                "[{ \"a\":1, \"a\":2 }]",
-                "{ \"a\":1, \"b\":2, \"c\":3,\"a\":true,\"e\":false }",
-                "{ \"foo\": { \"bar\": [ [ { \"x\":3, \"a\":1 } ]], \"x\":0, \"a\":\"y\", \"b\":3,\"a\":13 } }",
+            "{ 'a':1, 'a':2 }",
+            "[{ 'a':1, 'a':2 }]",
+            "{ 'a':1, 'b':2, 'c':3,'a':true,'e':false }",
+            "{ 'foo': { 'bar': [ [ { 'x':3, 'a':1 } ]], 'x':0, 'a':'y', 'b':3,'a':13 } }",
+            "[{'b':1},{'b\":3},[{'a':3}], {'a':1,'a':2}]",
+            "{'b':1,'array':[{'b':3}],'ob':{'b':4,'x':0,'y':3,'a':true,'a':false }}",
         }) {
+            doc = doc.replace("'", "\"");
             JsonFactory f = new JsonFactory();
             assertFalse(f.isEnabled(JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
             _testSimpleDupsOk(doc, f, false);

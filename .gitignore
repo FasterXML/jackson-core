@@ -9,7 +9,7 @@ syntax: glob
 .DS_Store
 
 # building
-target
+/target
 
 # Eclipse
 .classpath
@@ -20,3 +20,4 @@ target
 *.iml
 *.ipr
 *.iws
+

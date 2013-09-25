@@ -129,11 +129,25 @@ public abstract class JsonGenerator
          * Feature is disabled by default.
          */
         ESCAPE_NON_ASCII(false),
-        
+
+        /**
+         * Feature that determines whether {@link JsonGenerator} will explicitly
+         * check that no duplicate JSON Object field names are written.
+         * If enabled, generator will check all names within context and report
+         * duplicates by throwing a {@link JsonGenerationException}; if disabled,
+         * no such checking will be done. Assumption in latter case is
+         * that caller takes care of not trying to write duplicate names.
+         *<p>
+         * Note that enabling this feature will incur performance overhead
+         * due to having to store and check additional information.
+         * 
+         * @since 2.3
+         */
+        STRICT_DUPLICATE_DETECTION(false),
             ;
 
         private final boolean _defaultState;
-        
+
         private final int _mask;
         
         /**
@@ -155,8 +169,14 @@ public abstract class JsonGenerator
             _mask = (1 << ordinal());
             _defaultState = defaultState;
         }
-        
+
         public boolean enabledByDefault() { return _defaultState; }
+
+        /**
+         * @since 2.3
+         */
+        public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+
         public int getMask() { return _mask; }
     }
 

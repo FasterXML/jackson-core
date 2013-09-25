@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -74,9 +75,11 @@ public abstract class GeneratorBase
     {
         super();
         _features = features;
-        _writeContext = JsonWriteContext.createRootContext();
+        DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
+                ? DupDetector.rootDetector(this) : null;
+        _writeContext = JsonWriteContext.createRootContext(dups);
         _objectCodec = codec;
-        _cfgNumbersAsStrings = isEnabled(Feature.WRITE_NUMBERS_AS_STRINGS);
+        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
     /**

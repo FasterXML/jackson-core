@@ -13,7 +13,14 @@ public final class JsonReadContext
 {
     // // // Configuration
 
+    /**
+     * Parent context for this context; null for root context.
+     */
     protected final JsonReadContext _parent;
+    
+    // // // Optional duplicate detection
+
+    protected final DupDetector _dups;
     
     // // // Location information (minus source reference)
 
@@ -21,10 +28,6 @@ public final class JsonReadContext
     protected int _columnNr;
 
     protected String _currentName;
-
-    // // // Optional duplicate detection
-
-    protected DupDetector _dups;
     
     /*
     /**********************************************************
@@ -43,11 +46,13 @@ public final class JsonReadContext
     /**********************************************************
      */
 
-    public JsonReadContext(JsonReadContext parent, int type, int lineNr, int colNr)
+    public JsonReadContext(JsonReadContext parent, DupDetector dups,
+            int type, int lineNr, int colNr)
     {
         super();
-        _type = type;
         _parent = parent;
+        _dups = dups;
+        _type = type;
         _lineNr = lineNr;
         _columnNr = colNr;
         _index = -1;
@@ -65,33 +70,43 @@ public final class JsonReadContext
         }
     }
 
+    /*
     public void trackDups(JsonParser jp) {
         _dups = DupDetector.rootDetector(jp);
     }
+    */
 
     // // // Factory methods
 
-    public static JsonReadContext createRootContext(int lineNr, int colNr)
+    @Deprecated // since 2.3, use variant that takes dup detector
+    public static JsonReadContext createRootContext(int lineNr, int colNr) {
+        return createRootContext(lineNr, colNr, null);
+    }
+    
+    public static JsonReadContext createRootContext(int lineNr, int colNr,
+            DupDetector dups)
     {
-        return new JsonReadContext(null, TYPE_ROOT, lineNr, colNr);
+        return new JsonReadContext(null, dups, TYPE_ROOT, lineNr, colNr);
     }
 
-    public static JsonReadContext createRootContext()
-    {
-        return new JsonReadContext(null, TYPE_ROOT, 1, 0);
+    @Deprecated // since 2.3, use variant that takes dup detector
+    public static JsonReadContext createRootContext() {
+        return createRootContext(null);
+    }
+
+    public static JsonReadContext createRootContext(DupDetector dups) {
+        return new JsonReadContext(null, dups, TYPE_ROOT, 1, 0);
     }
     
     public JsonReadContext createChildArrayContext(int lineNr, int colNr)
     {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonReadContext(this, TYPE_ARRAY, lineNr, colNr);
+            _child = ctxt = new JsonReadContext(this,
+                    (_dups == null) ? null : _dups.child(),
+                            TYPE_ARRAY, lineNr, colNr);
         } else {
             ctxt.reset(TYPE_ARRAY, lineNr, colNr);
-        }
-        if (_dups != null) {
-            // must pass a placeholder to indicate that tracking is on; not used
-            ctxt._dups = _dups;
         }
         return ctxt;
     }
@@ -100,10 +115,9 @@ public final class JsonReadContext
     {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonReadContext(this, TYPE_OBJECT, lineNr, colNr);
-            if (_dups != null) {
-                ctxt._dups = _dups.child();
-            }
+            _child = ctxt = new JsonReadContext(this,
+                    (_dups == null) ? null : _dups.child(),
+                    TYPE_OBJECT, lineNr, colNr);
             return ctxt;
         }
         ctxt.reset(TYPE_OBJECT, lineNr, colNr);

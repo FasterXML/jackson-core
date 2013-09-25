@@ -177,17 +177,22 @@ public abstract class JsonParser
           * that caller takes care of handling duplicates at a higher level:
           * data-binding, for example, has features to specify detection to
           * be done there.
+          *<p>
+          * Note that enabling this feature will incur performance overhead
+          * due to having to store and check additional information: this typically
+          * adds 20-30% to execution time for basic parsing.
           * 
           * @since 2.3
           */
          STRICT_DUPLICATE_DETECTION(false),
-         
             ;
 
         /**
          * Whether feature is enabled or disabled by default.
          */
         private final boolean _defaultState;
+
+        private final int _mask;
         
         /**
          * Method that calculates bit set (flags) of all features that
@@ -205,6 +210,7 @@ public abstract class JsonParser
         }
         
         private Feature(boolean defaultState) {
+            _mask = (1 << ordinal());
             _defaultState = defaultState;
         }
         
@@ -213,7 +219,7 @@ public abstract class JsonParser
         /**
          * @since 2.3
          */
-        public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
+        public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 
         public int getMask() { return (1 << ordinal()); }
     }

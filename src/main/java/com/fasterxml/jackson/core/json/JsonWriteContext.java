@@ -24,6 +24,10 @@ public class JsonWriteContext
      */
     protected final JsonWriteContext _parent;
 
+    // // // Optional duplicate detection
+
+    protected final DupDetector _dups;
+    
     /*
     /**********************************************************
     /* Simple instance reuse slots; speed up things
@@ -52,19 +56,14 @@ public class JsonWriteContext
     /**********************************************************
      */
 
-    protected JsonWriteContext(int type, JsonWriteContext parent)
+    protected JsonWriteContext(int type, JsonWriteContext parent,
+            DupDetector dups)
     {
         super();
         _type = type;
         _parent = parent;
+        _dups = dups;
         _index = -1;
-    }
-    
-    // // // Factory methods
-
-    public static JsonWriteContext createRootContext()
-    {
-        return new JsonWriteContext(TYPE_ROOT, null);
     }
 
     protected JsonWriteContext reset(int type) {
@@ -72,14 +71,32 @@ public class JsonWriteContext
         _index = -1;
         _currentName = null;
         _gotName = false;
+        if (_dups != null) {
+            _dups.reset();
+        }
         return this;
     }
     
+    // // // Factory methods
+
+    /**
+     * @deprecated Since 2.3; use method that takes argument
+     */
+    @Deprecated
+    public static JsonWriteContext createRootContext() {
+        return createRootContext(null);
+    }
+
+    public static JsonWriteContext createRootContext(DupDetector dd) {
+        return new JsonWriteContext(TYPE_ROOT, null, dd);
+    }
+
     public JsonWriteContext createChildArrayContext()
     {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this);
+            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this,
+                    (_dups == null) ? null : _dups.child());
             return ctxt;
         }
         return ctxt.reset(TYPE_ARRAY);
@@ -89,7 +106,8 @@ public class JsonWriteContext
     {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this);
+            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this,
+                    (_dups == null) ? null : _dups.child());
             return ctxt;
         }
         return ctxt.reset(TYPE_OBJECT);
@@ -110,11 +128,21 @@ public class JsonWriteContext
      *
      * @return Index of the field entry (0-based)
      */
-    public final int writeFieldName(String name)
+    public final int writeFieldName(String name) throws JsonProcessingException
     {
-        _gotName = true;            
+        _gotName = true;
         _currentName = name;
+        if (_dups != null) {
+            _checkDup(_dups, name);
+        }
         return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
+    }
+
+    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException
+    {
+        if (dd.isDup(name)) {
+            throw new JsonGenerationException("Duplicate field '"+name+"'");
+        }
     }
     
     public final int writeValue()

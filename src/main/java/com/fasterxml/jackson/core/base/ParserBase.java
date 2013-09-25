@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberInput;
+import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -286,10 +287,9 @@ public abstract class ParserBase
         _features = features;
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
-        JsonReadContext readCtxt = JsonReadContext.createRootContext();
-        if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)) {
-            readCtxt.trackDups(this);
-        }
+        DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
+                ? DupDetector.rootDetector(this) : null;
+        JsonReadContext readCtxt = JsonReadContext.createRootContext(dups);
         _parsingContext = readCtxt;
     }
 

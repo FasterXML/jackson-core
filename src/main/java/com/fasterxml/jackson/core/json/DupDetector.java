@@ -2,9 +2,7 @@ package com.fasterxml.jackson.core.json;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.*;
 
 /**
  * Helper class used if
@@ -22,9 +20,9 @@ import com.fasterxml.jackson.core.JsonParser;
 public class DupDetector
 {
     /**
-     * We need to store a back-reference here, unfortunately.
+     * We need to store a back-reference here to parser/generator, unfortunately.
      */
-    protected final JsonParser _parser;
+    protected final Object _source;
 
     protected String _firstName;
 
@@ -35,16 +33,20 @@ public class DupDetector
      */
     protected HashSet<String> _seen;
 
-    private DupDetector(JsonParser parser) {
-        _parser = parser;
+    private DupDetector(Object src) {
+        _source = src;
     }
 
-    public static DupDetector rootDetector(JsonParser jp) {
-        return new DupDetector(jp);
+    public static DupDetector rootDetector(JsonParser p) {
+        return new DupDetector(p);
     }
 
+    public static DupDetector rootDetector(JsonGenerator g) {
+        return new DupDetector(g);
+    }
+    
     public DupDetector child() {
-        return new DupDetector(_parser);
+        return new DupDetector(_source);
     }
 
     public void reset() {
@@ -54,7 +56,12 @@ public class DupDetector
     }
 
     public JsonLocation findLocation() {
-        return _parser.getCurrentLocation();
+        // ugly but:
+        if (_source instanceof JsonParser) {
+            return ((JsonParser)_source).getCurrentLocation();
+        }
+        // do generators have a way to provide Location? Apparently not...
+        return null;
     }
     
     public boolean isDup(String name) throws JsonParseException

@@ -5,6 +5,8 @@ New minor version.
 
 #8: Add methods in `JsonParser`/`JsonGenerator` for reading/writing Object Ids
 #47: Support YAML-style comments with `JsonParser.Feature.ALLOW_YAML_COMMENTS`
+#60: Add a feature (`JsonParser.Feature.STRICT_DUPLICATE_DETECTION`) to verify
+  that input does not contain duplicate filed names
 #77: Improve error reporting for unrecognized tokens
  (requested by cowwoc@github)
 #85: Add `JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN`

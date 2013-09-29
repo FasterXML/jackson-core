@@ -250,6 +250,8 @@ public final class UTF8StreamJsonParser
     protected void _releaseBuffers() throws IOException
     {
         super._releaseBuffers();
+        // Merge found symbols, if any:
+        _symbols.release();
         if (_bufferRecyclable) {
             byte[] buf = _inputBuffer;
             if (buf != null) {
@@ -803,14 +805,6 @@ public final class UTF8StreamJsonParser
             _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
         }
         return (_currToken = t);
-    }
-
-    @Override
-    public void close() throws IOException
-    {
-        super.close();
-        // Merge found symbols, if any:
-        _symbols.release();
     }
     
     /*

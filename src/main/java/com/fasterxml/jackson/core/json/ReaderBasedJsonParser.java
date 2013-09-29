@@ -184,6 +184,8 @@ public final class ReaderBasedJsonParser
         throws IOException
     {
         super._releaseBuffers();
+        // merge new symbols, if any
+        _symbols.release();
         char[] buf = _inputBuffer;
         if (buf != null) {
             _inputBuffer = null;
@@ -812,13 +814,6 @@ public final class ReaderBasedJsonParser
             if (id == ID_FALSE) return Boolean.FALSE;
         }
         return null;
-    }
-    
-    @Override
-    public void close() throws IOException
-    {
-        super.close();
-        _symbols.release();
     }
 
     /*

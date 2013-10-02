@@ -419,14 +419,11 @@ public class TestJsonParser
         JsonParser jp = jf.createParser(bytes.toByteArray());
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         // should also have skipped first 3 bytes of BOM; but do we have offset available?
-        /*
         JsonLocation loc = jp.getTokenLocation();
         assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
-        */
         jp.close();
     }
-
 
     // [Issue#48]
     public void testSpacesInURL() throws Exception

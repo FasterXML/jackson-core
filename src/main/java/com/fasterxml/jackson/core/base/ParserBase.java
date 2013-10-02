@@ -371,7 +371,7 @@ public abstract class ParserBase
     public JsonLocation getTokenLocation()
     {
         return new JsonLocation(_ioContext.getSourceReference(),
-                getTokenCharacterOffset(),
+                -1L, getTokenCharacterOffset(), // bytes, chars
                 getTokenLineNr(),
                 getTokenColumnNr());
     }
@@ -385,7 +385,7 @@ public abstract class ParserBase
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_ioContext.getSourceReference(),
-                _currInputProcessed + _inputPtr - 1,
+                -1L, _currInputProcessed + _inputPtr, // bytes, chars
                 _currInputRow, col);
     }
 

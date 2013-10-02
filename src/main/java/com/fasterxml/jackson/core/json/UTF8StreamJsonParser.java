@@ -135,7 +135,7 @@ public final class UTF8StreamJsonParser
     
     /*
     /**********************************************************
-    /* Overrides
+    /* Overrides for life-cycle
     /**********************************************************
      */
 
@@ -159,7 +159,7 @@ public final class UTF8StreamJsonParser
     
     /*
     /**********************************************************
-    /* Low-level reading, other
+    /* Overrides, low-level reading
     /**********************************************************
      */
 
@@ -596,6 +596,26 @@ public final class UTF8StreamJsonParser
         return outputCount;
     }
 
+    // As per [Issue#108], must ensure we call the right method
+    @Override
+    public JsonLocation getTokenLocation()
+    {
+        return new JsonLocation(_ioContext.getSourceReference(),
+                getTokenCharacterOffset(), -1L, // bytes, chars
+                getTokenLineNr(),
+                getTokenColumnNr());
+    }
+
+    // As per [Issue#108], must ensure we call the right method
+    @Override
+    public JsonLocation getCurrentLocation()
+    {
+        int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_ioContext.getSourceReference(),
+                _currInputProcessed + _inputPtr, -1L, // bytes, chars
+                _currInputRow, col);
+    }
+    
     /*
     /**********************************************************
     /* Public API, traversal, basic

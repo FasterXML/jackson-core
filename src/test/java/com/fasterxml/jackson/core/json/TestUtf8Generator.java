@@ -2,8 +2,7 @@ package com.fasterxml.jackson.core.json;
 
 import java.io.ByteArrayOutputStream;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.test.BaseTest;
@@ -25,5 +24,17 @@ public class TestUtf8Generator
         gen.writeString(str);
         gen.flush();
         gen.close();
+        
+        // Also verify it's parsable?
+        JsonFactory f = new JsonFactory();
+        JsonParser p = f.createParser(bytes.toByteArray());
+        for (int i = 1; i <= length; ++i) {
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(1, p.getIntValue());
+        }
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(str, p.getText());
+        assertNull(p.nextToken());
+        p.close();
     }
 }

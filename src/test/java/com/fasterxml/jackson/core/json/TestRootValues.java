@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.core.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import java.io.*;
 
-public class TestRootValueParsing
+import com.fasterxml.jackson.core.*;
+
+public class TestRootValues
     extends com.fasterxml.jackson.test.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
@@ -48,5 +48,35 @@ public class TestRootValueParsing
         }
         assertNull(jp.nextToken());
         jp.close();
+    }
+
+    public void testSimpleWrites() throws Exception
+    {
+        _testSimpleWrites(false);
+        _testSimpleWrites(true);
+    }
+
+    public void _testSimpleWrites(boolean useStream) throws Exception
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        StringWriter w = new StringWriter();
+        JsonGenerator gen;
+
+        if (useStream) {
+            gen = JSON_F.createGenerator(out, JsonEncoding.UTF8);
+        } else {
+            gen = JSON_F.createGenerator(w);
+        }
+        gen.writeNumber(123);
+        gen.writeString("abc");
+        gen.writeBoolean(true);
+        
+        gen.close();
+        out.close();
+        w.close();
+
+        // and verify
+        String json = useStream ? out.toString("UTF-8") : w.toString();
+        assertEquals("123 \"abc\" true", json);
     }
 }

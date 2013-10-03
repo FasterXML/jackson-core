@@ -31,6 +31,7 @@ New minor version.
   for common case of few misses (no block on access), and slowest cases (lots of
   misses).
 - Add `JsonPointer` implementation, to be used by tree model, streaming
+- Make `UTF8StreamJsonParser` non-final, for potential sub-classing
 
 ------------------------------------------------------------------------
 === History: ===

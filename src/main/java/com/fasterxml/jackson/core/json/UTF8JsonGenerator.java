@@ -95,7 +95,15 @@ public class UTF8JsonGenerator
      * needs to be returned to recycler once we are done) or not.
      */
     protected boolean _bufferRecyclable;
-    
+
+    /*
+    /**********************************************************
+    /* Quick flags
+    /**********************************************************
+     */
+
+    protected final boolean _cfgQuoteNames;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -123,6 +131,7 @@ public class UTF8JsonGenerator
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
             setHighestNonEscapedChar(127);
         }
+        _cfgQuoteNames = Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
     
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
@@ -140,6 +149,7 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
+        _cfgQuoteNames = Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
 
     /*
@@ -277,7 +287,7 @@ public class UTF8JsonGenerator
         /* To support [JACKSON-46], we'll do this:
          * (Question: should quoting of spaces (etc) still be enabled?)
          */
-        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
+        if (!_cfgQuoteNames) {
             _writeStringSegments(name);
             return;
         }
@@ -312,7 +322,7 @@ public class UTF8JsonGenerator
     protected final void _writeFieldName(SerializableString name)
         throws IOException, JsonGenerationException
     {
-        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
+        if (!_cfgQuoteNames) {
             int len = name.appendQuotedUTF8(_outputBuffer, _outputTail); // different quoting (escaping)
             if (len < 0) {
                 _writeBytes(name.asQuotedUTF8());
@@ -350,7 +360,7 @@ public class UTF8JsonGenerator
             _cfgPrettyPrinter.beforeObjectEntries(this);
         }
 
-        if (isEnabled(Feature.QUOTE_FIELD_NAMES)) { // standard
+        if (_cfgQuoteNames) { // standard
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
@@ -388,7 +398,7 @@ public class UTF8JsonGenerator
             _cfgPrettyPrinter.beforeObjectEntries(this);
         }
 
-        boolean addQuotes = isEnabled(Feature.QUOTE_FIELD_NAMES); // standard
+        final boolean addQuotes = _cfgQuoteNames; // standard
         if (addQuotes) {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();

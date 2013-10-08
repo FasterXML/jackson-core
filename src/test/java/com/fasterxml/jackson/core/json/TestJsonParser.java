@@ -419,8 +419,14 @@ public class TestJsonParser
         JsonParser jp = jf.createParser(bytes.toByteArray());
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         // should also have skipped first 3 bytes of BOM; but do we have offset available?
+        /* 08-Oct-2013, tatu: Alas, due to [Issue#111], we have to omit BOM in calculations
+         *   as we do not know what the offset is due to -- may need to revisit, if this
+         *   discrepancy becomes an issue. For now it just means that BOM is considered
+         *   "out of stream" (not part of input).
+         */
         JsonLocation loc = jp.getTokenLocation();
-        assertEquals(3, loc.getByteOffset());
+        // so if BOM was consider in-stream (part of input), this should expect 3:
+        assertEquals(0, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         jp.close();
     }

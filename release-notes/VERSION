@@ -39,6 +39,16 @@ New minor version.
 === History: ===
 ------------------------------------------------------------------------
 
+2.2.3 (23-Aug-2013)
+
+#78: ArrayIndexOutOfBoundsException for very long numbers (>500 digits)
+ (reported by boothen@github)
+#81: CharTypes.appendQuoted misencodes first 32 Unicode values as '\0000'
+ (reported by githubaff0@github)
+#84: Support for parsing 'Infinity' when feature ALLOW_NON_NUMERIC_NUMBERS is on
+ (contributed by ebrevdo@github)
+- Add `Base64Variant.decode()` convenience methods
+
 2.2.2 (26-May-2013)
 
 No changes since previous version.

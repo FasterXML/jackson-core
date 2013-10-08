@@ -24,6 +24,8 @@ New minor version.
  to let databind module detect level of support for binary data.
 #105: Parser parsers numbers eagerly; does not report error with missing space
 #106: Add `JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION` for preventing dup names
+#111: _currInputRowStart isn't initialized in UTF8StreamJsonParser() constructor
+ (reported by dreamershl@github)
 - Improve `DefaultPrettyPrinter`, `Lf2SpacesIndenter` (from databind #276)
 - Add `JsonGenerator.canOmitFields()` method to support discovery of
   positional formats, needed for handling of filtering for CSV

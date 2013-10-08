@@ -122,6 +122,9 @@ public class UTF8StreamJsonParser
         _inputBuffer = inputBuffer;
         _inputPtr = start;
         _inputEnd = end;
+        _currInputRowStart = start;
+        // If we have offset, need to omit that from byte offset, so:
+        _currInputProcessed = -start;
         _bufferRecyclable = bufferRecyclable;
     }
 

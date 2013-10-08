@@ -7,6 +7,8 @@ Version: 2.2.4 (xx-xxx-2013)
 === History: ===
 ------------------------------------------------------------------------
 
+2.2.3 (23-Aug-2013)
+
 #78: ArrayIndexOutOfBoundsException for very long numbers (>500 digits)
  (reported by boothen@github)
 #81: CharTypes.appendQuoted misencodes first 32 Unicode values as '\0000'

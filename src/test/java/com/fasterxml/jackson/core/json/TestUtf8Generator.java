@@ -1,11 +1,14 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.test.BaseTest;
+import org.junit.Assert;
 
 public class TestUtf8Generator
     extends BaseTest
@@ -37,4 +40,30 @@ public class TestUtf8Generator
         assertNull(p.nextToken());
         p.close();
     }
+
+    public void testUtf8WithBinaryIOException() throws Exception
+    {
+        InputStream is = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                throw new IOException();
+            }
+        };
+
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        IOContext ioc = new IOContext(new BufferRecycler(), bytes, true);
+        JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes);
+
+        try {
+            gen.writeBinary(is, -1);
+        } catch (IOException e) {
+
+        } finally {
+            gen.flush();
+            gen.close();
+        }
+        Assert.assertEquals(2, bytes.size());
+        Assert.assertEquals("\"\"", new String(bytes.toByteArray()));
+    }
+
 }

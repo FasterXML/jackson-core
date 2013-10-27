@@ -766,12 +766,12 @@ public class UTF8JsonGenerator
             }
         } finally {
             _ioContext.releaseBase64Buffer(encodingBuffer);
+            // and closing quotes
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = BYTE_QUOTE;
         }
-        // and closing quotes
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = BYTE_QUOTE;
         return bytes;
     }
     

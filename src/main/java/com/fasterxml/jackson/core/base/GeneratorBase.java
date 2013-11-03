@@ -3,13 +3,10 @@ package com.fasterxml.jackson.core.base;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.VersionUtil;
-
-import static com.fasterxml.jackson.core.JsonTokenId.*;
 
 /**
  * This base class implements part of API that a JSON generator exposes
@@ -308,123 +305,6 @@ public abstract class GeneratorBase
     @Override
     public boolean isClosed() { return _closed; }
 
-    /*
-    /**********************************************************
-    /* Public API, copy-through methods
-    /**********************************************************
-     */
-
-    @Override
-    public final void copyCurrentEvent(JsonParser jp)
-        throws IOException, JsonProcessingException
-    {
-        JsonToken t = jp.getCurrentToken();
-        // sanity check; what to do?
-        if (t == null) {
-            _reportError("No current event to copy");
-        }
-        switch (t.id()) {
-        case ID_NOT_AVAILABLE:
-            _reportError("No current event to copy");
-        case ID_START_OBJECT:
-            writeStartObject();
-            break;
-        case ID_END_OBJECT:
-            writeEndObject();
-            break;
-        case ID_START_ARRAY:
-            writeStartArray();
-            break;
-        case ID_END_ARRAY:
-            writeEndArray();
-            break;
-        case ID_FIELD_NAME:
-            writeFieldName(jp.getCurrentName());
-            break;
-        case ID_STRING:
-            if (jp.hasTextCharacters()) {
-                writeString(jp.getTextCharacters(), jp.getTextOffset(), jp.getTextLength());
-            } else {
-                writeString(jp.getText());
-            }
-            break;
-        case ID_NUMBER_INT:
-        {
-            NumberType n = jp.getNumberType();
-            if (n == NumberType.INT) {
-                writeNumber(jp.getIntValue());
-            } else if (n == NumberType.BIG_INTEGER) {
-                writeNumber(jp.getBigIntegerValue());
-            } else {
-                writeNumber(jp.getLongValue());
-            }
-            break;
-        }
-        case ID_NUMBER_FLOAT:
-        {
-            NumberType n = jp.getNumberType();
-            if (n == NumberType.BIG_DECIMAL) {
-                writeNumber(jp.getDecimalValue());
-            } else if (n == NumberType.FLOAT) {
-                writeNumber(jp.getFloatValue());
-            } else {
-                writeNumber(jp.getDoubleValue());
-            }
-            break;
-        }
-        case ID_TRUE:
-            writeBoolean(true);
-            break;
-        case ID_FALSE:
-            writeBoolean(false);
-            break;
-        case ID_NULL:
-            writeNull();
-            break;
-        case ID_EMBEDDED_OBJECT:
-            writeObject(jp.getEmbeddedObject());
-            break;
-        default:
-            _throwInternal();
-        }
-    }
-
-    @Override
-    public final void copyCurrentStructure(JsonParser jp)
-        throws IOException, JsonProcessingException
-    {
-        JsonToken t = jp.getCurrentToken();
-        if (t == null) {
-            _reportError("No current event to copy");
-        }
-        // Let's handle field-name separately first
-        int id = t.id();
-        if (id == ID_FIELD_NAME) {
-            writeFieldName(jp.getCurrentName());
-            t = jp.nextToken();
-            id = t.id();
-            // fall-through to copy the associated value
-        }
-        switch (id) {
-        case ID_START_OBJECT:
-            writeStartObject();
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
-                copyCurrentStructure(jp);
-            }
-            writeEndObject();
-            break;
-        case ID_START_ARRAY:
-            writeStartArray();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(jp);
-            }
-            writeEndArray();
-            break;
-        default:
-            copyCurrentEvent(jp);
-        }
-    }
-    
     /*
     /**********************************************************
     /* Package methods for this, sub-classes

@@ -6,10 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
-
-import static com.fasterxml.jackson.core.JsonTokenId.*;
 
 public class JsonGeneratorDelegate extends JsonGenerator
 {
@@ -503,76 +500,8 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public void copyCurrentEvent(JsonParser jp) throws IOException, JsonProcessingException {
         if (delegateCopyMethods) {
             delegate.copyCurrentEvent(jp);
-            return;
-        }
-        JsonToken t = jp.getCurrentToken();
-        // sanity check; what to do?
-        if (t == null) {
-            _reportError("No current event to copy");
-        }
-        switch (t.id()) {
-        case ID_NOT_AVAILABLE:
-            _reportError("No current event to copy");
-        case ID_START_OBJECT:
-            writeStartObject();
-            break;
-        case ID_END_OBJECT:
-            writeEndObject();
-            break;
-        case ID_START_ARRAY:
-            writeStartArray();
-            break;
-        case ID_END_ARRAY:
-            writeEndArray();
-            break;
-        case ID_FIELD_NAME:
-            writeFieldName(jp.getCurrentName());
-            break;
-        case ID_STRING:
-            if (jp.hasTextCharacters()) {
-                writeString(jp.getTextCharacters(), jp.getTextOffset(), jp.getTextLength());
-            } else {
-                writeString(jp.getText());
-            }
-            break;
-        case ID_NUMBER_INT:
-        {
-            NumberType n = jp.getNumberType();
-            if (n == NumberType.INT) {
-                writeNumber(jp.getIntValue());
-            } else if (n == NumberType.BIG_INTEGER) {
-                writeNumber(jp.getBigIntegerValue());
-            } else {
-                writeNumber(jp.getLongValue());
-            }
-            break;
-        }
-        case ID_NUMBER_FLOAT:
-        {
-            NumberType n = jp.getNumberType();
-            if (n == NumberType.BIG_DECIMAL) {
-                writeNumber(jp.getDecimalValue());
-            } else if (n == NumberType.FLOAT) {
-                writeNumber(jp.getFloatValue());
-            } else {
-                writeNumber(jp.getDoubleValue());
-            }
-            break;
-        }
-        case ID_TRUE:
-            writeBoolean(true);
-            break;
-        case ID_FALSE:
-            writeBoolean(false);
-            break;
-        case ID_NULL:
-            writeNull();
-            break;
-        case ID_EMBEDDED_OBJECT:
-            writeObject(jp.getEmbeddedObject());
-            break;
-        default:
-            _throwInternal();
+        } else {
+            super.copyCurrentEvent(jp);
         }
     }
 
@@ -581,37 +510,8 @@ public class JsonGeneratorDelegate extends JsonGenerator
     {
         if (delegateCopyMethods) {
             delegate.copyCurrentStructure(jp);
-            return;
-        }
-        JsonToken t = jp.getCurrentToken();
-        if (t == null) {
-            _reportError("No current event to copy");
-        }
-        // Let's handle field-name separately first
-        int id = t.id();
-        if (id == ID_FIELD_NAME) {
-            writeFieldName(jp.getCurrentName());
-            t = jp.nextToken();
-            id = t.id();
-            // fall-through to copy the associated value
-        }
-        switch (id) {
-        case ID_START_OBJECT:
-            writeStartObject();
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
-                copyCurrentStructure(jp);
-            }
-            writeEndObject();
-            break;
-        case ID_START_ARRAY:
-            writeStartArray();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(jp);
-            }
-            writeEndArray();
-            break;
-        default:
-            copyCurrentEvent(jp);
+        } else {
+            super.copyCurrentStructure(jp);
         }
     }
 

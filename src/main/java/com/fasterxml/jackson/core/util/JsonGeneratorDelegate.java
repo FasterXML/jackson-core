@@ -4,9 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+
+import static com.fasterxml.jackson.core.JsonTokenId.*;
 
 public class JsonGeneratorDelegate extends JsonGenerator
 {
@@ -15,6 +21,11 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
     protected JsonGenerator delegate;
 
+    /**
+     * Delegate copy methods.  Defaults to true.
+     */
+    protected boolean delegateCopyMethods;
+
     /*
     /**********************************************************
     /* Construction, initialization
@@ -22,7 +33,12 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
     
     public JsonGeneratorDelegate(JsonGenerator d) {
+        this(d, true);
+    }
+    
+    public JsonGeneratorDelegate(JsonGenerator d, boolean delegateCopyMethods) {
         delegate = d;
+        this.delegateCopyMethods = delegateCopyMethods;
     }
 
     @Override
@@ -416,12 +432,42 @@ public class JsonGeneratorDelegate extends JsonGenerator
     
     @Override
     public void writeObject(Object pojo) throws IOException,JsonProcessingException {
-        delegate.writeObject(pojo);
+        if (delegateCopyMethods) {
+            delegate.writeObject(pojo);
+        } else {
+            if (pojo == null) {
+                // important: call method that does check value write:
+                writeNull();
+            } else {
+                /* 02-Mar-2009, tatu: we are NOT to call _verifyValueWrite here,
+                 *   because that will be done when codec actually serializes
+                 *   contained POJO. If we did call it it would advance state
+                 *   causing exception later on
+                 */
+                if (getCodec() != null) {
+                    getCodec().writeValue(this, pojo);
+                    return;
+                }
+                _writeSimpleObject(pojo);
+            }
+        }
     }
     
     @Override
     public void writeTree(TreeNode rootNode) throws IOException, JsonProcessingException {
-        delegate.writeTree(rootNode);
+        if (delegateCopyMethods) {
+            delegate.writeTree(rootNode);
+        } else {
+            // As with 'writeObject()', we are not check if write would work
+            if (rootNode == null) {
+                writeNull();
+            } else {
+                if (getCodec() == null) {
+                    throw new IllegalStateException("No ObjectCodec defined");
+                }
+                getCodec().writeValue(this, rootNode);
+            }
+        }
     }
 
     /*
@@ -440,12 +486,117 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void copyCurrentEvent(JsonParser jp) throws IOException, JsonProcessingException {
-        delegate.copyCurrentEvent(jp);
+        if (delegateCopyMethods) {
+            delegate.copyCurrentEvent(jp);
+        } else {
+            JsonToken t = jp.getCurrentToken();
+            // sanity check; what to do?
+            if (t == null) {
+                _reportError("No current event to copy");
+            }
+            switch (t.id()) {
+            case ID_NOT_AVAILABLE:
+                _reportError("No current event to copy");
+            case ID_START_OBJECT:
+                writeStartObject();
+                break;
+            case ID_END_OBJECT:
+                writeEndObject();
+                break;
+            case ID_START_ARRAY:
+                writeStartArray();
+                break;
+            case ID_END_ARRAY:
+                writeEndArray();
+                break;
+            case ID_FIELD_NAME:
+                writeFieldName(jp.getCurrentName());
+                break;
+            case ID_STRING:
+                if (jp.hasTextCharacters()) {
+                    writeString(jp.getTextCharacters(), jp.getTextOffset(), jp.getTextLength());
+                } else {
+                    writeString(jp.getText());
+                }
+                break;
+            case ID_NUMBER_INT:
+            {
+                NumberType n = jp.getNumberType();
+                if (n == NumberType.INT) {
+                    writeNumber(jp.getIntValue());
+                } else if (n == NumberType.BIG_INTEGER) {
+                    writeNumber(jp.getBigIntegerValue());
+                } else {
+                    writeNumber(jp.getLongValue());
+                }
+                break;
+            }
+            case ID_NUMBER_FLOAT:
+            {
+                NumberType n = jp.getNumberType();
+                if (n == NumberType.BIG_DECIMAL) {
+                    writeNumber(jp.getDecimalValue());
+                } else if (n == NumberType.FLOAT) {
+                    writeNumber(jp.getFloatValue());
+                } else {
+                    writeNumber(jp.getDoubleValue());
+                }
+                break;
+            }
+            case ID_TRUE:
+                writeBoolean(true);
+                break;
+            case ID_FALSE:
+                writeBoolean(false);
+                break;
+            case ID_NULL:
+                writeNull();
+                break;
+            case ID_EMBEDDED_OBJECT:
+                writeObject(jp.getEmbeddedObject());
+                break;
+            default:
+                _throwInternal();
+            }
+        }
     }
 
     @Override
     public void copyCurrentStructure(JsonParser jp) throws IOException, JsonProcessingException {
-        delegate.copyCurrentStructure(jp);
+        if (delegateCopyMethods) {
+            delegate.copyCurrentStructure(jp);
+        } else {
+            JsonToken t = jp.getCurrentToken();
+            if (t == null) {
+                _reportError("No current event to copy");
+            }
+            // Let's handle field-name separately first
+            int id = t.id();
+            if (id == ID_FIELD_NAME) {
+                writeFieldName(jp.getCurrentName());
+                t = jp.nextToken();
+                id = t.id();
+                // fall-through to copy the associated value
+            }
+            switch (id) {
+            case ID_START_OBJECT:
+                writeStartObject();
+                while (jp.nextToken() != JsonToken.END_OBJECT) {
+                    copyCurrentStructure(jp);
+                }
+                writeEndObject();
+                break;
+            case ID_START_ARRAY:
+                writeStartArray();
+                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                    copyCurrentStructure(jp);
+                }
+                writeEndArray();
+                break;
+            default:
+                copyCurrentEvent(jp);
+            }
+        }
     }
 
     /*
@@ -484,5 +635,94 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public boolean isClosed() {
         return delegate.isClosed();
+    }
+
+    /**
+     * Helper method used for constructing and throwing
+     * {@link JsonGenerationException} with given base message.
+     *<p>
+     * Note that sub-classes may override this method to add more detail
+     * or use a {@link JsonGenerationException} sub-class.
+     */
+    protected void _reportError(String msg)
+        throws JsonGenerationException
+    {
+        throw new JsonGenerationException(msg);
+    }
+
+    /**
+     * Helper method to try to call appropriate write method for given
+     * untyped Object. At this point, no structural conversions should be done,
+     * only simple basic types are to be coerced as necessary.
+     *
+     * @param value Non-null value to write
+     */
+    protected void _writeSimpleObject(Object value) 
+        throws IOException, JsonGenerationException
+    {
+        /* 31-Dec-2009, tatu: Actually, we could just handle some basic
+         *    types even without codec. This can improve interoperability,
+         *    and specifically help with TokenBuffer.
+         */
+        if (value == null) {
+            writeNull();
+            return;
+        }
+        if (value instanceof String) {
+            writeString((String) value);
+            return;
+        }
+        if (value instanceof Number) {
+            Number n = (Number) value;
+            if (n instanceof Integer) {
+                writeNumber(n.intValue());
+                return;
+            } else if (n instanceof Long) {
+                writeNumber(n.longValue());
+                return;
+            } else if (n instanceof Double) {
+                writeNumber(n.doubleValue());
+                return;
+            } else if (n instanceof Float) {
+                writeNumber(n.floatValue());
+                return;
+            } else if (n instanceof Short) {
+                writeNumber(n.shortValue());
+                return;
+            } else if (n instanceof Byte) {
+                writeNumber(n.byteValue());
+                return;
+            } else if (n instanceof BigInteger) {
+                writeNumber((BigInteger) n);
+                return;
+            } else if (n instanceof BigDecimal) {
+                writeNumber((BigDecimal) n);
+                return;
+                
+            // then Atomic types
+                
+            } else if (n instanceof AtomicInteger) {
+                writeNumber(((AtomicInteger) n).get());
+                return;
+            } else if (n instanceof AtomicLong) {
+                writeNumber(((AtomicLong) n).get());
+                return;
+            }
+        } else if (value instanceof byte[]) {
+            writeBinary((byte[]) value);
+            return;
+        } else if (value instanceof Boolean) {
+            writeBoolean((Boolean) value);
+            return;
+        } else if (value instanceof AtomicBoolean) {
+            writeBoolean(((AtomicBoolean) value).get());
+            return;
+        }
+        throw new IllegalStateException("No ObjectCodec defined for the generator, can only serialize simple wrapper types (type passed "
+                +value.getClass().getName()+")");
+    }    
+
+    protected final void _throwInternal() {
+        VersionUtil.throwInternal();
     }
 }

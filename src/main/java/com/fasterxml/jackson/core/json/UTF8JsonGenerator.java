@@ -653,7 +653,7 @@ public class UTF8JsonGenerator
                 _outputBuffer[_outputTail++] = (byte) (0xc0 | (ch >> 6));
                 _outputBuffer[_outputTail++] = (byte) (0x80 | (ch & 0x3f));
             } else {
-                _outputRawMultiByteChar(ch, cbuf, offset, len);
+                offset = _outputRawMultiByteChar(ch, cbuf, offset, len);
             }
         }
     }
@@ -672,7 +672,7 @@ public class UTF8JsonGenerator
             bbuf[_outputTail++] = (byte) (0xc0 | (ch >> 6));
             bbuf[_outputTail++] = (byte) (0x80 | (ch & 0x3f));
         } else {
-            _outputRawMultiByteChar(ch, null, 0, 0);
+            /*offset =*/ _outputRawMultiByteChar(ch, null, 0, 0);
         }
     }
 
@@ -711,7 +711,7 @@ public class UTF8JsonGenerator
                 bbuf[_outputTail++] = (byte) (0xc0 | (ch >> 6));
                 bbuf[_outputTail++] = (byte) (0x80 | (ch & 0x3f));
             } else {
-                _outputRawMultiByteChar(ch, cbuf, offset, len);
+                offset = _outputRawMultiByteChar(ch, cbuf, offset, len);
             }
         }
     }
@@ -1751,7 +1751,7 @@ public class UTF8JsonGenerator
         if (ch >= SURR1_FIRST) {
             if (ch <= SURR2_LAST) { // yes, outside of BMP
                 // Do we have second part?
-                if (inputOffset >= inputLen) { // nope... have to note down
+                if (inputOffset >= inputLen || cbuf == null) { // nope... have to note down
                     _reportError("Split surrogate on writeRaw() input (last character)");
                 }
                 _outputSurrogates(ch, cbuf[inputOffset]);

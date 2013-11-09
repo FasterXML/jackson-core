@@ -23,7 +23,7 @@ Klaus Brunner (KlausBrunner@github)
 Eugene Brevdo (ebrevdo@github)
   * Contributed #84: Support 'Infinity' as alternative (no leading plus)
    (2.2.3)
-Marchin Zukowski (eruure@github)
+
+Marcin Zukowski (eruure@github)
   * Reported #115: JsonGenerator writeRawValue problem with surrogate UTF-8 characters
    (2.3.0)
-

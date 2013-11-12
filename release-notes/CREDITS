@@ -27,3 +27,7 @@ Eugene Brevdo (ebrevdo@github)
 Marcin Zukowski (eruure@github)
   * Reported #115: JsonGenerator writeRawValue problem with surrogate UTF-8 characters
    (2.3.0)
+
+Steve van Loben Sels
+  * Reported #116: WriterBasedJsonGenerator produces truncated Unicode escape sequences
+   (2.3.0)

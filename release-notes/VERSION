@@ -30,6 +30,8 @@ New minor version.
  (reported by dreamershl@github)
 #115: JsonGenerator writeRawValue problem with surrogate UTF-8 characters
  (reported by Marcin Z)
+#116: WriterBasedJsonGenerator produces truncated Unicode escape sequences
+ (reported by Steve L-S)
 - Improve `DefaultPrettyPrinter`, `Lf2SpacesIndenter` (from databind #276)
 - Add `JsonGenerator.canOmitFields()` method to support discovery of
   positional formats, needed for handling of filtering for CSV

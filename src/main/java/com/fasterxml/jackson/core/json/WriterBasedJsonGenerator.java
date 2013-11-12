@@ -1859,7 +1859,7 @@ public final class WriterBasedJsonGenerator
                 buf[ptr++] = '0';
             }
             buf[ptr++] = HEX_CHARS[ch >> 4];
-            buf[ptr] = HEX_CHARS[ch & 0xF];
+            buf[ptr++] = HEX_CHARS[ch & 0xF];
             _outputTail = ptr;
             return;
         }

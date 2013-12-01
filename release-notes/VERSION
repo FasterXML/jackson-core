@@ -1,7 +1,11 @@
 Project: jackson-core
-Version: 2.3.0 (13-Nov-2013)
+Version: 2.3.1 (xx-Dec-2013)
 
-New minor version.
+...
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
 
 #8: Add methods in `JsonParser`/`JsonGenerator` for reading/writing Object Ids
 #47: Support YAML-style comments with `JsonParser.Feature.ALLOW_YAML_COMMENTS`
@@ -40,10 +44,6 @@ New minor version.
   misses).
 - Add `JsonPointer` implementation, to be used by tree model, streaming
 - Make `UTF8StreamJsonParser` non-final, for potential sub-classing
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.2.3 (23-Aug-2013)
 

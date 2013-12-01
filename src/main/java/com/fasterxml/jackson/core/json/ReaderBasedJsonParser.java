@@ -2039,6 +2039,6 @@ public final class ReaderBasedJsonParser
             ++_inputPtr;
             sb.append(c);
         }
-        _reportError("Unrecognized token '"+sb.toString()+"': was expecting ");
+        _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
     }
 }

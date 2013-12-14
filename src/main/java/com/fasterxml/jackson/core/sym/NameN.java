@@ -4,14 +4,12 @@ package com.fasterxml.jackson.core.sym;
  * Generic implementation of PName used for "long" names, where long
  * means that its byte (UTF-8) representation is 13 bytes or more.
  */
-public final class NameN
-    extends Name
+public final class NameN extends Name
 {
-    final int[] mQuads;
-    final int mQuadLen;
+    private final int[] q;
+    private final int qlen;
 
-    NameN(String name, int hash, int[] quads, int quadLen)
-    {
+    NameN(String name, int hash, int[] quads, int quadLen) {
         super(name, hash);
         /* We have specialized implementations for shorter
          * names, so let's not allow runt instances here
@@ -19,24 +17,21 @@ public final class NameN
         if (quadLen < 3) {
             throw new IllegalArgumentException("Qlen must >= 3");
         }
-        mQuads = quads;
-        mQuadLen = quadLen;
+        q = quads;
+        qlen = quadLen;
     }
 
     // Implies quad length == 1, never matches
     @Override
-	public boolean equals(int quad) { return false; }
+    public boolean equals(int quad) { return false; }
 
     // Implies quad length == 2, never matches
     @Override
-	public boolean equals(int quad1, int quad2) { return false; }
+    public boolean equals(int quad1, int quad2) { return false; }
 
     @Override
-	public boolean equals(int[] quads, int qlen)
-    {
-        if (qlen != mQuadLen) {
-            return false;
-        }
+    public boolean equals(int[] quads, int len) {
+        if (len != qlen) { return false; }
 
         /* 26-Nov-2008, tatus: Strange, but it does look like
          *   unrolling here is counter-productive, reducing
@@ -59,7 +54,7 @@ public final class NameN
 
         // or simpler way without unrolling:
         for (int i = 0; i < qlen; ++i) {
-            if (quads[i] != mQuads[i]) {
+            if (quads[i] != q[i]) {
                 return false;
             }
         }

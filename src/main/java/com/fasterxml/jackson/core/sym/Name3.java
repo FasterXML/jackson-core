@@ -5,19 +5,15 @@ package com.fasterxml.jackson.core.sym;
  * that consists of 9 to 12 bytes. It's the longest special purpose
  * implementaion; longer ones are expressed using {@link NameN}.
  */
-public final class Name3
-    extends Name
+public final class Name3 extends Name
 {
-    final int mQuad1;
-    final int mQuad2;
-    final int mQuad3;
+    private final int q1,  q2, q3;
 
-    Name3(String name, int hash, int q1, int q2, int q3)
-    {
+    Name3(String name, int hash, int i1, int i2, int i3) {
         super(name, hash);
-        mQuad1 = q1;
-        mQuad2 = q2;
-        mQuad3 = q3;
+        q1 = i1;
+        q2 = i2;
+        q3 = i3;
     }
 
     // Implies quad length == 1, never matches
@@ -29,11 +25,7 @@ public final class Name3
     public boolean equals(int quad1, int quad2) { return false; }
 
     @Override
-    public boolean equals(int[] quads, int qlen)
-    {
-        return (qlen == 3)
-            && (quads[0] == mQuad1)
-            && (quads[1] == mQuad2)
-            && (quads[2] == mQuad3);
+    public boolean equals(int[] quads, int qlen) {
+        return (qlen == 3) && (quads[0] == q1) && (quads[1] == q2) && (quads[2] == q3);
     }
 }

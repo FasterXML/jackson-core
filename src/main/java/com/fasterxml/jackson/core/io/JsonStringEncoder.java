@@ -25,9 +25,9 @@ public final class JsonStringEncoder
     private final static int SURR2_FIRST = 0xDC00;
     private final static int SURR2_LAST = 0xDFFF;
 
-    private final static int INT_BACKSLASH = '\\';
-    private final static int INT_U = 'u';
-    private final static int INT_0 = '0';
+//    private final static int INT_BACKSLASH = '\\';
+//    private final static int INT_U = 'u';
+//    private final static int INT_0 = '0';
     
     /**
      * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
@@ -60,8 +60,7 @@ public final class JsonStringEncoder
     /**********************************************************
      */
     
-    public JsonStringEncoder()
-    {
+    public JsonStringEncoder() {
         _quoteBuffer = new char[6];
         _quoteBuffer[0] = '\\';
         _quoteBuffer[2] = '0';
@@ -72,8 +71,7 @@ public final class JsonStringEncoder
      * Factory method for getting an instance; this is either recycled per-thread instance,
      * or a newly constructed one.
      */
-    public static JsonStringEncoder getInstance()
-    {
+    public static JsonStringEncoder getInstance() {
         SoftReference<JsonStringEncoder> ref = _threadEncoder.get();
         JsonStringEncoder enc = (ref == null) ? null : ref.get();
 
@@ -343,8 +341,7 @@ public final class JsonStringEncoder
     /**********************************************************
      */
 
-    private int _appendNumericEscape(int value, char[] quoteBuffer)
-    {
+    private int _appendNumericEscape(int value, char[] quoteBuffer) {
         quoteBuffer[1] = 'u';
         // We know it's a control char, so only the last 2 chars are non-0
         quoteBuffer[4] = HEX_CHARS[value >> 4];
@@ -352,8 +349,7 @@ public final class JsonStringEncoder
         return 6;
     }
 
-    private int _appendNamedEscape(int escCode, char[] quoteBuffer)
-    {
+    private int _appendNamedEscape(int escCode, char[] quoteBuffer) {
         quoteBuffer[1] = (char) escCode;
         return 2;
     }
@@ -361,17 +357,17 @@ public final class JsonStringEncoder
     private int _appendByteEscape(int ch, int escCode, ByteArrayBuilder byteBuilder, int ptr)
     {
         byteBuilder.setCurrentSegmentLength(ptr);
-        byteBuilder.append(INT_BACKSLASH);
+        byteBuilder.append('\\');
         if (escCode < 0) { // standard escape
-            byteBuilder.append(INT_U);
+            byteBuilder.append('u');
             if (ch > 0xFF) {
                 int hi = (ch >> 8);
                 byteBuilder.append(HEX_BYTES[hi >> 4]);
                 byteBuilder.append(HEX_BYTES[hi & 0xF]);
                 ch &= 0xFF;
             } else {
-                byteBuilder.append(INT_0);
-                byteBuilder.append(INT_0);
+                byteBuilder.append('0');
+                byteBuilder.append('0');
             }
             byteBuilder.append(HEX_BYTES[ch >> 4]);
             byteBuilder.append(HEX_BYTES[ch & 0xF]);
@@ -381,8 +377,7 @@ public final class JsonStringEncoder
         return byteBuilder.getCurrentSegmentLength();
     }
 
-    protected static int _convertSurrogate(int firstPart, int secondPart)
-    {
+    protected static int _convertSurrogate(int firstPart, int secondPart) {
         // Ok, then, is the second part valid?
         if (secondPart < SURR2_FIRST || secondPart > SURR2_LAST) {
             throw new IllegalArgumentException("Broken surrogate pair: first char 0x"+Integer.toHexString(firstPart)+", second 0x"+Integer.toHexString(secondPart)+"; illegal combination");

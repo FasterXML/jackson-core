@@ -7,8 +7,7 @@ import java.io.*;
  * Since JDK does not come with UTF-32/UCS-4, let's implement a simple
  * decoder to use.
  */
-public class UTF32Reader
-    extends BaseReader
+public class UTF32Reader extends BaseReader
 {
     protected final boolean _bigEndian;
 
@@ -37,10 +36,7 @@ public class UTF32Reader
     /**********************************************************
      */
 
-    public UTF32Reader(IOContext ctxt,
-            InputStream in, byte[] buf, int ptr, int len,
-            boolean isBigEndian)
-    {
+    public UTF32Reader(IOContext ctxt, InputStream in, byte[] buf, int ptr, int len, boolean isBigEndian) {
         super(ctxt, in, buf, ptr, len);
         _bigEndian = isBigEndian;
         _managedBuffers = (in != null);
@@ -53,16 +49,10 @@ public class UTF32Reader
      */
 
     @Override
-	public int read(char[] cbuf, int start, int len)
-        throws IOException
-    {
+    public int read(char[] cbuf, int start, int len) throws IOException {
         // Already EOF?
-        if (_buffer == null) {
-            return -1;
-        }
-        if (len < 1) {
-            return len;
-        }
+        if (_buffer == null) { return -1; }
+        if (len < 1) { return len; }
         // Let's then ensure there's enough room...
         if (start < 0 || (start+len) > cbuf.length) {
             reportBounds(cbuf, start, len);
@@ -136,24 +126,16 @@ public class UTF32Reader
     /**********************************************************
      */
 
-    private void reportUnexpectedEOF(int gotBytes, int needed)
-        throws IOException
-    {
-        int bytePos = _byteCount + gotBytes;
-        int charPos = _charCount;
+    private void reportUnexpectedEOF(int gotBytes, int needed) throws IOException {
+        int bytePos = _byteCount + gotBytes, charPos = _charCount;
 
-        throw new CharConversionException("Unexpected EOF in the middle of a 4-byte UTF-32 char: got "
-                +gotBytes+", needed "+needed+", at char #"+charPos+", byte #"+bytePos+")");
+        throw new CharConversionException("Unexpected EOF in the middle of a 4-byte UTF-32 char: got "+gotBytes+", needed "+needed+", at char #"+charPos+", byte #"+bytePos+")");
     }
 
-    private void reportInvalid(int value, int offset, String msg)
-        throws IOException
-    {
-        int bytePos = _byteCount + _ptr - 1;
-        int charPos = _charCount + offset;
+    private void reportInvalid(int value, int offset, String msg) throws IOException {
+        int bytePos = _byteCount + _ptr - 1, charPos = _charCount + offset;
 
-        throw new CharConversionException("Invalid UTF-32 character 0x"
-                +Integer.toHexString(value)+msg+" at char #"+charPos+", byte #"+bytePos+")");
+        throw new CharConversionException("Invalid UTF-32 character 0x"+Integer.toHexString(value)+msg+" at char #"+charPos+", byte #"+bytePos+")");
     }
 
     /**
@@ -162,9 +144,7 @@ public class UTF32Reader
      * @return True, if enough bytes were read to allow decoding of at least
      *   one full character; false if EOF was encountered instead.
      */
-    private boolean loadMore(int available)
-        throws IOException
-    {
+    private boolean loadMore(int available) throws IOException {
         _byteCount += (_length - available);
 
         // Bytes that need to be moved to the beginning of buffer?

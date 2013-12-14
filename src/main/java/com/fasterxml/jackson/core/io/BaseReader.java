@@ -7,8 +7,7 @@ import java.io.*;
  * Simple basic class for optimized readers in this package; implements
  * "cookie-cutter" methods that are used by all actual implementations.
  */
-abstract class BaseReader
-    extends Reader
+abstract class BaseReader extends Reader
 {
     /**
      * JSON actually limits available Unicode range in the high end

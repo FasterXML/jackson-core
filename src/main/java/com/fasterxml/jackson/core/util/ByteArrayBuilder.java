@@ -12,68 +12,47 @@ import java.util.*;
  * Helper class that is similar to {@link java.io.ByteArrayOutputStream}
  * in usage, but more geared to Jackson use cases internally.
  * Specific changes include segment storage (no need to have linear
- * backing buffer, can avoid reallocs, copying), as well API
+ * backing buffer, can avoid reallocations, copying), as well API
  * not based on {@link java.io.OutputStream}. In short, a very much
  * specialized builder object.
  *<p>
- * Since version 1.5, also implements {@link OutputStream} to allow
+ * Also implements {@link OutputStream} to allow
  * efficient aggregation of output content as a byte array, similar
  * to how {@link java.io.ByteArrayOutputStream} works, but somewhat more
  * efficiently for many use cases.
  */
-public final class ByteArrayBuilder
-    extends OutputStream
+public final class ByteArrayBuilder extends OutputStream
 {
     private final static byte[] NO_BYTES = new byte[0];
     
-    /**
-     * Size of the first block we will allocate.
-     */
+    // Size of the first block we will allocate.
     private final static int INITIAL_BLOCK_SIZE = 500;
     
-    /**
-     * Maximum block size we will use for individual non-aggregated
-     * blocks. Let's limit to using 256k chunks.
-     */
+    // Maximum block size we will use for individual non-aggregated
+    // blocks. Let's limit to using 256k chunks.
     private final static int MAX_BLOCK_SIZE = (1 << 18);
     
     final static int DEFAULT_BLOCK_ARRAY_SIZE = 40;
 
-    /**
-     * Optional buffer recycler instance that we can use for allocating
-     * the first block.
-     */
+    // Optional buffer recycler instance that we can use for allocating the first block.
     private final BufferRecycler _bufferRecycler;
-    
     private final LinkedList<byte[]> _pastBlocks = new LinkedList<byte[]>();
     
-    /**
-     * Number of bytes within byte arrays in {@link _pastBlocks}.
-     */
+    // Number of bytes within byte arrays in {@link _pastBlocks}.
     private int _pastLen;
-
     private byte[] _currBlock;
-
     private int _currBlockPtr;
     
     public ByteArrayBuilder() { this(null); }
-
     public ByteArrayBuilder(BufferRecycler br) { this(br, INITIAL_BLOCK_SIZE); }
-
     public ByteArrayBuilder(int firstBlockSize) { this(null, firstBlockSize); }
 
-    public ByteArrayBuilder(BufferRecycler br, int firstBlockSize)
-    {
+    public ByteArrayBuilder(BufferRecycler br, int firstBlockSize) {
         _bufferRecycler = br;
-        if (br == null) {
-            _currBlock = new byte[firstBlockSize];
-        } else {
-            _currBlock = br.allocByteBuffer(BufferRecycler.ByteBufferType.WRITE_CONCAT_BUFFER);
-        }
+        _currBlock = (br == null) ? new byte[firstBlockSize] : br.allocByteBuffer(BufferRecycler.BYTE_WRITE_CONCAT_BUFFER);
     }
 
-    public void reset()
-    {
+    public void reset() {
         _pastLen = 0;
         _currBlockPtr = 0;
 
@@ -90,21 +69,19 @@ public final class ByteArrayBuilder
     public void release() {
         reset();
         if (_bufferRecycler != null && _currBlock != null) {
-            _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.WRITE_CONCAT_BUFFER, _currBlock);
+            _bufferRecycler.releaseByteBuffer(BufferRecycler.BYTE_WRITE_CONCAT_BUFFER, _currBlock);
             _currBlock = null;
         }
     }
 
-    public void append(int i)
-    {
+    public void append(int i) {
         if (_currBlockPtr >= _currBlock.length) {
             _allocMore();
         }
         _currBlock[_currBlockPtr++] = (byte) i;
     }
 
-    public void appendTwoBytes(int b16)
-    {
+    public void appendTwoBytes(int b16) {
         if ((_currBlockPtr + 1) < _currBlock.length) {
             _currBlock[_currBlockPtr++] = (byte) (b16 >> 8);
             _currBlock[_currBlockPtr++] = (byte) b16;
@@ -114,8 +91,7 @@ public final class ByteArrayBuilder
         }
     }
 
-    public void appendThreeBytes(int b24)
-    {
+    public void appendThreeBytes(int b24) {
         if ((_currBlockPtr + 2) < _currBlock.length) {
             _currBlock[_currBlockPtr++] = (byte) (b24 >> 16);
             _currBlock[_currBlockPtr++] = (byte) (b24 >> 8);
@@ -193,23 +169,14 @@ public final class ByteArrayBuilder
      * 
      * @return Coalesced contents
      */
-    public byte[] completeAndCoalesce(int lastBlockLength)
-    {
+    public byte[] completeAndCoalesce(int lastBlockLength) {
         _currBlockPtr = lastBlockLength;
         return toByteArray();
     }
 
-    public byte[] getCurrentSegment() {
-        return _currBlock;
-    }
-
-    public void setCurrentSegmentLength(int len) {
-        _currBlockPtr = len;
-    }
-
-    public int getCurrentSegmentLength() {
-        return _currBlockPtr;
-    }
+    public byte[] getCurrentSegment() { return _currBlock; }
+    public void setCurrentSegmentLength(int len) { _currBlockPtr = len; }
+    public int getCurrentSegmentLength() { return _currBlockPtr; }
     
     /*
     /**********************************************************
@@ -245,7 +212,6 @@ public final class ByteArrayBuilder
     }
 
     @Override public void close() { /* NOP */ }
-
     @Override public void flush() { /* NOP */ }
 
     /*

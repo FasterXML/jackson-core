@@ -57,5 +57,7 @@ public class TestDelegates extends com.fasterxml.jackson.test.BaseTest
         jg.copyCurrentStructure(jp);
         jg.flush();
         assertEquals("[{\"a-test\":true,\"a\":[1,2,{\"b-test\":true,\"b\":3}],\"c-test\":true,\"c\":\"d\"},{\"e-test\":true,\"e\":false},null]", sw.toString());
+        jp.close();
+        jg.close();
     }
 }

@@ -143,7 +143,7 @@ public final class TextBuffer
                 // And then return that array
                 char[] buf = _currentSegment;
                 _currentSegment = null;
-                _allocator.releaseCharBuffer(BufferRecycler.CharBufferType.TEXT_BUFFER, buf);
+                _allocator.releaseCharBuffer(BufferRecycler.CHAR_TEXT_BUFFER, buf);
             }
         }
     }
@@ -233,7 +233,7 @@ public final class TextBuffer
     private char[] findBuffer(int needed)
     {
         if (_allocator != null) {
-            return _allocator.allocCharBuffer(BufferRecycler.CharBufferType.TEXT_BUFFER, needed);
+            return _allocator.allocCharBuffer(BufferRecycler.CHAR_TEXT_BUFFER, needed);
         }
         return new char[Math.max(needed, MIN_SEGMENT_LEN)];
     }
@@ -402,9 +402,7 @@ public final class TextBuffer
      * Convenience method for converting contents of the buffer
      * into a Double value.
      */
-    public double contentsAsDouble()
-        throws NumberFormatException
-    {
+    public double contentsAsDouble() throws NumberFormatException {
         return NumberInput.parseDouble(contentsAsString());
     }
 
@@ -563,16 +561,10 @@ public final class TextBuffer
         return curr;
     }
 
-    public int getCurrentSegmentSize() {
-        return _currentSize;
-    }
+    public int getCurrentSegmentSize() { return _currentSize; }
+    public void setCurrentLength(int len) { _currentSize = len; }
 
-    public void setCurrentLength(int len) {
-        _currentSize = len;
-    }
-
-    public char[] finishCurrentSegment()
-    {
+    public char[] finishCurrentSegment() {
         if (_segments == null) {
             _segments = new ArrayList<char[]>();
         }
@@ -615,10 +607,7 @@ public final class TextBuffer
      * {@link #contentsAsString}, since it's not guaranteed that resulting
      * String is cached.
      */
-    @Override
-    public String toString() {
-         return contentsAsString();
-    }
+    @Override public String toString() { return contentsAsString(); }
 
     /*
     /**********************************************************
@@ -711,7 +700,5 @@ public final class TextBuffer
         return result;
     }
 
-    private char[] _charArray(int len) {
-        return new char[len];
-    }
+    private char[] _charArray(int len) { return new char[len]; }
 }

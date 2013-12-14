@@ -32,7 +32,7 @@ public final class InternCache
      * cases where multiple threads might try to concurrently
      * flush the map.
      */
-    private final static Object _flushLock = new Object();
+    private final Object _flushLock = new Object();
     
     private InternCache() {
         super(MAX_ENTRIES, 0.8f, 4);

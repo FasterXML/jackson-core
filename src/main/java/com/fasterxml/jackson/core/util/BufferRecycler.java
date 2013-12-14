@@ -10,81 +10,74 @@ package com.fasterxml.jackson.core.util;
  */
 public class BufferRecycler
 {
-    public final static int DEFAULT_WRITE_CONCAT_BUFFER_LEN = 2000;
+//    public final static int DEFAULT_WRITE_CONCAT_BUFFER_LEN = 2000;
+
+    /**
+     * Buffer used for reading byte-based input.
+     */
+    public final static int BYTE_READ_IO_BUFFER = 0;
+
+    /**
+     * Buffer used for temporarily storing encoded content; used
+     * for example by UTF-8 encoding writer
+     */
+    public final static int BYTE_WRITE_ENCODING_BUFFER = 1;
+
+    /**
+     * Buffer used for temporarily concatenating output; used for
+     * example when requesting output as byte array.
+     */
+    public final static int BYTE_WRITE_CONCAT_BUFFER = 2;
+
+    /**
+     * Buffer used for concatenating binary data that is either being
+     * encoded as base64 output, or decoded from base64 input.
+     * 
+     * @since 2.1
+     */
+    public final static int BYTE_BASE64_CODEC_BUFFER = 3;
+
+    public final static int CHAR_TOKEN_BUFFER = 0;  // Tokenizable input
+    public final static int CHAR_CONCAT_BUFFER = 1; // concatenated output
+    public final static int CHAR_TEXT_BUFFER = 2; // Text content from input
+    public final static int CHAR_NAME_COPY_BUFFER = 3; // Temporary buffer for getting name characters
+
+    private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 4000, 4000, 2000, 2000 };
+    private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 2000, 2000, 200, 200 };
     
-    public enum ByteBufferType {
-        READ_IO_BUFFER(4000)
-        /**
-         * Buffer used for temporarily storing encoded content; used
-         * for example by UTF-8 encoding writer
-         */
-        ,WRITE_ENCODING_BUFFER(4000)
-
-        /**
-         * Buffer used for temporarily concatenating output; used for
-         * example when requesting output as byte array.
-         */
-        ,WRITE_CONCAT_BUFFER(2000)
-        
-        /**
-         * Buffer used for concatenating binary data that is either being
-         * encoded as base64 output, or decoded from base64 input.
-         * 
-         * @since 2.1
-         */
-        ,BASE64_CODEC_BUFFER(2000)
-        ;
-            
-        protected final int size;
-
-        ByteBufferType(int size) { this.size = size; }
-    }
-
-    public enum CharBufferType {
-        TOKEN_BUFFER(2000) // Tokenizable input
-            ,CONCAT_BUFFER(2000) // concatenated output
-            ,TEXT_BUFFER(200) // Text content from input
-            ,NAME_COPY_BUFFER(200) // Temporary buffer for getting name characters
-            ;
-        
-        protected final int size;
-
-        CharBufferType(int size) { this.size = size; }
-    }
-
-    final protected byte[][] _byteBuffers = new byte[ByteBufferType.values().length][];
-    final protected char[][] _charBuffers = new char[CharBufferType.values().length][];
+    final protected byte[][] _byteBuffers = new byte[4][];
+    final protected char[][] _charBuffers = new char[4][];
 
     public BufferRecycler() { }
 
-    public final byte[] allocByteBuffer(ByteBufferType type)
+    /**
+     * @param ix One of <code>READ_IO_BUFFER</code> constants.
+     */
+    public final byte[] allocByteBuffer(int ix)
     {
-        int ix = type.ordinal();
         byte[] buffer = _byteBuffers[ix];
         if (buffer == null) {
-            buffer = balloc(type.size);
+            buffer = balloc(BYTE_BUFFER_LENGTHS[ix]);
         } else {
             _byteBuffers[ix] = null;
         }
         return buffer;
     }
 
-    public final void releaseByteBuffer(ByteBufferType type, byte[] buffer)
-    {
-        _byteBuffers[type.ordinal()] = buffer;
+    public final void releaseByteBuffer(int ix, byte[] buffer) {
+        _byteBuffers[ix] = buffer;
     }
 
-    public final char[] allocCharBuffer(CharBufferType type)
-    {
-        return allocCharBuffer(type, 0);
+    public final char[] allocCharBuffer(int ix) {
+        return allocCharBuffer(ix, 0);
     }
 
-    public final char[] allocCharBuffer(CharBufferType type, int minSize)
+    public final char[] allocCharBuffer(int ix, int minSize)
     {
-        if (type.size > minSize) {
-            minSize = type.size;
+        final int DEF_SIZE = CHAR_BUFFER_LENGTHS[ix];
+        if (minSize < DEF_SIZE) {
+            minSize = DEF_SIZE;
         }
-        int ix = type.ordinal();
         char[] buffer = _charBuffers[ix];
         if (buffer == null || buffer.length < minSize) {
             buffer = calloc(minSize);
@@ -94,9 +87,8 @@ public class BufferRecycler
         return buffer;
     }
 
-    public final void releaseCharBuffer(CharBufferType type, char[] buffer)
-    {
-        _charBuffers[type.ordinal()] = buffer;
+    public final void releaseCharBuffer(int ix, char[] buffer) {
+        _charBuffers[ix] = buffer;
     }
 
     /*
@@ -105,13 +97,6 @@ public class BufferRecycler
     /**********************************************************
      */
 
-    private byte[] balloc(int size)
-    {
-        return new byte[size];
-    }
-
-    private char[] calloc(int size)
-    {
-        return new char[size];
-    }
+    private byte[] balloc(int size) { return new byte[size]; }
+    private char[] calloc(int size) { return new char[size]; }
 }

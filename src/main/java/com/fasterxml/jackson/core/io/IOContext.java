@@ -135,13 +135,13 @@ public final class IOContext
     public byte[] allocReadIOBuffer()
     {
         _verifyAlloc(_readIOBuffer);
-        return (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.READ_IO_BUFFER));
+        return (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER));
     }
 
     public byte[] allocWriteEncodingBuffer()
     {
         _verifyAlloc(_writeEncodingBuffer);
-        return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.WRITE_ENCODING_BUFFER));
+        return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER));
     }
 
     /**
@@ -150,25 +150,25 @@ public final class IOContext
     public byte[] allocBase64Buffer()
     {
         _verifyAlloc(_base64Buffer);
-        return (_base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.ByteBufferType.BASE64_CODEC_BUFFER));
+        return (_base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_BASE64_CODEC_BUFFER));
     }
     
     public char[] allocTokenBuffer()
     {
         _verifyAlloc(_tokenCBuffer);
-        return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.TOKEN_BUFFER));
+        return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
     }
 
     public char[] allocConcatBuffer()
     {
         _verifyAlloc(_concatCBuffer);
-        return (_concatCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.CONCAT_BUFFER));
+        return (_concatCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_CONCAT_BUFFER));
     }
 
     public char[] allocNameCopyBuffer(int minSize)
     {
         _verifyAlloc(_nameCopyBuffer);
-        return (_nameCopyBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CharBufferType.NAME_COPY_BUFFER, minSize));
+        return (_nameCopyBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_NAME_COPY_BUFFER, minSize));
     }
 
     /**
@@ -183,7 +183,7 @@ public final class IOContext
              */
             _verifyRelease(buf, _readIOBuffer);
             _readIOBuffer = null;
-            _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.READ_IO_BUFFER, buf);
+            _bufferRecycler.releaseByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, buf);
         }
     }
 
@@ -195,7 +195,7 @@ public final class IOContext
              */
             _verifyRelease(buf, _writeEncodingBuffer);
             _writeEncodingBuffer = null;
-            _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.WRITE_ENCODING_BUFFER, buf);
+            _bufferRecycler.releaseByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER, buf);
         }
     }
 
@@ -204,7 +204,7 @@ public final class IOContext
         if (buf != null) { // sanity checks, release once-and-only-once, must be one owned
             _verifyRelease(buf, _base64Buffer);
             _base64Buffer = null;
-            _bufferRecycler.releaseByteBuffer(BufferRecycler.ByteBufferType.BASE64_CODEC_BUFFER, buf);
+            _bufferRecycler.releaseByteBuffer(BufferRecycler.BYTE_BASE64_CODEC_BUFFER, buf);
         }
     }
     
@@ -213,7 +213,7 @@ public final class IOContext
         if (buf != null) {
             _verifyRelease(buf, _tokenCBuffer);
             _tokenCBuffer = null;
-            _bufferRecycler.releaseCharBuffer(BufferRecycler.CharBufferType.TOKEN_BUFFER, buf);
+            _bufferRecycler.releaseCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, buf);
         }
     }
 
@@ -222,7 +222,7 @@ public final class IOContext
         if (buf != null) {
             _verifyRelease(buf, _concatCBuffer);
             _concatCBuffer = null;
-            _bufferRecycler.releaseCharBuffer(BufferRecycler.CharBufferType.CONCAT_BUFFER, buf);
+            _bufferRecycler.releaseCharBuffer(BufferRecycler.CHAR_CONCAT_BUFFER, buf);
         }
     }
 
@@ -231,7 +231,7 @@ public final class IOContext
         if (buf != null) {
             _verifyRelease(buf, _nameCopyBuffer);
             _nameCopyBuffer = null;
-            _bufferRecycler.releaseCharBuffer(BufferRecycler.CharBufferType.NAME_COPY_BUFFER, buf);
+            _bufferRecycler.releaseCharBuffer(BufferRecycler.CHAR_NAME_COPY_BUFFER, buf);
         }
     }
 

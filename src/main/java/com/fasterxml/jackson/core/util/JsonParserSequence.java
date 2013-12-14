@@ -89,11 +89,8 @@ public class JsonParserSequence extends JsonParserDelegate
      */
     
     @Override
-    public void close() throws IOException
-    {
-        do {
-            delegate.close();
-        } while (switchToNext());
+    public void close() throws IOException {
+        do { delegate.close(); } while (switchToNext());
     }
 
     @Override

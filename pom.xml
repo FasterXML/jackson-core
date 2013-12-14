@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>11</version>
+    <version>12</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -23,6 +23,7 @@
   </scm>
 
   <properties>
+    <javac.debuglevel>lines,source</javac.debuglevel>
     <!--
      | Configuration properties for the OSGi maven-bundle-plugin
     -->
@@ -68,37 +69,20 @@ com.fasterxml.jackson.core.*;version=${project.version}
                         </goals>
                     </execution>
           </executions>
-        </plugin>
-        <plugin>
+      </plugin>
+      <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
             <version>3.1</version>
-        </plugin>
-        <plugin>
+      </plugin>
+      <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${surefire.version}</version>
             <configuration>
                 <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
             </configuration>
-        </plugin>
-
-      <!-- May want to configure debug info -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <optimize>true</optimize>
-          <!-- 13-Dec-2013, tatu: For 2.3, minimized size; for 2.4+ may change settings
-            -->
-          <debug>true</debug>
-          <debuglevel>lines,source</debuglevel>
-<!--
-          <debuglevel>lines,source,vars</debuglevel>
--->
-        </configuration>
       </plugin>
-
       <plugin>
         <!-- Inherited from oss-base. Generate PackageVersion.java.-->
         <groupId>com.google.code.maven-replacer-plugin</groupId>

@@ -17,21 +17,21 @@ import com.fasterxml.jackson.core.util.InternCache;
  */
 public final class BytesToNameCanonicalizer
 {
-    protected static final int DEFAULT_TABLE_SIZE = 64;
+    private static final int DEFAULT_T_SIZE = 64;
 
     /**
      * Let's not expand symbol tables past some maximum size;
      * this should protected against OOMEs caused by large documents
      * with unique (~= random) names.
      */
-    protected static final int MAX_TABLE_SIZE = 0x10000; // 64k entries == 256k mem
+    private static final int MAX_T_SIZE = 0x10000; // 64k entries == 256k mem
     
     /**
      * Let's only share reasonably sized symbol tables. Max size set to 3/4 of 16k;
      * this corresponds to 64k main hash index. This should allow for enough distinct
      * names for almost any case.
      */
-    final static int MAX_ENTRIES_FOR_REUSE = 6000;
+    private final static int MAX_ENTRIES_FOR_REUSE = 6000;
 
     /**
      * Also: to thwart attacks based on hash collisions (which may or may not
@@ -45,7 +45,7 @@ public final class BytesToNameCanonicalizer
      * 
      * @since 2.1
      */
-    final static int MAX_COLL_CHAIN_LENGTH = 255;
+    private final static int MAX_COLL_CHAIN_LENGTH = 255;
 
     /**
      * And to support reduce likelihood of accidental collisions causing
@@ -102,7 +102,7 @@ public final class BytesToNameCanonicalizer
      * 
      * @since 2.1
      */
-    final private int _hashSeed;
+    final private int _seed;
     
     /*
     /**********************************************************
@@ -239,7 +239,7 @@ public final class BytesToNameCanonicalizer
     private BytesToNameCanonicalizer(int hashSize, boolean intern, int seed)
     {
         _parent = null;
-        _hashSeed = seed;
+        _seed = seed;
         _intern = intern;
         // Sanity check: let's now allow hash sizes below certain minimum value
         if (hashSize < MIN_HASH_SIZE) {
@@ -266,7 +266,7 @@ public final class BytesToNameCanonicalizer
             TableInfo state)
     {
         _parent = parent;
-        _hashSeed = seed;
+        _seed = seed;
         _intern = intern;
         _tableInfo = null; // not used by child tables
 
@@ -330,7 +330,7 @@ public final class BytesToNameCanonicalizer
      * value should remain the same.
      */
     protected static BytesToNameCanonicalizer createRoot(int hashSeed) {
-        return new BytesToNameCanonicalizer(DEFAULT_TABLE_SIZE, true, hashSeed);
+        return new BytesToNameCanonicalizer(DEFAULT_T_SIZE, true, hashSeed);
     }
     
     /**
@@ -343,7 +343,7 @@ public final class BytesToNameCanonicalizer
     public BytesToNameCanonicalizer makeChild(boolean canonicalize,
         boolean intern)
     {
-        return new BytesToNameCanonicalizer(this, intern, _hashSeed, _tableInfo.get());
+        return new BytesToNameCanonicalizer(this, intern, _seed, _tableInfo.get());
     }
 
     /**
@@ -390,7 +390,7 @@ public final class BytesToNameCanonicalizer
              * thing to happen)
              */
             // At any rate, need to clean up the tables
-            childState = initTableInfo(DEFAULT_TABLE_SIZE);
+            childState = initTableInfo(DEFAULT_T_SIZE);
         }
         _tableInfo.compareAndSet(currState, childState);
     }
@@ -427,7 +427,7 @@ public final class BytesToNameCanonicalizer
     /**
      * @since 2.1
      */
-    public int hashSeed() { return _hashSeed; }
+    public int hashSeed() { return _seed; }
     
     /**
      * Method mostly needed by unit tests; calculates number of
@@ -661,7 +661,7 @@ public final class BytesToNameCanonicalizer
     
     public int calcHash(int firstQuad)
     {
-        int hash = firstQuad ^ _hashSeed;
+        int hash = firstQuad ^ _seed;
         hash += (hash >>> 15); // to xor hi- and low- 16-bits
         hash ^= (hash >>> 9); // as well as lowest 2 bytes
         return hash;
@@ -675,7 +675,7 @@ public final class BytesToNameCanonicalizer
         int hash = firstQuad;
         hash ^= (hash >>> 15); // try mixing first and second byte pairs first
         hash += (secondQuad * MULT); // then add second quad
-        hash ^= _hashSeed;
+        hash ^= _seed;
         hash += (hash >>> 7); // and shuffle some more
         return hash;
     }
@@ -692,7 +692,7 @@ public final class BytesToNameCanonicalizer
          * add seed bit later in the game, and switch plus/xor around,
          * use different shift lengths.
          */
-        int hash = quads[0] ^ _hashSeed;
+        int hash = quads[0] ^ _seed;
         hash += (hash >>> 9);
         hash *= MULT;
         hash += quads[1];
@@ -881,7 +881,7 @@ public final class BytesToNameCanonicalizer
         /* 13-Mar-2010, tatu: Let's guard against OOME that could be caused by
          *    large documents with unique (or mostly so) names
          */
-        if (newLen > MAX_TABLE_SIZE) {
+        if (newLen > MAX_T_SIZE) {
             nukeSymbols();
             return;
         }

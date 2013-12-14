@@ -19,7 +19,7 @@ public final class Name1 extends Name
         q = quad;
     }
 
-    static Name1 getEmptyName() { return EMPTY; }
+    public static Name1 getEmptyName() { return EMPTY; }
 
     @Override public boolean equals(int quad) { return (quad == q); }
     @Override public boolean equals(int quad1, int quad2) { return (quad1 == q) && (quad2 == 0); }

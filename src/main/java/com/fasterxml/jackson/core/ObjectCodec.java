@@ -28,9 +28,7 @@ public abstract class ObjectCodec
 
     // Since 2.3: need baseline implementation to avoid backwards compatibility
     @Override
-    public Version version() {
-        return Version.unknownVersion();
-    }
+    public Version version() { return Version.unknownVersion(); }
     
     /*
     /**********************************************************
@@ -171,7 +169,7 @@ public abstract class ObjectCodec
      * @deprecated Since 2.1: Use {@link #getFactory} instead.
      */
     @Deprecated
-    public abstract JsonFactory getJsonFactory();
+    public JsonFactory getJsonFactory() { return getFactory(); }
 
     /**
      * Accessor for finding underlying data format factory
@@ -179,7 +177,5 @@ public abstract class ObjectCodec
      * 
      * @since 2.1
      */
-    public JsonFactory getFactory() {
-        return getJsonFactory();
-    }
+    public JsonFactory getFactory() { return getJsonFactory(); }
 }

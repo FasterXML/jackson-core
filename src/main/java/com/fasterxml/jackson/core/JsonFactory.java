@@ -831,8 +831,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(String content)
-        throws IOException, JsonParseException
+    public JsonParser createParser(String content) throws IOException, JsonParseException
     {
         Reader r = new StringReader(content);
         // true -> we own the Reader (and must close); not a big deal
@@ -859,18 +858,13 @@ public class JsonFactory
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
      * the parser, since caller has no access to it.
-     *<p>
-     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createParser</code>.
      *
      * @param f File that contains JSON content to parse
      * 
      * @deprecated Since 2.2, use {@link #createParser(File)} instead.
      */
     @Deprecated
-    public JsonParser createJsonParser(File f)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createJsonParser(File f) throws IOException, JsonParseException {
         return createParser(f);
     }
 
@@ -884,18 +878,13 @@ public class JsonFactory
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
      * the parser, since caller has no access to it.
-     *<p>
-     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createParser</code>.
      *
      * @param url URL pointing to resource that contains JSON content to parse
      * 
      * @deprecated Since 2.2, use {@link #createParser(URL)} instead.
      */
     @Deprecated
-    public JsonParser createJsonParser(URL url)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createJsonParser(URL url) throws IOException, JsonParseException {
         return createParser(url);
     }
 
@@ -911,18 +900,13 @@ public class JsonFactory
      *<p>
      * Note: no encoding argument is taken since it can always be
      * auto-detected as suggested by JSON RFC.
-     *<p>
-     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createParser</code>.
      *
      * @param in InputStream to use for reading JSON content to parse
      * 
      * @deprecated Since 2.2, use {@link #createParser(InputStream)} instead.
      */
     @Deprecated
-    public JsonParser createJsonParser(InputStream in)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createJsonParser(InputStream in) throws IOException, JsonParseException {
         return createParser(in);
     }
 
@@ -935,43 +919,29 @@ public class JsonFactory
      * end-of-stream is reacher, or parser close method called)
      * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
      * is enabled.
-     *<p>
-     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createParser</code>.
      *
      * @param r Reader to use for reading JSON content to parse
      * 
      * @deprecated Since 2.2, use {@link #createParser(Reader)} instead.
      */
     @Deprecated
-    public JsonParser createJsonParser(Reader r)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createJsonParser(Reader r) throws IOException, JsonParseException {
         return createParser(r);
     }
 
     /**
-     * Method for constructing parser for parsing
-     * the contents of given byte array.
-     *<p>
-     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createParser</code>.
+     * Method for constructing parser for parsing the contents of given byte array.
      * 
      * @deprecated Since 2.2, use {@link #createParser(byte[])} instead.
      */
     @Deprecated
-    public JsonParser createJsonParser(byte[] data)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createJsonParser(byte[] data) throws IOException, JsonParseException {
         return createParser(data);
     }
 
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
-     *<p>
-     * NOTE: as of 2.1, should not be used (will be deprecated in 2.2);
-     * instead, should call <code>createParser</code>.
      * 
      * @param data Buffer that contains data to parse
      * @param offset Offset of the first data byte within buffer
@@ -980,9 +950,7 @@ public class JsonFactory
      * @deprecated Since 2.2, use {@link #createParser(byte[],int,int)} instead.
      */
     @Deprecated
-    public JsonParser createJsonParser(byte[] data, int offset, int len)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createJsonParser(byte[] data, int offset, int len) throws IOException, JsonParseException {
         return createParser(data, offset, len);
     }
 
@@ -993,9 +961,7 @@ public class JsonFactory
      * @deprecated Since 2.2, use {@link #createParser(String)} instead.
      */
     @Deprecated
-    public JsonParser createJsonParser(String content)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createJsonParser(String content) throws IOException, JsonParseException {
         return createParser(content);
     }
 
@@ -1248,14 +1214,6 @@ public class JsonFactory
     }
 
     /**
-     * @deprecated since 2.1 -- use {@link #_createParser(InputStream, IOContext)} instead
-     */
-    @Deprecated
-    protected JsonParser _createJsonParser(InputStream in, IOContext ctxt) throws IOException, JsonParseException {
-        return _createParser(in, ctxt);
-    }
-    
-    /**
      * Overridable factory method that actually instantiates parser
      * using given {@link Reader} object for reading content.
      *<p>
@@ -1276,14 +1234,6 @@ public class JsonFactory
     }
 
     /**
-     * @deprecated since 2.1 -- use {@link #_createParser(Reader, IOContext)} instead
-     */
-    @Deprecated
-    protected JsonParser _createJsonParser(Reader r, IOContext ctxt) throws IOException, JsonParseException {
-        return _createParser(r, ctxt);
-    }
-
-    /**
      * Overridable factory method that actually instantiates parser
      * using given {@link Reader} object for reading content
      * passed as raw byte array.
@@ -1294,8 +1244,7 @@ public class JsonFactory
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
      */
-    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt)
-        throws IOException, JsonParseException
+    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException, JsonParseException
     {
         return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
                 _objectCodec, _rootByteSymbols, _rootCharSymbols,
@@ -1303,14 +1252,6 @@ public class JsonFactory
                 isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
     }
 
-    /**
-     * @deprecated since 2.1 -- use {@link #_createParser(byte[], int, int, IOContext)} instead
-     */
-    @Deprecated
-    protected JsonParser _createJsonParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException, JsonParseException {
-        return _createParser(data, offset, len, ctxt);
-    }
-    
     /*
     /**********************************************************
     /* Factory methods used by factory for creating generator instances,
@@ -1328,8 +1269,7 @@ public class JsonFactory
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
      */
-    protected JsonGenerator _createGenerator(Writer out, IOContext ctxt)
-        throws IOException
+    protected JsonGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException
     {
         WriterBasedJsonGenerator gen = new WriterBasedJsonGenerator(ctxt,
                 _generatorFeatures, _objectCodec, out);
@@ -1341,19 +1281,6 @@ public class JsonFactory
             gen.setRootValueSeparator(rootSep);
         }
         return gen;
-    }
-
-    /**
-     * @deprecated since 2.1 -- use {@link #_createGenerator(Writer, IOContext)} instead
-     */
-    @Deprecated
-    protected JsonGenerator _createJsonGenerator(Writer out, IOContext ctxt)
-        throws IOException
-    {
-        /* NOTE: MUST call the deprecated method until it is deleted, just so
-         * that override still works as expected, for now.
-         */
-        return _createGenerator(out, ctxt);
     }
 
     /**
@@ -1379,16 +1306,6 @@ public class JsonFactory
         return gen;
     }
 
-    /**
-     * @deprecated since 2.1
-     */
-    @Deprecated
-    protected JsonGenerator _createUTF8JsonGenerator(OutputStream out, IOContext ctxt)
-        throws IOException
-    {
-        return _createUTF8Generator(out, ctxt);
-    }
-
     protected Writer _createWriter(OutputStream out, JsonEncoding enc, IOContext ctxt) throws IOException
     {
         // note: this should not get called any more (caller checks, dispatches)
@@ -1409,8 +1326,7 @@ public class JsonFactory
      * Overridable factory method that actually instantiates desired
      * context object.
      */
-    protected IOContext _createContext(Object srcRef, boolean resourceManaged)
-    {
+    protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
     }
 
@@ -1437,9 +1353,7 @@ public class JsonFactory
      * parsers to use, when input is to be read from an URL.
      * This helps when reading file content via URL.
      */
-    protected InputStream _optimizedStreamFromURL(URL url)
-        throws IOException
-    {
+    protected InputStream _optimizedStreamFromURL(URL url) throws IOException {
         if ("file".equals(url.getProtocol())) {
             /* Can not do this if the path refers
              * to a network drive on windows. This fixes the problem;

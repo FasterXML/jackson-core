@@ -42,8 +42,8 @@ public class BufferRecycler
     public final static int CHAR_TEXT_BUFFER = 2; // Text content from input
     public final static int CHAR_NAME_COPY_BUFFER = 3; // Temporary buffer for getting name characters
 
-    private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 4000, 4000, 2000, 2000 };
-    private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 2000, 2000, 200, 200 };
+    private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 2000 };
+    private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
     
     final protected byte[][] _byteBuffers = new byte[4][];
     final protected char[][] _charBuffers = new char[4][];

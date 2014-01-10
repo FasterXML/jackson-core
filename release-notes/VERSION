@@ -1,6 +1,8 @@
 Project: jackson-core
 Version: 2.4.0 (xx-xxx-2014)
 
+#121: Increase size of low-level byte[]/char[] input/output buffers
+ (from 4k->8k for bytes, 2k->4k for chars)
 - Refactor `BufferRecycler` to eliminate helper enums
 
 ------------------------------------------------------------------------

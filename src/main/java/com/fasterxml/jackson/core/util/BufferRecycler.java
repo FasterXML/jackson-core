@@ -32,7 +32,7 @@ public class BufferRecycler
     /**
      * Buffer used for concatenating binary data that is either being
      * encoded as base64 output, or decoded from base64 input.
-     * 
+     *
      * @since 2.1
      */
     public final static int BYTE_BASE64_CODEC_BUFFER = 3;

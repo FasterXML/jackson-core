@@ -9,8 +9,10 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * contextual objects that need to be passed by the factory to
  * readers and writers are combined under this object. One instance
  * is created for each reader and writer.
+ *<p>
+ * NOTE: non-final since 2.4, to allow sub-classing.
  */
-public final class IOContext
+public class IOContext
 {
     /*
     /**********************************************************
@@ -132,14 +134,12 @@ public final class IOContext
      * Note: the method can only be called once during its life cycle.
      * This is to protect against accidental sharing.
      */
-    public byte[] allocReadIOBuffer()
-    {
+    public byte[] allocReadIOBuffer() {
         _verifyAlloc(_readIOBuffer);
         return (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER));
     }
 
-    public byte[] allocWriteEncodingBuffer()
-    {
+    public byte[] allocWriteEncodingBuffer() {
         _verifyAlloc(_writeEncodingBuffer);
         return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER));
     }
@@ -147,26 +147,22 @@ public final class IOContext
     /**
      * @since 2.1
      */
-    public byte[] allocBase64Buffer()
-    {
+    public byte[] allocBase64Buffer() {
         _verifyAlloc(_base64Buffer);
         return (_base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_BASE64_CODEC_BUFFER));
     }
     
-    public char[] allocTokenBuffer()
-    {
+    public char[] allocTokenBuffer() {
         _verifyAlloc(_tokenCBuffer);
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
     }
 
-    public char[] allocConcatBuffer()
-    {
+    public char[] allocConcatBuffer() {
         _verifyAlloc(_concatCBuffer);
         return (_concatCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_CONCAT_BUFFER));
     }
 
-    public char[] allocNameCopyBuffer(int minSize)
-    {
+    public char[] allocNameCopyBuffer(int minSize) {
         _verifyAlloc(_nameCopyBuffer);
         return (_nameCopyBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_NAME_COPY_BUFFER, minSize));
     }
@@ -175,8 +171,7 @@ public final class IOContext
      * Method to call when all the processing buffers can be safely
      * recycled.
      */
-    public void releaseReadIOBuffer(byte[] buf)
-    {
+    public void releaseReadIOBuffer(byte[] buf) {
         if (buf != null) {
             /* Let's do sanity checks to ensure once-and-only-once release,
              * as well as avoiding trying to release buffers not owned
@@ -187,8 +182,7 @@ public final class IOContext
         }
     }
 
-    public void releaseWriteEncodingBuffer(byte[] buf)
-    {
+    public void releaseWriteEncodingBuffer(byte[] buf) {
         if (buf != null) {
             /* Let's do sanity checks to ensure once-and-only-once release,
              * as well as avoiding trying to release buffers not owned
@@ -199,8 +193,7 @@ public final class IOContext
         }
     }
 
-    public void releaseBase64Buffer(byte[] buf)
-    {
+    public void releaseBase64Buffer(byte[] buf) {
         if (buf != null) { // sanity checks, release once-and-only-once, must be one owned
             _verifyRelease(buf, _base64Buffer);
             _base64Buffer = null;
@@ -208,8 +201,7 @@ public final class IOContext
         }
     }
     
-    public void releaseTokenBuffer(char[] buf)
-    {
+    public void releaseTokenBuffer(char[] buf) {
         if (buf != null) {
             _verifyRelease(buf, _tokenCBuffer);
             _tokenCBuffer = null;
@@ -217,8 +209,7 @@ public final class IOContext
         }
     }
 
-    public void releaseConcatBuffer(char[] buf)
-    {
+    public void releaseConcatBuffer(char[] buf) {
         if (buf != null) {
             _verifyRelease(buf, _concatCBuffer);
             _concatCBuffer = null;
@@ -226,8 +217,7 @@ public final class IOContext
         }
     }
 
-    public void releaseNameCopyBuffer(char[] buf)
-    {
+    public void releaseNameCopyBuffer(char[] buf) {
         if (buf != null) {
             _verifyRelease(buf, _nameCopyBuffer);
             _nameCopyBuffer = null;
@@ -241,15 +231,13 @@ public final class IOContext
     /**********************************************************
      */
 
-    private final void _verifyAlloc(Object buffer)
-    {
+    protected void _verifyAlloc(Object buffer) {
         if (buffer != null) {
             throw new IllegalStateException("Trying to call same allocXxx() method second time");
         }
     }
-    
-    private final void _verifyRelease(Object toRelease, Object src)
-    {
+
+    protected void _verifyRelease(Object toRelease, Object src) {
         if (toRelease != src) {
             throw new IllegalArgumentException("Trying to release buffer not owned by the context");
         }

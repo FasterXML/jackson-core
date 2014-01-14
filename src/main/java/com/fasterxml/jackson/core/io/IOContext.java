@@ -139,6 +139,14 @@ public class IOContext
         return (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER));
     }
 
+    /**
+     * @since 2.4
+     */
+    public byte[] allocReadIOBuffer(int minSize) {
+        _verifyAlloc(_readIOBuffer);
+        return (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, minSize));
+    }
+    
     public byte[] allocWriteEncodingBuffer() {
         _verifyAlloc(_writeEncodingBuffer);
         return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER));

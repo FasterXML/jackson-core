@@ -42,22 +42,60 @@ public class BufferRecycler
     public final static int CHAR_TEXT_BUFFER = 2; // Text content from input
     public final static int CHAR_NAME_COPY_BUFFER = 3; // Temporary buffer for getting name characters
 
+    // Buffer lengths, defined in 2.4 (smaller before that)
+    
     private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 2000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
     
-    final protected byte[][] _byteBuffers = new byte[4][];
-    final protected char[][] _charBuffers = new char[4][];
+    final protected byte[][] _byteBuffers;
+    final protected char[][] _charBuffers;
 
-    public BufferRecycler() { }
+    /*
+    /**********************************************************
+    /* Construction
+    /**********************************************************
+     */
+    
+    /**
+     * Default constructor used for creating instances of this default
+     * implementation.
+     */
+    public BufferRecycler() {
+        this(4, 4);
+    }
 
+    /**
+     * Alternate constructor to be used by sub-classes, to allow customization
+     * of number of low-level buffers in use.
+     * 
+     * @since 2.4
+     */
+    protected BufferRecycler(int bbCount, int cbCount) {
+        _byteBuffers = new byte[bbCount][];
+        _charBuffers = new char[cbCount][];
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, byte buffers
+    /**********************************************************
+     */
+    
     /**
      * @param ix One of <code>READ_IO_BUFFER</code> constants.
      */
-    public final byte[] allocByteBuffer(int ix)
-    {
+    public final byte[] allocByteBuffer(int ix) {
+        return allocByteBuffer(ix, 0);
+    }
+
+    public byte[] allocByteBuffer(int ix, int minSize) {
+        final int DEF_SIZE = charBufferLength(ix);
+        if (minSize < DEF_SIZE) {
+            minSize = DEF_SIZE;
+        }
         byte[] buffer = _byteBuffers[ix];
-        if (buffer == null) {
-            buffer = balloc(BYTE_BUFFER_LENGTHS[ix]);
+        if (buffer == null || buffer.length < minSize) {
+            buffer = balloc(byteBufferLength(ix));
         } else {
             _byteBuffers[ix] = null;
         }
@@ -68,13 +106,18 @@ public class BufferRecycler
         _byteBuffers[ix] = buffer;
     }
 
+    /*
+    /**********************************************************
+    /* Public API, char buffers
+    /**********************************************************
+     */
+    
     public final char[] allocCharBuffer(int ix) {
         return allocCharBuffer(ix, 0);
     }
-
-    public final char[] allocCharBuffer(int ix, int minSize)
-    {
-        final int DEF_SIZE = CHAR_BUFFER_LENGTHS[ix];
+    
+    public char[] allocCharBuffer(int ix, int minSize) {
+        final int DEF_SIZE = charBufferLength(ix);
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
@@ -87,16 +130,30 @@ public class BufferRecycler
         return buffer;
     }
 
-    public final void releaseCharBuffer(int ix, char[] buffer) {
+    public void releaseCharBuffer(int ix, char[] buffer) {
         _charBuffers[ix] = buffer;
     }
 
+    /*
+    /**********************************************************
+    /* Overridable helper methods
+    /**********************************************************
+     */
+
+    protected int byteBufferLength(int ix) {
+        return BYTE_BUFFER_LENGTHS[ix];
+    }
+
+    protected int charBufferLength(int ix) {
+        return CHAR_BUFFER_LENGTHS[ix];
+    }
+    
     /*
     /**********************************************************
     /* Actual allocations separated for easier debugging/profiling
     /**********************************************************
      */
 
-    private byte[] balloc(int size) { return new byte[size]; }
-    private char[] calloc(int size) { return new char[size]; }
+    protected byte[] balloc(int size) { return new byte[size]; }
+    protected char[] calloc(int size) { return new char[size]; }
 }

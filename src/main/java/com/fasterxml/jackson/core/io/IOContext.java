@@ -153,6 +153,14 @@ public class IOContext
     }
 
     /**
+     * @since 2.4
+     */
+    public byte[] allocWriteEncodingBuffer(int minSize) {
+        _verifyAlloc(_writeEncodingBuffer);
+        return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER, minSize));
+    }
+    
+    /**
      * @since 2.1
      */
     public byte[] allocBase64Buffer() {

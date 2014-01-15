@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 public final class CharTypes
 {
-    private final static char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
-    private final static byte[] HEX_BYTES;
+    private final static char[] HC = "0123456789ABCDEF".toCharArray();
+    private final static byte[] HB;
     static {
-        int len = HEX_CHARS.length;
-        HEX_BYTES = new byte[len];
+        int len = HC.length;
+        HB = new byte[len];
         for (int i = 0; i < len; ++i) {
-            HEX_BYTES[i] = (byte) HEX_CHARS[i];
+            HB[i] = (byte) HC[i];
         }
     }
 
@@ -240,22 +240,20 @@ public final class CharTypes
                 sb.append('0');
                 sb.append('0');
                 int value = c;  // widening
-                sb.append(HEX_CHARS[value >> 4]);
-                sb.append(HEX_CHARS[value & 0xF]);
+                sb.append(HC[value >> 4]);
+                sb.append(HC[value & 0xF]);
             } else { // "named", i.e. prepend with slash
                 sb.append((char) escCode);
             }
         }
     }
 
-    public static char[] copyHexChars()
-    {
-        return (char[]) HEX_CHARS.clone();
+    public static char[] copyHexChars() {
+        return (char[]) HC.clone();
     }
 
-    public static byte[] copyHexBytes()
-    {
-        return (byte[]) HEX_BYTES.clone();
+    public static byte[] copyHexBytes() {
+        return (byte[]) HB.clone();
     }
 }
 

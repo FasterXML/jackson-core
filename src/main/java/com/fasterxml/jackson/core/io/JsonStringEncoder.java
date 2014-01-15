@@ -16,9 +16,9 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  */
 public final class JsonStringEncoder
 {
-    private final static char[] HEX_CHARS = CharTypes.copyHexChars();
+    private final static char[] HC = CharTypes.copyHexChars();
 
-    private final static byte[] HEX_BYTES = CharTypes.copyHexBytes();
+    private final static byte[] HB = CharTypes.copyHexBytes();
 
     private final static int SURR1_FIRST = 0xD800;
     private final static int SURR1_LAST = 0xDBFF;
@@ -41,18 +41,18 @@ public final class JsonStringEncoder
      * Lazily constructed text buffer used to produce JSON encoded Strings
      * as characters (without UTF-8 encoding)
      */
-    protected TextBuffer _textBuffer;
+    protected TextBuffer _text;
 
     /**
      * Lazily-constructed builder used for UTF-8 encoding of text values
      * (quoted and unquoted)
      */
-    protected ByteArrayBuilder _byteBuilder;
+    protected ByteArrayBuilder _bytes;
     
     /**
      * Temporary buffer used for composing quote/escape sequences
      */
-    protected final char[] _quoteBuffer;
+    protected final char[] _qbuf;
     
     /*
     /**********************************************************
@@ -61,10 +61,10 @@ public final class JsonStringEncoder
      */
     
     public JsonStringEncoder() {
-        _quoteBuffer = new char[6];
-        _quoteBuffer[0] = '\\';
-        _quoteBuffer[2] = '0';
-        _quoteBuffer[3] = '0';
+        _qbuf = new char[6];
+        _qbuf[0] = '\\';
+        _qbuf[2] = '0';
+        _qbuf[3] = '0';
     }
     
     /**
@@ -94,10 +94,10 @@ public final class JsonStringEncoder
      */
     public char[] quoteAsString(String input)
     {
-        TextBuffer textBuffer = _textBuffer;
+        TextBuffer textBuffer = _text;
         if (textBuffer == null) {
             // no allocator; can add if we must, shouldn't need to
-            _textBuffer = textBuffer = new TextBuffer(null);
+            _text = textBuffer = new TextBuffer(null);
         }
         char[] outputBuffer = textBuffer.emptyAndGetCurrentSegment();
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
@@ -106,7 +106,7 @@ public final class JsonStringEncoder
         final int inputLen = input.length();
         int outPtr = 0;
  
-        outer_loop:
+        outer:
         while (inPtr < inputLen) {
             tight_loop:
             while (true) {
@@ -120,27 +120,27 @@ public final class JsonStringEncoder
                 }
                 outputBuffer[outPtr++] = c;
                 if (++inPtr >= inputLen) {
-                    break outer_loop;
+                    break outer;
                 }
             }
             // something to escape; 2 or 6-char variant? 
             char d = input.charAt(inPtr++);
             int escCode = escCodes[d];
             int length = (escCode < 0)
-                    ? _appendNumericEscape(d, _quoteBuffer)
-                    : _appendNamedEscape(escCode, _quoteBuffer);
+                    ? _appendNumeric(d, _qbuf)
+                    : _appendNamed(escCode, _qbuf);
                     ;
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
-                    System.arraycopy(_quoteBuffer, 0, outputBuffer, outPtr, first);
+                    System.arraycopy(_qbuf, 0, outputBuffer, outPtr, first);
                 }
                 outputBuffer = textBuffer.finishCurrentSegment();
                 int second = length - first;
-                System.arraycopy(_quoteBuffer, first, outputBuffer, 0, second);
+                System.arraycopy(_qbuf, first, outputBuffer, 0, second);
                 outPtr = second;
             } else {
-                System.arraycopy(_quoteBuffer, 0, outputBuffer, outPtr, length);
+                System.arraycopy(_qbuf, 0, outputBuffer, outPtr, length);
                 outPtr += length;
             }
         }
@@ -155,17 +155,17 @@ public final class JsonStringEncoder
     @SuppressWarnings("resource")
     public byte[] quoteAsUTF8(String text)
     {
-        ByteArrayBuilder byteBuilder = _byteBuilder;
-        if (byteBuilder == null) {
+        ByteArrayBuilder bb = _bytes;
+        if (bb == null) {
             // no allocator; can add if we must, shouldn't need to
-            _byteBuilder = byteBuilder = new ByteArrayBuilder(null);
+            _bytes = bb = new ByteArrayBuilder(null);
         }
         int inputPtr = 0;
         int inputEnd = text.length();
         int outputPtr = 0;
-        byte[] outputBuffer = byteBuilder.resetAndGetFirstSegment();
+        byte[] outputBuffer = bb.resetAndGetFirstSegment();
         
-        main_loop:
+        main:
         while (inputPtr < inputEnd) {
             final int[] escCodes = CharTypes.get7BitOutputEscapes();
 
@@ -176,16 +176,16 @@ public final class JsonStringEncoder
                     break inner_loop;
                 }
                 if (outputPtr >= outputBuffer.length) {
-                    outputBuffer = byteBuilder.finishCurrentSegment();
+                    outputBuffer = bb.finishCurrentSegment();
                     outputPtr = 0;
                 }
                 outputBuffer[outputPtr++] = (byte) ch;
                 if (++inputPtr >= inputEnd) {
-                    break main_loop;
+                    break main;
                 }
             }                
             if (outputPtr >= outputBuffer.length) {
-                outputBuffer = byteBuilder.finishCurrentSegment();
+                outputBuffer = bb.finishCurrentSegment();
                 outputPtr = 0;
             }
             // Ok, so what did we hit?
@@ -193,10 +193,11 @@ public final class JsonStringEncoder
             if (ch <= 0x7F) { // needs quoting
                 int escape = escCodes[ch];
                 // ctrl-char, 6-byte escape...
-                outputPtr = _appendByteEscape(ch, escape, byteBuilder, outputPtr);
-                outputBuffer = byteBuilder.getCurrentSegment();
-                continue main_loop;
-            } else if (ch <= 0x7FF) { // fine, just needs 2 byte output
+                outputPtr = _appendByte(ch, escape, bb, outputPtr);
+                outputBuffer = bb.getCurrentSegment();
+                continue main;
+            }
+            if (ch <= 0x7FF) { // fine, just needs 2 byte output
                 outputBuffer[outputPtr++] = (byte) (0xc0 | (ch >> 6));
                 ch = (0x80 | (ch & 0x3f));
             } else { // 3 or 4 bytes
@@ -204,31 +205,31 @@ public final class JsonStringEncoder
                 if (ch < SURR1_FIRST || ch > SURR2_LAST) { // nope
                     outputBuffer[outputPtr++] = (byte) (0xe0 | (ch >> 12));
                     if (outputPtr >= outputBuffer.length) {
-                        outputBuffer = byteBuilder.finishCurrentSegment();
+                        outputBuffer = bb.finishCurrentSegment();
                         outputPtr = 0;
                     }
                     outputBuffer[outputPtr++] = (byte) (0x80 | ((ch >> 6) & 0x3f));
                     ch = (0x80 | (ch & 0x3f));
                 } else { // yes, surrogate pair
                     if (ch > SURR1_LAST) { // must be from first range
-                        _illegalSurrogate(ch);
+                        _illegal(ch);
                     }
                     // and if so, followed by another from next range
                     if (inputPtr >= inputEnd) {
-                        _illegalSurrogate(ch);
+                        _illegal(ch);
                     }
-                    ch = _convertSurrogate(ch, text.charAt(inputPtr++));
+                    ch = _convert(ch, text.charAt(inputPtr++));
                     if (ch > 0x10FFFF) { // illegal, as per RFC 4627
-                        _illegalSurrogate(ch);
+                        _illegal(ch);
                     }
                     outputBuffer[outputPtr++] = (byte) (0xf0 | (ch >> 18));
                     if (outputPtr >= outputBuffer.length) {
-                        outputBuffer = byteBuilder.finishCurrentSegment();
+                        outputBuffer = bb.finishCurrentSegment();
                         outputPtr = 0;
                     }
                     outputBuffer[outputPtr++] = (byte) (0x80 | ((ch >> 12) & 0x3f));
                     if (outputPtr >= outputBuffer.length) {
-                        outputBuffer = byteBuilder.finishCurrentSegment();
+                        outputBuffer = bb.finishCurrentSegment();
                         outputPtr = 0;
                     }
                     outputBuffer[outputPtr++] = (byte) (0x80 | ((ch >> 6) & 0x3f));
@@ -236,12 +237,12 @@ public final class JsonStringEncoder
                 }
             }
             if (outputPtr >= outputBuffer.length) {
-                outputBuffer = byteBuilder.finishCurrentSegment();
+                outputBuffer = bb.finishCurrentSegment();
                 outputPtr = 0;
             }
             outputBuffer[outputPtr++] = (byte) ch;
         }
-        return _byteBuilder.completeAndCoalesce(outputPtr);
+        return _bytes.completeAndCoalesce(outputPtr);
     }
     
     /**
@@ -251,10 +252,10 @@ public final class JsonStringEncoder
     @SuppressWarnings("resource")
     public byte[] encodeAsUTF8(String text)
     {
-        ByteArrayBuilder byteBuilder = _byteBuilder;
+        ByteArrayBuilder byteBuilder = _bytes;
         if (byteBuilder == null) {
             // no allocator; can add if we must, shouldn't need to
-            _byteBuilder = byteBuilder = new ByteArrayBuilder(null);
+            _bytes = byteBuilder = new ByteArrayBuilder(null);
         }
         int inputPtr = 0;
         int inputEnd = text.length();
@@ -300,15 +301,15 @@ public final class JsonStringEncoder
                     outputBuffer[outputPtr++] = (byte) (0x80 | ((c >> 6) & 0x3f));
                 } else { // yes, surrogate pair
                     if (c > SURR1_LAST) { // must be from first range
-                        _illegalSurrogate(c);
+                        _illegal(c);
                     }
                     // and if so, followed by another from next range
                     if (inputPtr >= inputEnd) {
-                        _illegalSurrogate(c);
+                        _illegal(c);
                     }
-                    c = _convertSurrogate(c, text.charAt(inputPtr++));
+                    c = _convert(c, text.charAt(inputPtr++));
                     if (c > 0x10FFFF) { // illegal, as per RFC 4627
-                        _illegalSurrogate(c);
+                        _illegal(c);
                     }
                     outputBuffer[outputPtr++] = (byte) (0xf0 | (c >> 18));
                     if (outputPtr >= outputEnd) {
@@ -332,7 +333,7 @@ public final class JsonStringEncoder
             }
             outputBuffer[outputPtr++] = (byte) (0x80 | (c & 0x3f));
         }
-        return _byteBuilder.completeAndCoalesce(outputPtr);
+        return _bytes.completeAndCoalesce(outputPtr);
     }
     
     /*
@@ -341,51 +342,51 @@ public final class JsonStringEncoder
     /**********************************************************
      */
 
-    private int _appendNumericEscape(int value, char[] quoteBuffer) {
-        quoteBuffer[1] = 'u';
+    private int _appendNumeric(int value, char[] qbuf) {
+        qbuf[1] = 'u';
         // We know it's a control char, so only the last 2 chars are non-0
-        quoteBuffer[4] = HEX_CHARS[value >> 4];
-        quoteBuffer[5] = HEX_CHARS[value & 0xF];
+        qbuf[4] = HC[value >> 4];
+        qbuf[5] = HC[value & 0xF];
         return 6;
     }
 
-    private int _appendNamedEscape(int escCode, char[] quoteBuffer) {
-        quoteBuffer[1] = (char) escCode;
+    private int _appendNamed(int esc, char[] qbuf) {
+        qbuf[1] = (char) esc;
         return 2;
     }
 
-    private int _appendByteEscape(int ch, int escCode, ByteArrayBuilder byteBuilder, int ptr)
+    private int _appendByte(int ch, int esc, ByteArrayBuilder bb, int ptr)
     {
-        byteBuilder.setCurrentSegmentLength(ptr);
-        byteBuilder.append('\\');
-        if (escCode < 0) { // standard escape
-            byteBuilder.append('u');
+        bb.setCurrentSegmentLength(ptr);
+        bb.append('\\');
+        if (esc < 0) { // standard escape
+            bb.append('u');
             if (ch > 0xFF) {
                 int hi = (ch >> 8);
-                byteBuilder.append(HEX_BYTES[hi >> 4]);
-                byteBuilder.append(HEX_BYTES[hi & 0xF]);
+                bb.append(HB[hi >> 4]);
+                bb.append(HB[hi & 0xF]);
                 ch &= 0xFF;
             } else {
-                byteBuilder.append('0');
-                byteBuilder.append('0');
+                bb.append('0');
+                bb.append('0');
             }
-            byteBuilder.append(HEX_BYTES[ch >> 4]);
-            byteBuilder.append(HEX_BYTES[ch & 0xF]);
+            bb.append(HB[ch >> 4]);
+            bb.append(HB[ch & 0xF]);
         } else { // 2-char simple escape
-            byteBuilder.append((byte) escCode);
+            bb.append((byte) esc);
         }
-        return byteBuilder.getCurrentSegmentLength();
+        return bb.getCurrentSegmentLength();
     }
 
-    protected static int _convertSurrogate(int firstPart, int secondPart) {
+    private static int _convert(int p1, int p2) {
         // Ok, then, is the second part valid?
-        if (secondPart < SURR2_FIRST || secondPart > SURR2_LAST) {
-            throw new IllegalArgumentException("Broken surrogate pair: first char 0x"+Integer.toHexString(firstPart)+", second 0x"+Integer.toHexString(secondPart)+"; illegal combination");
+        if (p2 < SURR2_FIRST || p2 > SURR2_LAST) {
+            throw new IllegalArgumentException("Broken surrogate pair: first char 0x"+Integer.toHexString(p1)+", second 0x"+Integer.toHexString(p2)+"; illegal combination");
         }
-        return 0x10000 + ((firstPart - SURR1_FIRST) << 10) + (secondPart - SURR2_FIRST);
+        return 0x10000 + ((p1 - SURR1_FIRST) << 10) + (p2 - SURR2_FIRST);
     }
 
-    protected static void _illegalSurrogate(int code) {
-        throw new IllegalArgumentException(UTF8Writer.illegalSurrogateDesc(code));
+    private static void _illegal(int c) {
+        throw new IllegalArgumentException(UTF8Writer.illegalSurrogateDesc(c));
     }
 }

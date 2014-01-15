@@ -32,18 +32,13 @@ public final class InternCache
      * cases where multiple threads might try to concurrently
      * flush the map.
      */
-    private final Object _flushLock = new Object();
+    private final Object lock = new Object();
     
-    private InternCache() {
-        super(MAX_ENTRIES, 0.8f, 4);
-    }
+    private InternCache() { super(MAX_ENTRIES, 0.8f, 4); }
 
-    public String intern(String input)
-    {
+    public String intern(String input) {
         String result = get(input);
-        if (result != null) {
-            return result;
-        }
+        if (result != null) { return result; }
 
         /* 18-Sep-2013, tatu: We used to use LinkedHashMap, which has simple LRU
          *   method. No such functionality exists with CHM; and let's use simplest
@@ -55,7 +50,7 @@ public final class InternCache
              * storage gives close enough answer to real one here; and we are
              * more concerned with flooding than starvation.
              */
-            synchronized (_flushLock) {
+            synchronized (lock) {
                 if (size() >= MAX_ENTRIES) {
                     clear();
                 }

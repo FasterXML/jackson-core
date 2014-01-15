@@ -26,7 +26,6 @@ public class TestCustomEscaping extends com.fasterxml.jackson.test.BaseTest
     @SuppressWarnings("serial")
     static class MyEscapes extends CharacterEscapes
     {
-        
         private final int[] _asciiEscapes;
 
         public MyEscapes() {

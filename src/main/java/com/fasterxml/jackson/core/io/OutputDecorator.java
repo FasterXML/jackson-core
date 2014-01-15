@@ -8,10 +8,9 @@ import java.io.*;
  * writer) around original output destination, and apply additional
  * processing during write operations.
  */
+@SuppressWarnings("serial")
 public abstract class OutputDecorator implements java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
      * creating generator for given {@link OutputStream}, when this decorator

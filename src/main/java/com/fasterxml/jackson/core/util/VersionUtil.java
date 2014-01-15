@@ -22,9 +22,9 @@ import com.fasterxml.jackson.core.Versioned;
  */
 public class VersionUtil
 {
-    private final static Pattern VERSION_SEPARATOR = Pattern.compile("[-_./;:]");
+    private final static Pattern V_SEP = Pattern.compile("[-_./;:]");
 
-    private final Version _version;
+    private final Version _v;
 
     /*
     /**********************************************************
@@ -46,10 +46,10 @@ public class VersionUtil
         if (v == null) {
             v = Version.unknownVersion();
         }
-        _version = v;
+        _v = v;
     }
 
-    public Version version() { return _version; }
+    public Version version() { return _v; }
     
     /*
     /**********************************************************
@@ -114,11 +114,11 @@ public class VersionUtil
         }
     }
 
-    private static Version doReadVersion(final Reader reader)
+    private static Version doReadVersion(final Reader r)
     {
         String version = null, group = null, artifact = null;
 
-        final BufferedReader br = new BufferedReader(reader);
+        final BufferedReader br = new BufferedReader(r);
         try {
             version = br.readLine();
             if (version != null) {
@@ -147,15 +147,15 @@ public class VersionUtil
      * META-INF/maven/groupId/artifactId, containing the groupId,
      * artifactId and version of the library.
      *
-     * @param classLoader the ClassLoader to load the pom.properties file from
+     * @param cl the ClassLoader to load the pom.properties file from
      * @param groupId the groupId of the library
      * @param artifactId the artifactId of the library
      * @return The version
      */
     @SuppressWarnings("resource")
-    public static Version mavenVersionFor(ClassLoader classLoader, String groupId, String artifactId)
+    public static Version mavenVersionFor(ClassLoader cl, String groupId, String artifactId)
     {
-        InputStream pomProperties = classLoader.getResourceAsStream("META-INF/maven/"
+        InputStream pomProperties = cl.getResourceAsStream("META-INF/maven/"
                 + groupId.replaceAll("\\.", "/")+ "/" + artifactId + "/pom.properties");
         if (pomProperties != null) {
             try {
@@ -174,10 +174,10 @@ public class VersionUtil
         return Version.unknownVersion();
     }
 
-    public static Version parseVersion(String versionStr, String groupId, String artifactId)
+    public static Version parseVersion(String s, String groupId, String artifactId)
     {
-        if (versionStr != null && (versionStr = versionStr.trim()).length() > 0) {
-            String[] parts = VERSION_SEPARATOR.split(versionStr);
+        if (s != null && (s = s.trim()).length() > 0) {
+            String[] parts = V_SEP.split(s);
             return new Version(parseVersionPart(parts[0]),
                     (parts.length > 1) ? parseVersionPart(parts[1]) : 0,
                     (parts.length > 2) ? parseVersionPart(parts[2]) : 0,
@@ -187,11 +187,10 @@ public class VersionUtil
         return null;
     }
 
-    protected static int parseVersionPart(String partStr)
-    {
+    protected static int parseVersionPart(String s) {
         int number = 0;
-        for (int i = 0, len = partStr.length(); i < len; ++i) {
-            char c = partStr.charAt(i);
+        for (int i = 0, len = s.length(); i < len; ++i) {
+            char c = s.charAt(i);
             if (c > '9' || c < '0') break;
             number = (number * 10) + (c - '0');
         }

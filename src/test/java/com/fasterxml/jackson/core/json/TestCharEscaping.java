@@ -30,7 +30,8 @@ public class TestCharEscaping
         public SerializableString getEscapeSequence(int ch) {
           throw new UnsupportedOperationException("Not implemented for test");
         }
-      };
+    };
+
     /*
     /**********************************************************
     /* Unit tests

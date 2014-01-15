@@ -10,91 +10,74 @@ import java.io.*;
  * This is similar to {@link java.io.PushbackInputStream}, but here there's
  * only one implicit pushback, when instance is constructed.
  */
-public final class MergedStream
-    extends InputStream
+public final class MergedStream extends InputStream
 {
-    final protected IOContext _context;
+    final private IOContext _ctxt;
 
-    final InputStream _in;
+    final private InputStream _in;
 
-    byte[] _buffer;
+    private byte[] _b;
 
-    int _ptr;
+    private int _ptr;
 
-    final int _end;
+    final private int _end;
 
-    public MergedStream(IOContext context,
-            InputStream in, byte[] buf, int start, int end)
-    {
-        _context = context;
+    public MergedStream(IOContext ctxt, InputStream in, byte[] buf, int start, int end) {
+        _ctxt = ctxt;
         _in = in;
-        _buffer = buf;
+        _b = buf;
         _ptr = start;
         _end = end;
     }
 
     @Override
-    public int available() throws IOException
-    {
-        if (_buffer != null) {
+    public int available() throws IOException {
+        if (_b != null) {
             return _end - _ptr;
         }
         return _in.available();
     }
 
-    @Override
-    public void close() throws IOException
-    {
-        freeMergedBuffer();
+    @Override public void close() throws IOException {
+        _free();
         _in.close();
     }
 
-    @Override
-    public void mark(int readlimit)
-    {
-        if (_buffer == null) {
-            _in.mark(readlimit);
-        }
+    @Override public void mark(int readlimit) {
+        if (_b == null) { _in.mark(readlimit); }
     }
     
-    @Override
-    public boolean markSupported()
-    {
+    @Override public boolean markSupported() {
         // Only supports marks past the initial rewindable section...
-        return (_buffer == null) && _in.markSupported();
+        return (_b == null) && _in.markSupported();
     }
     
-    @Override
-    public int read() throws IOException
-    {
-        if (_buffer != null) {
-            int c = _buffer[_ptr++] & 0xFF;
+    @Override public int read() throws IOException {
+        if (_b != null) {
+            int c = _b[_ptr++] & 0xFF;
             if (_ptr >= _end) {
-                freeMergedBuffer();
+                _free();
             }
             return c;
         }
         return _in.read();
     }
     
-    @Override
-    public int read(byte[] b) throws IOException
-    {
+    @Override public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 
     @Override
-    public int 	read(byte[] b, int off, int len) throws IOException
-    {
-        if (_buffer != null) {
+    public int read(byte[] b, int off, int len) throws IOException {
+        if (_b != null) {
             int avail = _end - _ptr;
             if (len > avail) {
                 len = avail;
             }
-            System.arraycopy(_buffer, _ptr, b, off, len);
+            System.arraycopy(_b, _ptr, b, off, len);
             _ptr += len;
             if (_ptr >= _end) {
-                freeMergedBuffer();
+                _free();
             }
             return len;
         }
@@ -102,43 +85,36 @@ public final class MergedStream
     }
 
     @Override
-    public void reset() throws IOException
-    {
-        if (_buffer == null) {
-            _in.reset();
-        }
+    public void reset() throws IOException {
+        if (_b == null) { _in.reset(); }
     }
 
     @Override
-    public long skip(long n) throws IOException
-    {
+    public long skip(long n) throws IOException {
         long count = 0L;
 
-        if (_buffer != null) {
+        if (_b != null) {
             int amount = _end - _ptr;
 
             if (amount > n) { // all in pushed back segment?
                 _ptr += (int) n;
                 return n;
             }
-            freeMergedBuffer();
+            _free();
             count += amount;
             n -= amount;
         }
 
-        if (n > 0) {
-            count += _in.skip(n);
-        }
+        if (n > 0) { count += _in.skip(n); }
         return count;
     }
 
-    private void freeMergedBuffer()
-    {
-        byte[] buf = _buffer;
+    private void _free() {
+        byte[] buf = _b;
         if (buf != null) {
-            _buffer = null;
-            if (_context != null) {
-                _context.releaseReadIOBuffer(buf);
+            _b = null;
+            if (_ctxt != null) {
+                _ctxt.releaseReadIOBuffer(buf);
             }
         }
     }

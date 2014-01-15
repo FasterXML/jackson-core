@@ -227,6 +227,7 @@ public class IOContext
 
     public void releaseConcatBuffer(char[] buf) {
         if (buf != null) {
+            // 14-Jan-2014, tatu: Let's actually allow upgrade of the original buffer.
             _verifyRelease(buf, _concatCBuffer);
             _concatCBuffer = null;
             _bufferRecycler.releaseCharBuffer(BufferRecycler.CHAR_CONCAT_BUFFER, buf);
@@ -235,6 +236,7 @@ public class IOContext
 
     public void releaseNameCopyBuffer(char[] buf) {
         if (buf != null) {
+            // 14-Jan-2014, tatu: Let's actually allow upgrade of the original buffer.
             _verifyRelease(buf, _nameCopyBuffer);
             _nameCopyBuffer = null;
             _bufferRecycler.releaseCharBuffer(BufferRecycler.CHAR_NAME_COPY_BUFFER, buf);
@@ -248,14 +250,16 @@ public class IOContext
      */
 
     protected void _verifyAlloc(Object buffer) {
-        if (buffer != null) {
-            throw new IllegalStateException("Trying to call same allocXxx() method second time");
-        }
+        if (buffer != null) { throw new IllegalStateException("Trying to call same allocXxx() method second time"); }
     }
 
-    protected void _verifyRelease(Object toRelease, Object src) {
-        if (toRelease != src) {
-            throw new IllegalArgumentException("Trying to release buffer not owned by the context");
-        }
+    protected void _verifyRelease(byte[] toRelease, byte[] src) {
+        if ((toRelease != src) && (toRelease.length <= src.length)) { throw wrongBuf(); }
     }
+
+    protected void _verifyRelease(char[] toRelease, char[] src) {
+        if ((toRelease != src) && (toRelease.length <= src.length)) { throw wrongBuf(); }
+    }
+
+    private IllegalArgumentException wrongBuf() { return new IllegalArgumentException("Trying to release buffer not owned by the context"); }
 }

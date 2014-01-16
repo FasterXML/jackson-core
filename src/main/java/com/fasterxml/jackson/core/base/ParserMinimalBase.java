@@ -551,15 +551,11 @@ public abstract class ParserMinimalBase
         return "'"+c+"' (code "+ch+")";
     }
 
-    protected final void _reportError(String msg)
-        throws JsonParseException
-    {
+    protected final void _reportError(String msg) throws JsonParseException {
         throw _constructError(msg);
     }
 
-    protected final void _wrapError(String msg, Throwable t)
-        throws JsonParseException
-    {
+    protected final void _wrapError(String msg, Throwable t) throws JsonParseException {
         throw _constructError(msg, t);
     }
 
@@ -567,8 +563,7 @@ public abstract class ParserMinimalBase
         VersionUtil.throwInternal();
     }
 
-    protected final JsonParseException _constructError(String msg, Throwable t)
-    {
+    protected final JsonParseException _constructError(String msg, Throwable t) {
         return new JsonParseException(msg, getCurrentLocation(), t);
     }
 }

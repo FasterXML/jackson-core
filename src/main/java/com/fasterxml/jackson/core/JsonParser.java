@@ -244,9 +244,7 @@ public abstract class JsonParser
      */
 
     protected JsonParser() { }
-    protected JsonParser(int features) {
-        _features = features;
-    }
+    protected JsonParser(int features) { _features = features; }
 
     /**
      * Accessor for {@link ObjectCodec} associated with this
@@ -449,10 +447,8 @@ public abstract class JsonParser
      * Method for enabling or disabling specified feature
      * (check {@link Feature} for list of features)
      */
-    public JsonParser configure(Feature f, boolean state)
-    {
-        if (state) { enable(f);
-        } else { disable(f); }
+    public JsonParser configure(Feature f, boolean state) {
+        if (state) enable(f); else disable(f);
         return this;
     }
     
@@ -468,9 +464,7 @@ public abstract class JsonParser
      * 
      * @since 2.3
      */
-    public int getFeatureMask() {
-        return _features;
-    }
+    public int getFeatureMask() { return _features; }
 
     /**
      * Bulk set method for (re)settting states of all standard {@link Feature}s
@@ -499,8 +493,7 @@ public abstract class JsonParser
      * @return Next token from the stream, if any found, or null
      *   to indicate end-of-input
      */
-    public abstract JsonToken nextToken()
-        throws IOException;
+    public abstract JsonToken nextToken() throws IOException;
 
     /**
      * Iteration method that will advance stream enough
@@ -549,8 +542,7 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      */
-    public String nextTextValue() throws IOException
-    {
+    public String nextTextValue() throws IOException {
         return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
     }
 
@@ -598,8 +590,7 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      */
-    public Boolean nextBooleanValue() throws IOException
-    {
+    public Boolean nextBooleanValue() throws IOException {
         JsonToken t = nextToken();
         if (t == JsonToken.VALUE_TRUE) { return Boolean.TRUE; }
         if (t == JsonToken.VALUE_FALSE) { return Boolean.FALSE; }
@@ -813,8 +804,7 @@ public abstract class JsonParser
      * is to avoid construction of a String object (which
      * will make a copy of contents).
      */
-    public abstract char[] getTextCharacters()
-        throws IOException;
+    public abstract char[] getTextCharacters() throws IOException;
 
     /**
      * Accessor used with {@link #getTextCharacters}, to know length
@@ -890,8 +880,7 @@ public abstract class JsonParser
      * Java byte, a {@link JsonParseException}
      * will be thrown to indicate numeric overflow/underflow.
      */
-    public byte getByteValue() throws IOException
-    {
+    public byte getByteValue() throws IOException {
         int value = getIntValue();
         // So far so good: but does it fit?
         // [JACKSON-804]: Let's actually allow range of [-128, 255], as those are uniquely mapped
@@ -1059,13 +1048,13 @@ public abstract class JsonParser
      * Decoded binary content, however, will be retained until
      * parser is advanced to the next event.
      *
-     * @param b64variant Expected variant of base64 encoded
+     * @param bv Expected variant of base64 encoded
      *   content (see {@link Base64Variants} for definitions
      *   of "standard" variants).
      *
      * @return Decoded binary data
      */
-    public abstract byte[] getBinaryValue(Base64Variant b64variant) throws IOException;
+    public abstract byte[] getBinaryValue(Base64Variant bv) throws IOException;
 
     /**
      * Convenience alternative to {@link #getBinaryValue(Base64Variant)}
@@ -1098,16 +1087,14 @@ public abstract class JsonParser
      * Similar to {@link #readBinaryValue(OutputStream)} but allows explicitly
      * specifying base64 variant to use.
      * 
-     * @param b64variant base64 variant to use
+     * @param bv base64 variant to use
      * @param out Output stream to use for passing decoded binary data
      * 
      * @return Number of bytes that were decoded and written via {@link OutputStream}
      * 
      * @since 2.1
      */
-    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
-            throws IOException
-    {
+    public int readBinaryValue(Base64Variant bv, OutputStream out) throws IOException {
         _reportUnsupportedOperation();
         return 0; // never gets here
     }
@@ -1142,11 +1129,9 @@ public abstract class JsonParser
      *<p>
      * If representation can not be converted to an int (including structured type
      * markers like start/end Object/Array)
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * specified <b>def</b> will be returned; no exceptions are thrown.
      */
-    public int getValueAsInt(int defaultValue) throws IOException {
-        return defaultValue;
-    }
+    public int getValueAsInt(int def) throws IOException { return def; }
 
     /**
      * Method that will try to convert value of current token to a
@@ -1172,10 +1157,10 @@ public abstract class JsonParser
      *<p>
      * If representation can not be converted to an int (including structured type
      * markers like start/end Object/Array)
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * specified <b>def</b> will be returned; no exceptions are thrown.
      */
-    public long getValueAsLong(long defaultValue) throws IOException {
-        return defaultValue;
+    public long getValueAsLong(long def) throws IOException {
+        return def;
     }
     
     /**
@@ -1202,10 +1187,10 @@ public abstract class JsonParser
      *<p>
      * If representation can not be converted to an int (including structured types
      * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * specified <b>def</b> will be returned; no exceptions are thrown.
      */
-    public double getValueAsDouble(double defaultValue) throws IOException {
-        return defaultValue;
+    public double getValueAsDouble(double def) throws IOException {
+        return def;
     }
 
     /**
@@ -1232,10 +1217,10 @@ public abstract class JsonParser
      *<p>
      * If representation can not be converted to a boolean value (including structured types
      * like Objects and Arrays),
-     * specified <b>defaultValue</b> will be returned; no exceptions are thrown.
+     * specified <b>def</b> will be returned; no exceptions are thrown.
      */
-    public boolean getValueAsBoolean(boolean defaultValue) throws IOException {
-        return defaultValue;
+    public boolean getValueAsBoolean(boolean def) throws IOException {
+        return def;
     }
 
     /**
@@ -1264,7 +1249,7 @@ public abstract class JsonParser
      * 
      * @since 2.1
      */
-    public abstract String getValueAsString(String defaultValue) throws IOException;
+    public abstract String getValueAsString(String def) throws IOException;
 
     /*
     /**********************************************************
@@ -1298,9 +1283,7 @@ public abstract class JsonParser
      * 
      * @since 2.3
      */
-    public boolean canReadTypeId() {
-        return false;
-    }
+    public boolean canReadTypeId() { return false; }
 
     /**
      * Method that can be called to check whether current token
@@ -1359,13 +1342,8 @@ public abstract class JsonParser
      * The reason is that due to type erasure, key and value types
      * can not be introspected when using this method.
      */
-    public <T> T readValueAs(Class<T> valueType) throws IOException
-    {
-        ObjectCodec codec = getCodec();
-        if (codec == null) {
-            throw new IllegalStateException("No ObjectCodec defined for the parser, can not deserialize JSON into Java objects");
-        }
-        return codec.readValue(this, valueType);
+    public <T> T readValueAs(Class<T> valueType) throws IOException {
+        return _codec().readValue(this, valueType);
     }
 
     /**
@@ -1387,42 +1365,24 @@ public abstract class JsonParser
      * stream is not advanced.
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException
-    {
-        ObjectCodec codec = getCodec();
-        if (codec == null) {
-            throw new IllegalStateException("No ObjectCodec defined for the parser, can not deserialize JSON into Java objects");
-        }
-        /* Ugh. Stupid Java type erasure... can't just chain call,s
-         * must cast here also.
-         */
-        return (T) codec.readValue(this, valueTypeRef);
+    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException {
+        return (T) _codec().readValue(this, valueTypeRef);
     }
 
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
      */
-    public <T> Iterator<T> readValuesAs(Class<T> valueType) throws IOException
-    {
-        ObjectCodec codec = getCodec();
-        if (codec == null) {
-            throw new IllegalStateException("No ObjectCodec defined for the parser, can not deserialize JSON into Java objects");
-        }
-        return codec.readValues(this, valueType);
+    public <T> Iterator<T> readValuesAs(Class<T> valueType) throws IOException {
+        return _codec().readValues(this, valueType);
     }
 
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
      */
-    public <T> Iterator<T> readValuesAs(TypeReference<?> valueTypeRef) throws IOException
-    {
-        ObjectCodec codec = getCodec();
-        if (codec == null) {
-            throw new IllegalStateException("No ObjectCodec defined for the parser, can not deserialize JSON into Java objects");
-        }
-        return codec.readValues(this, valueTypeRef);
+    public <T> Iterator<T> readValuesAs(TypeReference<?> valueTypeRef) throws IOException {
+        return _codec().readValues(this, valueTypeRef);
     }
     
     /**
@@ -1434,13 +1394,17 @@ public abstract class JsonParser
      */
     @SuppressWarnings("unchecked")
     public <T extends TreeNode> T readValueAsTree() throws IOException {
-        ObjectCodec codec = getCodec();
-        if (codec == null) {
-            throw new IllegalStateException("No ObjectCodec defined for the parser, can not deserialize JSON into JsonNode tree");
-        }
-        return (T) codec.readTree(this);
+        return (T) _codec().readTree(this);
     }
 
+    protected ObjectCodec _codec() {
+        ObjectCodec c = getCodec();
+        if (c == null) {
+            throw new IllegalStateException("No ObjectCodec defined for parser, needed for deserialization");
+        }
+        return c;
+    }
+    
     /*
     /**********************************************************
     /* Internal methods

@@ -289,8 +289,7 @@ public abstract class ParserBase
         _textBuffer = ctxt.constructTextBuffer();
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
-        JsonReadContext readCtxt = JsonReadContext.createRootContext(dups);
-        _parsingContext = readCtxt;
+        _parsingContext = JsonReadContext.createRootContext(dups);
     }
 
     @Override
@@ -663,7 +662,7 @@ public abstract class ParserBase
     }
     
     @Override
-    public float getFloatValue() throws IOException, JsonParseException
+    public float getFloatValue() throws IOException
     {
         double value = getDoubleValue();
         /* 22-Jan-2009, tatu: Bounds/range checks would be tricky

@@ -57,18 +57,26 @@ public class BufferRecycler
 
     public BufferRecycler() { }
 
-    public final byte[] allocByteBuffer(ByteBufferType type)
+    public final byte[] allocByteBuffer(ByteBufferType type) {
+        return allocByteBuffer(type, 0);
+    }
+
+    public final byte[] allocByteBuffer(ByteBufferType type, int minSize)
     {
-        int ix = type.ordinal();
+        final int ix = type.ordinal();
+        final int DEF_SIZE = type.size;
+        if (minSize < DEF_SIZE) {
+            minSize = DEF_SIZE;
+        }
         byte[] buffer = _byteBuffers[ix];
-        if (buffer == null) {
-            buffer = balloc(type.size);
+        if (buffer == null || buffer.length < minSize) {
+            buffer = balloc(minSize);
         } else {
             _byteBuffers[ix] = null;
         }
         return buffer;
     }
-
+    
     public final void releaseByteBuffer(ByteBufferType type, byte[] buffer)
     {
         _byteBuffers[type.ordinal()] = buffer;

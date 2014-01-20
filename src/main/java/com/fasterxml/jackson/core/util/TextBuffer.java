@@ -118,8 +118,7 @@ public final class TextBuffer
     /**********************************************************
      */
 
-    public TextBuffer(BufferRecycler allocator)
-    {
+    public TextBuffer(BufferRecycler allocator) {
         _allocator = allocator;
     }
 
@@ -204,7 +203,7 @@ public final class TextBuffer
         if (_hasSegments) {
             clearSegments();
         } else if (_currentSegment == null) {
-            _currentSegment = findBuffer(len);
+            _currentSegment = buf(len);
         }
         _currentSize = _segmentSize = 0;
         append(buf, start, len);
@@ -230,7 +229,7 @@ public final class TextBuffer
      * Helper method used to find a buffer to use, ideally one
      * recycled earlier.
      */
-    private char[] findBuffer(int needed)
+    private char[] buf(int needed)
     {
         if (_allocator != null) {
             return _allocator.allocCharBuffer(BufferRecycler.CHAR_TEXT_BUFFER, needed);
@@ -275,8 +274,7 @@ public final class TextBuffer
         return _segmentSize + _currentSize;
     }
 
-    public int getTextOffset()
-    {
+    public int getTextOffset() {
         /* Only shared input buffer can have non-zero offset; buffer
          * segments start at 0, and if we have to create a combo buffer,
          * that too will start from beginning of the buffer
@@ -291,32 +289,22 @@ public final class TextBuffer
     public boolean hasTextAsCharacters()
     {
         // if we have array in some form, sure
-        if (_inputStart >= 0 || _resultArray != null) {
-            return true;
-        }
+        if (_inputStart >= 0 || _resultArray != null)  return true;
         // not if we have String as value
-        if (_resultString != null) {
-            return false;
-        }
+        if (_resultString != null) return false;
         return true;
     }
     
     public char[] getTextBuffer()
     {
         // Are we just using shared input buffer?
-        if (_inputStart >= 0) {
-            return _inputBuffer;
-        }
-        if (_resultArray != null) {
-            return _resultArray;
-        }
+        if (_inputStart >= 0) return _inputBuffer;
+        if (_resultArray != null)  return _resultArray;
         if (_resultString != null) {
             return (_resultArray = _resultString.toCharArray());
         }
         // Nope; but does it fit in just one segment?
-        if (!_hasSegments) {
-            return _currentSegment;
-        }
+        if (!_hasSegments)  return _currentSegment;
         // Nope, need to have/create a non-segmented array and return it
         return contentsAsArray();
     }
@@ -366,11 +354,10 @@ public final class TextBuffer
         return _resultString;
     }
  
-    public char[] contentsAsArray()
-    {
+    public char[] contentsAsArray() {
         char[] result = _resultArray;
         if (result == null) {
-            _resultArray = result = buildResultArray();
+            _resultArray = result = resultArray();
         }
         return result;
     }
@@ -379,8 +366,7 @@ public final class TextBuffer
      * Convenience method for converting contents of the buffer
      * into a {@link BigDecimal}.
      */
-    public BigDecimal contentsAsDecimal()
-        throws NumberFormatException
+    public BigDecimal contentsAsDecimal() throws NumberFormatException
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
@@ -530,7 +516,7 @@ public final class TextBuffer
         } else {
             char[] curr = _currentSegment;
             if (curr == null) {
-                _currentSegment = findBuffer(0);
+                _currentSegment = buf(0);
             } else if (_currentSize >= curr.length) {
                 // Plus, we better have room for at least one more char
                 expand(1);
@@ -556,7 +542,7 @@ public final class TextBuffer
         }
         char[] curr = _currentSegment;
         if (curr == null) {
-            _currentSegment = curr = findBuffer(0);
+            _currentSegment = curr = buf(0);
         }
         return curr;
     }
@@ -574,7 +560,7 @@ public final class TextBuffer
         _segmentSize += oldLen;
         // Let's grow segments by 50%
         int newLen = Math.min(oldLen + (oldLen >> 1), MAX_SEGMENT_LEN);
-        char[] curr = _charArray(newLen);
+        char[] curr = carr(newLen);
         _currentSize = 0;
         _currentSegment = curr;
         return curr;
@@ -591,9 +577,24 @@ public final class TextBuffer
         // Let's grow by 50%
         final int len = curr.length;
         // Must grow by at least 1 char, no matter what
-        int newLen = (len == MAX_SEGMENT_LEN) ?
-            (MAX_SEGMENT_LEN + 1) : Math.min(MAX_SEGMENT_LEN, len + (len >> 1));
+        int newLen = (len == MAX_SEGMENT_LEN) ? (MAX_SEGMENT_LEN+1) : Math.min(MAX_SEGMENT_LEN, len + (len >> 1));
         return (_currentSegment = Arrays.copyOf(curr, newLen));
+    }
+
+    /**
+     * Method called to expand size of the current segment, to
+     * accommodate for more contiguous content. Usually only
+     * used when parsing tokens like names if even then.
+     * 
+     * @param minSize Required minimum strength of the current segment
+     *
+     * @since 2.4.0
+     */
+    public char[] expandCurrentSegment(int minSize) {
+        char[] curr = _currentSegment;
+        if (curr.length >= minSize) return curr;
+        _currentSegment = curr = Arrays.copyOf(curr, minSize);
+        return curr;
     }
 
     /*
@@ -631,7 +632,7 @@ public final class TextBuffer
         // Is buffer big enough, or do we need to reallocate?
         int needed = sharedLen+needExtra;
         if (_currentSegment == null || needed > _currentSegment.length) {
-            _currentSegment = findBuffer(needed);
+            _currentSegment = buf(needed);
         }
         if (sharedLen > 0) {
             System.arraycopy(inputBuf, start, _currentSegment, 0, sharedLen);
@@ -661,10 +662,10 @@ public final class TextBuffer
             sizeAddition = minNewSegmentSize;
         }
         _currentSize = 0;
-        _currentSegment = _charArray(Math.min(MAX_SEGMENT_LEN, oldLen + sizeAddition));
+        _currentSegment = carr(Math.min(MAX_SEGMENT_LEN, oldLen + sizeAddition));
     }
 
-    private char[] buildResultArray()
+    private char[] resultArray()
     {
         if (_resultString != null) { // Can take a shortcut...
             return _resultString.toCharArray();
@@ -687,7 +688,7 @@ public final class TextBuffer
             return NO_CHARS;
         }
         int offset = 0;
-        final char[] result = _charArray(size);
+        final char[] result = carr(size);
         if (_segments != null) {
             for (int i = 0, len = _segments.size(); i < len; ++i) {
                 char[] curr = (char[]) _segments.get(i);
@@ -700,5 +701,5 @@ public final class TextBuffer
         return result;
     }
 
-    private char[] _charArray(int len) { return new char[len]; }
+    private char[] carr(int len) { return new char[len]; }
 }

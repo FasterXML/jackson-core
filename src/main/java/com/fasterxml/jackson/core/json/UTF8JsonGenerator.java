@@ -249,16 +249,10 @@ public class UTF8JsonGenerator
         _writeFieldName(name);
     }
 
-    protected final void _writeFieldName(SerializableString name)
-        throws IOException, JsonGenerationException
+    protected final void _writeFieldName(SerializableString name) throws IOException
     {
         if (!_cfgQuoteNames) {
-            int len = name.appendQuotedUTF8(_outputBuffer, _outputTail); // different quoting (escaping)
-            if (len < 0) {
-                _writeBytes(name.asQuotedUTF8());
-            } else {
-                _outputTail += len;
-            }
+            _writeUnq(name);
             return;
         }
         if (_outputTail >= _outputEnd) {
@@ -277,6 +271,15 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }    
 
+    private final void _writeUnq(SerializableString name) throws IOException {
+        int len = name.appendQuotedUTF8(_outputBuffer, _outputTail);
+        if (len < 0) {
+            _writeBytes(name.asQuotedUTF8());
+        } else {
+            _outputTail += len;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Output method implementations, structural

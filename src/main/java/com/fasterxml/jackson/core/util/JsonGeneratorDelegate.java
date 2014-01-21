@@ -325,7 +325,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
     
     @Override
-    public void writeTree(TreeNode rootNode) throws IOException, JsonProcessingException {
+    public void writeTree(TreeNode rootNode) throws IOException {
         if (delegateCopyMethods) {
             delegate.writeTree(rootNode);
             return;
@@ -356,13 +356,13 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public void copyCurrentEvent(JsonParser jp) throws IOException, JsonProcessingException {
+    public void copyCurrentEvent(JsonParser jp) throws IOException {
         if (delegateCopyMethods) delegate.copyCurrentEvent(jp);
         else super.copyCurrentEvent(jp);
     }
 
     @Override
-    public void copyCurrentStructure(JsonParser jp) throws IOException, JsonProcessingException {
+    public void copyCurrentStructure(JsonParser jp) throws IOException {
         if (delegateCopyMethods) delegate.copyCurrentStructure(jp);
         else super.copyCurrentStructure(jp);
     }

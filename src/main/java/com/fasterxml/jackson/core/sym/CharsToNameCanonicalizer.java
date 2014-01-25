@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.sym;
 
 import java.util.Arrays;
 
+import com.fasterxml.jackson.core.util.ArraysCompat;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -548,9 +549,9 @@ public final class CharsToNameCanonicalizer
      */
     private void copyArrays() {
         final String[] oldSyms = _symbols;
-        _symbols = Arrays.copyOf(oldSyms, oldSyms.length);
+        _symbols = ArraysCompat.copyOf(oldSyms, oldSyms.length);
         final Bucket[] oldBuckets = _buckets;
-        _buckets = Arrays.copyOf(oldBuckets, oldBuckets.length);
+        _buckets = ArraysCompat.copyOf(oldBuckets, oldBuckets.length);
     }
 
     /**

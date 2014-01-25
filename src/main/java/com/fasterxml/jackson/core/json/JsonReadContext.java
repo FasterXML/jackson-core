@@ -8,8 +8,7 @@ import com.fasterxml.jackson.core.io.CharTypes;
  * core methods needed, and also exposes
  * more complete API to parser implementation classes.
  */
-public final class JsonReadContext
-    extends JsonStreamContext
+public final class JsonReadContext extends JsonStreamContext
 {
     // // // Configuration
 
@@ -46,9 +45,7 @@ public final class JsonReadContext
     /**********************************************************
      */
 
-    public JsonReadContext(JsonReadContext parent, DupDetector dups,
-            int type, int lineNr, int colNr)
-    {
+    public JsonReadContext(JsonReadContext parent, DupDetector dups, int type, int lineNr, int colNr) {
         super();
         _parent = parent;
         _dups = dups;
@@ -58,8 +55,7 @@ public final class JsonReadContext
         _index = -1;
     }
 
-    protected void reset(int type, int lineNr, int colNr)
-    {
+    protected void reset(int type, int lineNr, int colNr) {
         _type = type;
         _index = -1;
         _lineNr = lineNr;
@@ -83,9 +79,7 @@ public final class JsonReadContext
         return createRootContext(lineNr, colNr, null);
     }
     
-    public static JsonReadContext createRootContext(int lineNr, int colNr,
-            DupDetector dups)
-    {
+    public static JsonReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
         return new JsonReadContext(null, dups, TYPE_ROOT, lineNr, colNr);
     }
 
@@ -98,26 +92,22 @@ public final class JsonReadContext
         return new JsonReadContext(null, dups, TYPE_ROOT, 1, 0);
     }
     
-    public JsonReadContext createChildArrayContext(int lineNr, int colNr)
-    {
+    public JsonReadContext createChildArrayContext(int lineNr, int colNr) {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonReadContext(this,
-                    (_dups == null) ? null : _dups.child(),
-                            TYPE_ARRAY, lineNr, colNr);
+                    (_dups == null) ? null : _dups.child(), TYPE_ARRAY, lineNr, colNr);
         } else {
             ctxt.reset(TYPE_ARRAY, lineNr, colNr);
         }
         return ctxt;
     }
 
-    public JsonReadContext createChildObjectContext(int lineNr, int colNr)
-    {
+    public JsonReadContext createChildObjectContext(int lineNr, int colNr) {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonReadContext(this,
-                    (_dups == null) ? null : _dups.child(),
-                    TYPE_OBJECT, lineNr, colNr);
+                    (_dups == null) ? null : _dups.child(), TYPE_OBJECT, lineNr, colNr);
             return ctxt;
         }
         ctxt.reset(TYPE_OBJECT, lineNr, colNr);
@@ -130,11 +120,8 @@ public final class JsonReadContext
     /**********************************************************
      */
 
-    @Override
-    public String getCurrentName() { return _currentName; }
-
-    @Override
-    public JsonReadContext getParent() { return _parent; }
+    @Override public String getCurrentName() { return _currentName; }
+    @Override public JsonReadContext getParent() { return _parent; }
 
     /*
     /**********************************************************
@@ -146,13 +133,9 @@ public final class JsonReadContext
      * @return Location pointing to the point where the context
      *   start marker was found
      */
-    public JsonLocation getStartLocation(Object srcRef)
-    {
-        /* We don't keep track of offsets at this level (only
-         * reader does)
-         */
+    public JsonLocation getStartLocation(Object srcRef) {
+        // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
-
         return new JsonLocation(srcRef, totalChars, _lineNr, _columnNr);
     }
 
@@ -162,8 +145,7 @@ public final class JsonReadContext
     /**********************************************************
      */
 
-    public boolean expectComma()
-    {
+    public boolean expectComma() {
         /* Assumption here is that we will be getting a value (at least
          * before calling this method again), and
          * so will auto-increment index to avoid having to do another call
@@ -172,16 +154,12 @@ public final class JsonReadContext
         return (_type != TYPE_ROOT && ix > 0);
     }
 
-    public void setCurrentName(String name) throws JsonProcessingException
-    {
+    public void setCurrentName(String name) throws JsonProcessingException {
         _currentName = name;
-        if (_dups != null) {
-            _checkDup(_dups, name);
-        }
+        if (_dups != null) { _checkDup(_dups, name); }
     }
 
-    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException
-    {
+    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
         if (dd.isDup(name)) {
             throw new JsonParseException("Duplicate field '"+name+"'", dd.findLocation());
         }
@@ -198,8 +176,7 @@ public final class JsonReadContext
      * of the context.
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder(64);
         switch (_type) {
         case TYPE_ROOT:

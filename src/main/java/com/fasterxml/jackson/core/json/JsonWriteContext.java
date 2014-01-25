@@ -7,8 +7,7 @@ import com.fasterxml.jackson.core.*;
  * core methods needed, and also exposes
  * more complete API to generator implementation classes.
  */
-public class JsonWriteContext
-    extends JsonStreamContext
+public class JsonWriteContext extends JsonStreamContext
 {
     // // // Return values for writeValue()
 
@@ -56,9 +55,7 @@ public class JsonWriteContext
     /**********************************************************
      */
 
-    protected JsonWriteContext(int type, JsonWriteContext parent,
-            DupDetector dups)
-    {
+    protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups) {
         super();
         _type = type;
         _parent = parent;
@@ -71,9 +68,7 @@ public class JsonWriteContext
         _index = -1;
         _currentName = null;
         _gotName = false;
-        if (_dups != null) {
-            _dups.reset();
-        }
+        if (_dups != null) { _dups.reset(); }
         return this;
     }
     
@@ -83,31 +78,23 @@ public class JsonWriteContext
      * @deprecated Since 2.3; use method that takes argument
      */
     @Deprecated
-    public static JsonWriteContext createRootContext() {
-        return createRootContext(null);
-    }
+    public static JsonWriteContext createRootContext() { return createRootContext(null); }
 
-    public static JsonWriteContext createRootContext(DupDetector dd) {
-        return new JsonWriteContext(TYPE_ROOT, null, dd);
-    }
+    public static JsonWriteContext createRootContext(DupDetector dd) { return new JsonWriteContext(TYPE_ROOT, null, dd); }
 
-    public JsonWriteContext createChildArrayContext()
-    {
+    public JsonWriteContext createChildArrayContext() {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this,
-                    (_dups == null) ? null : _dups.child());
+            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this, (_dups == null) ? null : _dups.child());
             return ctxt;
         }
         return ctxt.reset(TYPE_ARRAY);
     }
 
-    public JsonWriteContext createChildObjectContext()
-    {
+    public JsonWriteContext createChildObjectContext() {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this,
-                    (_dups == null) ? null : _dups.child());
+            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this, (_dups == null) ? null : _dups.child());
             return ctxt;
         }
         return ctxt.reset(TYPE_OBJECT);
@@ -115,11 +102,8 @@ public class JsonWriteContext
 
     // // // Shared API
 
-    @Override
-    public final JsonWriteContext getParent() { return _parent; }
-
-    @Override
-    public final String getCurrentName() { return _currentName; }
+    @Override public final JsonWriteContext getParent() { return _parent; }
+    @Override public final String getCurrentName() { return _currentName; }
     
     // // // API sub-classes are to implement
 
@@ -128,25 +112,18 @@ public class JsonWriteContext
      *
      * @return Index of the field entry (0-based)
      */
-    public final int writeFieldName(String name) throws JsonProcessingException
-    {
+    public final int writeFieldName(String name) throws JsonProcessingException {
         _gotName = true;
         _currentName = name;
-        if (_dups != null) {
-            _checkDup(_dups, name);
-        }
+        if (_dups != null) { _checkDup(_dups, name); }
         return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
     }
 
-    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException
-    {
-        if (dd.isDup(name)) {
-            throw new JsonGenerationException("Duplicate field '"+name+"'");
-        }
+    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
+        if (dd.isDup(name)) { throw new JsonGenerationException("Duplicate field '"+name+"'"); }
     }
     
-    public final int writeValue()
-    {
+    public final int writeValue() {
         // Most likely, object:
         if (_type == TYPE_OBJECT) {
             _gotName = false;
@@ -169,8 +146,7 @@ public class JsonWriteContext
 
     // // // Internally used abstract methods
 
-    protected final void appendDesc(StringBuilder sb)
-    {
+    protected final void appendDesc(StringBuilder sb) {
         if (_type == TYPE_OBJECT) {
             sb.append('{');
             if (_currentName != null) {
@@ -198,9 +174,7 @@ public class JsonWriteContext
      * Overridden to provide developer writeable "JsonPath" representation
      * of the context.
      */
-    @Override
-    public final String toString()
-    {
+    @Override public final String toString() {
         StringBuilder sb = new StringBuilder(64);
         appendDesc(sb);
         return sb.toString();

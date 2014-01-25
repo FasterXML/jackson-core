@@ -81,8 +81,7 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
 
-    public ByteSourceJsonBootstrapper(IOContext ctxt, InputStream in)
-    {
+    public ByteSourceJsonBootstrapper(IOContext ctxt, InputStream in) {
         _context = ctxt;
         _in = in;
         _inputBuffer = ctxt.allocReadIOBuffer();
@@ -91,8 +90,7 @@ public final class ByteSourceJsonBootstrapper
         _bufferRecyclable = true;
     }
 
-    public ByteSourceJsonBootstrapper(IOContext ctxt, byte[] inputBuffer, int inputStart, int inputLen)
-    {
+    public ByteSourceJsonBootstrapper(IOContext ctxt, byte[] inputBuffer, int inputStart, int inputLen) {
         _context = ctxt;
         _in = null;
         _inputBuffer = inputBuffer;
@@ -114,8 +112,7 @@ public final class ByteSourceJsonBootstrapper
      * It will figure out encoding that content uses, to allow
      * for instantiating a proper scanner object.
      */
-    public JsonEncoding detectEncoding()
-        throws IOException, JsonParseException
+    public JsonEncoding detectEncoding() throws IOException
     {
         boolean foundEncoding = false;
 
@@ -162,17 +159,13 @@ public final class ByteSourceJsonBootstrapper
             enc = JsonEncoding.UTF8;
         } else {
             switch (_bytesPerChar) {
-            case 1:
-                enc = JsonEncoding.UTF8;
+            case 1: enc = JsonEncoding.UTF8;
                 break;
-            case 2:
-                enc = _bigEndian ? JsonEncoding.UTF16_BE : JsonEncoding.UTF16_LE;
+            case 2: enc = _bigEndian ? JsonEncoding.UTF16_BE : JsonEncoding.UTF16_LE;
                 break;
-            case 4:
-                enc = _bigEndian ? JsonEncoding.UTF32_BE : JsonEncoding.UTF32_LE;
+            case 4: enc = _bigEndian ? JsonEncoding.UTF32_BE : JsonEncoding.UTF32_LE;
                 break;
-            default:
-                throw new RuntimeException("Internal error"); // should never get here
+            default: throw new RuntimeException("Internal error"); // should never get here
             }
         }
         _context.setEncoding(enc);
@@ -186,8 +179,7 @@ public final class ByteSourceJsonBootstrapper
      */
     
     @SuppressWarnings("resource")
-    public Reader constructReader()
-        throws IOException
+    public Reader constructReader() throws IOException
     {
         JsonEncoding enc = _context.getEncoding();
         switch (enc.bits()) {
@@ -218,8 +210,7 @@ public final class ByteSourceJsonBootstrapper
 
     public JsonParser constructParser(int parserFeatures, ObjectCodec codec,
             BytesToNameCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols,
-            boolean canonicalize, boolean intern)
-        throws IOException
+            boolean canonicalize, boolean intern) throws IOException
     {
         JsonEncoding enc = detectEncoding();
 
@@ -384,8 +375,7 @@ public final class ByteSourceJsonBootstrapper
      * @return True if a BOM was succesfully found, and encoding
      *   thereby recognized.
      */
-    private boolean handleBOM(int quad)
-        throws IOException
+    private boolean handleBOM(int quad) throws IOException
     {
         /* Handling of (usually) optional BOM (required for
          * multi-byte formats); first 32-bit charsets:
@@ -430,8 +420,7 @@ public final class ByteSourceJsonBootstrapper
         return false;
     }
 
-    private boolean checkUTF32(int quad)
-        throws IOException
+    private boolean checkUTF32(int quad) throws IOException
     {
         /* Handling of (usually) optional BOM (required for
          * multi-byte formats); first 32-bit charsets:
@@ -475,9 +464,7 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
 
-    private void reportWeirdUCS4(String type)
-        throws IOException
-    {
+    private void reportWeirdUCS4(String type) throws IOException {
         throw new CharConversionException("Unsupported UCS-4 endianness ("+type+") detected");
     }
 
@@ -487,9 +474,7 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
 
-    protected boolean ensureLoaded(int minimum)
-        throws IOException
-    {
+    protected boolean ensureLoaded(int minimum) throws IOException {
         /* Let's assume here buffer has enough room -- this will always
          * be true for the limited used this method gets
          */

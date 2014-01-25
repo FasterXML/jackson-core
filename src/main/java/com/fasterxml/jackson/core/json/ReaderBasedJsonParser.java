@@ -131,19 +131,15 @@ public final class ReaderBasedJsonParser
         return false;
     }
 
-    protected char getNextChar(String eofMsg) throws IOException
-    {
+    protected char getNextChar(String eofMsg) throws IOException {
         if (_inputPtr >= _inputEnd) {
-            if (!loadMore()) {
-                _reportInvalidEOF(eofMsg);
-            }
+            if (!loadMore()) { _reportInvalidEOF(eofMsg); }
         }
         return _inputBuffer[_inputPtr++];
     }
 
     @Override
-    protected void _closeInput() throws IOException
-    {
+    protected void _closeInput() throws IOException {
         /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()
          *   on the underlying Reader, unless we "own" it, or auto-closing
          *   feature is enabled.
@@ -166,8 +162,7 @@ public final class ReaderBasedJsonParser
      * separately (if need be).
      */
     @Override
-    protected void _releaseBuffers() throws IOException
-    {
+    protected void _releaseBuffers() throws IOException {
         super._releaseBuffers();
         // merge new symbols, if any
         _symbols.release();
@@ -816,14 +811,14 @@ public final class ReaderBasedJsonParser
          * actual conversion to a number is deferred. Thus, need to
          * note that no representations are valid yet
          */
-        boolean negative = (ch == INT_MINUS);
+        boolean neg = (ch == INT_MINUS);
         int ptr = _inputPtr;
         int startPtr = ptr-1; // to include sign/digit already read
         final int inputLen = _inputEnd;
 
         dummy_loop:
         do { // dummy loop, to be able to break out
-            if (negative) { // need to read the next digit
+            if (neg) { // need to read the next digit
                 if (ptr >= _inputEnd) {
                     break dummy_loop;
                 }
@@ -920,11 +915,11 @@ public final class ReaderBasedJsonParser
             }
             int len = ptr-startPtr;
             _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
-            return reset(negative, intLen, fractLen, expLen);
+            return reset(neg, intLen, fractLen, expLen);
         } while (false);
 
-        _inputPtr = negative ? (startPtr+1) : startPtr;
-        return _parseNumber2(negative);
+        _inputPtr = neg ? (startPtr+1) : startPtr;
+        return _parseNumber2(neg);
     }
 
     /**
@@ -934,13 +929,13 @@ public final class ReaderBasedJsonParser
      * that it has to explicitly copy contents to the text buffer
      * instead of just sharing the main input buffer.
      */
-    private JsonToken _parseNumber2(boolean negative) throws IOException
+    private JsonToken _parseNumber2(boolean neg) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 
         // Need to prepend sign?
-        if (negative) {
+        if (neg) {
             outBuf[outPtr++] = '-';
         }
 
@@ -1053,7 +1048,7 @@ public final class ReaderBasedJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         // And there we have it!
-        return reset(negative, intLen, fractLen, expLen);
+        return reset(neg, intLen, fractLen, expLen);
     }
 
     /**
@@ -1099,9 +1094,7 @@ public final class ReaderBasedJsonParser
     {
         if (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
-                    _reportInvalidEOFInValue();
-                }
+                if (!loadMore()) { _reportInvalidEOFInValue(); }
             }
             ch = _inputBuffer[_inputPtr++];
             if (ch == 'N') {
@@ -1158,13 +1151,10 @@ public final class ReaderBasedJsonParser
 
     protected String _parseName(int i) throws IOException
     {
-        if (i != INT_QUOTE) {
-            return _handleOddName(i);
-        }
-        /* First: let's try to see if we have a simple name: one that does
-         * not cross input buffer boundary, and does not contain escape
-         * sequences.
-         */
+        if (i != INT_QUOTE) { return _handleOddName(i); }
+
+        // First: let's try to see if we have a simple name: one that does
+        // not cross input buffer boundary, and does not contain escape sequences.
         int ptr = _inputPtr;
         int hash = _hashSeed;
         final int inputLen = _inputEnd;
@@ -1559,20 +1549,20 @@ public final class ReaderBasedJsonParser
     {
         _tokenIncomplete = false;
 
-        int inputPtr = _inputPtr;
-        int inputLen = _inputEnd;
-        char[] inputBuffer = _inputBuffer;
+        int inPtr = _inputPtr;
+        int inLen = _inputEnd;
+        char[] inBuf = _inputBuffer;
 
         while (true) {
-            if (inputPtr >= inputLen) {
-                _inputPtr = inputPtr;
+            if (inPtr >= inLen) {
+                _inputPtr = inPtr;
                 if (!loadMore()) {
                     _reportInvalidEOF(": was expecting closing quote for a string value");
                 }
-                inputPtr = _inputPtr;
-                inputLen = _inputEnd;
+                inPtr = _inputPtr;
+                inLen = _inputEnd;
             }
-            char c = inputBuffer[inputPtr++];
+            char c = inBuf[inPtr++];
             int i = (int) c;
             if (i <= INT_BACKSLASH) {
                 if (i == INT_BACKSLASH) {
@@ -1580,17 +1570,17 @@ public final class ReaderBasedJsonParser
                      * an UTF-16 surrogate pair, does that affect decoding?
                      * For now let's assume it does not.
                      */
-                    _inputPtr = inputPtr;
+                    _inputPtr = inPtr;
                     c = _decodeEscaped();
-                    inputPtr = _inputPtr;
-                    inputLen = _inputEnd;
+                    inPtr = _inputPtr;
+                    inLen = _inputEnd;
                 } else if (i <= INT_QUOTE) {
                     if (i == INT_QUOTE) {
-                        _inputPtr = inputPtr;
+                        _inputPtr = inPtr;
                         break;
                     }
                     if (i < INT_SPACE) {
-                        _inputPtr = inputPtr;
+                        _inputPtr = inPtr;
                         _throwUnquotedSpace(i, "string value");
                     }
                 }
@@ -1608,8 +1598,7 @@ public final class ReaderBasedJsonParser
      * We actually need to check the character value here
      * (to see if we have \n following \r).
      */
-    protected void _skipCR() throws IOException
-    {
+    protected void _skipCR() throws IOException {
         if (_inputPtr < _inputEnd || loadMore()) {
             if (_inputBuffer[_inputPtr] == '\n') {
                 ++_inputPtr;
@@ -1713,13 +1702,12 @@ public final class ReaderBasedJsonParser
     private void _skipCComment() throws IOException
     {
         // Ok: need the matching '*/'
-        main_loop:
         while ((_inputPtr < _inputEnd) || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
             if (i <= '*') {
                 if (i == '*') { // end?
                     if ((_inputPtr >= _inputEnd) && !loadMore()) {
-                        break main_loop;
+                        break;
                     }
                     if (_inputBuffer[_inputPtr] == INT_SLASH) {
                         ++_inputPtr;

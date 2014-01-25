@@ -201,9 +201,7 @@ public class UTF32Reader extends Reader
         // Bytes that need to be moved to the beginning of buffer?
         if (available > 0) {
             if (_ptr > 0) {
-                for (int i = 0; i < available; ++i) {
-                    _buffer[i] = _buffer[_ptr+i];
-                }
+                System.arraycopy(_buffer, _ptr, _buffer, 0, available);
                 _ptr = 0;
             }
             _length = available;

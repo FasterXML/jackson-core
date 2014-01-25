@@ -76,13 +76,7 @@ public class Version
     public String getArtifactId() { return _artifactId; }
     
     public String toFullString() {
-        return new StringBuilder()
-        	.append(_groupId)
-        	.append('/')
-        	.append(_artifactId)
-        	.append('/')
-        	.append(toString())
-        	.toString();
+        return _groupId + '/' + _artifactId + '/' + toString();
     }
     
     @Override

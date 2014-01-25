@@ -249,7 +249,7 @@ public class JsonFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    public JsonFactory() { this((ObjectCodec) null); }
+    public JsonFactory() { this(null); }
 
     public JsonFactory(ObjectCodec oc) { _objectCodec = oc; }
 

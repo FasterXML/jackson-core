@@ -1049,9 +1049,7 @@ public final class BytesToNameCanonicalizer
         }
         // Otherwise, need to copy the incoming buffer
         int[] buf = new int[qlen];
-        for (int i = 0; i < qlen; ++i) {
-            buf[i] = quads[i];
-        }
+        System.arraycopy(quads, 0, buf, 0, qlen);
         return new NameN(name, hash, buf, qlen);
     }
 

@@ -2792,7 +2792,7 @@ public class UTF8StreamJsonParser
         }
         int c = (int) _inputBuffer[_inputPtr++];
 
-        switch ((int) c) {
+        switch (c) {
             // First, ones that are mapped
         case 'b':
             return '\b';
@@ -2838,7 +2838,7 @@ public class UTF8StreamJsonParser
 
     protected int _decodeCharForError(int firstByte) throws IOException
     {
-        int c = (int) firstByte;
+        int c = firstByte;
         if (c < 0) { // if >= 0, is ascii and fine as is
             int needed;
             

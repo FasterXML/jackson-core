@@ -64,7 +64,7 @@ public final class Base64Variants
      */
     public final static Base64Variant MODIFIED_FOR_URL;
     static {
-        StringBuffer sb = new StringBuffer(STD_BASE64_ALPHABET);
+        StringBuilder sb = new StringBuilder(STD_BASE64_ALPHABET);
         // Replace plus with hyphen, slash with underscore (and no padding)
         sb.setCharAt(sb.indexOf("+"), '-');
         sb.setCharAt(sb.indexOf("/"), '_');

@@ -10,8 +10,6 @@ package com.fasterxml.jackson.core.util;
  */
 public class BufferRecycler
 {
-//    public final static int DEFAULT_WRITE_CONCAT_BUFFER_LEN = 2000;
-
     /**
      * Buffer used for reading byte-based input.
      */

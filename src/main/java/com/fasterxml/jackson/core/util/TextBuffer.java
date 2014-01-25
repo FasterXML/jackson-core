@@ -558,10 +558,16 @@ public final class TextBuffer
         _segments.add(_currentSegment);
         int oldLen = _currentSegment.length;
         _segmentSize += oldLen;
-        // Let's grow segments by 50%
-        int newLen = Math.min(oldLen + (oldLen >> 1), MAX_SEGMENT_LEN);
-        char[] curr = carr(newLen);
         _currentSize = 0;
+
+        // Let's grow segments by 50%
+        int newLen = oldLen + (oldLen >> 1);
+        if (newLen < MIN_SEGMENT_LEN) {
+            newLen = MIN_SEGMENT_LEN;
+        } else if (newLen > MAX_SEGMENT_LEN) {
+            newLen = MAX_SEGMENT_LEN;
+        }
+        char[] curr = carr(newLen);
         _currentSegment = curr;
         return curr;
     }
@@ -655,14 +661,17 @@ public final class TextBuffer
         _hasSegments = true;
         _segments.add(curr);
         _segmentSize += curr.length;
-        int oldLen = curr.length;
-        // Let's grow segments by 50% minimum
-        int sizeAddition = oldLen >> 1;
-        if (sizeAddition < minNewSegmentSize) {
-            sizeAddition = minNewSegmentSize;
-        }
         _currentSize = 0;
-        _currentSegment = carr(Math.min(MAX_SEGMENT_LEN, oldLen + sizeAddition));
+        int oldLen = curr.length;
+        
+        // Let's grow segments by 50% minimum
+        int newLen = oldLen + (oldLen >> 1);
+        if (newLen < MIN_SEGMENT_LEN) {
+            newLen = MIN_SEGMENT_LEN;
+        } else if (newLen > MAX_SEGMENT_LEN) {
+            newLen = MAX_SEGMENT_LEN;
+        }
+        _currentSegment = carr(newLen);
     }
 
     private char[] resultArray()

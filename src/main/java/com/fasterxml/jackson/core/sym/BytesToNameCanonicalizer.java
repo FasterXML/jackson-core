@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.sym;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.core.util.ArraysCompat;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -997,7 +998,7 @@ public final class BytesToNameCanonicalizer
      */
     private void unshareMain() {
         final int[] old = _hash;
-        _hash = Arrays.copyOf(old, old.length);
+        _hash = ArraysCompat.copyOf(old, old.length);
         _hashShared = false;
     }
 
@@ -1006,20 +1007,20 @@ public final class BytesToNameCanonicalizer
         if (old == null) {
             _collList = new Bucket[INITIAL_COLLISION_LEN];
         } else {
-            _collList = Arrays.copyOf(old, old.length);
+            _collList = ArraysCompat.copyOf(old, old.length);
         }
         _collListShared = false;
     }
 
     private void unshareNames() {
         final Name[] old = _mainNames;
-        _mainNames = Arrays.copyOf(old, old.length);
+        _mainNames = ArraysCompat.copyOf(old, old.length);
         _namesShared = false;
     }
 
     private void expandCollision() {
         final Bucket[] old = _collList;
-        _collList = Arrays.copyOf(old, old.length * 2);
+        _collList = ArraysCompat.copyOf(old, old.length * 2);
     }
 
     /*

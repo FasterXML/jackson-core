@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
-import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
@@ -3129,7 +3128,7 @@ public class UTF8StreamJsonParser
         if (arr == null) {
             return new int[more];
         }
-        return Arrays.copyOf(arr, arr.length + more);
+        return ArraysCompat.copyOf(arr, arr.length + more);
     }
 
     /*

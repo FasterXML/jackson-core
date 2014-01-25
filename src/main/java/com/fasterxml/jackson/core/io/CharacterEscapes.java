@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
-import java.util.Arrays;
-
 import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.util.ArraysCompat;
 
 /**
  * Abstract base class that defines interface for customizing character
@@ -67,6 +66,6 @@ public abstract class CharacterEscapes
     public static int[] standardAsciiEscapesForJSON()
     {
         int[] esc = CharTypes.get7BitOutputEscapes();
-        return Arrays.copyOf(esc, esc.length);
+        return ArraysCompat.copyOf(esc, esc.length);
     }
 }

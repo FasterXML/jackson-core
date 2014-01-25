@@ -700,7 +700,7 @@ public final class TextBuffer
         final char[] result = carr(size);
         if (_segments != null) {
             for (int i = 0, len = _segments.size(); i < len; ++i) {
-                char[] curr = (char[]) _segments.get(i);
+                char[] curr = _segments.get(i);
                 int currLen = curr.length;
                 System.arraycopy(curr, 0, result, offset, currLen);
                 offset += currLen;

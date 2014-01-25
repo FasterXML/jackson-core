@@ -27,6 +27,6 @@ public class JsonGenerationException
 
     public JsonGenerationException(String msg, Throwable rootCause)
     {
-        super(msg, (JsonLocation)null, rootCause);
+        super(msg, null, rootCause);
     }
 }

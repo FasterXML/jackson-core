@@ -93,33 +93,20 @@ public final class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    @Override
-    public ObjectCodec getCodec() {
-        return _objectCodec;
-    }
-
-    @Override
-    public void setCodec(ObjectCodec c) {
-        _objectCodec = c;
-    }
+    @Override public ObjectCodec getCodec() { return _objectCodec; }
+    @Override public void setCodec(ObjectCodec c) { _objectCodec = c; }
     
     @Override
-    public int releaseBuffered(Writer w) throws IOException
-    {
+    public int releaseBuffered(Writer w) throws IOException {
         int count = _inputEnd - _inputPtr;
-        if (count < 1) {
-            return 0;
-        }
+        if (count < 1) { return 0; }
         // let's just advance ptr to end
         int origPtr = _inputPtr;
         w.write(_inputBuffer, origPtr, count);
         return count;
     }
 
-    @Override
-    public Object getInputSource() {
-        return _reader;
-    }
+    @Override public Object getInputSource() { return _reader; }
 
     @Override
     protected boolean loadMore() throws IOException
@@ -144,8 +131,7 @@ public final class ReaderBasedJsonParser
         return false;
     }
 
-    protected char getNextChar(String eofMsg)
-        throws IOException, JsonParseException
+    protected char getNextChar(String eofMsg) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {
@@ -180,8 +166,7 @@ public final class ReaderBasedJsonParser
      * separately (if need be).
      */
     @Override
-    protected void _releaseBuffers()
-        throws IOException
+    protected void _releaseBuffers() throws IOException
     {
         super._releaseBuffers();
         // merge new symbols, if any
@@ -206,8 +191,7 @@ public final class ReaderBasedJsonParser
      * Method can be called for any event.
      */
     @Override
-    public String getText()
-        throws IOException, JsonParseException
+    public String getText() throws IOException
     {
         JsonToken t = _currToken;
         if (t == JsonToken.VALUE_STRING) {
@@ -224,7 +208,7 @@ public final class ReaderBasedJsonParser
     
     // @since 2.1
     @Override
-    public String getValueAsString() throws IOException, JsonParseException
+    public String getValueAsString() throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -238,8 +222,7 @@ public final class ReaderBasedJsonParser
     
     // @since 2.1
     @Override
-    public String getValueAsString(String defValue) throws IOException, JsonParseException
-    {
+    public String getValueAsString(String defValue) throws IOException {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
@@ -250,8 +233,7 @@ public final class ReaderBasedJsonParser
         return super.getValueAsString(defValue);
     }
 
-    protected String _getText2(JsonToken t)
-    {
+    protected String _getText2(JsonToken t) {
         if (t == null) {
             return null;
         }
@@ -270,8 +252,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public char[] getTextCharacters()
-        throws IOException, JsonParseException
+    public char[] getTextCharacters() throws IOException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -307,8 +288,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public int getTextLength()
-        throws IOException, JsonParseException
+    public int getTextLength() throws IOException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -333,7 +313,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public int getTextOffset() throws IOException, JsonParseException
+    public int getTextOffset() throws IOException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
@@ -356,8 +336,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public byte[] getBinaryValue(Base64Variant b64variant)
-        throws IOException, JsonParseException
+    public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
         if (_currToken != JsonToken.VALUE_STRING &&
                 (_currToken != JsonToken.VALUE_EMBEDDED_OBJECT || _binaryValue == null)) {
@@ -388,8 +367,7 @@ public final class ReaderBasedJsonParser
     }
     
     @Override
-    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
-        throws IOException, JsonParseException
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException
     {
         // if we have already read the token, just use whatever we may have
         if (!_tokenIncomplete || _currToken != JsonToken.VALUE_STRING) {
@@ -406,8 +384,7 @@ public final class ReaderBasedJsonParser
         }
     }
 
-    protected int _readBinary(Base64Variant b64variant, OutputStream out, byte[] buffer)
-            throws IOException, JsonParseException
+    protected int _readBinary(Base64Variant b64variant, OutputStream out, byte[] buffer) throws IOException
     {
         int outputPtr = 0;
         final int outputEnd = buffer.length - 3;
@@ -544,8 +521,7 @@ public final class ReaderBasedJsonParser
      *   to indicate end-of-input
      */
     @Override
-    public JsonToken nextToken()
-        throws IOException, JsonParseException
+    public JsonToken nextToken() throws IOException
     {
         _numTypesValid = NR_UNKNOWN;
 
@@ -705,13 +681,12 @@ public final class ReaderBasedJsonParser
     /*
     @Override
     public boolean nextFieldName(SerializableString str)
-         throws IOException, JsonParseException
+         throws IOException
      */
 
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public String nextTextValue()
-        throws IOException, JsonParseException
+    public String nextTextValue() throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
@@ -738,8 +713,7 @@ public final class ReaderBasedJsonParser
 
     // note: identical to one in Utf8StreamParser
     @Override
-    public int nextIntValue(int defaultValue)
-        throws IOException, JsonParseException
+    public int nextIntValue(int defaultValue) throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) {
             _nameCopied = false;
@@ -762,8 +736,7 @@ public final class ReaderBasedJsonParser
 
     // note: identical to one in Utf8StreamParser
     @Override
-    public long nextLongValue(long defaultValue)
-        throws IOException, JsonParseException
+    public long nextLongValue(long defaultValue) throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
@@ -786,8 +759,7 @@ public final class ReaderBasedJsonParser
 
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public Boolean nextBooleanValue()
-        throws IOException, JsonParseException
+    public Boolean nextBooleanValue() throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
@@ -2018,8 +1990,7 @@ public final class ReaderBasedJsonParser
         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }
     
-    protected void _reportInvalidToken(String matchedPart, String msg)
-        throws IOException
+    protected void _reportInvalidToken(String matchedPart, String msg) throws IOException
     {
         StringBuilder sb = new StringBuilder(matchedPart);
         /* Let's just try to find what appears to be the token, using

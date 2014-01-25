@@ -27,7 +27,7 @@ public class SerializedString
      *   enough to omit volatiles here, given how simple lazy initialization is.
      *   This can be compared to how {@link String#intern} works; lazily and
      *   without synchronization or use of volatile keyword.
-     *   
+     *
      *   Change to remove volatile was a request by implementors of a high-throughput
      *   search framework; and they believed this is an important optimization for
      *   heaviest, multi-core deployed use cases.
@@ -35,6 +35,7 @@ public class SerializedString
     /*
      * 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
      *   area, or anything pointing to it. So I think we are safe up to JDK7
+     *   and hopefully beyond.
      */
     
     protected /*volatile*/ byte[] _quotedUTF8Ref;

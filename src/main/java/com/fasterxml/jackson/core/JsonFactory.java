@@ -99,26 +99,18 @@ public class JsonFactory
          * Method that calculates bit set (flags) of all features that
          * are enabled by default.
          */
-        public static int collectDefaults()
-        {
+        public static int collectDefaults() {
             int flags = 0;
             for (Feature f : values()) {
-                if (f.enabledByDefault()) {
-                    flags |= f.getMask();
-                }
+                if (f.enabledByDefault()) { flags |= f.getMask(); }
             }
             return flags;
         }
         
-        private Feature(boolean defaultState)
-        {
-            _defaultState = defaultState;
-        }
+        private Feature(boolean defaultState) { _defaultState = defaultState; }
         
         public boolean enabledByDefault() { return _defaultState; }
-
         public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
-        
         public int getMask() { return (1 << ordinal()); }
     }
 

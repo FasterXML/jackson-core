@@ -167,10 +167,10 @@ public abstract class GeneratorBase
     /**********************************************************
      */
 
-    //public void writeStartArray() throws IOException, JsonGenerationException
-    //public void writeEndArray() throws IOException, JsonGenerationException
-    //public void writeStartObject() throws IOException, JsonGenerationException
-    //public void writeEndObject() throws IOException, JsonGenerationException
+    //public void writeStartArray() throws IOException
+    //public void writeEndArray() throws IOException
+    //public void writeStartObject() throws IOException
+    //public void writeEndObject() throws IOException
 
     /*
     /**********************************************************
@@ -179,49 +179,43 @@ public abstract class GeneratorBase
      */
 
     @Override
-    public void writeFieldName(SerializableString name) throws IOException, JsonGenerationException {
+    public void writeFieldName(SerializableString name) throws IOException {
         writeFieldName(name.getValue());
     }
     
-    //public abstract void writeString(String text) throws IOException, JsonGenerationException;
+    //public abstract void writeString(String text) throws IOException;
 
-    //public abstract void writeString(char[] text, int offset, int len) throws IOException, JsonGenerationException;
+    //public abstract void writeString(char[] text, int offset, int len) throws IOException;
 
-    //public abstract void writeRaw(String text) throws IOException, JsonGenerationException;
+    //public abstract void writeRaw(String text) throws IOException;
 
-    //public abstract void writeRaw(char[] text, int offset, int len) throws IOException, JsonGenerationException;
+    //public abstract void writeRaw(char[] text, int offset, int len) throws IOException;
 
     @Override
-    public void writeString(SerializableString text) throws IOException, JsonGenerationException {
+    public void writeString(SerializableString text) throws IOException {
         writeString(text.getValue());
     }
     
     @Override
-    public void writeRawValue(String text) throws IOException, JsonGenerationException
-    {
+    public void writeRawValue(String text) throws IOException {
         _verifyValueWrite("write raw value");
         writeRaw(text);
     }
 
     @Override
-    public void writeRawValue(String text, int offset, int len)
-        throws IOException, JsonGenerationException
-    {
+    public void writeRawValue(String text, int offset, int len) throws IOException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
     }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len)
-        throws IOException, JsonGenerationException
-    {
+    public void writeRawValue(char[] text, int offset, int len) throws IOException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
     }
 
     @Override
-    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength)
-        throws IOException, JsonGenerationException {
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
         _reportUnsupportedOperation();
         return 0;
@@ -252,8 +246,7 @@ public abstract class GeneratorBase
      */
 
     @Override
-    public void writeObject(Object value)
-        throws IOException, JsonProcessingException
+    public void writeObject(Object value) throws IOException
     {
         if (value == null) {
             // important: call method that does check value write:
@@ -273,8 +266,7 @@ public abstract class GeneratorBase
     }
 
     @Override
-    public void writeTree(TreeNode rootNode)
-        throws IOException, JsonProcessingException
+    public void writeTree(TreeNode rootNode) throws IOException
     {
         // As with 'writeObject()', we are not check if write would work
         if (rootNode == null) {
@@ -293,17 +285,9 @@ public abstract class GeneratorBase
     /**********************************************************
      */
 
-    @Override
-    public abstract void flush() throws IOException;
-
-    @Override
-    public void close() throws IOException
-    {
-        _closed = true;
-    }
-
-    @Override
-    public boolean isClosed() { return _closed; }
+    @Override public abstract void flush() throws IOException;
+    @Override public void close() throws IOException { _closed = true; }
+    @Override public boolean isClosed() { return _closed; }
 
     /*
     /**********************************************************
@@ -325,15 +309,9 @@ public abstract class GeneratorBase
      * @param typeMsg Additional message used for generating exception message
      *   if value output is NOT legal in current generator output state.
      */
-    protected abstract void _verifyValueWrite(String typeMsg)
-        throws IOException, JsonGenerationException;
+    protected abstract void _verifyValueWrite(String typeMsg) throws IOException;
 
     // @Deprecated in 2.3 -- now defined in super-class; remove in 2.4
     @Override 
-    protected void _writeSimpleObject(Object value) 
-        throws IOException, JsonGenerationException
-    {
-        // TODO: 
-        super._writeSimpleObject(value);
-    }
+    protected void _writeSimpleObject(Object value) throws IOException { super._writeSimpleObject(value); }
 }

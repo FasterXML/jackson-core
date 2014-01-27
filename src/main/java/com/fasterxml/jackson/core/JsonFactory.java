@@ -39,8 +39,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
  */
 @SuppressWarnings("resource")
 public class JsonFactory
-    implements Versioned,
-        java.io.Serializable // since 2.1 (for Android, mostly)
+    implements Versioned, java.io.Serializable // since 2.1 (for Android, mostly)
 {
     /**
      * Computed for Jackson 2.3.0 release
@@ -110,8 +109,7 @@ public class JsonFactory
             return flags;
         }
         
-        private Feature(boolean defaultState)
-        {
+        private Feature(boolean defaultState) {
             _defaultState = defaultState;
         }
         
@@ -152,7 +150,7 @@ public class JsonFactory
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
 
     private final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
-    
+
     /*
     /**********************************************************
     /* Buffer, symbol table management

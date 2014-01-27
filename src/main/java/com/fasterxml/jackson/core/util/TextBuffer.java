@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.util;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import com.fasterxml.jackson.core.io.NumberInput;
 
@@ -578,7 +577,7 @@ public final class TextBuffer
         final int len = curr.length;
         // Must grow by at least 1 char, no matter what
         int newLen = (len == MAX_SEGMENT_LEN) ? (MAX_SEGMENT_LEN+1) : Math.min(MAX_SEGMENT_LEN, len + (len >> 1));
-        return (_currentSegment = Arrays.copyOf(curr, newLen));
+        return (_currentSegment = ArraysCompat.copyOf(curr, newLen));
     }
 
     /**
@@ -593,7 +592,7 @@ public final class TextBuffer
     public char[] expandCurrentSegment(int minSize) {
         char[] curr = _currentSegment;
         if (curr.length >= minSize) return curr;
-        _currentSegment = curr = Arrays.copyOf(curr, minSize);
+        _currentSegment = curr = ArraysCompat.copyOf(curr, minSize);
         return curr;
     }
 
@@ -678,9 +677,9 @@ public final class TextBuffer
             }
             final int start = _inputStart;
             if (start == 0) {
-                return Arrays.copyOf(_inputBuffer, len);
+                return ArraysCompat.copyOf(_inputBuffer, len);
             }
-            return Arrays.copyOfRange(_inputBuffer, start, start+len);
+            return ArraysCompat.copyOfRange(_inputBuffer, start, start+len);
         }
         // nope, not shared
         int size = size();

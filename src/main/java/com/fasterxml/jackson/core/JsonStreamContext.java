@@ -90,18 +90,12 @@ public abstract class JsonStreamContext
     /**
      * @return Number of entries that are complete and started.
      */
-    public final int getEntryCount()
-    {
-        return _index + 1;
-    }
+    public final int getEntryCount() { return _index + 1; }
 
     /**
      * @return Index of the currently processed entry, if any
      */
-    public final int getCurrentIndex()
-    {
-        return (_index < 0) ? 0 : _index;
-    }
+    public final int getCurrentIndex() { return (_index < 0) ? 0 : _index; }
 
     /**
      * Method for accessing name associated with the current location.

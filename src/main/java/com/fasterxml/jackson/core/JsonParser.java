@@ -493,7 +493,7 @@ public abstract class JsonParser
      * @return Next token from the stream, if any found, or null
      *   to indicate end-of-input
      */
-    public abstract JsonToken nextToken() throws IOException;
+    public abstract JsonToken nextToken() throws IOException, JsonParseException;
 
     /**
      * Iteration method that will advance stream enough
@@ -512,7 +512,7 @@ public abstract class JsonParser
      *   parsers, {@link JsonToken#NOT_AVAILABLE} if no tokens were
      *   available yet)
      */
-    public abstract JsonToken nextValue() throws IOException;
+    public abstract JsonToken nextValue() throws IOException, JsonParseException;
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
@@ -527,7 +527,7 @@ public abstract class JsonParser
      * 
      * @param str Property name to compare next token to (if next token is <code>JsonToken.FIELD_NAME<code>)
      */
-    public boolean nextFieldName(SerializableString str) throws IOException {
+    public boolean nextFieldName(SerializableString str) throws IOException, JsonParseException {
         return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
     }
 
@@ -542,7 +542,7 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      */
-    public String nextTextValue() throws IOException {
+    public String nextTextValue() throws IOException, JsonParseException {
         return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
     }
 
@@ -557,7 +557,7 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      */
-    public int nextIntValue(int defaultValue) throws IOException {
+    public int nextIntValue(int defaultValue) throws IOException, JsonParseException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getIntValue() : defaultValue;
     }
 
@@ -572,7 +572,7 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      */
-    public long nextLongValue(long defaultValue) throws IOException {
+    public long nextLongValue(long defaultValue) throws IOException, JsonParseException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
     }
 
@@ -590,7 +590,7 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
      */
-    public Boolean nextBooleanValue() throws IOException {
+    public Boolean nextBooleanValue() throws IOException, JsonParseException {
         JsonToken t = nextToken();
         if (t == JsonToken.VALUE_TRUE) { return Boolean.TRUE; }
         if (t == JsonToken.VALUE_FALSE) { return Boolean.FALSE; }
@@ -611,7 +611,7 @@ public abstract class JsonParser
      * will call {@link #nextToken} to point to the next
      * available token, if any.
      */
-    public abstract JsonParser skipChildren() throws IOException;
+    public abstract JsonParser skipChildren() throws IOException, JsonParseException;
     
     /**
      * Method that can be called to determine whether this parser

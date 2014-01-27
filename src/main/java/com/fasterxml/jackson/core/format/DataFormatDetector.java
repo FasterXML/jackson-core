@@ -90,8 +90,7 @@ public class DataFormatDetector
      * Method that will return a detector instance that allows detectors to
      * read up to specified number of bytes when determining format match strength.
      */
-    public DataFormatDetector withMaxInputLookahead(int lookaheadBytes)
-    {
+    public DataFormatDetector withMaxInputLookahead(int lookaheadBytes) {
         if (lookaheadBytes == _maxInputLookahead) {
             return this;
         }
@@ -99,9 +98,7 @@ public class DataFormatDetector
     }
     
     private DataFormatDetector(JsonFactory[] detectors,
-            MatchStrength optMatch, MatchStrength minMatch,
-            int maxInputLookahead)
-    {
+            MatchStrength optMatch, MatchStrength minMatch, int maxInputLookahead) {
         _detectors = detectors;
         _optimalMatch = optMatch;
         _minimalMatch = minMatch;
@@ -122,8 +119,7 @@ public class DataFormatDetector
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
      */
-    public DataFormatMatcher findFormat(InputStream in) throws IOException
-    {
+    public DataFormatMatcher findFormat(InputStream in) throws IOException {
         return _findFormat(new InputAccessor.Std(in, new byte[_maxInputLookahead]));
     }
 
@@ -134,8 +130,7 @@ public class DataFormatDetector
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
      */
-    public DataFormatMatcher findFormat(byte[] fullInputData) throws IOException
-    {
+    public DataFormatMatcher findFormat(byte[] fullInputData) throws IOException {
         return _findFormat(new InputAccessor.Std(fullInputData));
     }
 
@@ -148,8 +143,7 @@ public class DataFormatDetector
      * 
      * @since 2.1
      */
-    public DataFormatMatcher findFormat(byte[] fullInputData, int offset, int len) throws IOException
-    {
+    public DataFormatMatcher findFormat(byte[] fullInputData, int offset, int len) throws IOException {
         return _findFormat(new InputAccessor.Std(fullInputData, offset, len));
     }
     
@@ -159,9 +153,7 @@ public class DataFormatDetector
     /**********************************************************
      */
 
-    @Override
-    public String toString()
-    {
+    @Override public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         final int len = _detectors.length;
@@ -182,8 +174,7 @@ public class DataFormatDetector
     /**********************************************************
      */
 
-    private DataFormatMatcher _findFormat(InputAccessor.Std acc) throws IOException
-    {
+    private DataFormatMatcher _findFormat(InputAccessor.Std acc) throws IOException {
         JsonFactory bestMatch = null;
         MatchStrength bestMatchStrength = null;
         for (JsonFactory f : _detectors) {

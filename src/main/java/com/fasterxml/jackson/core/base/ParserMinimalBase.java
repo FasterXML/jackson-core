@@ -19,8 +19,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * (size) and functionality that is specific to certain types
  * of parser implementations; but not necessarily to number of methods.
  */
-public abstract class ParserMinimalBase
-    extends JsonParser
+public abstract class ParserMinimalBase extends JsonParser
 {
     // Control chars:
     protected final static int INT_TAB = '\t';
@@ -65,14 +64,10 @@ public abstract class ParserMinimalBase
      */
 
     protected ParserMinimalBase() { }
-    protected ParserMinimalBase(int features) {
-        super(features);
-    }
+    protected ParserMinimalBase(int features) { super(features); }
 
-    @Override
-    public Version version() {
-        return VersionUtil.versionFor(getClass());
-    }
+    // NOTE: had base impl in 2.3 and before; but shouldn't
+    // public abstract Version version();
     
     /*
     /**********************************************************
@@ -93,29 +88,18 @@ public abstract class ParserMinimalBase
     /**********************************************************
      */
 
-    @Override
-    public abstract JsonToken nextToken() throws IOException, JsonParseException;
+    @Override public abstract JsonToken nextToken() throws IOException, JsonParseException;
+    @Override public JsonToken getCurrentToken() { return _currToken; }
 
-    @Override
-    public JsonToken getCurrentToken() {
-        return _currToken;
-    }
-
-    @Override
-    public final int getCurrentTokenId() {
+    @Override public final int getCurrentTokenId() {
         final JsonToken t = _currToken;
         return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
     }
     
-    @Override
-    public boolean hasCurrentToken() {
-        return _currToken != null;
-    }
+    @Override public boolean hasCurrentToken() { return _currToken != null; }
     
     @Override
-    public JsonToken nextValue()
-        throws IOException, JsonParseException
-    {
+    public JsonToken nextValue() throws IOException {
         /* Implementation should be as trivial as follows; only
          * needs to change if we are to skip other tokens (for
          * example, if comments were exposed as tokens)
@@ -128,7 +112,7 @@ public abstract class ParserMinimalBase
     }
 
     @Override
-    public JsonParser skipChildren() throws IOException, JsonParseException
+    public JsonParser skipChildren() throws IOException
     {
         if (_currToken != JsonToken.START_OBJECT
             && _currToken != JsonToken.START_ARRAY) {
@@ -165,20 +149,13 @@ public abstract class ParserMinimalBase
     protected abstract void _handleEOF() throws JsonParseException;
 
     //public JsonToken getCurrentToken()
-
     //public boolean hasCurrentToken()
 
-    @Override
-    public abstract String getCurrentName() throws IOException, JsonParseException;
-    
-    @Override
-    public abstract void close() throws IOException;
+    @Override public abstract String getCurrentName() throws IOException;
+    @Override public abstract void close() throws IOException;
+    @Override public abstract boolean isClosed();
 
-    @Override
-    public abstract boolean isClosed();
-
-    @Override
-    public abstract JsonStreamContext getParsingContext();
+    @Override public abstract JsonStreamContext getParsingContext();
 
 //    public abstract JsonLocation getTokenLocation();
 
@@ -190,21 +167,16 @@ public abstract class ParserMinimalBase
     /**********************************************************
      */
 
-    @Override
-    public void clearCurrentToken() {
+    @Override public void clearCurrentToken() {
         if (_currToken != null) {
             _lastClearedToken = _currToken;
             _currToken = null;
         }
     }
 
-    @Override
-    public JsonToken getLastClearedToken() {
-        return _lastClearedToken;
-    }
+    @Override public JsonToken getLastClearedToken() { return _lastClearedToken; }
 
-    @Override
-    public abstract void overrideCurrentName(String name);
+    @Override public abstract void overrideCurrentName(String name);
     
     /*
     /**********************************************************
@@ -212,20 +184,11 @@ public abstract class ParserMinimalBase
     /**********************************************************
      */
 
-    @Override
-    public abstract String getText() throws IOException, JsonParseException;
-
-    @Override
-    public abstract char[] getTextCharacters() throws IOException, JsonParseException;
-
-    @Override
-    public abstract boolean hasTextCharacters();
-
-    @Override
-    public abstract int getTextLength() throws IOException, JsonParseException;
-
-    @Override
-    public abstract int getTextOffset() throws IOException, JsonParseException;  
+    @Override public abstract String getText() throws IOException;
+    @Override public abstract char[] getTextCharacters() throws IOException;
+    @Override public abstract boolean hasTextCharacters();
+    @Override public abstract int getTextLength() throws IOException;
+    @Override public abstract int getTextOffset() throws IOException;  
 
     /*
     /**********************************************************
@@ -233,9 +196,7 @@ public abstract class ParserMinimalBase
     /**********************************************************
      */
 
-    @Override
-    public abstract byte[] getBinaryValue(Base64Variant b64variant)
-        throws IOException, JsonParseException;
+    @Override public abstract byte[] getBinaryValue(Base64Variant b64variant) throws IOException;
 
     /*
     /**********************************************************
@@ -244,7 +205,7 @@ public abstract class ParserMinimalBase
      */
 
     @Override
-    public boolean getValueAsBoolean(boolean defaultValue) throws IOException, JsonParseException
+    public boolean getValueAsBoolean(boolean defaultValue) throws IOException
     {
         JsonToken t = _currToken;
         if (t != null) {
@@ -281,7 +242,7 @@ public abstract class ParserMinimalBase
     }
 
     @Override
-    public int getValueAsInt(int defaultValue) throws IOException, JsonParseException
+    public int getValueAsInt(int defaultValue) throws IOException
     {
         JsonToken t = _currToken;
         if (t != null) {
@@ -312,7 +273,7 @@ public abstract class ParserMinimalBase
     }
     
     @Override
-    public long getValueAsLong(long defaultValue) throws IOException, JsonParseException
+    public long getValueAsLong(long defaultValue) throws IOException
     {
         JsonToken t = _currToken;
         if (t != null) {
@@ -342,7 +303,7 @@ public abstract class ParserMinimalBase
     }
 
     @Override
-    public double getValueAsDouble(double defaultValue) throws IOException, JsonParseException
+    public double getValueAsDouble(double defaultValue) throws IOException
     {
         JsonToken t = _currToken;
         if (t != null) {
@@ -372,8 +333,7 @@ public abstract class ParserMinimalBase
     }
 
     @Override
-    public String getValueAsString(String defaultValue) throws IOException, JsonParseException
-    {
+    public String getValueAsString(String defaultValue) throws IOException {
         if (_currToken != JsonToken.VALUE_STRING) {
             if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
                 return defaultValue;
@@ -392,8 +352,7 @@ public abstract class ParserMinimalBase
      * Helper method that can be used for base64 decoding in cases where
      * encoded content has already been read as a String.
      */
-    protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant)
-        throws IOException, JsonParseException
+    protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant) throws IOException
     {
         // just call helper method introduced in 2.2.3
         try {
@@ -452,9 +411,7 @@ public abstract class ParserMinimalBase
      * 
      * @since 2.3
      */
-    protected boolean _hasTextualNull(String value) {
-        return "null".equals(value);
-    }
+    protected boolean _hasTextualNull(String value) { return "null".equals(value); }
     
     /*
     /**********************************************************
@@ -462,8 +419,7 @@ public abstract class ParserMinimalBase
     /**********************************************************
      */
     
-    protected void _reportUnexpectedChar(int ch, String comment)
-        throws JsonParseException
+    protected void _reportUnexpectedChar(int ch, String comment) throws JsonParseException
     {
         if (ch < 0) { // sanity check
             _reportInvalidEOF();
@@ -475,15 +431,11 @@ public abstract class ParserMinimalBase
         _reportError(msg);
     }
 
-    protected void _reportInvalidEOF()
-        throws JsonParseException
-    {
+    protected void _reportInvalidEOF() throws JsonParseException {
         _reportInvalidEOF(" in "+_currToken);
     }
 
-    protected void _reportInvalidEOF(String msg)
-        throws JsonParseException
-    {
+    protected void _reportInvalidEOF(String msg) throws JsonParseException {
         _reportError("Unexpected end-of-input"+msg);
     }
 
@@ -495,9 +447,7 @@ public abstract class ParserMinimalBase
         _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
     
-    protected void _throwInvalidSpace(int i)
-        throws JsonParseException
-    {
+    protected void _throwInvalidSpace(int i) throws JsonParseException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
         _reportError(msg);
@@ -508,9 +458,7 @@ public abstract class ParserMinimalBase
      * Note: starting with version 1.4, it is possible to suppress
      * exception by enabling {@link Feature#ALLOW_UNQUOTED_CONTROL_CHARS}.
      */
-    protected void _throwUnquotedSpace(int i, String ctxtDesc)
-        throws JsonParseException
-    {
+    protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
         // JACKSON-208; possible to allow unquoted control chars:
         if (!isEnabled(Feature.ALLOW_UNQUOTED_CONTROL_CHARS) || i >= INT_SPACE) {
             char c = (char) i;
@@ -519,8 +467,7 @@ public abstract class ParserMinimalBase
         }
     }
 
-    protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException
-    {
+    protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException {
         // as per [JACKSON-300]
         if (isEnabled(Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
             return ch;

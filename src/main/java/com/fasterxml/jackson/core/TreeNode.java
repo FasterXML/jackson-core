@@ -247,8 +247,7 @@ public interface TreeNode
      * 
      * @since 2.3
      */
-    TreeNode at(String jsonPointerExpression)
-        throws IllegalArgumentException;
+    TreeNode at(String jsonPointerExpression) throws IllegalArgumentException;
     
     /*
     /**********************************************************

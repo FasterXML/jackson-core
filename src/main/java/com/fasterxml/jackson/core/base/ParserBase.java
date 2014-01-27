@@ -18,8 +18,7 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * implementations. Contains most common things that are independent
  * of actual underlying input source.
  */
-public abstract class ParserBase
-    extends ParserMinimalBase
+public abstract class ParserBase extends ParserMinimalBase
 {
     /*
     /**********************************************************
@@ -281,8 +280,7 @@ public abstract class ParserBase
     /**********************************************************
      */
 
-    protected ParserBase(IOContext ctxt, int features)
-    {
+    protected ParserBase(IOContext ctxt, int features) {
         super();
         _features = features;
         _ioContext = ctxt;
@@ -292,10 +290,7 @@ public abstract class ParserBase
         _parsingContext = JsonReadContext.createRootContext(dups);
     }
 
-    @Override
-    public Version version() {
-        return PackageVersion.VERSION;
-    }
+    @Override public Version version() { return PackageVersion.VERSION; }
 
     /*
     /**********************************************************
@@ -307,9 +302,7 @@ public abstract class ParserBase
      * Method that can be called to get the name associated with
      * the current event.
      */
-    @Override
-    public String getCurrentName() throws IOException
-    {
+    @Override public String getCurrentName() throws IOException {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             JsonReadContext parent = _parsingContext.getParent();
@@ -318,9 +311,7 @@ public abstract class ParserBase
         return _parsingContext.getCurrentName();
     }
 
-    @Override
-    public void overrideCurrentName(String name)
-    {
+    @Override public void overrideCurrentName(String name) {
         // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
         JsonReadContext ctxt = _parsingContext;
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
@@ -336,8 +327,7 @@ public abstract class ParserBase
         }
     }
     
-    @Override
-    public void close() throws IOException {
+    @Override public void close() throws IOException {
         if (!_closed) {
             _closed = true;
             try {
@@ -350,13 +340,8 @@ public abstract class ParserBase
         }
     }
 
-    @Override
-    public boolean isClosed() { return _closed; }
-
-    @Override
-    public JsonReadContext getParsingContext() {
-        return _parsingContext;
-    }
+    @Override public boolean isClosed() { return _closed; }
+    @Override public JsonReadContext getParsingContext() { return _parsingContext; }
 
     /**
      * Method that return the <b>starting</b> location of the current
@@ -364,8 +349,7 @@ public abstract class ParserBase
      * that starts the current token.
      */
     @Override
-    public JsonLocation getTokenLocation()
-    {
+    public JsonLocation getTokenLocation() {
         return new JsonLocation(_ioContext.getSourceReference(),
                 -1L, getTokenCharacterOffset(), // bytes, chars
                 getTokenLineNr(),
@@ -377,8 +361,7 @@ public abstract class ParserBase
      * usually for error reporting purposes
      */
     @Override
-    public JsonLocation getCurrentLocation()
-    {
+    public JsonLocation getCurrentLocation() {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_ioContext.getSourceReference(),
                 -1L, _currInputProcessed + _inputPtr, // bytes, chars
@@ -392,22 +375,14 @@ public abstract class ParserBase
      */
 
     @Override
-    public boolean hasTextCharacters()
-    {
-        if (_currToken == JsonToken.VALUE_STRING) {
-            return true; // usually true
-        }        
-        if (_currToken == JsonToken.FIELD_NAME) {
-            return _nameCopied;
-        }
+    public boolean hasTextCharacters() {
+        if (_currToken == JsonToken.VALUE_STRING) { return true; } // usually true        
+        if (_currToken == JsonToken.FIELD_NAME) { return _nameCopied; }
         return false;
     }
 
     // No embedded objects with base impl...
-    @Override
-    public Object getEmbeddedObject() throws IOException {
-        return null;
-    }
+    @Override public Object getEmbeddedObject() throws IOException { return null; }
     
     /*
     /**********************************************************
@@ -440,9 +415,7 @@ public abstract class ParserBase
      */
 
     protected abstract boolean loadMore() throws IOException;
-    
     protected abstract void _finishString() throws IOException;
-
     protected abstract void _closeInput() throws IOException;
     
     /*
@@ -457,8 +430,7 @@ public abstract class ParserBase
      * example, when explicitly closing this reader instance), or
      * separately (if need be).
      */
-    protected void _releaseBuffers() throws IOException
-    {
+    protected void _releaseBuffers() throws IOException {
         _textBuffer.releaseBuffers();
         char[] buf = _nameCopyBuffer;
         if (buf != null) {
@@ -473,8 +445,7 @@ public abstract class ParserBase
      * is no open non-root context.
      */
     @Override
-    protected void _handleEOF() throws JsonParseException
-    {
+    protected void _handleEOF() throws JsonParseException {
         if (!_parsingContext.inRoot()) {
             _reportInvalidEOF(": expected close marker for "+_parsingContext.getTypeDesc()+" (from "+_parsingContext.getStartLocation(_ioContext.getSourceReference())+")");
         }
@@ -486,8 +457,7 @@ public abstract class ParserBase
     /**********************************************************
      */
     
-    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException
-    {
+    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
         String startDesc = ""+_parsingContext.getStartLocation(_ioContext.getSourceReference());
         _reportError("Unexpected close marker '"+((char) actCh)+"': expected '"+expCh+"' (for "+_parsingContext.getTypeDesc()+" starting at "+startDesc+")");
     }
@@ -1030,9 +1000,7 @@ public abstract class ParserBase
         return bits;
     }
     
-    protected IllegalArgumentException reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex)
-        throws IllegalArgumentException
-    {
+    protected IllegalArgumentException reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex) throws IllegalArgumentException {
         return reportInvalidBase64Char(b64variant, ch, bindex, null);
     }
 
@@ -1040,9 +1008,7 @@ public abstract class ParserBase
      * @param bindex Relative index within base64 character unit; between 0
      *   and 3 (as unit has exactly 4 characters)
      */
-    protected IllegalArgumentException reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex, String msg)
-        throws IllegalArgumentException
-    {
+    protected IllegalArgumentException reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex, String msg) throws IllegalArgumentException {
         String base;
         if (ch <= INT_SPACE) {
             base = "Illegal white space character (code 0x"+Integer.toHexString(ch)+") as character #"+(bindex+1)+" of 4-char base64 unit: can only used between units";

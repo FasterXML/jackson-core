@@ -12,15 +12,13 @@ package com.fasterxml.jackson.core;
  * Regular {@link java.io.IOException}s will be passed through as is.
  * Sub-class of {@link java.io.IOException} for convenience.
  */
-public class JsonProcessingException
-    extends java.io.IOException
+public class JsonProcessingException extends java.io.IOException
 {
     final static long serialVersionUID = 123; // Stupid eclipse...
 	
     protected JsonLocation _location;
 
-    protected JsonProcessingException(String msg, JsonLocation loc, Throwable rootCause)
-    {
+    protected JsonProcessingException(String msg, JsonLocation loc, Throwable rootCause) {
         /* Argh. IOException(Throwable,String) is only available starting
          * with JDK 1.6...
          */
@@ -31,29 +29,23 @@ public class JsonProcessingException
         _location = loc;
     }
 
-    protected JsonProcessingException(String msg)
-    {
+    protected JsonProcessingException(String msg) {
         super(msg);
     }
 
-    protected JsonProcessingException(String msg, JsonLocation loc)
-    {
+    protected JsonProcessingException(String msg, JsonLocation loc) {
         this(msg, loc, null);
     }
 
-    protected JsonProcessingException(String msg, Throwable rootCause)
-    {
+    protected JsonProcessingException(String msg, Throwable rootCause) {
         this(msg, null, rootCause);
     }
 
-    protected JsonProcessingException(Throwable rootCause)
-    {
+    protected JsonProcessingException(Throwable rootCause) {
         this(null, null, rootCause);
     }
 
-    public JsonLocation getLocation() {
-        return _location;
-    }
+    public JsonLocation getLocation() { return _location; }
 
     /*
     /**********************************************************
@@ -68,10 +60,7 @@ public class JsonProcessingException
      * 
      * @since 2.1
      */
-    public String getOriginalMessage()
-    {
-        return super.getMessage();
-    }
+    public String getOriginalMessage() { return super.getMessage(); }
 
     /*
     /**********************************************************
@@ -84,9 +73,7 @@ public class JsonProcessingException
      * information right after the main message, but before
      * source location information.
      */
-    protected String getMessageSuffix() {
-        return null;
-    }
+    protected String getMessageSuffix() { return null; }
 
     /*
     /**********************************************************
@@ -97,9 +84,7 @@ public class JsonProcessingException
     /**
      * Default method overridden so that we can add location information
      */
-    @Override
-    public String getMessage()
-    {
+    @Override public String getMessage() {
         String msg = super.getMessage();
         if (msg == null) {
             msg = "N/A";
@@ -123,8 +108,5 @@ public class JsonProcessingException
         return msg;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getName()+": "+getMessage();
-    }
+    @Override public String toString() { return getClass().getName()+": "+getMessage(); }
 }

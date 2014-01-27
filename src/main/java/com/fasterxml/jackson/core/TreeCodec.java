@@ -10,14 +10,9 @@ import java.io.IOException;
  */
 public abstract class TreeCodec
 {
-    public abstract <T extends TreeNode> T readTree(JsonParser jp)
-        throws IOException, JsonProcessingException;
-
-    public abstract void writeTree(JsonGenerator jg, TreeNode tree)
-        throws IOException, JsonProcessingException;
-
+    public abstract <T extends TreeNode> T readTree(JsonParser jp) throws IOException, JsonProcessingException;
+    public abstract void writeTree(JsonGenerator jg, TreeNode tree) throws IOException, JsonProcessingException;
     public abstract TreeNode createArrayNode();
     public abstract TreeNode createObjectNode();
-
     public abstract JsonParser treeAsTokens(TreeNode node);
 }

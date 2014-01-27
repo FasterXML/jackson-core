@@ -169,9 +169,7 @@ public enum JsonToken
     public final char[] asCharArray() { return _serializedChars; }
     public final byte[] asByteArray() { return _serializedBytes; }
 
-    public final boolean isNumeric() {
-        return _isNumber;
-    }
+    public final boolean isNumeric() { return _isNumber; }
 
     /**
      * Accessor that is functionally equivalent to:
@@ -181,9 +179,7 @@ public enum JsonToken
      * 
      * @since 2.3
      */
-    public final boolean isStructStart() {
-        return _isStructStart;
-    }
+    public final boolean isStructStart() { return _isStructStart; }
 
     /**
      * Accessor that is functionally equivalent to:
@@ -193,20 +189,13 @@ public enum JsonToken
      * 
      * @since 2.3
      */
-    public final boolean isStructEnd() {
-        return _isStructEnd;
-    }
+    public final boolean isStructEnd() { return _isStructEnd; }
 
     /**
      * Method that can be used to check whether this token represents
      * a valid non-structured value. This means all tokens other than
      * Object/Array start/end markers all field names.
      */
-    public final boolean isScalarValue() {
-        return _isScalar;
-    }
-
-    public final boolean isBoolean() {
-        return _isBoolean;
-    }
+    public final boolean isScalarValue() { return _isScalar; }
+    public final boolean isBoolean() { return _isBoolean; }
 }

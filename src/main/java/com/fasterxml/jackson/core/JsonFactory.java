@@ -588,9 +588,7 @@ public class JsonFactory
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
      */
-    public CharacterEscapes getCharacterEscapes() {
-        return _characterEscapes;
-    }
+    public CharacterEscapes getCharacterEscapes() { return _characterEscapes; }
 
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
@@ -678,9 +676,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(File f)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createParser(File f) throws IOException, JsonParseException {
         // true, since we create InputStream from File
         IOContext ctxt = _createContext(f, true);
         InputStream in = new FileInputStream(f);
@@ -706,9 +702,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(URL url)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createParser(URL url) throws IOException, JsonParseException {
         // true, since we create InputStream from URL
         IOContext ctxt = _createContext(url, true);
         InputStream in = _optimizedStreamFromURL(url);
@@ -736,9 +730,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(InputStream in)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createParser(InputStream in) throws IOException, JsonParseException {
         IOContext ctxt = _createContext(in, false);
         // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
@@ -761,9 +753,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(Reader r)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createParser(Reader r) throws IOException, JsonParseException {
         // false -> we do NOT own Reader (did not create it)
         IOContext ctxt = _createContext(r, false);
         // [JACKSON-512]: allow wrapping with InputDecorator
@@ -779,9 +769,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(byte[] data)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createParser(byte[] data) throws IOException, JsonParseException {
         IOContext ctxt = _createContext(data, true);
         // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
@@ -803,9 +791,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(byte[] data, int offset, int len)
-        throws IOException, JsonParseException
-    {
+    public JsonParser createParser(byte[] data, int offset, int len) throws IOException, JsonParseException {
         IOContext ctxt = _createContext(data, true);
         // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
@@ -823,8 +809,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonParser createParser(String content) throws IOException, JsonParseException
-    {
+    public JsonParser createParser(String content) throws IOException, JsonParseException {
         Reader r = new StringReader(content);
         // true -> we own the Reader (and must close); not a big deal
         IOContext ctxt = _createContext(r, true);

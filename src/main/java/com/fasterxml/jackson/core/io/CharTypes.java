@@ -21,7 +21,7 @@ public final class CharTypes
      */
     final static int[] sInputCodes;
     static {
-        /* 96 would do for most cases (backslash is ascii 94)
+        /* 96 would do for most cases (backslash is ASCII 94)
          * but if we want to do lookups by raw bytes it's better
          * to have full table
          */

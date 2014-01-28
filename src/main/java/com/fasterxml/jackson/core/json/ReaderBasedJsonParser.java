@@ -1504,6 +1504,8 @@ public final class ReaderBasedJsonParser
     {
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
+        final int[] codes = _icLatin1;
+        final int maxCode = codes.length;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1513,21 +1515,18 @@ public final class ReaderBasedJsonParser
             }
             char c = _inputBuffer[_inputPtr++];
             int i = (int) c;
-            if (i <= INT_BACKSLASH) {
-                if (i == INT_BACKSLASH) {
+            if (i < maxCode && codes[i] != 0) {
+                if (i == INT_QUOTE) {
+                    break;
+                } else if (i == INT_BACKSLASH) {
                     /* Although chars outside of BMP are to be escaped as
                      * an UTF-16 surrogate pair, does that affect decoding?
                      * For now let's assume it does not.
                      */
                     c = _decodeEscaped();
-                } else if (i <= INT_QUOTE) {
-                    if (i == INT_QUOTE) {
-                        break;
-                    }
-                    if (i < INT_SPACE) {
-                        _throwUnquotedSpace(i, "string value");
-                    }
-                }
+                } else if (i < INT_SPACE) {
+                    _throwUnquotedSpace(i, "string value");
+                } // anything else?
             }
             // Need more room?
             if (outPtr >= outBuf.length) {

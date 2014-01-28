@@ -63,8 +63,7 @@ public abstract class CharacterEscapes
      * customize definitions. Caller can modify this array as it sees
      * fit and usually returns modified instance via {@link #getEscapeCodesForAscii}
      */
-    public static int[] standardAsciiEscapesForJSON()
-    {
+    public static int[] standardAsciiEscapesForJSON() {
         int[] esc = CharTypes.get7BitOutputEscapes();
         return ArraysCompat.copyOf(esc, esc.length);
     }

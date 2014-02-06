@@ -156,6 +156,8 @@ public class JsonParserDelegate extends JsonParser
     public JsonStreamContext getParsingContext() {
         return delegate.getParsingContext();
     }
+    
+    @Override public boolean isExpectedStartArrayToken() { return delegate.isExpectedStartArrayToken(); }
 
     /*
     /**********************************************************

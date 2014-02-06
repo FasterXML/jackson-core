@@ -3,6 +3,8 @@ Version: 2.3.2 (xx-Feb-2014)
 
 #126: Revert some 1.6 back to make core lib work with Android 2.2 (FroYo)
  (contributed by Goncalo S)
+#129: Missing delegation method, `JsonParserDelegate.isExpectedStartArrayToken()`
+ (Pascal G)
 
 ------------------------------------------------------------------------
 === History: ===

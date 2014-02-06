@@ -2,10 +2,13 @@ package com.fasterxml.jackson.core.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Helper class that implements
@@ -56,6 +59,10 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public boolean isEnabled(Feature f) {
         return delegate.isEnabled(f);
+    }
+
+    public JsonParser configure(Feature f, boolean state) {
+        return delegate.configure(f, state);
     }
 
     @Override
@@ -211,6 +218,10 @@ public class JsonParserDelegate extends JsonParser
         return delegate.getTextOffset();
     }
 
+    public String nextTextValue() throws IOException, JsonParseException {
+        return delegate.nextTextValue();
+    }
+
     /*
     /**********************************************************
     /* Public API, access to token information, numeric
@@ -218,7 +229,7 @@ public class JsonParserDelegate extends JsonParser
      */
     
     @Override
-    public BigInteger getBigIntegerValue() throws IOException,JsonParseException {
+    public BigInteger getBigIntegerValue() throws IOException, JsonParseException {
         return delegate.getBigIntegerValue();
     }
 
@@ -270,6 +281,18 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public Number getNumberValue() throws IOException, JsonParseException {
         return delegate.getNumberValue();
+    }
+
+    public Boolean nextBooleanValue() throws IOException, JsonParseException {
+        return delegate.nextBooleanValue();
+    }
+
+    public int nextIntValue(int defaultValue) throws IOException, JsonParseException {
+        return delegate.nextIntValue(defaultValue);
+    }
+
+    public long nextLongValue(long defaultValue) throws IOException, JsonParseException {
+        return delegate.nextLongValue(defaultValue);
     }
 
     /*
@@ -327,7 +350,27 @@ public class JsonParserDelegate extends JsonParser
     public String getValueAsString(String defaultValue) throws IOException, JsonParseException {
         return delegate.getValueAsString(defaultValue);
     }
-    
+
+    public <T> T readValueAs(Class<T> valueType) throws IOException, JsonProcessingException {
+        return delegate.readValueAs(valueType);
+    }
+
+    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException, JsonProcessingException {
+        return delegate.readValueAs(valueTypeRef);
+    }
+
+    public <T> Iterator<T> readValuesAs(Class<T> valueType) throws IOException, JsonProcessingException {
+        return delegate.readValuesAs(valueType);
+    }
+
+    public <T> Iterator<T> readValuesAs(TypeReference<?> valueTypeRef) throws IOException, JsonProcessingException {
+        return delegate.readValuesAs(valueTypeRef);
+    }
+
+    public <T extends TreeNode> T readValueAsTree() throws IOException, JsonProcessingException {
+        return delegate.readValueAsTree();
+    }
+
     /*
     /**********************************************************
     /* Public API, access to token values, other
@@ -344,12 +387,19 @@ public class JsonParserDelegate extends JsonParser
         return delegate.getBinaryValue(b64variant);
     }
 
+    public byte[] getBinaryValue() throws IOException, JsonParseException {
+        return delegate.getBinaryValue();
+    }
+
     @Override
-    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
-            throws IOException, JsonParseException {
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException, JsonParseException {
         return delegate.readBinaryValue(b64variant, out);
     }
-    
+
+    public int readBinaryValue(OutputStream out) throws IOException, JsonParseException {
+        return delegate.readBinaryValue(out);
+    }
+
     @Override
     public JsonLocation getTokenLocation() {
         return delegate.getTokenLocation();
@@ -364,12 +414,24 @@ public class JsonParserDelegate extends JsonParser
     public JsonToken nextValue() throws IOException, JsonParseException {
         return delegate.nextValue();
     }
-    
+
+    public boolean nextFieldName(SerializableString str) throws IOException, JsonParseException {
+        return delegate.nextFieldName(str);
+    }
+
     @Override
     public JsonParser skipChildren() throws IOException, JsonParseException {
         delegate.skipChildren();
         // NOTE: must NOT delegate this method to delegate, needs to be self-reference for chaining
         return this;
+    }
+
+    public int releaseBuffered(OutputStream out) throws IOException {
+        return delegate.releaseBuffered(out);
+    }
+
+    public int releaseBuffered(Writer w) throws IOException {
+        return delegate.releaseBuffered(w);
     }
 
     /*

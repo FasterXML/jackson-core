@@ -17,7 +17,7 @@ making it possible to use standard [data-binding package](https://github.com/Fas
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
 
-[![Build Status](https://fasterxml.ci.cloudbees.com/job/jackson-core-master/badge/icon)](https://fasterxml.ci.cloudbees.com/job/jackson-core-master/)
+[![Build Status](https://travis-ci.org/FasterXML/jackson-core.png?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
 
 ### Differences from Jackson 1.x
 

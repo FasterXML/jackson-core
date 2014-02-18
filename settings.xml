@@ -23,4 +23,5 @@ http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html
   <proxies/>
   <profiles/>
   <activeProfiles/>
-</settings
+</settings>
+

@@ -10,26 +10,15 @@ It is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE
 
 Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),
-[XML](https://github.com/FasterXML/jackson-dataformat-xml)
-and [CSV](https://github.com/FasterXML/jackson-dataformat-csv))
+[XML](https://github.com/FasterXML/jackson-dataformat-xml),
+[CSV](https://github.com/FasterXML/jackson-dataformat-csv))
+and [CBOR](https://github.com/FasterXML/jackson-dataformat-cbor)
 also build on this base package, implementing the core interfaces,
 making it possible to use standard [data-binding package](https://github.com/FasterXML/jackson-databind) regardless of underlying data format.
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-core.png?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
-
-### Differences from Jackson 1.x
-
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
-
-Note that the main differences compared to 1.0 core jar are:
-
-* Maven build instead of Ant
-* Annotations carved out to a separate package (that this package depends on)
-* Java package is now `com.fasterxml.jackson.core` (instead of `org.codehaus.jackson`)
-
-----
 
 # Get it!
 
@@ -99,8 +88,21 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 # Further reading
 
+## Differences from Jackson 1.x
+
+Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
+
+Note that the main differences compared to 1.0 core jar are:
+
+* Maven build instead of Ant
+* Annotations carved out to a separate package (that this package depends on)
+* Java package is now `com.fasterxml.jackson.core` (instead of `org.codehaus.jackson`)
+
+## Links
+
 * Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
 * [Jackson Github Hub](https://github.com/FasterXML/jackson) has links to all official Jackson components
 * [Jackson Github Doc](https://github.com/FasterXML/jackson-docs) is the hub for official Jackson documentation
 * [FasterXML Jackson Project Wiki](http://wiki.fasterxml.com/JacksonHome) has additional documentation (especailly for older Jackson versions)
 * Commercial support (including alternative licensing arrangements) is available by [FasterXML.com](http://fasterxml.com)
+

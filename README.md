@@ -33,7 +33,7 @@ To use the package, you need to use following Maven dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.3.1</version>
+  <version>2.3.2</version>
 </dependency>
 ```
 

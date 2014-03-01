@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion> 
   <parent>
     <groupId>com.fasterxml</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>12</version>
+    <artifactId>jackson-parent</artifactId>
+    <version>2.4-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -23,8 +23,6 @@
   </scm>
 
   <properties>
-    <!-- for 2.4, includes full debug info -->
-    <javac.debuglevel>lines,source,vars</javac.debuglevel>
     <!--
      | Configuration properties for the OSGi maven-bundle-plugin
     -->
@@ -34,17 +32,8 @@ com.fasterxml.jackson.core.*;version=${project.version}
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
-    <packageVersion.package>com.fasterxml.jackson.core.json</packageVersion.package>
+    <packageVersion.package>${project.groupdId}.json</packageVersion.package>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.2</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
   <build>
     <plugins>
@@ -96,12 +85,13 @@ com.fasterxml.jackson.core.*;version=${project.version}
         </executions>
       </plugin>
     </plugins>
+<!-- 28-Feb-2014, tatu: Shouldn't be needed, oss-parent has them? -->
+<!--
     <extensions>
-        <!-- Enabling the use of SSH -->
         <extension>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-ssh-external</artifactId>
-            <version>1.0-beta-6</version>
+            <version>1.0</version>
         </extension>
         <extension>
             <groupId>org.apache.maven.scm</groupId>
@@ -119,6 +109,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
             <version>0.3.1</version>
         </extension>
     </extensions>
+-->
   </build>
 
   <reporting>

@@ -5,6 +5,9 @@ Version: 2.3.2 (28-Feb-2014)
  (contributed by Goncalo S)
 #129: Missing delegation method, `JsonParserDelegate.isExpectedStartArrayToken()`
  (Pascal G)
+#133: Prevent error on JsonPointer expressions for properties that have numeric
+  ids above 32-bit range
+ (reported by mrstlee@github)
 
 ------------------------------------------------------------------------
 === History: ===

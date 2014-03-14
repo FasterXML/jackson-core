@@ -52,8 +52,7 @@ public class JsonPointer
      * Constructor used for creating "empty" instance, used to represent
      * state that matches current node.
      */
-    protected JsonPointer()
-    {
+    protected JsonPointer() {
         _nextSegment = null;
         _matchingPropertyName = "";
         _matchingElementIndex = -1;
@@ -63,13 +62,12 @@ public class JsonPointer
     /**
      * Constructor used for creating non-empty Segments
      */
-    protected JsonPointer(String fullString, String segment, JsonPointer next)
-    {
+    protected JsonPointer(String fullString, String segment, JsonPointer next) {
         _asString = fullString;
         _nextSegment = next;
         // Ok; may always be a property
         _matchingPropertyName = segment;
-        _matchingElementIndex = _parseInt(segment);
+        _matchingElementIndex = _parseIndex(segment);
     }
     
     /*
@@ -87,8 +85,7 @@ public class JsonPointer
      *   expression: currently the only such expression is one that does NOT start with
      *   a slash ('/').
      */
-    public static JsonPointer compile(String input)
-        throws IllegalArgumentException
+    public static JsonPointer compile(String input) throws IllegalArgumentException
     {
         // First quick checks for well-known 'empty' pointer
         if ((input == null) || input.length() == 0) {
@@ -96,8 +93,7 @@ public class JsonPointer
         }
         // And then quick validity check:
         if (input.charAt(0) != '/') {
-            throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "
-                    +"\""+input+"\"");
+            throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+input+"\"");
         }
         return _parseTail(input);
     }
@@ -108,10 +104,7 @@ public class JsonPointer
      */
     public static JsonPointer valueOf(String input) { return compile(input); }
 
-    /*
-    
-    /**
-     * Factory method that composes a pointer instance, given a set
+    /* Factory method that composes a pointer instance, given a set
      * of 'raw' segments: raw meaning that no processing will be done,
      * no escaping may is present.
      * 
@@ -139,25 +132,11 @@ public class JsonPointer
     /**********************************************************
      */
 
-    public boolean matches() {
-        return _nextSegment == null;
-    }
-    
-    public String getMatchingProperty() {
-        return _matchingPropertyName;
-    }
-
-    public int getMatchingIndex() {
-        return _matchingElementIndex;
-    }
-
-    public boolean mayMatchProperty() {
-        return _matchingPropertyName != null;
-    }
-
-    public boolean mayMatchElement() {
-        return _matchingElementIndex >= 0;
-    }
+    public boolean matches() { return _nextSegment == null; }
+    public String getMatchingProperty() { return _matchingPropertyName; }
+    public int getMatchingIndex() { return _matchingElementIndex; }
+    public boolean mayMatchProperty() { return _matchingPropertyName != null; }
+    public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 
     public JsonPointer matchProperty(String name) {
         if (_nextSegment == null || !_matchingPropertyName.equals(name)) {
@@ -187,24 +166,13 @@ public class JsonPointer
     /**********************************************************
      */
 
-    @Override
-    public String toString() {
-        return _asString;
-    }
+    @Override public String toString() { return _asString; }
+    @Override public int hashCode() { return _asString.hashCode(); }
 
-    @Override
-    public int hashCode() {
-        return _asString.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
+    @Override public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof JsonPointer)) {
-            return false;
-        }
+        if (!(o instanceof JsonPointer)) return false;
         return _asString.equals(((JsonPointer) o)._asString);
     }
     
@@ -214,10 +182,11 @@ public class JsonPointer
     /**********************************************************
      */
 
-    private final static int _parseInt(String str)
-    {
+    private final static int _parseIndex(String str) {
         final int len = str.length();
-        if (len == 0) {
+        // [Issue#133]: beware of super long indexes; assume we never
+        // have arrays over 2 billion entries so ints are fine.
+        if (len == 0 || len > 10) {
             return -1;
         }
         for (int i = 0; i < len; ++i) {
@@ -226,12 +195,16 @@ public class JsonPointer
                 return -1;
             }
         }
-        // for now, we'll assume 32-bit indexes are fine
+        if (len == 10) {
+            long l = NumberInput.parseLong(str);
+            if (l > Integer.MAX_VALUE) {
+                return -1;
+            }
+        }
         return NumberInput.parseInt(str);
     }
     
-    protected static JsonPointer _parseTail(String input)
-    {
+    protected static JsonPointer _parseTail(String input) {
         final int end = input.length();
 
         // first char is the contextual slash, skip
@@ -259,8 +232,7 @@ public class JsonPointer
      * @param input Full input for the tail being parsed
      * @param i Offset to character after tilde
      */
-    protected static JsonPointer _parseQuotedTail(String input, int i)
-    {
+    protected static JsonPointer _parseQuotedTail(String input, int i) {
         final int end = input.length();
         StringBuilder sb = new StringBuilder(Math.max(16, end));
         if (i > 2) {
@@ -284,8 +256,7 @@ public class JsonPointer
         return new JsonPointer(input, sb.toString(), EMPTY);
     }
     
-    private static void _appendEscape(StringBuilder sb, char c)
-    {
+    private static void _appendEscape(StringBuilder sb, char c) {
         if (c == '0') {
             c = '~';
         } else if (c == '1') {

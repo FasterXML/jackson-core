@@ -59,11 +59,36 @@ public class TestJsonPointer extends BaseTest
         assertEquals(-1, ptr.getMatchingIndex());
         assertEquals("a/b", ptr.getMatchingProperty());
         assertEquals("/a~1b", ptr.toString());
-        
+
         // done!
         ptr = ptr.tail();
         assertTrue(ptr.matches());
         assertNull(ptr.tail());
     }
 
+    // [Issue#133]
+    public void testLongNumbers() throws Exception
+    {
+        final long LONG_ID = ((long) Integer.MAX_VALUE) + 1L;
+        
+        final String INPUT = "/User/"+LONG_ID;
+
+        JsonPointer ptr = JsonPointer.compile(INPUT);
+        assertEquals("User", ptr.getMatchingProperty());
+        assertEquals(INPUT, ptr.toString());
+
+        ptr = ptr.tail();
+        assertNotNull(ptr);
+        assertFalse(ptr.matches());
+        /* 14-Mar-2014, tatu: We do not support array indexes beyond 32-bit
+         *    range; can still match textually of course.
+         */
+        assertEquals(-1, ptr.getMatchingIndex());
+        assertEquals(String.valueOf(LONG_ID), ptr.getMatchingProperty());
+
+        // done!
+        ptr = ptr.tail();
+        assertTrue(ptr.matches());
+        assertNull(ptr.tail());
+    }
 }

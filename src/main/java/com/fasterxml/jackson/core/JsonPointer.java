@@ -67,7 +67,7 @@ public class JsonPointer
         _nextSegment = next;
         // Ok; may always be a property
         _matchingPropertyName = segment;
-        _matchingElementIndex = _parseInt(segment);
+        _matchingElementIndex = _parseIndex(segment);
     }
     
     /*
@@ -182,9 +182,11 @@ public class JsonPointer
     /**********************************************************
      */
 
-    private final static int _parseInt(String str) {
+    private final static int _parseIndex(String str) {
         final int len = str.length();
-        if (len == 0) {
+        // [Issue#133]: beware of super long indexes; assume we never
+        // have arrays over 2 billion entries so ints are fine.
+        if (len == 0 || len > 10) {
             return -1;
         }
         for (int i = 0; i < len; ++i) {
@@ -193,7 +195,12 @@ public class JsonPointer
                 return -1;
             }
         }
-        // for now, we'll assume 32-bit indexes are fine
+        if (len == 10) {
+            long l = NumberInput.parseLong(str);
+            if (l > Integer.MAX_VALUE) {
+                return -1;
+            }
+        }
         return NumberInput.parseInt(str);
     }
     

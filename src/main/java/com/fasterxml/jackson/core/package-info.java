@@ -4,7 +4,7 @@
  * used for constructing
  * JSON parser ({@link com.fasterxml.jackson.core.JsonParser})
  * and generator
- * ({@link com.fasterxml.jackson.core.JsonParser})
+ * ({@link com.fasterxml.jackson.core.JsonGenerator})
  * instances.
  * <p>
  * Public API of the higher-level mapping interfaces ("Mapping API")

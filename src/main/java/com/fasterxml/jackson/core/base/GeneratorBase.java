@@ -91,6 +91,8 @@ public abstract class GeneratorBase extends JsonGenerator
             _cfgNumbersAsStrings = true;
         } else if (f == Feature.ESCAPE_NON_ASCII) {
             setHighestNonEscapedChar(127);
+        } else if (f == Feature.JSONP_COMPLIANT) {
+            setJsonpCompliantOutput(true);
         }
         return this;
     }
@@ -102,6 +104,8 @@ public abstract class GeneratorBase extends JsonGenerator
             _cfgNumbersAsStrings = false;
         } else if (f == Feature.ESCAPE_NON_ASCII) {
             setHighestNonEscapedChar(0);
+        } else if (f == Feature.JSONP_COMPLIANT) {
+            setJsonpCompliantOutput(false);
         }
         return this;
     }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 /**
  * Character escapes for producing json that can be safely used for JSONP.
- * {@link com.fasterxml.jackson.core.JsonParser.Feature#ALLOW_UNQUOTED_FIELD_NAMES}
+ * Used when {@link com.fasterxml.jackson.core.JsonGenerator.Feature#JSONP_COMPLIANT}
  * is enabled.
  */
 public class JsonpCharacterEscapes extends CharacterEscapes

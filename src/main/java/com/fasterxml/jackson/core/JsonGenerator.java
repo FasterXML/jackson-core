@@ -536,8 +536,8 @@ public abstract class JsonGenerator
      */
 
     /**
-     * Method for writing starting marker of a JSON Array value
-     * (character '['; plus possible white space decoration
+     * Method for writing starting marker of a Array value
+     * (for JSON this is character '['; plus possible white space decoration
      * if pretty-printing is enabled).
      *<p>
      * Array values can be written in any context where values
@@ -547,6 +547,23 @@ public abstract class JsonGenerator
     public abstract void writeStartArray() throws IOException;
 
     /**
+     * Method for writing start marker of an Array value, similar
+     * to {@link #writeStartArray()}, but also specifying how many
+     * elements will be written for the array before calling
+     * {@link #writeEndArray()}.
+     *<p>
+     * Default implementation simply calls {@link #writeStartArray()}.
+     * 
+     * @param size Number of elements this array will have: actual
+     *   number of values written (before matching call to
+     *   {@link #writeEndArray()} MUST match; generator MAY verify
+     *   this is the case.
+     */
+    public void writeStartArray(int size) throws IOException {
+        writeStartArray();
+    }
+    
+    /**
      * Method for writing closing marker of a JSON Array value
      * (character ']'; plus possible white space decoration
      * if pretty-printing is enabled).
@@ -554,8 +571,7 @@ public abstract class JsonGenerator
      * Marker can be written if the innermost structured type
      * is Array.
      */
-    public abstract void writeEndArray()
-        throws IOException;
+    public abstract void writeEndArray() throws IOException;
 
     /**
      * Method for writing starting marker of a JSON Object value

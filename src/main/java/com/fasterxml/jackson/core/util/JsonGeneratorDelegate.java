@@ -166,22 +166,25 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public void writeStartArray() throws IOException, JsonGenerationException { delegate.writeStartArray(); }
+    public void writeStartArray() throws IOException { delegate.writeStartArray(); }
 
     @Override
-    public void writeEndArray() throws IOException, JsonGenerationException { delegate.writeEndArray(); }
-
-    @Override
-    public void writeStartObject() throws IOException, JsonGenerationException { delegate.writeStartObject(); }
+    public void writeStartArray(int size) throws IOException { delegate.writeStartArray(size); }
     
     @Override
-    public void writeEndObject() throws IOException, JsonGenerationException { delegate.writeEndObject(); }
+    public void writeEndArray() throws IOException { delegate.writeEndArray(); }
 
     @Override
-    public void writeFieldName(String name) throws IOException, JsonGenerationException { delegate.writeFieldName(name); }
+    public void writeStartObject() throws IOException { delegate.writeStartObject(); }
+    
+    @Override
+    public void writeEndObject() throws IOException { delegate.writeEndObject(); }
 
     @Override
-    public void writeFieldName(SerializableString name) throws IOException, JsonGenerationException { delegate.writeFieldName(name); }
+    public void writeFieldName(String name) throws IOException { delegate.writeFieldName(name); }
+
+    @Override
+    public void writeFieldName(SerializableString name) throws IOException { delegate.writeFieldName(name); }
     
     /*
     /**********************************************************
@@ -190,19 +193,19 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public void writeString(String text) throws IOException,JsonGenerationException { delegate.writeString(text); }
+    public void writeString(String text) throws IOException { delegate.writeString(text); }
 
     @Override
-    public void writeString(char[] text, int offset, int len) throws IOException, JsonGenerationException { delegate.writeString(text, offset, len); }
+    public void writeString(char[] text, int offset, int len) throws IOException { delegate.writeString(text, offset, len); }
 
     @Override
-    public void writeString(SerializableString text) throws IOException, JsonGenerationException { delegate.writeString(text); }
+    public void writeString(SerializableString text) throws IOException { delegate.writeString(text); }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException, JsonGenerationException { delegate.writeRawUTF8String(text, offset, length); }
+    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException { delegate.writeRawUTF8String(text, offset, length); }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length) throws IOException, JsonGenerationException { delegate.writeUTF8String(text, offset, length); }
+    public void writeUTF8String(byte[] text, int offset, int length) throws IOException { delegate.writeUTF8String(text, offset, length); }
 
     /*
     /**********************************************************
@@ -211,34 +214,34 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public void writeRaw(String text) throws IOException, JsonGenerationException { delegate.writeRaw(text); }
+    public void writeRaw(String text) throws IOException { delegate.writeRaw(text); }
 
     @Override
-    public void writeRaw(String text, int offset, int len) throws IOException, JsonGenerationException { delegate.writeRaw(text, offset, len); }
+    public void writeRaw(String text, int offset, int len) throws IOException { delegate.writeRaw(text, offset, len); }
 
     @Override
-    public void writeRaw(SerializableString raw) throws IOException, JsonGenerationException { delegate.writeRaw(raw); }
+    public void writeRaw(SerializableString raw) throws IOException { delegate.writeRaw(raw); }
     
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws IOException, JsonGenerationException { delegate.writeRaw(text, offset, len); }
+    public void writeRaw(char[] text, int offset, int len) throws IOException { delegate.writeRaw(text, offset, len); }
 
     @Override
-    public void writeRaw(char c) throws IOException, JsonGenerationException { delegate.writeRaw(c); }
+    public void writeRaw(char c) throws IOException { delegate.writeRaw(c); }
 
     @Override
-    public void writeRawValue(String text) throws IOException, JsonGenerationException { delegate.writeRawValue(text); }
+    public void writeRawValue(String text) throws IOException { delegate.writeRawValue(text); }
 
     @Override
-    public void writeRawValue(String text, int offset, int len) throws IOException, JsonGenerationException { delegate.writeRawValue(text, offset, len); }
+    public void writeRawValue(String text, int offset, int len) throws IOException { delegate.writeRawValue(text, offset, len); }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len) throws IOException, JsonGenerationException { delegate.writeRawValue(text, offset, len); }
+    public void writeRawValue(char[] text, int offset, int len) throws IOException { delegate.writeRawValue(text, offset, len); }
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException, JsonGenerationException { delegate.writeBinary(b64variant, data, offset, len); }
+    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException { delegate.writeBinary(b64variant, data, offset, len); }
 
     @Override
-    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException, JsonGenerationException { return delegate.writeBinary(b64variant, data, dataLength); }
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException { return delegate.writeBinary(b64variant, data, dataLength); }
     
     /*
     /**********************************************************
@@ -247,34 +250,34 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public void writeNumber(short v) throws IOException, JsonGenerationException { delegate.writeNumber(v); }
+    public void writeNumber(short v) throws IOException { delegate.writeNumber(v); }
 
     @Override
-    public void writeNumber(int v) throws IOException, JsonGenerationException { delegate.writeNumber(v); }
+    public void writeNumber(int v) throws IOException { delegate.writeNumber(v); }
 
     @Override
-    public void writeNumber(long v) throws IOException, JsonGenerationException { delegate.writeNumber(v); }
+    public void writeNumber(long v) throws IOException { delegate.writeNumber(v); }
 
     @Override
-    public void writeNumber(BigInteger v) throws IOException, JsonGenerationException { delegate.writeNumber(v); }
+    public void writeNumber(BigInteger v) throws IOException { delegate.writeNumber(v); }
 
     @Override
-    public void writeNumber(double v) throws IOException, JsonGenerationException { delegate.writeNumber(v); }
+    public void writeNumber(double v) throws IOException { delegate.writeNumber(v); }
 
     @Override
-    public void writeNumber(float v) throws IOException, JsonGenerationException { delegate.writeNumber(v); }
+    public void writeNumber(float v) throws IOException { delegate.writeNumber(v); }
 
     @Override
-    public void writeNumber(BigDecimal v) throws IOException, JsonGenerationException { delegate.writeNumber(v); }
+    public void writeNumber(BigDecimal v) throws IOException { delegate.writeNumber(v); }
 
     @Override
-    public void writeNumber(String encodedValue) throws IOException, JsonGenerationException, UnsupportedOperationException { delegate.writeNumber(encodedValue); }
+    public void writeNumber(String encodedValue) throws IOException, UnsupportedOperationException { delegate.writeNumber(encodedValue); }
 
     @Override
-    public void writeBoolean(boolean state) throws IOException, JsonGenerationException { delegate.writeBoolean(state); }
+    public void writeBoolean(boolean state) throws IOException { delegate.writeBoolean(state); }
     
     @Override
-    public void writeNull() throws IOException, JsonGenerationException { delegate.writeNull(); }
+    public void writeNull() throws IOException { delegate.writeNull(); }
 
     /*
     /**********************************************************
@@ -283,7 +286,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public void writeOmittedField(String fieldName) throws IOException, JsonGenerationException { delegate.writeOmittedField(fieldName); }
+    public void writeOmittedField(String fieldName) throws IOException { delegate.writeOmittedField(fieldName); }
     
     /*
     /**********************************************************
@@ -292,13 +295,13 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
     
     @Override
-    public void writeObjectId(Object id) throws IOException, JsonGenerationException { delegate.writeObjectId(id); }
+    public void writeObjectId(Object id) throws IOException { delegate.writeObjectId(id); }
 
     @Override
-    public void writeObjectRef(Object id) throws IOException, JsonGenerationException { delegate.writeObjectRef(id); }
+    public void writeObjectRef(Object id) throws IOException { delegate.writeObjectRef(id); }
     
     @Override
-    public void writeTypeId(Object id) throws IOException, JsonGenerationException { delegate.writeTypeId(id); }
+    public void writeTypeId(Object id) throws IOException { delegate.writeTypeId(id); }
     
     /*
     /**********************************************************

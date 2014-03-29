@@ -20,4 +20,4 @@ syntax: glob
 *.iml
 *.ipr
 *.iws
-
+/.idea/

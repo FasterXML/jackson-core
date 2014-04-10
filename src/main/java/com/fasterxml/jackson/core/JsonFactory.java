@@ -1018,9 +1018,7 @@ public class JsonFactory
      *
      * @param out Writer to use for writing JSON content 
      */
-    public JsonGenerator createGenerator(Writer out)
-        throws IOException
-    {
+    public JsonGenerator createGenerator(Writer out) throws IOException {
         IOContext ctxt = _createContext(out, false);
         // [JACKSON-512]: allow wrapping with _outputDecorator
         if (_outputDecorator != null) {
@@ -1045,8 +1043,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    public JsonGenerator createGenerator(File f, JsonEncoding enc)
-        throws IOException
+    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
     {
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
@@ -1096,9 +1093,7 @@ public class JsonFactory
      * @deprecated Since 2.2, use {@link #createGenerator(OutputStream, JsonEncoding)} instead.
      */
     @Deprecated
-    public JsonGenerator createJsonGenerator(OutputStream out, JsonEncoding enc)
-        throws IOException
-    {
+    public JsonGenerator createJsonGenerator(OutputStream out, JsonEncoding enc) throws IOException {
         return createGenerator(out, enc);
     }
 
@@ -1118,9 +1113,7 @@ public class JsonFactory
      * @deprecated Since 2.2, use {@link #createGenerator(Writer)} instead.
      */
     @Deprecated
-    public JsonGenerator createJsonGenerator(Writer out)
-        throws IOException
-    {
+    public JsonGenerator createJsonGenerator(Writer out) throws IOException {
         return createGenerator(out);
     }
 
@@ -1155,9 +1148,7 @@ public class JsonFactory
      * @deprecated Since 2.2, use {@link #createGenerator(File,JsonEncoding)} instead.
      */
     @Deprecated
-    public JsonGenerator createJsonGenerator(File f, JsonEncoding enc)
-        throws IOException
-    {
+    public JsonGenerator createJsonGenerator(File f, JsonEncoding enc) throws IOException {
         return createGenerator(f, enc);
     }
 
@@ -1180,9 +1171,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    protected JsonParser _createParser(InputStream in, IOContext ctxt)
-        throws IOException, JsonParseException
-    {
+    protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
         // As per [JACKSON-259], may want to fully disable canonicalization:
         return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
                 _objectCodec, _rootByteSymbols, _rootCharSymbols,
@@ -1202,9 +1191,7 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    protected JsonParser _createParser(Reader r, IOContext ctxt)
-        throws IOException, JsonParseException
-    {
+    protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
                 _rootCharSymbols.makeChild(isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
                         isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES)));

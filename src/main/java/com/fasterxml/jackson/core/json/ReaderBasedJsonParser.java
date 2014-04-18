@@ -45,6 +45,15 @@ public final class ReaderBasedJsonParser
      */
     protected char[] _inputBuffer;
 
+    /**
+     * Flag that indicates whether the input buffer is recycable (and
+     * needs to be returned to recycler once we are done) or not.
+     *<p>
+     * If it is not, it also means that parser can NOT modify underlying
+     * buffer.
+     */
+    protected boolean _bufferRecyclable;
+    
     /*
     /**********************************************************
     /* Configuration
@@ -69,24 +78,53 @@ public final class ReaderBasedJsonParser
      * some access (or skipped to obtain the next token)
      */
     protected boolean _tokenIncomplete = false;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
+    /**
+     * Method called when caller wants to provide input buffer directly,
+     * and it may or may not be recyclable use standard recycle context.
+     * 
+     * @since 2.4
+     */
     public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
-            ObjectCodec codec, CharsToNameCanonicalizer st)
+            ObjectCodec codec, CharsToNameCanonicalizer st,
+            char[] inputBuffer, int start, int end,
+            boolean bufferRecyclable)
+    {
+        super(ctxt, features);
+        _reader = r;
+        _inputBuffer = inputBuffer;
+        _inputPtr = start;
+        _inputEnd = end;
+        _objectCodec = codec;
+        _symbols = st;
+        _hashSeed = st.hashSeed();
+        _bufferRecyclable = bufferRecyclable;
+    }
+
+    /**
+     * Method called when input comes as a {@link java.io.Reader}, and buffer allocation
+     * can be done using default mechanism.
+     */
+    public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
+        ObjectCodec codec, CharsToNameCanonicalizer st)
     {
         super(ctxt, features);
         _reader = r;
         _inputBuffer = ctxt.allocTokenBuffer();
+        _inputPtr = 0;
+        _inputEnd = 0;
         _objectCodec = codec;
         _symbols = st;
         _hashSeed = st.hashSeed();
+        _bufferRecyclable = false;
     }
-    
+
     /*
     /**********************************************************
     /* Base method defs, overrides
@@ -166,10 +204,13 @@ public final class ReaderBasedJsonParser
         super._releaseBuffers();
         // merge new symbols, if any
         _symbols.release();
-        char[] buf = _inputBuffer;
-        if (buf != null) {
-            _inputBuffer = null;
-            _ioContext.releaseTokenBuffer(buf);
+        // and release buffers, if they are recyclable ones
+        if (_bufferRecyclable) {
+            char[] buf = _inputBuffer;
+            if (buf != null) {
+                _inputBuffer = null;
+                _ioContext.releaseTokenBuffer(buf);
+            }
         }
     }
     

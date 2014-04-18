@@ -39,14 +39,13 @@ public class ManualReadPerfWithMedia extends ParserTestBase
         final String jsonStr = input.asJsonString(f);
         final byte[] json = jsonStr.getBytes("UTF-8");
 
-        new ManualReadPerfWithMedia(f, jsonStr).test("Reader", "char[]", json.length);
+        new ManualReadPerfWithMedia(f, jsonStr).test("String", "char[]", json.length);
     }
 
     protected void testRead1(int reps) throws Exception
     {
-        final String input = _json;
         while (--reps >= 0) {
-            JsonParser p = _factory.createParser(input);
+            JsonParser p = _factory.createParser(_json);
             _stream(p);
             p.close();
         }
@@ -54,13 +53,9 @@ public class ManualReadPerfWithMedia extends ParserTestBase
 
     protected void testRead2(int reps) throws Exception
     {
-        final String input = _json;
+        final char[] ch = _json.toCharArray();
         while (--reps >= 0) {
-            /*
-            final char[] ch = input.toCharArray();
             JsonParser p = _factory.createParser(ch, 0, ch.length);
-            */
-            JsonParser p = _factory.createParser(input);
             _stream(p);
             p.close();
         }

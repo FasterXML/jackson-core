@@ -297,10 +297,18 @@ public class TestJsonParser
      * correctly; mostly to stress-test underlying segment-based
      * text buffer(s).
      */
-    @SuppressWarnings("resource")
     public void testLongText() throws Exception
     {
-        final int LEN = 96000;
+        JsonFactory jf = new JsonFactory();
+        // lengths chosen to tease out problems with buffer allocation...
+        _testLongText(jf, 7700);
+        _testLongText(jf, 49000);
+        _testLongText(jf, 96000);
+    }
+
+    @SuppressWarnings("resource")
+    private void _testLongText(JsonFactory jf, int LEN) throws Exception
+    {
         StringBuilder sb = new StringBuilder(LEN + 100);
         Random r = new Random(99);
         while (sb.length() < LEN) {
@@ -325,10 +333,8 @@ public class TestJsonParser
             }
         }
         final String VALUE = sb.toString();
-
-        JsonFactory jf = new JsonFactory();
         
-        // Let's use real generator to get json done right
+        // Let's use real generator to get JSON done right
         StringWriter sw = new StringWriter(LEN + (LEN >> 2));
         JsonGenerator jg = jf.createGenerator(sw);
         jg.writeStartObject();

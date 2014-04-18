@@ -220,7 +220,8 @@ public final class ByteSourceJsonBootstrapper
              */
             if (canonicalize) {
                 BytesToNameCanonicalizer can = rootByteSymbols.makeChild(canonicalize, intern);
-                return new UTF8StreamJsonParser(_context, parserFeatures, _in, codec, can, _inputBuffer, _inputPtr, _inputEnd, _bufferRecyclable);
+                return new UTF8StreamJsonParser(_context, parserFeatures, _in, codec, can,
+                        _inputBuffer, _inputPtr, _inputEnd, _bufferRecyclable);
             }
         }
         return new ReaderBasedJsonParser(_context, parserFeatures, constructReader(), codec,

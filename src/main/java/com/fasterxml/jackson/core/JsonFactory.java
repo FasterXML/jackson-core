@@ -43,9 +43,9 @@ public class JsonFactory
         java.io.Serializable // since 2.1 (for Android, mostly)
 {
     /**
-     * Computed for Jackson 2.3.0 release
+     * Computed for Jackson 2.4.0 release
      */
-    private static final long serialVersionUID = 3194418244231611666L;
+    private static final long serialVersionUID = 3306684576057132431L;
 
     /*
     /**********************************************************
@@ -810,14 +810,43 @@ public class JsonFactory
      * @since 2.1
      */
     public JsonParser createParser(String content) throws IOException, JsonParseException {
-        Reader r = new StringReader(content);
-        // true -> we own the Reader (and must close); not a big deal
-        IOContext ctxt = _createContext(r, true);
-        // [JACKSON-512]: allow wrapping with InputDecorator
-        if (_inputDecorator != null) {
-            r = _inputDecorator.decorate(ctxt, r);
+        final int strLen = content.length();
+        // Actually, let's use this for medium-sized content, up to 64kB chunk (32kb char)
+        if (_inputDecorator != null || strLen > 0x8000) {
+            // easier to just wrap in a Reader than extend InputDecorator; or, if content
+            // is too long for us to copy it over
+            return createParser(new StringReader(content));
         }
-        return _createParser(r, ctxt);
+        IOContext ctxt = _createContext(content, true);
+        char[] buf = ctxt.allocTokenBuffer();
+        if (buf.length < strLen) { // sanity check; should never occur
+            buf = new char[strLen];
+        }
+        content.getChars(0, strLen, buf, 0);
+        return _createParser(buf, 0, strLen, ctxt, true);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * contents of given char array.
+     * 
+     * @since 2.4
+     */
+    public JsonParser createParser(char[] content) throws IOException {
+        return createParser(content, 0, content.length);
+    }
+    
+    /**
+     * Method for constructing parser for parsing
+     * contents of given char array.
+     * 
+     * @since 2.4
+     */
+    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+        if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
+            return createParser(new CharArrayReader(content, offset, len));
+        }
+        return _createParser(content, offset, len, _createContext(content, true), false);
     }
 
     /*
@@ -1199,6 +1228,22 @@ public class JsonFactory
 
     /**
      * Overridable factory method that actually instantiates parser
+     * using given <code>char[]</code> object for accessing content.
+     * 
+     * @since 2.4
+     */
+    protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
+            boolean recyclable) throws IOException {
+        return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
+                _rootCharSymbols.makeChild(isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
+                        isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES)),
+                        data, offset, offset+len,
+                        // false -> caller-provided, not handled by BufferRecycler
+                        recyclable);
+    }
+
+    /**
+     * Overridable factory method that actually instantiates parser
      * using given {@link Reader} object for reading content
      * passed as raw byte array.
      *<p>
@@ -1208,7 +1253,7 @@ public class JsonFactory
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
      */
-    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException, JsonParseException
+    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
         return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
                 _objectCodec, _rootByteSymbols, _rootCharSymbols,

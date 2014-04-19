@@ -680,11 +680,7 @@ public class JsonFactory
         // true, since we create InputStream from File
         IOContext ctxt = _createContext(f, true);
         InputStream in = new FileInputStream(f);
-        // [JACKSON-512]: allow wrapping with InputDecorator
-        if (_inputDecorator != null) {
-            in = _inputDecorator.decorate(ctxt, in);
-        }
-        return _createParser(in, ctxt);
+        return _createParser(_decorate(in, ctxt), ctxt);
     }
 
     /**
@@ -706,11 +702,7 @@ public class JsonFactory
         // true, since we create InputStream from URL
         IOContext ctxt = _createContext(url, true);
         InputStream in = _optimizedStreamFromURL(url);
-        // [JACKSON-512]: allow wrapping with InputDecorator
-        if (_inputDecorator != null) {
-            in = _inputDecorator.decorate(ctxt, in);
-        }
-        return _createParser(in, ctxt);
+        return _createParser(_decorate(in, ctxt), ctxt);
     }
 
     /**
@@ -732,13 +724,9 @@ public class JsonFactory
      */
     public JsonParser createParser(InputStream in) throws IOException, JsonParseException {
         IOContext ctxt = _createContext(in, false);
-        // [JACKSON-512]: allow wrapping with InputDecorator
-        if (_inputDecorator != null) {
-            in = _inputDecorator.decorate(ctxt, in);
-        }
-        return _createParser(in, ctxt);
+        return _createParser(_decorate(in, ctxt), ctxt);
     }
-
+    
     /**
      * Method for constructing parser for parsing
      * the contents accessed via specified Reader.
@@ -756,11 +744,7 @@ public class JsonFactory
     public JsonParser createParser(Reader r) throws IOException, JsonParseException {
         // false -> we do NOT own Reader (did not create it)
         IOContext ctxt = _createContext(r, false);
-        // [JACKSON-512]: allow wrapping with InputDecorator
-        if (_inputDecorator != null) {
-            r = _inputDecorator.decorate(ctxt, r);
-        }
-        return _createParser(r, ctxt);
+        return _createParser(_decorate(r, ctxt), ctxt);
     }
 
     /**
@@ -771,7 +755,6 @@ public class JsonFactory
      */
     public JsonParser createParser(byte[] data) throws IOException, JsonParseException {
         IOContext ctxt = _createContext(data, true);
-        // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ctxt, data, 0, data.length);
             if (in != null) {
@@ -834,8 +817,7 @@ public class JsonFactory
     }
     
     /**
-     * Method for constructing parser for parsing
-     * contents of given char array.
+     * Method for constructing parser for parsing contents of given char array.
      * 
      * @since 2.4
      */
@@ -843,7 +825,9 @@ public class JsonFactory
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
             return createParser(new CharArrayReader(content, offset, len));
         }
-        return _createParser(content, offset, len, _createContext(content, true), false);
+        return _createParser(content, offset, len, _createContext(content, true),
+                // important: buffer is NOT recyclable, as it's from caller
+                false);
     }
 
     /*
@@ -1003,18 +987,10 @@ public class JsonFactory
         IOContext ctxt = _createContext(out, false);
         ctxt.setEncoding(enc);
         if (enc == JsonEncoding.UTF8) {
-            // [JACKSON-512]: allow wrapping with _outputDecorator
-            if (_outputDecorator != null) {
-                out = _outputDecorator.decorate(ctxt, out);
-            }
-            return _createUTF8Generator(out, ctxt);
+            return _createUTF8Generator(_decorate(out, ctxt), ctxt);
         }
         Writer w = _createWriter(out, enc, ctxt);
-        // [JACKSON-512]: allow wrapping with _outputDecorator
-        if (_outputDecorator != null) {
-            w = _outputDecorator.decorate(ctxt, w);
-        }
-        return _createGenerator(w, ctxt);
+        return _createGenerator(_decorate(w, ctxt), ctxt);
     }
 
     /**
@@ -1042,15 +1018,11 @@ public class JsonFactory
      * 
      * @since 2.1
      *
-     * @param out Writer to use for writing JSON content 
+     * @param w Writer to use for writing JSON content 
      */
-    public JsonGenerator createGenerator(Writer out) throws IOException {
-        IOContext ctxt = _createContext(out, false);
-        // [JACKSON-512]: allow wrapping with _outputDecorator
-        if (_outputDecorator != null) {
-            out = _outputDecorator.decorate(ctxt, out);
-        }
-        return _createGenerator(out, ctxt);
+    public JsonGenerator createGenerator(Writer w) throws IOException {
+        IOContext ctxt = _createContext(w, false);
+        return _createGenerator(_decorate(w, ctxt), ctxt);
     }
     
     /**
@@ -1076,18 +1048,10 @@ public class JsonFactory
         IOContext ctxt = _createContext(out, true);
         ctxt.setEncoding(enc);
         if (enc == JsonEncoding.UTF8) {
-            // [JACKSON-512]: allow wrapping with _outputDecorator
-            if (_outputDecorator != null) {
-                out = _outputDecorator.decorate(ctxt, out);
-            }
-            return _createUTF8Generator(out, ctxt);
+            return _createUTF8Generator(_decorate(out, ctxt), ctxt);
         }
         Writer w = _createWriter(out, enc, ctxt);
-        // [JACKSON-512]: allow wrapping with _outputDecorator
-        if (_outputDecorator != null) {
-            w = _outputDecorator.decorate(ctxt, w);
-        }
-        return _createGenerator(w, ctxt);
+        return _createGenerator(_decorate(w, ctxt), ctxt);
     }    
 
     /*
@@ -1321,20 +1285,70 @@ public class JsonFactory
         // not optimal, but should do unless we really care about UTF-16/32 encoding speed
         return new OutputStreamWriter(out, enc.getJavaName());
     }
+
+    /*
+    /**********************************************************
+    /* Internal factory methods, decorator handling
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.4
+     */
+    protected final InputStream _decorate(InputStream in, IOContext ctxt) throws IOException {
+        if (_inputDecorator != null) {
+            InputStream in2 = _inputDecorator.decorate(ctxt, in);
+            if (in2 != null) {
+                return in2;
+            }
+        }
+        return in;
+    }
+    
+    /**
+     * @since 2.4
+     */
+    protected final Reader _decorate(Reader in, IOContext ctxt) throws IOException {
+        if (_inputDecorator != null) {
+            Reader in2 = _inputDecorator.decorate(ctxt, in);
+            if (in2 != null) {
+                return in2;
+            }
+        }
+        return in;
+    }
+
+    /**
+     * @since 2.4
+     */
+    protected final OutputStream _decorate(OutputStream out, IOContext ctxt) throws IOException {
+        if (_outputDecorator != null) {
+            OutputStream out2 = _outputDecorator.decorate(ctxt, out);
+            if (out2 != null) {
+                return out2;
+            }
+        }
+        return out;
+    }
+
+    /**
+     * @since 2.4
+     */
+    protected final Writer _decorate(Writer out, IOContext ctxt) throws IOException {
+        if (_outputDecorator != null) {
+            Writer out2 = _outputDecorator.decorate(ctxt, out);
+            if (out2 != null) {
+                return out2;
+            }
+        }
+        return out;
+    }
     
     /*
     /**********************************************************
     /* Internal factory methods, other
     /**********************************************************
      */
-
-    /**
-     * Overridable factory method that actually instantiates desired
-     * context object.
-     */
-    protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
-    }
 
     /**
      * Method used by factory to create buffer recycler instances
@@ -1352,6 +1366,14 @@ public class JsonFactory
             _recyclerRef.set(new SoftReference<BufferRecycler>(br));
         }
         return br;
+    }
+    
+    /**
+     * Overridable factory method that actually instantiates desired
+     * context object.
+     */
+    protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
+        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
     }
     
     /**

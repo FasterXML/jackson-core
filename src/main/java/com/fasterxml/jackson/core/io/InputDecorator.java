@@ -24,8 +24,8 @@ public abstract class InputDecorator
      *   which may occur only after this method is called.
      * @param in Original input source
      * 
-     * @return InputStream to use; either passed in argument, or something that
-     *   calls it
+     * @return InputStream to use; either 'in' as is, or decorator
+     *   version that typically delogates to 'in'
      */
     public abstract InputStream decorate(IOContext ctxt, InputStream in)
         throws IOException;
@@ -59,10 +59,10 @@ public abstract class InputDecorator
      *   NOTE: at this point context may not have all information initialized;
      *   specifically auto-detected encoding is only available once parsing starts,
      *   which may occur only after this method is called.
-     * @param src Original input source
+     * @param r Original reader
      * 
      * @return Reader to use; either passed in argument, or something that
      *   calls it (for example, a {@link FilterReader})
      */
-    public abstract Reader decorate(IOContext ctxt, Reader src) throws IOException;
+    public abstract Reader decorate(IOContext ctxt, Reader r) throws IOException;
 }

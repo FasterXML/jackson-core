@@ -122,7 +122,7 @@ public final class ReaderBasedJsonParser
         _objectCodec = codec;
         _symbols = st;
         _hashSeed = st.hashSeed();
-        _bufferRecyclable = false;
+        _bufferRecyclable = true;
     }
 
     /*

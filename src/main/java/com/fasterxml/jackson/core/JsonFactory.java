@@ -818,10 +818,7 @@ public class JsonFactory
             return createParser(new StringReader(content));
         }
         IOContext ctxt = _createContext(content, true);
-        char[] buf = ctxt.allocTokenBuffer();
-        if (buf.length < strLen) { // sanity check; should never occur
-            buf = new char[strLen];
-        }
+        char[] buf = ctxt.allocTokenBuffer(strLen);
         content.getChars(0, strLen, buf, 0);
         return _createParser(buf, 0, strLen, ctxt, true);
     }

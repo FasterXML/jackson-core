@@ -173,6 +173,14 @@ public class IOContext
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
     }
 
+    /**
+     * @since 2.4
+     */
+    public char[] allocTokenBuffer(int minSize) {
+        _verifyAlloc(_tokenCBuffer);
+        return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, minSize));
+    }
+    
     public char[] allocConcatBuffer() {
         _verifyAlloc(_concatCBuffer);
         return (_concatCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_CONCAT_BUFFER));

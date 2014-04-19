@@ -1,5 +1,7 @@
 package perf;
 
+import java.io.*;
+
 import com.fasterxml.jackson.core.*;
 
 public class ManualReadPerfWithMedia extends ParserTestBase
@@ -45,6 +47,7 @@ public class ManualReadPerfWithMedia extends ParserTestBase
     protected void testRead1(int reps) throws Exception
     {
         while (--reps >= 0) {
+//            JsonParser p = _factory.createParser(new StringReader(_json));
             JsonParser p = _factory.createParser(_json);
             _stream(p);
             p.close();

@@ -8,7 +8,7 @@ abstract class ParserTestBase
         throws Exception
     {
         // guessing we have 500 byte
-        final int REPS = (int) ((double) (8 * 1000 * 1000) / (double) expSize);
+        final int REPS = (int) ((double) (10 * 1000 * 1000) / (double) expSize);
 
         System.out.printf("Estimating %d bytes to read; will do %d repetitions\n",
                 expSize, REPS);

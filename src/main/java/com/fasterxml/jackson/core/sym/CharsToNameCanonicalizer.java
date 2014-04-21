@@ -402,7 +402,7 @@ public final class CharsToNameCanonicalizer
         
         for (Bucket bucket : _buckets) {
             if (bucket != null) {
-                count += bucket.length();
+                count += bucket.length;
             }
         }
         return count;
@@ -445,26 +445,48 @@ public final class CharsToNameCanonicalizer
             // Let's inline primary String equality checking:
             if (sym.length() == len) {
                 int i = 0;
-                do {
+                while (true) {
                     if (sym.charAt(i) != buffer[start+i]) {
                         break;
                     }
-                } while (++i < len);
-                // Optimal case; primary match found
-                if (i == len) {
-                    return sym;
+                    // Optimal case; primary match found
+                    if (++i == len) {
+                        return sym;
+                    }
                 }
             }
-            // How about collision bucket?
-            Bucket b = _buckets[index >> 1];
+            return _findSymbol2(buffer, start, len, h, index);
+        }
+        return _addSymbol(buffer, start, len, h, index);
+    }
+
+    private String _findSymbol2(char[] buffer, int start, int len, int h, int index) {
+        // How about collision bucket?
+        Bucket b = _buckets[index >> 1];
+        if (b != null) {
+            String sym = b.has(buffer, start, len);
+            if (sym != null) {
+                return sym;
+            }
+            b = b.next;
             if (b != null) {
-                sym = b.find(buffer, start, len);
+                sym = b.has(buffer, start, len);
                 if (sym != null) {
                     return sym;
                 }
+                while ((b = b.next) != null) {
+                    sym = b.has(buffer, start, len);
+                    if (sym != null) {
+                        return sym;
+                    }
+                }
             }
         }
-
+        return _addSymbol(buffer, start, len, h, index);
+    }
+    
+    private String _addSymbol(char[] buffer, int start, int len, int h, int index)
+    {
         if (!_dirty) { //need to do copy-on-write?
             copyArrays();
             _dirty = true;
@@ -488,7 +510,7 @@ public final class CharsToNameCanonicalizer
             int bix = (index >> 1);
             Bucket newB = new Bucket(newSymbol, _buckets[bix]);
             _buckets[bix] = newB;
-            _longestCollisionList = Math.max(newB.length(), _longestCollisionList);
+            _longestCollisionList = Math.max(newB.length, _longestCollisionList);
             if (_longestCollisionList > MAX_COLL_CHAIN_LENGTH) {
                 reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
             }
@@ -605,7 +627,7 @@ public final class CharsToNameCanonicalizer
                     int bix = (index >> 1);
                     Bucket newB = new Bucket(symbol, _buckets[bix]);
                     _buckets[bix] = newB;
-                    maxColl = Math.max(maxColl, newB.length());
+                    maxColl = Math.max(maxColl, newB.length);
                 }
             }
         }
@@ -615,7 +637,7 @@ public final class CharsToNameCanonicalizer
             Bucket b = oldBuckets[i];
             while (b != null) {
                 ++count;
-                String symbol = b.getSymbol();
+                String symbol = b.symbol;
                 int index = _hashToIndex(calcHash(symbol));
                 if (_symbols[index] == null) {
                     _symbols[index] = symbol;
@@ -623,9 +645,9 @@ public final class CharsToNameCanonicalizer
                     int bix = (index >> 1);
                     Bucket newB = new Bucket(symbol, _buckets[bix]);
                     _buckets[bix] = newB;
-                    maxColl = Math.max(maxColl, newB.length());
+                    maxColl = Math.max(maxColl, newB.length);
                 }
-                b = b.getNext();
+                b = b.next;
             }
         }
         _longestCollisionList = maxColl;
@@ -655,23 +677,33 @@ public final class CharsToNameCanonicalizer
      */
     static final class Bucket
     {
-        private final String _symbol;
-        private final Bucket _next;
-        private final int _length;
+        private final String symbol;
+        private final Bucket next;
+        private final int length;
 
-        public Bucket(String symbol, Bucket next) {
-            _symbol = symbol;
-            _next = next;
-            _length = (next == null) ? 1 : next._length+1;
+        public Bucket(String s, Bucket n) {
+            symbol = s;
+            next = n;
+            length = (n == null) ? 1 : n.length+1;
         }
 
-        public String getSymbol() { return _symbol; }
-        public Bucket getNext() { return _next; }
-        public int length() { return _length; }
+        public String has(char[] buf, int start, int len) {
+            if (symbol.length() != len) {
+                return null;
+            }
+            int i = 0;
+            do {
+                if (symbol.charAt(i) != buf[start+i]) {
+                    return null;
+                }
+            } while (++i < len);
+            return symbol;
+        }
 
+        /*
         public String find(char[] buf, int start, int len) {
-            String sym = _symbol;
-            Bucket b = _next;
+            String sym = symbol;
+            Bucket b = next;
 
             while (true) { // Inlined equality comparison:
                 if (sym.length() == len) {
@@ -688,10 +720,11 @@ public final class CharsToNameCanonicalizer
                 if (b == null) {
                     break;
                 }
-                sym = b.getSymbol();
-                b = b.getNext();
+                sym = b.symbol;
+                b = b.next;
             }
             return null;
         }
+        */
     }
 }

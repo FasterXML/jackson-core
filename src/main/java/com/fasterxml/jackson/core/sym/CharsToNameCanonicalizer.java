@@ -452,9 +452,16 @@ public final class CharsToNameCanonicalizer
                     }
                 }
             }
-            sym = _findSymbol2(buffer, start, len, _buckets[index>>1]);
-            if (sym != null) {
-                return sym;
+            Bucket b = _buckets[index>>1];
+            if (b != null) {
+                sym = b.has(buffer, start, len);
+                if (sym != null) {
+                    return sym;
+                }
+                sym = _findSymbol2(buffer, start, len, b.next);
+                if (sym != null) {
+                    return sym;
+                }
             }
         }
         return _addSymbol(buffer, start, len, h, index);

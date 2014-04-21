@@ -445,44 +445,35 @@ public final class CharsToNameCanonicalizer
             // Let's inline primary String equality checking:
             if (sym.length() == len) {
                 int i = 0;
-                while (true) {
-                    if (sym.charAt(i) != buffer[start+i]) {
-                        break;
-                    }
+                while (sym.charAt(i) == buffer[start+i]) {
                     // Optimal case; primary match found
                     if (++i == len) {
                         return sym;
                     }
                 }
             }
-            return _findSymbol2(buffer, start, len, h, index);
+            sym = _findSymbol2(buffer, start, len, _buckets[index>>1]);
+            if (sym != null) {
+                return sym;
+            }
         }
         return _addSymbol(buffer, start, len, h, index);
     }
 
-    private String _findSymbol2(char[] buffer, int start, int len, int h, int index) {
-        // How about collision bucket?
-        Bucket b = _buckets[index >> 1];
+    private String _findSymbol2(char[] buffer, int start, int len, Bucket b) {
         if (b != null) {
             String sym = b.has(buffer, start, len);
             if (sym != null) {
                 return sym;
             }
-            b = b.next;
-            if (b != null) {
+            while ((b = b.next) != null) {
                 sym = b.has(buffer, start, len);
                 if (sym != null) {
                     return sym;
                 }
-                while ((b = b.next) != null) {
-                    sym = b.has(buffer, start, len);
-                    if (sym != null) {
-                        return sym;
-                    }
-                }
             }
         }
-        return _addSymbol(buffer, start, len, h, index);
+        return null;
     }
     
     private String _addSymbol(char[] buffer, int start, int len, int h, int index)

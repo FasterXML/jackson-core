@@ -1195,24 +1195,21 @@ public final class ReaderBasedJsonParser
         int ptr = _inputPtr;
         int hash = _hashSeed;
         final int inputLen = _inputEnd;
+        final int[] codes = _icLatin1;
+        final int maxCode = codes.length;
 
-        if (ptr < inputLen) {
-            final int[] codes = _icLatin1;
-            final int maxCode = codes.length;
-
-            do {
-                int ch = _inputBuffer[ptr];
-                if (ch < maxCode && codes[ch] != 0) {
-                    if (ch == '"') {
-                        int start = _inputPtr;
-                        _inputPtr = ptr+1; // to skip the quote
-                        return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
-                    }
-                    break;
+        while (ptr < inputLen) {
+            int ch = _inputBuffer[ptr];
+            if (ch < maxCode && codes[ch] != 0) {
+                if (ch == '"') {
+                    int start = _inputPtr;
+                    _inputPtr = ptr+1; // to skip the quote
+                    return _symbols.findSymbol(_inputBuffer, start, ptr - start, hash);
                 }
-                hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
-                ++ptr;
-            } while (ptr < inputLen);
+                break;
+            }
+            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
+            ++ptr;
         }
 
         int start = _inputPtr;

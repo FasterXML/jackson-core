@@ -649,16 +649,13 @@ public class UTF8StreamJsonParser
 
         int i = _skipWSOrEnd();
         if (i < 0) { // end-of-input
-            /* 19-Feb-2009, tatu: Should actually close/release things
-             *    like input source, symbol table and recyclable buffers now.
-             */
+            // Close/release things like input source, symbol table and recyclable buffers
             close();
             return (_currToken = null);
         }
 
-        /* First, need to ensure we know the starting location of token
-         * after skipping leading white space
-         */
+        // First, need to ensure we know the starting location of token
+        // after skipping leading white space
         _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
         _tokenInputRow = _currInputRow;
         _tokenInputCol = _inputPtr - _currInputRowStart - 1;

@@ -1682,11 +1682,11 @@ public final class ReaderBasedJsonParser
         }
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
-
+    
     private int _skipWSOrEnd() throws IOException
     {
         final int[] codes = _icWS;
-        while (_inputPtr < _inputEnd || loadMore()) {
+        while (_inputPtr < _inputEnd) {
             int i = (int) _inputBuffer[_inputPtr++];
             if (i >= 64) {
                 return i;
@@ -1715,11 +1715,50 @@ public final class ReaderBasedJsonParser
                 break;
             }
         }
-        // We ran out of input...
-        _handleEOF();
-        return -1;
+        return _skipWSOrEnd2();
     }
 
+    private int _skipWSOrEnd2() throws IOException
+    {
+        final int[] codes = _icWS;
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                if (!loadMore()) {
+                    // We ran out of input...
+                    _handleEOF();
+                    return -1;
+                }
+            }
+            int i = (int) _inputBuffer[_inputPtr++];
+            if (i >= 64) {
+                return i;
+            }
+            switch (codes[i]) {
+            case -1:
+                _throwInvalidSpace(i);
+            case 0:
+                return i;
+            case 1:
+                continue;
+            case '\n':
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
+                break;
+            case '\r':
+                _skipCR();
+                break;
+            case '/':
+                _skipComment();
+                break;
+            case '#':
+                if (!_skipYAMLComment()) {
+                    return i;
+                }
+                break;
+            }
+        }
+    }
+    
     private void _skipComment() throws IOException
     {
         if (!isEnabled(Feature.ALLOW_COMMENTS)) {

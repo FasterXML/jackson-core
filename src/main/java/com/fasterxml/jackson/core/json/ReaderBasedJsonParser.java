@@ -1194,13 +1194,11 @@ public final class ReaderBasedJsonParser
         // not cross input buffer boundary, and does not contain escape sequences.
         int ptr = _inputPtr;
         int hash = _hashSeed;
-        final int inputLen = _inputEnd;
         final int[] codes = _icLatin1;
-        final int maxCode = codes.length;
 
-        while (ptr < inputLen) {
+        while (ptr < _inputEnd) {
             int ch = _inputBuffer[ptr];
-            if (ch < maxCode && codes[ch] != 0) {
+            if (ch < codes.length && codes[ch] != 0) {
                 if (ch == '"') {
                     int start = _inputPtr;
                     _inputPtr = ptr+1; // to skip the quote
@@ -1211,7 +1209,6 @@ public final class ReaderBasedJsonParser
             hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + ch;
             ++ptr;
         }
-
         int start = _inputPtr;
         _inputPtr = ptr;
         return _parseName2(start, hash, INT_QUOTE);

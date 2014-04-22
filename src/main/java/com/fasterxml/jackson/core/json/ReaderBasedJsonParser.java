@@ -608,10 +608,7 @@ public final class ReaderBasedJsonParser
 
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
-            if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
-            }
-            i = _skipWS();
+            i = _skipComma(i);
         }
 
         /* And should we now have a name? Always true for
@@ -1748,7 +1745,40 @@ public final class ReaderBasedJsonParser
         }
     }
     
-    private int _skipWS() throws IOException
+    private int _skipComma(int i) throws IOException
+    {
+        if (i != INT_COMMA) {
+            _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+        }
+        final int[] codes = _icWS;
+        
+        main_loop:
+        while (_inputPtr < _inputEnd) {
+            i = (int) _inputBuffer[_inputPtr++];
+            if (i >= 64) {
+                return i;
+            }
+            switch (codes[i]) {
+            case 0:
+                return i;
+            case 1:
+                continue;
+            case '\n':
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
+                break;
+            case '\r':
+                _skipCR();
+                break;
+            default: // comments, bad whitespace, don't handle here
+                --_inputPtr;
+                break main_loop;
+            }
+        }
+        return _skipAfterComma();
+    }
+
+    private int _skipAfterComma() throws IOException
     {
         final int[] codes = _icWS;
         while (_inputPtr < _inputEnd || loadMore()) {

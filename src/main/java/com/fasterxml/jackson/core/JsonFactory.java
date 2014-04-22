@@ -344,9 +344,7 @@ public class JsonFactory
      * 
      * @since 2.3
      */
-    public boolean requiresPropertyOrdering() {
-        return false;
-    }
+    public boolean requiresPropertyOrdering() { return false; }
 
     /**
      * Introspection method that higher-level functionality may call
@@ -360,10 +358,22 @@ public class JsonFactory
      * 
      * @since 2.3
      */
-    public boolean canHandleBinaryNatively() {
-        return false;
-    }
+    public boolean canHandleBinaryNatively() { return false; }
 
+    /**
+     * Introspection method that can be used by base factory to check
+     * whether access using <code>char[]</code> is something that actual
+     * parser implementations can take advantage of, over having to
+     * use {@link java.io.Reader}. Sub-types are expected to override
+     * definition; default implementation (suitable for JSON) alleges
+     * that optimization are possible; and thereby is likely to try
+     * to access {@link java.lang.String} content by first copying it into
+     * recyclable intermediate buffer.
+     * 
+     * @since 2.4
+     */
+    public boolean canUseCharArrays() { return true; }
+    
     /*
     /**********************************************************
     /* Format detection functionality (since 1.8)
@@ -795,7 +805,7 @@ public class JsonFactory
     public JsonParser createParser(String content) throws IOException, JsonParseException {
         final int strLen = content.length();
         // Actually, let's use this for medium-sized content, up to 64kB chunk (32kb char)
-        if (_inputDecorator != null || strLen > 0x8000) {
+        if (_inputDecorator != null || strLen > 0x8000 || !canUseCharArrays()) {
             // easier to just wrap in a Reader than extend InputDecorator; or, if content
             // is too long for us to copy it over
             return createParser(new StringReader(content));
@@ -1134,7 +1144,6 @@ public class JsonFactory
      * @param f File to write contents to
      * @param enc Character encoding to use
      * 
-     * 
      * @deprecated Since 2.2, use {@link #createGenerator(File,JsonEncoding)} instead.
      */
     @Deprecated
@@ -1199,7 +1208,6 @@ public class JsonFactory
                 _rootCharSymbols.makeChild(isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
                         isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES)),
                         data, offset, offset+len,
-                        // false -> caller-provided, not handled by BufferRecycler
                         recyclable);
     }
 

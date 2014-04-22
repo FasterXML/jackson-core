@@ -624,11 +624,7 @@ public final class ReaderBasedJsonParser
             String name = _parseName(i);
             _parsingContext.setCurrentName(name);
             _currToken = JsonToken.FIELD_NAME;
-            i = _skipWS();
-            if (i != INT_COLON) {
-                _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
-            }
-            i = _skipWS();
+            i = _skipColon();
         }
 
         // Ok: we must have a value... what is it?
@@ -1648,6 +1644,120 @@ public final class ReaderBasedJsonParser
         _currInputRowStart = _inputPtr;
     }
 
+    private int _skipCR(int ptr) throws IOException {
+        if (ptr < _inputEnd) {
+            if (_inputBuffer[ptr] == '\n') {
+                ++ptr;
+            }
+        } else {
+            _inputPtr = ptr;
+            if (loadMore()) {
+                ptr = _inputPtr;
+                if (_inputBuffer[ptr] == '\n') {
+                    ++ptr;
+                }
+            }
+        }
+        ++_currInputRow;
+        _currInputRowStart = ptr;
+        return ptr;
+    }
+    
+    private int _skipColon() throws IOException
+    {
+        int ptr = _inputPtr;
+        if ((ptr + 4) >= _inputEnd) {
+            return _skipColon2(ptr, false);
+        }
+        char c = _inputBuffer[ptr++];
+        if (c == ':') { // common case, no leading space
+            int i = _inputBuffer[ptr++];
+            if (i > 32) { // nor trailing
+                _inputPtr = ptr;
+                return i;
+            }
+            if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[ptr];
+                if (i > 32) {
+                    _inputPtr = ptr+1;
+                    return i;
+                }
+            } else {
+                --ptr; // push back whatever it was
+            }
+            return _skipColon2(ptr, true); // true -> skipped colon
+        }
+        if (c == ' ' || c == '\t') {
+            c = _inputBuffer[ptr++];
+        }
+        if (c == ':') {
+            int i = _inputBuffer[ptr];
+            if (i > 32) {
+                _inputPtr = ptr+1;
+                return i;
+            }
+            if (i == INT_SPACE || i == INT_TAB) {
+                ++ptr;
+                i = (int) _inputBuffer[ptr];
+                if (i > 32) {
+                    _inputPtr = ptr+1;
+                    return i;
+                }
+            }
+            return _skipColon2(ptr, true);
+        }
+        --ptr; // push back the very first char
+        return _skipColon2(ptr, false);
+    }
+
+    private int _skipColon2(int ptr, boolean gotColon) throws IOException
+    {
+        _inputPtr = ptr;
+        final int[] codes = _icWS;
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                loadMoreGuaranteed();
+            }
+            int i = (int) _inputBuffer[_inputPtr++];
+            if (i >= 64) {
+                if (gotColon) {
+                    return i;
+                }
+                _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+            }
+            switch (codes[i]) {
+            case -1:
+                _throwInvalidSpace(i);
+            case '#':
+                if (_skipYAMLComment()) {
+                    continue;
+                }
+                // fall through
+            case 0:
+                if (gotColon) {
+                    return i;
+                }
+                gotColon = true;
+                if (i != INT_COLON) {
+                    _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+                }
+                break;
+            case 1:
+                continue;
+            case '\n':
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
+                break;
+            case '\r':
+                _skipCR();
+                break;
+            case '/':
+                _skipComment();
+                break;
+            }
+        }
+    }
+    
     private int _skipWS() throws IOException
     {
         final int[] codes = _icWS;

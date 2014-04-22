@@ -1644,6 +1644,7 @@ public final class ReaderBasedJsonParser
         _currInputRowStart = _inputPtr;
     }
 
+    /*
     private int _skipCR(int ptr) throws IOException {
         if (ptr < _inputEnd) {
             if (_inputBuffer[ptr] == '\n') {
@@ -1662,57 +1663,52 @@ public final class ReaderBasedJsonParser
         _currInputRowStart = ptr;
         return ptr;
     }
+    */
     
     private int _skipColon() throws IOException
     {
-        int ptr = _inputPtr;
-        if ((ptr + 4) >= _inputEnd) {
-            return _skipColon2(ptr, false);
+        if ((_inputPtr + 4) >= _inputEnd) {
+            return _skipColon2(false);
         }
-        char c = _inputBuffer[ptr++];
+        char c = _inputBuffer[_inputPtr];
         if (c == ':') { // common case, no leading space
-            int i = _inputBuffer[ptr++];
+            int i = _inputBuffer[++_inputPtr];
             if (i > 32) { // nor trailing
-                _inputPtr = ptr;
+                ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[ptr];
+                i = (int) _inputBuffer[++_inputPtr];
                 if (i > 32) {
-                    _inputPtr = ptr+1;
+                    ++_inputPtr;                    
                     return i;
                 }
-            } else {
-                --ptr; // push back whatever it was
             }
-            return _skipColon2(ptr, true); // true -> skipped colon
+            return _skipColon2(true); // true -> skipped colon
         }
         if (c == ' ' || c == '\t') {
-            c = _inputBuffer[ptr++];
+            c = _inputBuffer[++_inputPtr];
         }
         if (c == ':') {
-            int i = _inputBuffer[ptr];
+            int i = _inputBuffer[++_inputPtr];
             if (i > 32) {
-                _inputPtr = ptr+1;
+                ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
-                ++ptr;
-                i = (int) _inputBuffer[ptr];
+                i = (int) _inputBuffer[++_inputPtr];
                 if (i > 32) {
-                    _inputPtr = ptr+1;
+                    ++_inputPtr;
                     return i;
                 }
             }
-            return _skipColon2(ptr, true);
+            return _skipColon2(true);
         }
-        --ptr; // push back the very first char
-        return _skipColon2(ptr, false);
+        return _skipColon2(false);
     }
 
-    private int _skipColon2(int ptr, boolean gotColon) throws IOException
+    private int _skipColon2(boolean gotColon) throws IOException
     {
-        _inputPtr = ptr;
         final int[] codes = _icWS;
         while (true) {
             if (_inputPtr >= _inputEnd) {

@@ -662,7 +662,56 @@ public final class CharsToNameCanonicalizer
         throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
     }
-    
+
+    // For debugging, comment out
+    /*
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        int primaryCount = 0;
+        for (String s : _symbols) {
+            if (s != null) ++primaryCount;
+        }
+        
+        sb.append("[BytesToNameCanonicalizer, size: ");
+        sb.append(_size);
+        sb.append('/');
+        sb.append(_symbols.length);
+        sb.append(", ");
+        sb.append(primaryCount);
+        sb.append('/');
+        sb.append(_size - primaryCount);
+        sb.append(" coll; avg length: ");
+
+        // Average length: minimum of 1 for all (1 == primary hit);
+        // and then 1 per each traversal for collisions/buckets
+        //int maxDist = 1;
+        int pathCount = _size;
+        for (Bucket b : _buckets) {
+            if (b != null) {
+                int spillLen = b.length;
+                for (int j = 1; j <= spillLen; ++j) {
+                    pathCount += j;
+                }
+            }
+        }
+        double avgLength;
+
+        if (_size == 0) {
+            avgLength = 0.0;
+        } else {
+            avgLength = (double) pathCount / (double) _size;
+        }
+        // let's round up a bit (two 2 decimal places)
+        //avgLength -= (avgLength % 0.01);
+
+        sb.append(avgLength);
+        sb.append(']');
+        return sb.toString();
+    }
+*/
+
     /*
     /**********************************************************
     /* Bucket class
@@ -697,32 +746,5 @@ public final class CharsToNameCanonicalizer
             } while (++i < len);
             return symbol;
         }
-
-        /*
-        public String find(char[] buf, int start, int len) {
-            String sym = symbol;
-            Bucket b = next;
-
-            while (true) { // Inlined equality comparison:
-                if (sym.length() == len) {
-                    int i = 0;
-                    do {
-                        if (sym.charAt(i) != buf[start+i]) {
-                            break;
-                        }
-                    } while (++i < len);
-                    if (i == len) {
-                        return sym;
-                    }
-                }
-                if (b == null) {
-                    break;
-                }
-                sym = b.symbol;
-                b = b.next;
-            }
-            return null;
-        }
-        */
     }
 }

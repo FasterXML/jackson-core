@@ -853,7 +853,7 @@ public final class ReaderBasedJsonParser
         dummy_loop:
         do { // dummy loop, to be able to break out
             if (neg) { // need to read the next digit
-                if (ptr >= _inputEnd) {
+                if (ptr >= inputLen) {
                     break dummy_loop;
                 }
                 ch = _inputBuffer[ptr++];
@@ -884,7 +884,7 @@ public final class ReaderBasedJsonParser
             
             int_loop:
             while (true) {
-                if (ptr >= _inputEnd) {
+                if (ptr >= inputLen) {
                     break dummy_loop;
                 }
                 ch = (int) _inputBuffer[ptr++];

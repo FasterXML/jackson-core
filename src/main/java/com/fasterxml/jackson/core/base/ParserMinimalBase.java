@@ -38,6 +38,11 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_COLON = ':';
     protected final static int INT_COMMA = ',';
 
+    // fp numbers
+    protected final static int INT_PERIOD = '.';
+    protected final static int INT_e = 'e';
+    protected final static int INT_E = 'E';
+    
     /*
     /**********************************************************
     /* Minimal generally useful state

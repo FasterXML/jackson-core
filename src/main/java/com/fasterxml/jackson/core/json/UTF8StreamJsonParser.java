@@ -1284,7 +1284,7 @@ public class UTF8StreamJsonParser
             }
             int c = (int) _inputBuffer[_inputPtr++] & 0xFF;
             if (c > INT_9 || c < INT_0) {
-                if (c == '.' || c == 'e' || c == 'E') {
+                if (c == INT_PERIOD || c == INT_e || c == INT_E) {
                     return _parseFloat(outBuf, outPtr, c, negative, intPartLength);
                 }
                 break;
@@ -1353,7 +1353,7 @@ public class UTF8StreamJsonParser
         boolean eof = false;
 
         // And then see if we get other parts
-        if (c == '.') { // yes, fraction
+        if (c == INT_PERIOD) { // yes, fraction
             outBuf[outPtr++] = (char) c;
 
             fract_loop:
@@ -1380,7 +1380,7 @@ public class UTF8StreamJsonParser
         }
 
         int expLen = 0;
-        if (c == 'e' || c == 'E') { // exponent?
+        if (c == INT_e || c == INT_E) { // exponent?
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;

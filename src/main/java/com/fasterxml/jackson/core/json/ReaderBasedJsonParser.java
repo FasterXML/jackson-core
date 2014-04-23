@@ -850,110 +850,108 @@ public final class ReaderBasedJsonParser
         int startPtr = ptr-1; // to include sign/digit already read
         final int inputLen = _inputEnd;
 
-        dummy_loop:
-        do { // dummy loop, to be able to break out
-            if (neg) { // need to read the next digit
-                if (ptr >= inputLen) {
-                    break dummy_loop;
-                }
-                ch = _inputBuffer[ptr++];
-                // First check: must have a digit to follow minus sign
-                if (ch > INT_9 || ch < INT_0) {
-                    _inputPtr = ptr;
-                    return _handleInvalidNumberStart(ch, true);
-                }
-                /* (note: has been checked for non-negative already, in
-                 * the dispatching code that determined it should be
-                 * a numeric value)
-                 */
+        if (neg) { // need to read the next digit
+            if (ptr >= inputLen) {
+                _inputPtr = neg ? (startPtr+1) : startPtr;
+                return _parseNumber2(neg);
             }
-            // One special case, leading zero(es):
-            if (ch == INT_0) {
-                break dummy_loop;
+            ch = _inputBuffer[ptr++];
+            // First check: must have a digit to follow minus sign
+            if (ch > INT_9 || ch < INT_0) {
+                _inputPtr = ptr;
+                return _handleInvalidNumberStart(ch, true);
             }
-            
-            /* First, let's see if the whole number is contained within
-             * the input buffer unsplit. This should be the common case;
-             * and to simplify processing, we will just reparse contents
-             * in the alternative case (number split on buffer boundary)
+            /* (note: has been checked for non-negative already, in
+             * the dispatching code that determined it should be
+             * a numeric value)
              */
+        }
+        // One special case, leading zero(es):
+        if (ch == INT_0) {
+            _inputPtr = neg ? (startPtr+1) : startPtr;
+            return _parseNumber2(neg);
+        }
             
-            int intLen = 1; // already got one
-            
-            // First let's get the obligatory integer part:
-            
-            int_loop:
+        /* First, let's see if the whole number is contained within
+         * the input buffer unsplit. This should be the common case;
+         * and to simplify processing, we will just reparse contents
+         * in the alternative case (number split on buffer boundary)
+         */
+        
+        int intLen = 1; // already got one
+        
+        // First let's get the obligatory integer part:
+        int_loop:
+        while (true) {
+            if (ptr >= inputLen) {
+                _inputPtr = neg ? (startPtr+1) : startPtr;
+                return _parseNumber2(neg);
+            }
+            ch = (int) _inputBuffer[ptr++];
+            if (ch < INT_0 || ch > INT_9) {
+                break int_loop;
+            }
+            ++intLen;
+        }
+
+        int fractLen = 0;
+        // And then see if we get other parts
+        if (ch == '.') { // yes, fraction
+            fract_loop:
             while (true) {
                 if (ptr >= inputLen) {
-                    break dummy_loop;
+                    _inputPtr = neg ? (startPtr+1) : startPtr;
+                    return _parseNumber2(neg);
                 }
                 ch = (int) _inputBuffer[ptr++];
                 if (ch < INT_0 || ch > INT_9) {
-                    break int_loop;
+                    break fract_loop;
                 }
-                ++intLen;
+                ++fractLen;
             }
-
-            int fractLen = 0;
-            
-            // And then see if we get other parts
-            if (ch == '.') { // yes, fraction
-                fract_loop:
-                while (true) {
-                    if (ptr >= inputLen) {
-                        break dummy_loop;
-                    }
-                    ch = (int) _inputBuffer[ptr++];
-                    if (ch < INT_0 || ch > INT_9) {
-                        break fract_loop;
-                    }
-                    ++fractLen;
-                }
-                // must be followed by sequence of ints, one minimum
-                if (fractLen == 0) {
-                    reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-                }
+            // must be followed by sequence of ints, one minimum
+            if (fractLen == 0) {
+                reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
             }
-
-            int expLen = 0;
-            if (ch == 'e' || ch == 'E') { // and/or exponent
+        }
+        int expLen = 0;
+        if (ch == 'e' || ch == 'E') { // and/or exponent
+            if (ptr >= inputLen) {
+                _inputPtr = neg ? (startPtr+1) : startPtr;
+                return _parseNumber2(neg);
+            }
+            // Sign indicator?
+            ch = (int) _inputBuffer[ptr++];
+            if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
                 if (ptr >= inputLen) {
-                    break dummy_loop;
+                    _inputPtr = neg ? (startPtr+1) : startPtr;
+                    return _parseNumber2(neg);
                 }
-                // Sign indicator?
                 ch = (int) _inputBuffer[ptr++];
-                if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
-                    if (ptr >= inputLen) {
-                        break dummy_loop;
-                    }
-                    ch = (int) _inputBuffer[ptr++];
-                }
-                while (ch <= INT_9 && ch >= INT_0) {
-                    ++expLen;
-                    if (ptr >= inputLen) {
-                        break dummy_loop;
-                    }
-                    ch = (int) _inputBuffer[ptr++];
-                }
-                // must be followed by sequence of ints, one minimum
-                if (expLen == 0) {
-                    reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
-                }
             }
-            // Got it all: let's add to text buffer for parsing, access
-            --ptr; // need to push back following separator
-            _inputPtr = ptr;
-            // As per #105, need separating space between root values; check here
-            if (_parsingContext.inRoot()) {
-                _verifyRootSpace(ch);
+            while (ch <= INT_9 && ch >= INT_0) {
+                ++expLen;
+                if (ptr >= inputLen) {
+                    _inputPtr = neg ? (startPtr+1) : startPtr;
+                    return _parseNumber2(neg);
+                }
+                ch = (int) _inputBuffer[ptr++];
             }
-            int len = ptr-startPtr;
-            _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
-            return reset(neg, intLen, fractLen, expLen);
-        } while (false);
-
-        _inputPtr = neg ? (startPtr+1) : startPtr;
-        return _parseNumber2(neg);
+            // must be followed by sequence of ints, one minimum
+            if (expLen == 0) {
+                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+            }
+        }
+        // Got it all: let's add to text buffer for parsing, access
+        --ptr; // need to push back following separator
+        _inputPtr = ptr;
+        // As per #105, need separating space between root values; check here
+        if (_parsingContext.inRoot()) {
+            _verifyRootSpace(ch);
+        }
+        int len = ptr-startPtr;
+        _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
+        return reset(neg, intLen, fractLen, expLen);
     }
 
     /**

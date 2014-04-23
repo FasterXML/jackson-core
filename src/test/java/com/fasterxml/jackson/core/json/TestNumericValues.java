@@ -190,7 +190,7 @@ public class TestNumericValues
                 String STR = INPUTS[i];
                 double EXP_D = Double.parseDouble(STR);
                 String DOC = "["+STR+"]";
-                
+
                 JsonParser jp;
                 
                 if (input == 0) {

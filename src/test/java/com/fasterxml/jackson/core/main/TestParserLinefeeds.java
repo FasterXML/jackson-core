@@ -40,7 +40,7 @@ public class TestParserLinefeeds
     private void _testLinefeeds(String lf, boolean useStream)
         throws IOException
     {
-        String DOC = "[1,@2,@-178@]";
+        String DOC = "[1,@2,@-478@]";
         DOC = DOC.replaceAll("@", lf);
 
         JsonParser jp = useStream ?
@@ -59,7 +59,7 @@ public class TestParserLinefeeds
         assertEquals(2, jp.getCurrentLocation().getLineNr());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(-178, jp.getIntValue());
+        assertEquals(-478, jp.getIntValue());
         assertEquals(3, jp.getCurrentLocation().getLineNr());
         
         assertToken(JsonToken.END_ARRAY, jp.nextToken());

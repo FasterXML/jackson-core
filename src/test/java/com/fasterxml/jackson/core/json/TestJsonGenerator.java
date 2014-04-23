@@ -53,22 +53,19 @@ public class TestJsonGenerator
         }
     }
 
-    public void testIntWrite()
-        throws Exception
+    public void testIntWrite() throws Exception
     {
         doTestIntWrite(false);
         doTestIntWrite(true);
     }
 
-    public void testLongWrite()
-        throws Exception
+    public void testLongWrite() throws Exception
     {
         doTestLongWrite(false);
         doTestLongWrite(true);
     }
 
-    public void testBooleanWrite()
-        throws Exception
+    public void testBooleanWrite() throws Exception
     {
         for (int i = 0; i < 4; ++i) {
             boolean state = (i & 1) == 0;

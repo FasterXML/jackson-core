@@ -1047,10 +1047,7 @@ public final class BytesToNameCanonicalizer
             default:
             }
         }
-        // Otherwise, need to copy the incoming buffer
-        int[] buf = new int[qlen];
-        System.arraycopy(quads, 0, buf, 0, qlen);
-        return new NameN(name, hash, buf, qlen);
+        return NameN.construct(name, hash, quads, qlen);
     }
 
     /*

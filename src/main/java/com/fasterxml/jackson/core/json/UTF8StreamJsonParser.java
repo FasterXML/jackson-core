@@ -1567,26 +1567,17 @@ public class UTF8StreamJsonParser
         }
         _quadBuffer[0] = _quad1;
         _quadBuffer[1] = q2;
-        return parseLongName(i);
+        return parseLongName(i, codes);
     }
 
-    protected Name parseLongName(int q) throws IOException
+    protected Name parseLongName(int q, final int[] codes) throws IOException
     {
         // As explained above, will ignore UTF-8 encoding at this point
-        final int[] codes = _icLatin1;
+        final byte[] buf = _inputBuffer;
         int qlen = 2;
 
-        while (true) {
-            /* Let's offline if we hit buffer boundary (otherwise would
-             * need to [try to] align input, which is bit complicated
-             * and may not always be possible)
-             */
-            if ((_inputEnd - _inputPtr) < 4) {
-                return parseEscapedName(_quadBuffer, qlen, 0, q, 0);
-            }
-            // Otherwise can skip boundary checks for 4 bytes in loop
-
-            int i = _inputBuffer[_inputPtr++] & 0xFF;
+        while ((_inputPtr + 4) <= _inputEnd) {
+            int i = buf[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 1);
@@ -1595,7 +1586,7 @@ public class UTF8StreamJsonParser
             }
 
             q = (q << 8) | i;
-            i = _inputBuffer[_inputPtr++] & 0xFF;
+            i = buf[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 2);
@@ -1604,7 +1595,7 @@ public class UTF8StreamJsonParser
             }
 
             q = (q << 8) | i;
-            i = _inputBuffer[_inputPtr++] & 0xFF;
+            i = buf[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 3);
@@ -1613,7 +1604,7 @@ public class UTF8StreamJsonParser
             }
 
             q = (q << 8) | i;
-            i = _inputBuffer[_inputPtr++] & 0xFF;
+            i = buf[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 4);
@@ -1628,6 +1619,12 @@ public class UTF8StreamJsonParser
             _quadBuffer[qlen++] = q;
             q = i;
         }
+
+        /* Let's offline if we hit buffer boundary (otherwise would
+         * need to [try to] align input, which is bit complicated
+         * and may not always be possible)
+         */
+        return parseEscapedName(_quadBuffer, qlen, 0, q, 0);
     }
 
     /**

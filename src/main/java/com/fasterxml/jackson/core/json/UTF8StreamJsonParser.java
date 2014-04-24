@@ -1468,7 +1468,7 @@ public class UTF8StreamJsonParser
                         i = input[_inputPtr++] & 0xFF;
                         if (codes[i] == 0) {
                             _quad1 = q;
-                            return parseMediumName(i, codes);
+                            return parseMediumName(i);
                         }
                         if (i == INT_QUOTE) { // 4 byte/char case or broken
                             return findName(q, 4);
@@ -1496,10 +1496,13 @@ public class UTF8StreamJsonParser
         return parseName(0, q, 0); // quoting or invalid char
     }
 
-    protected Name parseMediumName(int q2, final int[] codes) throws IOException
+    protected Name parseMediumName(int q2) throws IOException
     {
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
+
         // Ok, got 5 name bytes so far
-        int i = _inputBuffer[_inputPtr++] & 0xFF;
+        int i = input[_inputPtr++] & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 5 bytes
                 return findName(_quad1, q2, 1);
@@ -1507,7 +1510,7 @@ public class UTF8StreamJsonParser
             return parseName(_quad1, q2, i, 1); // quoting or invalid char
         }
         q2 = (q2 << 8) | i;
-        i = _inputBuffer[_inputPtr++] & 0xFF;
+        i = input[_inputPtr++] & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 6 bytes
                 return findName(_quad1, q2, 2);
@@ -1515,7 +1518,7 @@ public class UTF8StreamJsonParser
             return parseName(_quad1, q2, i, 2);
         }
         q2 = (q2 << 8) | i;
-        i = _inputBuffer[_inputPtr++] & 0xFF;
+        i = input[_inputPtr++] & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 7 bytes
                 return findName(_quad1, q2, 3);
@@ -1523,7 +1526,7 @@ public class UTF8StreamJsonParser
             return parseName(_quad1, q2, i, 3);
         }
         q2 = (q2 << 8) | i;
-        i = _inputBuffer[_inputPtr++] & 0xFF;
+        i = input[_inputPtr++] & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 8 bytes
                 return findName(_quad1, q2, 4);
@@ -1532,17 +1535,18 @@ public class UTF8StreamJsonParser
         }
         _quadBuffer[0] = _quad1;
         _quadBuffer[1] = q2;
-        return parseLongName(i, codes);
+        return parseLongName(i);
     }
 
-    protected Name parseLongName(int q, final int[] codes) throws IOException
+    protected Name parseLongName(int q) throws IOException
     {
         // As explained above, will ignore UTF-8 encoding at this point
-        final byte[] buf = _inputBuffer;
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
         int qlen = 2;
 
         while ((_inputPtr + 4) <= _inputEnd) {
-            int i = buf[_inputPtr++] & 0xFF;
+            int i = input[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 1);
@@ -1551,7 +1555,7 @@ public class UTF8StreamJsonParser
             }
 
             q = (q << 8) | i;
-            i = buf[_inputPtr++] & 0xFF;
+            i = input[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 2);
@@ -1560,7 +1564,7 @@ public class UTF8StreamJsonParser
             }
 
             q = (q << 8) | i;
-            i = buf[_inputPtr++] & 0xFF;
+            i = input[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 3);
@@ -1569,7 +1573,7 @@ public class UTF8StreamJsonParser
             }
 
             q = (q << 8) | i;
-            i = buf[_inputPtr++] & 0xFF;
+            i = input[_inputPtr++] & 0xFF;
             if (codes[i] != 0) {
                 if (i == INT_QUOTE) {
                     return findName(_quadBuffer, qlen, q, 4);

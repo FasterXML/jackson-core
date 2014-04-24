@@ -1181,7 +1181,6 @@ public class UTF8StreamJsonParser
     /*
     /**********************************************************
     /* Internal methods, number parsing
-    /* (note: in 1.6 and prior, part of "Utf8NumericParser"
     /**********************************************************
      */
 
@@ -1505,17 +1504,17 @@ public class UTF8StreamJsonParser
                             _quad1 = q;
                             return parseMediumName(i, codes);
                         }
-                        if (i == INT_QUOTE) { // one byte/char case or broken
+                        if (i == INT_QUOTE) { // 4 byte/char case or broken
                             return findName(q, 4);
                         }
                         return parseName(q, i, 4);
                     }
-                    if (i == INT_QUOTE) { // one byte/char case or broken
+                    if (i == INT_QUOTE) { // 3 byte/char case or broken
                         return findName(q, 3);
                     }
                     return parseName(q, i, 3);
                 }                
-                if (i == INT_QUOTE) { // one byte/char case or broken
+                if (i == INT_QUOTE) { // 2 byte/char case or broken
                     return findName(q, 2);
                 }
                 return parseName(q, i, 2);

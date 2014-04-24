@@ -40,7 +40,7 @@ public final class NumberInput
                 num = (num * 10) + (ch[++off] - '0');
                 num = (num * 10) + (ch[++off] - '0');
                 num = (num * 10) + (ch[++off] - '0');
-                len -= 4;
+                return num;
             }
         }
         if (len > 1) {

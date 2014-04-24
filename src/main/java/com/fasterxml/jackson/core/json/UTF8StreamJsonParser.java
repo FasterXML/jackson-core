@@ -646,7 +646,6 @@ public class UTF8StreamJsonParser
         if (_tokenIncomplete) {
             _skipString(); // only strings can be partial
         }
-
         int i = _skipWSOrEnd();
         if (i < 0) { // end-of-input
             // Close/release things like input source, symbol table and recyclable buffers
@@ -699,16 +698,7 @@ public class UTF8StreamJsonParser
         _parsingContext.setCurrentName(n.getName());
         _currToken = JsonToken.FIELD_NAME;
 
-        // Let's do a quickie check:
-        if (_inputPtr < _inputEnd && _inputBuffer[_inputPtr] == ':') {
-            ++_inputPtr;
-        } else {
-            i = _skipWS();
-            if (i != INT_COLON) {
-                _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
-            }
-        }
-        i = _skipWS();
+        i = _skipColon();
 
         // Ok: we must have a value... what is it? Strings are very common, check first:
         if (i == INT_QUOTE) {
@@ -929,31 +919,7 @@ public class UTF8StreamJsonParser
         throws IOException, JsonParseException
     {
         // very first thing: common case, colon, value, no white space
-        int i;
-        if (_inputPtr < (_inputEnd-1) && _inputBuffer[_inputPtr] == INT_COLON) { // fast case first
-            i = _inputBuffer[++_inputPtr];
-            ++_inputPtr;
-            if (i == INT_QUOTE) {
-                _tokenIncomplete = true;
-                _nextToken = JsonToken.VALUE_STRING;
-                return;
-            }
-            if (i == INT_LCURLY) {
-                _nextToken = JsonToken.START_OBJECT;
-                return;
-            }
-            if (i == INT_LBRACKET) {
-                _nextToken = JsonToken.START_ARRAY;
-                return;
-            }
-            i &= 0xFF;
-            if (i <= INT_SPACE || i == INT_SLASH) {
-            	--_inputPtr;
-                i = _skipWS();
-            }
-        } else {
-            i = _skipColon();
-        }
+        int i = _skipColon();
         switch (i) {
         case '"':
             _tokenIncomplete = true;
@@ -2500,17 +2466,12 @@ public class UTF8StreamJsonParser
             switch (codes[i]) {
             case 0: // done!
                 return i;
-            case 1: // skip
+            case 1: // white space, skip
                 continue;
-            case 2: // 2-byte UTF
-                _skipUtf8_2(i);
-                break;
-            case 3: // 3-byte UTF
-                _skipUtf8_3(i);
-                break;
-            case 4: // 4-byte UTF
-                _skipUtf8_4(i);
-                break;
+            case 2: // 2/3/4-byte UTF: done
+            case 3:
+            case 4:
+                return i;
             case INT_LF:
                 ++_currInputRow;
                 _currInputRowStart = _inputPtr;
@@ -2563,7 +2524,7 @@ public class UTF8StreamJsonParser
             case INT_CR:
                 _skipCR();
                 break;
-            case '/':
+            case INT_SLASH:
                 _skipComment();
                 break;
             case '#':
@@ -2579,84 +2540,89 @@ public class UTF8StreamJsonParser
         _handleEOF();
         return -1;
     }
-
-    /**
-     * Helper method for matching and skipping a colon character,
-     * optionally surrounded by white space
-     */
+    
     private final int _skipColon() throws IOException
     {
-        if (_inputPtr >= _inputEnd) {
-            loadMoreGuaranteed();
+        if ((_inputPtr + 4) >= _inputEnd) {
+            return _skipColon2(false);
         }
-        // first fast case: we just got a colon without white space:
-        int i = _inputBuffer[_inputPtr++];
+        // Fast path: colon with optional single-space/tab before and/or after:
+        int i = _inputBuffer[_inputPtr];
+        if (i == INT_COLON) { // common case, no leading space
+            i = _inputBuffer[++_inputPtr];
+            if (i > INT_SPACE) { // nor trailing
+                ++_inputPtr;
+                return i;
+            }
+            if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[++_inputPtr];
+                if (i > INT_SPACE) {
+                    ++_inputPtr;                    
+                    return i;
+                }
+            }
+            return _skipColon2(true); // true -> skipped colon
+        }
+        if (i == INT_SPACE || i == INT_TAB) {
+            i = _inputBuffer[++_inputPtr];
+        }
         if (i == INT_COLON) {
-            if (_inputPtr < _inputEnd) {
-                i = _inputBuffer[_inputPtr] & 0xFF;
-                if (i > INT_SPACE && i != INT_SLASH) {
+            i = _inputBuffer[++_inputPtr];
+            if (i > 32) {
+                ++_inputPtr;
+                return i;
+            }
+            if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[++_inputPtr];
+                if (i > INT_SPACE) {
                     ++_inputPtr;
                     return i;
                 }
             }
-        } else {
-            // need to skip potential leading space
-            i &= 0xFF;
-            
-            space_loop:
-            while (true) {
-                switch (i) {
-                case ' ':
-                case '\t':
-                    break;
-                case INT_CR:
-                    _skipCR();
-                    break;
-                case INT_LF:
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                    break;
-                case '/':
-                    _skipComment();
-                    break;
-                default:
+            return _skipColon2(true);
+        }
+        return _skipColon2(false);
+    }
+    
+    private final int _skipColon2(boolean gotColon) throws IOException
+    {
+        while (_inputPtr < _inputEnd || loadMore()) {
+            int i = _inputBuffer[_inputPtr++] & 0xFF;
+            switch (i) {
+            case ' ':
+            case '\t':
+                break;
+            case INT_CR:
+                _skipCR();
+                break;
+            case INT_LF:
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
+                break;
+            case INT_SLASH:
+                _skipComment();
+                break;
+            case '#':
+                if (!_skipYAMLComment()) {
+                    return i;
+                }
+                break;
+            default:
+                if (gotColon) {
+                    return i;
+                }
+                if (i != INT_COLON) {
                     if (i < INT_SPACE) {
                         _throwInvalidSpace(i);
                     }
-                    break space_loop;
+                    _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
-                if (_inputPtr >= _inputEnd) {
-                    loadMoreGuaranteed();
-                }
-                i = _inputBuffer[_inputPtr++] & 0xFF;
-            }
-            if (i != INT_COLON) {
-                _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
-            }
-        }
-
-            // either way, found colon, skip through trailing WS
-        while (_inputPtr < _inputEnd || loadMore()) {
-            i = _inputBuffer[_inputPtr++] & 0xFF;
-            if (i > INT_SPACE) {
-                if (i != INT_SLASH) {
-                    return i;
-                }
-                _skipComment();
-            } else if (i != INT_SPACE) {
-                if (i == INT_LF) {
-                    ++_currInputRow;
-                    _currInputRowStart = _inputPtr;
-                } else if (i == INT_CR) {
-                    _skipCR();
-                } else if (i != INT_TAB) {
-                    _throwInvalidSpace(i);
-                }
+                gotColon = true;
             }
         }
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
-    
+
     private final void _skipComment() throws IOException
     {
         if (!isEnabled(Feature.ALLOW_COMMENTS)) {

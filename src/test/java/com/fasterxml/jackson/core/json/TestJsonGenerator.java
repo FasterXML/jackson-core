@@ -237,7 +237,8 @@ public class TestJsonGenerator
         throws Exception
     {
         int[] VALUES = new int[] {
-            0, 1, -9, 32, -32, 57, 13240, -9999, Integer.MAX_VALUE, Integer.MAX_VALUE
+            0, 1, -9, 32, -32, 57, 189, 2017, -9999, 13240, 123456,
+            1111111, 22222222, 123456789, Integer.MAX_VALUE, Integer.MAX_VALUE
         };
         for (int i = 0; i < VALUES.length; ++i) {
             int VALUE = VALUES[i];

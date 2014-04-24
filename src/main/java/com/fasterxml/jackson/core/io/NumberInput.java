@@ -17,7 +17,7 @@ public final class NumberInput
 
     final static String MIN_LONG_STR_NO_SIGN = String.valueOf(Long.MIN_VALUE).substring(1);
     final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
-    
+
     /**
      * Fast method for parsing integers that are known to fit into
      * regular 32-bit signed int type. This means that length is
@@ -28,29 +28,27 @@ public final class NumberInput
     public static int parseInt(char[] ch, int off, int len)
     {
         int num = ch[off] - '0';
-        len += off;
-        // This looks ugly, but appears the fastest way (as per measurements)
-        if (++off < len) {
-            num = (num * 10) + (ch[off] - '0');
-            if (++off < len) {
-                num = (num * 10) + (ch[off] - '0');
-                if (++off < len) {
-                    num = (num * 10) + (ch[off] - '0');
-                    if (++off < len) {
-                        num = (num * 10) + (ch[off] - '0');
-                        if (++off < len) {
-                            num = (num * 10) + (ch[off] - '0');
-                            if (++off < len) {
-                                num = (num * 10) + (ch[off] - '0');
-                                if (++off < len) {
-                                    num = (num * 10) + (ch[off] - '0');
-                                    if (++off < len) {
-                                        num = (num * 10) + (ch[off] - '0');
-                                    }
-                                }
-                            }
-                        }
-                    }
+
+        if (len > 4) {
+            num = (num * 10) + (ch[++off] - '0');
+            num = (num * 10) + (ch[++off] - '0');
+            num = (num * 10) + (ch[++off] - '0');
+            num = (num * 10) + (ch[++off] - '0');
+            len -= 4;
+            if (len > 4) {
+                num = (num * 10) + (ch[++off] - '0');
+                num = (num * 10) + (ch[++off] - '0');
+                num = (num * 10) + (ch[++off] - '0');
+                num = (num * 10) + (ch[++off] - '0');
+                len -= 4;
+            }
+        }
+        if (len > 1) {
+            num = (num * 10) + (ch[++off] - '0');
+            if (len > 2) {
+                num = (num * 10) + (ch[++off] - '0');
+                if (len > 3) {
+                    num = (num * 10) + (ch[++off] - '0');
                 }
             }
         }

@@ -1230,7 +1230,8 @@ public class UTF8StreamJsonParser
         outBuf[outPtr++] = (char) c;
         int intLen = 1;
 
-        // And then figure out how far we can read without further checks:
+        // And then figure out how far we can read without further checks
+        // for either input or output
         int end = _inputPtr + outBuf.length;
         if (end > _inputEnd) {
             end = _inputEnd;
@@ -1247,10 +1248,6 @@ public class UTF8StreamJsonParser
                 break;
             }
             ++intLen;
-            if (outPtr >= outBuf.length) {
-                outBuf = _textBuffer.finishCurrentSegment();
-                outPtr = 0;
-            }
             outBuf[outPtr++] = (char) c;
         }
         if (c == '.' || c == 'e' || c == 'E') {

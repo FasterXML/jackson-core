@@ -632,8 +632,7 @@ public class UTF8StreamJsonParser
      *   to indicate end-of-input
      */
     @Override
-    public JsonToken nextToken()
-        throws IOException, JsonParseException
+    public JsonToken nextToken() throws IOException
     {
         _numTypesValid = NR_UNKNOWN;
         /* First: field names are special -- we will always tokenize
@@ -715,11 +714,6 @@ public class UTF8StreamJsonParser
         case '{':
             t = JsonToken.START_OBJECT;
             break;
-        case ']':
-        case '}':
-            // Error: neither is valid at this point; valid closers have
-            // been handled earlier
-            _reportUnexpectedChar(i, "expected a value");
         case 't':
             _matchToken("true", 1);
             t = JsonToken.VALUE_TRUE;
@@ -757,8 +751,7 @@ public class UTF8StreamJsonParser
         return _currToken;
     }
 
-    private final JsonToken _nextTokenNotInObject(int i)
-        throws IOException, JsonParseException
+    private final JsonToken _nextTokenNotInObject(int i) throws IOException
     {
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
@@ -771,11 +764,6 @@ public class UTF8StreamJsonParser
         case '{':
             _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_OBJECT);
-        case ']':
-        case '}':
-            // Error: neither is valid at this point; valid closers have
-            // been handled earlier
-            _reportUnexpectedChar(i, "expected a value");
         case 't':
             _matchToken("true", 1);
             return (_currToken = JsonToken.VALUE_TRUE);
@@ -788,7 +776,7 @@ public class UTF8StreamJsonParser
         case '-':
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
-             * and could be indicate by a more specific error message.
+             * and could be indicated by a more specific error message.
              */
         case '0':
         case '1':
@@ -826,8 +814,7 @@ public class UTF8StreamJsonParser
      */
     
     @Override
-    public boolean nextFieldName(SerializableString str)
-        throws IOException, JsonParseException
+    public boolean nextFieldName(SerializableString str) throws IOException
     {
         // // // Note: most of code below is copied from nextToken()
         
@@ -915,8 +902,7 @@ public class UTF8StreamJsonParser
         return _isNextTokenNameMaybe(i, str);
     }
 
-    private final void _isNextTokenNameYes()
-        throws IOException, JsonParseException
+    private final void _isNextTokenNameYes() throws IOException
     {
         // very first thing: common case, colon, value, no white space
         int i = _skipColon();
@@ -931,9 +917,6 @@ public class UTF8StreamJsonParser
         case '{':
             _nextToken = JsonToken.START_OBJECT;
             return;
-        case ']':
-        case '}':
-            _reportUnexpectedChar(i, "expected a value");
         case 't':
             _matchToken("true", 1);
             _nextToken = JsonToken.VALUE_TRUE;
@@ -963,8 +946,7 @@ public class UTF8StreamJsonParser
         _nextToken = _handleUnexpectedValue(i);
     }
     
-    private final boolean _isNextTokenNameMaybe(int i, SerializableString str)
-        throws IOException, JsonParseException
+    private final boolean _isNextTokenNameMaybe(int i, SerializableString str) throws IOException
     {
         // // // and this is back to standard nextToken()
             
@@ -997,9 +979,6 @@ public class UTF8StreamJsonParser
         case '{':
             t = JsonToken.START_OBJECT;
             break;
-        case ']':
-        case '}':
-            _reportUnexpectedChar(i, "expected a value");
         case 't':
             _matchToken("true", 1);
             t = JsonToken.VALUE_TRUE;
@@ -1035,8 +1014,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public String nextTextValue()
-        throws IOException, JsonParseException
+    public String nextTextValue() throws IOException
     {
         // two distinct cases; either got name and we know next type, or 'other'
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
@@ -1063,8 +1041,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int nextIntValue(int defaultValue)
-        throws IOException, JsonParseException
+    public int nextIntValue(int defaultValue) throws IOException
     {
         // two distinct cases; either got name and we know next type, or 'other'
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
@@ -1087,8 +1064,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public long nextLongValue(long defaultValue)
-        throws IOException, JsonParseException
+    public long nextLongValue(long defaultValue) throws IOException
     {
         // two distinct cases; either got name and we know next type, or 'other'
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
@@ -1111,8 +1087,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public Boolean nextBooleanValue()
-        throws IOException, JsonParseException
+    public Boolean nextBooleanValue() throws IOException
     {
         // two distinct cases; either got name and we know next type, or 'other'
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
@@ -1165,8 +1140,7 @@ public class UTF8StreamJsonParser
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected JsonToken _parseNumber(int c)
-        throws IOException, JsonParseException
+    protected JsonToken _parseNumber(int c) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
@@ -1235,8 +1209,7 @@ public class UTF8StreamJsonParser
      * (or output is longer than segment used to store it)
      */
     private final JsonToken _parserNumber2(char[] outBuf, int outPtr, boolean negative,
-            int intPartLength)
-        throws IOException, JsonParseException
+            int intPartLength) throws IOException
     {
         // Ok, parse the rest
         while (true) {
@@ -1274,8 +1247,7 @@ public class UTF8StreamJsonParser
      * Method called when we have seen one zero, and want to ensure
      * it is not followed by another
      */
-    private final int _verifyNoLeadingZeroes()
-        throws IOException, JsonParseException
+    private final int _verifyNoLeadingZeroes() throws IOException
     {
         // Ok to have plain "0"
         if (_inputPtr >= _inputEnd && !loadMore()) {
@@ -1308,8 +1280,7 @@ public class UTF8StreamJsonParser
     }
     
     private final JsonToken _parseFloat(char[] outBuf, int outPtr, int c,
-            boolean negative, int integerPartLength)
-        throws IOException, JsonParseException
+            boolean negative, int integerPartLength) throws IOException
     {
         int fractLen = 0;
         boolean eof = false;
@@ -2268,6 +2239,11 @@ public class UTF8StreamJsonParser
     {
         // Most likely an error, unless we are to allow single-quote-strings
         switch (c) {
+        case ']':
+        case '}':
+            // Error: neither is valid at this point; valid closers have
+            // been handled earlier
+            _reportUnexpectedChar(c, "expected a value");
         case '\'':
             if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
                 return _handleApos();

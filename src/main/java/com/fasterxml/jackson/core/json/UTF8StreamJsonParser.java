@@ -1180,7 +1180,7 @@ public class UTF8StreamJsonParser
         while (true) {
             if (_inputPtr >= end) {
                 // Long enough to be split across boundary, so:
-                return _parserNumber2(outBuf, outPtr, negative, intLen);
+                return _parseNumber2(outBuf, outPtr, negative, intLen);
             }
             c = (int) _inputBuffer[_inputPtr++] & 0xFF;
             if (c < INT_0 || c > INT_9) {
@@ -1208,7 +1208,7 @@ public class UTF8StreamJsonParser
      * Method called to handle parsing when input is split across buffer boundary
      * (or output is longer than segment used to store it)
      */
-    private final JsonToken _parserNumber2(char[] outBuf, int outPtr, boolean negative,
+    private final JsonToken _parseNumber2(char[] outBuf, int outPtr, boolean negative,
             int intPartLength) throws IOException
     {
         // Ok, parse the rest

@@ -708,25 +708,6 @@ public class UTF8StreamJsonParser
         JsonToken t;
 
         switch (i) {
-        case '[':
-            t = JsonToken.START_ARRAY;
-            break;
-        case '{':
-            t = JsonToken.START_OBJECT;
-            break;
-        case 't':
-            _matchToken("true", 1);
-            t = JsonToken.VALUE_TRUE;
-            break;
-        case 'f':
-            _matchToken("false", 1);
-             t = JsonToken.VALUE_FALSE;
-            break;
-        case 'n':
-            _matchToken("null", 1);
-            t = JsonToken.VALUE_NULL;
-            break;
-
         case '-':
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
@@ -744,6 +725,25 @@ public class UTF8StreamJsonParser
         case '9':
             t = _parseNumber(i);
             break;
+        case 'f':
+            _matchFalse();
+             t = JsonToken.VALUE_FALSE;
+            break;
+        case 'n':
+            _matchNull();
+            t = JsonToken.VALUE_NULL;
+            break;
+        case 't':
+            _matchTrue();
+            t = JsonToken.VALUE_TRUE;
+            break;
+        case '[':
+            t = JsonToken.START_ARRAY;
+            break;
+        case '{':
+            t = JsonToken.START_OBJECT;
+            break;
+
         default:
             t = _handleUnexpectedValue(i);
         }
@@ -2404,11 +2404,57 @@ public class UTF8StreamJsonParser
         return null;
     }
 
-    protected void _matchToken(String matchStr, int i)
-        throws IOException
+    private final  void _matchFalse() throws IOException {
+        int ptr = _inputPtr;
+        if ((ptr + 4) < _inputEnd) {
+            final byte[] b = _inputBuffer;
+            if (b[ptr] == INT_a && b[++ptr] == INT_l && b[++ptr] == INT_s && b[++ptr] == INT_e) {
+                int c = b[++ptr] & 0xFF;
+                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
+                }
+            }
+        }
+        // buffer boundary, or problem, offline
+        _matchToken("false", 1);
+    }
+    
+    private final void _matchNull() throws IOException {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) {
+            final byte[] b = _inputBuffer;
+            if (b[ptr] == INT_u && b[++ptr] == INT_l && b[++ptr] == INT_l) {
+                int c = b[++ptr] & 0xFF;
+                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
+                }
+            }
+        }
+        // buffer boundary, or problem, offline
+        _matchToken("null", 1);
+    }
+
+    private final void _matchTrue() throws IOException {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) {
+            final byte[] b = _inputBuffer;
+            if (b[ptr] == INT_r && b[++ptr] == INT_u && b[++ptr] == INT_e) {
+                int c = b[++ptr] & 0xFF;
+                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
+                }
+            }
+        }
+        // buffer boundary, or problem, offline
+        _matchToken("true", 1);
+    }
+
+    protected void _matchToken(String matchStr, int i) throws IOException
     {
         final int len = matchStr.length();
-    
         do {
             if (((_inputPtr >= _inputEnd) && !loadMore())
                 ||  (_inputBuffer[_inputPtr] != matchStr.charAt(i))) {

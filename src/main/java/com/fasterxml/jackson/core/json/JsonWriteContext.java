@@ -119,7 +119,7 @@ public class JsonWriteContext extends JsonStreamContext
         return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
     }
 
-    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
+    private final void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
         if (dd.isDup(name)) { throw new JsonGenerationException("Duplicate field '"+name+"'"); }
     }
     
@@ -146,7 +146,7 @@ public class JsonWriteContext extends JsonStreamContext
 
     // // // Internally used abstract methods
 
-    protected final void appendDesc(StringBuilder sb) {
+    protected void appendDesc(StringBuilder sb) {
         if (_type == TYPE_OBJECT) {
             sb.append('{');
             if (_currentName != null) {
@@ -174,7 +174,7 @@ public class JsonWriteContext extends JsonStreamContext
      * Overridden to provide developer writeable "JsonPath" representation
      * of the context.
      */
-    @Override public final String toString() {
+    @Override public String toString() {
         StringBuilder sb = new StringBuilder(64);
         appendDesc(sb);
         return sb.toString();

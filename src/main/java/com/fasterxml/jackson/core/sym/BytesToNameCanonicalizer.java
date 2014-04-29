@@ -1113,34 +1113,34 @@ public final class BytesToNameCanonicalizer
             collEnd = src._collEnd;
             longestCollisionList = src._longestCollisionList;
         }
-    
     }
     
     final private static class Bucket
     {
         protected final Name _name;
         protected final Bucket _next;
+        private final int _hash;
         private final int _length;
 
-        Bucket(Name name, Bucket next)
-        {
+        Bucket(Name name, Bucket next) {
             _name = name;
             _next = next;
             _length = (next == null) ? 1 : next._length+1;
+            _hash = name.hashCode();
         }
 
         public int length() { return _length; }
 
         public Name find(int hash, int firstQuad, int secondQuad)
         {
-            if (_name.hashCode() == hash) {
+            if (_hash == hash) {
                 if (_name.equals(firstQuad, secondQuad)) {
                     return _name;
                 }
             }
             for (Bucket curr = _next; curr != null; curr = curr._next) {
-                Name currName = curr._name;
-                if (currName.hashCode() == hash) {
+                if (curr._hash == hash) {
+                    Name currName = curr._name;
                     if (currName.equals(firstQuad, secondQuad)) {
                         return currName;
                     }
@@ -1151,14 +1151,14 @@ public final class BytesToNameCanonicalizer
 
         public Name find(int hash, int[] quads, int qlen)
         {
-            if (_name.hashCode() == hash) {
+            if (_hash == hash) {
                 if (_name.equals(quads, qlen)) {
                     return _name;
                 }
             }
             for (Bucket curr = _next; curr != null; curr = curr._next) {
-                Name currName = curr._name;
-                if (currName.hashCode() == hash) {
+                if (curr._hash == hash) {
+                    Name currName = curr._name;
                     if (currName.equals(quads, qlen)) {
                         return currName;
                     }

@@ -468,17 +468,12 @@ public final class CharsToNameCanonicalizer
     }
 
     private String _findSymbol2(char[] buffer, int start, int len, Bucket b) {
-        if (b != null) {
+        while (b != null) {
             String sym = b.has(buffer, start, len);
             if (sym != null) {
                 return sym;
             }
-            while ((b = b.next) != null) {
-                sym = b.has(buffer, start, len);
-                if (sym != null) {
-                    return sym;
-                }
-            }
+            b = b.next;
         }
         return null;
     }

@@ -651,15 +651,15 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             // been handled earlier
             _reportUnexpectedChar(i, "expected a value");
         case 't':
-            _matchToken("true", 1);
+            _matchTrue();
             t = JsonToken.VALUE_TRUE;
             break;
         case 'f':
-            _matchToken("false", 1);
+            _matchFalse();
             t = JsonToken.VALUE_FALSE;
             break;
         case 'n':
-            _matchToken("null", 1);
+            _matchNull();
             t = JsonToken.VALUE_NULL;
             break;
 
@@ -2032,6 +2032,54 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         return (char) value;
     }
     
+    private final void _matchTrue() throws IOException {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) {
+            final char[] b = _inputBuffer;
+            if (b[ptr] == 'r' && b[++ptr] == 'u' && b[++ptr] == 'e') {
+                char c = b[++ptr];
+                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
+                }
+            }
+        }
+        // buffer boundary, or problem, offline
+        _matchToken("true", 1);
+    }
+
+    private final void _matchFalse() throws IOException {
+        int ptr = _inputPtr;
+        if ((ptr + 4) < _inputEnd) {
+            final char[] b = _inputBuffer;
+            if (b[ptr] == 'a' && b[++ptr] == 'l' && b[++ptr] == 's' && b[++ptr] == 'e') {
+                char c = b[++ptr];
+                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
+                }
+            }
+        }
+        // buffer boundary, or problem, offline
+        _matchToken("false", 1);
+    }
+
+    private final void _matchNull() throws IOException {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) {
+            final char[] b = _inputBuffer;
+            if (b[ptr] == 'u' && b[++ptr] == 'l' && b[++ptr] == 'l') {
+                char c = b[++ptr];
+                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
+                }
+            }
+        }
+        // buffer boundary, or problem, offline
+        _matchToken("null", 1);
+    }
+
     /**
      * Helper method for checking whether input matches expected token
      */

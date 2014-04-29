@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * based on a {@link java.io.Reader} to handle low-level character
  * conversion tasks.
  */
-public final class ReaderBasedJsonParser
+public class ReaderBasedJsonParser // final in 2.3, earlier
     extends ParserBase
 {
     // Latin1 encoding is not supported, but we do use 8-bit subset for
@@ -227,7 +227,7 @@ public final class ReaderBasedJsonParser
      * Method can be called for any event.
      */
     @Override
-    public String getText() throws IOException
+    public final String getText() throws IOException
     {
         JsonToken t = _currToken;
         if (t == JsonToken.VALUE_STRING) {
@@ -244,7 +244,7 @@ public final class ReaderBasedJsonParser
     
     // @since 2.1
     @Override
-    public String getValueAsString() throws IOException
+    public final String getValueAsString() throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -258,7 +258,7 @@ public final class ReaderBasedJsonParser
     
     // @since 2.1
     @Override
-    public String getValueAsString(String defValue) throws IOException {
+    public final String getValueAsString(String defValue) throws IOException {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
@@ -269,7 +269,7 @@ public final class ReaderBasedJsonParser
         return super.getValueAsString(defValue);
     }
 
-    protected String _getText2(JsonToken t) {
+    protected final String _getText2(JsonToken t) {
         if (t == null) {
             return null;
         }
@@ -288,7 +288,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public char[] getTextCharacters() throws IOException
+    public final char[] getTextCharacters() throws IOException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -324,7 +324,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public int getTextLength() throws IOException
+    public final int getTextLength() throws IOException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -349,7 +349,7 @@ public final class ReaderBasedJsonParser
     }
 
     @Override
-    public int getTextOffset() throws IOException
+    public final int getTextOffset() throws IOException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
@@ -557,7 +557,7 @@ public final class ReaderBasedJsonParser
      *   to indicate end-of-input
      */
     @Override
-    public JsonToken nextToken() throws IOException
+    public final JsonToken nextToken() throws IOException
     {
         _numTypesValid = NR_UNKNOWN;
 
@@ -693,7 +693,7 @@ public final class ReaderBasedJsonParser
         return t;
     }
 
-    private JsonToken _nextAfterName()
+    private final JsonToken _nextAfterName()
     {
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
@@ -715,7 +715,7 @@ public final class ReaderBasedJsonParser
 
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public String nextTextValue() throws IOException
+    public final String nextTextValue() throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
@@ -742,7 +742,7 @@ public final class ReaderBasedJsonParser
 
     // note: identical to one in Utf8StreamParser
     @Override
-    public int nextIntValue(int defaultValue) throws IOException
+    public final int nextIntValue(int defaultValue) throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) {
             _nameCopied = false;
@@ -765,7 +765,7 @@ public final class ReaderBasedJsonParser
 
     // note: identical to one in Utf8StreamParser
     @Override
-    public long nextLongValue(long defaultValue) throws IOException
+    public final long nextLongValue(long defaultValue) throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
@@ -788,7 +788,7 @@ public final class ReaderBasedJsonParser
 
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public Boolean nextBooleanValue() throws IOException
+    public final Boolean nextBooleanValue() throws IOException
     {
         if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
@@ -838,7 +838,7 @@ public final class ReaderBasedJsonParser
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected JsonToken _parseNumber(int ch) throws IOException
+    protected final JsonToken _parseNumber(int ch) throws IOException
     {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),
@@ -961,7 +961,7 @@ public final class ReaderBasedJsonParser
      * that it has to explicitly copy contents to the text buffer
      * instead of just sharing the main input buffer.
      */
-    private JsonToken _parseNumber2(boolean neg) throws IOException
+    private final JsonToken _parseNumber2(boolean neg) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
@@ -1087,14 +1087,26 @@ public final class ReaderBasedJsonParser
      * Method called when we have seen one zero, and want to ensure
      * it is not followed by another
      */
-    private char _verifyNoLeadingZeroes() throws IOException
+    private final char _verifyNoLeadingZeroes() throws IOException
     {
-        // Ok to have plain "0"
+        // Fast case first:
+        if (_inputPtr < _inputEnd) {
+            char ch = _inputBuffer[_inputPtr];
+            // if not followed by a number (probably '.'); return zero as is, to be included
+            if (ch < '0' || ch > '9') {
+                return '0';
+            }
+        }
+        // and offline the less common case
+        return _verifyNLZ2();
+    }
+        
+    private char _verifyNLZ2() throws IOException
+    {
         if (_inputPtr >= _inputEnd && !loadMore()) {
             return '0';
         }
         char ch = _inputBuffer[_inputPtr];
-        // if not followed by a number (probably '.'); return zero as is, to be included
         if (ch < '0' || ch > '9') {
             return '0';
         }
@@ -1181,7 +1193,7 @@ public final class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    protected String _parseName(int i) throws IOException
+    protected final String _parseName(int i) throws IOException
     {
         if (i != INT_QUOTE) { return _handleOddName(i); }
 
@@ -1490,7 +1502,7 @@ public final class ReaderBasedJsonParser
     }
   
     @Override
-    protected void _finishString() throws IOException
+    protected final void _finishString() throws IOException
     {
         /* First: let's try to see if we have simple String value: one
          * that does not cross input buffer boundary, and does not
@@ -1570,7 +1582,7 @@ public final class ReaderBasedJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      */
-    protected void _skipString() throws IOException
+    protected final void _skipString() throws IOException
     {
         _tokenIncomplete = false;
 
@@ -1623,7 +1635,7 @@ public final class ReaderBasedJsonParser
      * We actually need to check the character value here
      * (to see if we have \n following \r).
      */
-    protected void _skipCR() throws IOException {
+    protected final void _skipCR() throws IOException {
         if (_inputPtr < _inputEnd || loadMore()) {
             if (_inputBuffer[_inputPtr] == '\n') {
                 ++_inputPtr;
@@ -1634,7 +1646,7 @@ public final class ReaderBasedJsonParser
     }
 
     /*
-    private int _skipCR(int ptr) throws IOException {
+    private final int _skipCR(int ptr) throws IOException {
         if (ptr < _inputEnd) {
             if (_inputBuffer[ptr] == '\n') {
                 ++ptr;
@@ -1654,7 +1666,7 @@ public final class ReaderBasedJsonParser
     }
     */
     
-    private int _skipColon() throws IOException
+    private final int _skipColon() throws IOException
     {
         if ((_inputPtr + 4) >= _inputEnd) {
             return _skipColon2(false);
@@ -1696,7 +1708,7 @@ public final class ReaderBasedJsonParser
         return _skipColon2(false);
     }
 
-    private int _skipColon2(boolean gotColon) throws IOException
+    private final int _skipColon2(boolean gotColon) throws IOException
     {
         final int[] codes = _icWS;
         while (true) {
@@ -1743,7 +1755,7 @@ public final class ReaderBasedJsonParser
         }
     }
     
-    private int _skipComma(int i) throws IOException
+    private final int _skipComma(int i) throws IOException
     {
         if (i != INT_COMMA) {
             _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
@@ -1776,7 +1788,7 @@ public final class ReaderBasedJsonParser
         return _skipAfterComma();
     }
 
-    private int _skipAfterComma() throws IOException
+    private final int _skipAfterComma() throws IOException
     {
         final int[] codes = _icWS;
         while (_inputPtr < _inputEnd || loadMore()) {
@@ -1811,7 +1823,7 @@ public final class ReaderBasedJsonParser
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
     
-    private int _skipWSOrEnd() throws IOException
+    private final int _skipWSOrEnd() throws IOException
     {
         final int[] codes = _icWS;
         while (_inputPtr < _inputEnd) {
@@ -2023,7 +2035,7 @@ public final class ReaderBasedJsonParser
     /**
      * Helper method for checking whether input matches expected token
      */
-    protected void _matchToken(String matchStr, int i) throws IOException
+    protected final void _matchToken(String matchStr, int i) throws IOException
     {
         final int len = matchStr.length();
 

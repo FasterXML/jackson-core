@@ -1467,7 +1467,7 @@ public class UTF8StreamJsonParser
         return parseName(0, q, 0); // quoting or invalid char
     }
 
-    protected Name parseMediumName(int q2) throws IOException
+    protected final Name parseMediumName(int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
@@ -1504,13 +1504,14 @@ public class UTF8StreamJsonParser
             }
             return parseName(_quad1, q2, i, 4);
         }
-        _quadBuffer[0] = _quad1;
-        _quadBuffer[1] = q2;
-        return parseLongName(i);
+        return parseLongName(i, q2);
     }
 
-    protected Name parseLongName(int q) throws IOException
+    protected final Name parseLongName(int q, final int q2) throws IOException
     {
+        _quadBuffer[0] = _quad1;
+        _quadBuffer[1] = q2;
+
         // As explained above, will ignore UTF-8 encoding at this point
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
@@ -1586,13 +1587,11 @@ public class UTF8StreamJsonParser
         return parseEscapedName(_quadBuffer, 0, 0, i, 0);
     }
 
-    private final Name parseName(int q1, int ch, int lastQuadBytes) throws IOException
-    {
+    private final Name parseName(int q1, int ch, int lastQuadBytes) throws IOException {
         return parseEscapedName(_quadBuffer, 0, q1, ch, lastQuadBytes);
     }
 
-    private final Name parseName(int q1, int q2, int ch, int lastQuadBytes) throws IOException
-    {
+    private final Name parseName(int q1, int q2, int ch, int lastQuadBytes) throws IOException {
         _quadBuffer[0] = q1;
         return parseEscapedName(_quadBuffer, 1, q2, ch, lastQuadBytes);
     }
@@ -1604,13 +1603,12 @@ public class UTF8StreamJsonParser
      * needs to be able to handle more exceptional cases, gets
      * slower, and hance is offlined to a separate method.
      */
-    protected Name parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
+    protected final Name parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
     {
-        /* 25-Nov-2008, tatu: This may seem weird, but here we do
-         *   NOT want to worry about UTF-8 decoding. Rather, we'll
-         *   assume that part is ok (if not it will get caught
-         *   later on), and just handle quotes and backslashes here.
+        /* 25-Nov-2008, tatu: This may seem weird, but here we do not want to worry about
+         *   UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
+         *   caught later on), and just handle quotes and backslashes here.
          */
         final int[] codes = _icLatin1;
 

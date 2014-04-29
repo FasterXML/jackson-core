@@ -577,8 +577,7 @@ public final class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeNumber(short s)
-        throws IOException, JsonGenerationException
+    public void writeNumber(short s) throws IOException
     {
         _verifyValueWrite("write number");
         if (_cfgNumbersAsStrings) {
@@ -602,8 +601,7 @@ public final class WriterBasedJsonGenerator
     }    
 
     @Override
-    public void writeNumber(int i)
-        throws IOException, JsonGenerationException
+    public void writeNumber(int i) throws IOException
     {
         _verifyValueWrite("write number");
         if (_cfgNumbersAsStrings) {
@@ -627,8 +625,7 @@ public final class WriterBasedJsonGenerator
     }    
 
     @Override
-    public void writeNumber(long l)
-        throws IOException, JsonGenerationException
+    public void writeNumber(long l) throws IOException
     {
         _verifyValueWrite("write number");
         if (_cfgNumbersAsStrings) {
@@ -654,8 +651,7 @@ public final class WriterBasedJsonGenerator
     // !!! 05-Aug-2008, tatus: Any ways to optimize these?
 
     @Override
-    public void writeNumber(BigInteger value)
-        throws IOException, JsonGenerationException
+    public void writeNumber(BigInteger value) throws IOException
     {
         _verifyValueWrite("write number");
         if (value == null) {
@@ -669,13 +665,11 @@ public final class WriterBasedJsonGenerator
 
     
     @Override
-    public void writeNumber(double d)
-        throws IOException, JsonGenerationException
+    public void writeNumber(double d) throws IOException
     {
         if (_cfgNumbersAsStrings ||
             // [JACKSON-139]
-            (((Double.isNaN(d) || Double.isInfinite(d))
-                && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS)))) {
+                (isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS) && ((Double.isNaN(d) || Double.isInfinite(d))))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -685,13 +679,11 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeNumber(float f)
-        throws IOException, JsonGenerationException
+    public void writeNumber(float f) throws IOException
     {
         if (_cfgNumbersAsStrings ||
             // [JACKSON-139]
-            (((Float.isNaN(f) || Float.isInfinite(f))
-                && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS)))) {
+                (isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS) && ((Float.isNaN(f) || Float.isInfinite(f))))) {
             writeString(String.valueOf(f));
             return;
         }
@@ -701,8 +693,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeNumber(BigDecimal value)
-        throws IOException, JsonGenerationException
+    public void writeNumber(BigDecimal value) throws IOException
     {
         // Don't really know max length for big decimal, no point checking
         _verifyValueWrite("write number");
@@ -718,8 +709,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeNumber(String encodedValue)
-        throws IOException, JsonGenerationException
+    public void writeNumber(String encodedValue) throws IOException
     {
         _verifyValueWrite("write number");
         if (_cfgNumbersAsStrings) {
@@ -743,8 +733,7 @@ public final class WriterBasedJsonGenerator
     }
     
     @Override
-    public void writeBoolean(boolean state)
-        throws IOException, JsonGenerationException
+    public void writeBoolean(boolean state) throws IOException
     {
         _verifyValueWrite("write boolean value");
         if ((_outputTail + 5) >= _outputEnd) {
@@ -768,9 +757,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeNull()
-        throws IOException, JsonGenerationException
-    {
+    public void writeNull() throws IOException {
         _verifyValueWrite("write null value");
         _writeNull();
     }
@@ -1635,7 +1622,7 @@ public final class WriterBasedJsonGenerator
     /**********************************************************
      */
     
-    private void _writeNull() throws IOException
+    private final void _writeNull() throws IOException
     {
         if ((_outputTail + 4) >= _outputEnd) {
             _flushBuffer();

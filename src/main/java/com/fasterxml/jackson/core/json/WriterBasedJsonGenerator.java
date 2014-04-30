@@ -95,7 +95,7 @@ public final class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeFieldName(String name)  throws IOException, JsonGenerationException
+    public void writeFieldName(String name)  throws IOException
     {
         int status = _writeContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
@@ -105,8 +105,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeFieldName(SerializableString name)
-        throws IOException, JsonGenerationException
+    public void writeFieldName(SerializableString name) throws IOException
     {
         // Object is a value, need to verify it's allowed
         int status = _writeContext.writeFieldName(name.getValue());
@@ -186,8 +185,7 @@ public final class WriterBasedJsonGenerator
         _writeContext = _writeContext.getParent();
     }
 
-    protected void _writeFieldName(String name, boolean commaBefore)
-        throws IOException, JsonGenerationException
+    protected void _writeFieldName(String name, boolean commaBefore) throws IOException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name, commaBefore);
@@ -220,8 +218,7 @@ public final class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = '"';
     }
 
-    public void _writeFieldName(SerializableString name, boolean commaBefore)
-        throws IOException, JsonGenerationException
+    protected void _writeFieldName(SerializableString name, boolean commaBefore) throws IOException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name, commaBefore);
@@ -320,8 +317,7 @@ public final class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeString(String text)
-        throws IOException, JsonGenerationException
+    public void writeString(String text) throws IOException
     {
         _verifyValueWrite("write text value");
         if (text == null) {
@@ -341,8 +337,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len)
-        throws IOException, JsonGenerationException
+    public void writeString(char[] text, int offset, int len) throws IOException
     {
         _verifyValueWrite("write text value");
         if (_outputTail >= _outputEnd) {
@@ -358,8 +353,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeString(SerializableString sstr)
-        throws IOException, JsonGenerationException
+    public void writeString(SerializableString sstr) throws IOException
     {
         _verifyValueWrite("write text value");
         if (_outputTail >= _outputEnd) {
@@ -389,17 +383,13 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length)
-        throws IOException, JsonGenerationException
-    {
+    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException {
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length)
-        throws IOException, JsonGenerationException
-    {
+    public void writeUTF8String(byte[] text, int offset, int length) throws IOException {
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
     }
@@ -411,8 +401,7 @@ public final class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeRaw(String text)
-        throws IOException, JsonGenerationException
+    public void writeRaw(String text) throws IOException
     {
         // Nothing to check, can just output as is
         int len = text.length();
@@ -432,8 +421,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeRaw(String text, int start, int len)
-        throws IOException, JsonGenerationException
+    public void writeRaw(String text, int start, int len) throws IOException
     {
         // Nothing to check, can just output as is
         int room = _outputEnd - _outputTail;
@@ -453,13 +441,12 @@ public final class WriterBasedJsonGenerator
 
     // @since 2.1
     @Override
-    public void writeRaw(SerializableString text) throws IOException, JsonGenerationException {
+    public void writeRaw(SerializableString text) throws IOException {
         writeRaw(text.getValue());
     }
     
     @Override
-    public void writeRaw(char[] text, int offset, int len)
-        throws IOException, JsonGenerationException
+    public void writeRaw(char[] text, int offset, int len) throws IOException
     {
         // Only worth buffering if it's a short write?
         if (len < SHORT_WRITE) {
@@ -477,8 +464,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeRaw(char c)
-        throws IOException, JsonGenerationException
+    public void writeRaw(char c) throws IOException
     {
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -486,8 +472,7 @@ public final class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = c;
     }
 
-    private void writeRawLong(String text)
-        throws IOException, JsonGenerationException
+    private void writeRawLong(String text) throws IOException
     {
         int room = _outputEnd - _outputTail;
         // If not, need to do it by looping

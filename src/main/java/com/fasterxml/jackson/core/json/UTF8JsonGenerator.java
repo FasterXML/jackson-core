@@ -170,15 +170,15 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public void writeFieldName(String name)  throws IOException, JsonGenerationException
+    public void writeFieldName(String name)  throws IOException
     {
-        int status = _writeContext.writeFieldName(name);
+        if (_cfgPrettyPrinter != null) {
+            _writePPFieldName(name);
+            return;
+        }
+        final int status = _writeContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
-        }
-        if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
-            return;
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) { // need comma
             if (_outputTail >= _outputEnd) {
@@ -189,8 +189,7 @@ public class UTF8JsonGenerator
         _writeFieldName(name);
     }
 
-    protected final void _writeFieldName(String name)
-        throws IOException, JsonGenerationException
+    protected final void _writeFieldName(String name) throws IOException
     {
         /* To support [JACKSON-46], we'll do this:
          * (Question: should quoting of spaces (etc) still be enabled?)
@@ -228,17 +227,15 @@ public class UTF8JsonGenerator
     }
     
     @Override
-    public void writeFieldName(SerializableString name)
-        throws IOException, JsonGenerationException
+    public void writeFieldName(SerializableString name) throws IOException
     {
-        // Object is a value, need to verify it's allowed
-        int status = _writeContext.writeFieldName(name.getValue());
+        if (_cfgPrettyPrinter != null) {
+            _writePPFieldName(name);
+            return;
+        }
+        final int status = _writeContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
-        }
-        if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
-            return;
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) {
             if (_outputTail >= _outputEnd) {
@@ -287,7 +284,7 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public final void writeStartArray() throws IOException, JsonGenerationException
+    public final void writeStartArray() throws IOException
     {
         _verifyValueWrite("start an array");
         _writeContext = _writeContext.createChildArrayContext();
@@ -302,7 +299,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public final void writeEndArray() throws IOException, JsonGenerationException
+    public final void writeEndArray() throws IOException
     {
         if (!_writeContext.inArray()) {
             _reportError("Current context not an ARRAY but "+_writeContext.getTypeDesc());
@@ -319,7 +316,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public final void writeStartObject() throws IOException, JsonGenerationException
+    public final void writeStartObject() throws IOException
     {
         _verifyValueWrite("start an object");
         _writeContext = _writeContext.createChildObjectContext();
@@ -334,7 +331,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public final void writeEndObject() throws IOException, JsonGenerationException
+    public final void writeEndObject() throws IOException
     {
         if (!_writeContext.inObject()) {
             _reportError("Current context not an object but "+_writeContext.getTypeDesc());
@@ -354,10 +351,13 @@ public class UTF8JsonGenerator
      * Specialized version of <code>_writeFieldName</code>, off-lined
      * to keep the "fast path" as simple (and hopefully fast) as possible.
      */
-    protected final void _writePPFieldName(String name, boolean commaBefore)
-        throws IOException, JsonGenerationException
+    protected final void _writePPFieldName(String name) throws IOException
     {
-        if (commaBefore) {
+        int status = _writeContext.writeFieldName(name);
+        if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
+            _reportError("Can not write a field name, expecting a value");
+        }
+        if ((status == JsonWriteContext.STATUS_OK_AFTER_COMMA)) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);
         } else {
             _cfgPrettyPrinter.beforeObjectEntries(this);
@@ -392,10 +392,13 @@ public class UTF8JsonGenerator
         }
     }
 
-    protected final void _writePPFieldName(SerializableString name, boolean commaBefore)
-        throws IOException, JsonGenerationException
+    protected final void _writePPFieldName(SerializableString name) throws IOException
     {
-        if (commaBefore) {
+        final int status = _writeContext.writeFieldName(name.getValue());
+        if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
+            _reportError("Can not write a field name, expecting a value");
+        }
+        if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);
         } else {
             _cfgPrettyPrinter.beforeObjectEntries(this);

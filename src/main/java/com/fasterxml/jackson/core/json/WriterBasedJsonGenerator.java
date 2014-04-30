@@ -771,16 +771,16 @@ public final class WriterBasedJsonGenerator
     @Override
     protected void _verifyValueWrite(String typeMsg) throws IOException
     {
-        int status = _writeContext.writeValue();
-        if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
-            _reportError("Can not "+typeMsg+", expecting field name");
-        }
         if (_cfgPrettyPrinter != null) {
             // Otherwise, pretty printer knows what to do...
-            _verifyPrettyValueWrite(typeMsg, status);
+            _verifyPrettyValueWrite(typeMsg);
             return;
         }
         char c;
+        final int status = _writeContext.writeValue();
+        if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
+            _reportError("Can not "+typeMsg+", expecting field name");
+        }
         switch (status) {
         case JsonWriteContext.STATUS_OK_AFTER_COMMA:
             c = ',';
@@ -804,8 +804,13 @@ public final class WriterBasedJsonGenerator
         ++_outputTail;
     }
 
-    protected void _verifyPrettyValueWrite(String typeMsg, int status) throws IOException
+    protected void _verifyPrettyValueWrite(String typeMsg) throws IOException
     {
+        final int status = _writeContext.writeValue();
+        if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
+            _reportError("Can not "+typeMsg+", expecting field name");
+        }
+
         // If we have a pretty printer, it knows what to do:
         switch (status) {
         case JsonWriteContext.STATUS_OK_AFTER_COMMA: // array

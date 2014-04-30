@@ -194,30 +194,29 @@ public class UTF8JsonGenerator
          * (Question: should quoting of spaces (etc) still be enabled?)
          */
         if (_cfgUnqNames) {
-            _writeStringSegments(name);
+            _writeStringSegments(name, false);
+            return;
+        }
+        final int len = name.length();
+        // Does it fit in buffer?
+        if (len > _charBufferLength) { // no, offline
+            _writeStringSegments(name, true);
             return;
         }
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        // The beef:
-        final int len = name.length();
-        if (len <= _charBufferLength) { // yes, fits right in
-            name.getChars(0, len, _charBuffer, 0);
-            // But as one segment, or multiple?
-            if (len <= _outputMaxContiguous) {
-                if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
-                    _flushBuffer();
-                }
-                _writeStringSegment(_charBuffer, 0, len);
-            } else {
-                _writeStringSegments(_charBuffer, 0, len);
+        name.getChars(0, len, _charBuffer, 0);
+        // But as one segment, or multiple?
+        if (len <= _outputMaxContiguous) {
+            if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
+                _flushBuffer();
             }
+            _writeStringSegment(_charBuffer, 0, len);
         } else {
-            _writeStringSegments(name);
+            _writeStringSegments(_charBuffer, 0, len);
         }
-
         // and closing quotes; need room for one more char:
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -242,11 +241,6 @@ public class UTF8JsonGenerator
             }
             _outputBuffer[_outputTail++] = BYTE_COMMA;
         }
-        _writeFieldName(name);
-    }
-
-    protected final void _writeFieldName(SerializableString name) throws IOException
-    {
         if (_cfgUnqNames) {
             _writeUnq(name);
             return;
@@ -361,33 +355,33 @@ public class UTF8JsonGenerator
         } else {
             _cfgPrettyPrinter.beforeObjectEntries(this);
         }
-        if (_cfgUnqNames) { // standard
-            _writeStringSegments(name);
-        } else {
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail++] = BYTE_QUOTE;
-            final int len = name.length();
-            if (len <= _charBufferLength) { // yes, fits right in
-                name.getChars(0, len, _charBuffer, 0);
-                // But as one segment, or multiple?
-                if (len <= _outputMaxContiguous) {
-                    if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
-                        _flushBuffer();
-                    }
-                    _writeStringSegment(_charBuffer, 0, len);
-                } else {
-                    _writeStringSegments(_charBuffer, 0, len);
-                }
-            } else {
-                _writeStringSegments(name);
-            }
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail++] = BYTE_QUOTE;
+        if (_cfgUnqNames) {
+            _writeStringSegments(name, false);
+            return;
         }
+        final int len = name.length();
+        if (len > _charBufferLength) {
+            _writeStringSegments(name, true);
+            return;
+        }
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = BYTE_QUOTE;
+        name.getChars(0, len, _charBuffer, 0);
+        // But as one segment, or multiple?
+        if (len <= _outputMaxContiguous) {
+            if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
+                _flushBuffer();
+            }
+            _writeStringSegment(_charBuffer, 0, len);
+        } else {
+            _writeStringSegments(_charBuffer, 0, len);
+        }
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
 
     protected final void _writePPFieldName(SerializableString name) throws IOException
@@ -435,7 +429,7 @@ public class UTF8JsonGenerator
         // First: can we make a local copy of chars that make up text?
         final int len = text.length();
         if (len > _charBufferLength) { // nope: off-line handling
-            _writeLongString(text);
+            _writeStringSegments(text, true);
             return;
         }
         // yes: good.
@@ -453,19 +447,6 @@ public class UTF8JsonGenerator
         /* [JACKSON-462] But that method may have had to expand multi-byte Unicode
          *   chars, so we must check again
          */
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = BYTE_QUOTE;
-    }
-    
-    private void _writeLongString(String text) throws IOException
-    {
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        _writeStringSegments(text);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -1164,9 +1145,15 @@ public class UTF8JsonGenerator
      * to single-segment writes (instead of maximum slices that
      * would fit in copy buffer)
      */
-    private final void _writeStringSegments(String text)
-        throws IOException, JsonGenerationException
+    private final void _writeStringSegments(String text, boolean addQuotes) throws IOException
     {
+        if (addQuotes) {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = BYTE_QUOTE;        
+        }
+
         int left = text.length();
         int offset = 0;
         final char[] cbuf = _charBuffer;
@@ -1180,6 +1167,13 @@ public class UTF8JsonGenerator
             _writeStringSegment(cbuf, 0, len);
             offset += len;
             left -= len;
+        }
+
+        if (addQuotes) {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = BYTE_QUOTE;
         }
     }
 

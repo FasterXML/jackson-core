@@ -106,7 +106,7 @@ public class UTF8JsonGenerator
      * Flag that is set if quoting is not to be added around
      * JSON Object property names.
      */
-    protected final boolean _cfgUnqNames;
+    protected boolean _cfgUnqNames;
 
     /*
     /**********************************************************

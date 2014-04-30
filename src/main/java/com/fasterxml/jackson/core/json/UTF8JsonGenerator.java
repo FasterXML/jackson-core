@@ -102,7 +102,11 @@ public class UTF8JsonGenerator
     /**********************************************************
      */
 
-    protected final boolean _cfgQuoteNames;
+    /**
+     * Flag that is set if quoting is not to be added around
+     * JSON Object property names.
+     */
+    protected final boolean _cfgUnqNames;
 
     /*
     /**********************************************************
@@ -131,7 +135,7 @@ public class UTF8JsonGenerator
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
             setHighestNonEscapedChar(127);
         }
-        _cfgQuoteNames = Feature.QUOTE_FIELD_NAMES.enabledIn(features);
+        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
     
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
@@ -149,7 +153,7 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
-        _cfgQuoteNames = Feature.QUOTE_FIELD_NAMES.enabledIn(features);
+        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
 
     /*
@@ -186,15 +190,10 @@ public class UTF8JsonGenerator
             }
             _outputBuffer[_outputTail++] = BYTE_COMMA;
         }
-        _writeFieldName(name);
-    }
-
-    protected final void _writeFieldName(String name) throws IOException
-    {
         /* To support [JACKSON-46], we'll do this:
          * (Question: should quoting of spaces (etc) still be enabled?)
          */
-        if (!_cfgQuoteNames) {
+        if (_cfgUnqNames) {
             _writeStringSegments(name);
             return;
         }
@@ -248,7 +247,7 @@ public class UTF8JsonGenerator
 
     protected final void _writeFieldName(SerializableString name) throws IOException
     {
-        if (!_cfgQuoteNames) {
+        if (_cfgUnqNames) {
             _writeUnq(name);
             return;
         }
@@ -362,8 +361,9 @@ public class UTF8JsonGenerator
         } else {
             _cfgPrettyPrinter.beforeObjectEntries(this);
         }
-
-        if (_cfgQuoteNames) { // standard
+        if (_cfgUnqNames) { // standard
+            _writeStringSegments(name);
+        } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
@@ -387,8 +387,6 @@ public class UTF8JsonGenerator
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        } else { // non-standard, omit quotes
-            _writeStringSegments(name);
         }
     }
 
@@ -404,7 +402,7 @@ public class UTF8JsonGenerator
             _cfgPrettyPrinter.beforeObjectEntries(this);
         }
 
-        final boolean addQuotes = _cfgQuoteNames; // standard
+        final boolean addQuotes = !_cfgUnqNames; // standard
         if (addQuotes) {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -427,8 +425,7 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public void writeString(String text)
-        throws IOException, JsonGenerationException
+    public void writeString(String text) throws IOException
     {
         _verifyValueWrite("write text value");
         if (text == null) {
@@ -462,8 +459,7 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
     
-    private void _writeLongString(String text)
-        throws IOException, JsonGenerationException
+    private void _writeLongString(String text) throws IOException
     {
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -476,8 +472,7 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
 
-    private void _writeLongString(char[] text, int offset, int len)
-        throws IOException, JsonGenerationException
+    private void _writeLongString(char[] text, int offset, int len) throws IOException
     {
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -491,8 +486,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len)
-        throws IOException, JsonGenerationException
+    public void writeString(char[] text, int offset, int len) throws IOException
     {
         _verifyValueWrite("write text value");
         if (_outputTail >= _outputEnd) {
@@ -516,8 +510,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public final void writeString(SerializableString text)
-        throws IOException, JsonGenerationException
+    public final void writeString(SerializableString text) throws IOException
     {
         _verifyValueWrite("write text value");
         if (_outputTail >= _outputEnd) {
@@ -537,8 +530,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length)
-        throws IOException, JsonGenerationException
+    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
     {
         _verifyValueWrite("write text value");
         if (_outputTail >= _outputEnd) {
@@ -553,8 +545,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int len)
-        throws IOException, JsonGenerationException
+    public void writeUTF8String(byte[] text, int offset, int len) throws IOException
     {
         _verifyValueWrite("write text value");
         if (_outputTail >= _outputEnd) {

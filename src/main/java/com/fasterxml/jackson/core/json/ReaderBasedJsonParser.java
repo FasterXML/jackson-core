@@ -608,9 +608,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
-            if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
-            }
             i = _skipComma(i);
         }
 
@@ -1751,63 +1748,57 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     
     private final int _skipComma(int i) throws IOException
     {
-        final int[] codes = _icWS;
-        main_loop:
+        if (i != INT_COMMA) {
+            _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+        }
         while (_inputPtr < _inputEnd) {
             i = (int) _inputBuffer[_inputPtr++];
-            if (i >= 64) {
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH || i == INT_HASH) {
+                    --_inputPtr;
+                    return _skipAfterComma2();
+                }
                 return i;
             }
-            switch (codes[i]) {
-            case 0:
-                return i;
-            case 1:
-                continue;
-            case '\n':
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case '\r':
-                _skipCR();
-                break;
-            default: // comments, bad whitespace, don't handle here
-                --_inputPtr;
-                break main_loop;
+            if (i < INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
+                }
             }
         }
-        return _skipAfterComma();
+        return _skipAfterComma2();
     }
 
-    private final int _skipAfterComma() throws IOException
+    private final int _skipAfterComma2() throws IOException
     {
-        final int[] codes = _icWS;
         while (_inputPtr < _inputEnd || loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
-            if (i >= 64) {
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH) {
+                    _skipComment();
+                    continue;
+                }
+                if (i == INT_HASH) {
+                    if (_skipYAMLComment()) {
+                        continue;
+                    }
+                }
                 return i;
             }
-            switch (codes[i]) {
-            case -1:
-                _throwInvalidSpace(i);
-            case 0:
-                return i;
-            case 1:
-                continue;
-            case '\n':
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case '\r':
-                _skipCR();
-                break;
-            case '/':
-                _skipComment();
-                break;
-            case '#':
-                if (!_skipYAMLComment()) {
-                    return i;
+            if (i < INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
                 }
-                break;
             }
         }
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");

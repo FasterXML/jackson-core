@@ -31,7 +31,7 @@ public class UTF8StreamJsonParser
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
 
     // White-space processing is done all the time, pre-fetch as well
-    private final static int[] _icWS = CharTypes.getInputCodeWS();
+//    private final static int[] _icWS = CharTypes.getInputCodeWS();
     
     /*
     /**********************************************************
@@ -2649,26 +2649,17 @@ public class UTF8StreamJsonParser
     {
         while (_inputPtr < _inputEnd || loadMore()) {
             int i = _inputBuffer[_inputPtr++] & 0xFF;
-            switch (i) {
-            case ' ':
-            case '\t':
-                break;
-            case INT_CR:
-                _skipCR();
-                break;
-            case INT_LF:
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case INT_SLASH:
-                _skipComment();
-                break;
-            case '#':
-                if (!_skipYAMLComment()) {
-                    return i;
+
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH) {
+                    _skipComment();
+                    continue;
                 }
-                break;
-            default:
+                if (i == INT_HASH) {
+                    if (_skipYAMLComment()) {
+                        continue;
+                    }
+                }
                 if (gotColon) {
                     return i;
                 }
@@ -2679,6 +2670,15 @@ public class UTF8StreamJsonParser
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;
+            } else if (i != INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
+                }
             }
         }
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");

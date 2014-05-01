@@ -2402,58 +2402,27 @@ public class UTF8StreamJsonParser
         return null;
     }
 
-    // 30-Apr-2014, tatu: It would seem that doing it explicitly would be the way to
-    //    go, but for some reason it can really mess up HotSpot. So...
-/*    
+    protected final void _matchToken(String matchStr, int i) throws IOException
+    {
+        final int len = matchStr.length();
+        if ((_inputPtr + len) >= _inputEnd) {
+            _matchToken2(matchStr, i);
+            return;
+        }
+        do {
+            if (_inputBuffer[_inputPtr] != matchStr.charAt(i)) {
+                _reportInvalidToken(matchStr.substring(0, i));
+            }
+            ++_inputPtr;
+        } while (++i < len);
     
-    private final  void _matchFalse() throws IOException {
-        int ptr = _inputPtr;
-        if ((ptr + 4) < _inputEnd) {
-            final byte[] b = _inputBuffer;
-            if (b[ptr] == INT_a && b[++ptr] == INT_l && b[++ptr] == INT_s && b[++ptr] == INT_e) {
-                int c = b[++ptr] & 0xFF;
-                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
-                    _inputPtr = ptr;
-                    return;
-                }
-            }
+        int ch = _inputBuffer[_inputPtr] & 0xFF;
+        if (ch >= '0' && ch != ']' && ch != '}') { // expected/allowed chars
+            _checkMatchEnd(matchStr, i, ch);
         }
-        // buffer boundary, or problem, offline
-        _matchToken("false", 1);
     }
 
-    private final void _matchNull() throws IOException {
-        int ptr = _inputPtr;
-        if ((ptr + 3) < _inputEnd) {
-            final byte[] b = _inputBuffer;
-            if (b[ptr] == INT_u && b[++ptr] == INT_l && b[++ptr] == INT_l) {
-                int c = b[++ptr] & 0xFF;
-                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
-                    _inputPtr = ptr;
-                    return;
-                }
-            }
-        }
-        _matchToken("null", 1);
-    }
-
-    private final void _matchTrue() throws IOException {
-        int ptr = _inputPtr;
-        if ((ptr + 3) < _inputEnd) {
-            final byte[] b = _inputBuffer;
-            if (b[ptr] == INT_r && b[++ptr] == INT_u && b[++ptr] == INT_e) {
-                int c = b[++ptr] & 0xFF;
-                if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
-                    _inputPtr = ptr;
-                    return;
-                }
-            }
-        }
-        _matchToken("true", 1);
-    }
-    */
-
-    protected void _matchToken(String matchStr, int i) throws IOException
+    private final void _matchToken2(String matchStr, int i) throws IOException
     {
         final int len = matchStr.length();
         do {
@@ -2469,16 +2438,19 @@ public class UTF8StreamJsonParser
             return;
         }
         int ch = _inputBuffer[_inputPtr] & 0xFF;
-        if (ch < '0' || ch == ']' || ch == '}') { // expected/allowed chars
-            return;
+        if (ch >= '0' && ch != ']' && ch != '}') { // expected/allowed chars
+            _checkMatchEnd(matchStr, i, ch);
         }
+    }
+
+    private final void _checkMatchEnd(String matchStr, int i, int ch) throws IOException {
         // but actually only alphanums are problematic
         char c = (char) _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
             _reportInvalidToken(matchStr.substring(0, i));
         }
     }
-
+    
     /*
     /**********************************************************
     /* Internal methods, ws skipping, escape/unescape

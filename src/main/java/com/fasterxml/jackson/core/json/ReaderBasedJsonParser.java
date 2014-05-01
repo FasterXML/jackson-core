@@ -608,6 +608,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
+            if (i != INT_COMMA) {
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+            }
             i = _skipComma(i);
         }
 
@@ -1748,11 +1751,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     
     private final int _skipComma(int i) throws IOException
     {
-        if (i != INT_COMMA) {
-            _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
-        }
         final int[] codes = _icWS;
-        
         main_loop:
         while (_inputPtr < _inputEnd) {
             i = (int) _inputBuffer[_inputPtr++];

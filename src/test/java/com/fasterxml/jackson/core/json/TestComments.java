@@ -69,42 +69,48 @@ public class TestComments
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
         _testYAMLComments(f, true);
-        _testCommentsGenerated(f, true, "# foo\n");
+        _testCommentsBeforePropValue(f, true, "# foo\n");
     }
 
     public void testYAMLCommentsChars() throws Exception {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
         _testYAMLComments(f, false);
-        _testCommentsGenerated(f, false, "# foo\n");
+        final String COMMENT = "# foo\n";
+        _testCommentsBeforePropValue(f, false, COMMENT);
+        _testCommentsBetweenArrayValues(f, false, COMMENT);
     }
 
     public void testCCommentsBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        _testCommentsGenerated(f, true, "/* foo */\n");
+        final String COMMENT = "/* foo */\n";
+        _testCommentsBeforePropValue(f, true, COMMENT);
     }
 
     public void testCCommentsChars() throws Exception {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        _testCommentsGenerated(f, false, "/* foo */\n");
+        final String COMMENT = "/* foo */\n";
+        _testCommentsBeforePropValue(f, false, COMMENT);
     }
 
     public void testCppCommentsBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        _testCommentsGenerated(f, true, "// foo\n");
+        final String COMMENT = "// foo\n";
+        _testCommentsBeforePropValue(f, true, COMMENT);
     }
 
     public void testCppCommentsChars() throws Exception {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
-        _testCommentsGenerated(f, false, "// foo \n");
+        final String COMMENT = "// foo \n";
+        _testCommentsBeforePropValue(f, false, COMMENT);
     }
-    
+
     @SuppressWarnings("resource")
-    private void _testCommentsGenerated(JsonFactory f, boolean useStream, String comment) throws Exception
+    private void _testCommentsBeforePropValue(JsonFactory f, boolean useStream, String comment) throws Exception
     {
         for (String arg : new String[] {
                 ":%s123",
@@ -136,6 +142,49 @@ public class TestComments
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
             assertEquals(123, jp.getIntValue());
             assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+            jp.close();
+        }
+        
+    }
+
+    @SuppressWarnings("resource")
+    private void _testCommentsBetweenArrayValues(JsonFactory f, boolean useStream, String comment) throws Exception
+    {
+        for (String tmpl : new String[] {
+                "%s,",
+                " %s,",
+                "\t%s,",
+                "%s ,",
+                "%s\t,",
+                " %s ,",
+                "\t%s\t,",
+                "\n%s,",
+                "%s\n,",
+        }) {
+            String commented = String.format(tmpl, comment);
+            
+            final String DOC = "[1"+commented+"2]";
+            JsonParser jp = useStream ?
+                    f.createParser(DOC.getBytes("UTF-8"))
+                    : f.createParser(DOC);
+            assertEquals(JsonToken.START_ARRAY, jp.nextToken());
+            JsonToken t = null;
+            try {
+                t = jp.nextToken();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed on '"+DOC+"' due to "+e, e);
+            }
+            assertEquals(JsonToken.VALUE_NUMBER_INT, t);
+            assertEquals(1, jp.getIntValue());
+
+            try {
+                t = jp.nextToken();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed on '"+DOC+"' due to "+e, e);
+            }
+            assertEquals(JsonToken.VALUE_NUMBER_INT, t);
+            assertEquals(2, jp.getIntValue());
+            assertEquals(JsonToken.END_ARRAY, jp.nextToken());
             jp.close();
         }
         

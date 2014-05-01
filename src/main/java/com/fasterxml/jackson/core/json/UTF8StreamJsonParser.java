@@ -2459,6 +2459,7 @@ public class UTF8StreamJsonParser
     
     private final int _skipWS() throws IOException
     {
+        /*
         final int[] codes = _icWS;
         while (_inputPtr < _inputEnd || loadMore()) {
             final int i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2494,11 +2495,65 @@ public class UTF8StreamJsonParser
                 _reportInvalidChar(i);
             }
         }
+        */
+        while (_inputPtr < _inputEnd || loadMore()) {
+            int i = _inputBuffer[_inputPtr++] & 0xFF;
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH) {
+                    _skipComment();
+                    continue;
+                }
+                if (i == INT_HASH) {
+                    if (_skipYAMLComment()) {
+                        continue;
+                    }
+                }
+                return i;
+            } else if (i != INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
+                }
+            }
+        }        
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
 
     private final int _skipWSOrEnd() throws IOException
     {
+        while ((_inputPtr < _inputEnd) || loadMore()) {
+            int i = _inputBuffer[_inputPtr++] & 0xFF;
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH) {
+                    _skipComment();
+                    continue;
+                }
+                if (i == INT_HASH) {
+                    if (_skipYAMLComment()) {
+                        continue;
+                    }
+                }
+                return i;
+            } else if (i != INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
+                }
+            }
+        }
+        // We ran out of input...
+        _handleEOF();
+        return -1;
+        
+        /*
         final int[] codes = _icWS;
         while ((_inputPtr < _inputEnd) || loadMore()) {
             final int i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2507,15 +2562,6 @@ public class UTF8StreamJsonParser
                 return i;
             case 1: // skip
                 continue;
-            case 2: // 2-byte UTF
-                _skipUtf8_2(i);
-                break;
-            case 3: // 3-byte UTF
-                _skipUtf8_3(i);
-                break;
-            case 4: // 4-byte UTF
-                _skipUtf8_4(i);
-                break;
             case INT_LF:
                 ++_currInputRow;
                 _currInputRowStart = _inputPtr;
@@ -2531,6 +2577,9 @@ public class UTF8StreamJsonParser
                     return i;
                 }
                 break;
+//            case 2: // 2-byte UTF
+//            case 3: // 3-byte UTF
+//            case 4: // 4-byte UTF
             default: // e.g. -1
                 _reportInvalidChar(i);
             }
@@ -2538,6 +2587,7 @@ public class UTF8StreamJsonParser
         // We ran out of input...
         _handleEOF();
         return -1;
+        */
     }
     
     private final int _skipColon() throws IOException
@@ -2550,12 +2600,18 @@ public class UTF8StreamJsonParser
         if (i == INT_COLON) { // common case, no leading space
             i = _inputBuffer[++_inputPtr];
             if (i > INT_SPACE) { // nor trailing
+                if (i == INT_SLASH || i == INT_HASH) {
+                    return _skipColon2(true);
+                }
                 ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
                 i = (int) _inputBuffer[++_inputPtr];
                 if (i > INT_SPACE) {
+                    if (i == INT_SLASH || i == INT_HASH) {
+                        return _skipColon2(true);
+                    }
                     ++_inputPtr;                    
                     return i;
                 }
@@ -2567,13 +2623,19 @@ public class UTF8StreamJsonParser
         }
         if (i == INT_COLON) {
             i = _inputBuffer[++_inputPtr];
-            if (i > 32) {
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH || i == INT_HASH) {
+                    return _skipColon2(true);
+                }
                 ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
                 i = (int) _inputBuffer[++_inputPtr];
                 if (i > INT_SPACE) {
+                    if (i == INT_SLASH || i == INT_HASH) {
+                        return _skipColon2(true);
+                    }
                     ++_inputPtr;
                     return i;
                 }

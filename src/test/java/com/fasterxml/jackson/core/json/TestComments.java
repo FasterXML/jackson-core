@@ -66,17 +66,83 @@ public class TestComments
     }
 
     public void testYAMLCommentsBytes() throws Exception {
-        _testYAMLComments(true);
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
+        _testYAMLComments(f, true);
+        _testCommentsGenerated(f, true, "# foo\n");
     }
 
     public void testYAMLCommentsChars() throws Exception {
-        _testYAMLComments(false);
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
+        _testYAMLComments(f, false);
+        _testCommentsGenerated(f, false, "# foo\n");
+    }
+
+    public void testCCommentsBytes() throws Exception {
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        _testCommentsGenerated(f, true, "/* foo */\n");
+    }
+
+    public void testCCommentsChars() throws Exception {
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        _testCommentsGenerated(f, false, "/* foo */\n");
+    }
+
+    public void testCppCommentsBytes() throws Exception {
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        _testCommentsGenerated(f, true, "// foo\n");
+    }
+
+    public void testCppCommentsChars() throws Exception {
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        _testCommentsGenerated(f, false, "// foo \n");
     }
     
-    private void _testYAMLComments(boolean useStream) throws Exception
+    @SuppressWarnings("resource")
+    private void _testCommentsGenerated(JsonFactory f, boolean useStream, String comment) throws Exception
     {
-        JsonFactory jf = new JsonFactory();
-        jf.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
+        for (String arg : new String[] {
+                ":%s123",
+                " :%s123",
+                "\t:%s123",
+                ": %s123",
+                ":\t%s123",
+        }) {
+            String commented = String.format(arg, comment);
+            
+            final String DOC = "{\"abc\"" + commented + "}";
+            JsonParser jp = useStream ?
+                    f.createParser(DOC.getBytes("UTF-8"))
+                    : f.createParser(DOC);
+            assertEquals(JsonToken.START_OBJECT, jp.nextToken());
+            JsonToken t = null;
+            try {
+                t = jp.nextToken();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed on '"+DOC+"' due to "+e, e);
+            }
+            assertEquals(JsonToken.FIELD_NAME, t);
+
+            try {
+                t = jp.nextToken();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed on '"+DOC+"' due to "+e, e);
+            }
+            assertEquals(JsonToken.VALUE_NUMBER_INT, t);
+            assertEquals(123, jp.getIntValue());
+            assertEquals(JsonToken.END_OBJECT, jp.nextToken());
+            jp.close();
+        }
+        
+    }
+    
+    private void _testYAMLComments(JsonFactory f, boolean useStream) throws Exception
+    {
         final String DOC = "# foo\n"
                 +" {\"a\" # xyz\n"
                 +" : # foo\n"
@@ -88,8 +154,8 @@ public class TestComments
                 +"} # x"
                 ;
         JsonParser jp = useStream ?
-                jf.createParser(DOC.getBytes("UTF-8"))
-                : jf.createParser(DOC);
+                f.createParser(DOC.getBytes("UTF-8"))
+                : f.createParser(DOC);
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("a", jp.getCurrentName());

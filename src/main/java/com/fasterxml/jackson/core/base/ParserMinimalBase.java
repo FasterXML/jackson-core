@@ -518,4 +518,20 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final JsonParseException _constructError(String msg, Throwable t) {
         return new JsonParseException(msg, getCurrentLocation(), t);
     }
+
+    protected static byte[] _asciiBytes(String str) {
+        byte[] b = new byte[str.length()];
+        for (int i = 0, len = str.length(); i < len; ++i) {
+            b[i] = (byte) str.charAt(i);
+        }
+        return b;
+    }
+    
+    protected static String _ascii(byte[] b) {
+        try {
+            return new String(b, "US-ASCII");
+        } catch (IOException e) { // never occurs
+            throw new RuntimeException(e);
+        }
+    }
 }

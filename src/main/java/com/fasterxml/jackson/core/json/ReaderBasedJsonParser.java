@@ -1701,47 +1701,42 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     private final int _skipColon2(boolean gotColon) throws IOException
     {
-        final int[] codes = _icWS;
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 loadMoreGuaranteed();
             }
             int i = (int) _inputBuffer[_inputPtr++];
-            if (i >= 64) {
-                if (gotColon) {
-                    return i;
-                }
-                _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
-            }
-            switch (codes[i]) {
-            case -1:
-                _throwInvalidSpace(i);
-            case '#':
-                if (_skipYAMLComment()) {
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH) {
+                    _skipComment();
                     continue;
                 }
-                // fall through
-            case 0:
+                if (i == INT_HASH) {
+                    if (_skipYAMLComment()) {
+                        continue;
+                    }
+                }
                 if (gotColon) {
                     return i;
                 }
-                gotColon = true;
                 if (i != INT_COLON) {
+                    if (i < INT_SPACE) {
+                        _throwInvalidSpace(i);
+                    }
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
-                break;
-            case 1:
+                gotColon = true;
                 continue;
-            case '\n':
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case '\r':
-                _skipCR();
-                break;
-            case '/':
-                _skipComment();
-                break;
+            }
+            if (i < INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
+                }
             }
         }
     }
@@ -1806,34 +1801,28 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     
     private final int _skipWSOrEnd() throws IOException
     {
-        final int[] codes = _icWS;
         while (_inputPtr < _inputEnd) {
             int i = (int) _inputBuffer[_inputPtr++];
-            if (i >= 64) {
-                return i;
-            }
-            switch (codes[i]) {
-            case -1:
-                _throwInvalidSpace(i);
-            case 0:
-                return i;
-            case 1:
-                continue;
-            case '\n':
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case '\r':
-                _skipCR();
-                break;
-            case '/':
-                _skipComment();
-                break;
-            case '#':
-                if (!_skipYAMLComment()) {
-                    return i;
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH) {
+                    _skipComment();
+                    continue;
                 }
-                break;
+                if (i == INT_HASH) {
+                    if (_skipYAMLComment()) {
+                        continue;
+                    }
+                }
+                return i;
+            } else if (i != INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
+                }
             }
         }
         return _skipWSOrEnd2();
@@ -1841,41 +1830,34 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     private int _skipWSOrEnd2() throws IOException
     {
-        final int[] codes = _icWS;
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
-                    // We ran out of input...
+                if (!loadMore()) { // We ran out of input...
                     _handleEOF();
                     return -1;
                 }
             }
             int i = (int) _inputBuffer[_inputPtr++];
-            if (i >= 64) {
-                return i;
-            }
-            switch (codes[i]) {
-            case -1:
-                _throwInvalidSpace(i);
-            case 0:
-                return i;
-            case 1:
-                continue;
-            case '\n':
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case '\r':
-                _skipCR();
-                break;
-            case '/':
-                _skipComment();
-                break;
-            case '#':
-                if (!_skipYAMLComment()) {
-                    return i;
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH) {
+                    _skipComment();
+                    continue;
                 }
-                break;
+                if (i == INT_HASH) {
+                    if (_skipYAMLComment()) {
+                        continue;
+                    }
+                }
+                return i;
+            } else if (i != INT_SPACE) {
+                if (i == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (i == INT_CR) {
+                    _skipCR();
+                } else if (i != INT_TAB) {
+                    _throwInvalidSpace(i);
+                }
             }
         }
     }

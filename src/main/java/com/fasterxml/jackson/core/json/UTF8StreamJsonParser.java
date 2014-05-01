@@ -2459,43 +2459,6 @@ public class UTF8StreamJsonParser
     
     private final int _skipWS() throws IOException
     {
-        /*
-        final int[] codes = _icWS;
-        while (_inputPtr < _inputEnd || loadMore()) {
-            final int i = _inputBuffer[_inputPtr++] & 0xFF;
-            switch (codes[i]) {
-            case 0: // done!
-                return i;
-            case 1: // white space, skip
-                continue;
-            case 2: // 2/3/4-byte UTF: done
-            case 3:
-            case 4:
-                return i;
-            case INT_LF:
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case INT_CR:
-                _skipCR();
-                break;
-            case '/':
-                _skipComment();
-                break;
-            case '#':
-                if (!_skipYAMLComment()) {
-                    return i;
-                }
-                break;
-            default: // e.g. -1
-                // Is this good enough error message?
-                if (i < 32) {
-                    _throwInvalidSpace(i);
-                }
-                _reportInvalidChar(i);
-            }
-        }
-        */
         while (_inputPtr < _inputEnd || loadMore()) {
             int i = _inputBuffer[_inputPtr++] & 0xFF;
             if (i > INT_SPACE) {
@@ -2552,42 +2515,6 @@ public class UTF8StreamJsonParser
         // We ran out of input...
         _handleEOF();
         return -1;
-        
-        /*
-        final int[] codes = _icWS;
-        while ((_inputPtr < _inputEnd) || loadMore()) {
-            final int i = _inputBuffer[_inputPtr++] & 0xFF;
-            switch (codes[i]) {
-            case 0: // done!
-                return i;
-            case 1: // skip
-                continue;
-            case INT_LF:
-                ++_currInputRow;
-                _currInputRowStart = _inputPtr;
-                break;
-            case INT_CR:
-                _skipCR();
-                break;
-            case INT_SLASH:
-                _skipComment();
-                break;
-            case '#':
-                if (!_skipYAMLComment()) {
-                    return i;
-                }
-                break;
-//            case 2: // 2-byte UTF
-//            case 3: // 3-byte UTF
-//            case 4: // 4-byte UTF
-            default: // e.g. -1
-                _reportInvalidChar(i);
-            }
-        }
-        // We ran out of input...
-        _handleEOF();
-        return -1;
-        */
     }
     
     private final int _skipColon() throws IOException

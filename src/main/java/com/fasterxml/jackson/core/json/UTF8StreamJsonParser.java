@@ -726,15 +726,15 @@ public class UTF8StreamJsonParser
             t = _parseNumber(i);
             break;
         case 'f':
-            _matchFalse();
+            _matchToken("false", 1);
              t = JsonToken.VALUE_FALSE;
             break;
         case 'n':
-            _matchNull();
+            _matchToken("null", 1);
             t = JsonToken.VALUE_NULL;
             break;
         case 't':
-            _matchTrue();
+            _matchToken("true", 1);
             t = JsonToken.VALUE_TRUE;
             break;
         case '[':
@@ -2402,6 +2402,10 @@ public class UTF8StreamJsonParser
         return null;
     }
 
+    // 30-Apr-2014, tatu: It would seem that doing it explicitly would be the way to
+    //    go, but for some reason it can really mess up HotSpot. So...
+/*    
+    
     private final  void _matchFalse() throws IOException {
         int ptr = _inputPtr;
         if ((ptr + 4) < _inputEnd) {
@@ -2417,7 +2421,7 @@ public class UTF8StreamJsonParser
         // buffer boundary, or problem, offline
         _matchToken("false", 1);
     }
-    
+
     private final void _matchNull() throws IOException {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) {
@@ -2430,7 +2434,6 @@ public class UTF8StreamJsonParser
                 }
             }
         }
-        // buffer boundary, or problem, offline
         _matchToken("null", 1);
     }
 
@@ -2446,9 +2449,9 @@ public class UTF8StreamJsonParser
                 }
             }
         }
-        // buffer boundary, or problem, offline
         _matchToken("true", 1);
     }
+    */
 
     protected void _matchToken(String matchStr, int i) throws IOException
     {

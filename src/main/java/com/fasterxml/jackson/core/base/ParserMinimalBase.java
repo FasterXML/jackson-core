@@ -43,15 +43,6 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_e = 'e';
     protected final static int INT_E = 'E';
 
-    // other
-    protected final static int INT_a = 'a';
-    protected final static int INT_f = 'f';
-    protected final static int INT_l = 'l';
-    protected final static int INT_r = 'r';
-    protected final static int INT_s = 's';
-    protected final static int INT_t = 't';
-    protected final static int INT_u = 'u';
-    
     /*
     /**********************************************************
     /* Minimal generally useful state

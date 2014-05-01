@@ -23,9 +23,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
 
-    // White-space processing is done all the time, pre-fetch as well
-    private final static int[] _icWS = CharTypes.getInputCodeWS();
-
     /*
     /**********************************************************
     /* Input configuration
@@ -1740,7 +1737,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
         }
     }
-    
+ 
+    // Primary loop: no reloading, comment handling
     private final int _skipComma(int i) throws IOException
     {
         if (i != INT_COMMA) {
@@ -1804,17 +1802,13 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         while (_inputPtr < _inputEnd) {
             int i = (int) _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
-                if (i == INT_SLASH) {
-                    _skipComment();
-                    continue;
-                }
-                if (i == INT_HASH) {
-                    if (_skipYAMLComment()) {
-                        continue;
-                    }
+                if (i == INT_SLASH || i == INT_HASH) {
+                    --_inputPtr;
+                    return _skipWSOrEnd2();
                 }
                 return i;
-            } else if (i != INT_SPACE) {
+            }
+            if (i != INT_SPACE) {
                 if (i == INT_LF) {
                     ++_currInputRow;
                     _currInputRowStart = _inputPtr;

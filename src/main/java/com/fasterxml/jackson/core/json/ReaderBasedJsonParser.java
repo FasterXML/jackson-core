@@ -1644,27 +1644,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         ++_currInputRow;
         _currInputRowStart = _inputPtr;
     }
-
-    /*
-    private final int _skipCR(int ptr) throws IOException {
-        if (ptr < _inputEnd) {
-            if (_inputBuffer[ptr] == '\n') {
-                ++ptr;
-            }
-        } else {
-            _inputPtr = ptr;
-            if (loadMore()) {
-                ptr = _inputPtr;
-                if (_inputBuffer[ptr] == '\n') {
-                    ++ptr;
-                }
-            }
-        }
-        ++_currInputRow;
-        _currInputRowStart = ptr;
-        return ptr;
-    }
-    */
     
     private final int _skipColon() throws IOException
     {
@@ -1674,13 +1653,19 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         char c = _inputBuffer[_inputPtr];
         if (c == ':') { // common case, no leading space
             int i = _inputBuffer[++_inputPtr];
-            if (i > 32) { // nor trailing
+            if (i > INT_SPACE) { // nor trailing
+                if (i == INT_SLASH || i == INT_HASH) {
+                    return _skipColon2(true);
+                }
                 ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
                 i = (int) _inputBuffer[++_inputPtr];
-                if (i > 32) {
+                if (i > INT_SPACE) {
+                    if (i == INT_SLASH || i == INT_HASH) {
+                        return _skipColon2(true);
+                    }
                     ++_inputPtr;                    
                     return i;
                 }
@@ -1692,13 +1677,19 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         if (c == ':') {
             int i = _inputBuffer[++_inputPtr];
-            if (i > 32) {
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH || i == INT_HASH) {
+                    return _skipColon2(true);
+                }
                 ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
                 i = (int) _inputBuffer[++_inputPtr];
-                if (i > 32) {
+                if (i > INT_SPACE) {
+                    if (i == INT_SLASH || i == INT_HASH) {
+                        return _skipColon2(true);
+                    }
                     ++_inputPtr;
                     return i;
                 }

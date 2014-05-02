@@ -665,6 +665,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
              * it is not allowed per se, it may be erroneously used,
              * and could be indicate by a more specific error message.
              */
+            t = _parseNumber(i, true);
+            break;
         case '0':
         case '1':
         case '2':
@@ -675,7 +677,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         case '7':
         case '8':
         case '9':
-            t = _parseNumber(i);
+            t = _parseNumber(i, false);
             break;
         default:
             t = _handleOddValue(i);
@@ -835,14 +837,13 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected final JsonToken _parseNumber(int ch) throws IOException
+    protected final JsonToken _parseNumber(int ch, boolean neg) throws IOException
     {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),
          * actual conversion to a number is deferred. Thus, need to
          * note that no representations are valid yet
          */
-        boolean neg = (ch == INT_MINUS);
         int ptr = _inputPtr;
         int startPtr = ptr-1; // to include sign/digit already read
         final int inputLen = _inputEnd;

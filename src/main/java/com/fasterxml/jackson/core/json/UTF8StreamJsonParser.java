@@ -1159,7 +1159,7 @@ public class UTF8StreamJsonParser
 
         // One special case: if first char is 0, must not be followed by a digit
         if (c == INT_0) {
-            c = _verifyNoLeadingZeroes();
+            _verifyNoLeadingZeroes();
         }
         
         // Ok: we can first just add digit we saw first:
@@ -1244,16 +1244,16 @@ public class UTF8StreamJsonParser
      * Method called when we have seen one zero, and want to ensure
      * it is not followed by another
      */
-    private final int _verifyNoLeadingZeroes() throws IOException
+    private final void _verifyNoLeadingZeroes() throws IOException
     {
         // Ok to have plain "0"
         if (_inputPtr >= _inputEnd && !loadMore()) {
-            return INT_0;
+            return;
         }
         int ch = _inputBuffer[_inputPtr] & 0xFF;
         // if not followed by a number (probably '.'); return zero as is, to be included
         if (ch < INT_0 || ch > INT_9) {
-            return INT_0;
+            return;
         }
         // [JACKSON-358]: we may want to allow them, after all...
         if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
@@ -1265,7 +1265,7 @@ public class UTF8StreamJsonParser
             while (_inputPtr < _inputEnd || loadMore()) {
                 ch = _inputBuffer[_inputPtr] & 0xFF;
                 if (ch < INT_0 || ch > INT_9) { // followed by non-number; retain one zero
-                    return INT_0;
+                    return;
                 }
                 ++_inputPtr; // skip previous zeroes
                 if (ch != INT_0) { // followed by other number; return 
@@ -1273,7 +1273,6 @@ public class UTF8StreamJsonParser
                 }
             }
         }
-        return ch;
     }
     
     private final JsonToken _parseFloat(char[] outBuf, int outPtr, int c,

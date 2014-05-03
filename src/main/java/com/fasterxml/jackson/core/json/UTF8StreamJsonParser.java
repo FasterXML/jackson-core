@@ -706,6 +706,9 @@ public class UTF8StreamJsonParser
 
         switch (i) {
         case '-':
+            t = _parseNegNumber();
+            break;
+
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicate by a more specific error message.
@@ -720,7 +723,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parseNumber(i);
+            t = _parsePosNumber(i);
             break;
         case 'f':
             _matchToken("false", 1);
@@ -771,6 +774,7 @@ public class UTF8StreamJsonParser
             _matchToken("null", 1);
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
+            return (_currToken = _parseNegNumber());
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicated by a more specific error message.
@@ -785,7 +789,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = _parseNumber(i));
+            return (_currToken = _parsePosNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
     }
@@ -927,6 +931,8 @@ public class UTF8StreamJsonParser
             _nextToken = JsonToken.VALUE_NULL;
             return;
         case '-':
+            _nextToken = _parseNegNumber();
+            return;
         case '0':
         case '1':
         case '2':
@@ -937,7 +943,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            _nextToken = _parseNumber(i);
+            _nextToken = _parsePosNumber(i);
             return;
         }
         _nextToken = _handleUnexpectedValue(i);
@@ -988,8 +994,9 @@ public class UTF8StreamJsonParser
             _matchToken("null", 1);
             t = JsonToken.VALUE_NULL;
             break;
-
         case '-':
+            t = _parseNegNumber();
+            break;
         case '0':
         case '1':
         case '2':
@@ -1000,8 +1007,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-
-            t = _parseNumber(i);
+            t = _parsePosNumber(i);
             break;
         default:
             t = _handleUnexpectedValue(i);
@@ -1137,24 +1143,63 @@ public class UTF8StreamJsonParser
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected JsonToken _parseNumber(int c) throws IOException
+    protected JsonToken _parsePosNumber(int c) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
-        boolean negative = (c == INT_MINUS);
-
-        // Need to prepend sign?
-        if (negative) {
-            outBuf[outPtr++] = '-';
-            // Must have something after sign too
-            if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+        // One special case: if first char is 0, must not be followed by a digit
+        if (c == INT_0) {
+            c = _verifyNoLeadingZeroes();
+        }
+        // Ok: we can first just add digit we saw first:
+        outBuf[outPtr++] = (char) c;
+        int intLen = 1;
+        // And then figure out how far we can read without further checks
+        // for either input or output
+        int end = _inputPtr + outBuf.length;
+        if (end > _inputEnd) {
+            end = _inputEnd;
+        }
+        // With this, we have a nice and tight loop:
+        while (true) {
+            if (_inputPtr >= end) { // split across boundary, offline
+                return _parseNumber2(outBuf, outPtr, false, intLen);
             }
             c = (int) _inputBuffer[_inputPtr++] & 0xFF;
-            // Note: must be followed by a digit
             if (c < INT_0 || c > INT_9) {
-                return _handleInvalidNumberStart(c, true);
+                break;
             }
+            ++intLen;
+            outBuf[outPtr++] = (char) c;
+        }
+        if (c == '.' || c == 'e' || c == 'E') {
+            return _parseFloat(outBuf, outPtr, c, false, intLen);
+        }
+        --_inputPtr; // to push back trailing char (comma etc)
+        _textBuffer.setCurrentLength(outPtr);
+        // As per #105, need separating space between root values; check here
+        if (_parsingContext.inRoot()) {
+            _verifyRootSpace(c);
+        }
+        // And there we have it!
+        return resetInt(false, intLen);
+    }
+    
+    protected JsonToken _parseNegNumber() throws IOException
+    {
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        int outPtr = 0;
+
+        // Need to prepend sign?
+        outBuf[outPtr++] = '-';
+        // Must have something after sign too
+        if (_inputPtr >= _inputEnd) {
+            loadMoreGuaranteed();
+        }
+        int c = (int) _inputBuffer[_inputPtr++] & 0xFF;
+        // Note: must be followed by a digit
+        if (c < INT_0 || c > INT_9) {
+            return _handleInvalidNumberStart(c, true);
         }
 
         // One special case: if first char is 0, must not be followed by a digit
@@ -1177,7 +1222,7 @@ public class UTF8StreamJsonParser
         while (true) {
             if (_inputPtr >= end) {
                 // Long enough to be split across boundary, so:
-                return _parseNumber2(outBuf, outPtr, negative, intLen);
+                return _parseNumber2(outBuf, outPtr, true, intLen);
             }
             c = (int) _inputBuffer[_inputPtr++] & 0xFF;
             if (c < INT_0 || c > INT_9) {
@@ -1187,7 +1232,7 @@ public class UTF8StreamJsonParser
             outBuf[outPtr++] = (char) c;
         }
         if (c == '.' || c == 'e' || c == 'E') {
-            return _parseFloat(outBuf, outPtr, c, negative, intLen);
+            return _parseFloat(outBuf, outPtr, c, true, intLen);
         }
         
         --_inputPtr; // to push back trailing char (comma etc)
@@ -1198,9 +1243,9 @@ public class UTF8StreamJsonParser
         }
 
         // And there we have it!
-        return resetInt(negative, intLen);
+        return resetInt(true, intLen);
     }
-    
+
     /**
      * Method called to handle parsing when input is split across buffer boundary
      * (or output is longer than segment used to store it)

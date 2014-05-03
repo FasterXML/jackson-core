@@ -845,7 +845,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
          * note that no representations are valid yet
          */
         int ptr = _inputPtr;
-        int startPtr = ptr-1; // to include sign/digit already read
+        int startPtr = ptr-1; // to include digit already read
         final int inputLen = _inputEnd;
 
         // One special case, leading zero(es):
@@ -875,8 +875,28 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             ++intLen;
         }
+        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
+            _inputPtr = ptr;
+            return _parseFloat(ch, startPtr, ptr, false, intLen);
+        }
+        // Got it all: let's add to text buffer for parsing, access
+        --ptr; // need to push back following separator
+        _inputPtr = ptr;
+        // As per #105, need separating space between root values; check here
+        if (_parsingContext.inRoot()) {
+            _verifyRootSpace(ch);
+        }
+        int len = ptr-startPtr;
+        _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
+        return resetInt(false, intLen);
+    }
 
+    private final JsonToken _parseFloat(int ch, int startPtr, int ptr, boolean neg, int intLen)
+        throws IOException
+    {
+        final int inputLen = _inputEnd;
         int fractLen = 0;
+
         // And then see if we get other parts
         if (ch == '.') { // yes, fraction
             fract_loop:
@@ -924,7 +944,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
             }
         }
-        // Got it all: let's add to text buffer for parsing, access
         --ptr; // need to push back following separator
         _inputPtr = ptr;
         // As per #105, need separating space between root values; check here
@@ -933,7 +952,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
-        return reset(false, intLen, fractLen, expLen);
+        // And there we have it!
+        return resetFloat(neg, intLen, fractLen, expLen);
     }
 
     protected final JsonToken _parseNegNumber() throws IOException
@@ -973,66 +993,20 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             ++intLen;
         }
 
-        int fractLen = 0;
-        // And then see if we get other parts
-        if (ch == '.') { // yes, fraction
-            fract_loop:
-            while (true) {
-                if (ptr >= inputLen) {
-                    _inputPtr = (startPtr+1);
-                    return _parseNumber2(true);
-                }
-                ch = (int) _inputBuffer[ptr++];
-                if (ch < INT_0 || ch > INT_9) {
-                    break fract_loop;
-                }
-                ++fractLen;
-            }
-            // must be followed by sequence of ints, one minimum
-            if (fractLen == 0) {
-                reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
-            }
+        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
+            _inputPtr = ptr;
+            return _parseFloat(ch, startPtr, ptr, true, intLen);
         }
-        int expLen = 0;
-        if (ch == 'e' || ch == 'E') { // and/or exponent
-            if (ptr >= inputLen) {
-                _inputPtr = (startPtr+1);
-                return _parseNumber2(true);
-            }
-            // Sign indicator?
-            ch = (int) _inputBuffer[ptr++];
-            if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
-                if (ptr >= inputLen) {
-                    _inputPtr = (startPtr+1);
-                    return _parseNumber2(true);
-                }
-                ch = (int) _inputBuffer[ptr++];
-            }
-            while (ch <= INT_9 && ch >= INT_0) {
-                ++expLen;
-                if (ptr >= inputLen) {
-                    _inputPtr = (startPtr+1);
-                    return _parseNumber2(true);
-                }
-                ch = (int) _inputBuffer[ptr++];
-            }
-            // must be followed by sequence of ints, one minimum
-            if (expLen == 0) {
-                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
-            }
-        }
-        // Got it all: let's add to text buffer for parsing, access
-        --ptr; // need to push back following separator
+        --ptr;
         _inputPtr = ptr;
-        // As per #105, need separating space between root values; check here
         if (_parsingContext.inRoot()) {
             _verifyRootSpace(ch);
         }
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
-        return reset(true, intLen, fractLen, expLen);
+        return resetInt(true, intLen);
     }
-    
+
     /**
      * Method called to parse a number, when the primary parse
      * method has failed to parse it, due to it being split on

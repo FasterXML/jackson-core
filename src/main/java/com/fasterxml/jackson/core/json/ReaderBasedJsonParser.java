@@ -665,7 +665,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
              * it is not allowed per se, it may be erroneously used,
              * and could be indicate by a more specific error message.
              */
-            t = _parseNumber(i, true);
+            t = _parseNegNumber();
             break;
         case '0':
         case '1':
@@ -677,7 +677,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         case '7':
         case '8':
         case '9':
-            t = _parseNumber(i, false);
+            t = _parsePosNumber(i);
             break;
         default:
             t = _handleOddValue(i);
@@ -837,7 +837,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected final JsonToken _parseNumber(int ch, boolean neg) throws IOException
+    protected final JsonToken _parsePosNumber(int ch) throws IOException
     {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),
@@ -848,26 +848,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         int startPtr = ptr-1; // to include sign/digit already read
         final int inputLen = _inputEnd;
 
-        if (neg) { // need to read the next digit
-            if (ptr >= inputLen) {
-                _inputPtr = neg ? (startPtr+1) : startPtr;
-                return _parseNumber2(neg);
-            }
-            ch = _inputBuffer[ptr++];
-            // First check: must have a digit to follow minus sign
-            if (ch > INT_9 || ch < INT_0) {
-                _inputPtr = ptr;
-                return _handleInvalidNumberStart(ch, true);
-            }
-            /* (note: has been checked for non-negative already, in
-             * the dispatching code that determined it should be
-             * a numeric value)
-             */
-        }
         // One special case, leading zero(es):
         if (ch == INT_0) {
-            _inputPtr = neg ? (startPtr+1) : startPtr;
-            return _parseNumber2(neg);
+            _inputPtr = startPtr;
+            return _parseNumber2(false);
         }
             
         /* First, let's see if the whole number is contained within
@@ -882,8 +866,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         int_loop:
         while (true) {
             if (ptr >= inputLen) {
-                _inputPtr = neg ? (startPtr+1) : startPtr;
-                return _parseNumber2(neg);
+                _inputPtr = startPtr;
+                return _parseNumber2(false);
             }
             ch = (int) _inputBuffer[ptr++];
             if (ch < INT_0 || ch > INT_9) {
@@ -898,8 +882,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             fract_loop:
             while (true) {
                 if (ptr >= inputLen) {
-                    _inputPtr = neg ? (startPtr+1) : startPtr;
-                    return _parseNumber2(neg);
+                    _inputPtr = startPtr;
+                    return _parseNumber2(false);
                 }
                 ch = (int) _inputBuffer[ptr++];
                 if (ch < INT_0 || ch > INT_9) {
@@ -915,23 +899,23 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         int expLen = 0;
         if (ch == 'e' || ch == 'E') { // and/or exponent
             if (ptr >= inputLen) {
-                _inputPtr = neg ? (startPtr+1) : startPtr;
-                return _parseNumber2(neg);
+                _inputPtr = startPtr;
+                return _parseNumber2(false);
             }
             // Sign indicator?
             ch = (int) _inputBuffer[ptr++];
             if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
                 if (ptr >= inputLen) {
-                    _inputPtr = neg ? (startPtr+1) : startPtr;
-                    return _parseNumber2(neg);
+                    _inputPtr = startPtr;
+                    return _parseNumber2(false);
                 }
                 ch = (int) _inputBuffer[ptr++];
             }
             while (ch <= INT_9 && ch >= INT_0) {
                 ++expLen;
                 if (ptr >= inputLen) {
-                    _inputPtr = neg ? (startPtr+1) : startPtr;
-                    return _parseNumber2(neg);
+                    _inputPtr = startPtr;
+                    return _parseNumber2(false);
                 }
                 ch = (int) _inputBuffer[ptr++];
             }
@@ -949,9 +933,106 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
-        return reset(neg, intLen, fractLen, expLen);
+        return reset(false, intLen, fractLen, expLen);
     }
 
+    protected final JsonToken _parseNegNumber() throws IOException
+    {
+        int ptr = _inputPtr;
+        int startPtr = ptr-1; // to include sign/digit already read
+        final int inputLen = _inputEnd;
+
+        if (ptr >= inputLen) {
+            _inputPtr = startPtr+1;
+            return _parseNumber2(true);
+        }
+        int ch = _inputBuffer[ptr++];
+        // First check: must have a digit to follow minus sign
+        if (ch > INT_9 || ch < INT_0) {
+            _inputPtr = ptr;
+            return _handleInvalidNumberStart(ch, true);
+        }
+        // One special case, leading zero(es):
+        if (ch == INT_0) {
+            _inputPtr = startPtr+1;
+            return _parseNumber2(true);
+        }
+        int intLen = 1; // already got one
+        
+        // First let's get the obligatory integer part:
+        int_loop:
+        while (true) {
+            if (ptr >= inputLen) {
+                _inputPtr = (startPtr+1);
+                return _parseNumber2(true);
+            }
+            ch = (int) _inputBuffer[ptr++];
+            if (ch < INT_0 || ch > INT_9) {
+                break int_loop;
+            }
+            ++intLen;
+        }
+
+        int fractLen = 0;
+        // And then see if we get other parts
+        if (ch == '.') { // yes, fraction
+            fract_loop:
+            while (true) {
+                if (ptr >= inputLen) {
+                    _inputPtr = (startPtr+1);
+                    return _parseNumber2(true);
+                }
+                ch = (int) _inputBuffer[ptr++];
+                if (ch < INT_0 || ch > INT_9) {
+                    break fract_loop;
+                }
+                ++fractLen;
+            }
+            // must be followed by sequence of ints, one minimum
+            if (fractLen == 0) {
+                reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+            }
+        }
+        int expLen = 0;
+        if (ch == 'e' || ch == 'E') { // and/or exponent
+            if (ptr >= inputLen) {
+                _inputPtr = (startPtr+1);
+                return _parseNumber2(true);
+            }
+            // Sign indicator?
+            ch = (int) _inputBuffer[ptr++];
+            if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
+                if (ptr >= inputLen) {
+                    _inputPtr = (startPtr+1);
+                    return _parseNumber2(true);
+                }
+                ch = (int) _inputBuffer[ptr++];
+            }
+            while (ch <= INT_9 && ch >= INT_0) {
+                ++expLen;
+                if (ptr >= inputLen) {
+                    _inputPtr = (startPtr+1);
+                    return _parseNumber2(true);
+                }
+                ch = (int) _inputBuffer[ptr++];
+            }
+            // must be followed by sequence of ints, one minimum
+            if (expLen == 0) {
+                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+            }
+        }
+        // Got it all: let's add to text buffer for parsing, access
+        --ptr; // need to push back following separator
+        _inputPtr = ptr;
+        // As per #105, need separating space between root values; check here
+        if (_parsingContext.inRoot()) {
+            _verifyRootSpace(ch);
+        }
+        int len = ptr-startPtr;
+        _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
+        return reset(true, intLen, fractLen, expLen);
+    }
+    
     /**
      * Method called to parse a number, when the primary parse
      * method has failed to parse it, due to it being split on

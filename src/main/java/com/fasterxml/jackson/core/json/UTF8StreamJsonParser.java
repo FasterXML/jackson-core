@@ -1447,7 +1447,7 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
     
-    protected Name _parseName(int i) throws IOException
+    protected final Name _parseName(int i) throws IOException
     {
         if (i != INT_QUOTE) {
             return _handleOddName(i);

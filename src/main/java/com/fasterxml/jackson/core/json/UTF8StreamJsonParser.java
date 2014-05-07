@@ -961,11 +961,7 @@ public class UTF8StreamJsonParser
             match = nameStr.equals(str.getValue());
         }
         _currToken = JsonToken.FIELD_NAME;
-        i = _skipWS();
-        if (i != INT_COLON) {
-            _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
-        }
-        i = _skipWS();
+        i = _skipColon();
 
         // Ok: we must have a value... what is it? Strings are very common, check first:
         if (i == INT_QUOTE) {

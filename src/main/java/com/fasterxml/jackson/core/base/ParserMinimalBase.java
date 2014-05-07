@@ -466,7 +466,7 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
         // JACKSON-208; possible to allow unquoted control chars:
-        if (!isEnabled(Feature.ALLOW_UNQUOTED_CONTROL_CHARS) || i >= INT_SPACE) {
+        if (!isEnabled(Feature.ALLOW_UNQUOTED_CONTROL_CHARS) || i > INT_SPACE) {
             char c = (char) i;
             String msg = "Illegal unquoted character ("+_getCharDesc(c)+"): has to be escaped using backslash to be included in "+ctxtDesc;
             _reportError(msg);

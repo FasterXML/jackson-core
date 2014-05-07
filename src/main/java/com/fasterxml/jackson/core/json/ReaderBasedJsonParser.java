@@ -615,7 +615,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         boolean inObject = _parsingContext.inObject();
         if (inObject) {
            // First, field name itself:
-            String name = _parseName(i);
+            String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
             _parsingContext.setCurrentName(name);
             _currToken = JsonToken.FIELD_NAME;
             i = _skipColon();
@@ -1246,10 +1246,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /**********************************************************
      */
 
-    protected final String _parseName(int i) throws IOException
+    protected final String _parseName() throws IOException
     {
-        if (i != INT_QUOTE) { return _handleOddName(i); }
-
         // First: let's try to see if we have a simple name: one that does
         // not cross input buffer boundary, and does not contain escape sequences.
         int ptr = _inputPtr;

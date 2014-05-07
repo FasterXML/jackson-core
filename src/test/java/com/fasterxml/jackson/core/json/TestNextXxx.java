@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.json;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
+import java.util.Random;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -39,6 +40,14 @@ public class TestNextXxx
     {
         _testIssue38(false);
         _testIssue38(true);
+    }
+
+    public void testNextNameWithLongContent() throws Exception
+    {
+        final JsonFactory jf = new JsonFactory();
+
+        _testLong(jf, false);
+        _testLong(jf, true);
     }
     
     /*
@@ -174,6 +183,45 @@ public class TestNextXxx
         assertEquals("value", parser.getText());
         assertEquals(JsonToken.END_OBJECT, parser.nextToken());
         assertNull(parser.nextToken());
+        parser.close();
+    }
+
+    private void _testLong(JsonFactory f, boolean useStream) throws Exception
+    {
+        // do 5 meg thingy
+        final int SIZE = 5 * 1024 * 1024;
+        StringBuilder sb = new StringBuilder(SIZE + 20);
+
+        sb.append("{");
+        Random rnd = new Random(1);
+        int count = 0;
+        while (sb.length() < SIZE) {
+            ++count;
+            if (sb.length() > 1) {
+                sb.append(", ");
+            }
+            int val = rnd.nextInt();
+            sb.append('"');
+            sb.append("f"+val);
+            sb.append("\":");
+            sb.append(String.valueOf(val % 1000));
+        }
+        sb.append("}");
+        final String DOC = sb.toString();
+    
+        JsonParser parser = useStream ?
+                f.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+                : f.createParser(new StringReader(DOC));
+        assertToken(JsonToken.START_OBJECT, parser.nextToken());
+        rnd = new Random(1);
+        for (int i = 0; i < count; ++i) {
+            int exp = rnd.nextInt();
+            SerializableString expName = new SerializedString("f"+exp);
+            assertTrue(parser.nextFieldName(expName));
+            assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
+            assertEquals(exp % 1000, parser.getIntValue());
+        }
+        assertToken(JsonToken.END_OBJECT, parser.nextToken());
         parser.close();
     }
 }

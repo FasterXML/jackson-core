@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 

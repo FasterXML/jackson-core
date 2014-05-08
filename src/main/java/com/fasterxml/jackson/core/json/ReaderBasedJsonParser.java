@@ -850,8 +850,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         // One special case, leading zero(es):
         if (ch == INT_0) {
-            _inputPtr = startPtr;
-            return _parseNumber2(false);
+            return _parseNumber2(false, startPtr);
         }
             
         /* First, let's see if the whole number is contained within
@@ -867,7 +866,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         while (true) {
             if (ptr >= inputLen) {
                 _inputPtr = startPtr;
-                return _parseNumber2(false);
+                return _parseNumber2(false, startPtr);
             }
             ch = (int) _inputBuffer[ptr++];
             if (ch < INT_0 || ch > INT_9) {
@@ -902,8 +901,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             fract_loop:
             while (true) {
                 if (ptr >= inputLen) {
-                    _inputPtr = startPtr;
-                    return _parseNumber2(false);
+                    return _parseNumber2(neg, startPtr);
                 }
                 ch = (int) _inputBuffer[ptr++];
                 if (ch < INT_0 || ch > INT_9) {
@@ -920,14 +918,14 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (ch == 'e' || ch == 'E') { // and/or exponent
             if (ptr >= inputLen) {
                 _inputPtr = startPtr;
-                return _parseNumber2(false);
+                return _parseNumber2(neg, startPtr);
             }
             // Sign indicator?
             ch = (int) _inputBuffer[ptr++];
             if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
                 if (ptr >= inputLen) {
                     _inputPtr = startPtr;
-                    return _parseNumber2(false);
+                    return _parseNumber2(false, startPtr);
                 }
                 ch = (int) _inputBuffer[ptr++];
             }
@@ -935,7 +933,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 ++expLen;
                 if (ptr >= inputLen) {
                     _inputPtr = startPtr;
-                    return _parseNumber2(false);
+                    return _parseNumber2(neg, startPtr);
                 }
                 ch = (int) _inputBuffer[ptr++];
             }
@@ -963,8 +961,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         final int inputLen = _inputEnd;
 
         if (ptr >= inputLen) {
-            _inputPtr = startPtr+1;
-            return _parseNumber2(true);
+            return _parseNumber2(true, startPtr);
         }
         int ch = _inputBuffer[ptr++];
         // First check: must have a digit to follow minus sign
@@ -974,8 +971,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         // One special case, leading zero(es):
         if (ch == INT_0) {
-            _inputPtr = startPtr+1;
-            return _parseNumber2(true);
+            return _parseNumber2(true, startPtr);
         }
         int intLen = 1; // already got one
         
@@ -983,8 +979,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         int_loop:
         while (true) {
             if (ptr >= inputLen) {
-                _inputPtr = (startPtr+1);
-                return _parseNumber2(true);
+                return _parseNumber2(true, startPtr);
             }
             ch = (int) _inputBuffer[ptr++];
             if (ch < INT_0 || ch > INT_9) {
@@ -1014,8 +1009,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * that it has to explicitly copy contents to the text buffer
      * instead of just sharing the main input buffer.
      */
-    private final JsonToken _parseNumber2(boolean neg) throws IOException
+    private final JsonToken _parseNumber2(boolean neg, int startPtr) throws IOException
     {
+        _inputPtr = neg ? (startPtr+1) : startPtr;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 

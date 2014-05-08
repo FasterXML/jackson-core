@@ -27,7 +27,7 @@ public class TestNumericValues
     
     public void testSimpleInt() throws Exception
     {
-        for (int EXP_I : new int[] { 1234, -999, 0, -2 }) {
+        for (int EXP_I : new int[] { 1234, -999, 0, 1, -2 }) {
             _testSimpleInt(EXP_I, false);
             _testSimpleInt(EXP_I, true);
         }
@@ -213,8 +213,9 @@ public class TestNumericValues
     public void testSimpleDouble() throws Exception
     {
         final String[] INPUTS = new String[] {
-            "1234.00", "2.1101567E-16", "1.0e5", "0.0", "1.0", "2.5e+5", "9e4", "-12e-3", "0.25",
-            "-0.5", "-12.9", "-999.0"
+            "1234.00", "2.1101567E-16", "1.0e5", "0.0", "1.0", "-1.0", 
+            "-0.5", "-12.9", "-999.0",
+            "2.5e+5", "9e4", "-12e-3", "0.25",
         };
         for (int input = 0; input < 2; ++input) {
             for (int i = 0; i < INPUTS.length; ++i) {

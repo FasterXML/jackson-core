@@ -1853,8 +1853,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         // it is either non-whitespace; or we have longer run of white space
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {
-                _handleEOF();
-                return -1;
+                return _eofAsNextChar();
             }
         }
         int i = _inputBuffer[_inputPtr++];
@@ -1904,8 +1903,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 if (!loadMore()) { // We ran out of input...
-                    _handleEOF();
-                    return -1;
+                    return _eofAsNextChar();
                 }
             }
             int i = (int) _inputBuffer[_inputPtr++];

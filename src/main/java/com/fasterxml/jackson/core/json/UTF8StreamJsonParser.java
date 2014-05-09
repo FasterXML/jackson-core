@@ -2552,8 +2552,34 @@ public class UTF8StreamJsonParser
     
     private final int _skipWSOrEnd() throws IOException
     {
+        // Let's handle first character separately since it is likely that
+        // it is either non-whitespace; or we have longer run of white space
+        if (_inputPtr >= _inputEnd) {
+            if (!loadMore()) {
+                return _eofAsNextChar();
+            }
+        }
+        int i = _inputBuffer[_inputPtr++] & 0xFF;
+        if (i > INT_SPACE) {
+            if (i == INT_SLASH || i == INT_HASH) {
+                --_inputPtr;
+                return _skipWSOrEnd2();
+            }
+            return i;
+        }
+        if (i != INT_SPACE) {
+            if (i == INT_LF) {
+                ++_currInputRow;
+                _currInputRowStart = _inputPtr;
+            } else if (i == INT_CR) {
+                _skipCR();
+            } else if (i != INT_TAB) {
+                _throwInvalidSpace(i);
+            }
+        }
+        
         while (_inputPtr < _inputEnd) {
-            int i = _inputBuffer[_inputPtr++] & 0xFF;
+            i = _inputBuffer[_inputPtr++] & 0xFF;
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
                     --_inputPtr;
@@ -2602,8 +2628,7 @@ public class UTF8StreamJsonParser
             }
         }
         // We ran out of input...
-        _handleEOF();
-        return -1;
+        return _eofAsNextChar();
     }
     
     private final int _skipColon() throws IOException

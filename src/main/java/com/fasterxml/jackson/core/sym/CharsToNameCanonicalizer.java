@@ -84,7 +84,7 @@ public final class CharsToNameCanonicalizer
     final static int MAX_COLL_CHAIN_LENGTH = 255;
 
     /**
-     * And to support reduce likelihood of accidental collisons causing
+     * And to reduce likelihood of accidental collisions causing
      * exceptions, let's prevent reuse of tables with long collision
      * overflow lists as well.
      * 

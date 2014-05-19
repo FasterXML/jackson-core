@@ -48,7 +48,7 @@ public final class BytesToNameCanonicalizer
     private final static int MAX_COLL_CHAIN_LENGTH = 255;
 
     /**
-     * And to support reduce likelihood of accidental collisions causing
+     * And to reduce likelihood of accidental collisions causing
      * exceptions, let's prevent reuse of tables with long collision
      * overflow lists as well.
      * 
@@ -63,7 +63,8 @@ public final class BytesToNameCanonicalizer
     final static int MIN_HASH_SIZE = 16;
 
     /**
-     * We will also need to defin
+     * We will also need to define initial size for collision list,
+     * when copying it.
      */
     final static int INITIAL_COLLISION_LEN = 32;
 

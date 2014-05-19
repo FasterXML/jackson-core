@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.core.json;
 
+import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.test.BaseTest;
-
-import java.io.*;
 
 /**
  * Some unit tests to try to exercise part of parser code that
@@ -21,13 +20,11 @@ public class TestWithTonsaSymbols
      */
     final static int FIELD_COUNT = 5000;
 
-    public void testStreamReaderParser() throws Exception
-    {
+    public void testStreamReaderParser() throws Exception {
         _testWith(true);
     }
 
-    public void testReaderParser() throws Exception
-    {
+    public void testReaderParser() throws Exception {
         _testWith(false);
     }
 

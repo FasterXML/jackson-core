@@ -63,10 +63,42 @@ public class TestNextXxx
         JsonParser jp = useStream ?
             jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : jf.createParser(new StringReader(DOC));
-        SerializedString NAME = new SerializedString("name");
+        final SerializedString NAME = new SerializedString("name");
         assertFalse(jp.nextFieldName(NAME));
         assertToken(JsonToken.START_OBJECT, jp.getCurrentToken());
         assertTrue(jp.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
+        assertEquals(NAME.getValue(), jp.getCurrentName());
+        assertEquals(NAME.getValue(), jp.getText());
+        assertFalse(jp.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.getCurrentToken());
+        assertEquals(123, jp.getIntValue());
+
+        assertFalse(jp.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
+        assertEquals("name2", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+
+        assertFalse(jp.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
+        assertEquals("x", jp.getCurrentName());
+
+        assertFalse(jp.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_STRING, jp.getCurrentToken());
+
+        assertFalse(jp.nextFieldName(NAME));
+        assertToken(JsonToken.END_OBJECT, jp.getCurrentToken());
+
+        assertFalse(jp.nextFieldName(NAME));
+        assertNull(jp.getCurrentToken());
+
+        jp.close();
+
+        // Actually, try again with slightly different sequence...
+        jp = useStream ? jf.createParser(DOC.getBytes("UTF-8"))
+                : jf.createParser(DOC);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertFalse(jp.nextFieldName(new SerializedString("Nam")));
         assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
         assertEquals(NAME.getValue(), jp.getCurrentName());
         assertEquals(NAME.getValue(), jp.getText());

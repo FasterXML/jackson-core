@@ -876,7 +876,9 @@ public class UTF8StreamJsonParser
             // when doing literal match, must consider escaping:
             byte[] nameBytes = str.asQuotedUTF8();
             final int len = nameBytes.length;
-            if ((_inputPtr + len) < _inputEnd) { // maybe...
+            // 22-May-2014, tatu: Actually, let's require 4 more bytes for faster skipping
+            //    of colon that follows name
+            if ((_inputPtr + len + 4) < _inputEnd) { // maybe...
                 // first check length match by
                 final int end = _inputPtr+len;
                 if (_inputBuffer[end] == INT_QUOTE) {
@@ -885,11 +887,8 @@ public class UTF8StreamJsonParser
                     while (true) {
                         if (offset == len) { // yes, match!
                             _inputPtr = end+1; // skip current value first
-                            // First part is simple; setting of name
                             _parsingContext.setCurrentName(str.getValue());
-                            _currToken = JsonToken.FIELD_NAME;
-                            // But then we also must handle following value etc
-                            _isNextTokenNameYes();
+                            _isNextTokenNameYes(_skipColonFast());
                             return true;
                         }
                         if (nameBytes[offset] != _inputBuffer[ptr+offset]) {
@@ -903,10 +902,10 @@ public class UTF8StreamJsonParser
         return _isNextTokenNameMaybe(i, str);
     }
 
-    private final void _isNextTokenNameYes() throws IOException
+    private final void _isNextTokenNameYes(int i) throws IOException
     {
-        // very first thing: common case, colon, value, no white space
-        int i = _skipColon();
+        _currToken = JsonToken.FIELD_NAME;
+
         switch (i) {
         case '"':
             _tokenIncomplete = true;
@@ -948,6 +947,50 @@ public class UTF8StreamJsonParser
         }
         _nextToken = _handleUnexpectedValue(i);
     }
+
+    // Variant called when we know there's at least 4 more bytes available
+    private final int _skipColonFast() throws IOException
+    {
+        int i = _inputBuffer[_inputPtr++];
+        if (i == INT_COLON) { // common case, no leading space
+            i = _inputBuffer[_inputPtr++];
+            if (i > INT_SPACE) { // nor trailing
+                if (i != INT_SLASH && i != INT_HASH) {
+                    return i;
+                }
+            } else if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[_inputPtr++];
+                if (i > INT_SPACE) {
+                    if (i != INT_SLASH && i != INT_HASH) {
+                        return i;
+                    }
+                }
+            }
+            --_inputPtr;
+            return _skipColon2(true); // true -> skipped colon
+        }
+        if (i == INT_SPACE || i == INT_TAB) {
+            i = _inputBuffer[_inputPtr++];
+        }
+        if (i == INT_COLON) {
+            i = _inputBuffer[_inputPtr++];
+            if (i > INT_SPACE) {
+                if (i != INT_SLASH && i != INT_HASH) {
+                    return i;
+                }
+            } else if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[_inputPtr++];
+                if (i > INT_SPACE) {
+                    if (i != INT_SLASH && i != INT_HASH) {
+                        return i;
+                    }
+                }
+            }
+        }
+        --_inputPtr;
+        return _skipColon2(false);
+    }
+    
     
     private final boolean _isNextTokenNameMaybe(int i, SerializableString str) throws IOException
     {
@@ -2630,7 +2673,7 @@ public class UTF8StreamJsonParser
         // We ran out of input...
         return _eofAsNextChar();
     }
-    
+
     private final int _skipColon() throws IOException
     {
         if ((_inputPtr + 4) >= _inputEnd) {

@@ -883,18 +883,18 @@ public class UTF8StreamJsonParser
                 final int end = _inputPtr+len;
                 if (_inputBuffer[end] == INT_QUOTE) {
                     int offset = 0;
-                    final int ptr = _inputPtr;
+                    int ptr = _inputPtr;
                     while (true) {
-                        if (offset == len) { // yes, match!
-                            _inputPtr = end+1; // skip current value first
+                        if (ptr == end) { // yes, match!
                             _parsingContext.setCurrentName(str.getValue());
-                            _isNextTokenNameYes(_skipColonFast());
+                            _isNextTokenNameYes(_skipColonFast(ptr+1));
                             return true;
                         }
-                        if (nameBytes[offset] != _inputBuffer[ptr+offset]) {
+                        if (nameBytes[offset] != _inputBuffer[ptr]) {
                             break;
                         }
                         ++offset;
+                        ++ptr;
                     }
                 }
             }
@@ -902,6 +902,53 @@ public class UTF8StreamJsonParser
         return _isNextTokenNameMaybe(i, str);
     }
 
+    // Variant called when we know there's at least 4 more bytes available
+    private final int _skipColonFast(int ptr) throws IOException
+    {
+        int i = _inputBuffer[ptr++];
+        if (i == INT_COLON) { // common case, no leading space
+            i = _inputBuffer[ptr++];
+            if (i > INT_SPACE) { // nor trailing
+                if (i != INT_SLASH && i != INT_HASH) {
+                    _inputPtr = ptr;
+                    return i;
+                }
+            } else if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[ptr++];
+                if (i > INT_SPACE) {
+                    if (i != INT_SLASH && i != INT_HASH) {
+                        _inputPtr = ptr;
+                        return i;
+                    }
+                }
+            }
+            _inputPtr = ptr-1;
+            return _skipColon2(true); // true -> skipped colon
+        }
+        if (i == INT_SPACE || i == INT_TAB) {
+            i = _inputBuffer[ptr++];
+        }
+        if (i == INT_COLON) {
+            i = _inputBuffer[ptr++];
+            if (i > INT_SPACE) {
+                if (i != INT_SLASH && i != INT_HASH) {
+                    _inputPtr = ptr;
+                    return i;
+                }
+            } else if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[ptr++];
+                if (i > INT_SPACE) {
+                    if (i != INT_SLASH && i != INT_HASH) {
+                        _inputPtr = ptr;
+                        return i;
+                    }
+                }
+            }
+        }
+        _inputPtr = ptr-1;
+        return _skipColon2(false);
+    }
+    
     private final void _isNextTokenNameYes(int i) throws IOException
     {
         _currToken = JsonToken.FIELD_NAME;
@@ -946,49 +993,6 @@ public class UTF8StreamJsonParser
             return;
         }
         _nextToken = _handleUnexpectedValue(i);
-    }
-
-    // Variant called when we know there's at least 4 more bytes available
-    private final int _skipColonFast() throws IOException
-    {
-        int i = _inputBuffer[_inputPtr++];
-        if (i == INT_COLON) { // common case, no leading space
-            i = _inputBuffer[_inputPtr++];
-            if (i > INT_SPACE) { // nor trailing
-                if (i != INT_SLASH && i != INT_HASH) {
-                    return i;
-                }
-            } else if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[_inputPtr++];
-                if (i > INT_SPACE) {
-                    if (i != INT_SLASH && i != INT_HASH) {
-                        return i;
-                    }
-                }
-            }
-            --_inputPtr;
-            return _skipColon2(true); // true -> skipped colon
-        }
-        if (i == INT_SPACE || i == INT_TAB) {
-            i = _inputBuffer[_inputPtr++];
-        }
-        if (i == INT_COLON) {
-            i = _inputBuffer[_inputPtr++];
-            if (i > INT_SPACE) {
-                if (i != INT_SLASH && i != INT_HASH) {
-                    return i;
-                }
-            } else if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[_inputPtr++];
-                if (i > INT_SPACE) {
-                    if (i != INT_SLASH && i != INT_HASH) {
-                        return i;
-                    }
-                }
-            }
-        }
-        --_inputPtr;
-        return _skipColon2(false);
     }
     
     

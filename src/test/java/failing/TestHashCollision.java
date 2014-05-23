@@ -16,15 +16,35 @@ public class TestHashCollision
     // // // And then a nastier variant; collisions generated using
     // // // CollisionGenerator
 
-    final static String[] MULT_33_COLLISION_FRAGMENTS = new String[] {
-        // Ones generated for 65536...
+    /*
+    // for 33
+    final static String[] MULT_COLLISION_FRAGMENTS = new String[] {
+        // Ones generated for 33/65536...
         "9fa", "9g@", ":Ea", ":F@", ";$a", ";%@"
     };
+    */
 
+    // for 31
+    final static String[] MULT_COLLISION_FRAGMENTS = new String[] {
+        // Ones generated for 31/65536...
+        "@~~", "A_~", "A`_", "Aa@", "Ab!", "B@~", // "BA_", "BB@", "BC!", "C!~"
+    };
+    
     public void testReaderCollisions() throws Exception
     {
         StringBuilder sb = new StringBuilder();
-        for (String field : collisions()) {
+        List<String> coll = collisions();
+
+        // First just verify we got collisions for JDK too
+        int hash = coll.get(0).hashCode();
+        for (int i = 1, end = coll.size(); i < end; ++i) {
+            if (coll.get(i).hashCode() != hash) {
+                fail("String #"+i+" has different hash (0x"+Integer.toHexString(coll.get(i).hashCode())
+                        +"), expected 0x"+Integer.toHexString(hash));
+            }
+        }
+        
+        for (String field : coll) {
             if (sb.length() == 0) {
                 sb.append("{");
             } else {
@@ -42,6 +62,7 @@ public class TestHashCollision
             ;
         }
         // and if we got here, fine
+        jp.close();
     }
 
     /*
@@ -53,10 +74,13 @@ public class TestHashCollision
     static List<String> collisions() {
         // we'll get 6^4, which is bit over 1k
         ArrayList<String> result = new ArrayList<String>(36 * 36);
-        for (String str1 : MULT_33_COLLISION_FRAGMENTS) {
-            for (String str2 : MULT_33_COLLISION_FRAGMENTS) {
-                for (String str3 : MULT_33_COLLISION_FRAGMENTS) {
-                    for (String str4 : MULT_33_COLLISION_FRAGMENTS) {
+        
+        final String[] FRAGMENTS = MULT_COLLISION_FRAGMENTS;
+        
+        for (String str1 : FRAGMENTS) {
+            for (String str2 : FRAGMENTS) {
+                for (String str3 : FRAGMENTS) {
+                    for (String str4 : FRAGMENTS) {
                         result.add(str1+str2+str3+str4);
                     }
                 }
@@ -80,7 +104,6 @@ public class TestHashCollision
         /* JDK uses 31, but Jackson `CharsToNameCanonicalizer.HASH_MULT`,
          * which for 2.3 is 33.
          */
-        
         final static int MULT = CharsToNameCanonicalizer.HASH_MULT;
 
         public void generate3(int h0) {
@@ -127,15 +150,14 @@ public class TestHashCollision
         return result.toString();
       }
 
-      public static void main(String[] args) {
-          System.out.println("<stuff>");
-//          new CollisionGenerator().generate3(1 << 20);
-          new CollisionGenerator().generate3(1 << 16);
-
-          System.out.println();
-          System.out.println("</stuff>");
-      }
     }
 
+    public static void main(String[] args) {
+        System.out.println("<stuff>");
+//        new CollisionGenerator().generate3(1 << 20);
+        new CollisionGenerator().generate3(1 << 16);
 
+        System.out.println();
+        System.out.println("</stuff>");
+    }
 }

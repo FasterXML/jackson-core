@@ -43,8 +43,13 @@ public final class CharsToNameCanonicalizer
 {
     /* If we use "multiply-add" based hash algorithm, this is the multiplier
      * we use.
+     *<p>
+     * Note that with versions 2.3 and before used value of 33; but 2.4
+     * changed it to 31 to align with default hash code, to more easily
+     * detect attempted DoS attacks (since HashMap would fall into it
+     * if we used different hash multiplier).
      */
-    public final static int HASH_MULT = 33;
+    public final static int HASH_MULT = 31;
     
     /**
      * Default initial table size. Shouldn't be miniscule (as there's

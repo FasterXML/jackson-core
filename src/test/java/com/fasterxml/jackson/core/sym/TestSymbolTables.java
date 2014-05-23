@@ -78,9 +78,18 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
         
         // holy guacamoley... there are way too many. 31 gives 3567 (!), 33 gives 2747
         // ... at least before shuffling. Shuffling helps quite a lot, so:
-        assertEquals(1401, symbols.collisionCount());
-        // esp. with collisions; first got about 30
-        assertEquals(4, symbols.maxCollisionLength());
+
+        /* 22-May-2014, tatu: With 33 we now should get 1401; but with
+         *   31 bit more, 1858.
+         */
+//        assertEquals(1401, symbols.collisionCount());
+        assertEquals(1858, symbols.collisionCount());
+
+        // esp. with collisions; first got about 30;
+        // with fixes 4 (for 33), 5 (for 31)
+
+//        assertEquals(4, symbols.maxCollisionLength());
+        assertEquals(5, symbols.maxCollisionLength());
     }
 
     // Test for verifying stability of hashCode, wrt collisions, using

@@ -2,6 +2,8 @@ package com.fasterxml.jackson.core.sym;
 
 import java.io.IOException;
 
+import org.junit.Assert;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
@@ -46,6 +48,15 @@ public class TestJsonParserSymbols
         assertEquals(3, f.byteSymbolCount());
     }
 
+    public void testHashCalc() throws Exception
+    {
+        CharsToNameCanonicalizer sym = CharsToNameCanonicalizer.createRoot(123);
+        char[] str1 = "foo".toCharArray();
+        char[] str2 = " foo ".toCharArray();
+
+        assertEquals(sym.calcHash(str1, 0, 3), sym.calcHash(str2, 1, 3));
+    }
+    
     public void testCharSymbolsWithClose() throws Exception
     {
         _testWithClose(false);

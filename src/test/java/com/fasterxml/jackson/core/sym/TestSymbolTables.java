@@ -42,8 +42,9 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
     public void testSyntheticWithBytes() throws IOException
     {
         // pass seed, to keep results consistent:
+        final int SEED = 33333;
         BytesToNameCanonicalizer symbols =
-                BytesToNameCanonicalizer.createRoot(33333).makeChild(JsonFactory.Feature.collectDefaults());
+                BytesToNameCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
         final int COUNT = 6000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);

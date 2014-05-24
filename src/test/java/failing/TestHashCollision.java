@@ -34,18 +34,6 @@ public class TestHashCollision
     {
         StringBuilder sb = new StringBuilder();
         List<String> coll = collisions();
-
-        // First just verify we got collisions for JDK too
-        // ... only works if we use 31
-        /*
-        int hash = coll.get(0).hashCode();
-        for (int i = 1, end = coll.size(); i < end; ++i) {
-            if (coll.get(i).hashCode() != hash) {
-                fail("String #"+i+" has different hash (0x"+Integer.toHexString(coll.get(i).hashCode())
-                        +"), expected 0x"+Integer.toHexString(hash));
-            }
-        }
-        */
         
         for (String field : coll) {
             if (sb.length() == 0) {
@@ -59,12 +47,29 @@ public class TestHashCollision
         }
         sb.append("}");
 
+        // First: attempt with exceptions turned on; should catch an exception
+
         JsonFactory jf = new JsonFactory();
+
         JsonParser jp = jf.createParser(sb.toString());
+        jf.enable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
+
+        try {
+            while (jp.nextToken() != null) {
+                ;
+            }
+            fail("Should have failed");
+        } catch (IllegalStateException e) {
+            verifyException(e, "foo");
+        }
+        jp.close();
+
+        // but then without feature, should pass
+        jf = new JsonFactory();
+        jf.disable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
         while (jp.nextToken() != null) {
             ;
         }
-        // and if we got here, fine
         jp.close();
     }
 

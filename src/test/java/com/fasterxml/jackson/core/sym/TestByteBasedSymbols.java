@@ -27,8 +27,7 @@ public class TestByteBasedSymbols
      * This unit test checks that [JACKSON-5] is fixed; if not, a
      * symbol table corruption should result in odd problems.
      */
-    public void testSharedSymbols()
-        throws Exception
+    public void testSharedSymbols() throws Exception
     {
         // MUST share a single json factory
         JsonFactory jf = new JsonFactory();

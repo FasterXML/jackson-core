@@ -83,6 +83,8 @@ public final class CharsToNameCanonicalizer
      * Note: longest chain we have been able to produce without malicious
      * intent has been 38 (with "com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
      * our setting should be reasonable here.
+     *<p>
+     * Also note that value was lowered from 255 (2.3 and earlier) to 100 for 2.4
      * 
      * @since 2.1
      */
@@ -543,6 +545,8 @@ public final class CharsToNameCanonicalizer
         _buckets[bindex] = null;
         // newBucket contains new symbol; but we wil 
         _size -= (newBucket.length);
+        // we could calculate longest; but for now just mark as invalid
+        _longestCollisionList = -1;
     }
 
     /**

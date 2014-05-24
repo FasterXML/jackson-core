@@ -84,7 +84,7 @@ public class TestByteBasedSymbols
         final int B_BYTES = 0x42424242; // "BBBB"
 
         BytesToNameCanonicalizer nc = BytesToNameCanonicalizer.createRoot()
-                .makeChild(true, true);
+                .makeChild(JsonFactory.Feature.collectDefaults());
         assertNull(nc.findName(A_BYTES));
         assertNull(nc.findName(A_BYTES, B_BYTES));
 

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.sym;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -333,12 +334,10 @@ public final class BytesToNameCanonicalizer
     /**
      * Factory method used to create actual symbol table instance to
      * use for parsing.
-     * 
-     * @param intern Whether canonical symbol Strings should be interned
-     *   or not
      */
-    public BytesToNameCanonicalizer makeChild(boolean canonicalize, boolean intern) {
-        return new BytesToNameCanonicalizer(this, intern, _seed, _tableInfo.get());
+    public BytesToNameCanonicalizer makeChild(int flags) {
+        return new BytesToNameCanonicalizer(this, JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(flags),
+                _seed, _tableInfo.get());
     }
 
     /**

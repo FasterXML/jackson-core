@@ -16,19 +16,19 @@ public class TestHashCollision
     // // // And then a nastier variant; collisions generated using
     // // // CollisionGenerator
 
-    /*
     // for 33
     final static String[] MULT_COLLISION_FRAGMENTS = new String[] {
         // Ones generated for 33/65536...
         "9fa", "9g@", ":Ea", ":F@", ";$a", ";%@"
     };
-    */
 
     // for 31
+    /*
     final static String[] MULT_COLLISION_FRAGMENTS = new String[] {
         // Ones generated for 31/65536...
         "@~~", "A_~", "A`_", "Aa@", "Ab!", "B@~", // "BA_", "BB@", "BC!", "C!~"
     };
+    */
     
     public void testReaderCollisions() throws Exception
     {
@@ -36,6 +36,8 @@ public class TestHashCollision
         List<String> coll = collisions();
 
         // First just verify we got collisions for JDK too
+        // ... only works if we use 31
+        /*
         int hash = coll.get(0).hashCode();
         for (int i = 1, end = coll.size(); i < end; ++i) {
             if (coll.get(i).hashCode() != hash) {
@@ -43,6 +45,7 @@ public class TestHashCollision
                         +"), expected 0x"+Integer.toHexString(hash));
             }
         }
+        */
         
         for (String field : coll) {
             if (sb.length() == 0) {

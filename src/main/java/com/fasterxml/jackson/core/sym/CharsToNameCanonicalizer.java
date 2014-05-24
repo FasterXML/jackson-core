@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.core.sym;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -44,12 +46,10 @@ public final class CharsToNameCanonicalizer
     /* If we use "multiply-add" based hash algorithm, this is the multiplier
      * we use.
      *<p>
-     * Note that with versions 2.3 and before used value of 33; but 2.4
-     * changed it to 31 to align with default hash code, to more easily
-     * detect attempted DoS attacks (since HashMap would fall into it
-     * if we used different hash multiplier).
+     * Note that JDK uses 31; but it seems that 33 produces fewer collisions,
+     * at least with tests we have.
      */
-    public final static int HASH_MULT = 31;
+    public final static int HASH_MULT = 33;
     
     /**
      * Default initial table size. Shouldn't be miniscule (as there's
@@ -202,6 +202,22 @@ public final class CharsToNameCanonicalizer
 
     /*
     /**********************************************************
+    /* Bit of DoS detection goodness
+    /**********************************************************
+     */
+
+    /**
+     * Lazily constructed structure that is used to keep track of
+     * collision buckets that have overflowed once: this is used
+     * to detect likely attempts at denial-of-service attacks that
+     * uses hash collisions.
+     * 
+     * @since 2.4
+     */
+    protected BitSet _overflows;
+    
+    /*
+    /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
@@ -291,7 +307,7 @@ public final class CharsToNameCanonicalizer
      * on which only makeChild/mergeChild are called, but instance itself
      * is not used as a symbol table.
      */
-    public CharsToNameCanonicalizer makeChild(final boolean canonicalize, final boolean intern) {
+    public CharsToNameCanonicalizer makeChild(int flags) {
         /* 24-Jul-2012, tatu: Trying to reduce scope of synchronization, assuming
          *   that synchronizing construction is the (potentially) expensive part,
          *   and not so much short copy-the-variables thing.
@@ -301,6 +317,9 @@ public final class CharsToNameCanonicalizer
         final int size;
         final int hashSeed;
         final int longestCollisionList;
+
+        final boolean canon = JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(flags);
+        final boolean intern = canon && JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(flags);
         
         synchronized (this) {
             symbols = _symbols;
@@ -310,7 +329,7 @@ public final class CharsToNameCanonicalizer
             longestCollisionList = _longestCollisionList;
         }
         
-        return new CharsToNameCanonicalizer(this, canonicalize, intern,
+        return new CharsToNameCanonicalizer(this, canon, intern,
                 symbols, buckets, size, hashSeed, longestCollisionList);
     }
 

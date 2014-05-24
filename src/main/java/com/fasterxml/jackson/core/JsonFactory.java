@@ -1173,9 +1173,7 @@ public class JsonFactory
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
         // As per [JACKSON-259], may want to fully disable canonicalization:
         return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
-                _objectCodec, _rootByteSymbols, _rootCharSymbols,
-                isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
-                isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+                _objectCodec, _rootByteSymbols, _rootCharSymbols, _factoryFeatures);
     }
 
     /**
@@ -1192,8 +1190,7 @@ public class JsonFactory
      */
     protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
-                _rootCharSymbols.makeChild(isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
-                        isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES)));
+                _rootCharSymbols.makeChild(_factoryFeatures));
     }
 
     /**
@@ -1205,10 +1202,8 @@ public class JsonFactory
     protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
             boolean recyclable) throws IOException {
         return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
-                _rootCharSymbols.makeChild(isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
-                        isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES)),
-                        data, offset, offset+len,
-                        recyclable);
+                _rootCharSymbols.makeChild(_factoryFeatures),
+                        data, offset, offset+len, recyclable);
     }
 
     /**
@@ -1225,9 +1220,7 @@ public class JsonFactory
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
         return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
-                _objectCodec, _rootByteSymbols, _rootCharSymbols,
-                isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES),
-                isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+                _objectCodec, _rootByteSymbols, _rootCharSymbols, _factoryFeatures);
     }
 
     /*

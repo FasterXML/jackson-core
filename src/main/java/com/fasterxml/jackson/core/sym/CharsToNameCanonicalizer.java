@@ -54,7 +54,7 @@ public final class CharsToNameCanonicalizer
     /**
      * Default initial table size. Shouldn't be miniscule (as there's
      * cost to both array realloc and rehashing), but let's keep
-     * it reasonably small nonetheless. For systems that properly 
+     * it reasonably small. For systems that properly 
      * reuse factories it doesn't matter either way; but when
      * recreating factories often, initial overhead may dominate.
      */
@@ -63,7 +63,7 @@ public final class CharsToNameCanonicalizer
     /**
      * Let's not expand symbol tables past some maximum size;
      * this should protected against OOMEs caused by large documents
-     * with uniquer (~= random) names.
+     * with unique (~= random) names.
      */
     protected static final int MAX_T_SIZE = 0x10000; // 64k entries == 256k mem
 
@@ -86,16 +86,7 @@ public final class CharsToNameCanonicalizer
      * 
      * @since 2.1
      */
-    final static int MAX_COLL_CHAIN_LENGTH = 255;
-
-    /**
-     * And to reduce likelihood of accidental collisions causing
-     * exceptions, let's prevent reuse of tables with long collision
-     * overflow lists as well.
-     * 
-     * @since 2.1
-     */
-    final static int MAX_COLL_CHAIN_FOR_REUSE  = 63;
+    final static int MAX_COLL_CHAIN_LENGTH = 100;
     
     final static CharsToNameCanonicalizer sBootstrapSymbolTable = new CharsToNameCanonicalizer();
 
@@ -123,18 +114,14 @@ public final class CharsToNameCanonicalizer
      * @since 2.1
      */
     final private int _hashSeed;
-    
-    /**
-     * Whether canonical symbol Strings are to be intern()ed before added
-     * to the table or not
-     */
-    final protected boolean _intern;
 
+    final protected int _flags;
+    
     /**
      * Whether any canonicalization should be attempted (whether using
      * intern or not)
      */
-    final protected boolean _canonicalize;
+    protected boolean _canonicalize;
     
     /*
     /**********************************************************
@@ -243,14 +230,11 @@ public final class CharsToNameCanonicalizer
 
     /**
      * Main method for constructing a master symbol table instance.
-     *
-     * @param initialSize Minimum initial size for bucket array; internally
-     *   will always use a power of two equal to or bigger than this value.
      */
     private CharsToNameCanonicalizer() {
         // these settings don't really matter for the bootstrap instance
         _canonicalize = true;
-        _intern = true;
+        _flags = -1;
         // And we'll also set flags so no copying of buckets is needed:
         _dirty = true;
         _hashSeed = 0;
@@ -275,11 +259,12 @@ public final class CharsToNameCanonicalizer
     /**
      * Internal constructor used when creating child instances.
      */
-    private CharsToNameCanonicalizer(CharsToNameCanonicalizer parent, boolean canonicalize, boolean intern,
+    private CharsToNameCanonicalizer(CharsToNameCanonicalizer parent, int flags,
             String[] symbols, Bucket[] buckets, int size, int hashSeed, int longestColl) {
         _parent = parent;
-        _canonicalize = canonicalize;
-        _intern = intern;
+
+        _flags = flags;
+        _canonicalize = JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(flags);
 
         _symbols = symbols;
         _buckets = buckets;
@@ -317,9 +302,6 @@ public final class CharsToNameCanonicalizer
         final int size;
         final int hashSeed;
         final int longestCollisionList;
-
-        final boolean canon = JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(flags);
-        final boolean intern = canon && JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(flags);
         
         synchronized (this) {
             symbols = _symbols;
@@ -328,13 +310,12 @@ public final class CharsToNameCanonicalizer
             hashSeed = _hashSeed;
             longestCollisionList = _longestCollisionList;
         }
-        
-        return new CharsToNameCanonicalizer(this, canon, intern,
+        return new CharsToNameCanonicalizer(this, flags,
                 symbols, buckets, size, hashSeed, longestCollisionList);
     }
 
     private CharsToNameCanonicalizer makeOrphan(int seed) {
-        return new CharsToNameCanonicalizer(null, true, true, _symbols, _buckets, _size, seed, _longestCollisionList);
+        return new CharsToNameCanonicalizer(null, -1, _symbols, _buckets, _size, seed, _longestCollisionList);
     }
 
     /**
@@ -351,13 +332,12 @@ public final class CharsToNameCanonicalizer
          * One way to do this is to just purge tables if they grow
          * too large, and that's what we'll do here.
          */
-        if (child.size() > MAX_ENTRIES_FOR_REUSE
-                || child._longestCollisionList > MAX_COLL_CHAIN_FOR_REUSE) {
+        if (child.size() > MAX_ENTRIES_FOR_REUSE) {
             // Should there be a way to get notified about this event, to log it or such?
             // (as it's somewhat abnormal thing to happen)
             // At any rate, need to clean up the tables, then:
             synchronized (this) {
-                initTables(DEFAULT_T_SIZE);
+                initTables(DEFAULT_T_SIZE * 4); // no point in starting from tiny tho
                 // Dirty flag... well, let's just clear it. Shouldn't really matter for master tables
                 // (which this is, given something is merged to it)
                 _dirty = false;
@@ -386,7 +366,7 @@ public final class CharsToNameCanonicalizer
     public void release(){
         // If nothing has been added, nothing to do
         if (!maybeDirty()) { return; }
-        if (_parent != null) {
+        if (_parent != null && _canonicalize) { // canonicalize set to false if max size was reached
             _parent.mergeChild(this);
             /* Let's also mark this instance as dirty, so that just in
              * case release was too early, there's no corruption
@@ -508,15 +488,15 @@ public final class CharsToNameCanonicalizer
             copyArrays();
             _dirty = true;
         } else if (_size >= _sizeThreshold) { // Need to expand?
-           rehash();
-           /* Need to recalc hash; rare occurence (index mask has been
-            * recalculated as part of rehash)
-            */
-           index = _hashToIndex(calcHash(buffer, start, len));
+            rehash();
+            /* Need to recalc hash; rare occurence (index mask has been
+             * recalculated as part of rehash)
+             */
+            index = _hashToIndex(calcHash(buffer, start, len));
         }
 
         String newSymbol = new String(buffer, start, len);
-        if (_intern) {
+        if (JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(_flags)) {
             newSymbol = InternCache.instance.intern(newSymbol);
         }
         ++_size;
@@ -524,16 +504,45 @@ public final class CharsToNameCanonicalizer
         if (_symbols[index] == null) {
             _symbols[index] = newSymbol;
         } else {
-            int bix = (index >> 1);
+            final int bix = (index >> 1);
             Bucket newB = new Bucket(newSymbol, _buckets[bix]);
-            _buckets[bix] = newB;
-            _longestCollisionList = Math.max(newB.length, _longestCollisionList);
-            if (_longestCollisionList > MAX_COLL_CHAIN_LENGTH) {
-                reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
+            int collLen = newB.length;
+            if (collLen > MAX_COLL_CHAIN_LENGTH) {
+                /* 23-May-2014, tatu: Instead of throwing an exception right away, let's handle
+                 *   in bit smarter way.
+                 */
+                _handleSpillOverflow(bix, newB);
+            } else {
+                _buckets[bix] = newB;
+                _longestCollisionList = Math.max(collLen, _longestCollisionList);
             }
         }
 
         return newSymbol;
+    }
+
+    private void _handleSpillOverflow(int bindex, Bucket newBucket)
+    {
+        if (_overflows == null) {
+            _overflows = new BitSet();
+            _overflows.set(bindex);
+        } else {
+            if (_overflows.get(bindex)) {
+                // Has happened once already, so not a coincident...
+                if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_flags)) {
+                    reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
+                }
+                // but even if we don't fail, we will stop canonicalizing:
+                _canonicalize = false;
+            } else {
+                _overflows.set(bindex);
+            }
+        }
+        // regardless, if we get this far, clear up the bucket, adjust size appropriately.
+        _symbols[bindex + bindex] = newBucket.symbol;
+        _buckets[bindex] = null;
+        // newBucket contains new symbol; but we wil 
+        _size -= (newBucket.length);
     }
 
     /**
@@ -556,7 +565,7 @@ public final class CharsToNameCanonicalizer
      */
     public int calcHash(char[] buffer, int start, int len) {
         int hash = _hashSeed;
-        for (int i = 0; i < len; ++i) {
+        for (int i = start, end = start+len; i < end; ++i) {
             hash = (hash * HASH_MULT) + (int) buffer[i];
         }
         // NOTE: shuffling, if any, is done in 'findSymbol()', not here:
@@ -608,13 +617,15 @@ public final class CharsToNameCanonicalizer
          *    name sets (unique [non-repeating] names)
          */
         if (newSize > MAX_T_SIZE) {
-            /* If this happens, there's no point in either growing or
-             * shrinking hash areas. Rather, it's better to just clean
-             * them up for reuse.
+            /* If this happens, there's no point in either growing or shrinking hash areas.
+             * Rather, let's just cut our losses and stop canonicalizing.
              */
             _size = 0;
-            Arrays.fill(_symbols, null);
-            Arrays.fill(_buckets, null);
+            _canonicalize = false;
+            // in theory, could just leave these as null, but...
+            _symbols = new String[DEFAULT_T_SIZE];
+            _buckets = new Bucket[DEFAULT_T_SIZE>>1];
+            _indexMask = DEFAULT_T_SIZE-1;
             _dirty = true;
             return;
         }
@@ -668,6 +679,7 @@ public final class CharsToNameCanonicalizer
             }
         }
         _longestCollisionList = maxColl;
+        _overflows = null;
 
         if (count != _size) {
             throw new Error("Internal error on SymbolTable.rehash(): had "+_size+" entries; now have "+count+".");

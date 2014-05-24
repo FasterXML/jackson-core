@@ -86,7 +86,23 @@ public class JsonFactory
          *<p>
          * This setting is enabled by default.
          */
-        CANONICALIZE_FIELD_NAMES(true)
+        CANONICALIZE_FIELD_NAMES(true),
+
+        /**
+         * Feature that determines what happens if we encounter a case in symbol
+         * handling where number of hash collisions exceeds a safety threshold
+         * -- which almost certainly means a denial-of-service attack via generated
+         * duplicate hash codes.
+         * If feature is enabled, an {@link IllegalStateException} is
+         * thrown to indicate the suspected denial-of-service attack; if disabled, processing continues but
+         * canonicalization (and thereby <code>intern()</code>ing) is disabled) as protective
+         * measure.
+         *<p>
+         * This setting is enabled by default.
+         * 
+         * @since 2.4
+         */
+        FAIL_ON_SYMBOL_HASH_OVERFLOW(true),
 
         ;
 

@@ -1,4 +1,4 @@
-package failing;
+package com.fasterxml.jackson.core.sym;
 
 import java.util.*;
 
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.test.BaseTest;
  * Some unit tests to try to exercise part of parser code that
  * deals with symbol (table) management.
  */
-public class TestHashCollision
+public class TestHashCollisionChars
     extends BaseTest
 {
     // // // And then a nastier variant; collisions generated using
@@ -50,7 +50,6 @@ public class TestHashCollision
         // First: attempt with exceptions turned on; should catch an exception
 
         JsonFactory jf = new JsonFactory();
-
         JsonParser jp = jf.createParser(sb.toString());
         jf.enable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
 
@@ -60,13 +59,14 @@ public class TestHashCollision
             }
             fail("Should have failed");
         } catch (IllegalStateException e) {
-            verifyException(e, "foo");
+            verifyException(e, "hash collision");
         }
         jp.close();
 
         // but then without feature, should pass
         jf = new JsonFactory();
         jf.disable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
+        jp = jf.createParser(sb.toString());
         while (jp.nextToken() != null) {
             ;
         }

@@ -263,7 +263,7 @@ public final class BytesToNameCanonicalizer
      * @param seed Random seed valued used to make it more difficult to cause
      *   collisions (used for collision-based DoS attacks).
      */
-    private BytesToNameCanonicalizer(int sz, boolean intern, boolean failOnDoS, int seed) {
+    private BytesToNameCanonicalizer(int sz, boolean intern, int seed, boolean failOnDoS) {
         _parent = null;
         _seed = seed;
         _intern = intern;
@@ -289,8 +289,8 @@ public final class BytesToNameCanonicalizer
     /**
      * Constructor used when creating a child instance
      */
-    private BytesToNameCanonicalizer(BytesToNameCanonicalizer parent, boolean intern, boolean failOnDoS,
-            int seed, TableInfo state)
+    private BytesToNameCanonicalizer(BytesToNameCanonicalizer parent, boolean intern,
+            int seed, boolean failOnDoS, TableInfo state)
     {
         _parent = parent;
         _seed = seed;
@@ -356,7 +356,7 @@ public final class BytesToNameCanonicalizer
      * value should remain the same.
      */
     protected static BytesToNameCanonicalizer createRoot(int seed) {
-        return new BytesToNameCanonicalizer(DEFAULT_T_SIZE, true, true, seed);
+        return new BytesToNameCanonicalizer(DEFAULT_T_SIZE, true, seed, true);
     }
     
     /**
@@ -366,16 +366,16 @@ public final class BytesToNameCanonicalizer
     public BytesToNameCanonicalizer makeChild(int flags) {
         return new BytesToNameCanonicalizer(this,
                 JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(flags),
+                _seed,
                 JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(flags),
-                _seed, _tableInfo.get());
+                _tableInfo.get());
     }
 
     @Deprecated // since 2.4
-    public BytesToNameCanonicalizer makeChild(boolean intern) {
-        return new BytesToNameCanonicalizer(this,
-        		intern, // intern
+    public BytesToNameCanonicalizer makeChild(boolean canonicalize, boolean intern) {
+        return new BytesToNameCanonicalizer(this, intern, _seed,
         		true, // JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW
-                _seed, _tableInfo.get());
+                _tableInfo.get());
     }
     
     /**

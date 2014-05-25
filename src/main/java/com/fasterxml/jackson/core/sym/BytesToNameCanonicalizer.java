@@ -370,6 +370,14 @@ public final class BytesToNameCanonicalizer
                 _seed, _tableInfo.get());
     }
 
+    @Deprecated // since 2.4
+    public BytesToNameCanonicalizer makeChild(boolean intern) {
+        return new BytesToNameCanonicalizer(this,
+        		intern, // intern
+        		true, // JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW
+                _seed, _tableInfo.get());
+    }
+    
     /**
      * Method called by the using code to indicate it is done
      * with this instance. This lets instance merge accumulated

@@ -92,31 +92,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
         </executions>
       </plugin>
     </plugins>
-<!-- 28-Feb-2014, tatu: Shouldn't be needed, oss-parent has them? -->
-<!--
-    <extensions>
-        <extension>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-ssh-external</artifactId>
-            <version>1.0</version>
-        </extension>
-        <extension>
-            <groupId>org.apache.maven.scm</groupId>
-            <artifactId>maven-scm-provider-gitexe</artifactId>
-            <version>1.6</version>
-        </extension>
-        <extension>
-            <groupId>org.apache.maven.scm</groupId>
-            <artifactId>maven-scm-manager-plexus</artifactId>
-            <version>1.6</version>
-        </extension>
-        <extension>
-            <groupId>org.kathrynhuxtable.maven.wagon</groupId>
-            <artifactId>wagon-gitsite</artifactId>
-            <version>0.3.1</version>
-        </extension>
-    </extensions>
--->
   </build>
 
   <reporting>

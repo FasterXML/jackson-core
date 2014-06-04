@@ -19,7 +19,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-core.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-core.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-core</url>    
-    <tag>jackson-core-2.4.0-rc3</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>

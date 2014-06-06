@@ -41,7 +41,7 @@ public class BufferRecycler
     public final static int CHAR_NAME_COPY_BUFFER = 3; // Temporary buffer for getting name characters
 
     // Buffer lengths, defined in 2.4 (smaller before that)
-    
+
     private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 2000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
     
@@ -87,13 +87,13 @@ public class BufferRecycler
     }
 
     public byte[] allocByteBuffer(int ix, int minSize) {
-        final int DEF_SIZE = charBufferLength(ix);
+        final int DEF_SIZE = byteBufferLength(ix);
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
         byte[] buffer = _byteBuffers[ix];
         if (buffer == null || buffer.length < minSize) {
-            buffer = balloc(byteBufferLength(ix));
+            buffer = balloc(minSize);
         } else {
             _byteBuffers[ix] = null;
         }

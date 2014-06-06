@@ -257,15 +257,15 @@ public class IOContext
     /**********************************************************
      */
 
-    protected void _verifyAlloc(Object buffer) {
+    protected final void _verifyAlloc(Object buffer) {
         if (buffer != null) { throw new IllegalStateException("Trying to call same allocXxx() method second time"); }
     }
 
-    protected void _verifyRelease(byte[] toRelease, byte[] src) {
+    protected final void _verifyRelease(byte[] toRelease, byte[] src) {
         if ((toRelease != src) && (toRelease.length <= src.length)) { throw wrongBuf(); }
     }
 
-    protected void _verifyRelease(char[] toRelease, char[] src) {
+    protected final void _verifyRelease(char[] toRelease, char[] src) {
         if ((toRelease != src) && (toRelease.length <= src.length)) { throw wrongBuf(); }
     }
 

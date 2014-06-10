@@ -1,0 +1,10 @@
+{
+   "request":{
+        "mac": "000000BAD004",
+            "data": {
+            "invoice": "54321",
+                "tag": "TAG2",
+                "car_number":"CA492CF"
+        }
+      }
+}

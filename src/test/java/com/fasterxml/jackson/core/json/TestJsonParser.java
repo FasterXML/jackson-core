@@ -13,6 +13,8 @@ import java.util.*;
 public class TestJsonParser
     extends com.fasterxml.jackson.test.BaseTest
 {
+    private final JsonFactory JSON_FACTORY = new JsonFactory();
+
     public void testConfig() throws Exception
     {
         JsonParser jp = createParserUsingReader("[ ]");
@@ -34,35 +36,6 @@ public class TestJsonParser
         _testIntern(true, false, "b");
     }
 
-    public void testHandlingOfInvalidSpaceBytes() throws Exception
-    {
-        _testHandlingOfInvalidSpace(true);
-    }
-    
-    public void testHandlingOfInvalidSpaceChars() throws Exception
-    {
-        _testHandlingOfInvalidSpace(false);
-    }
-
-    // [#142]
-    private void _testHandlingOfInvalidSpace(boolean useStream) throws Exception
-    {
-        JsonFactory f = new JsonFactory();
-        final String JSON = "{ \u00A0 \"a\":1}";
-        JsonParser jp = useStream ?
-                createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        try {
-            jp.nextToken();
-            fail("Should have failed");
-        } catch (JsonParseException e) {
-            verifyException(e, "unexpected character");
-            // and correct error code
-            verifyException(e, "code 160");
-        }
-        jp.close();
-    }
-    
     public void testInterningWithReaders() throws Exception
     {
         _testIntern(false, true, "c");
@@ -220,8 +193,7 @@ public class TestJsonParser
         jp.close();
     }
 
-    public void testSkipping()
-        throws Exception
+    public void testSkipping() throws Exception
     {
         String DOC =
             "[ 1, 3, [ true, null ], 3, { \"a\":\"b\" }, [ [ ] ], { } ]";
@@ -292,7 +264,6 @@ public class TestJsonParser
         NAME_MAP.put("Line\\nfeed", "Line\nfeed");
         NAME_MAP.put("Yet even longer \\\"name\\\"!", "Yet even longer \"name\"!");
 
-        JsonFactory jf = new JsonFactory();
         int entry = 0;
         for (Map.Entry<String,String> en : NAME_MAP.entrySet()) {
             ++entry;
@@ -300,8 +271,8 @@ public class TestJsonParser
             String expResult = en.getValue();
             final String DOC = "{ \""+input+"\":null}";
             JsonParser jp = useStream ?
-                jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-                : jf.createParser(new StringReader(DOC));
+                    JSON_FACTORY.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+                : JSON_FACTORY.createParser(new StringReader(DOC));
 
             assertToken(JsonToken.START_OBJECT, jp.nextToken());
             assertToken(JsonToken.FIELD_NAME, jp.nextToken());
@@ -328,15 +299,14 @@ public class TestJsonParser
      */
     public void testLongText() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
         // lengths chosen to tease out problems with buffer allocation...
-        _testLongText(jf, 7700);
-        _testLongText(jf, 49000);
-        _testLongText(jf, 96000);
+        _testLongText(7700);
+        _testLongText(49000);
+        _testLongText(96000);
     }
 
     @SuppressWarnings("resource")
-    private void _testLongText(JsonFactory jf, int LEN) throws Exception
+    private void _testLongText(int LEN) throws Exception
     {
         StringBuilder sb = new StringBuilder(LEN + 100);
         Random r = new Random(99);
@@ -365,7 +335,7 @@ public class TestJsonParser
         
         // Let's use real generator to get JSON done right
         StringWriter sw = new StringWriter(LEN + (LEN >> 2));
-        JsonGenerator jg = jf.createGenerator(sw);
+        JsonGenerator jg = JSON_FACTORY.createGenerator(sw);
         jg.writeStartObject();
         jg.writeFieldName("doc");
         jg.writeString(VALUE);
@@ -379,13 +349,13 @@ public class TestJsonParser
 
             switch (type) {
             default:
-                jp = jf.createParser(DOC.getBytes("UTF-8"));
+                jp = JSON_FACTORY.createParser(DOC.getBytes("UTF-8"));
                 break;
             case 1:
-                jp = jf.createParser(DOC);
+                jp = JSON_FACTORY.createParser(DOC);
                 break;
             case 2: // NEW: let's also exercise UTF-32...
-                jp = jf.createParser(encodeInUTF32BE(DOC));
+                jp = JSON_FACTORY.createParser(encodeInUTF32BE(DOC));
                 break;
             }
             assertToken(JsonToken.START_OBJECT, jp.nextToken());
@@ -423,8 +393,7 @@ public class TestJsonParser
 
         System.arraycopy(b, 0, src, offset, len);
 
-        JsonFactory jf = new JsonFactory();
-        JsonParser jp = jf.createParser(src, offset, len);
+        JsonParser jp = JSON_FACTORY.createParser(src, offset, len);
 
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -450,8 +419,7 @@ public class TestJsonParser
         bytes.write(0xBB);
         bytes.write(0xBF);
         bytes.write("[ 1 ]".getBytes("UTF-8"));
-        JsonFactory jf = new JsonFactory();
-        JsonParser jp = jf.createParser(bytes.toByteArray());
+        JsonParser jp = JSON_FACTORY.createParser(bytes.toByteArray());
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         // should also have skipped first 3 bytes of BOM; but do we have offset available?
         /* 08-Oct-2013, tatu: Alas, due to [Issue#111], we have to omit BOM in calculations
@@ -475,21 +443,81 @@ public class TestJsonParser
         w.close();
         URL url = f.toURI().toURL();
 
-        JsonFactory jf = new JsonFactory();
-        JsonParser jp = jf.createParser(url);
+        JsonParser jp = JSON_FACTORY.createParser(url);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.close();
     }
 
+    // [#142]
+    public void testHandlingOfInvalidSpaceBytes() throws Exception {
+        _testHandlingOfInvalidSpace(true);
+        _testHandlingOfInvalidSpaceFromResource(true);
+    }
+    
+    // [#142]
+    public void testHandlingOfInvalidSpaceChars() throws Exception {
+        _testHandlingOfInvalidSpace(false);
+        _testHandlingOfInvalidSpaceFromResource(false);
+    }
+
+    private void _testHandlingOfInvalidSpace(boolean useStream) throws Exception
+    {
+        final String JSON = "{ \u00A0 \"a\":1}";
+        JsonParser jp = useStream
+                ? createParserUsingStream(JSON_FACTORY, JSON, "UTF-8")
+                : createParserUsingReader(JSON_FACTORY, JSON);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        try {
+            jp.nextToken();
+            fail("Should have failed");
+        } catch (JsonParseException e) {
+            verifyException(e, "unexpected character");
+            // and correct error code
+            verifyException(e, "code 160");
+        }
+        jp.close();
+    }
+
+    private void _testHandlingOfInvalidSpaceFromResource(boolean useStream) throws Exception
+    {
+        InputStream in = getClass().getResourceAsStream("/test_0xA0.json");
+        @SuppressWarnings("resource")
+        JsonParser jp = useStream
+                ? JSON_FACTORY.createParser(in)
+                : JSON_FACTORY.createParser(new InputStreamReader(in, "UTF-8"));
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        try {
+            assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+            assertEquals("request", jp.getCurrentName());
+            assertToken(JsonToken.START_OBJECT, jp.nextToken());
+            assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+            assertEquals("mac", jp.getCurrentName());
+            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+            assertNotNull(jp.getText());
+            assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+            assertEquals("data", jp.getCurrentName());
+            assertToken(JsonToken.START_OBJECT, jp.nextToken());
+
+            // ... and from there on, just loop
+            
+            while (jp.nextToken()  != null) { }
+            fail("Should have failed");
+        } catch (JsonParseException e) {
+            verifyException(e, "unexpected character");
+            // and correct error code
+            verifyException(e, "code 160");
+        }
+        jp.close();
+    }
+    
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
 
-    private void doTestSpec(boolean verify)
-        throws IOException
+    private void doTestSpec(boolean verify) throws IOException
     {
         // First, using a StringReader:
         doTestSpecIndividual(null, verify);
@@ -505,7 +533,6 @@ public class TestJsonParser
         doTestSpecIndividual("UTF-32", verify);
     }
 
-    @SuppressWarnings("resource")
     private void doTestSpecIndividual(String enc, boolean verify) throws IOException
     {
         String doc = SAMPLE_DOC_JSON_SPEC;

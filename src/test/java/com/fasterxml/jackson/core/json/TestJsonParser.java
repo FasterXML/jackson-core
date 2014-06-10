@@ -34,6 +34,35 @@ public class TestJsonParser
         _testIntern(true, false, "b");
     }
 
+    public void testHandlingOfInvalidSpaceBytes() throws Exception
+    {
+        _testHandlingOfInvalidSpace(true);
+    }
+    
+    public void testHandlingOfInvalidSpaceChars() throws Exception
+    {
+        _testHandlingOfInvalidSpace(false);
+    }
+
+    // [#142]
+    private void _testHandlingOfInvalidSpace(boolean useStream) throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        final String JSON = "{ \u00A0 \"a\":1}";
+        JsonParser jp = useStream ?
+                createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        try {
+            jp.nextToken();
+            fail("Should have failed");
+        } catch (JsonParseException e) {
+            verifyException(e, "unexpected character");
+            // and correct error code
+            verifyException(e, "code 160");
+        }
+        jp.close();
+    }
+    
     public void testInterningWithReaders() throws Exception
     {
         _testIntern(false, true, "c");

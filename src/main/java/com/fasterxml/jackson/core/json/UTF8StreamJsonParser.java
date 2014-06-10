@@ -1795,7 +1795,8 @@ public class UTF8StreamJsonParser
         }
         // [JACKSON-69]: allow unquoted names if feature enabled:
         if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
-            _reportUnexpectedChar(ch, "was expecting double-quote to start field name");
+            char c = (char) _decodeCharForError(ch);
+            _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
         /* Also: note that although we use a different table here,
          * it does NOT handle UTF-8 decoding. It'll just pass those
@@ -2943,8 +2944,8 @@ public class UTF8StreamJsonParser
 
     protected int _decodeCharForError(int firstByte) throws IOException
     {
-        int c = firstByte;
-        if (c < 0) { // if >= 0, is ascii and fine as is
+        int c = firstByte & 0xFF;
+        if (c > 0x7F) { // if >= 0, is ascii and fine as is
             int needed;
             
             // Ok; if we end here, we got multi-byte combination

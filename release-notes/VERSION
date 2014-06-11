@@ -1,5 +1,5 @@
 Project: jackson-core
-Version: 2.2.4 (xx-xxx-2013)
+Version: 2.2.4 (10-Jun-2014)
 
 #108: Incorrectly report char offset for byte-based parsers
 #116: WriterBasedJsonGenerator produces truncated Unicode escape sequences

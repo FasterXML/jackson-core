@@ -8,6 +8,7 @@
 
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
+  <packaging>bundle</packaging>
   <name>Jackson-core</name>
   <version>2.2.4-SNAPSHOT</version>
   <description>Core Jackson abstractions, basic JSON streaming API implementation

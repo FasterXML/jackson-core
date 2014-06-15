@@ -1,5 +1,5 @@
 Project: jackson-core
-Version: 2.4.1 (xx-Jun-2014)
+Version: 2.4.1 (16-Jun-2014)
 
 #143: Flaw in `BufferRecycler.allocByteBuffer(int,int)` that results in
  performance regression

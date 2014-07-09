@@ -42,7 +42,9 @@ public final class BytesToNameCanonicalizer
      *<p>
      * Note: longest chain we have been able to produce without malicious
      * intent has been 10 (with "com.fasterxml.jackson.core.sym.TestSymbolTables");
-     * our setting should be reasonable here.
+     * our setting should be reasonable here. Also note that overflow
+     * chains are shared between multiple primary cells, which could cause
+     * problems for lower values.
      *<p>
      * Also note that value was lowered from 255 (2.3 and earlier) to 100 for 2.4
      * 
@@ -1046,7 +1048,12 @@ public final class BytesToNameCanonicalizer
         int bestIx = -1;
 
         for (int i = 0, len = _collEnd; i < len; ++i) {
-            int count = buckets[i].length;
+            Bucket b = buckets[i];
+            // [#145] may become null due to long overflow chain
+            if (b == null) {
+                return i;
+            }
+            int count = b.length;
             if (count < bestCount) {
                 if (count == 1) { // best possible
                     return i;

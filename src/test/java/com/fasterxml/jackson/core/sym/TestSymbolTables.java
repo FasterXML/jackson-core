@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.sym;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.JsonFactory;
 
@@ -60,5 +61,35 @@ public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
         assertEquals(1686, symbols.collisionCount());
         // but not super long collision chains:
         assertEquals(9, symbols.maxCollisionLength());
+    }
+
+    // [Issue#145]
+    public void testThousandsOfSymbols() throws IOException
+    {
+        final int SEED = 33333;
+
+        BytesToNameCanonicalizer symbolsBRoot = BytesToNameCanonicalizer.createRoot(SEED);
+        CharsToNameCanonicalizer symbolsCRoot = CharsToNameCanonicalizer.createRoot(SEED);
+        final Charset utf8 = Charset.forName("UTF-8");
+        
+        for (int doc = 0; doc < 100; ++doc) {
+            CharsToNameCanonicalizer symbolsC =
+                    symbolsCRoot.makeChild(JsonFactory.Feature.collectDefaults());
+            BytesToNameCanonicalizer symbolsB =
+                    symbolsBRoot.makeChild(JsonFactory.Feature.collectDefaults());
+            for (int i = 0; i < 250; ++i) {
+                String name = "f_"+doc+"_"+i;
+
+                int[] quads = BytesToNameCanonicalizer.calcQuads(name.getBytes(utf8));
+                symbolsB.addName(name, quads, quads.length);
+
+                char[] ch = name.toCharArray();
+                String str = symbolsC.findSymbol(ch, 0, ch.length,
+                        symbolsC.calcHash(name));
+                assertNotNull(str);
+            }
+            symbolsB.release();
+            symbolsC.release();
+        }
     }
 }

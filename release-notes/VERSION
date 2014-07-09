@@ -1,14 +1,19 @@
 Project: jackson-core
-Version: 2.4.1 (16-Jun-2014)
+Version: 2.4.1 (xx-xxx-2014)
 
-#143: Flaw in `BufferRecycler.allocByteBuffer(int,int)` that results in
- performance regression
+#145: NPE at BytesToNameCanonicalizer
+ (reported by Shay B)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
 
-2.3.0 (29-May-2014)
+2.4.1 (16-Jun-2014)
+
+#143: Flaw in `BufferRecycler.allocByteBuffer(int,int)` that results in
+ performance regression
+
+2.4.0 (29-May-2014)
 
 #121: Increase size of low-level byte[]/char[] input/output buffers
  (from 4k->8k for bytes, 2k->4k for chars)

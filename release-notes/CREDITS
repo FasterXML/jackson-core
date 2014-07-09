@@ -31,3 +31,7 @@ Marcin Zukowski (eruure@github)
 Steve van Loben Sels
   * Reported #116: WriterBasedJsonGenerator produces truncated Unicode escape sequences
    (2.3.0)
+
+Shay Banon
+  * Reported #145: NPE at BytesToNameCanonicalizer
+   (2.4.2)

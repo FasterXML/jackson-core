@@ -925,7 +925,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             if (ch == INT_MINUS || ch == INT_PLUS) { // yup, skip for now
                 if (ptr >= inputLen) {
                     _inputPtr = startPtr;
-                    return _parseNumber2(false, startPtr);
+                    return _parseNumber2(neg, startPtr);
                 }
                 ch = (int) _inputBuffer[ptr++];
             }

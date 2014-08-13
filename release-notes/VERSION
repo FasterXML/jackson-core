@@ -1,12 +1,14 @@
 Project: jackson-core
-Version: 2.4.2 (xx-Aug-2014)
-
-#146: Error while parsing negative floats at the end of the input buffer
- (reported by rjmac@github)
+Version: 2.5.0 (xx-xxx-2014)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.4.2 (xx-Aug-2014)
+
+#146: Error while parsing negative floats at the end of the input buffer
+ (reported by rjmac@github)
 
 2.4.1.1 (09-Jul-2014)
 

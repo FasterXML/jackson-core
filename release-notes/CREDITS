@@ -35,3 +35,9 @@ Steve van Loben Sels
 Shay Banon
   * Reported #145: NPE at BytesToNameCanonicalizer
    (2.4.2)
+
+rjmac@github
+  * Reported #146: Error while parsing negative floats at the end of the input buffer
+   (2.4.2)
+  * Reported #148: BytesToNameCanonicalizer can mishandle leading null byte(s).
+   (2.5.0)

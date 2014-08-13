@@ -1956,7 +1956,7 @@ public class UTF8StreamJsonParser
             if (qlen >= quads.length) {
                 _quadBuffer = quads = growArrayBy(quads, quads.length);
             }
-            quads[qlen++] = currQuad;
+            quads[qlen++] = pad(currQuad, currQuadBytes);
         }
         Name name = _symbols.findName(quads, qlen);
         if (name == null) {
@@ -1974,6 +1974,7 @@ public class UTF8StreamJsonParser
     private final Name findName(int q1, int lastQuadBytes)
         throws JsonParseException
     {
+        q1 = pad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
         Name name = _symbols.findName(q1);
         if (name != null) {
@@ -1987,6 +1988,7 @@ public class UTF8StreamJsonParser
     private final Name findName(int q1, int q2, int lastQuadBytes)
         throws JsonParseException
     {
+        q2 = pad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
         Name name = _symbols.findName(q1, q2);
         if (name != null) {
@@ -2004,7 +2006,7 @@ public class UTF8StreamJsonParser
         if (qlen >= quads.length) {
             _quadBuffer = quads = growArrayBy(quads, quads.length);
         }
-        quads[qlen++] = lastQuad;
+        quads[qlen++] = pad(lastQuad, lastQuadBytes);
         Name name = _symbols.findName(quads, qlen);
         if (name == null) {
             return addName(quads, qlen, lastQuadBytes);
@@ -3240,7 +3242,7 @@ public class UTF8StreamJsonParser
 
     /*
     /**********************************************************
-    /* Binary access
+    /* Internal methods, binary access
     /**********************************************************
      */
 
@@ -3354,5 +3356,18 @@ public class UTF8StreamJsonParser
             decodedData = (decodedData << 6) | bits;
             builder.appendThreeBytes(decodedData);
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods, other
+    /**********************************************************
+     */
+
+    /**
+     * Helper method needed to fix [Issue#148], masking of 0x00 character
+     */
+    private final static int pad(int q, int bytes) {
+        return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
     }
 }

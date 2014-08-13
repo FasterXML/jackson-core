@@ -1,19 +1,16 @@
-package com.fasterxml.jackson.core.failing;
-
-import java.io.IOException;
+package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
-import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
 
-@SuppressWarnings("serial")
-public class TestJsonParserSymbols
+public class TestParserSymbols
     extends com.fasterxml.jackson.test.BaseTest
 {
+    // For [Issue#148]
     public void testSymbolsWithNullBytes() throws Exception {
         _testSymbolsWithNull(true);
     }
 
+    // For [Issue#148]
     public void testSymbolsWithNullChars() throws Exception {
         _testSymbolsWithNull(false);
     }

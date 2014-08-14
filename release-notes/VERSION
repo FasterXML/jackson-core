@@ -1,20 +1,14 @@
 Project: jackson-core
-Version: 2.4.2 (xx-Aug-2014)
+Version: 2.4.2 (13-Aug-2014)
 
+#145: NPE at BytesToNameCanonicalizer
+ (reported by Shay B)
 #146: Error while parsing negative floats at the end of the input buffer
  (reported by rjmac@github)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
-
-2.4.1.1 (09-Jul-2014)
-
-NOTE: this is a "micro-release", which does NOT contain all versions of
-components but only individual components with critical fix(es).
-
-#145: NPE at BytesToNameCanonicalizer
- (reported by Shay B)
 
 2.4.1 (16-Jun-2014)
 

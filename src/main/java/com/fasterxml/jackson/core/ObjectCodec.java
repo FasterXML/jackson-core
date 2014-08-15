@@ -113,7 +113,10 @@ public abstract class ObjectCodec
      * using set of {@link TreeNode} instances. Returns
      * root of the resulting tree (where root can consist
      * of just a single node if the current event is a
-     * value event, not container).
+     * value event, not container). Empty or whitespace
+     * documents return null.
+     *
+     * @return next tree from jp, or null if empty.
      */
     @Override
     public abstract <T extends TreeNode> T readTree(JsonParser jp)

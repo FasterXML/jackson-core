@@ -1390,7 +1390,9 @@ public abstract class JsonParser
      * represented by root {@link TreeNode} of resulting model.
      * For JSON Arrays it will an array node (with child nodes),
      * for objects object node (with child nodes), and for other types
-     * matching leaf node type
+     * matching leaf node type. Empty or whitespace documents are null.
+     *
+     * @return root of the document, or null if empty or whitespace.
      */
     @SuppressWarnings("unchecked")
     public <T extends TreeNode> T readValueAsTree() throws IOException {

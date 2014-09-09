@@ -558,6 +558,8 @@ public abstract class JsonGenerator
      *   number of values written (before matching call to
      *   {@link #writeEndArray()} MUST match; generator MAY verify
      *   this is the case.
+     *   
+     * @since 2.4
      */
     public void writeStartArray(int size) throws IOException {
         writeStartArray();

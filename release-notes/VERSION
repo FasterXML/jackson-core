@@ -1,12 +1,13 @@
 Project: jackson-core
-Version: 2.3.4 (17-Jul-2014)
+Version: 2.3.5 (xx-xxx-2014)
 
-No changes.
+#152: Exception for property names longer than 256k
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
 
+2.3.4 (17-Jul-2014)
 2.3.3 (10-Apr-2014)
 
 No changes since 2.3.2.

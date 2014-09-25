@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.main;
 
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.test.BaseTest;
 
 import java.io.IOException;
 

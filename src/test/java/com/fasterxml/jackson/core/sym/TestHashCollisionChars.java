@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.test.BaseTest;
 
 /**
  * Some unit tests to try to exercise part of parser code that

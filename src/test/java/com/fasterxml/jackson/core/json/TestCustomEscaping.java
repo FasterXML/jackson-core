@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-public class TestCustomEscaping extends com.fasterxml.jackson.test.BaseTest
+public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;

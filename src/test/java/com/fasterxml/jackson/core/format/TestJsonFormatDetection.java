@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.format.DataFormatDetector;
 import com.fasterxml.jackson.core.format.DataFormatMatcher;
 import com.fasterxml.jackson.core.format.MatchStrength;
 
-public class TestJsonFormatDetection extends com.fasterxml.jackson.test.BaseTest
+public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
 {
     public void testSimpleValidArray() throws Exception
     {

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
 /**
  * Tests to verify [JACKSON-278]
  */
-public class TestVersions extends com.fasterxml.jackson.test.BaseTest
+public class TestVersions extends com.fasterxml.jackson.core.BaseTest
 {
     public void testCoreVersions() throws Exception
     {

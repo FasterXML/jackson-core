@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.*;
 
 public class TestParserSymbols
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     // For [Issue#148]
     public void testSymbolsWithNullBytes() throws Exception {

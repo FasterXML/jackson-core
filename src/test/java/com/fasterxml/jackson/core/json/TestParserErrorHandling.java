@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 public class TestParserErrorHandling
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testInvalidKeywordsStream() throws Exception {
         _testInvalidKeywords(true);

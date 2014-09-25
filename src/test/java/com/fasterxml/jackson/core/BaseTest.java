@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.test;
+package com.fasterxml.jackson.core;
 
 import java.io.*;
 import java.util.Arrays;

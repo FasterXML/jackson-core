@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.io.OutputDecorator;
  * @since 1.8
  */
 @SuppressWarnings("serial")
-public class TestDecorators extends com.fasterxml.jackson.test.BaseTest
+public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
 {
     /*
     /**********************************************************

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 public class TestGeneratorWithSerializedString
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     final static String NAME_WITH_QUOTES = "\"name\"";
     final static String NAME_WITH_LATIN1 = "P\u00f6ll\u00f6";

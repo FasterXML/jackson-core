@@ -4,7 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestDelegates extends com.fasterxml.jackson.test.BaseTest
+public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 {
     /**
      * Test default, non-overridden parser delegate.

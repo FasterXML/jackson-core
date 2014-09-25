@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
  * edge cases.
  */
 public class TestArrayParsing
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testValidEmpty() throws Exception
     {

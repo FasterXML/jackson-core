@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestUnicode extends com.fasterxml.jackson.test.BaseTest
+public class TestUnicode extends com.fasterxml.jackson.core.BaseTest
 {
     public void testSurrogates() throws Exception
     {

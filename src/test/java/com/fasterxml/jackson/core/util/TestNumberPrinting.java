@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.io.NumberOutput;
  * printingg methods work as expected.
  */
 public class TestNumberPrinting
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testIntPrinting()
         throws Exception

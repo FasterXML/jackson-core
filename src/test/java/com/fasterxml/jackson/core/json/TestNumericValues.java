@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.*;
  */
 @SuppressWarnings("resource")
 public class TestNumericValues
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory FACTORY = new JsonFactory();
     

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 public class TestIOContext
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testAllocations() throws Exception
     {

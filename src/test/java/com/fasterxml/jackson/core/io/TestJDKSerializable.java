@@ -5,7 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 
 public class TestJDKSerializable
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testLocationSerializability() throws Exception
     {

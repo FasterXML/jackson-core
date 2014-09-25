@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.*;
 /**
  * @since 1.7
  */
-public class TestRawStringWriting extends com.fasterxml.jackson.test.BaseTest
+public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
 {
     /**
      * Unit test for "JsonGenerator.writeRawUTF8String()"

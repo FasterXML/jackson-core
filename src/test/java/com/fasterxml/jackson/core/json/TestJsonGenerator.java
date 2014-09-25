@@ -9,7 +9,7 @@ import java.io.*;
  * functionality works as expected.
  */
 public class TestJsonGenerator
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     // // // First, tests for primitive (non-structured) values
 

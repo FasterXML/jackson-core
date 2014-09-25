@@ -12,7 +12,7 @@ import java.io.*;
  */
 @SuppressWarnings("serial")
 public class TestPrettyPrinter
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     static class CountPrinter extends MinimalPrettyPrinter
     {

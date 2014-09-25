@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.*;
  */
 @SuppressWarnings("resource")
 public class TestGeneratorMisc
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     /*
     /**********************************************************

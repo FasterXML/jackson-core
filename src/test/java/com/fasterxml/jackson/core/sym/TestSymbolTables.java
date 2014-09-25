@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.JsonFactory;
 
-public class TestSymbolTables extends com.fasterxml.jackson.test.BaseTest
+public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 {
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and character-based input

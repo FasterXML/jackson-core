@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
  * functionality works as expected.
  */
 public class TestCharEscaping
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     // for [JACKSON-627]
     @SuppressWarnings("serial")

@@ -11,7 +11,7 @@ import java.util.*;
  * functionality works as expected.
  */
 public class TestJsonParser
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_FACTORY = new JsonFactory();
 

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
  * works as expected.
  */
 public class TestComments
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     final static String DOC_WITH_SLASHSTAR_COMMENT =
         "[ /* comment:\n ends here */ 1 /* one more ok to have \"unquoted\"  */ ]"

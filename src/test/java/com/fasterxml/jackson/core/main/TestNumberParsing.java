@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * handling methods work as expected.
  */
 public class TestNumberParsing
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testIntParsing() throws Exception
     {

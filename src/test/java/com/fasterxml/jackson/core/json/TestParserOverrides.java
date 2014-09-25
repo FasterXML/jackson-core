@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-public class TestParserOverrides extends com.fasterxml.jackson.test.BaseTest
+public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
 {
     /*
     /**********************************************************

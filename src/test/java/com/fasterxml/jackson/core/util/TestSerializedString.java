@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
  * {@link SerializableString} implementation works as expected.
  */
 public class TestSerializedString
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testAppending() throws IOException
     {

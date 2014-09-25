@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.*;
  * functionality works as expected.
  */
 public class TestJsonGeneratorFeatures
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testConfigDefaults() throws IOException
     {

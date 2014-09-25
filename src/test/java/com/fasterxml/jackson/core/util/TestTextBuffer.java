@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
 public class TestTextBuffer
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     /**
      * Trivially simple basic test to ensure all basic append

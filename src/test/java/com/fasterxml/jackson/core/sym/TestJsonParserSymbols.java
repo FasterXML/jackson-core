@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
  */
 @SuppressWarnings("serial")
 public class TestJsonParserSymbols
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     /**
      * To peek into state of "root" symbol tables (parent of all symbol

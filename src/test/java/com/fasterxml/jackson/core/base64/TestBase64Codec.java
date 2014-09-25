@@ -5,7 +5,7 @@ import org.junit.Assert;
 import com.fasterxml.jackson.core.*;
 
 public class TestBase64Codec
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testProps()
     {

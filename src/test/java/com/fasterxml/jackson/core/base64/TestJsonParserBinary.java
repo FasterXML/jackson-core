@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
  * Tests for verifying that accessing base64 encoded content works ok.
  */
 public class TestJsonParserBinary
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     /*
     /**********************************************************************

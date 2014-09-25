@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.test.BaseTest;
 
 /**
  * Unit tests for [Issue#31] (https://github.com/FasterXML/jackson-core/issues/31)

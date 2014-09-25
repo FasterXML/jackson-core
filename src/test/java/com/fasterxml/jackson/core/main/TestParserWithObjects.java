@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
  * be accessed using JsonParser.
  */
 public class TestParserWithObjects
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
 
     /*

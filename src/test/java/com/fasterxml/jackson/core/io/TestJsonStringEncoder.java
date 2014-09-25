@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 public class TestJsonStringEncoder
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     public void testQuoteAsString() throws Exception
     {

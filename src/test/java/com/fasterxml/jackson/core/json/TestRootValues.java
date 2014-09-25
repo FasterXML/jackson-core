@@ -5,7 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 
 public class TestRootValues
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

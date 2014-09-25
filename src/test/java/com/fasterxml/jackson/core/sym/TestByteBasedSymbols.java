@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.sym.Name;
  * good at catching it...).
  */
 public class TestByteBasedSymbols
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     final static String[] FIELD_NAMES = new String[] {
         "a", "b", "c", "x", "y", "b13", "abcdefg", "a123",

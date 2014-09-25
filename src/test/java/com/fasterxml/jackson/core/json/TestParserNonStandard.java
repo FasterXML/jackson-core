@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.*;
 
 public class TestParserNonStandard
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     // // // And then tests to verify [JACKSON-69]:
 

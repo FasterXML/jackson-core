@@ -1,14 +1,19 @@
 Project: jackson-core
-Version: 2.4.2 (13-Aug-2014)
+Version: 2.4.3 (xx-xxx-2014)
+
+#152: Exception for property names longer than 256k
+ (reported by CrendKing@github)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.4.2 (13-Aug-2014)
 
 #145: NPE at BytesToNameCanonicalizer
  (reported by Shay B)
 #146: Error while parsing negative floats at the end of the input buffer
  (reported by rjmac@github)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.4.1 (16-Jun-2014)
 

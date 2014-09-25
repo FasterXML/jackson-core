@@ -580,10 +580,13 @@ public final class TextBuffer
     public char[] expandCurrentSegment()
     {
         final char[] curr = _currentSegment;
-        // Let's grow by 50%
+        // Let's grow by 50% by default
         final int len = curr.length;
-        // Must grow by at least 1 char, no matter what
-        int newLen = (len == MAX_SEGMENT_LEN) ? (MAX_SEGMENT_LEN+1) : Math.min(MAX_SEGMENT_LEN, len + (len >> 1));
+        int newLen = len + (len >> 1);
+        // but above intended maximum, slow to increase by 25%
+        if (newLen > MAX_SEGMENT_LEN) {
+            newLen = len + (len >> 2);
+        }
         return (_currentSegment = Arrays.copyOf(curr, newLen));
     }
 

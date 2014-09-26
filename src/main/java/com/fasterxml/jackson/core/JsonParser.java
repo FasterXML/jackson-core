@@ -127,7 +127,7 @@ public abstract class JsonParser
 
         /**
          * Feature that can be enabled to accept quoting of all character
-         * using backslash qooting mechanism: if not enabled, only characters
+         * using backslash quoting mechanism: if not enabled, only characters
          * that are explicitly listed by JSON specification can be thus
          * escaped (see JSON spec for small list of these characters)
          *<p>

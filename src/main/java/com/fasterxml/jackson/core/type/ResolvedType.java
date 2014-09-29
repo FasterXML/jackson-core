@@ -59,7 +59,27 @@ public abstract class ResolvedType
      * parameters (for its direct super-class and/or super-interfaces).
      */
     public abstract boolean hasGenericTypes();
-    
+
+    /**
+     * Accessor that can be used to find out type for which parameterization
+     * is applied: this is often NOT same as what {@link #getRawType} returns,
+     * but rather one of it supertype.
+     *<p>
+     * For example: for type like {@link java.util.HashMap}, raw type is
+     * {@link java.util.HashMap}; but this method would return
+     * {@link java.util.Map}, because relevant type parameters that are
+     * resolved (and accessible using {@link #containedType(int)} and
+     * {@link #getKeyType()}) are parameter for {@link java.util.Map}
+     * (which may or may not be same as type parameters for subtype;
+     * in case of {@link java.util.HashMap} they are, but for further
+     * subtypes they may be different parameters or possibly none at all).
+     * 
+     * @since 2.5
+     */
+    public Class<?> getParameterSource() {
+        return null;
+    }
+
     /**
      * Method for accessing key type for this type, assuming type
      * has such a concept (only Map types do)

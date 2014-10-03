@@ -5,10 +5,6 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import com.fasterxml.jackson.core.*;
-
-//import static org.junit.Assert.*;
-
 public abstract class BaseTest
     extends TestCase
 {

@@ -1189,17 +1189,17 @@ public class UTF8StreamJsonParser
     protected JsonToken _parsePosNumber(int c) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        int outPtr = 0;
         // One special case: if first char is 0, must not be followed by a digit
         if (c == INT_0) {
             c = _verifyNoLeadingZeroes();
         }
         // Ok: we can first just add digit we saw first:
-        outBuf[outPtr++] = (char) c;
+        outBuf[0] = (char) c;
         int intLen = 1;
+        int outPtr = 1;
         // And then figure out how far we can read without further checks
         // for either input or output
-        int end = _inputPtr + outBuf.length;
+        int end = _inputPtr + outBuf.length - 1; // 1 == outPtr
         if (end > _inputEnd) {
             end = _inputEnd;
         }

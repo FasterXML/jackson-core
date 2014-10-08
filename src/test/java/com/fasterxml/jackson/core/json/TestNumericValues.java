@@ -368,14 +368,38 @@ public class TestNumericValues
         }
     }
 
+    // [jackson-core#157]
+    public void testLongNumbers() throws Exception
+    {
+        StringBuilder sb = new StringBuilder(9000);
+        for (int i = 0; i < 9000; ++i) {
+            sb.append('9');
+        }
+        String NUM = sb.toString();
+        JsonFactory f = new JsonFactory();
+        _testLongNumbers(f, NUM, false);
+        _testLongNumbers(f, NUM, true);
+    }
+    
+    private void _testLongNumbers(JsonFactory f, String num, boolean useStream) throws Exception
+    {
+        final String doc = "[ "+num+" ]";
+        JsonParser jp = useStream
+                ? f.createParser(doc.getBytes("UTF-8"))
+	    : f.createParser(doc);
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(num, jp.getText());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+    }
+
     /*
     /**********************************************************
     /* Tests for invalid access
     /**********************************************************
      */
     
-    public void testInvalidBooleanAccess()
-        throws Exception
+    public void testInvalidBooleanAccess() throws Exception
     {
         JsonParser jp = createParserUsingReader("[ \"abc\" ]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());

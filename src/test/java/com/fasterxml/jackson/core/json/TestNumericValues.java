@@ -448,6 +448,32 @@ public class TestNumericValues
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
     }
 
+    // and alternate take on for #157 (with negative num)
+    public void testLongNumbers2() throws Exception
+    {
+        StringBuilder input = new StringBuilder();
+        // test this with negative
+        input.append('-');
+        for (int i = 0; i < 2100; i++) {
+            input.append(1);
+        }
+        final String DOC = input.toString();
+        JsonFactory f = new JsonFactory();
+        _testIssue160LongNumbers(f, DOC, false);
+        _testIssue160LongNumbers(f, DOC, true);
+    }
+
+    private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream) throws Exception
+    {
+        JsonParser jp = useStream
+                ? FACTORY.createParser(doc.getBytes("UTF-8"))
+                        : FACTORY.createParser(doc);
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        BigInteger v = jp.getBigIntegerValue();
+        assertNull(jp.nextToken());
+        assertEquals(doc, v.toString());
+    }
+
     /*
     /**********************************************************
     /* Tests for invalid access

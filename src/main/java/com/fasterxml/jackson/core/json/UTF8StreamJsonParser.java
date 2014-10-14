@@ -1256,7 +1256,7 @@ public class UTF8StreamJsonParser
 
         // And then figure out how far we can read without further checks
         // for either input or output
-        int end = _inputPtr + outBuf.length;
+        int end = _inputPtr + outBuf.length - outPtr;
         if (end > _inputEnd) {
             end = _inputEnd;
         }

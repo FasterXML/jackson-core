@@ -69,18 +69,22 @@ public class TestJsonFactory
         assertTrue(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertFalse(jf.isEnabled(JsonGenerator.Feature.JSONP_COMPLIANT));
         jf.disable(JsonFactory.Feature.INTERN_FIELD_NAMES);
         jf.enable(JsonParser.Feature.ALLOW_COMMENTS);
         jf.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+        jf.enable(JsonGenerator.Feature.JSONP_COMPLIANT);
         // then change, verify that changes "stick"
         assertFalse(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(jf.isEnabled(JsonGenerator.Feature.JSONP_COMPLIANT));
 
         JsonFactory jf2 = jf.copy();
         assertFalse(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(jf.isEnabled(JsonGenerator.Feature.JSONP_COMPLIANT));
     }
 }
 

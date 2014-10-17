@@ -97,6 +97,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
             setHighestNonEscapedChar(127);
         }
+        if (isEnabled(Feature.JSONP_COMPLIANT)) {
+            setJsonpCompliantOutput(true);
+        }
     }
 
     /*
@@ -114,6 +117,22 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     @Override
     public int getHighestEscapedChar() {
         return _maximumNonEscapedChar;
+    }
+
+    @Override
+    public JsonGenerator setJsonpCompliantOutput(boolean escape) {
+        if (escape) {
+            _characterEscapes = new JsonpCharacterEscapes();
+        } else if (getJsonpCompliantOutput()) {
+            _characterEscapes = null;
+        }
+
+        return this;
+    }
+
+    @Override
+    public boolean getJsonpCompliantOutput() {
+        return _characterEscapes instanceof JsonpCharacterEscapes;
     }
 
     @Override

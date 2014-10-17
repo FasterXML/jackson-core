@@ -162,6 +162,17 @@ public abstract class JsonGenerator
          * @since 2.3
          */
         STRICT_DUPLICATE_DETECTION(false),
+
+        /**
+         * Feature that specifies that Unicode newline characters U+2028
+         * and U+2029 must be explicitly escaped in JSON output. This
+         * ensures that the JSON output can be used as JSONP.
+         *<p>
+         * Feature is disabled by default.
+         *
+         * @since 2.4
+         */
+        JSONP_COMPLIANT(false),
             ;
 
         private final boolean _defaultState;
@@ -429,6 +440,10 @@ public abstract class JsonGenerator
      *   if defined; or -1 to indicate no additional escaping is performed.
      */
     public int getHighestEscapedChar() { return 0; }
+
+    public JsonGenerator setJsonpCompliantOutput(boolean escape) { return this; }
+
+    public boolean getJsonpCompliantOutput() { return false; }
 
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s

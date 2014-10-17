@@ -84,6 +84,23 @@ public class TestJsonGeneratorFeatures
         jg.close();
         assertEquals("100", sw.toString());
     }
+
+    public void testJsonpCompliantOutput() throws IOException
+    {
+        JsonFactory jf = new JsonFactory();
+        // by default, escaping should be disabled
+        _testJsonpCompliantEscaping(jf, false);
+        // can enable it
+        jf.enable(JsonGenerator.Feature.JSONP_COMPLIANT);
+        _testJsonpCompliantEscaping(jf, true);
+        // and (re)disable:
+        jf.disable(JsonGenerator.Feature.JSONP_COMPLIANT);
+        _testJsonpCompliantEscaping(jf, false);
+    }
+
+    /**
+     * Testing for generating JSONP compliant output.
+     */
     
     private String _writeNumbers(JsonFactory jf) throws IOException
     {
@@ -148,6 +165,24 @@ public class TestJsonGeneratorFeatures
             assertEquals("{\"double\":\"NaN\"} {\"float\":\"NaN\"}", result);
         } else {
             assertEquals("{\"double\":NaN} {\"float\":NaN}", result);
+        }
+    }
+
+    private void _testJsonpCompliantEscaping(JsonFactory jf, boolean escaped)
+            throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator jg = jf.createGenerator(sw);
+        jg.writeStartObject();
+        jg.writeStringField("str", "foo\u2028bar\u2029");
+        jg.writeEndObject();
+        jg.close();
+
+        String result = sw.toString();
+        if (escaped) {
+            assertEquals("{\"str\":\"foo\\u2028bar\\u2029\"}", result);
+        } else {
+            assertEquals("{\"str\":\"foo\u2028bar\u2029\"}", result);
         }
     }
 }

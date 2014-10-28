@@ -65,10 +65,21 @@ public abstract class GeneratorBase extends JsonGenerator
     protected GeneratorBase(int features, ObjectCodec codec) {
         super();
         _features = features;
+        _objectCodec = codec;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _writeContext = JsonWriteContext.createRootContext(dups);
+        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected GeneratorBase(int features, ObjectCodec codec, JsonWriteContext ctxt) {
+        super();
+        _features = features;
         _objectCodec = codec;
+        _writeContext = ctxt;
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 

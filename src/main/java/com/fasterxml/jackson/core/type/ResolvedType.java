@@ -62,7 +62,7 @@ public abstract class ResolvedType
 
     /**
      * Accessor that can be used to find out type for which parameterization
-     * is applied: this is often NOT same as what {@link #getRawType} returns,
+     * is applied: this is often NOT same as what {@link #getRawClass} returns,
      * but rather one of it supertype.
      *<p>
      * For example: for type like {@link java.util.HashMap}, raw type is

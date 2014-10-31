@@ -759,9 +759,9 @@ public final class CharsToNameCanonicalizer
      */
     static final class Bucket
     {
-        private final String symbol;
-        private final Bucket next;
-        private final int length;
+        public final String symbol;
+        public final Bucket next;
+        public final int length;
 
         public Bucket(String s, Bucket n) {
             symbol = s;

@@ -1193,10 +1193,10 @@ public final class BytesToNameCanonicalizer
     
     final private static class Bucket
     {
-        protected final Name name;
-        protected final Bucket next;
-        private final int hash;
-        private final int length;
+        public final Name name;
+        public final Bucket next;
+        public final int hash;
+        public final int length;
 
         Bucket(Name name, Bucket next) {
             this.name = name;

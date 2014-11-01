@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.fasterxml.jackson.core.*;
 
@@ -81,6 +83,29 @@ public class TestJsonFactory
         assertFalse(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+    }
+
+    public void testJsonWithPath() throws Exception
+    {
+        Path tempFile = Files.createTempFile("jackson", "test");
+
+        JsonFactory f = new JsonFactory();
+
+        // First: create file via generator.. and use an odd encoding
+        JsonGenerator jg = f.createGenerator(tempFile, JsonEncoding.UTF16_LE);
+        jg.writeStartObject();
+        jg.writeRaw("   ");
+        jg.writeEndObject();
+        jg.close();
+
+        // Ok: first read file directly
+        JsonParser jp = f.createParser(tempFile);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        assertNull(jp.nextToken());
+        jp.close();
+
+        Files.delete(tempFile);
     }
 }
 

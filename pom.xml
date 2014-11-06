@@ -14,7 +14,7 @@
   <description>Core Jackson abstractions, basic JSON streaming API implementation
   </description>
 
-  <url>http://wiki.fasterxml.com/JacksonHome</url>
+  <url>https://github.com/FasterXML/jackson</url>
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-core.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-core.git</developerConnection>

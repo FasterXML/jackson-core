@@ -144,6 +144,12 @@ public abstract class JsonGenerator
          * if format uses escaping mechanisms (which is generally true
          * for textual formats but not for binary formats).
          *<p>
+         * Note that this setting may not necessarily make sense for all
+         * data formats (for example, binary formats typically do not use
+         * any escaping mechanisms; and some textual formats do not have
+         * general-purpose escaping); if so, settings is simply ignored.
+         * Put another way, effects of this feature are data-format specific.
+         *<p>
          * Feature is disabled by default.
          */
         ESCAPE_NON_ASCII(false),
@@ -158,11 +164,35 @@ public abstract class JsonGenerator
          *<p>
          * Note that enabling this feature will incur performance overhead
          * due to having to store and check additional information.
+         *<p>
+         * Feature is disabled by default.
          * 
          * @since 2.3
          */
         STRICT_DUPLICATE_DETECTION(false),
-            ;
+
+        /**
+         * Feature that determines what to do if the underlying data format requires knowledge
+         * of all properties to output, and if no definition is found for a property that
+         * caller tries to write. If enabled, such properties will be quietly ignored;
+         * if disabled, a {@link JsonProcessingException} will be thrown to indicate the
+         * problem.
+         * Typically most textual data formats do NOT require schema information (although
+         * some do, such as CSV), whereas many binary data formats do require definitions
+         * (such as Avro, protobuf), although not all (Smile, CBOR, BSON and MessagePack do not).
+         *<p>
+         * Note that support for this feature is implemented by individual data format
+         * module, if (and only if) it makes sense for the format in question. For JSON,
+         * for example, this feature has no effect as properties need not be pre-defined.
+         *<p>
+         * Feature is disabled by default, meaning that if the underlying data format
+         * requires knowledge of all properties to output, attempts to write an unknown
+         * property will result in a {@link JsonProcessingException}
+         *
+         * @since 2.5
+         */
+        IGNORE_UNKNOWN(false),
+        ;
 
         private final boolean _defaultState;
 
@@ -1565,5 +1595,4 @@ public abstract class JsonGenerator
         throw new IllegalStateException("No ObjectCodec defined for the generator, can only serialize simple wrapper types (type passed "
                 +value.getClass().getName()+")");
     }    
-
 }

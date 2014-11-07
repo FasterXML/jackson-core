@@ -112,7 +112,7 @@ public class JsonWriteContext extends JsonStreamContext
      *
      * @return Index of the field entry (0-based)
      */
-    public final int writeFieldName(String name) throws JsonProcessingException {
+    public int writeFieldName(String name) throws JsonProcessingException {
         _gotName = true;
         _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
@@ -123,7 +123,7 @@ public class JsonWriteContext extends JsonStreamContext
         if (dd.isDup(name)) { throw new JsonGenerationException("Duplicate field '"+name+"'"); }
     }
     
-    public final int writeValue() {
+    public int writeValue() {
         // Most likely, object:
         if (_type == TYPE_OBJECT) {
             _gotName = false;

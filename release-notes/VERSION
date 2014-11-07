@@ -3,6 +3,8 @@ Version: 2.5.0 (xx-xxx-2014)
 
 #148: BytesToNameCanonicalizer can mishandle leading null byte(s).
  (reported by rjmac@github)
+#164: Add `JsonGenerator.Feature.IGNORE_UNKNOWN` (but support via individual
+  data format modules)
 - Added `ResolvedType.getParameterSource()` to support better resolution
  of generic types.
 

@@ -188,7 +188,7 @@ public abstract class GeneratorBase extends JsonGenerator
     public void writeString(SerializableString text) throws IOException {
         writeString(text.getValue());
     }
-    
+
     @Override public void writeRawValue(String text) throws IOException {
         _verifyValueWrite("write raw value");
         writeRaw(text);
@@ -202,6 +202,11 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public void writeRawValue(char[] text, int offset, int len) throws IOException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
+    }
+
+    @Override public void writeRawValue(SerializableString text) throws IOException {
+        _verifyValueWrite("write raw value");
+        writeRaw(text);
     }
 
     @Override

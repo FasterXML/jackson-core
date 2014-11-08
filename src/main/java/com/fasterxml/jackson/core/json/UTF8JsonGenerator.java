@@ -544,7 +544,7 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
-    
+
     /*
     /**********************************************************
     /* Output method implementations, unprocessed ("raw")
@@ -591,7 +591,17 @@ public class UTF8JsonGenerator
             _writeBytes(raw);
         }
     }
-    
+
+    // since 2.5
+    @Override
+    public void writeRawValue(SerializableString text) throws IOException {
+        _verifyValueWrite("write raw value");
+        byte[] raw = text.asUnquotedUTF8();
+        if (raw.length > 0) {
+            _writeBytes(raw);
+        }
+    }
+
     // @TODO: rewrite for speed...
     @Override
     public final void writeRaw(char[] cbuf, int offset, int len)

@@ -6,10 +6,8 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 
-/**
- * @since 1.7
- */
 public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
 {
     /**
@@ -78,6 +76,47 @@ public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
         }
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
+    }
+
+    public void testWriteRawWithSerializable() throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        
+        _testWithRaw(jf, true);
+        _testWithRaw(jf, false);
+    }
+    
+    private void _testWithRaw(JsonFactory f, boolean useBytes) throws Exception
+    {
+        JsonGenerator jgen;
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        StringWriter sw = new StringWriter();
+
+        if (useBytes) {
+            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
+        } else {
+            jgen = f.createGenerator(sw);
+        }
+
+        jgen.writeStartArray();
+        jgen.writeRawValue(new SerializedString("\"foo\""));
+        jgen.writeRawValue(new SerializedString("12"));
+        jgen.writeRaw(new SerializedString(", false"));
+        jgen.writeEndArray();
+        jgen.close();
+
+        JsonParser p = useBytes
+                ? f.createParser(bytes.toByteArray())
+                : f.createParser(sw.toString());
+
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("foo", p.getText());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(12, p.getIntValue());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
     }
     
     /*

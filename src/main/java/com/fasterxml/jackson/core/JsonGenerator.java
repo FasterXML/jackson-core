@@ -732,13 +732,13 @@ public abstract class JsonGenerator
      */
     public abstract void writeUTF8String(byte[] text, int offset, int length)
         throws IOException;
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, binary/raw content
     /**********************************************************
      */
-    
+
     /**
      * Method that will force generator to copy
      * input text verbatim with <b>no</b> modifications (including
@@ -817,7 +817,7 @@ public abstract class JsonGenerator
     public void writeRaw(SerializableString raw) throws IOException {
         writeRaw(raw.getValue());
     }
-    
+
     /**
      * Method that will force generator to copy
      * input text verbatim without any modifications, but assuming
@@ -831,6 +831,17 @@ public abstract class JsonGenerator
     public abstract void writeRawValue(String text, int offset, int len) throws IOException;
 
     public abstract void writeRawValue(char[] text, int offset, int len) throws IOException;
+
+    /**
+     * Method similar to {@link #writeRawValue(String)}, but potentially more
+     * efficient as it may be able to use pre-encoded content (similar to
+     * {@link #writeRaw(SerializableString)}.
+     * 
+     * @since 2.5
+     */
+    public void writeRawValue(SerializableString raw) throws IOException {
+        writeRawValue(raw.getValue());
+    }
 
     /**
      * Method that will output given chunk of binary data as base64

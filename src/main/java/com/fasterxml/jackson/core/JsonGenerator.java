@@ -21,6 +21,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.ID_TRUE;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -708,7 +709,49 @@ public abstract class JsonGenerator
     /* Public API, write methods, binary/raw content
     /**********************************************************
      */
-    
+
+    /**
+     * Method that will force generator to copy
+     * input text verbatim with <b>no</b> modifications (including
+     * that no escaping is done and no separators are added even
+     * if context [array, object] would otherwise require such).
+     * If such separators are desired, use
+     * {@link #writeRawValue(String)} instead.
+     *<p>
+     * Some generators (most notably the
+     * {@link com.fasterxml.jackson.core.json.UTF8JsonGenerator})
+     * do not perform re-encoding if the source text already
+     * matches the desired output encoding.
+     *<p>
+     * Note that not all generator implementations necessarily support
+     * such by-pass methods: those that do not will throw
+     * {@link UnsupportedOperationException}.
+     */
+    public void writeRaw(byte[] text, Charset encoding) throws IOException {
+        writeRaw(new String(text, encoding));
+    }
+
+    /**
+     * Method that will force generator to copy
+     * input text verbatim with <b>no</b> modifications (including
+     * that no escaping is done and no separators are added even
+     * if context [array, object] would otherwise require such).
+     * If such separators are desired, use
+     * {@link #writeRawValue(String)} instead.
+     *<p>
+     * Some generators (most notably the
+     * {@link com.fasterxml.jackson.core.json.UTF8JsonGenerator})
+     * do not perform re-encoding if the source text already
+     * matches the desired output encoding.
+     *<p>
+     * Note that not all generator implementations necessarily support
+     * such by-pass methods: those that do not will throw
+     * {@link UnsupportedOperationException}.
+     */
+    public void writeRaw(byte[] text, int offset, int len, Charset encoding) throws IOException {
+        writeRaw(new String(text, offset, len, encoding));
+    }
+
     /**
      * Method that will force generator to copy
      * input text verbatim with <b>no</b> modifications (including
@@ -801,6 +844,14 @@ public abstract class JsonGenerator
     public abstract void writeRawValue(String text, int offset, int len) throws IOException;
 
     public abstract void writeRawValue(char[] text, int offset, int len) throws IOException;
+
+    public void writeRawValue(byte[] text, Charset charset) throws IOException {
+        writeRawValue(new String(text, charset));
+    }
+
+    public void writeRawValue(byte[] text, int offset, int len, Charset charset) throws IOException {
+        writeRawValue(new String(text, offset, len, charset));
+    }
 
     /**
      * Method that will output given chunk of binary data as base64

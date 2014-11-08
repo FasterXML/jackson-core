@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.*;
@@ -544,6 +545,24 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
+
+    @Override
+    public void writeRaw(byte[] text, Charset encoding) throws IOException {
+        if (JsonEncoding.UTF8.getJavaName().equals(encoding.name()) && text.length > 0) {
+            _writeBytes(text);
+        } else {
+            super.writeRaw(text, encoding);
+        }
+    }
+
+    @Override
+    public void writeRaw(byte[] text, int offset, int len, Charset encoding) throws IOException {
+        if (JsonEncoding.UTF8.getJavaName().equals(encoding.name()) && text.length > 0) {
+            _writeBytes(text, offset, len);
+        } else {
+            super.writeRaw(text, offset, len, encoding);
+        }
+    }
     
     /*
     /**********************************************************
@@ -591,7 +610,7 @@ public class UTF8JsonGenerator
             _writeBytes(raw);
         }
     }
-    
+
     // @TODO: rewrite for speed...
     @Override
     public final void writeRaw(char[] cbuf, int offset, int len)

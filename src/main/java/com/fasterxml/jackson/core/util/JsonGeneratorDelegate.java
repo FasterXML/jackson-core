@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
@@ -207,6 +208,12 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public void writeUTF8String(byte[] text, int offset, int length) throws IOException { delegate.writeUTF8String(text, offset, length); }
 
+    @Override
+    public void writeRaw(byte[] text, Charset encoding) throws IOException { delegate.writeRaw(text, encoding); }
+
+    @Override
+    public void writeRaw(byte[] text, int offset, int len, Charset encoding) throws IOException { delegate.writeRaw(text, offset, len, encoding); }
+
     /*
     /**********************************************************
     /* Public API, write methods, binary/raw content
@@ -236,6 +243,12 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeRawValue(char[] text, int offset, int len) throws IOException { delegate.writeRawValue(text, offset, len); }
+
+    @Override
+    public void writeRawValue(byte[] text, Charset charset) throws IOException { delegate.writeRawValue(text, charset); }
+
+    @Override
+    public void writeRawValue(byte[] text, int offset, int len, Charset charset) throws IOException { delegate.writeRawValue(text, offset, len, charset); }
 
     @Override
     public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException { delegate.writeBinary(b64variant, data, offset, len); }

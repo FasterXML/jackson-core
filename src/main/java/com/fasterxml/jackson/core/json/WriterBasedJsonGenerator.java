@@ -3,6 +3,12 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.*;
@@ -393,12 +399,43 @@ public final class WriterBasedJsonGenerator
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
     }
-    
+
     /*
     /**********************************************************
     /* Output method implementations, unprocessed ("raw")
     /**********************************************************
      */
+
+    @Override
+    public void writeRaw(byte[] text, Charset encoding) throws IOException {
+        writeRaw(text, 0, text.length, encoding);
+    }
+
+    @Override
+    public void writeRaw(byte[] text, int offset, int len, Charset encoding) throws IOException {
+        final ByteBuffer in = ByteBuffer.wrap(text, offset, len);
+        // these mimic the values used by StringDecoder instances
+        final CharsetDecoder cd = encoding.newDecoder()
+            .onUnmappableCharacter(CodingErrorAction.REPLACE)
+            .onMalformedInput(CodingErrorAction.REPLACE);
+        final CharBuffer out = CharBuffer.wrap(_outputBuffer, /*set below*/0, _outputEnd);
+        CoderResult cr;
+        do {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            out.position(_outputTail);
+
+            cr = cd.decode(in, out, true);
+            _outputTail = out.position();
+            if (cr.isOverflow()) continue;
+            else if (cr.isError()) cr.throwException();
+
+            cr = cd.flush(out);
+            _outputTail = out.position();
+            if (cr.isError()) cr.throwException();
+        } while (cr.isOverflow());
+    }
 
     @Override
     public void writeRaw(String text) throws IOException

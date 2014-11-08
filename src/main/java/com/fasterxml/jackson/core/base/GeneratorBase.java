@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.VersionUtil;
+import java.nio.charset.Charset;
 
 /**
  * This base class implements part of API that a JSON generator exposes
@@ -202,6 +203,16 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public void writeRawValue(char[] text, int offset, int len) throws IOException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
+    }
+
+    @Override public void writeRawValue(byte[] text, Charset charset) throws IOException {
+        _verifyValueWrite("write raw value");
+        writeRaw(text, charset);
+    }
+
+    @Override public void writeRawValue(byte[] text, int offset, int len, Charset charset) throws IOException {
+        _verifyValueWrite("write raw value");
+        writeRaw(text, offset, len, charset);
     }
 
     @Override

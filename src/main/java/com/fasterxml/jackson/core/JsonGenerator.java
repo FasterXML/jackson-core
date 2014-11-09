@@ -195,7 +195,6 @@ public abstract class JsonGenerator
         ;
 
         private final boolean _defaultState;
-
         private final int _mask;
         
         /**
@@ -214,8 +213,8 @@ public abstract class JsonGenerator
         }
         
         private Feature(boolean defaultState) {
-            _mask = (1 << ordinal());
             _defaultState = defaultState;
+            _mask = (1 << ordinal());
         }
 
         public boolean enabledByDefault() { return _defaultState; }
@@ -340,14 +339,17 @@ public abstract class JsonGenerator
     public abstract int getFeatureMask();
 
     /**
-     * Bulk set method for (re)settting states of all standard {@link Feature}s
+     * Bulk set method for (re)setting states of all standard {@link Feature}s
      * 
      * @since 2.3
      * 
+     * @param values Bitmask that defines which {@link Feature}s are enabled
+     *    and which disabled
+     *
      * @return This parser object, to allow chaining of calls
      */
-    public abstract JsonGenerator setFeatureMask(int mask);
-    
+    public abstract JsonGenerator setFeatureMask(int values);
+
     /*
     /**********************************************************
     /* Public API, Schema configuration

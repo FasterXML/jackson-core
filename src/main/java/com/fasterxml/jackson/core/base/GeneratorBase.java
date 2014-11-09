@@ -15,6 +15,17 @@ import com.fasterxml.jackson.core.util.VersionUtil;
  */
 public abstract class GeneratorBase extends JsonGenerator
 {
+    /**
+     * Set of feature masks related to features that need updates of other
+     * local configuration or state.
+     * 
+     * @since 2.5
+     */
+    protected final static int DERIVED_FEATURES_MASK = Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
+            | Feature.ESCAPE_NON_ASCII.getMask()
+//            | Feature.STRICT_DUPLICATE_DETECTION.getMask()
+            ;
+
     /*
     /**********************************************************
     /* Configuration
@@ -86,22 +97,36 @@ public abstract class GeneratorBase extends JsonGenerator
 
     @Override
     public JsonGenerator enable(Feature f) {
-        _features |= f.getMask();
-        if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
-            _cfgNumbersAsStrings = true;
-        } else if (f == Feature.ESCAPE_NON_ASCII) {
-            setHighestNonEscapedChar(127);
+        final int mask = f.getMask();
+        _features |= mask;
+        if ((mask & DERIVED_FEATURES_MASK) != 0) {
+            if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
+                _cfgNumbersAsStrings = true;
+            } else if (f == Feature.ESCAPE_NON_ASCII) {
+                setHighestNonEscapedChar(127);
+                /*
+            } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
+            */
+                // !!! TODO
+            }
         }
         return this;
     }
 
     @Override
     public JsonGenerator disable(Feature f) {
-        _features &= ~f.getMask();
-        if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
-            _cfgNumbersAsStrings = false;
-        } else if (f == Feature.ESCAPE_NON_ASCII) {
-            setHighestNonEscapedChar(0);
+        final int mask = f.getMask();
+        _features &= ~mask;
+        if ((mask & DERIVED_FEATURES_MASK) != 0) {
+            if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
+                _cfgNumbersAsStrings = false;
+            } else if (f == Feature.ESCAPE_NON_ASCII) {
+                setHighestNonEscapedChar(0);
+                /*
+            } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
+                // !!! TODO
+                 */
+            }
         }
         return this;
     }
@@ -111,8 +136,24 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }
     @Override public int getFeatureMask() { return _features; }
 
-    @Override public JsonGenerator setFeatureMask(int mask) {
-        _features = mask;
+    @Override public JsonGenerator setFeatureMask(int newMask) {
+        int changed = newMask ^ _features;
+        _features = newMask;
+        if ((changed & DERIVED_FEATURES_MASK) != 0) {
+            _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(newMask);
+            if (Feature.ESCAPE_NON_ASCII.enabledIn(changed)) {
+                if (Feature.ESCAPE_NON_ASCII.enabledIn(newMask)) {
+                    setHighestNonEscapedChar(127);
+                } else {
+                    setHighestNonEscapedChar(0);
+                }
+            }
+            /*
+            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(changed)) {
+                // !!! TODO
+            }
+            */
+        }
         return this;
     }
     

@@ -80,7 +80,9 @@ public class JsonWriteContext extends JsonStreamContext
     @Deprecated
     public static JsonWriteContext createRootContext() { return createRootContext(null); }
 
-    public static JsonWriteContext createRootContext(DupDetector dd) { return new JsonWriteContext(TYPE_ROOT, null, dd); }
+    public static JsonWriteContext createRootContext(DupDetector dd) {
+        return new JsonWriteContext(TYPE_ROOT, null, dd);
+    }
 
     public JsonWriteContext createChildArrayContext() {
         JsonWriteContext ctxt = _child;

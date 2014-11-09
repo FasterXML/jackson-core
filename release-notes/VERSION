@@ -3,6 +3,7 @@ Version: 2.4.4 (xx-xxx-2014)
 
 #157: ArrayIndexOutOfBoundsException: 200 on numbers with more than 200 digits.
  (reported by Lars P, larsp@github)
+- Fix `JsonGenerator.setFeatureMask()` to better handle dynamic changes.
 
 ------------------------------------------------------------------------
 === History: ===

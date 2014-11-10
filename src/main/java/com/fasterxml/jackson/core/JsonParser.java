@@ -467,8 +467,8 @@ public abstract class JsonParser
     public int getFeatureMask() { return _features; }
 
     /**
-     * Bulk set method for (re)settting states of all standard {@link Feature}s
-     * 
+     * Bulk set method for (re)setting states of all standard {@link Feature}s
+     *
      * @since 2.3
      * 
      * @return This parser object, to allow chaining of calls

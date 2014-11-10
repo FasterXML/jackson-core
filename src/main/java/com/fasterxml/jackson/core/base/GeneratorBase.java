@@ -23,7 +23,7 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     protected final static int DERIVED_FEATURES_MASK = Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
             | Feature.ESCAPE_NON_ASCII.getMask()
-//            | Feature.STRICT_DUPLICATE_DETECTION.getMask()
+            | Feature.STRICT_DUPLICATE_DETECTION.getMask()
             ;
 
     /*

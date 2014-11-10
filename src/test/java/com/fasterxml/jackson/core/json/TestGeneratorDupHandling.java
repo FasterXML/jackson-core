@@ -7,30 +7,59 @@ import com.fasterxml.jackson.core.*;
 public class TestGeneratorDupHandling
     extends com.fasterxml.jackson.core.BaseTest
 {
-    public void testSimpleDups() throws Exception
-    {
-        _testSimpleDups(false);
-        _testSimpleDups(true);
+    public void testSimpleDupsEagerlyBytes() throws Exception {
+        _testSimpleDups(true, false, new JsonFactory());
+    }
+    public void testSimpleDupsEagerlyChars() throws Exception {
+        _testSimpleDups(false, false, new JsonFactory());
+    }
+
+    // Testing ability to enable checking after construction of
+    // generator, not just via JsonFactory
+    public void testSimpleDupsLazilyBytes() throws Exception {
+        final JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
+        _testSimpleDups(true, true, f);
+    }
+
+    public void testSimpleDupsLazilyChars() throws Exception {
+        final JsonFactory f = new JsonFactory();
+        _testSimpleDups(false, true, f);
     }
     
-    protected void _testSimpleDups(boolean useStream) throws Exception
+    @SuppressWarnings("resource")
+    protected void _testSimpleDups(boolean useStream, boolean lazySetting, JsonFactory f)
+            throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
-
         // First: fine, when not checking
-        _writeSimple0(_generator(f, useStream), "a");
-        _writeSimple1(_generator(f, useStream), "b");
+        if (!lazySetting) {
+            _writeSimple0(_generator(f, useStream), "a");
+            _writeSimple1(_generator(f, useStream), "b");
+        }
 
         // but not when checking
-        f.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
+        JsonGenerator g;
+
+        if (lazySetting) {
+            g = _generator(f, useStream);            
+            g.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
+        } else {
+            f.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
+            g = _generator(f, useStream);            
+        }
         try {
-            _writeSimple0( _generator(f, useStream), "a");
+            _writeSimple0(g, "a");
             fail("Should have gotten exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "duplicate field 'a'");
         }
 
+        if (lazySetting) {
+            g = _generator(f, useStream);            
+            g.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
+        } else {
+            g = _generator(f, useStream);            
+        }
         try {
             _writeSimple1( _generator(f, useStream), "x");
             fail("Should have gotten exception");

@@ -73,7 +73,6 @@ public class JsonWriteContext extends JsonStreamContext
     }
 
     public JsonWriteContext withDupDetector(DupDetector dups) {
-System.err.println(" Set DupDet -> "+dups);
         _dups = dups;
         return this;
     }

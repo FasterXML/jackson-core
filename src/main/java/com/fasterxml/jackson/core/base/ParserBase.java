@@ -320,11 +320,11 @@ public abstract class ParserBase extends ParserMinimalBase
     }
     
     @Override
-    public JsonParser setFeatureMask(int mask) {
-        int changes = (_features ^ mask);
+    public JsonParser setFeatureMask(int newMask) {
+        int changes = (_features ^ newMask);
         if (changes != 0) {
-            _features = mask;
-            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(mask)) { // enabling
+            _features = newMask;
+            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newMask)) { // enabling
                 if (_parsingContext.getDupDetector() == null) { // but only if disabled currently
                     _parsingContext = _parsingContext.withDupDetector(DupDetector.rootDetector(this));
                 }

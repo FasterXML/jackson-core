@@ -38,30 +38,31 @@ public class TestGeneratorDupHandling
         }
 
         // but not when checking
-        JsonGenerator g;
+        JsonGenerator g1;
 
         if (lazySetting) {
-            g = _generator(f, useStream);            
-            g.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
+            g1 = _generator(f, useStream);            
+            g1.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
         } else {
             f.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
-            g = _generator(f, useStream);            
+            g1 = _generator(f, useStream);            
         }
         try {
-            _writeSimple0(g, "a");
+            _writeSimple0(g1, "a");
             fail("Should have gotten exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "duplicate field 'a'");
         }
 
+        JsonGenerator g2;
         if (lazySetting) {
-            g = _generator(f, useStream);            
-            g.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
+            g2 = _generator(f, useStream);            
+            g2.enable(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION);
         } else {
-            g = _generator(f, useStream);            
+            g2 = _generator(f, useStream);            
         }
         try {
-            _writeSimple1( _generator(f, useStream), "x");
+            _writeSimple1(g2, "x");
             fail("Should have gotten exception");
         } catch (JsonGenerationException e) {
             verifyException(e, "duplicate field 'x'");

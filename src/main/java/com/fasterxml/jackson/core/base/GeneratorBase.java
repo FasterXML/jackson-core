@@ -106,6 +106,12 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
+
+    @Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }
+    @Override public int getFeatureMask() { return _features; }
+
+    //public JsonGenerator configure(Feature f, boolean state) { }
+    
     @Override
     public JsonGenerator enable(Feature f) {
         final int mask = f.getMask();
@@ -115,10 +121,10 @@ public abstract class GeneratorBase extends JsonGenerator
                 _cfgNumbersAsStrings = true;
             } else if (f == Feature.ESCAPE_NON_ASCII) {
                 setHighestNonEscapedChar(127);
-                /*
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
-            */
-                // !!! TODO
+                if (_writeContext.getDupDetector() == null) { // but only if disabled currently
+                    _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
+                }
             }
         }
         return this;
@@ -133,19 +139,12 @@ public abstract class GeneratorBase extends JsonGenerator
                 _cfgNumbersAsStrings = false;
             } else if (f == Feature.ESCAPE_NON_ASCII) {
                 setHighestNonEscapedChar(0);
-                /*
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
-                // !!! TODO
-                 */
+                _writeContext = _writeContext.withDupDetector(null);
             }
         }
         return this;
     }
-
-    //public JsonGenerator configure(Feature f, boolean state) { }
-
-    @Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }
-    @Override public int getFeatureMask() { return _features; }
 
     @Override public JsonGenerator setFeatureMask(int newMask) {
         int changed = newMask ^ _features;
@@ -159,11 +158,15 @@ public abstract class GeneratorBase extends JsonGenerator
                     setHighestNonEscapedChar(0);
                 }
             }
-            /*
             if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(changed)) {
-                // !!! TODO
+                if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newMask)) { // enabling
+                    if (_writeContext.getDupDetector() == null) { // but only if disabled currently
+                        _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
+                    }
+                } else { // disabling
+                    _writeContext = _writeContext.withDupDetector(null);
+                }
             }
-            */
         }
         return this;
     }

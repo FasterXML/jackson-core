@@ -25,7 +25,7 @@ public class JsonWriteContext extends JsonStreamContext
 
     // // // Optional duplicate detection
 
-    protected final DupDetector _dups;
+    protected DupDetector _dups;
     
     /*
     /**********************************************************
@@ -71,8 +71,18 @@ public class JsonWriteContext extends JsonStreamContext
         if (_dups != null) { _dups.reset(); }
         return this;
     }
+
+    public JsonWriteContext withDupDetector(DupDetector dups) {
+System.err.println(" Set DupDet -> "+dups);
+        _dups = dups;
+        return this;
+    }
     
-    // // // Factory methods
+    /*
+    /**********************************************************
+    /* Factory methods
+    /**********************************************************
+     */
 
     /**
      * @deprecated Since 2.3; use method that takes argument
@@ -106,6 +116,10 @@ public class JsonWriteContext extends JsonStreamContext
 
     @Override public final JsonWriteContext getParent() { return _parent; }
     @Override public final String getCurrentName() { return _currentName; }
+
+    public DupDetector getDupDetector() {
+        return _dups;
+    }
     
     // // // API sub-classes are to implement
 

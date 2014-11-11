@@ -352,4 +352,24 @@ public abstract class GeneratorBase extends JsonGenerator
      *   if value output is NOT legal in current generator output state.
      */
     protected abstract void _verifyValueWrite(String typeMsg) throws IOException;
+
+    /*
+    /**********************************************************
+    /* UTF-8 related helper method(s)
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.5
+     */
+    protected final int _decodeSurrogate(int surr1, int surr2) throws IOException
+    {
+        // First is known to be valid, but how about the other?
+        if (surr2 < SURR2_FIRST || surr2 > SURR2_LAST) {
+            String msg = "Incomplete surrogate pair: first char 0x"+Integer.toHexString(surr1)+", second 0x"+Integer.toHexString(surr2);
+            _reportError(msg);
+        }
+        int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
+        return c;
+    }
 }

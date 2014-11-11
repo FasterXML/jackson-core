@@ -1784,8 +1784,7 @@ public class UTF8JsonGenerator
      * 
      * @throws IOException
      */
-    private final int _outputMultiByteChar(int ch, int outputPtr)
-        throws IOException
+    private final int _outputMultiByteChar(int ch, int outputPtr) throws IOException
     {
         byte[] bbuf = _outputBuffer;
         if (ch >= SURR1_FIRST && ch <= SURR2_LAST) { // yes, outside of BMP; add an escape
@@ -1802,17 +1801,6 @@ public class UTF8JsonGenerator
             bbuf[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
         }
         return outputPtr;
-    }
-
-    protected final int _decodeSurrogate(int surr1, int surr2) throws IOException
-    {
-        // First is known to be valid, but how about the other?
-        if (surr2 < SURR2_FIRST || surr2 > SURR2_LAST) {
-            String msg = "Incomplete surrogate pair: first char 0x"+Integer.toHexString(surr1)+", second 0x"+Integer.toHexString(surr2);
-            _reportError(msg);
-        }
-        int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
-        return c;
     }
     
     private final void _writeNull() throws IOException

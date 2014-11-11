@@ -15,6 +15,11 @@ import com.fasterxml.jackson.core.util.VersionUtil;
  */
 public abstract class GeneratorBase extends JsonGenerator
 {
+    public final static int SURR1_FIRST = 0xD800;
+    public final static int SURR1_LAST = 0xDBFF;
+    public final static int SURR2_FIRST = 0xDC00;
+    public final static int SURR2_LAST = 0xDFFF;
+
     /*
     /**********************************************************
     /* Configuration

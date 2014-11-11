@@ -24,11 +24,6 @@ public class UTF8JsonGenerator
     private final static byte BYTE_COLON = (byte) ':';
     private final static byte BYTE_QUOTE = (byte) '"';
 
-    protected final static int SURR1_FIRST = 0xD800;
-    protected final static int SURR1_LAST = 0xDBFF;
-    protected final static int SURR2_FIRST = 0xDC00;
-    protected final static int SURR2_LAST = 0xDFFF;
-
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
     

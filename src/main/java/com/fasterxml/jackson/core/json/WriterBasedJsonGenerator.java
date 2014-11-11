@@ -444,7 +444,7 @@ public final class WriterBasedJsonGenerator
     public void writeRaw(SerializableString text) throws IOException {
         writeRaw(text.getValue());
     }
-    
+
     @Override
     public void writeRaw(char[] text, int offset, int len) throws IOException
     {

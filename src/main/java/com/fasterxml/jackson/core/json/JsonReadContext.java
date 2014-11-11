@@ -19,7 +19,7 @@ public final class JsonReadContext extends JsonStreamContext
     
     // // // Optional duplicate detection
 
-    protected final DupDetector _dups;
+    protected DupDetector _dups;
     
     // // // Location information (minus source reference)
 
@@ -72,13 +72,22 @@ public final class JsonReadContext extends JsonStreamContext
     }
     */
 
-    // // // Factory methods
+    public JsonReadContext withDupDetector(DupDetector dups) {
+        _dups = dups;
+        return this;
+    }
+
+    /*
+    /**********************************************************
+    /* Factory methods
+    /**********************************************************
+     */
 
     @Deprecated // since 2.3, use variant that takes dup detector
     public static JsonReadContext createRootContext(int lineNr, int colNr) {
         return createRootContext(lineNr, colNr, null);
     }
-    
+
     public static JsonReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
         return new JsonReadContext(null, dups, TYPE_ROOT, lineNr, colNr);
     }
@@ -137,6 +146,10 @@ public final class JsonReadContext extends JsonStreamContext
         // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
         return new JsonLocation(srcRef, totalChars, _lineNr, _columnNr);
+    }
+
+    public DupDetector getDupDetector() {
+        return _dups;
     }
 
     /*

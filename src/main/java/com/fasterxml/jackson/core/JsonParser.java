@@ -208,20 +208,20 @@ public abstract class JsonParser
             }
             return flags;
         }
-        
+
         private Feature(boolean defaultState) {
             _mask = (1 << ordinal());
             _defaultState = defaultState;
         }
-        
+
         public boolean enabledByDefault() { return _defaultState; }
-        
+
         /**
          * @since 2.3
          */
         public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 
-        public int getMask() { return (1 << ordinal()); }
+        public int getMask() { return _mask; }
     }
 
     /*
@@ -455,7 +455,7 @@ public abstract class JsonParser
     /**
      * Method for checking whether specified {@link Feature} is enabled.
      */
-    public boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }
+    public boolean isEnabled(Feature f) { return f.enabledIn(_features); }
 
     /**
      * Bulk access method for getting state of all standard {@link Feature}s.
@@ -467,8 +467,8 @@ public abstract class JsonParser
     public int getFeatureMask() { return _features; }
 
     /**
-     * Bulk set method for (re)settting states of all standard {@link Feature}s
-     * 
+     * Bulk set method for (re)setting states of all standard {@link Feature}s
+     *
      * @since 2.3
      * 
      * @return This parser object, to allow chaining of calls

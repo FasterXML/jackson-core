@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.DupDetector;
@@ -292,6 +293,48 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override public Version version() { return PackageVersion.VERSION; }
 
+    /*
+    /**********************************************************
+    /* Overrides for Feature handling
+    /**********************************************************
+     */
+
+    @Override
+    public JsonParser enable(Feature f) {
+        _features |= f.getMask();
+        if (f == Feature.STRICT_DUPLICATE_DETECTION) { // enabling dup detection?
+            if (_parsingContext.getDupDetector() == null) { // but only if disabled currently
+                _parsingContext = _parsingContext.withDupDetector(DupDetector.rootDetector(this));
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public JsonParser disable(Feature f) {
+        _features &= ~f.getMask();
+        if (f == Feature.STRICT_DUPLICATE_DETECTION) {
+            _parsingContext = _parsingContext.withDupDetector(null);
+        }
+        return this;
+    }
+    
+    @Override
+    public JsonParser setFeatureMask(int newMask) {
+        int changes = (_features ^ newMask);
+        if (changes != 0) {
+            _features = newMask;
+            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newMask)) { // enabling
+                if (_parsingContext.getDupDetector() == null) { // but only if disabled currently
+                    _parsingContext = _parsingContext.withDupDetector(DupDetector.rootDetector(this));
+                }
+            } else { // disabling
+                _parsingContext = _parsingContext.withDupDetector(null);
+            }
+        }
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* JsonParser impl

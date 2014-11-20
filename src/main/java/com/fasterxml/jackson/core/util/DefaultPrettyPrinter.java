@@ -409,4 +409,23 @@ public class DefaultPrettyPrinter
         @Override
         public boolean isInline() { return true; }
     }
+    
+    /** @deprecated Use {@link DefaultIndenter} instead */
+    @Deprecated
+    public static class Lf2SpacesIndenter extends DefaultIndenter
+    {
+        /** @deprecated Use {@link DefaultIndenter.SYSTEM_LINEFEED_INSTANCE} instead */
+        public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
+
+        /** @deprecated Use {@code new DefaultIndenter("  ", DefaultIndenter.SYS_LF)} instead */
+        public Lf2SpacesIndenter()
+        {
+            super("  ", DefaultIndenter.SYS_LF);
+        }
+        
+        /** @deprecated Use {@code new DefaultIndenter("  ", lf)} instead */
+        public Lf2SpacesIndenter(String lf) {
+            super("  ", lf);
+        }
+    }
 }

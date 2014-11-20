@@ -30,6 +30,11 @@ public class DefaultIndenter
     private final int charsPerLevel;
     private final String eol;
 
+    /** Indent with two spaces and the system's default line feed */
+    public DefaultIndenter() {
+        this("  ", SYS_LF);
+    }
+    
     /** Create an indenter which uses the <code>indent</code> string to indent one level
      *  and the <code>eol</code> string to separate lines. */
     public DefaultIndenter(String indent, String eol)
@@ -44,6 +49,22 @@ public class DefaultIndenter
         }
 
         this.eol = eol;
+    }
+    
+    public DefaultIndenter withLinefeed(String lf)
+    {
+        if (lf.equals(eol)) {
+            return this;
+        }
+        return new DefaultIndenter(getIndent(), lf);
+    }
+    
+    public DefaultIndenter withIndent(String indent)
+    {
+        if (indent.equals(getIndent())) {
+            return this;
+        }
+        return new DefaultIndenter(indent, eol);
     }
 
     @Override
@@ -62,5 +83,15 @@ public class DefaultIndenter
             }
             jg.writeRaw(indents, 0, level);
         }
+    }
+    
+    public String getEol()
+    {
+        return eol;
+    }
+    
+    public String getIndent()
+    {
+        return new String(indents, 0, charsPerLevel);
     }
 }

@@ -26,6 +26,30 @@ public class TestDefaultPrettyPrinter
     }
 
     @Test
+    public void testWithLineFeed() throws IOException
+    {
+        PrettyPrinter pp = new DefaultPrettyPrinter()
+        .withObjectIndenter(new DefaultIndenter().withLinefeed("\n"));
+        assertEquals(
+            "{\n" +
+            "  \"name\" : \"John Doe\",\n" +
+            "  \"age\" : 3.14\n" +
+            "}", _printTestData(pp));
+    }
+    
+    @Test
+    public void testWithIndent() throws IOException
+    {
+        PrettyPrinter pp = new DefaultPrettyPrinter()
+        .withObjectIndenter(new DefaultIndenter().withIndent(" "));
+        assertEquals(
+            "{\n" +
+            " \"name\" : \"John Doe\",\n" +
+            " \"age\" : 3.14\n" +
+            "}", _printTestData(pp));
+    }
+    
+    @Test
     public void testUnixLinefeed() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()

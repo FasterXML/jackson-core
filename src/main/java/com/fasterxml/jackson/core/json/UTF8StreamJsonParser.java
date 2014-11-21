@@ -166,14 +166,18 @@ public class UTF8StreamJsonParser
      */
 
     @Override
-    protected final boolean loadMore()
-        throws IOException
+    protected final boolean loadMore() throws IOException
     {
         _currInputProcessed += _inputEnd;
         _currInputRowStart -= _inputEnd;
         
         if (_inputStream != null) {
-            int count = _inputStream.read(_inputBuffer, 0, _inputBuffer.length);
+            int space = _inputBuffer.length;
+            if (space == 0) { // only occurs when we've been closed
+                return false;
+            }
+            
+            int count = _inputStream.read(_inputBuffer, 0, space);
             if (count > 0) {
                 _inputPtr = 0;
                 _inputEnd = count;
@@ -193,8 +197,7 @@ public class UTF8StreamJsonParser
      * Helper method that will try to load at least specified number bytes in
      * input buffer, possible moving existing data around if necessary
      */
-    protected final boolean _loadToHaveAtLeast(int minAvailable)
-        throws IOException
+    protected final boolean _loadToHaveAtLeast(int minAvailable) throws IOException
     {
         // No input stream, no leading (either we are closed, or have non-stream input source)
         if (_inputStream == null) {
@@ -257,7 +260,11 @@ public class UTF8StreamJsonParser
         if (_bufferRecyclable) {
             byte[] buf = _inputBuffer;
             if (buf != null) {
-                _inputBuffer = null;
+                /* 21-Nov-2014, tatu: Let's not set it to null; this way should
+                 *   get slightly more meaningful error messages in case someone
+                 *   closes parser indirectly, without realizing.
+                 */
+                _inputBuffer = ByteArrayBuilder.NO_BYTES;
                 _ioContext.releaseReadIOBuffer(buf);
             }
         }

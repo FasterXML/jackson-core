@@ -261,6 +261,15 @@ public interface TreeNode
      * Functionally equivalent to first serializing tree using
      * {@link ObjectCodec} and then re-parsing but
      * more efficient.
+     *<p>
+     * NOTE: constructed parser instance will NOT initially point to a token,
+     * so before passing it to deserializers, it is typically necessary to
+     * advance it to the first available token by calling {@link JsonParser#nextToken()}.
+     *<p>
+     * Also note that calling this method will <b>NOT</b> pass {@link ObjectCodec}
+     * reference, so data-binding callback methods like {@link JsonParser#readValueAs(Class)}
+     * will not work with calling {@link JsonParser#setCodec}).
+     * It is often better to call {@link #traverse(ObjectCodec)} to pass the codec explicitly.
      */
     JsonParser traverse();
 
@@ -268,6 +277,10 @@ public interface TreeNode
      * Same as {@link #traverse()}, but additionally passes {@link com.fasterxml.jackson.core.ObjectCodec}
      * to use if {@link JsonParser#readValueAs(Class)} is used (otherwise caller must call
      * {@link JsonParser#setCodec} on response explicitly).
+     *<p>
+     * NOTE: constructed parser instance will NOT initially point to a token,
+     * so before passing it to deserializers, it is typically necessary to
+     * advance it to the first available token by calling {@link JsonParser#nextToken()}.
      * 
      * @since 2.1
      */

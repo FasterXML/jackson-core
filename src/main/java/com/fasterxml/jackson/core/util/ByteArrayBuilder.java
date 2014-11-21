@@ -23,7 +23,7 @@ import java.util.*;
  */
 public final class ByteArrayBuilder extends OutputStream
 {
-    private final static byte[] NO_BYTES = new byte[0];
+    public final static byte[] NO_BYTES = new byte[0];
     
     // Size of the first block we will allocate.
     private final static int INITIAL_BLOCK_SIZE = 500;

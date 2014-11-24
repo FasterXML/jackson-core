@@ -26,7 +26,7 @@ public class TestGeneratorDupHandling
         final JsonFactory f = new JsonFactory();
         _testSimpleDups(false, true, f);
     }
-    
+
     @SuppressWarnings("resource")
     protected void _testSimpleDups(boolean useStream, boolean lazySetting, JsonFactory f)
             throws Exception

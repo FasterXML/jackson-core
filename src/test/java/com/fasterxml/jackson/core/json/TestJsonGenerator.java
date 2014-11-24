@@ -13,7 +13,6 @@ public class TestJsonGenerator
 {
     // // // First, tests for primitive (non-structured) values
 
-    @SuppressWarnings("resource")
     public void testStringWrite() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -226,7 +225,38 @@ public class TestJsonGenerator
         
         gen.close();
     }
-    
+
+    // [core#167]: no error for writing field name twice
+    public void testDupFieldNameWrites() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        _testDupFieldNameWrites(f, false);
+        _testDupFieldNameWrites(f, true);        
+    }
+
+    private void _testDupFieldNameWrites(JsonFactory f, boolean useReader) throws Exception
+    {
+        JsonGenerator gen;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        if (useReader) {
+            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+        } else {
+            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+        }
+        gen.writeStartObject();
+        gen.writeFieldName("a");
+        
+        try {
+            gen.writeFieldName("b");
+            gen.flush();
+            String json = bout.toString("UTF-8");
+            fail("Should not have let two consequtive field name writes succeed: output = "+json);
+        } catch (JsonProcessingException e) {
+            verifyException(e, "can not write a field name, expecting a value");
+        }
+        gen.close();
+    }
+            
     /*
     /**********************************************************
     /* Internal methods

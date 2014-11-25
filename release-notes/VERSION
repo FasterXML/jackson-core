@@ -1,5 +1,19 @@
 Project: jackson-core
-Version: 2.5.0 (xx-xxx-2014)
+
+Contains core streaming reader (`JsonParser`) and writer (`JsonGenerator`) abstractions,
+factory for constructing readers/writers (JsonFactory). as well as a minimal set
+of interfaces needed for streaming level to make callbacks and call-throughs,
+via `ObjectCodec` and `TreeNode`.
+
+Also includes implementation of abstractsion for JSON, 
+Forms the base for other data formats as well, despite naming that suggests
+json-specificity (naming due to historical reasons).
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.5.0 (not yet released)
 
 #148: BytesToNameCanonicalizer can mishandle leading null byte(s).
  (reported by rjmac@github)
@@ -10,11 +24,7 @@ Version: 2.5.0 (xx-xxx-2014)
  of generic types.
 - Added `JsonGenerator.writeRawValue(SerializableString)`
 
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
-
-2.4.4 (not yet released)
+2.4.4 (24-Nov-2014)
 
 #157: ArrayIndexOutOfBoundsException: 200 on numbers with more than 200 digits.
  (reported by Lars P, larsp@github)

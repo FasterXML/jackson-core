@@ -1,13 +1,23 @@
 Project: jackson-core
-Version: 2.4.4 (xx-xxx-2014)
+
+Contains core streaming reader (`JsonParser`) and writer (`JsonGenerator`) abstractions,
+factory for constructing readers/writers (JsonFactory). as well as a minimal set
+of interfaces needed for streaming level to make callbacks and call-throughs,
+via `ObjectCodec` and `TreeNode`.
+
+Also includes implementation of abstractsion for JSON, 
+Forms the base for other data formats as well, despite naming that suggests
+json-specificity (naming due to historical reasons).
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.4.4 (24-Nov-2014)
 
 #157: ArrayIndexOutOfBoundsException: 200 on numbers with more than 200 digits.
  (reported by Lars P, larsp@github)
 - Fix `JsonGenerator.setFeatureMask()` to better handle dynamic changes.
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.4.3 (02-Oct-2014)
 

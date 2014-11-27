@@ -26,7 +26,7 @@ public class JsonWriteContext extends JsonStreamContext
     // // // Optional duplicate detection
 
     protected DupDetector _dups;
-    
+
     /*
     /**********************************************************
     /* Simple instance reuse slots; speed up things
@@ -37,12 +37,23 @@ public class JsonWriteContext extends JsonStreamContext
 
     protected JsonWriteContext _child = null;
 
+    /*
+    /**********************************************************
+    /* Location/state information (minus source reference)
+    /**********************************************************
+     */
+    
     /**
      * Name of the field of which value is to be parsed; only
      * used for OBJECT contexts
      */
     protected String _currentName;
 
+    /**
+     * @since 2.5
+     */
+    protected Object _currentValue;
+    
     /**
      * Marker used to indicate that we just received a name, and
      * now expect a value
@@ -68,6 +79,7 @@ public class JsonWriteContext extends JsonStreamContext
         _index = -1;
         _currentName = null;
         _gotName = false;
+        _currentValue = null;
         if (_dups != null) { _dups.reset(); }
         return this;
     }
@@ -75,6 +87,16 @@ public class JsonWriteContext extends JsonStreamContext
     public JsonWriteContext withDupDetector(DupDetector dups) {
         _dups = dups;
         return this;
+    }
+
+    @Override
+    public Object getCurrentValue() {
+        return _currentValue;
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        _currentValue = v;
     }
     
     /*

@@ -104,7 +104,17 @@ public abstract class GeneratorBase extends JsonGenerator
      * package as the implementation class.
      */
     @Override public Version version() { return VersionUtil.versionFor(getClass()); }
-    
+
+    @Override
+    public Object getCurrentValue() {
+        return _writeContext.getCurrentValue();
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        _writeContext.setCurrentValue(v);
+    }
+
     /*
     /**********************************************************
     /* Configuration

@@ -289,6 +289,34 @@ public abstract class JsonGenerator
         return null;
     }
 
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getOutputContext().getCurrentValue();
+     *<code>
+     * 
+     * @since 2.5
+     */
+    public Object getCurrentValue() {
+        JsonStreamContext ctxt = getOutputContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getOutputContext().setCurrentValue(v);
+     *<code>
+     * 
+     * @since 2.5
+     */
+    public void setCurrentValue(Object v) {
+        JsonStreamContext ctxt = getOutputContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
+    }
+
     /*
     /**********************************************************
     /* Public API, Feature configuration

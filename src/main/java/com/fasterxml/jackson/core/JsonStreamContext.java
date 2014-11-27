@@ -103,4 +103,29 @@ public abstract class JsonStreamContext
      * follow field names; null for root level and array values.
      */
     public abstract String getCurrentName();
+
+    /**
+     * Method for accessing currently active value being used by data-binding
+     * (as the source of streaming data to write, or destination of data being
+     * read), at this level in hierarchy.
+     * The value may not exist or be available due to various limitations (at
+     * least during reading of data, as target value object may not have yet
+     * been constructed).
+     * 
+     * @return Currently active value, if one has been assigned.
+     * 
+     * @since 2.5
+     */
+    public Object getCurrentValue() {
+        return null;
+    }
+
+    /**
+     * Method to call to pass value to be returned via {@link #getCurrentValue}; typically
+     * called indirectly through {@link JsonParser#setCurrentValue}
+     * or {@link JsonGenerator#setCurrentValue}).
+     * 
+     * @since 2.5
+     */
+    public void setCurrentValue(Object v) { }
 }

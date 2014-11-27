@@ -293,6 +293,16 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override public Version version() { return PackageVersion.VERSION; }
 
+    @Override
+    public Object getCurrentValue() {
+        return _parsingContext.getCurrentValue();
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        _parsingContext.setCurrentValue(v);
+    }
+    
     /*
     /**********************************************************
     /* Overrides for Feature handling

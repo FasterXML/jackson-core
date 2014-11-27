@@ -20,6 +20,7 @@ json-specificity (naming due to historical reasons).
 #164: Add `JsonGenerator.Feature.IGNORE_UNKNOWN` (but support via individual
   data format modules)
 #167: `JsonGenerator` not catching problem of writing field name twice in a row
+#168: Add methods in `JsonStreamContext` for keeping track of "current value"
 - Added `ResolvedType.getParameterSource()` to support better resolution
  of generic types.
 - Added `JsonGenerator.writeRawValue(SerializableString)`

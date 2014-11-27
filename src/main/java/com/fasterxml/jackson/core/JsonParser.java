@@ -277,6 +277,34 @@ public abstract class JsonParser
      */
     public Object getInputSource() { return null; }
 
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getParsingContext().getCurrentValue();
+     *<code>
+     * 
+     * @since 2.5
+     */
+    public Object getCurrentValue() {
+        JsonStreamContext ctxt = getParsingContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getParsingContext().setCurrentValue(v);
+     *<code>
+     * 
+     * @since 2.5
+     */
+    public void setCurrentValue(Object v) {
+        JsonStreamContext ctxt = getParsingContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Format support

@@ -25,6 +25,16 @@ public class JsonParserDelegate extends JsonParser
         delegate = d;
     }
 
+    @Override
+    public Object getCurrentValue() {
+        return delegate.getCurrentValue();
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        delegate.setCurrentValue(v);
+    }
+
     /*
     /**********************************************************
     /* Public API, configuration

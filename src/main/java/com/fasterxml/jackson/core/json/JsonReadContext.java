@@ -20,14 +20,7 @@ public final class JsonReadContext extends JsonStreamContext
     // // // Optional duplicate detection
 
     protected DupDetector _dups;
-    
-    // // // Location information (minus source reference)
 
-    protected int _lineNr;
-    protected int _columnNr;
-
-    protected String _currentName;
-    
     /*
     /**********************************************************
     /* Simple instance reuse slots; speeds up things
@@ -41,7 +34,23 @@ public final class JsonReadContext extends JsonStreamContext
 
     /*
     /**********************************************************
-    /* Instance construction, reuse
+    /* Location/state information (minus source reference)
+    /**********************************************************
+     */
+
+    protected String _currentName;
+
+    /**
+     * @since 2.5
+     */
+    protected Object _currentValue;
+    
+    protected int _lineNr;
+    protected int _columnNr;
+
+    /*
+    /**********************************************************
+    /* Instance construction, config, reuse
     /**********************************************************
      */
 
@@ -61,6 +70,7 @@ public final class JsonReadContext extends JsonStreamContext
         _lineNr = lineNr;
         _columnNr = colNr;
         _currentName = null;
+        _currentValue = null;
         if (_dups != null) {
             _dups.reset();
         }
@@ -77,6 +87,16 @@ public final class JsonReadContext extends JsonStreamContext
         return this;
     }
 
+    @Override
+    public Object getCurrentValue() {
+        return _currentValue;
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        _currentValue = v;
+    }
+    
     /*
     /**********************************************************
     /* Factory methods

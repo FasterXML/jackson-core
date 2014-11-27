@@ -42,6 +42,16 @@ public class JsonGeneratorDelegate extends JsonGenerator
         this.delegateCopyMethods = delegateCopyMethods;
     }
 
+    @Override
+    public Object getCurrentValue() {
+        return delegate.getCurrentValue();
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        delegate.setCurrentValue(v);
+    }
+    
     /*
     /**********************************************************
     /* Extended API

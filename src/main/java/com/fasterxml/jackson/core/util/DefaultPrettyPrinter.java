@@ -59,7 +59,7 @@ public class DefaultPrettyPrinter
      * system-specific linefeeds, and 2 spaces per level (as opposed to,
      * say, single tabs)
      */
-    protected Indenter _objectIndenter = Lf2SpacesIndenter.instance;
+    protected Indenter _objectIndenter = DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
 
     /**
      * String printed between root-level values, if any.
@@ -409,75 +409,23 @@ public class DefaultPrettyPrinter
         @Override
         public boolean isInline() { return true; }
     }
-
-    /**
-     * Default linefeed-based indenter uses system-specific linefeeds and
-     * 2 spaces for indentation per level.
-     */
-    public static class Lf2SpacesIndenter extends NopIndenter
+    
+    /** @deprecated Use {@link DefaultIndenter} instead */
+    @Deprecated
+    public static class Lf2SpacesIndenter extends DefaultIndenter
     {
-        private final static String SYS_LF;
-        static {
-            String lf = null;
-            try {
-                lf = System.getProperty("line.separator");
-            } catch (Throwable t) { } // access exception?
-            SYS_LF = (lf == null) ? "\n" : lf;
-        }
-
-        final static int SPACE_COUNT = 64;
-        final static char[] SPACES = new char[SPACE_COUNT];
-        static {
-            Arrays.fill(SPACES, ' ');
-        }
-
-        @SuppressWarnings("hiding")
+        /** @deprecated Use {@link DefaultIndenter.SYSTEM_LINEFEED_INSTANCE} instead */
         public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
 
-        /**
-         * Linefeed used; default value is the platform-specific linefeed.
-         */
-        protected final String _lf;
-
-        public Lf2SpacesIndenter() { this(SYS_LF); }
+        /** @deprecated Use {@code new DefaultIndenter("  ", DefaultIndenter.SYS_LF)} instead */
+        public Lf2SpacesIndenter()
+        {
+            super("  ", DefaultIndenter.SYS_LF);
+        }
         
-        /**
-         * @since 2.3
-         */
+        /** @deprecated Use {@code new DefaultIndenter("  ", lf)} instead */
         public Lf2SpacesIndenter(String lf) {
-            _lf = lf;
-        }
-
-        /**
-         * "Mutant factory" method that will return an instance that uses
-         * specified String as linefeed.
-         * 
-         * @since 2.3
-         */
-        public Lf2SpacesIndenter withLinefeed(String lf)
-        {
-            if (lf.equals(_lf)) {
-                return this;
-            }
-            return new Lf2SpacesIndenter(lf);
-        }
-        
-        @Override
-        public boolean isInline() { return false; }
-
-        @Override
-        public void writeIndentation(JsonGenerator jg, int level)
-            throws IOException, JsonGenerationException
-        {
-            jg.writeRaw(_lf);
-            if (level > 0) { // should we err on negative values (as there's some flaw?)
-                level += level; // 2 spaces per level
-                while (level > SPACE_COUNT) { // should never happen but...
-                    jg.writeRaw(SPACES, 0, SPACE_COUNT); 
-                    level -= SPACES.length;
-                }
-                jg.writeRaw(SPACES, 0, level);
-            }
+            super("  ", lf);
         }
     }
 }

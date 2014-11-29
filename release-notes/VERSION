@@ -19,6 +19,8 @@ json-specificity (naming due to historical reasons).
  (reported by rjmac@github)
 #164: Add `JsonGenerator.Feature.IGNORE_UNKNOWN` (but support via individual
   data format modules)
+#166: Allow to configure line endings and indentation
+ (contributed by Aaron D)
 #167: `JsonGenerator` not catching problem of writing field name twice in a row
 #168: Add methods in `JsonStreamContext` for keeping track of "current value"
 - Added `ResolvedType.getParameterSource()` to support better resolution

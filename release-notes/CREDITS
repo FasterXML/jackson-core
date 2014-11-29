@@ -41,3 +41,7 @@ rjmac@github
    (2.4.2)
   * Reported #148: BytesToNameCanonicalizer can mishandle leading null byte(s).
    (2.5.0)
+
+Aaron Digulla:
+  * Contributed #166: Allow to configure line endings and indentation
+

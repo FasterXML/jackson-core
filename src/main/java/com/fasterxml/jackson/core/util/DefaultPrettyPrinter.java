@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.*;
-import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -18,7 +17,7 @@ public class DefaultPrettyPrinter
     implements PrettyPrinter, Instantiatable<DefaultPrettyPrinter>,
         java.io.Serializable
 {
-    private static final long serialVersionUID = -5512586643324525213L;
+    private static final long serialVersionUID = 1;
 
     /**
      * Constant that specifies default "root-level" separator to use between
@@ -36,8 +35,7 @@ public class DefaultPrettyPrinter
      */
     public interface Indenter
     {
-        void writeIndentation(JsonGenerator jg, int level)
-            throws IOException, JsonGenerationException;
+        void writeIndentation(JsonGenerator jg, int level) throws IOException;
 
         /**
          * @return True if indenter is considered inline (does not add linefeeds),
@@ -381,9 +379,7 @@ public class DefaultPrettyPrinter
         public static final NopIndenter instance = new NopIndenter();
 
         @Override
-        public void writeIndentation(JsonGenerator jg, int level)
-            throws IOException, JsonGenerationException
-        { }
+        public void writeIndentation(JsonGenerator jg, int level) throws IOException { }
 
         @Override
         public boolean isInline() { return true; }
@@ -410,20 +406,25 @@ public class DefaultPrettyPrinter
         public boolean isInline() { return true; }
     }
     
-    /** @deprecated Use {@link DefaultIndenter} instead */
+    /**
+     * @deprecated Since 2.5 use {@link DefaultIndenter} instead
+     */
     @Deprecated
     public static class Lf2SpacesIndenter extends DefaultIndenter
     {
-        /** @deprecated Use {@link DefaultIndenter.SYSTEM_LINEFEED_INSTANCE} instead */
+        /** @deprecated Use {@link DefaultIndenter#SYSTEM_LINEFEED_INSTANCE} instead */
+        @SuppressWarnings("hiding")
+        @Deprecated
         public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
 
         /** @deprecated Use {@code new DefaultIndenter("  ", DefaultIndenter.SYS_LF)} instead */
-        public Lf2SpacesIndenter()
-        {
+        @Deprecated
+        public Lf2SpacesIndenter() {
             super("  ", DefaultIndenter.SYS_LF);
         }
         
         /** @deprecated Use {@code new DefaultIndenter("  ", lf)} instead */
+        @Deprecated
         public Lf2SpacesIndenter(String lf) {
             super("  ", lf);
         }

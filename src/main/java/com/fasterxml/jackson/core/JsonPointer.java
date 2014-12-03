@@ -19,6 +19,9 @@ import com.fasterxml.jackson.core.io.NumberInput;
  */
 public class JsonPointer
 {
+
+    protected final static int NO_SLASH = -1;
+
     /**
      * Marker instance used to represent segment that matches current
      * node or position.
@@ -31,7 +34,13 @@ public class JsonPointer
      * segment.
      */
     protected final JsonPointer _nextSegment;
-    
+
+    /**
+     * Reference form currently matching segment (if any) to node
+     * before leaf.
+     */
+    protected final JsonPointer _headSegment;
+
     /**
      * We will retain representation of the pointer, as a String,
      * so that {@link #toString} should be as efficient as possible.
@@ -54,6 +63,7 @@ public class JsonPointer
      */
     protected JsonPointer() {
         _nextSegment = null;
+        _headSegment = null;
         _matchingPropertyName = "";
         _matchingElementIndex = -1;
         _asString = "";
@@ -62,9 +72,10 @@ public class JsonPointer
     /**
      * Constructor used for creating non-empty Segments
      */
-    protected JsonPointer(String fullString, String segment, JsonPointer next) {
+    protected JsonPointer(String fullString, String segment, JsonPointer next, JsonPointer head) {
         _asString = fullString;
         _nextSegment = next;
+        _headSegment = head;
         // Ok; may always be a property
         _matchingPropertyName = segment;
         _matchingElementIndex = _parseIndex(segment);
@@ -95,7 +106,7 @@ public class JsonPointer
         if (input.charAt(0) != '/') {
             throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+input+"\"");
         }
-        return _parseTail(input);
+        return _parseTailAndHead(input);
     }
 
     /**
@@ -159,7 +170,15 @@ public class JsonPointer
     public JsonPointer tail() {
         return _nextSegment;
     }
-    
+
+    /**
+     * Accessor for getting a "pointer", instance from current segment to
+     * segment before segment leaf.
+     */
+    public JsonPointer head() {
+        return _headSegment;
+    }
+
     /*
     /**********************************************************
     /* Standard method overrides
@@ -204,25 +223,32 @@ public class JsonPointer
         return NumberInput.parseInt(str);
     }
     
-    protected static JsonPointer _parseTail(String input) {
+    protected static JsonPointer _parseTailAndHead(String input) {
         final int end = input.length();
+
+        int lastSlash = input.lastIndexOf('/');
 
         // first char is the contextual slash, skip
         for (int i = 1; i < end; ) {
             char c = input.charAt(i);
             if (c == '/') { // common case, got a segment
-                return new JsonPointer(input, input.substring(1, i),
-                        _parseTail(input.substring(i)));
+                if(i == NO_SLASH) {
+                    return new JsonPointer(input, input.substring(1, i),
+                            _parseTailAndHead(input.substring(i)), EMPTY);
+                } else {
+                    return new JsonPointer(input, input.substring(1, i),
+                            _parseTailAndHead(input.substring(i)), compile(input.substring(0, lastSlash)));
+                }
             }
             ++i;
             // quoting is different; offline this case
             if (c == '~' && i < end) { // possibly, quote
-                return _parseQuotedTail(input, i);
+                return _parseQuotedTailAndHead(input, i);
             }
             // otherwise, loop on
         }
         // end of the road, no escapes
-        return new JsonPointer(input, input.substring(1), EMPTY);
+        return new JsonPointer(input, input.substring(1), EMPTY, EMPTY);
     }
 
     /**
@@ -232,18 +258,26 @@ public class JsonPointer
      * @param input Full input for the tail being parsed
      * @param i Offset to character after tilde
      */
-    protected static JsonPointer _parseQuotedTail(String input, int i) {
+    protected static JsonPointer _parseQuotedTailAndHead(String input, int i) {
         final int end = input.length();
         StringBuilder sb = new StringBuilder(Math.max(16, end));
         if (i > 2) {
             sb.append(input, 1, i-1);
         }
         _appendEscape(sb, input.charAt(i++));
+
+        int lastSlash = input.lastIndexOf('/');
+
         while (i < end) {
             char c = input.charAt(i);
             if (c == '/') { // end is nigh!
-                return new JsonPointer(input, sb.toString(),
-                        _parseTail(input.substring(i))); // need to push back slash
+                if(i == NO_SLASH) {
+                    return new JsonPointer(input, sb.toString(),
+                            _parseTailAndHead(input.substring(i)), EMPTY);
+                } else {
+                    return new JsonPointer(input, sb.toString(),
+                            _parseTailAndHead(input.substring(i)), compile(input.substring(0, lastSlash)));
+                }
             }
             ++i;
             if (c == '~' && i < end) {
@@ -253,7 +287,7 @@ public class JsonPointer
             sb.append(c);
         }
         // end of the road, last segment
-        return new JsonPointer(input, sb.toString(), EMPTY);
+        return new JsonPointer(input, sb.toString(), EMPTY, EMPTY);
     }
     
     private static void _appendEscape(StringBuilder sb, char c) {

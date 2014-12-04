@@ -7,6 +7,9 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
@@ -584,7 +587,6 @@ public class JsonFactory
         return state ? enable(f) : disable(f);
     }
 
-
     /**
      * Method for enabling specified generator features
      * (check {@link JsonGenerator.Feature} for list of features)
@@ -706,6 +708,26 @@ public class JsonFactory
         // true, since we create InputStream from File
         IOContext ctxt = _createContext(f, true);
         InputStream in = new FileInputStream(f);
+        return _createParser(_decorate(in, ctxt), ctxt);
+    }
+
+    /**
+     * Method for constructing JSON parser instance to parse
+     * contents of specified path. Encoding is auto-detected
+     * from contents according to JSON specification recommended
+     * mechanism.
+     *<p>
+     * Underlying input stream (needed for reading contents)
+     * will be <b>owned</b> (and managed, i.e. closed as need be) by
+     * the parser, since caller has no access to it.
+     *
+     * @param path Path that contains JSON content to parse
+     *
+     */
+    public JsonParser createParser(Path path) throws IOException, JsonParseException {
+        // true, since we create InputStream from File
+        IOContext ctxt = _createContext(path, true);
+        InputStream in = Files.newInputStream(path, StandardOpenOption.READ);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
 
@@ -1010,7 +1032,19 @@ public class JsonFactory
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false);
+        return createGenerator(out, enc, false);
+    }
+
+    /**
+     * instantiate the context object and return a new generator for the new context object
+     * @param out OutputStream to use for writing JSON content
+     * @param enc Character encoding to use
+     * @param resourceManaged
+     * @return
+     * @throws IOException
+     */
+    private JsonGenerator createGenerator(OutputStream out, JsonEncoding enc, boolean resourceManaged) throws IOException {
+        IOContext ctxt = _createContext(out, resourceManaged);
         ctxt.setEncoding(enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(_decorate(out, ctxt), ctxt);
@@ -1071,14 +1105,28 @@ public class JsonFactory
     {
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
-        IOContext ctxt = _createContext(out, true);
-        ctxt.setEncoding(enc);
-        if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(_decorate(out, ctxt), ctxt);
-        }
-        Writer w = _createWriter(out, enc, ctxt);
-        return _createGenerator(_decorate(w, ctxt), ctxt);
-    }    
+        return createGenerator(out, enc, true);
+    }
+
+    /**
+     * Method for constructing JSON generator for writing JSON content
+     * to specified path, overwriting contents it might have (or creating
+     * it if such path does not yet exist).
+     * Encoding to use must be specified, and needs to be one of available
+     * types (as per JSON specification).
+     *<p>
+     * Underlying stream <b>is owned</b> by the generator constructed,
+     * i.e. generator will handle closing of file when
+     * {@link JsonGenerator#close} is called.
+     *
+     * @param path Path to write contents to
+     * @param encoding Character encoding to use
+     *
+     */
+    public JsonGenerator createGenerator(Path path, JsonEncoding encoding) throws IOException {
+        OutputStream outputStream = Files.newOutputStream(path, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+        return createGenerator(outputStream, encoding, true);
+    }
 
     /*
     /**********************************************************

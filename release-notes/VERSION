@@ -23,6 +23,8 @@ json-specificity (naming due to historical reasons).
  (contributed by Aaron D)
 #167: `JsonGenerator` not catching problem of writing field name twice in a row
 #168: Add methods in `JsonStreamContext` for keeping track of "current value"
+#169: Add parent() method to JsonPointer
+ (contributed by Alex S, lordofthejars@github)
 - Added `ResolvedType.getParameterSource()` to support better resolution
  of generic types.
 - Added `JsonGenerator.writeRawValue(SerializableString)`

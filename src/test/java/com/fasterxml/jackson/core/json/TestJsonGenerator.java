@@ -256,7 +256,7 @@ public class TestJsonGenerator
         }
         gen.close();
     }
-            
+
     /*
     /**********************************************************
     /* Internal methods

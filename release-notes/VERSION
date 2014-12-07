@@ -17,6 +17,9 @@ json-specificity (naming due to historical reasons).
 
 #157: ArrayIndexOutOfBoundsException: 200 on numbers with more than 200 digits.
  (reported by Lars P, larsp@github)
+#173: An exception is thrown for a valid JsonPointer expression
+ (reported by Alex S)
+
 - Fix `JsonGenerator.setFeatureMask()` to better handle dynamic changes.
 
 2.4.3 (02-Oct-2014)

@@ -35,3 +35,7 @@ Steve van Loben Sels
 Shay Banon
   * Reported #145: NPE at BytesToNameCanonicalizer
    (2.4.2)
+
+Alex Soto: (lordofthejars@github)
+  * Reported #173: An exception is thrown for a valid JsonPointer expression
+

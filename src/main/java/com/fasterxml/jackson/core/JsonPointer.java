@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.io.NumberInput;
  */
 public class JsonPointer
 {
-
     protected final static int NO_SLASH = -1;
 
     /**
@@ -149,6 +148,16 @@ public class JsonPointer
     public boolean mayMatchProperty() { return _matchingPropertyName != null; }
     public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 
+    /**
+     * Method that may be called to see if the pointer would match property
+     * (of a JSON Object) with given name.
+     * 
+     * @since 2.5
+     */
+    public boolean matchesProperty(String name) {
+        return (_nextSegment != null) && _matchingPropertyName.equals(name);
+    }
+    
     public JsonPointer matchProperty(String name) {
         if (_nextSegment == null || !_matchingPropertyName.equals(name)) {
             return null;
@@ -156,16 +165,20 @@ public class JsonPointer
         return _nextSegment;
     }
 
-    public JsonPointer matchElement (int index) {
-        if ((index != _matchingElementIndex) || (index < 0)) {
-            return null;
-        }
-        return _nextSegment;
+    /**
+     * Method that may be called to see if the pointer would match
+     * array element (of a JSON Array) with given index.
+     * 
+     * @since 2.5
+     */
+    public boolean matchesElement(int index) {
+        return (index == _matchingElementIndex) && (index >= 0);
     }
 
     /**
      * Accessor for getting a "sub-pointer", instance where current segment
-     * has been removed and pointer includes rest of segments;
+     * has been removed and pointer includes rest of segments.
+     * For matching state, will return null.
      */
     public JsonPointer tail() {
         return _nextSegment;
@@ -173,7 +186,9 @@ public class JsonPointer
 
     /**
      * Accessor for getting a "pointer", instance from current segment to
-     * segment before segment leaf.
+     * segment before segment leaf. For root pointer, will return null.
+     *
+     * @since 2.5
      */
     public JsonPointer head() {
         return _headSegment;

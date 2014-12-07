@@ -42,6 +42,11 @@ rjmac@github
   * Reported #148: BytesToNameCanonicalizer can mishandle leading null byte(s).
    (2.5.0)
 
+Alex Soto: (lordofthejars@github)
+  * Reported #173: An exception is thrown for a valid JsonPointer expression
+   (2.4.5)
+
 Aaron Digulla:
   * Contributed #166: Allow to configure line endings and indentation
+   (2.5.0)
 

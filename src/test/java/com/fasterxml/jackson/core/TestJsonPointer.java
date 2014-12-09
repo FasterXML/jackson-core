@@ -43,7 +43,43 @@ public class TestJsonPointer extends BaseTest
         JsonPointer ptr = JsonPointer.compile("/1e0");
         assertFalse(ptr.matches());
     }
-    
+
+    public void testLast()
+    {
+        final String INPUT = "/Image/15/name";
+
+        JsonPointer ptr = JsonPointer.compile(INPUT);
+        JsonPointer leaf = ptr.last();
+
+        assertEquals("name", leaf.getMatchingProperty());
+    }
+
+    public void testAppend()
+    {
+        final String INPUT = "/Image/15/name";
+        final String APPEND = "/extension";
+
+        JsonPointer ptr = JsonPointer.compile(INPUT);
+        JsonPointer apd = JsonPointer.compile(APPEND);
+
+        JsonPointer appended = ptr.append(apd);
+
+        assertEquals("extension", appended.last().getMatchingProperty());
+    }
+
+    public void testAppendWithFinalSlash()
+    {
+        final String INPUT = "/Image/15/name/";
+        final String APPEND = "/extension";
+
+        JsonPointer ptr = JsonPointer.compile(INPUT);
+        JsonPointer apd = JsonPointer.compile(APPEND);
+
+        JsonPointer appended = ptr.append(apd);
+
+        assertEquals("extension", appended.last().getMatchingProperty());
+    }
+
     public void testQuotedPath() throws Exception
     {
         final String INPUT = "/w~1out/til~0de/a~1b";

@@ -149,6 +149,27 @@ public class JsonPointer
     public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 
     /**
+     * Returns the leaf of current json pointer expression.
+     * Leaf is the last non-null segment of current json pointer.
+     */
+    public JsonPointer last() {
+        JsonPointer current = this;
+        while(!JsonPointer.EMPTY.equals(current._nextSegment)) {
+            current = current._nextSegment;
+        }
+        return current;
+    }
+
+    public JsonPointer append(JsonPointer jsonPointer) {
+        String currentJsonPointer = _asString;
+        if(currentJsonPointer.endsWith("/")) {
+            //removes final slash
+            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
+        }
+        return compile(currentJsonPointer + jsonPointer._asString);
+    }
+
+    /**
      * Method that may be called to see if the pointer would match property
      * (of a JSON Object) with given name.
      * 

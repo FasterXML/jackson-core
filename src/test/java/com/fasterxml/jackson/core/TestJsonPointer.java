@@ -59,6 +59,16 @@ public class TestJsonPointer extends BaseTest
         assertEquals("name", leaf.getMatchingProperty());
     }
 
+    public void testEmpty()
+    {
+        // note: this is acceptable, to match property in '{"":3}', for example
+        // and NOT same as what empty point, "", is.
+        JsonPointer ptr = JsonPointer.compile("/");
+        assertNotNull(ptr);
+        assertNotSame(JsonPointer.EMPTY, ptr);
+        assertEquals("/", ptr.toString());
+    }
+
     public void testAppend()
     {
         final String INPUT = "/Image/15/name";

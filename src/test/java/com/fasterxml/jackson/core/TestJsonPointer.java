@@ -19,8 +19,8 @@ public class TestJsonPointer extends BaseTest
         assertFalse(ptr.matches());
         assertEquals(15, ptr.getMatchingIndex());
         assertEquals("15", ptr.getMatchingProperty());
-        assertEquals("/15", ptr.head().toString());
         assertEquals("/15/name", ptr.toString());
+        assertEquals("/15", ptr.head().toString());
 
         assertEquals("", ptr.head().head().toString());
         assertNull(ptr.head().head().head());
@@ -32,11 +32,13 @@ public class TestJsonPointer extends BaseTest
         assertEquals("name", ptr.getMatchingProperty());
         assertEquals("/name", ptr.toString());
         assertEquals("", ptr.head().toString());
+        assertSame(JsonPointer.EMPTY, ptr.head());
 
         // done!
         ptr = ptr.tail();
         assertTrue(ptr.matches());
         assertNull(ptr.tail());
+        assertNull(ptr.head());
         assertEquals("", ptr.getMatchingProperty());
         assertEquals(-1, ptr.getMatchingIndex());
     }

@@ -14,13 +14,11 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * Instances are fully immutable and can be shared, cached.
  * 
  * @author Tatu Saloranta
- * 
+ *
  * @since 2.3
  */
 public class JsonPointer
 {
-    protected final static int NO_SLASH = -1;
-
     /**
      * Marker instance used to represent segment that matches current
      * node or position (that is, returns true for
@@ -38,6 +36,8 @@ public class JsonPointer
     /**
      * Reference from currently matching segment (if any) to node
      * before leaf.
+     * 
+     * @since 2.5
      */
     protected final JsonPointer _headSegment;
 
@@ -150,13 +150,19 @@ public class JsonPointer
     public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 
     /**
-     * Returns the leaf of current json pointer expression.
-     * Leaf is the last non-null segment of current json pointer.
+     * Returns the leaf of current JSON Pointer expression.
+     * Leaf is the last non-null segment of current JSON Pointer.
+     * 
+     * @since 2.5
      */
     public JsonPointer last() {
         JsonPointer current = this;
-        while(!JsonPointer.EMPTY.equals(current._nextSegment)) {
-            current = current._nextSegment;
+        while (true) {
+            JsonPointer next = current._nextSegment;
+            if (next == JsonPointer.EMPTY) {
+                break;
+            }
+            current = next;
         }
         return current;
     }
@@ -207,8 +213,12 @@ public class JsonPointer
     }
 
     /**
-     * Accessor for getting a "pointer", instance from current segment to
-     * segment before segment leaf. For root pointer, will return null.
+     * Accessor for getting a pointer instance that is identical to this
+     * instance except that the last segment has been dropped.
+     * For example, for JSON Point "/root/branch/leaf", this method would
+     * return pointer "/root/branch" (compared to {@link #tail()} that
+     * would return "/branch/leaf").
+     * For leaf 
      *
      * @since 2.5
      */
@@ -268,7 +278,7 @@ public class JsonPointer
             char c = input.charAt(i);
             if (c == '/') { // common case, got a segment
                 int lastSlash = input.lastIndexOf('/');
-                if (lastSlash == NO_SLASH) {
+                if (lastSlash < 0) {
                     return new JsonPointer(input, input.substring(1, i),
                             _parseTailAndHead(input.substring(i)), EMPTY);
                 }
@@ -305,7 +315,7 @@ public class JsonPointer
             char c = input.charAt(i);
             if (c == '/') { // end is nigh!
                 int lastSlash = input.lastIndexOf('/');
-                if (lastSlash == NO_SLASH) {
+                if (lastSlash < 0) {
                     return new JsonPointer(input, sb.toString(),
                             _parseTailAndHead(input.substring(i)), EMPTY);
                 }

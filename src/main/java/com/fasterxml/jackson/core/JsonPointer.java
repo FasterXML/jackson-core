@@ -85,6 +85,16 @@ public class JsonPointer
         // but could be an index, if parsable
         _matchingElementIndex = _parseIndex(segment);
     }
+
+    /**
+     * @since 2.5
+     */
+    protected JsonPointer(String fullString, String segment, int matchIndex, JsonPointer next) {
+        _asString = fullString;
+        _nextSegment = next;
+        _matchingPropertyName = segment;
+        _matchingElementIndex = matchIndex;
+    }
     
     /*
     /**********************************************************
@@ -162,23 +172,29 @@ public class JsonPointer
      */
     public JsonPointer last() {
         JsonPointer current = this;
-        while (true) {
-            JsonPointer next = current._nextSegment;
-            if (next == JsonPointer.EMPTY) {
-                break;
-            }
+        if (current == EMPTY) {
+            return null;
+        }
+        JsonPointer next;
+        while ((next = current._nextSegment) != JsonPointer.EMPTY) {
             current = next;
         }
         return current;
     }
 
-    public JsonPointer append(JsonPointer jsonPointer) {
+    public JsonPointer append(JsonPointer tail) {
+        if (this == EMPTY) {
+            return tail;
+        }
+        if (tail == EMPTY) {
+            return this;
+        }
         String currentJsonPointer = _asString;
-        if(currentJsonPointer.endsWith("/")) {
+        if (currentJsonPointer.endsWith("/")) {
             //removes final slash
             currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
         }
-        return compile(currentJsonPointer + jsonPointer._asString);
+        return compile(currentJsonPointer + tail._asString);
     }
 
     /**
@@ -336,11 +352,27 @@ public class JsonPointer
 
     protected JsonPointer _constructHead()
     {
-        int ix = _asString.lastIndexOf('/');
-        if (ix <= 0) { // not sure if we should ever not find, but 0 is the case for last segment so
+        // ok; find out who we are to drop
+        JsonPointer last = last();
+        if (last == this) {
             return EMPTY;
         }
-        return compile(_asString.substring(0, ix));
+        // and from that, length of suffix to drop
+        int suffixLength = last._asString.length();
+        JsonPointer next = _nextSegment;
+        return new JsonPointer(_asString.substring(0, _asString.length() - suffixLength), _matchingPropertyName,
+                _matchingElementIndex, next._constructHead(suffixLength, last));
+    }
+
+    protected JsonPointer _constructHead(int suffixLength, JsonPointer last)
+    {
+        if (this == last) {
+            return EMPTY;
+        }
+        JsonPointer next = _nextSegment;
+        String str = _asString;
+        return new JsonPointer(str.substring(0, str.length() - suffixLength), _matchingPropertyName,
+                _matchingElementIndex, next._constructHead(suffixLength, last));
     }
     
     private static void _appendEscape(StringBuilder sb, char c) {

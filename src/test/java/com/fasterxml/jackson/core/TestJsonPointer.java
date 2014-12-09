@@ -43,6 +43,19 @@ public class TestJsonPointer extends BaseTest
         assertEquals(-1, ptr.getMatchingIndex());
     }
 
+    public void testSimplePathLonger() throws Exception
+    {
+        final String INPUT = "/a/b/c/d/e/f/0";
+        JsonPointer ptr = JsonPointer.compile(INPUT);
+        assertFalse(ptr.matches());
+        assertEquals(-1, ptr.getMatchingIndex());
+        assertEquals("a", ptr.getMatchingProperty());
+        assertEquals("/a/b/c/d/e/f", ptr.head().toString());
+        assertEquals("/b/c/d/e/f/0", ptr.tail().toString());
+        assertEquals("/0", ptr.last().toString());
+        assertEquals(INPUT, ptr.toString());
+    }
+
     public void testWonkyNumber173() throws Exception
     {
         JsonPointer ptr = JsonPointer.compile("/1e0");

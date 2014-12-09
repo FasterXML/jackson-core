@@ -22,6 +22,9 @@ public class TestJsonPointer extends BaseTest
         assertEquals("/15", ptr.head().toString());
         assertEquals("/15/name", ptr.toString());
 
+        assertEquals("", ptr.head().head().toString());
+        assertNull(ptr.head().head().head());
+
         ptr = ptr.tail();
         assertNotNull(ptr);
         assertFalse(ptr.matches());

@@ -23,19 +23,20 @@ public class JsonPointer
 
     /**
      * Marker instance used to represent segment that matches current
-     * node or position.
+     * node or position (that is, returns true for
+     * {@link #matches()}).
      */
     protected final static JsonPointer EMPTY = new JsonPointer();
     
     /**
      * Reference to rest of the pointer beyond currently matching
-     * segment (if any); null if this pointer refers to a matching
+     * segment (if any); null if this pointer refers to the matching
      * segment.
      */
     protected final JsonPointer _nextSegment;
 
     /**
-     * Reference form currently matching segment (if any) to node
+     * Reference from currently matching segment (if any) to node
      * before leaf.
      */
     protected final JsonPointer _headSegment;
@@ -262,19 +263,17 @@ public class JsonPointer
     protected static JsonPointer _parseTailAndHead(String input) {
         final int end = input.length();
 
-        int lastSlash = input.lastIndexOf('/');
-
         // first char is the contextual slash, skip
         for (int i = 1; i < end; ) {
             char c = input.charAt(i);
             if (c == '/') { // common case, got a segment
-                if(i == NO_SLASH) {
+                int lastSlash = input.lastIndexOf('/');
+                if (lastSlash == NO_SLASH) {
                     return new JsonPointer(input, input.substring(1, i),
                             _parseTailAndHead(input.substring(i)), EMPTY);
-                } else {
-                    return new JsonPointer(input, input.substring(1, i),
-                            _parseTailAndHead(input.substring(i)), compile(input.substring(0, lastSlash)));
                 }
+                return new JsonPointer(input, input.substring(1, i),
+                        _parseTailAndHead(input.substring(i)), compile(input.substring(0, lastSlash)));
             }
             ++i;
             // quoting is different; offline this case
@@ -302,18 +301,16 @@ public class JsonPointer
         }
         _appendEscape(sb, input.charAt(i++));
 
-        int lastSlash = input.lastIndexOf('/');
-
         while (i < end) {
             char c = input.charAt(i);
             if (c == '/') { // end is nigh!
-                if(i == NO_SLASH) {
+                int lastSlash = input.lastIndexOf('/');
+                if (lastSlash == NO_SLASH) {
                     return new JsonPointer(input, sb.toString(),
                             _parseTailAndHead(input.substring(i)), EMPTY);
-                } else {
-                    return new JsonPointer(input, sb.toString(),
-                            _parseTailAndHead(input.substring(i)), compile(input.substring(0, lastSlash)));
                 }
+                return new JsonPointer(input, sb.toString(),
+                        _parseTailAndHead(input.substring(i)), compile(input.substring(0, lastSlash)));
             }
             ++i;
             if (c == '~' && i < end) {

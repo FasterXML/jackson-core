@@ -699,6 +699,21 @@ public abstract class JsonParser
     public abstract boolean hasCurrentToken();
 
     /**
+     * Method that is functionally equivalent to:
+     *<code>
+     *  return getCurrentTokenId() == id
+     *<code>
+     * but may be more efficiently implemented.
+     *<p>
+     * Note that no traversal or conversion is performed; so in some
+     * cases calling method like {@link #isExpectedStartArrayToken()}
+     * is necessary instead.
+     *
+     * @since 2.5
+     */
+    public abstract boolean hasTokenId(int id);
+
+    /**
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#FIELD_NAME}s it will
      * be the same as what {@link #getText} returns;

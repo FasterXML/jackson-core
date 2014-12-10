@@ -97,6 +97,8 @@ public class JsonParserDelegate extends JsonParser
     @Override public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
     @Override public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
     @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }
+    @Override public boolean hasTokenId(int id) { return delegate.hasTokenId(id); }
+    
     @Override public String getCurrentName() throws IOException, JsonParseException { return delegate.getCurrentName(); }
     @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
     @Override public JsonStreamContext getParsingContext() { return delegate.getParsingContext(); }

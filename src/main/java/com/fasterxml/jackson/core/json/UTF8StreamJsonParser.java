@@ -820,7 +820,7 @@ public class UTF8StreamJsonParser
     /* Public API, traversal, nextXxxValue/nextFieldName
     /**********************************************************
      */
-    
+
     @Override
     public boolean nextFieldName(SerializableString str) throws IOException
     {
@@ -907,6 +907,120 @@ public class UTF8StreamJsonParser
             }
         }
         return _isNextTokenNameMaybe(i, str);
+    }
+
+    @Override
+    public String nextFieldName() throws IOException
+    {
+        // // // Note: this is almost a verbatim copy of nextToken()
+
+        _numTypesValid = NR_UNKNOWN;
+        if (_currToken == JsonToken.FIELD_NAME) {
+            _nextAfterName();
+            return null;
+        }
+        if (_tokenIncomplete) {
+            _skipString();
+        }
+        int i = _skipWSOrEnd();
+        if (i < 0) {
+            close();
+            _currToken = null;
+            return null;
+        }
+        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
+        _tokenInputRow = _currInputRow;
+        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+
+        _binaryValue = null;
+
+        if (i == INT_RBRACKET) {
+            if (!_parsingContext.inArray()) {
+                _reportMismatchedEndMarker(i, '}');
+            }
+            _parsingContext = _parsingContext.getParent();
+            _currToken = JsonToken.END_ARRAY;
+            return null;
+        }
+        if (i == INT_RCURLY) {
+            if (!_parsingContext.inObject()) {
+                _reportMismatchedEndMarker(i, ']');
+            }
+            _parsingContext = _parsingContext.getParent();
+            _currToken = JsonToken.END_OBJECT;
+            return null;
+        }
+
+        // Nope: do we then expect a comma?
+        if (_parsingContext.expectComma()) {
+            if (i != INT_COMMA) {
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+            }
+            i = _skipWS();
+        }
+
+        if (!_parsingContext.inObject()) {
+            _nextTokenNotInObject(i);
+            return null;
+        }
+
+        Name n = _parseName(i);
+        final String nameStr = n.getName();
+        _parsingContext.setCurrentName(nameStr);
+        _currToken = JsonToken.FIELD_NAME;
+
+        i = _skipColon();
+        if (i == INT_QUOTE) {
+            _tokenIncomplete = true;
+            _nextToken = JsonToken.VALUE_STRING;
+            return nameStr;
+        }
+        JsonToken t;
+        switch (i) {
+        case '-':
+            t = _parseNegNumber();
+            break;
+
+            /* Should we have separate handling for plus? Although
+             * it is not allowed per se, it may be erroneously used,
+             * and could be indicate by a more specific error message.
+             */
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            t = _parsePosNumber(i);
+            break;
+        case 'f':
+            _matchToken("false", 1);
+             t = JsonToken.VALUE_FALSE;
+            break;
+        case 'n':
+            _matchToken("null", 1);
+            t = JsonToken.VALUE_NULL;
+            break;
+        case 't':
+            _matchToken("true", 1);
+            t = JsonToken.VALUE_TRUE;
+            break;
+        case '[':
+            t = JsonToken.START_ARRAY;
+            break;
+        case '{':
+            t = JsonToken.START_OBJECT;
+            break;
+
+        default:
+            t = _handleUnexpectedValue(i);
+        }
+        _nextToken = t;
+        return nameStr;
     }
 
     // Variant called when we know there's at least 4 more bytes available

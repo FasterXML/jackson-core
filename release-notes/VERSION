@@ -29,6 +29,7 @@ json-specificity (naming due to historical reasons).
  of generic types.
 - Added `JsonGenerator.writeRawValue(SerializableString)`
 - Added `JsonParser.hasTokenId(id)` convenience method
+- Added `JsonParser.nextFieldName()` (no args)
 
 2.4.4 (24-Nov-2014)
 

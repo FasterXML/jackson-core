@@ -26,6 +26,8 @@ public class TestNextXxx
         _testIsNextTokenName1(true);
         _testIsNextTokenName2(false);
         _testIsNextTokenName2(true);
+        _testIsNextTokenName3(false);
+        _testIsNextTokenName3(true);
     }
 
     // [Issue#34]
@@ -166,18 +168,56 @@ public class TestNextXxx
         jp.close();
     }
 
+    private void _testIsNextTokenName3(boolean useStream) throws Exception
+    {
+        final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
+        JsonFactory jf = new JsonFactory();
+        JsonParser jp = useStream ?
+            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : jf.createParser(new StringReader(DOC));
+        assertNull(jp.nextFieldName());
+        assertToken(JsonToken.START_OBJECT, jp.getCurrentToken());
+        assertEquals("name", jp.nextFieldName());
+        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
+        assertEquals("name", jp.getCurrentName());
+        assertEquals("name", jp.getText());
+        assertNull(jp.nextFieldName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.getCurrentToken());
+        assertEquals(123, jp.getIntValue());
+
+        assertEquals("name2", jp.nextFieldName());
+        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
+        assertEquals("name2", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+
+        assertEquals("x", jp.nextFieldName());
+        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
+        assertEquals("x", jp.getCurrentName());
+
+        assertNull(jp.nextFieldName());
+        assertToken(JsonToken.VALUE_STRING, jp.getCurrentToken());
+
+        assertNull(jp.nextFieldName());
+        assertToken(JsonToken.END_OBJECT, jp.getCurrentToken());
+
+        assertNull(jp.nextFieldName());
+        assertNull(jp.getCurrentToken());
+
+        jp.close();
+    }
+
     private void _testIssue34(boolean useStream) throws Exception
     {
         final int TESTROUNDS = 223;
         final String DOC_PART = "{ \"fieldName\": 1 }";
-        
+
         // build the big document to trigger issue
         StringBuilder sb = new StringBuilder(2000);
         for (int i = 0; i < TESTROUNDS; ++i) {
             sb.append(DOC_PART);
         }
         final String DOC = sb.toString();
-        
+
         SerializableString fieldName = new SerializedString("fieldName");
         JsonFactory jf = new JsonFactory();
         JsonParser parser = useStream ?

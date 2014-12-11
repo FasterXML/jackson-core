@@ -561,6 +561,18 @@ public abstract class JsonParser
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
+     * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
+     * returns same as {@link #getCurrentName()}, otherwise null.
+     * 
+     * @since 2.5
+     */
+    public String nextFieldName() throws IOException, JsonParseException {
+        return (nextToken() == JsonToken.FIELD_NAME)
+                ? getCurrentName() : null;
+    }
+
+    /**
+     * Method that fetches next token (as if calling {@link #nextToken}) and
      * if it is {@link JsonToken#VALUE_STRING} returns contained String value;
      * otherwise returns null.
      * It is functionally equivalent to:

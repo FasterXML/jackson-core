@@ -94,7 +94,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    @Override public abstract JsonToken nextToken() throws IOException, JsonParseException;
+    @Override public abstract JsonToken nextToken() throws IOException;
     @Override public JsonToken getCurrentToken() { return _currToken; }
 
     @Override public final int getCurrentTokenId() {
@@ -111,6 +111,9 @@ public abstract class ParserMinimalBase extends JsonParser
         return t.id() == id;
     }
 
+    @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
+    @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
+    
     @Override
     public JsonToken nextValue() throws IOException {
         /* Implementation should be as trivial as follows; only

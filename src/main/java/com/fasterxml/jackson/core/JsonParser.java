@@ -764,7 +764,9 @@ public abstract class JsonParser
      * token indicates start array (usually meaning that current token
      * is {@link JsonToken#START_ARRAY}) when start array is expected.
      * For some specialized parsers this can return true for other cases
-     * as well; this is usually done to emulate arrays.
+     * as well; this is usually done to emulate arrays in cases underlying
+     * format is ambiguous (XML, for example, has no format-level difference
+     * between Objects and Arrays; it just has elements).
      *<p>
      * Default implementation is equivalent to:
      *<pre>
@@ -778,6 +780,14 @@ public abstract class JsonParser
      */
     public boolean isExpectedStartArrayToken() { return getCurrentToken() == JsonToken.START_ARRAY; }
 
+    /**
+     * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
+     * currently points to {@link JsonToken#START_OBJECT}.
+     * 
+     * @since 2.5
+     */
+    public boolean isExpectedStartObjectToken() { return getCurrentToken() == JsonToken.START_OBJECT; }
+    
     /*
     /**********************************************************
     /* Public API, token state overrides

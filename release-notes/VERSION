@@ -28,6 +28,7 @@ json-specificity (naming due to historical reasons).
 - Added `ResolvedType.getParameterSource()` to support better resolution
  of generic types.
 - Added `JsonGenerator.writeRawValue(SerializableString)`
+- Added `JsonParser.hasExpectedStartObjectToken()` convenience method
 - Added `JsonParser.hasTokenId(id)` convenience method
 - Added `JsonParser.nextFieldName()` (no args)
 

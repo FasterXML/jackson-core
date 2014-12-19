@@ -25,7 +25,7 @@ public class SerializedString
      *   Given that all code paths with common Jackson usage patterns go through
      *   a few memory barriers (mostly with cache/reuse pool access) it seems safe
      *   enough to omit volatiles here, given how simple lazy initialization is.
-     *   This can be compared to how {@link String#intern} works; lazily and
+     *   This can be compared to how {@link String#hashCode} works; lazily and
      *   without synchronization or use of volatile keyword.
      *
      *   Change to remove volatile was a request by implementors of a high-throughput

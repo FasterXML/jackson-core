@@ -3,6 +3,7 @@ Version: 2.3.5 (xx-xxx-2014)
 
 #152: Exception for property names longer than 256k
 #173: An exception is thrown for a valid JsonPointer expression
+#176: `JsonPointer` should not consider "00" to be valid index
 
 ------------------------------------------------------------------------
 === History: ===

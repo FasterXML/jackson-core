@@ -62,6 +62,15 @@ public class TestJsonPointer extends BaseTest
         assertFalse(ptr.matches());
     }
 
+    // [core#176]: do not allow leading zeroes
+    public void testIZeroIndex() throws Exception
+    {
+        JsonPointer ptr = JsonPointer.compile("/0");
+        assertEquals(0, ptr.getMatchingIndex());
+        ptr = JsonPointer.compile("/00");
+        assertEquals(-1, ptr.getMatchingIndex());
+    }
+
     public void testLast()
     {
         final String INPUT = "/Image/15/name";

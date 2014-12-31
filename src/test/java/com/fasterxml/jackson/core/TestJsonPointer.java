@@ -41,7 +41,16 @@ public class TestJsonPointer extends BaseTest
         JsonPointer ptr = JsonPointer.compile("/1e0");
         assertFalse(ptr.matches());
     }
-    
+
+    // [core#176]: do not allow leading zeroes
+    public void testIZeroIndex() throws Exception
+    {
+        JsonPointer ptr = JsonPointer.compile("/0");
+        assertEquals(0, ptr.getMatchingIndex());
+        ptr = JsonPointer.compile("/00");
+        assertEquals(-1, ptr.getMatchingIndex());
+    }
+
     public void testQuotedPath() throws Exception
     {
         final String INPUT = "/w~1out/til~0de/a~1b";

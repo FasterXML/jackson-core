@@ -19,7 +19,8 @@ json-specificity (naming due to historical reasons).
  (reported by Lars P, larsp@github)
 #173: An exception is thrown for a valid JsonPointer expression
  (reported by Alex S)
-
+#176: `JsonPointer` should not consider "00" to be valid index
+ (reported by fge@gitub)
 - Fix `JsonGenerator.setFeatureMask()` to better handle dynamic changes.
 
 2.4.3 (02-Oct-2014)

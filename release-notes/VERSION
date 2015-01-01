@@ -13,7 +13,7 @@ json-specificity (naming due to historical reasons).
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.0 (not yet released)
+2.5.0 (01-Jan-2015)
 
 #148: BytesToNameCanonicalizer can mishandle leading null byte(s).
  (reported by rjmac@github)

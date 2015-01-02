@@ -234,6 +234,24 @@ public class TestJsonGenerator
         _testDupFieldNameWrites(f, true);        
     }
 
+    // [core#177]
+    // Also: should not try writing JSON String if field name expected
+    // (in future maybe take one as alias... but not yet)
+    /*
+    public void testFailOnWritingStringNotFieldName() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        _testFailOnWritingStringNotFieldName(f, false);
+        _testFailOnWritingStringNotFieldName(f, true);        
+    }
+    */
+    
+    /*
+    /**********************************************************
+    /* Internal methods
+    /**********************************************************
+     */
+
     private void _testDupFieldNameWrites(JsonFactory f, boolean useReader) throws Exception
     {
         JsonGenerator gen;
@@ -250,21 +268,36 @@ public class TestJsonGenerator
             gen.writeFieldName("b");
             gen.flush();
             String json = bout.toString("UTF-8");
-            fail("Should not have let two consequtive field name writes succeed: output = "+json);
+            fail("Should not have let two consecutive field name writes succeed: output = "+json);
         } catch (JsonProcessingException e) {
             verifyException(e, "can not write a field name, expecting a value");
         }
         gen.close();
     }
 
-    /*
-    /**********************************************************
-    /* Internal methods
-    /**********************************************************
-     */
-    
-    private void doTestIntWrite(boolean pad)
-        throws Exception
+    private void _testFailOnWritingStringNotFieldName(JsonFactory f, boolean useReader) throws Exception
+    {
+        JsonGenerator gen;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        if (useReader) {
+            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+        } else {
+            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+        }
+        gen.writeStartObject();
+        
+        try {
+            gen.writeString("a");
+            gen.flush();
+            String json = bout.toString("UTF-8");
+            fail("Should not have let 'writeString()' be used in place of 'writeFieldName()': output = "+json);
+        } catch (JsonProcessingException e) {
+            verifyException(e, "can not write a field name, expecting a value");
+        }
+        gen.close();
+    }
+
+    private void doTestIntWrite(boolean pad) throws Exception
     {
         int[] VALUES = new int[] {
             0, 1, -9, 32, -32, 57, 189, 2017, -9999, 13240, 123456,

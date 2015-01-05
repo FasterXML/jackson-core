@@ -19,7 +19,7 @@ making it possible to use standard [data-binding package](https://github.com/Fas
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-core.png?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
+[![Build Status](https://travis-ci.org/FasterXML/jackson-core.png?branch=master)](https://travis-ci.org/FasterXML/jackson-core) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
 
 # Get it!
 
@@ -34,7 +34,7 @@ To use the package, you need to use following Maven dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.4.0</version>
+  <version>${jackson-core-version}</version>
 </dependency>
 ```
 

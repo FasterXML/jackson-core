@@ -7,6 +7,7 @@ The core abstractions are not JSON specific, although naming does contain 'JSON'
 
 This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on.
 It is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+For additional/alternative licensing questions, please contact `info@fasterxml.com`: affordable commercial licenses available for use cases like Android app development.
 
 Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),
@@ -18,7 +19,7 @@ making it possible to use standard [data-binding package](https://github.com/Fas
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-core.png?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
+[![Build Status](https://travis-ci.org/FasterXML/jackson-core.png?branch=master)](https://travis-ci.org/FasterXML/jackson-core) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
 
 # Get it!
 
@@ -33,7 +34,7 @@ To use the package, you need to use following Maven dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.4.0</version>
+  <version>${jackson-core-version}</version>
 </dependency>
 ```
 

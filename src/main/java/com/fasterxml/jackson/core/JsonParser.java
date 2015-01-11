@@ -281,7 +281,7 @@ public abstract class JsonParser
      * Helper method, usually equivalent to:
      *<code>
      *   getParsingContext().getCurrentValue();
-     *<code>
+     *</code>
      * 
      * @since 2.5
      */
@@ -294,7 +294,7 @@ public abstract class JsonParser
      * Helper method, usually equivalent to:
      *<code>
      *   getParsingContext().setCurrentValue(v);
-     *<code>
+     *</code>
      * 
      * @since 2.5
      */
@@ -548,12 +548,13 @@ public abstract class JsonParser
      * and returns result of that comparison.
      * It is functionally equivalent to:
      *<pre>
-     *  return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(getCurrentName());
      *</pre>
      * but may be faster for parser to verify, and can therefore be used if caller
      * expects to get such a property name from input next.
      * 
-     * @param str Property name to compare next token to (if next token is <code>JsonToken.FIELD_NAME<code>)
+     * @param str Property name to compare next token to (if next token is
+     *   <code>JsonToken.FIELD_NAME</code>)
      */
     public boolean nextFieldName(SerializableString str) throws IOException, JsonParseException {
         return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
@@ -714,7 +715,7 @@ public abstract class JsonParser
      * Method that is functionally equivalent to:
      *<code>
      *  return getCurrentTokenId() == id
-     *<code>
+     *</code>
      * but may be more efficiently implemented.
      *<p>
      * Note that no traversal or conversion is performed; so in some

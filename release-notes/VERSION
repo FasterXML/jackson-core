@@ -1,17 +1,23 @@
 Project: jackson-core
 
 Contains core streaming reader (`JsonParser`) and writer (`JsonGenerator`) abstractions,
-factory for constructing readers/writers (JsonFactory). as well as a minimal set
+factory for constructing readers/writers (JsonFactory), as well as a minimal set
 of interfaces needed for streaming level to make callbacks and call-throughs,
 via `ObjectCodec` and `TreeNode`.
 
-Also includes implementation of abstractsion for JSON, 
+Also includes implementation of this API for JSON.
 Forms the base for other data formats as well, despite naming that suggests
-json-specificity (naming due to historical reasons).
+JSON-specificity: naming is due to history, as Jackson started out as pure
+JSON library.
 
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
+
+2.5.1 (not yet released)
+
+#178: Add `Lf2SpacesIndenter.withLinefeed` back to keep binary-compatibility with 2.4.x
+ (reported by ansell@github)
 
 2.5.0 (01-Jan-2015)
 

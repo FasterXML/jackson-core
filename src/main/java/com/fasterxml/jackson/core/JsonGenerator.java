@@ -293,7 +293,7 @@ public abstract class JsonGenerator
      * Helper method, usually equivalent to:
      *<code>
      *   getOutputContext().getCurrentValue();
-     *<code>
+     *</code>
      * 
      * @since 2.5
      */
@@ -306,7 +306,7 @@ public abstract class JsonGenerator
      * Helper method, usually equivalent to:
      *<code>
      *   getOutputContext().setCurrentValue(v);
-     *<code>
+     *</code>
      * 
      * @since 2.5
      */
@@ -965,69 +965,83 @@ public abstract class JsonGenerator
      */
 
     /**
-     * Method for outputting given value as Json number.
+     * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param v Number value to write
      *
      * @since 2.2
      */
     public void writeNumber(short v) throws IOException { writeNumber((int) v); }
 
     /**
-     * Method for outputting given value as Json number.
+     * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param v Number value to write
      */
     public abstract void writeNumber(int v) throws IOException;
 
     /**
-     * Method for outputting given value as Json number.
+     * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param v Number value to write
      */
     public abstract void writeNumber(long v) throws IOException;
 
     /**
-     * Method for outputting given value as Json number.
+     * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param v Number value to write
      */
     public abstract void writeNumber(BigInteger v) throws IOException;
 
     /**
-     * Method for outputting indicate Json numeric value.
+     * Method for outputting indicate JSON numeric value.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param v Number value to write
      */
-    public abstract void writeNumber(double d) throws IOException;
+    public abstract void writeNumber(double v) throws IOException;
 
     /**
-     * Method for outputting indicate Json numeric value.
+     * Method for outputting indicate JSON numeric value.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param v Number value to write
      */
-    public abstract void writeNumber(float f) throws IOException;
+    public abstract void writeNumber(float v) throws IOException;
 
     /**
-     * Method for outputting indicate Json numeric value.
+     * Method for outputting indicate JSON numeric value.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param v Number value to write
      */
-    public abstract void writeNumber(BigDecimal dec) throws IOException;
+    public abstract void writeNumber(BigDecimal v) throws IOException;
 
     /**
      * Write method that can be used for custom numeric types that can
@@ -1039,9 +1053,9 @@ public abstract class JsonGenerator
      *<p>
      * Note: because of lack of type safety, some generator
      * implementations may not be able to implement this
-     * method. For example, if a binary json format is used,
+     * method. For example, if a binary JSON format is used,
      * it may require type information for encoding; similarly
-     * for generator-wrappers around Java objects or Json nodes.
+     * for generator-wrappers around Java objects or JSON nodes.
      * If implementation does not implement this method,
      * it needs to throw {@link UnsupportedOperationException}.
      * 

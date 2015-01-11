@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.util.InternCache;
  * maps/sets, that hash codes are uniformly distributed. Also, collisions
  * are slightly more expensive than with HashMap or HashSet, since hash codes
  * are not used in resolving collisions; that is, equals() comparison is
- * done with all symbols in same bucket index.<br />
+ * done with all symbols in same bucket index.<br>
  * Finally, rehashing is also more expensive, as hash codes are not
  * stored; rehashing requires all entries' hash codes to be recalculated.
  * Reason for not storing hash codes is reduced memory usage, hoping

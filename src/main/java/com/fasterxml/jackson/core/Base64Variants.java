@@ -23,7 +23,7 @@ public final class Base64Variants
      * This variant is what most people would think of "the standard"
      * Base64 encoding.
      *<p>
-     * See <a href="">wikipedia Base64 entry</a> for details.
+     * See <a href="http://en.wikipedia.org/wiki/Base64">wikipedia Base64 entry</a> for details.
      *<p>
      * Note that although this can be thought of as the standard variant,
      * it is <b>not</b> the default for Jackson: no-linefeeds alternative

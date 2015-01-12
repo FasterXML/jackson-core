@@ -109,6 +109,14 @@ public class IOContext
         _encoding = enc;
     }
 
+    /**
+     * @since 1.6
+     */
+    public IOContext withEncoding(JsonEncoding enc) {
+        _encoding = enc;
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* Public API, accessors

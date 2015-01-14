@@ -1,5 +1,5 @@
 Project: jackson-core
-Version: 2.3.5 (xx-xxx-2014)
+Version: 2.3.5 (13-Jan-2015)
 
 #152: Exception for property names longer than 256k
 #173: An exception is thrown for a valid JsonPointer expression

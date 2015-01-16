@@ -166,6 +166,9 @@ public class JsonWriteContext extends JsonStreamContext
     public int writeValue() {
         // Most likely, object:
         if (_type == TYPE_OBJECT) {
+            if (!_gotName) {
+                return STATUS_EXPECT_NAME;
+            }
             _gotName = false;
             ++_index;
             return STATUS_OK_AFTER_COLON;

@@ -319,7 +319,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeString(String text) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (text == null) {
             _writeNull();
             return;
@@ -339,7 +339,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeString(char[] text, int offset, int len) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -355,7 +355,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeString(SerializableString sstr) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -507,7 +507,7 @@ public final class WriterBasedJsonGenerator
     public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write binary value");
+        _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -526,7 +526,7 @@ public final class WriterBasedJsonGenerator
             InputStream data, int dataLength)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write binary value");
+        _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -564,7 +564,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeNumber(short s) throws IOException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedShort(s);
             return;
@@ -588,7 +588,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeNumber(int i) throws IOException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedInt(i);
             return;
@@ -612,7 +612,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeNumber(long l) throws IOException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedLong(l);
             return;
@@ -638,7 +638,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeNumber(BigInteger value) throws IOException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
@@ -659,7 +659,7 @@ public final class WriterBasedJsonGenerator
             return;
         }
         // What is the max length for doubles? 40 chars?
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(d));
     }
 
@@ -673,7 +673,7 @@ public final class WriterBasedJsonGenerator
             return;
         }
         // What is the max length for floats?
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(f));
     }
 
@@ -681,7 +681,7 @@ public final class WriterBasedJsonGenerator
     public void writeNumber(BigDecimal value) throws IOException
     {
         // Don't really know max length for big decimal, no point checking
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
@@ -696,7 +696,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeNumber(String encodedValue) throws IOException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedRaw(encodedValue);            
         } else {
@@ -720,7 +720,7 @@ public final class WriterBasedJsonGenerator
     @Override
     public void writeBoolean(boolean state) throws IOException
     {
-        _verifyValueWrite("write boolean value");
+        _verifyValueWrite(WRITE_BOOLEAN);
         if ((_outputTail + 5) >= _outputEnd) {
             _flushBuffer();
         }
@@ -743,7 +743,7 @@ public final class WriterBasedJsonGenerator
 
     @Override
     public void writeNull() throws IOException {
-        _verifyValueWrite("write null value");
+        _verifyValueWrite(WRITE_NULL);
         _writeNull();
     }
 

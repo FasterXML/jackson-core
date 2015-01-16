@@ -31,6 +31,15 @@ public abstract class GeneratorBase extends JsonGenerator
             | Feature.STRICT_DUPLICATE_DETECTION.getMask()
             ;
 
+    // // // Constants for validation messages (since 2.6)
+
+    protected final String WRITE_BINARY = "write a binary value";
+    protected final String WRITE_BOOLEAN = "write a boolean value";
+    protected final String WRITE_NULL = "write a null";
+    protected final String WRITE_NUMBER = "write a number";
+    protected final String WRITE_RAW = "write a raw (unencoded) value";
+    protected final String WRITE_STRING = "write a string";
+
     /*
     /**********************************************************
     /* Configuration

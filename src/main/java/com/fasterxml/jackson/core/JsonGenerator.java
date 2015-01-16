@@ -644,8 +644,7 @@ public abstract class JsonGenerator
      * are allowed: meaning everywhere except for when
      * a field name is expected.
      */
-    public abstract void writeStartObject()
-        throws IOException;
+    public abstract void writeStartObject() throws IOException;
 
     /**
      * Method for writing closing marker of a JSON Object value
@@ -657,8 +656,7 @@ public abstract class JsonGenerator
      * complete value, or START-OBJECT marker (see JSON specification
      * for more details).
      */
-    public abstract void writeEndObject()
-        throws IOException;
+    public abstract void writeEndObject() throws IOException;
 
     /**
      * Method for writing a field name (JSON String surrounded by
@@ -669,8 +667,7 @@ public abstract class JsonGenerator
      * JSON specification for details), when field name is expected
      * (field names alternate with values).
      */
-    public abstract void writeFieldName(String name)
-        throws IOException;
+    public abstract void writeFieldName(String name) throws IOException;
 
     /**
      * Method similar to {@link #writeFieldName(String)}, main difference
@@ -683,8 +680,7 @@ public abstract class JsonGenerator
      * serialized String; implementations are strongly encouraged to make
      * use of more efficient methods argument object has.
      */
-    public abstract void writeFieldName(SerializableString name)
-        throws IOException;
+    public abstract void writeFieldName(SerializableString name) throws IOException;
 
     /*
     /**********************************************************
@@ -699,8 +695,7 @@ public abstract class JsonGenerator
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
      */
-    public abstract void writeString(String text)
-        throws IOException;
+    public abstract void writeString(String text) throws IOException;
 
     /**
      * Method for outputting a String value. Depending on context
@@ -709,8 +704,7 @@ public abstract class JsonGenerator
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
      */
-    public abstract void writeString(char[] text, int offset, int len)
-        throws IOException;
+    public abstract void writeString(char[] text, int offset, int len) throws IOException;
 
     /**
      * Method similar to {@link #writeString(String)}, but that takes
@@ -722,8 +716,7 @@ public abstract class JsonGenerator
      * sub-classes should override it with more efficient implementation
      * if possible.
      */
-    public abstract void writeString(SerializableString text)
-        throws IOException;
+    public abstract void writeString(SerializableString text) throws IOException;
 
     /**
      * Method similar to {@link #writeString(String)} but that takes as

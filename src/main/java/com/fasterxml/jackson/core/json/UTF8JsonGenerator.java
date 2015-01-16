@@ -13,12 +13,12 @@ public class UTF8JsonGenerator
     private final static byte BYTE_u = (byte) 'u';
 
     private final static byte BYTE_0 = (byte) '0';
-    
+
     private final static byte BYTE_LBRACKET = (byte) '[';
     private final static byte BYTE_RBRACKET = (byte) ']';
     private final static byte BYTE_LCURLY = (byte) '{';
     private final static byte BYTE_RCURLY = (byte) '}';
- 
+
     private final static byte BYTE_BACKSLASH = (byte) '\\';
     private final static byte BYTE_COMMA = (byte) ',';
     private final static byte BYTE_COLON = (byte) ':';
@@ -26,7 +26,7 @@ public class UTF8JsonGenerator
 
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
-    
+
     final static byte[] HEX_CHARS = CharTypes.copyHexBytes();
 
     private final static byte[] NULL_BYTES = { 'n', 'u', 'l', 'l' };
@@ -38,7 +38,7 @@ public class UTF8JsonGenerator
     /* Output buffering
     /**********************************************************
      */
-    
+
     /**
      * Underlying output stream used for writing JSON content.
      */
@@ -67,18 +67,18 @@ public class UTF8JsonGenerator
      * in the output buffer after escaping
      */
     protected final int _outputMaxContiguous;
-    
+
     /**
      * Intermediate buffer in which characters of a String are copied
      * before being encoded.
      */
     protected char[] _charBuffer;
-    
+
     /**
      * Length of <code>_charBuffer</code>
      */
     protected final int _charBufferLength;
-    
+
     /**
      * 6 character temporary buffer allocated if needed, for constructing
      * escape sequences
@@ -416,7 +416,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeString(String text) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (text == null) {
             _writeNull();
             return;
@@ -464,7 +464,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeString(char[] text, int offset, int len) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -488,7 +488,7 @@ public class UTF8JsonGenerator
     @Override
     public final void writeString(SerializableString text) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -504,11 +504,11 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
     }
-
+    
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -523,7 +523,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeUTF8String(byte[] text, int offset, int len) throws IOException
     {
-        _verifyValueWrite("write text value");
+        _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -590,7 +590,7 @@ public class UTF8JsonGenerator
     // since 2.5
     @Override
     public void writeRawValue(SerializableString text) throws IOException {
-        _verifyValueWrite("write raw value");
+        _verifyValueWrite(WRITE_RAW);
         byte[] raw = text.asUnquotedUTF8();
         if (raw.length > 0) {
             _writeBytes(raw);
@@ -710,7 +710,7 @@ public class UTF8JsonGenerator
             byte[] data, int offset, int len)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write binary value");
+        _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -729,7 +729,7 @@ public class UTF8JsonGenerator
             InputStream data, int dataLength)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write binary value");
+        _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -768,7 +768,7 @@ public class UTF8JsonGenerator
     public void writeNumber(short s)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         // up to 5 digits and possible minus sign
         if ((_outputTail + 6) >= _outputEnd) {
             _flushBuffer();
@@ -793,7 +793,7 @@ public class UTF8JsonGenerator
     public void writeNumber(int i)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         // up to 10 digits and possible minus sign
         if ((_outputTail + 11) >= _outputEnd) {
             _flushBuffer();
@@ -819,7 +819,7 @@ public class UTF8JsonGenerator
     public void writeNumber(long l)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedLong(l);
             return;
@@ -845,7 +845,7 @@ public class UTF8JsonGenerator
     public void writeNumber(BigInteger value)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
@@ -868,7 +868,7 @@ public class UTF8JsonGenerator
             return;
         }
         // What is the max length for doubles? 40 chars?
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(d));
     }
 
@@ -884,7 +884,7 @@ public class UTF8JsonGenerator
             return;
         }
         // What is the max length for floats?
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         writeRaw(String.valueOf(f));
     }
 
@@ -893,7 +893,7 @@ public class UTF8JsonGenerator
         throws IOException, JsonGenerationException
     {
         // Don't really know max length for big decimal, no point checking
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
@@ -909,7 +909,7 @@ public class UTF8JsonGenerator
     public void writeNumber(String encodedValue)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write number");
+        _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedRaw(encodedValue);            
         } else {
@@ -934,7 +934,7 @@ public class UTF8JsonGenerator
     public void writeBoolean(boolean state)
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write boolean value");
+        _verifyValueWrite(WRITE_BOOLEAN);
         if ((_outputTail + 5) >= _outputEnd) {
             _flushBuffer();
         }
@@ -948,7 +948,7 @@ public class UTF8JsonGenerator
     public void writeNull()
         throws IOException, JsonGenerationException
     {
-        _verifyValueWrite("write null value");
+        _verifyValueWrite(WRITE_NULL);
         _writeNull();
     }
 
@@ -959,8 +959,7 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    protected final void _verifyValueWrite(String typeMsg)
-        throws IOException, JsonGenerationException
+    protected final void _verifyValueWrite(String typeMsg) throws IOException
     {
         int status = _writeContext.writeValue();
         if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
@@ -998,8 +997,7 @@ public class UTF8JsonGenerator
         _verifyPrettyValueWrite(typeMsg, status);
     }
 
-    protected final void _verifyPrettyValueWrite(String typeMsg, int status)
-        throws IOException, JsonGenerationException
+    protected final void _verifyPrettyValueWrite(String typeMsg, int status) throws IOException
     {
         // If we have a pretty printer, it knows what to do:
         switch (status) {
@@ -1033,8 +1031,7 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public void flush()
-        throws IOException
+    public void flush() throws IOException
     {
         _flushBuffer();
         if (_outputStream != null) {
@@ -1045,8 +1042,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void close()
-        throws IOException
+    public void close() throws IOException
     {
         super.close();
 

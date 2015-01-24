@@ -283,7 +283,7 @@ public class UTF8StreamJsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
-                _finishString(); // only strings can be incomplete
+                return _finishAndReturnString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
         }
@@ -299,7 +299,7 @@ public class UTF8StreamJsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
-                _finishString(); // only strings can be incomplete
+                return _finishAndReturnString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
         }
@@ -313,7 +313,7 @@ public class UTF8StreamJsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
-                _finishString(); // only strings can be incomplete
+                return _finishAndReturnString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
         }
@@ -1192,7 +1192,7 @@ public class UTF8StreamJsonParser
             if (t == JsonToken.VALUE_STRING) {
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
-                    _finishString();
+                    return _finishAndReturnString();
                 }
                 return _textBuffer.contentsAsString();
             }
@@ -2288,6 +2288,40 @@ public class UTF8StreamJsonParser
         _finishString2(outBuf, outPtr);
     }
 
+    /**
+     * @since 2.6
+     */
+    protected String _finishAndReturnString() throws IOException
+    {
+        // First, single tight loop for ASCII content, not split across input buffer boundary:        
+        int ptr = _inputPtr;
+        if (ptr >= _inputEnd) {
+            loadMoreGuaranteed();
+            ptr = _inputPtr;
+        }
+        int outPtr = 0;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        final int[] codes = _icUTF8;
+
+        final int max = Math.min(_inputEnd, (ptr + outBuf.length));
+        final byte[] inputBuffer = _inputBuffer;
+        while (ptr < max) {
+            int c = (int) inputBuffer[ptr] & 0xFF;
+            if (codes[c] != 0) {
+                if (c == INT_QUOTE) {
+                    _inputPtr = ptr+1;
+                    return _textBuffer.setCurrentAndReturn(outPtr);
+                }
+                break;
+            }
+            ++ptr;
+            outBuf[outPtr++] = (char) c;
+        }
+        _inputPtr = ptr;
+        _finishString2(outBuf, outPtr);
+        return _textBuffer.contentsAsString();
+    }
+    
     private final void _finishString2(char[] outBuf, int outPtr)
         throws IOException
     {

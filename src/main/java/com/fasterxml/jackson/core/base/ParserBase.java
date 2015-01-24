@@ -653,7 +653,7 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         if ((_numTypesValid & NR_INT) == 0) {
             if (_numTypesValid == NR_UNKNOWN) { // not parsed at all
-                _parseNumericValue(NR_INT); // will also check event type
+                return _parseIntValue();
             }
             if ((_numTypesValid & NR_INT) == 0) { // wasn't an int natively?
                 convertNumberToInt(); // let's make it so, if possible
@@ -798,7 +798,38 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _reportError("Current token ("+_currToken+") not numeric, can not use numeric value accessors");
     }
-    
+
+    /**
+     * @since 2.6
+     */
+    protected int _parseIntValue() throws IOException
+    {
+        // Inlined variant of: _parseNumericValue(NR_INT)
+
+        if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            char[] buf = _textBuffer.getTextBuffer();
+            int offset = _textBuffer.getTextOffset();
+            int len = _intLength;
+            if (_numberNegative) {
+                ++offset;
+            }
+            if (len <= 9) {
+                int i = NumberInput.parseInt(buf, offset, len);
+                if (_numberNegative) {
+                    i = -i;
+                }
+                _numberInt = i;
+                _numTypesValid = NR_INT;
+                return i;
+            }
+        }
+        _parseNumericValue(NR_INT);
+        if ((_numTypesValid & NR_INT) == 0) {
+            convertNumberToInt();
+        }
+        return _numberInt;
+    }
+
     private void _parseSlowFloat(int expType) throws IOException
     {
         /* Nope: floating point. Here we need to be careful to get

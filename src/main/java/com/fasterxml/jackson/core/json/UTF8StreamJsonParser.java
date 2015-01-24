@@ -277,8 +277,7 @@ public class UTF8StreamJsonParser
      */
 
     @Override
-    public String getText()
-        throws IOException, JsonParseException
+    public String getText() throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -294,7 +293,7 @@ public class UTF8StreamJsonParser
     
     // @since 2.1
     @Override
-    public String getValueAsString() throws IOException, JsonParseException
+    public String getValueAsString() throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -308,7 +307,7 @@ public class UTF8StreamJsonParser
     
     // @since 2.1
     @Override
-    public String getValueAsString(String defValue) throws IOException, JsonParseException
+    public String getValueAsString(String defValue) throws IOException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -340,8 +339,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public char[] getTextCharacters()
-        throws IOException, JsonParseException
+    public char[] getTextCharacters() throws IOException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -378,8 +376,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int getTextLength()
-        throws IOException, JsonParseException
+    public int getTextLength() throws IOException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
@@ -404,7 +401,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int getTextOffset() throws IOException, JsonParseException
+    public int getTextOffset() throws IOException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
@@ -427,8 +424,7 @@ public class UTF8StreamJsonParser
     }
     
     @Override
-    public byte[] getBinaryValue(Base64Variant b64variant)
-        throws IOException, JsonParseException
+    public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
         if (_currToken != JsonToken.VALUE_STRING &&
                 (_currToken != JsonToken.VALUE_EMBEDDED_OBJECT || _binaryValue == null)) {
@@ -459,8 +455,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
-        throws IOException, JsonParseException
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException
     {
         // if we have already read the token, just use whatever we may have
         if (!_tokenIncomplete || _currToken != JsonToken.VALUE_STRING) {
@@ -478,8 +473,7 @@ public class UTF8StreamJsonParser
     }
 
     protected int _readBinary(Base64Variant b64variant, OutputStream out,
-                              byte[] buffer)
-        throws IOException, JsonParseException
+                              byte[] buffer) throws IOException
     {
         int outputPtr = 0;
         final int outputEnd = buffer.length - 3;

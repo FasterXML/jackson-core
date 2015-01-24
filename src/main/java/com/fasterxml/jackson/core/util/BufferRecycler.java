@@ -113,7 +113,7 @@ public class BufferRecycler
     public final char[] allocCharBuffer(int ix) {
         return allocCharBuffer(ix, 0);
     }
-    
+
     public char[] allocCharBuffer(int ix, int minSize) {
         final int DEF_SIZE = charBufferLength(ix);
         if (minSize < DEF_SIZE) {

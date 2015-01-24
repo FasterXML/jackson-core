@@ -281,8 +281,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     protected ParserBase(IOContext ctxt, int features) {
-        super();
-        _features = features;
+        super(features);
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)

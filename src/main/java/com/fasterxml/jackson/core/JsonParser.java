@@ -568,8 +568,7 @@ public abstract class JsonParser
      * @since 2.5
      */
     public String nextFieldName() throws IOException, JsonParseException {
-        return (nextToken() == JsonToken.FIELD_NAME)
-                ? getCurrentName() : null;
+        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
     }
 
     /**

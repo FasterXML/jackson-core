@@ -62,7 +62,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * effect when {@link #clearCurrentToken} was called.
      */
     protected JsonToken _lastClearedToken;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -74,7 +74,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // NOTE: had base impl in 2.3 and before; but shouldn't
     // public abstract Version version();
-    
+
     /*
     /**********************************************************
     /* Configuration overrides if any

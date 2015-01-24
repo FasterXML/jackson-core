@@ -550,6 +550,22 @@ public final class TextBuffer
     public int getCurrentSegmentSize() { return _currentSize; }
     public void setCurrentLength(int len) { _currentSize = len; }
 
+    /**
+     * @since 2.6
+     */
+    public String setCurrentAndReturn(int len) {
+        _currentSize = len;
+        // We can simplify handling here compared to full `contentsAsString()`:
+        if (_segmentSize > 0) { // longer text; call main method
+            return contentsAsString();
+        }
+        // more common case: single segment
+        int currLen = _currentSize;
+        String str = (currLen == 0) ? "" : new String(_currentSegment, 0, currLen);
+        _resultString = str;
+        return str;
+    }
+    
     public char[] finishCurrentSegment() {
         if (_segments == null) {
             _segments = new ArrayList<char[]>();

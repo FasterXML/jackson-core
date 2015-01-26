@@ -46,8 +46,7 @@ public class TestUtf8Parser
         jp.close();
     }
 
-    public void testUtf8Name2Bytes()
-        throws Exception
+    public void testUtf8Name2Bytes() throws Exception
     {
         final String[] NAMES = UTF8_2BYTE_STRINGS;
 
@@ -56,10 +55,17 @@ public class TestUtf8Parser
             String DOC = "{ \""+NAME+"\" : 0 }";
             JsonParser jp = createParserUsingStream(DOC, "UTF-8");
             assertToken(JsonToken.START_OBJECT, jp.nextToken());
-            
+
             assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+
+            assertTrue(jp.hasToken(JsonToken.FIELD_NAME));
+            assertTrue(jp.hasTokenId(JsonTokenId.ID_FIELD_NAME));
+            
             assertEquals(NAME, jp.getCurrentName());
             assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+            assertTrue(jp.hasToken(JsonToken.VALUE_NUMBER_INT));
+            assertTrue(jp.hasTokenId(JsonTokenId.ID_NUMBER_INT));
+
             // should retain name during value entry, too
             assertEquals(NAME, jp.getCurrentName());
             

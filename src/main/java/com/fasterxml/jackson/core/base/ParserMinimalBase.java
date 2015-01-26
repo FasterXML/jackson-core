@@ -111,6 +111,10 @@ public abstract class ParserMinimalBase extends JsonParser
         return t.id() == id;
     }
 
+    @Override public final boolean hasToken(JsonToken t) {
+        return (_currToken == t);
+    }
+    
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
     

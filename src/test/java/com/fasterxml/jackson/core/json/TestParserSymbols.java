@@ -25,12 +25,18 @@ public class TestParserSymbols
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
 
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        assertEquals("\u0000abc", parser.getCurrentName());
+        String currName = parser.getCurrentName();
+        if (!"\u0000abc".equals(currName)) {
+            fail("Expected \\0abc (4 bytes), '"+currName+"' ("+currName.length()+")");
+        }
         assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(1, parser.getIntValue());
 
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        assertEquals("abc", parser.getCurrentName());
+        currName = parser.getCurrentName();
+        if (!"abc".equals(currName)) {
+            fail("Expected 'abc' (3 bytes), '"+currName+"' ("+currName.length()+")");
+        }
         assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(2, parser.getIntValue());
         

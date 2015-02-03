@@ -2165,14 +2165,14 @@ public class UTF8StreamJsonParser
 
     private final Name findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
     {
+        Name name = _symbols.findName(q1, q2, q3);
+        if (name != null) {
+            return name;
+        }
         int[] quads = _quadBuffer;
         quads[0] = q1;
         quads[1] = q2;
         quads[2] = pad(q3, lastQuadBytes);
-        Name name = _symbols.findName(quads, 3);
-        if (name != null) {
-            return name;
-        }
         return addName(quads, 3, lastQuadBytes);
     }
     

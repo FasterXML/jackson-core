@@ -591,6 +591,37 @@ public final class BytesToNameCanonicalizer
         return null;
     }
 
+    public Name findName(int q1, int q2, int q3)
+    {
+        int hash = calcHash(q1, q2, q3);
+        int ix = (hash & _hashMask);
+        int val = _hash[ix];
+        
+        if ((((val >> 8) ^ hash) << 8) == 0) { // match
+            // Ok, but do we have an actual match?
+            Name name = _mainNames[ix];
+            if (name == null) { // main slot empty; can't find
+                return null;
+            }
+            if (name.equals(q1, q2, q3)) {
+                return name;
+            }
+        } else if (val == 0) { // empty slot? no match
+            return null;
+        }
+        // Maybe a spill-over?
+        val &= 0xFF;
+        if (val > 0) { // 0 means 'empty'
+            val -= 1; // to convert from 1-based to 0...
+            Bucket bucket = _collList[val];
+            if (bucket != null) {
+                return bucket.find(hash, q1, q2, q3);
+            }
+        }
+        // Nope, no match whatsoever
+        return null;
+    }
+    
     /**
      * Finds and returns name matching the specified symbol, if such
      * name already exists in the table; or if not, creates name object,
@@ -610,7 +641,10 @@ public final class BytesToNameCanonicalizer
      */
     public Name findName(int[] q, int qlen)
     {
-        if (qlen < 3) { // another sanity check
+        if (qlen < 4) { // another sanity check
+            if (qlen == 3) {
+                return findName(q[0], q[1], q[2]);
+            }
             return findName(q[0], (qlen < 2) ? 0 : q[1]);
         }
         int hash = calcHash(q, qlen);
@@ -660,8 +694,14 @@ public final class BytesToNameCanonicalizer
             name = InternCache.instance.intern(name);
         }
         int hash;
-        if (qlen < 3) {
-            hash = (qlen == 1) ? calcHash(q[0]) : calcHash(q[0], q[1]);
+        if (qlen < 4) {
+            if (qlen == 1) {
+                hash = calcHash(q[0]);
+            } else if (qlen == 2) {
+                hash = calcHash(q[0], q[1]);
+            } else {
+                hash = calcHash(q[0], q[1], q[2]);
+            }
         } else {
             hash = calcHash(q, qlen);
         }
@@ -711,10 +751,28 @@ public final class BytesToNameCanonicalizer
         return hash;
     }
 
+    public int calcHash(int q1, int q2, int q3)
+    {
+        // use same algorithm as multi-byte, tested to work well
+        int hash = q1 ^ _seed;
+        hash += (hash >>> 9);
+        hash *= MULT;
+        hash += q2;
+        hash *= MULT2;
+        hash += (hash >>> 15);
+        hash ^= q3;
+        hash += (hash >>> 17);
+
+        // and finally shuffle some more once done
+        hash += (hash >>> 15); // to get high-order bits to mix more
+        hash ^= (hash << 9); // as well as lowest 2 bytes
+
+        return hash;
+    }
+    
     public int calcHash(int[] q, int qlen)
     {
-        // Note: may be called for qlen < 3; but has at least one int
-        if (qlen < 3) {
+        if (qlen < 4) {
             throw new IllegalArgumentException();
         }
 
@@ -1119,8 +1177,8 @@ public final class BytesToNameCanonicalizer
             case 2:
                 return new Name2(name, hash, quads[0], quads[1]);
             case 3:
-                return new Name3(name, hash, quads[0], quads[1], quads[2]);
             default:
+                return new Name3(name, hash, quads[0], quads[1], quads[2]);
             }
         }
         return NameN.construct(name, hash, quads, qlen);
@@ -1222,6 +1280,23 @@ public final class BytesToNameCanonicalizer
             return null;
         }
 
+        public Name find(int h, int q1, int q2, int q3) {
+            if (hash == h) {
+                if (name.equals(q1, q2, q3)) {
+                    return name;
+                }
+            }
+            for (Bucket curr = next; curr != null; curr = curr.next) {
+                if (curr.hash == h) {
+                    Name currName = curr.name;
+                    if (currName.equals(q1, q2, q3)) {
+                        return currName;
+                    }
+                }
+            }
+            return null;
+        }
+        
         public Name find(int h, int[] quads, int qlen) {
             if (hash == h) {
                 if (name.equals(quads, qlen)) {

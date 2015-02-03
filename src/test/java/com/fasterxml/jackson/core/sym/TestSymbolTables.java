@@ -46,6 +46,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         final int SEED = 33333;
         BytesToNameCanonicalizer symbols =
                 BytesToNameCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+
         final int COUNT = 6000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
@@ -61,6 +62,8 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(1686, symbols.collisionCount());
         // but not super long collision chains:
         assertEquals(9, symbols.maxCollisionLength());
+
+        // But also verify entries are actually found?
     }
 
     // [Issue#145]

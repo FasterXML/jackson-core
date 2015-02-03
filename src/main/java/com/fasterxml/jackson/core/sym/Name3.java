@@ -25,6 +25,11 @@ public final class Name3 extends Name
     public boolean equals(int quad1, int quad2) { return false; }
 
     @Override
+    public boolean equals(int quad1, int quad2, int quad3) {
+        return (q1 == quad1) && (q2 == quad2) && (q3 == quad3);
+    }
+
+    @Override
     public boolean equals(int[] quads, int qlen) {
         return (qlen == 3) && (quads[0] == q1) && (quads[1] == q2) && (quads[2] == q3);
     }

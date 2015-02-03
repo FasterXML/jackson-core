@@ -57,6 +57,10 @@ public final class NameN extends Name
     @Override
     public boolean equals(int quad1, int quad2) { return false; }
 
+    // Implies quad length == 3, never matches
+    @Override
+    public boolean equals(int quad1, int quad2, int quad3) { return false; }
+
     @Override
     public boolean equals(int[] quads, int len) {
         if (len != qlen) { return false; }

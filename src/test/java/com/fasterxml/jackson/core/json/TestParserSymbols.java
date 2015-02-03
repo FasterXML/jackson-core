@@ -22,7 +22,8 @@ public class TestParserSymbols
     
     private void _testSymbolsWithNull(JsonFactory f, boolean useBytes) throws Exception
     {
-        final String INPUT = "{\"\\u0000abc\" : 1, \"abc\" : 2}";
+        final JsonFactory f = new JsonFactory();
+        final String INPUT = "{\"\\u0000abc\" : 1, \"abc\":2}";
         JsonParser parser = useBytes ? f.createParser(INPUT.getBytes("UTF-8"))
                 : f.createParser(INPUT);
 

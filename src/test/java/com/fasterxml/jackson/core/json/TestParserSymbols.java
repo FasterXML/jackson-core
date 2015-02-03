@@ -7,17 +7,21 @@ public class TestParserSymbols
 {
     // For [Issue#148]
     public void testSymbolsWithNullBytes() throws Exception {
-        _testSymbolsWithNull(true);
+        JsonFactory f = new JsonFactory();
+        _testSymbolsWithNull(f, true);
+        // and repeat with same factory, just for fun, and to ensure symbol table is fine
+        _testSymbolsWithNull(f, true);
     }
 
     // For [Issue#148]
     public void testSymbolsWithNullChars() throws Exception {
-        _testSymbolsWithNull(false);
+        JsonFactory f = new JsonFactory();
+        _testSymbolsWithNull(f, false);
+        _testSymbolsWithNull(f, false);
     }
     
-    private void _testSymbolsWithNull(boolean useBytes) throws Exception
+    private void _testSymbolsWithNull(JsonFactory f, boolean useBytes) throws Exception
     {
-        final JsonFactory f = new JsonFactory();
         final String INPUT = "{\"\\u0000abc\" : 1, \"abc\" : 2}";
         JsonParser parser = useBytes ? f.createParser(INPUT.getBytes("UTF-8"))
                 : f.createParser(INPUT);
@@ -35,6 +39,11 @@ public class TestParserSymbols
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
         currName = parser.getCurrentName();
         if (!"abc".equals(currName)) {
+            /*
+            for (int i = 0; i < currName.length(); ++i) {
+                System.out.println("#"+i+" -> 0x"+Integer.toHexString(currName.charAt(i)));
+            }
+            */
             fail("Expected 'abc' (3 bytes), '"+currName+"' ("+currName.length()+")");
         }
         assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());

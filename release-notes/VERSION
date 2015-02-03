@@ -18,6 +18,8 @@ JSON library.
 
 #178: Add `Lf2SpacesIndenter.withLinefeed` back to keep binary-compatibility with 2.4.x
  (reported by ansell@github)
+- Minor fix to alignment of null bytes in the last 4 bytes of name, in case where name
+  may cross the input boundary
 
 2.5.0 (01-Jan-2015)
 

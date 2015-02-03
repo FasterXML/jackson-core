@@ -1776,7 +1776,7 @@ public class UTF8StreamJsonParser
 
     /**
      * Method called when not even first 8 bytes are guaranteed
-     * to come consequtively. Happens rarely, so this is offlined;
+     * to come consecutively. Happens rarely, so this is off-lined;
      * plus we'll also do full checks for escaping etc.
      */
     protected Name slowParseName() throws IOException
@@ -1888,12 +1888,11 @@ public class UTF8StreamJsonParser
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
         }
-
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
                 _quadBuffer = quads = growArrayBy(quads, quads.length);
             }
-            quads[qlen++] = currQuad;
+            quads[qlen++] = pad(currQuad, currQuadBytes);
         }
         Name name = _symbols.findName(quads, qlen);
         if (name == null) {

@@ -1611,7 +1611,7 @@ public class UTF8StreamJsonParser
             return _handleOddName(i);
         }
         // First: can we optimize out bounds checks?
-        if ((_inputPtr + 9) > _inputEnd) { // Need 8 chars, plus one trailing (quote)
+        if ((_inputPtr + 13) > _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
             return slowParseName();
         }
 
@@ -1704,18 +1704,62 @@ public class UTF8StreamJsonParser
             }
             return parseName(_quad1, q2, i, 4);
         }
-        return parseLongName(i, q2);
+        return parseMediumName2(i, q2);
     }
 
-    protected final Name parseLongName(int q, final int q2) throws IOException
+    /**
+     * @since 2.6
+     */
+    protected final Name parseMediumName2(int q3, final int q2) throws IOException
+    {
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
+
+        // Got 9 name bytes so far
+        int i = input[_inputPtr++] & 0xFF;
+        if (codes[i] != 0) {
+            if (i == INT_QUOTE) { // 9 bytes
+                return findName(_quad1, q2, q3, 1);
+            }
+            return parseName(_quad1, q2, q3, i, 1);
+        }
+        q3 = (q3 << 8) | i;
+        i = input[_inputPtr++] & 0xFF;
+        if (codes[i] != 0) {
+            if (i == INT_QUOTE) { // 10 bytes
+                return findName(_quad1, q2, q3, 2);
+            }
+            return parseName(_quad1, q2, q3, i, 2);
+        }
+        q3 = (q3 << 8) | i;
+        i = input[_inputPtr++] & 0xFF;
+        if (codes[i] != 0) {
+            if (i == INT_QUOTE) { // 11 bytes
+                return findName(_quad1, q2, q3, 3);
+            }
+            return parseName(_quad1, q2, q3, i, 3);
+        }
+        q3 = (q3 << 8) | i;
+        i = input[_inputPtr++] & 0xFF;
+        if (codes[i] != 0) {
+            if (i == INT_QUOTE) { // 12 bytes
+                return findName(_quad1, q2, q3, 4);
+            }
+            return parseName(_quad1, q2, q3, i, 4);
+        }
+        return parseLongName(i, q2, q3);
+    }
+    
+    protected final Name parseLongName(int q, final int q2, int q3) throws IOException
     {
         _quadBuffer[0] = _quad1;
         _quadBuffer[1] = q2;
+        _quadBuffer[2] = q3;
 
         // As explained above, will ignore UTF-8 encoding at this point
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
-        int qlen = 2;
+        int qlen = 3;
 
         while ((_inputPtr + 4) <= _inputEnd) {
             int i = input[_inputPtr++] & 0xFF;
@@ -1770,7 +1814,7 @@ public class UTF8StreamJsonParser
 
     /**
      * Method called when not even first 8 bytes are guaranteed
-     * to come consecutively. Happens rarely, so this is off-lined;
+     * to come consequtively. Happens rarely, so this is offlined;
      * plus we'll also do full checks for escaping etc.
      */
     protected Name slowParseName() throws IOException
@@ -1796,12 +1840,18 @@ public class UTF8StreamJsonParser
         return parseEscapedName(_quadBuffer, 1, q2, ch, lastQuadBytes);
     }
 
+    private final Name parseName(int q1, int q2, int q3, int ch, int lastQuadBytes) throws IOException {
+        _quadBuffer[0] = q1;
+        _quadBuffer[1] = q2;
+        return parseEscapedName(_quadBuffer, 2, q3, ch, lastQuadBytes);
+    }
+    
     /**
      * Slower parsing method which is generally branched to when
      * an escape sequence is detected (or alternatively for long
-     * names, or ones crossing input buffer boundary). In any case,
-     * needs to be able to handle more exceptional cases, gets
-     * slower, and hance is offlined to a separate method.
+     * names, one crossing input buffer boundary).
+     * Needs to be able to handle more exceptional cases, gets slower,
+     * and hance is offlined to a separate method.
      */
     protected final Name parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
@@ -1882,6 +1932,7 @@ public class UTF8StreamJsonParser
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
         }
+
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
                 _quadBuffer = quads = growArrayBy(quads, quads.length);
@@ -2085,8 +2136,7 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    private final Name findName(int q1, int lastQuadBytes)
-        throws JsonParseException
+    private final Name findName(int q1, int lastQuadBytes) throws JsonParseException
     {
         q1 = pad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -2099,8 +2149,7 @@ public class UTF8StreamJsonParser
         return addName(_quadBuffer, 1, lastQuadBytes);
     }
 
-    private final Name findName(int q1, int q2, int lastQuadBytes)
-        throws JsonParseException
+    private final Name findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
     {
         q2 = pad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -2114,8 +2163,20 @@ public class UTF8StreamJsonParser
         return addName(_quadBuffer, 2, lastQuadBytes);
     }
 
-    private final Name findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes)
-        throws JsonParseException
+    private final Name findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
+    {
+        int[] quads = _quadBuffer;
+        quads[0] = q1;
+        quads[1] = q2;
+        quads[2] = pad(q3, lastQuadBytes);
+        Name name = _symbols.findName(quads, 3);
+        if (name != null) {
+            return name;
+        }
+        return addName(quads, 3, lastQuadBytes);
+    }
+    
+    private final Name findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
     {
         if (qlen >= quads.length) {
             _quadBuffer = quads = growArrayBy(quads, quads.length);

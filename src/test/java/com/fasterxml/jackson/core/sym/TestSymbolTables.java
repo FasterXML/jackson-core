@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.core.sym;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
-import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
 
 public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 {
@@ -91,5 +93,42 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             symbolsB.release();
             symbolsC.release();
         }
+    }
+
+    // And then one more test just for Bytes-based symbol table
+    public void testByteBasedSymbolTable() throws Exception
+    {
+        // combination of short, medium1/2, long names...
+        final String JSON = aposToQuotes("{'abc':1, 'abc\\u0000':2, '\\u0000abc':3, "
+                // then some medium
+                +"'abc123':4,'abcd1234':5,"
+                +"'abcd1234a':6,'abcd1234abcd':7,"
+                +"'abcd1234abcd1':8"
+                +"}");
+
+        JsonFactory f = new JsonFactory();
+        JsonParser p = f.createParser(JSON.getBytes("UTF-8"));
+        assertEquals(0, _findSymbolCount(p));
+        _streamThrough(p);
+        assertEquals(8, _findSymbolCount(p));
+        p.close();
+
+        // and, for fun, try again
+        p = f.createParser(JSON.getBytes("UTF-8"));
+        _streamThrough(p);
+        assertEquals(8, _findSymbolCount(p));
+        p.close();
+    }
+
+    private void _streamThrough(JsonParser p) throws IOException
+    {
+        while (p.nextToken() != null) { }
+    }
+    
+    private int _findSymbolCount(JsonParser p) throws Exception
+    {
+        Field syms = p.getClass().getDeclaredField("_symbols");
+        syms.setAccessible(true);
+        return ((BytesToNameCanonicalizer) syms.get(p)).size();
     }
 }

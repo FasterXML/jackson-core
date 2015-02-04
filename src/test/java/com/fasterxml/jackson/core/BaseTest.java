@@ -356,8 +356,7 @@ public abstract class BaseTest
      * available methods, and ensures results are consistent, before
      * returning them
      */
-    protected String getAndVerifyText(JsonParser jp)
-        throws IOException, JsonParseException
+    protected String getAndVerifyText(JsonParser jp) throws IOException
     {
         // Ok, let's verify other accessors
         int actLen = jp.getTextLength();
@@ -393,8 +392,12 @@ public abstract class BaseTest
         return result;
     }
 
-    public String quote(String str) {
+    protected String quote(String str) {
         return '"'+str+'"';
+    }
+
+    protected String aposToQuotes(String json) {
+        return json.replace("'", "\"");
     }
 
     protected void fieldNameFor(StringBuilder sb, int index)

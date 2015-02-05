@@ -110,23 +110,18 @@ public final class ByteQuadsCanonicalizer
      * structure (details of which may be tweaked depending on expected rates
      * of collisions).
      */
-    protected int[] _hash;
-    
-    /**
-     * Mask used to truncate 32-bit hash value to current hash array
-     * size; essentially, {@link _hashSize} - 1 (since hash array sizes
-     * are 2^N).
-     */
-    protected int _hashMask;
+    protected int[] _hashArea;
 
     /**
-     * Number of slots for primary entries within {@link #_hash}; which is
-     * <code>1/2</code> 
+     * Number of slots for primary entries within {@link #_hashArea}; which is
+     * at most <code>1/8</code> of actual size of the underlying array (4-int slots,
+     * primary covers only half of the area; plus, additional area for longer
+     * symbols after hash area).
      */
     protected int _hashSize;
 
     /**
-     * Offset within {@link #_hash} where secondary entries start
+     * Offset within {@link #_hashArea} where secondary entries start
      */
     protected int _secondaryOffset;
     
@@ -137,7 +132,7 @@ public final class ByteQuadsCanonicalizer
 
     /**
      * Array that contains <code>String</code> instances matching
-     * entries in {@link #_hash}.
+     * entries in {@link #_hashArea}.
      * Contains nulls for unused entries. Note that this size is twice
      * that o
      */
@@ -152,14 +147,17 @@ public final class ByteQuadsCanonicalizer
     /**
      * Pointer to the offset within spill-over area where there is room
      * for more spilled over entries (if any).
+     * Spill over area is within fixed-size portion of {@link #_hashArea}.
      */
-    protected int _spillOverEnd;
+    protected int _spilloverEnd;
 
     /**
-     * Offset within {@link #_hash} that follows main slots and contains
+     * Offset within {@link #_hashArea} that follows main slots and contains
      * quads for longer names (13 bytes or longers), and points to the
      * first available int that may be used for appending quads of the next
      * long name.
+     * Note that long name area follows immediately after the fixed-size
+     * main hash area ({@link #_hashArea}).
      */
     protected int _longNameOffset;
 
@@ -258,11 +256,13 @@ public final class ByteQuadsCanonicalizer
         // Then copy shared state
         _count = state.count;
         _hashSize = state.size;
-        _hashMask = _hashSize-1;
         _secondaryOffset = _hashSize << 2; // 4 ints per entry
-        _hash = state.mainHash;
+        _hashArea = state.mainHash;
         _names = state.names;
 
+        _spilloverEnd = state.spilloverEnd;
+        _longNameOffset = state.longNameOffset;
+        
         // and then set other state to reflect sharing status
         _needRehash = false;
         _hashShared = true;
@@ -387,7 +387,7 @@ public final class ByteQuadsCanonicalizer
     {
         int count = 0;
         for (int offset = 3, end = _secondaryOffset; offset < end; offset += 4) {
-            if (_hash[offset] != 0) {
+            if (_hashArea[offset] != 0) {
                 ++count;
             }
         }
@@ -402,7 +402,7 @@ public final class ByteQuadsCanonicalizer
         int count = 0;
         int offset = _secondaryOffset + 3;
         for (int end = offset + (_hashSize << 1); offset < end; offset += 4) {
-            if (_hash[offset] != 0) {
+            if (_hashArea[offset] != 0) {
                 ++count;
             }
         }
@@ -417,7 +417,7 @@ public final class ByteQuadsCanonicalizer
         int count = 0;
         int offset = _secondaryOffset + (_hashSize << 1) + 3; // to 1.5x, starting point of tertiary
         for (int end = offset + _hashSize; offset < end; offset += 4) {
-            if (_hash[offset] != 0) {
+            if (_hashArea[offset] != 0) {
                 ++count;
             }
         }
@@ -428,9 +428,9 @@ public final class ByteQuadsCanonicalizer
      * Method mostly needed by unit tests; calculates number of entries
      * in shared spillover area
      */
-    public int spillOverCount() {
+    public int spilloverCount() {
         // difference between spillover end, start, divided by 4 (four ints per slot)
-        return (_spillOverEnd - _spilloverStart()) >> 2;
+        return (_spilloverEnd - _spilloverStart()) >> 2;
     }
 
     /*
@@ -443,7 +443,7 @@ public final class ByteQuadsCanonicalizer
     {
         int offset = _calcOffset(calcHash(q1));
         // first: primary match?
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
 
         int q1b = hashArea[offset];
         int len = hashArea[offset+3];
@@ -474,7 +474,7 @@ public final class ByteQuadsCanonicalizer
     public String findName(int q1, int q2)
     {
         int offset = _calcOffset(calcHash(q1, q2));
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
 
         int q1b = hashArea[offset];
         int len = hashArea[offset+3];
@@ -504,7 +504,7 @@ public final class ByteQuadsCanonicalizer
     {
         int offset = _calcOffset(calcHash(q1, q2, q3));
 
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
 
         int q1b = hashArea[offset];
         int len = hashArea[offset+3];
@@ -548,7 +548,7 @@ public final class ByteQuadsCanonicalizer
         final int hash = calcHash(q, qlen);
         int offset = _calcOffset(hash);
 
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
 
         final int len = hashArea[offset+3];
         
@@ -581,7 +581,7 @@ public final class ByteQuadsCanonicalizer
         // NOTE: simple for initial impl, but we may want to interleave it a bit
         // in near future
         // So: first, hash into primary hash index
-        int ix = hash & _hashMask;
+        int ix = hash & (_hashSize-1);
         // keeping in mind we have 4 ints per entry
         return (ix << 2);
     }
@@ -598,7 +598,7 @@ public final class ByteQuadsCanonicalizer
         int offset = _secondaryOffset + (_secondaryOffset >> 1);
         offset += (origOffset >> 6) << 2;
 
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
 
         // then check up to 4 slots; don't worry about empty slots yet
         if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
@@ -621,8 +621,7 @@ public final class ByteQuadsCanonicalizer
         if (len != 0) {
             // shared spillover starts at 7/8 of the main hash area
             // (which is sized at 2 * _hashSize), so:
-            offset = _spilloverStart();
-            for (int i = 0; i < _spillOverEnd; ++i, offset += 4) {
+            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
                 if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
                     return _names[offset >> 2];
                 }
@@ -636,7 +635,7 @@ public final class ByteQuadsCanonicalizer
         int offset = _secondaryOffset + (_secondaryOffset >> 1);
         offset += (origOffset >> 6) << 2;
 
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
         
         if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == hashArea[offset+3])) {
             return _names[offset >> 2];
@@ -658,8 +657,7 @@ public final class ByteQuadsCanonicalizer
         if (len != 0) {
             // shared spillover starts at 7/8 of the main hash area
             // (which is sized at 2 * _hashSize), so:
-            offset = _spilloverStart();
-            for (int i = 0; i < _spillOverEnd; ++i, offset += 4) {
+            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
                 if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == hashArea[offset+3])) {
                     return _names[offset >> 2];
                 }
@@ -673,7 +671,7 @@ public final class ByteQuadsCanonicalizer
         int offset = _secondaryOffset + (_secondaryOffset >> 1);
         offset += (origOffset >> 6) << 2;
 
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
         
         if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == hashArea[offset+3])) {
             return _names[offset >> 2];
@@ -695,8 +693,7 @@ public final class ByteQuadsCanonicalizer
         if (len != 0) {
             // shared spillover starts at 7/8 of the main hash area
             // (which is sized at 2 * _hashSize), so:
-            offset = _spilloverStart();
-            for (; offset < _spillOverEnd; offset += 4) {
+            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
                 if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2])
                         && (3 == hashArea[offset+3])) {
                     return _names[offset >> 2];
@@ -711,7 +708,7 @@ public final class ByteQuadsCanonicalizer
         int offset = _secondaryOffset + (_secondaryOffset >> 1);
         offset += (origOffset >> 6) << 2;
         
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
         
         if ((hash == hashArea[offset]) && (qlen == hashArea[offset+3])) {
             if (_verifyLongName(q, qlen, hashArea[offset+1])) {
@@ -741,8 +738,7 @@ public final class ByteQuadsCanonicalizer
         if (len != 0) {
             // shared spillover starts at 7/8 of the main hash area
             // (which is sized at 2 * _hashSize), so:
-            offset = _spilloverStart();
-            for (int i = 0; i < _spillOverEnd; ++i, offset += 4) {
+            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
                 if ((hash == hashArea[offset]) && (3 == len)) {
                     if (_verifyLongName(q, qlen, hashArea[offset+1])) {
                         return _names[offset >> 2];
@@ -755,9 +751,9 @@ public final class ByteQuadsCanonicalizer
     
     private boolean _verifyLongName(int[] q, int qlen, int spillOffset)
     {
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
         // spillOffset assumed to be physical index right into quad string
-
+        
         int ix = 0;
         do {
             if (q[ix++] != hashArea[spillOffset++]) {
@@ -785,33 +781,35 @@ public final class ByteQuadsCanonicalizer
         case 1:
         {
                 offset = _findOffsetForAdd(calcHash(q[0]));
-                _hash[offset] = q[0];
-                _hash[offset+3] = 1;
+                _hashArea[offset] = q[0];
+                _hashArea[offset+3] = 1;
             }
             break;
         case 2:
             {
                 offset = _findOffsetForAdd(calcHash(q[0], q[1]));
-                _hash[offset] = q[0];
-                _hash[offset+1] = q[1];
-                _hash[offset+3] = 2;
+                _hashArea[offset] = q[0];
+                _hashArea[offset+1] = q[1];
+                _hashArea[offset+3] = 2;
             }
             break;
         case 3:
             {
                 offset = _findOffsetForAdd(calcHash(q[0], q[1], q[2]));
-                _hash[offset] = q[0];
-                _hash[offset+1] = q[1];
-                _hash[offset+2] = q[2];
-                _hash[offset+3] = 3;
+                _hashArea[offset] = q[0];
+                _hashArea[offset+1] = q[1];
+                _hashArea[offset+2] = q[2];
+                _hashArea[offset+3] = 3;
             }
             break;
         default:
             final int hash = calcHash(q, qlen);
             offset = _findOffsetForAdd(hash);
-            _hash[offset] = hash;
-            _hash[offset+3] = qlen;
-            _hash[offset+1] = _appendLongName(q, qlen);
+
+            _hashArea[offset] = hash;
+            int longStart = _appendLongName(q, qlen);
+            _hashArea[offset+1] = longStart;
+            _hashArea[offset+3] = qlen;
         }
         // plus add the actual String
         _names[offset >> 2] = name;
@@ -821,7 +819,7 @@ public final class ByteQuadsCanonicalizer
 
         // Yes if above 75%, or above 50% AND have spill-overs
         if (_count > (_hashSize >> 1)) { // over 50%
-            if ((_spillOverEnd > _spilloverStart())
+            if ((_spilloverEnd > _spilloverStart())
                     || (_count > (_hashSize - (_hashSize >> 2)))) {
                 _needRehash = true;
             }
@@ -832,13 +830,12 @@ public final class ByteQuadsCanonicalizer
     private void _verifyRehashAndSharing()
     {
         if (_hashShared) {
-            _hash = Arrays.copyOf(_hash, _hash.length);
+            _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);
             _names = Arrays.copyOf(_names, _names.length);
             _hashShared = false;
         }
         if (_needRehash) {
-            throw new RuntimeException("Should resize: count "+_count+", hash size "+_hashSize+", not yet implemented!");
-//            rehash();
+            rehash();
         }
     }
     
@@ -849,7 +846,7 @@ public final class ByteQuadsCanonicalizer
     {
         // first, check the primary:
         int offset = _calcOffset(hash);
-        final int[] hashArea = _hash;
+        final int[] hashArea = _hashArea;
         if (hashArea[offset+3] == 0) {
             return offset;
         }
@@ -880,25 +877,32 @@ public final class ByteQuadsCanonicalizer
         }
 
         // and if even tertiary full, append at the end of spill area
-        offset = _spillOverEnd;
-        _spillOverEnd += 4;
+        offset = _spilloverEnd;
+        _spilloverEnd += 4;
+
+        // one caveat: in the unlikely event if spill-over filling up,
+        // force rehash for the add that follows
+        if (_spilloverEnd >= hashArea.length) {
+            _needRehash = true;
+        }
         return offset;
     }
 
     private int _appendLongName(int[] quads, int qlen)
     {
         int start = _longNameOffset;
+        
         // note: at this point we must already be shared. But may not have enough space
-        if ((start + qlen) > _hash.length) {
+        if ((start + qlen) > _hashArea.length) {
             // try to increment in reasonable chunks; at least space that we need
-            int toAdd = (start + qlen) - _hash.length;
+            int toAdd = (start + qlen) - _hashArea.length;
             // but at least 1/8 of regular hash area size or 16kB (whichever smaller)
             int minAdd = Math.min(4096, _hashSize);
 
-            int newSize = _hash.length + Math.max(toAdd, minAdd);
-            _hash = Arrays.copyOf(_hash, newSize);
+            int newSize = _hashArea.length + Math.max(toAdd, minAdd);
+            _hashArea = Arrays.copyOf(_hashArea, newSize);
         }
-        System.arraycopy(quads, 0, _hash, start, qlen);
+        System.arraycopy(quads, 0, _hashArea, start, qlen);
         _longNameOffset += qlen;
         return start;
     }
@@ -1001,6 +1005,106 @@ public final class ByteQuadsCanonicalizer
 
     /*
     /**********************************************************
+    /* Rehashing
+    /**********************************************************
+     */
+
+    private void rehash()
+    {
+        _needRehash = false;        
+        // Note: since we'll make copies, no need to unshare, can just mark as such:
+        _hashShared = false;
+
+        // And then we can first deal with the main hash area. Since we are expanding
+        // linearly (double up), we know there'll be no collisions during this phase.
+        final int[] oldHashArea = _hashArea;
+        final String[] oldNames = _names;
+        final int oldSize = _hashSize;
+        final int oldCount = _count;
+        final int newSize = oldSize + oldSize;
+
+        /* 13-Mar-2010, tatu: Let's guard against OOME that could be caused by
+         *    large documents with unique (or mostly so) names
+         */
+        if (newSize > MAX_T_SIZE) {
+            nukeSymbols(true);
+            return;
+        }
+        // double up main hash area, but do not expand long-name area:
+        _hashArea = new int[oldHashArea.length + (oldSize<<3)];
+        _hashSize = newSize;
+        
+        // and simply double up name array
+        _names = new String[oldNames.length << 1];
+        nukeSymbols(false);
+
+        // Plus we can scan only through the primary hash area, looking for non-empty
+        // slots, without worrying about ordering. This should never reduce priority
+        // of existing entries: primaries remain primaries; however, due to increased
+        // space, secondaries may become primaries etc
+
+        int copyCount = 0;
+        int[] q = new int[16];
+        for (int offset = 0, end = oldSize<<3; offset < end; offset += 4) {
+            int len = oldHashArea[offset+3];
+            if (len == 0) { // empty slot, skip
+                continue;
+            }
+            ++copyCount;
+            String name = oldNames[offset>>2];
+            switch (len) {
+            case 1:
+                q[0] = oldHashArea[offset];
+                addName(name, q, 1);
+                break;
+            case 2:
+                q[0] = oldHashArea[offset];
+                q[1] = oldHashArea[offset+1];
+                addName(name, q, 2);
+                break;
+            case 3:
+                q[0] = oldHashArea[offset];
+                q[1] = oldHashArea[offset+1];
+                q[2] = oldHashArea[offset+2];
+                addName(name, q, 3);
+                break;
+            default:
+                if (len > q.length) {
+                    q = new int[len];
+                }
+                // #0 is hash, #1 offset
+                int qoff = oldHashArea[offset+1];
+                System.arraycopy(oldHashArea, qoff, q, 0, len);
+                addName(name, q, len);
+                break;
+            }
+        }
+
+        // Sanity checks: since corruption difficult to detect, assert explicitly
+        // with production code
+        if (copyCount != oldCount) {
+            throw new IllegalStateException("Failed rehash(): old count="+oldCount+", copyCount="+copyCount);
+        }
+    }
+
+    /**
+     * Helper method called to empty all shared symbols, but to leave
+     * arrays allocated
+     */
+    private void nukeSymbols(boolean fill) {
+        _count = 0;
+        // reset spill-over to empty (starting at 7/8 of hash area)
+        _spilloverEnd = _spilloverStart();
+        // and long name area to empty, starting immediately after hash area
+        _longNameOffset = _hashSize << 3;
+        if (fill) {
+            Arrays.fill(_hashArea, 0);
+            Arrays.fill(_names, null);
+        }
+    }
+
+    /*
+    /**********************************************************
     /* Helper classes
     /**********************************************************
      */
@@ -1018,31 +1122,39 @@ public final class ByteQuadsCanonicalizer
         public final int count;
         public final int[] mainHash;
         public final String[] names;
+        public final int spilloverEnd;
+        public final int longNameOffset;
 
         public TableInfo(int size, int count, int[] mainHash, String[] names,
-                int collCount, int longestCollisionList)
+                int spilloverEnd, int longNameOffset)
         {
             this.size = size;
             this.count = count;
             this.mainHash = mainHash;
             this.names = names;
+            this.spilloverEnd = spilloverEnd;
+            this.longNameOffset = longNameOffset;
         }
 
         public TableInfo(ByteQuadsCanonicalizer src)
         {
             size = src._hashSize;
             count = src._count;
-            mainHash = src._hash;
+            mainHash = src._hashArea;
             names = src._names;
+            spilloverEnd = src._spilloverEnd;
+            longNameOffset = src._longNameOffset;
         }
 
         public static TableInfo createInitial(int sz) {
+            int hashAreaSize = sz << 3;
+
             return new TableInfo(sz, // hashSize
                     0, // count
-                    new int[sz * 8], // mainHash, 2x slots, 4 ints per slot
-                    new String[sz + sz],
-                    0, // collCount,
-                    0 // longestCollisionList
+                    new int[hashAreaSize], // mainHash, 2x slots, 4 ints per slot
+                    new String[sz << 1], // 2x slots
+                    hashAreaSize - sz, // at 7/8 of the total area
+                    hashAreaSize // longNameOffset, immediately after main hashes
             );
         }
     }

@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
 
 public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 {
@@ -121,7 +120,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         p = f.createParser(JSON.getBytes("UTF-8"));
         _streamThrough(p);
         symbols = _findSymbols(p);
-//        assertEquals(8, symbols.size());
+        assertEquals(8, symbols.size());
         p.close();
 
         p = f.createParser(JSON.getBytes("UTF-8"));

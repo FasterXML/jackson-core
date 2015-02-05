@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.sym.*;
+import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.*;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -46,7 +46,7 @@ public class UTF8StreamJsonParser
     /**
      * Symbol table that contains field names encountered so far
      */
-    final protected BytesToNameCanonicalizer _symbols;
+    final protected ByteQuadsCanonicalizer _symbols;
     
     /*
     /**********************************************************
@@ -108,7 +108,7 @@ public class UTF8StreamJsonParser
      */
 
     public UTF8StreamJsonParser(IOContext ctxt, int features, InputStream in,
-            ObjectCodec codec, BytesToNameCanonicalizer sym,
+            ObjectCodec codec, ByteQuadsCanonicalizer sym,
             byte[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
@@ -691,8 +691,8 @@ public class UTF8StreamJsonParser
             return _nextTokenNotInObject(i);
         }
         // So first parse the field name itself:
-        Name n = _parseName(i);
-        _parsingContext.setCurrentName(n.getName());
+        String n = _parseName(i);
+        _parsingContext.setCurrentName(n);
         _currToken = JsonToken.FIELD_NAME;
 
         i = _skipColon();
@@ -958,8 +958,7 @@ public class UTF8StreamJsonParser
             return null;
         }
 
-        Name n = _parseName(i);
-        final String nameStr = n.getName();
+        final String nameStr = _parseName(i);
         _parsingContext.setCurrentName(nameStr);
         _currToken = JsonToken.FIELD_NAME;
 
@@ -1114,14 +1113,10 @@ public class UTF8StreamJsonParser
     private final boolean _isNextTokenNameMaybe(int i, SerializableString str) throws IOException
     {
         // // // and this is back to standard nextToken()
-            
-        Name n = _parseName(i);
-        final boolean match;
-        {
-            String nameStr = n.getName();
-            _parsingContext.setCurrentName(nameStr);
-            match = nameStr.equals(str.getValue());
-        }
+
+        String n = _parseName(i);
+        _parsingContext.setCurrentName(n);
+        final boolean match = n.equals(str.getValue());
         _currToken = JsonToken.FIELD_NAME;
         i = _skipColon();
 
@@ -1605,7 +1600,7 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
     
-    protected final Name _parseName(int i) throws IOException
+    protected final String _parseName(int i) throws IOException
     {
         if (i != INT_QUOTE) {
             return _handleOddName(i);
@@ -1662,12 +1657,12 @@ public class UTF8StreamJsonParser
             return parseName(q, i, 1);
         }     
         if (q == INT_QUOTE) { // special case, ""
-            return BytesToNameCanonicalizer.getEmptyName();
+            return "";
         }
         return parseName(0, q, 0); // quoting or invalid char
     }
 
-    protected final Name parseMediumName(int q2) throws IOException
+    protected final String parseMediumName(int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
@@ -1710,7 +1705,7 @@ public class UTF8StreamJsonParser
     /**
      * @since 2.6
      */
-    protected final Name parseMediumName2(int q3, final int q2) throws IOException
+    protected final String parseMediumName2(int q3, final int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
@@ -1750,7 +1745,7 @@ public class UTF8StreamJsonParser
         return parseLongName(i, q2, q3);
     }
     
-    protected final Name parseLongName(int q, final int q2, int q3) throws IOException
+    protected final String parseLongName(int q, final int q2, int q3) throws IOException
     {
         _quadBuffer[0] = _quad1;
         _quadBuffer[1] = q2;
@@ -1817,7 +1812,7 @@ public class UTF8StreamJsonParser
      * to come consequtively. Happens rarely, so this is offlined;
      * plus we'll also do full checks for escaping etc.
      */
-    protected Name slowParseName() throws IOException
+    protected String slowParseName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {
@@ -1826,21 +1821,21 @@ public class UTF8StreamJsonParser
         }
         int i = _inputBuffer[_inputPtr++] & 0xFF;
         if (i == INT_QUOTE) { // special case, ""
-            return BytesToNameCanonicalizer.getEmptyName();
+            return "";
         }
         return parseEscapedName(_quadBuffer, 0, 0, i, 0);
     }
 
-    private final Name parseName(int q1, int ch, int lastQuadBytes) throws IOException {
+    private final String parseName(int q1, int ch, int lastQuadBytes) throws IOException {
         return parseEscapedName(_quadBuffer, 0, q1, ch, lastQuadBytes);
     }
 
-    private final Name parseName(int q1, int q2, int ch, int lastQuadBytes) throws IOException {
+    private final String parseName(int q1, int q2, int ch, int lastQuadBytes) throws IOException {
         _quadBuffer[0] = q1;
         return parseEscapedName(_quadBuffer, 1, q2, ch, lastQuadBytes);
     }
 
-    private final Name parseName(int q1, int q2, int q3, int ch, int lastQuadBytes) throws IOException {
+    private final String parseName(int q1, int q2, int q3, int ch, int lastQuadBytes) throws IOException {
         _quadBuffer[0] = q1;
         _quadBuffer[1] = q2;
         return parseEscapedName(_quadBuffer, 2, q3, ch, lastQuadBytes);
@@ -1853,7 +1848,7 @@ public class UTF8StreamJsonParser
      * Needs to be able to handle more exceptional cases, gets slower,
      * and hance is offlined to a separate method.
      */
-    protected final Name parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
+    protected final String parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
     {
         /* 25-Nov-2008, tatu: This may seem weird, but here we do not want to worry about
@@ -1939,7 +1934,7 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = pad(currQuad, currQuadBytes);
         }
-        Name name = _symbols.findName(quads, qlen);
+        String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
         }
@@ -1952,7 +1947,7 @@ public class UTF8StreamJsonParser
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      */
-    protected Name _handleOddName(int ch) throws IOException
+    protected String _handleOddName(int ch) throws IOException
     {
         // [JACKSON-173]: allow single quotes
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
@@ -2013,7 +2008,7 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = currQuad;
         }
-        Name name = _symbols.findName(quads, qlen);
+        String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
         }
@@ -2025,7 +2020,7 @@ public class UTF8StreamJsonParser
      * for valid JSON -- more alternatives, more code, generally
      * bit slower execution.
      */
-    protected Name _parseAposName() throws IOException
+    protected String _parseAposName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) {
@@ -2034,7 +2029,7 @@ public class UTF8StreamJsonParser
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
         if (ch == '\'') { // special case, ''
-            return BytesToNameCanonicalizer.getEmptyName();
+            return "";
         }
         int[] quads = _quadBuffer;
         int qlen = 0;
@@ -2123,7 +2118,7 @@ public class UTF8StreamJsonParser
             }
             quads[qlen++] = pad(currQuad, currQuadBytes);
         }
-        Name name = _symbols.findName(quads, qlen);
+        String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = addName(quads, qlen, currQuadBytes);
         }
@@ -2136,11 +2131,11 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    private final Name findName(int q1, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int lastQuadBytes) throws JsonParseException
     {
         q1 = pad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
-        Name name = _symbols.findName(q1);
+        String name = _symbols.findName(q1);
         if (name != null) {
             return name;
         }
@@ -2149,11 +2144,11 @@ public class UTF8StreamJsonParser
         return addName(_quadBuffer, 1, lastQuadBytes);
     }
 
-    private final Name findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
     {
         q2 = pad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
-        Name name = _symbols.findName(q1, q2);
+        String name = _symbols.findName(q1, q2);
         if (name != null) {
             return name;
         }
@@ -2163,10 +2158,10 @@ public class UTF8StreamJsonParser
         return addName(_quadBuffer, 2, lastQuadBytes);
     }
 
-    private final Name findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
     {
         q3 = pad(q3, lastQuadBytes);
-        Name name = _symbols.findName(q1, q2, q3);
+        String name = _symbols.findName(q1, q2, q3);
         if (name != null) {
             return name;
         }
@@ -2177,13 +2172,13 @@ public class UTF8StreamJsonParser
         return addName(quads, 3, lastQuadBytes);
     }
     
-    private final Name findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
+    private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
     {
         if (qlen >= quads.length) {
             _quadBuffer = quads = growArrayBy(quads, quads.length);
         }
         quads[qlen++] = pad(lastQuad, lastQuadBytes);
-        Name name = _symbols.findName(quads, qlen);
+        String name = _symbols.findName(quads, qlen);
         if (name == null) {
             return addName(quads, qlen, lastQuadBytes);
         }
@@ -2196,8 +2191,7 @@ public class UTF8StreamJsonParser
      * multi-byte chars (if any), and then construct Name instance
      * and add it to the symbol table.
      */
-    private final Name addName(int[] quads, int qlen, int lastQuadBytes)
-        throws JsonParseException
+    private final String addName(int[] quads, int qlen, int lastQuadBytes) throws JsonParseException
     {
         /* Ok: must decode UTF-8 chars. No other validation is
          * needed, since unescaping has been done earlier as necessary

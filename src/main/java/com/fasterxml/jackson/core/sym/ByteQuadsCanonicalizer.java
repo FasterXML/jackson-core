@@ -22,6 +22,7 @@ public final class ByteQuadsCanonicalizer
      * themselves).
      */
     private static final int DEFAULT_T_SIZE = 64;
+//    private static final int DEFAULT_T_SIZE = 256;
 
     /**
      * Let's not expand symbol tables past some maximum size;
@@ -695,7 +696,7 @@ public final class ByteQuadsCanonicalizer
             // shared spillover starts at 7/8 of the main hash area
             // (which is sized at 2 * _hashSize), so:
             offset = _spilloverStart();
-            for (int i = 0; i < _spillOverEnd; ++i, offset += 4) {
+            for (; offset < _spillOverEnd; offset += 4) {
                 if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2])
                         && (3 == hashArea[offset+3])) {
                     return _names[offset >> 2];

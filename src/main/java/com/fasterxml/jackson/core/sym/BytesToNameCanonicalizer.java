@@ -332,7 +332,7 @@ public final class BytesToNameCanonicalizer
                 0 // longestCollisionList
         );
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle: factory methods, merging

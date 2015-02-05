@@ -454,7 +454,7 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary? single slot shared by N/2 primaries
-        int offset2 = _secondaryOffset;
+        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
 
         q1b = hashArea[offset2];
         len = hashArea[offset2+3];
@@ -472,9 +472,7 @@ public final class ByteQuadsCanonicalizer
 
     public String findName(int q1, int q2)
     {
-        int hash = (q2 == 0) ? calcHash(q1) : calcHash(q1, q2);
-        int offset = _calcOffset(hash);
-
+        int offset = _calcOffset(calcHash(q1, q2));
         final int[] hashArea = _hash;
 
         int q1b = hashArea[offset];
@@ -487,7 +485,7 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary?
-        int offset2 = _secondaryOffset;
+        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
 
         q1b = hashArea[offset2];
         len = hashArea[offset2+3];
@@ -517,7 +515,7 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary?
-        int offset2 = _secondaryOffset;
+        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
 
         q1b = hashArea[offset2];
         len = hashArea[offset2+3];
@@ -541,17 +539,19 @@ public final class ByteQuadsCanonicalizer
             if (qlen == 3) {
                 return findName(q[0], q[1], q[2]);
             }
-            return findName(q[0], (qlen < 2) ? 0 : q[1]);
+            if (qlen == 2) {
+                return findName(q[0], q[1]);
+            }
+            return findName(q[0]);
         }
-        final int hash = calcHash(calcHash(q, qlen));
+        final int hash = calcHash(q, qlen);
         int offset = _calcOffset(hash);
 
         final int[] hashArea = _hash;
 
-        int h = hashArea[offset];
-        int len = hashArea[offset+3];
+        final int len = hashArea[offset+3];
         
-        if ((hash == h) && (len == qlen)) {
+        if ((hash == hashArea[offset]) && (len == qlen)) {
             // probable but not guaranteed: verify
             if (_verifyLongName(q, qlen, hashArea[offset+1])) {
                 return _names[offset >> 2];
@@ -561,12 +561,10 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary?
-        int offset2 = _secondaryOffset;
+        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
 
-        h = hashArea[offset2];
-        len = hashArea[offset2+3];
-
-        if ((hash == h) && (len == qlen)) {
+        final int len2 = hashArea[offset2+3];
+        if ((hash == hashArea[offset2]) && (len2 == qlen)) {
             if (_verifyLongName(q, qlen, hashArea[offset2+1])) {
                 return _names[offset2 >> 2];
             }
@@ -784,7 +782,7 @@ public final class ByteQuadsCanonicalizer
         
         switch (qlen) {
         case 1:
-            {
+        {
                 offset = _findOffsetForAdd(calcHash(q[0]));
                 _hash[offset] = q[0];
                 _hash[offset+3] = 1;
@@ -808,7 +806,7 @@ public final class ByteQuadsCanonicalizer
             }
             break;
         default:
-            int hash = calcHash(q, qlen);
+            final int hash = calcHash(q, qlen);
             offset = _findOffsetForAdd(hash);
             _hash[offset] = hash;
             _hash[offset+3] = qlen;
@@ -838,7 +836,7 @@ public final class ByteQuadsCanonicalizer
             _hashShared = false;
         }
         if (_needRehash) {
-            throw new RuntimeException("Should resize: not yet implemented!");
+            throw new RuntimeException("Should resize: count "+_count+", hash size "+_hashSize+", not yet implemented!");
 //            rehash();
         }
     }
@@ -857,28 +855,27 @@ public final class ByteQuadsCanonicalizer
         // then secondary
         int offset2 = _secondaryOffset + ((offset >> 3) << 2);
         if (hashArea[offset2+3] == 0) {
-            return offset;
+            return offset2;
         }
         // if not, tertiary?
 
-        offset2 = (_hashSize << 3) - _hashSize;
-        offset2 += (offset >> 1); // so, 1.5x primary size
+        offset2 = _secondaryOffset + (_secondaryOffset >> 1);
         offset2 += (offset >> 6) << 2; // and add 1/16th of orig index (but on 4 int boundary)
-        
+
         if (hashArea[offset2+3] == 0) {
-            return offset;
+            return offset2;
         }
         offset2 += 4;
         if (hashArea[offset2+3] == 0) {
-            return offset;
+            return offset2;
         }
         offset2 += 4;
         if (hashArea[offset2+3] == 0) {
-            return offset;
+            return offset2;
         }
         offset2 += 4;
         if (hashArea[offset2+3] == 0) {
-            return offset;
+            return offset2;
         }
 
         // and if even tertiary full, append at the end of spill area
@@ -969,13 +966,12 @@ public final class ByteQuadsCanonicalizer
 
         return hash;
     }
-    
+
     public int calcHash(int[] q, int qlen)
     {
         if (qlen < 4) {
             throw new IllegalArgumentException();
         }
-
         /* And then change handling again for "multi-quad" case; mostly
          * to make calculation of collisions less fun. For example,
          * add seed bit later in the game, and switch plus/xor around,
@@ -989,7 +985,7 @@ public final class ByteQuadsCanonicalizer
         hash += (hash >>> 15);
         hash ^= q[2];
         hash += (hash >>> 17);
-        
+
         for (int i = 3; i < qlen; ++i) {
             hash = (hash * MULT3) ^ q[i];
             // for longer entries, mess a bit in-between too
@@ -1001,7 +997,7 @@ public final class ByteQuadsCanonicalizer
         hash ^= (hash << 9); // as well as lowest 2 bytes
         return hash;
     }
-   
+
     /*
     /**********************************************************
     /* Helper classes
@@ -1043,7 +1039,7 @@ public final class ByteQuadsCanonicalizer
             return new TableInfo(sz, // hashSize
                     0, // count
                     new int[sz * 8], // mainHash, 2x slots, 4 ints per slot
-                    new String[sz], // mainNames
+                    new String[sz + sz],
                     0, // collCount,
                     0 // longestCollisionList
             );

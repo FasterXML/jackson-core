@@ -109,8 +109,9 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     /**
-     * Implemented with detection that tries to find "VERSION.txt" in same
-     * package as the implementation class.
+     * Implemented with standard version number detection algorithm, typically using
+     * a simple generated class, with information extracted from Maven project file
+     * during build.
      */
     @Override public Version version() { return VersionUtil.versionFor(getClass()); }
 
@@ -202,7 +203,7 @@ public abstract class GeneratorBase extends JsonGenerator
         if (getPrettyPrinter() != null) {
             return this;
         }
-        return setPrettyPrinter(new DefaultPrettyPrinter());
+        return setPrettyPrinter(_constructDefaultPrettyPrinter());
     }
     
     @Override public JsonGenerator setCodec(ObjectCodec oc) {
@@ -371,6 +372,16 @@ public abstract class GeneratorBase extends JsonGenerator
      *   if value output is NOT legal in current generator output state.
      */
     protected abstract void _verifyValueWrite(String typeMsg) throws IOException;
+
+    /**
+     * Overridable factory method called to instantiate an appropriate {@link PrettyPrinter}
+     * for case of "just use the default one", when {@link #useDefaultPrettyPrinter()} is called.
+     *
+     * @since 2.6
+     */
+    protected PrettyPrinter _constructDefaultPrettyPrinter() {
+        return new DefaultPrettyPrinter();
+    }
 
     /*
     /**********************************************************

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
-import com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer;
+import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 
 /**
@@ -209,7 +209,7 @@ public final class ByteSourceJsonBootstrapper
     }
 
     public JsonParser constructParser(int parserFeatures, ObjectCodec codec,
-            BytesToNameCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols,
+            ByteQuadsCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols,
             int factoryFeatures) throws IOException
     {
         JsonEncoding enc = detectEncoding();
@@ -219,7 +219,7 @@ public final class ByteSourceJsonBootstrapper
              * (which is ok for larger input; not so hot for smaller; but this is not a common case)
              */
             if (JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(factoryFeatures)) {
-                BytesToNameCanonicalizer can = rootByteSymbols.makeChild(factoryFeatures);
+                ByteQuadsCanonicalizer can = rootByteSymbols.makeChild(factoryFeatures);
                 return new UTF8StreamJsonParser(_context, parserFeatures, _in, codec, can,
                         _inputBuffer, _inputPtr, _inputEnd, _bufferRecyclable);
             }

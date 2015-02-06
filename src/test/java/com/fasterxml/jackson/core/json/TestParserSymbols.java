@@ -19,7 +19,7 @@ public class TestParserSymbols
         _testSymbolsWithNull(f, false);
         _testSymbolsWithNull(f, false);
     }
-    
+
     private void _testSymbolsWithNull(JsonFactory f, boolean useBytes) throws Exception
     {
         final String INPUT = "{\"\\u0000abc\" : 1, \"abc\":2}";

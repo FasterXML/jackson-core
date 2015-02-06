@@ -3,8 +3,6 @@ package com.fasterxml.jackson.core.sym;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer;
-import com.fasterxml.jackson.core.sym.Name;
 
 /**
  * Unit test(s) to verify that handling of (byte-based) symbol tables
@@ -76,24 +74,22 @@ public class TestByteBasedSymbols
         jp0.close();
     }
 
-    public void testAuxMethods()
-        throws Exception
+    public void testAuxMethodsWithNewSymboTable() throws Exception
     {
         final int A_BYTES = 0x41414141; // "AAAA"
         final int B_BYTES = 0x42424242; // "BBBB"
 
-        BytesToNameCanonicalizer nc = BytesToNameCanonicalizer.createRoot()
+        ByteQuadsCanonicalizer nc = ByteQuadsCanonicalizer.createRoot()
                 .makeChild(JsonFactory.Feature.collectDefaults());
         assertNull(nc.findName(A_BYTES));
         assertNull(nc.findName(A_BYTES, B_BYTES));
 
         nc.addName("AAAA", new int[] { A_BYTES }, 1);
-        Name n1 = nc.findName(A_BYTES);
-        assertNotNull(n1);
-        assertEquals("AAAA", n1.getName());
+        String n1 = nc.findName(A_BYTES);
+        assertEquals("AAAA", n1);
         nc.addName("AAAABBBB", new int[] { A_BYTES, B_BYTES }, 2);
-        Name n2 = nc.findName(A_BYTES, B_BYTES);
-        assertEquals("AAAABBBB", n2.getName());
+        String n2 = nc.findName(A_BYTES, B_BYTES);
+        assertEquals("AAAABBBB", n2);
         assertNotNull(n2);
 
         /* and let's then just exercise this method so it gets covered;
@@ -101,7 +97,7 @@ public class TestByteBasedSymbols
          */
         assertNotNull(nc.toString());
     }
-
+    
     /*
     /**********************************************************
     /* Helper methods

@@ -26,9 +26,14 @@ public abstract class Name
     /**********************************************************
      */
 
-    public abstract boolean equals(int quad1);
+    public abstract boolean equals(int q1);
 
-    public abstract boolean equals(int quad1, int quad2);
+    public abstract boolean equals(int q1, int q2);
+
+    /**
+     * @since 2.6
+     */
+    public abstract boolean equals(int q1, int q2, int q3);
 
     public abstract boolean equals(int[] quads, int qlen);
 

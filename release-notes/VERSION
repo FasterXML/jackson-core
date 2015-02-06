@@ -19,6 +19,7 @@ JSON library.
 #177: Add a check so `JsonGenerator.writeString()` won't work if `writeFieldName()` expected.
 - Minor improvement to construction of "default PrettyPrinter": now overridable by data format
   modules
+- Implement a new yet more optimized symbol table for byte-backed parsers
 
 2.5.1 (not yet released)
 

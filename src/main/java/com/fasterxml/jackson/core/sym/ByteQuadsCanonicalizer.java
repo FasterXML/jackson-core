@@ -8,8 +8,10 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
- * Replacement for {@link BytesToNameCanonicalizer} which aims at more localized
+ * Replacement for <code>BytesToNameCanonicalizer</code> which aims at more localized
  * memory access due to flattening of name quad data.
+ * Performance improvement modest for simple JSON document data binding (maybe 3%),
+ * but should help more for larger symbol tables, or for binary formats like Smile.
  *
  * @since 2.6
  */
@@ -641,9 +643,9 @@ public final class ByteQuadsCanonicalizer
         // primary hash size; and offsets are for 4 int slots. So to get to logical
         // index would shift by 4. But! Tertiary area is further split into buckets,
         // determined by shift value. And finally, from bucket back into physical offsets
-        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 2)) << _tertiaryShift);
         final int[] hashArea = _hashArea;
-        final int bucketSize = (4 << _tertiaryShift);
+        final int bucketSize = (1 << _tertiaryShift);
         for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((q1 == hashArea[offset]) && (1 == len)) {
@@ -666,10 +668,10 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int q1, int q2)
     {
-        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 2)) << _tertiaryShift);
         final int[] hashArea = _hashArea;
 
-        final int bucketSize = (4 << _tertiaryShift);
+        final int bucketSize = (1 << _tertiaryShift);
         for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == len)) {
@@ -689,10 +691,10 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int q1, int q2, int q3)
     {
-        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 2)) << _tertiaryShift);
         final int[] hashArea = _hashArea;
 
-        final int bucketSize = (4 << _tertiaryShift);
+        final int bucketSize = (1 << _tertiaryShift);
         for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == len)) {
@@ -713,10 +715,10 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int hash, int[] q, int qlen)
     {
-        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 2)) << _tertiaryShift);
         final int[] hashArea = _hashArea;
 
-        final int bucketSize = (4 << _tertiaryShift);
+        final int bucketSize = (1 << _tertiaryShift);
         for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((hash == hashArea[offset]) && (qlen == len)) {
@@ -862,8 +864,8 @@ public final class ByteQuadsCanonicalizer
         }
         // if not, tertiary?
 
-        offset2 = _tertiaryStart + ((offset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
-        final int bucketSize = (4 << _tertiaryShift);
+        offset2 = _tertiaryStart + ((offset >> (_tertiaryShift + 2)) << _tertiaryShift);
+        final int bucketSize = (1 << _tertiaryShift);
         for (int end = offset2 + bucketSize; offset2 < end; offset2 += 4) {
             if (hashArea[offset2+3] == 0) {
                 return offset2;
@@ -1135,23 +1137,18 @@ public final class ByteQuadsCanonicalizer
         // first: we only get 1/4 of slots of primary, to divide
         int tertSlots = (primarySlots) >> 2;
         
-        // default is 2, meaning buckets of 4 (1 << 2) slots, up to 32 which is 8 buckets of 4 slots
+        // default is for buckets of 4 slots (each 4 ints, i.e. 1 << 4)
         if (tertSlots < 64) {
-            return 2;
-        }
-        // and then up to 256, with 32 buckets of 8 slots
-        if (tertSlots < 256) {
-            return 3;
-        }
-        // and 2048, with 128 buckets of 16 slots
-        if (tertSlots < 1024) {
             return 4;
         }
-        if (tertSlots < 4096) {
+        if (tertSlots <= 256) { // buckets of 8 slots (up to 256 == 32 x 8)
             return 5;
         }
-        // and biggest buckets have 64 slots
-        return 6;
+        if (tertSlots <= 2048) { // buckets of 16 slots (up to 1024 == 64 x 16)
+            return 6;
+        }
+        // and biggest buckets have 32 slots
+        return 7;
     }
 
     /*

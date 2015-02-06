@@ -15,8 +15,9 @@ import com.fasterxml.jackson.core.util.InternCache;
  * symbol tables, to be able to make use of usually shared vocabulary
  * of subsequent parsing runs.
  *
- * @author Tatu Saloranta
+ * @deprecated Since 2.6, replced by {@link ByteQuadsCanonicalizer}
  */
+@Deprecated
 public final class BytesToNameCanonicalizer
 {
     private static final int DEFAULT_T_SIZE = 64;

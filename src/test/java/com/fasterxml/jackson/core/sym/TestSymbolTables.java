@@ -41,7 +41,8 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
     // Test for verifying stability of hashCode, wrt collisions, using
     // synthetic field name generation and byte-based input (UTF-8)
-    public void testSyntheticWithBytes() throws IOException
+    @SuppressWarnings("deprecation")
+    public void testSyntheticWithBytesOld() throws IOException
     {
         // pass seed, to keep results consistent:
         final int SEED = 33333;
@@ -51,7 +52,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         final int COUNT = 6000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
-            int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
+            int[] quads = calcQuads(id.getBytes("UTF-8"));
             symbols.addName(id, quads, quads.length);
         }
         assertEquals(COUNT, symbols.size());
@@ -67,6 +68,33 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         // But also verify entries are actually found?
     }
 
+    public void testSyntheticWithBytesNew() throws IOException
+    {
+        // pass seed, to keep results consistent:
+        final int SEED = 33333;
+        ByteQuadsCanonicalizer symbols =
+                ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+
+        final int COUNT = 6000;
+        for (int i = 0; i < COUNT; ++i) {
+            String id = fieldNameFor(i);
+            int[] quads = calcQuads(id.getBytes("UTF-8"));
+            symbols.addName(id, quads, quads.length);
+        }
+        assertEquals(COUNT, symbols.size());
+        assertEquals(8192, symbols.bucketCount());
+
+        // fragile, but essential to verify low collision counts;
+        // anywhere between 70-80% primary matches
+        assertEquals(4270, symbols.primaryCount());
+        // secondary between 10-20%
+        assertEquals(1234, symbols.secondaryCount());
+        // and most of remaining in tertiary
+        assertEquals(496, symbols.tertiaryCount());
+        // so that spill-over is empty or close to
+        assertEquals(0, symbols.spilloverCount());
+    }
+    
     // [Issue#145]
     public void testThousandsOfSymbolsWithChars() throws IOException
     {
@@ -94,6 +122,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         }
     }
     
+    @SuppressWarnings("deprecation")
     public void testThousandsOfSymbolsWithOldBytes() throws IOException
     {
         final int SEED = 33333;
@@ -130,15 +159,15 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         ByteQuadsCanonicalizer symbolsBRoot = ByteQuadsCanonicalizer.createRoot(SEED);
         final Charset utf8 = Charset.forName("UTF-8");
         int exp = 0;
+        ByteQuadsCanonicalizer symbolsB = null;
 
         // loop to get 
         for (int doc = 0; doc < 100; ++doc) {
-            ByteQuadsCanonicalizer symbolsB =
-                    symbolsBRoot.makeChild(JsonFactory.Feature.collectDefaults());
+            symbolsB = symbolsBRoot.makeChild(JsonFactory.Feature.collectDefaults());
             for (int i = 0; i < 250; ++i) {
                 String name = "f_"+doc+"_"+i;
 
-                int[] quads = BytesToNameCanonicalizer.calcQuads(name.getBytes(utf8));
+                int[] quads = calcQuads(name.getBytes(utf8));
                 
                 symbolsB.addName(name, quads, quads.length);
                 String n = symbolsB.findName(quads, quads.length);
@@ -153,6 +182,15 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             }
             assertEquals(exp, symbolsBRoot.size());
         }
+
+        /* 05-Feb-2015, tatu: Fragile, but it is important to ensure that collision
+         *   rates are not accidentally increased...
+         */
+        assertEquals(6250, symbolsB.size());
+        assertEquals(4851, symbolsB.primaryCount()); // 77% primary hit rate
+        assertEquals(872, symbolsB.secondaryCount()); // 14% secondary
+        assertEquals(510, symbolsB.tertiaryCount()); // 8% tertiary
+        assertEquals(17, symbolsB.spilloverCount()); // and couple of leftovers
     }
     
     // And then one more test just for Bytes-based symbol table
@@ -198,5 +236,26 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         Field syms = p.getClass().getDeclaredField("_symbols");
         syms.setAccessible(true);
         return ((ByteQuadsCanonicalizer) syms.get(p));
+    }
+
+    // Method only used by unit tests
+    protected static int[] calcQuads(byte[] wordBytes) {
+        int blen = wordBytes.length;
+        int[] result = new int[(blen + 3) / 4];
+        for (int i = 0; i < blen; ++i) {
+            int x = wordBytes[i] & 0xFF;
+
+            if (++i < blen) {
+                x = (x << 8) | (wordBytes[i] & 0xFF);
+                if (++i < blen) {
+                    x = (x << 8) | (wordBytes[i] & 0xFF);
+                    if (++i < blen) {
+                        x = (x << 8) | (wordBytes[i] & 0xFF);
+                    }
+                }
+            }
+            result[i >> 2] = x;
+        }
+        return result;
     }
 }

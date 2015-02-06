@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
+import com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
@@ -197,7 +198,7 @@ public class JsonFactory
      * @deprecated Since 2.6.0, only use {@link #_byteSymbolCanonicalizer}
      */
     @Deprecated
-    protected final transient ByteQuadsCanonicalizer _rootByteSymbols = ByteQuadsCanonicalizer.createRoot();
+    protected final transient BytesToNameCanonicalizer _rootByteSymbols = BytesToNameCanonicalizer.createRoot();
 
     /*
     /**********************************************************

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.util.InternCache;
  * symbol tables, to be able to make use of usually shared vocabulary
  * of subsequent parsing runs.
  *
- * @deprecated Since 2.6, replced by {@link ByteQuadsCanonicalizer}
+ * @deprecated Since 2.6, replaced by {@link ByteQuadsCanonicalizer}
  */
 @Deprecated
 public final class BytesToNameCanonicalizer
@@ -339,7 +339,7 @@ public final class BytesToNameCanonicalizer
     /* Life-cycle: factory methods, merging
     /**********************************************************
      */
-    
+
     /**
      * Factory method to call to create a symbol table instance with a
      * randomized seed value.
@@ -361,7 +361,7 @@ public final class BytesToNameCanonicalizer
     protected static BytesToNameCanonicalizer createRoot(int seed) {
         return new BytesToNameCanonicalizer(DEFAULT_T_SIZE, true, seed, true);
     }
-    
+
     /**
      * Factory method used to create actual symbol table instance to
      * use for parsing.

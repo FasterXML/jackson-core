@@ -73,8 +73,6 @@ public final class ByteQuadsCanonicalizer
      * instance.
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
-     * 
-     * @since 2.1
      */
     final private int _seed;
     
@@ -519,11 +517,12 @@ public final class ByteQuadsCanonicalizer
     public String findName(int q1, int q2)
     {
         int offset = _calcOffset(calcHash(q1, q2));
+
         final int[] hashArea = _hashArea;
 
         int q1b = hashArea[offset];
         int len = hashArea[offset+3];
-
+        
         if ((q1 == q1b) && (hashArea[offset+1] == q2) && (len == 2)) {
             return _names[offset >> 2];
         }
@@ -780,7 +779,7 @@ public final class ByteQuadsCanonicalizer
         int offset = _findOffsetForAdd(hash);
         _hashArea[offset] = q1;
         _hashArea[offset+1] = q2;
-        _hashArea[offset+3] = 1;
+        _hashArea[offset+3] = 2;
         _names[offset >> 2] = name;
         ++_count;
         _verifyNeedForRehash();

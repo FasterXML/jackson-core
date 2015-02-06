@@ -42,10 +42,7 @@ public class JsonFactory
     implements Versioned,
         java.io.Serializable // since 2.1 (for Android, mostly)
 {
-    /**
-     * Computed for Jackson 2.4.0 release
-     */
-    private static final long serialVersionUID = 3306684576057132431L;
+    private static final long serialVersionUID = 1; // since 2.6.0
 
     /*
     /**********************************************************
@@ -188,6 +185,16 @@ public class JsonFactory
      *<p>
      * TODO: should clean up this; looks messy having 2 alternatives
      * with not very clear differences.
+     * 
+     * @since 2.6.0
+     */
+    protected final transient ByteQuadsCanonicalizer _byteSymbolCanonicalizer = ByteQuadsCanonicalizer.createRoot();
+
+    /**
+     * Earlier byte-based symbol table; replaced with 2.6 with a new implementation.
+     * Left in for version 2.6.0: will be removed in 2.7 or later.
+     *
+     * @deprecated Since 2.6.0, only use {@link #_byteSymbolCanonicalizer}
      */
     protected final transient ByteQuadsCanonicalizer _rootByteSymbols = ByteQuadsCanonicalizer.createRoot();
 
@@ -1189,7 +1196,7 @@ public class JsonFactory
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
         // As per [JACKSON-259], may want to fully disable canonicalization:
         return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
-                _objectCodec, _rootByteSymbols, _rootCharSymbols, _factoryFeatures);
+                _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     /**
@@ -1236,7 +1243,7 @@ public class JsonFactory
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
         return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
-                _objectCodec, _rootByteSymbols, _rootCharSymbols, _factoryFeatures);
+                _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     /*

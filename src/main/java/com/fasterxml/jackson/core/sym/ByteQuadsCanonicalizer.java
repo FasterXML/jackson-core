@@ -646,41 +646,23 @@ public final class ByteQuadsCanonicalizer
     {
         // so, first tertiary, 4 cells shared by N/16 primary slots
         int offset = _tertiaryStart + ((origOffset >> 6) << 2);
-
         final int[] hashArea = _hashArea;
-
-        /*
-        // Since tertiary uses 8 slots, let's loop
-        for (int end = offset + 32; offset < end; offset += 4) {
-            ;
+        // Since tertiary uses 4 slots (of 4 ints), let's loop
+        for (int end = offset + 16; offset < end; offset += 4) {
+            int len = hashArea[offset+3];
+            if ((q1 == hashArea[offset]) && (1 == len)) {
+                return _names[offset >> 2];
+            }
+            if (len == 0) {
+                return null;
+            }
         }
-        */
-        
-        // then check up to 4 slots; don't worry about empty slots yet
-        if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
-            return _names[offset >> 2];
-        }
-        offset += 4;
-        if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
-            return _names[offset >> 2];
-        }
-        offset += 4;
-        if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
-            return _names[offset >> 2];
-        }
-        offset += 4;
-        int len = hashArea[offset+3];
-        if ((q1 == hashArea[offset]) && (1 == len)) {
-            return _names[offset >> 2];
-        }
-        // and only at this point see if last slot was occupied or not, to see whether to continue
-        if (len != 0) {
-            // shared spillover starts at 7/8 of the main hash area
-            // (which is sized at 2 * _hashSize), so:
-            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
-                if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
-                    return _names[offset >> 2];
-                }
+        // but if tertiary full, check out spill-over area as last resort
+        // shared spillover starts at 7/8 of the main hash area
+        // (which is sized at 2 * _hashSize), so:
+        for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
+            if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
+                return _names[offset >> 2];
             }
         }
         return null;
@@ -689,33 +671,20 @@ public final class ByteQuadsCanonicalizer
     private String _findSecondary(int origOffset, int q1, int q2)
     {
         int offset = _tertiaryStart + ((origOffset >> 6) << 2);
-
         final int[] hashArea = _hashArea;
-        
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == hashArea[offset+3])) {
-            return _names[offset >> 2];
+
+        for (int end = offset + 16; offset < end; offset += 4) {
+            int len = hashArea[offset+3];
+            if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == len)) {
+                return _names[offset >> 2];
+            }
+            if (len == 0) {
+                return null;
+            }
         }
-        offset += 4;
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == hashArea[offset+3])) {
-            return _names[offset >> 2];
-        }
-        offset += 4;
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == hashArea[offset+3])) {
-            return _names[offset >> 2];
-        }
-        offset += 4;
-        int len = hashArea[offset+3];
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == len)) {
-            return _names[offset >> 2];
-        }
-        // and only at this point see if last slot was occupied or not, to see whether to continue
-        if (len != 0) {
-            // shared spillover starts at 7/8 of the main hash area
-            // (which is sized at 2 * _hashSize), so:
-            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
-                if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == hashArea[offset+3])) {
-                    return _names[offset >> 2];
-                }
+        for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
+            if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == hashArea[offset+3])) {
+                return _names[offset >> 2];
             }
         }
         return null;
@@ -724,34 +693,21 @@ public final class ByteQuadsCanonicalizer
     private String _findSecondary(int origOffset, int q1, int q2, int q3)
     {
         int offset = _tertiaryStart + ((origOffset >> 6) << 2);
-
         final int[] hashArea = _hashArea;
-        
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == hashArea[offset+3])) {
-            return _names[offset >> 2];
+
+        for (int end = offset + 16; offset < end; offset += 4) {
+            int len = hashArea[offset+3];
+            if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == len)) {
+                return _names[offset >> 2];
+            }
+            if (len == 0) {
+                return null;
+            }
         }
-        offset += 4;
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == hashArea[offset+3])) {
-            return _names[offset >> 2];
-        }
-        offset += 4;
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == hashArea[offset+3])) {
-            return _names[offset >> 2];
-        }
-        offset += 4;
-        int len = hashArea[offset+3];
-        if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == len)) {
-            return _names[offset >> 2];
-        }
-        // and only at this point see if last slot was occupied or not, to see whether to continue
-        if (len != 0) {
-            // shared spillover starts at 7/8 of the main hash area
-            // (which is sized at 2 * _hashSize), so:
-            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
-                if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2])
-                        && (3 == hashArea[offset+3])) {
-                    return _names[offset >> 2];
-                }
+        for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
+            if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2])
+                    && (3 == hashArea[offset+3])) {
+                return _names[offset >> 2];
             }
         }
         return null;
@@ -760,42 +716,21 @@ public final class ByteQuadsCanonicalizer
     private String _findSecondary(int origOffset, int hash, int[] q, int qlen)
     {
         int offset = _tertiaryStart + ((origOffset >> 6) << 2);
-        
         final int[] hashArea = _hashArea;
-        
-        if ((hash == hashArea[offset]) && (qlen == hashArea[offset+3])) {
-            if (_verifyLongName(q, qlen, hashArea[offset+1])) {
+
+        for (int end = offset + 16; offset < end; offset += 4) {
+            int len = hashArea[offset+3];
+            if ((hash == hashArea[offset]) && (qlen == len)) {
                 return _names[offset >> 2];
             }
-        }
-        offset += 4;
-        if ((hash == hashArea[offset]) && (qlen == hashArea[offset+3])) {
-            if (_verifyLongName(q, qlen, hashArea[offset+1])) {
-                return _names[offset >> 2];
+            if (len == 0) {
+                return null;
             }
         }
-        offset += 4;
-        if ((hash == hashArea[offset]) && (qlen == hashArea[offset+3])) {
-            if (_verifyLongName(q, qlen, hashArea[offset+1])) {
-                return _names[offset >> 2];
-            }
-        }
-        offset += 4;
-        int len = hashArea[offset+3];
-        if ((hash == hashArea[offset]) && (qlen == len)) {
-            if (_verifyLongName(q, qlen, hashArea[offset+1])) {
-                return _names[offset >> 2];
-            }
-        }
-        // and only at this point see if last slot was occupied or not, to see whether to continue
-        if (len != 0) {
-            // shared spillover starts at 7/8 of the main hash area
-            // (which is sized at 2 * _hashSize), so:
-            for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
-                if ((hash == hashArea[offset]) && (3 == len)) {
-                    if (_verifyLongName(q, qlen, hashArea[offset+1])) {
-                        return _names[offset >> 2];
-                    }
+        for (offset = _spilloverStart(); offset < _spilloverEnd; offset += 4) {
+            if ((hash == hashArea[offset]) && (qlen == hashArea[offset+3])) {
+                if (_verifyLongName(q, qlen, hashArea[offset+1])) {
+                    return _names[offset >> 2];
                 }
             }
         }

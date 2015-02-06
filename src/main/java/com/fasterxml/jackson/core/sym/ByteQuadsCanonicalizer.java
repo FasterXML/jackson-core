@@ -17,7 +17,7 @@ public final class ByteQuadsCanonicalizer
 {
     /**
      * Initial size of the primary hash area. Each entry consumes 4 ints (16 bytes),
-     * and secondary area is same as primary; so default size will use 2kB of memory
+     * and secondary area is same as primary; so default size will use 2kB of memory_tertiaryStart
      * (plus 64x4 or 64x8 (256/512 bytes) for references to Strings, and Strings
      * themselves).
      */
@@ -124,7 +124,31 @@ public final class ByteQuadsCanonicalizer
     /**
      * Offset within {@link #_hashArea} where secondary entries start
      */
-    protected int _secondaryOffset;
+    protected int _secondaryStart;
+
+    /**
+     * Offset within {@link #_hashArea} where tertiary entries start
+     */
+    protected int _tertiaryStart;
+    
+    /**
+     * Size of tertiary buckets within tertiary area, in ints.
+     */
+    protected int _tertiaryBucketSize;
+
+    /**
+     * First part of shift used to get from primary offset into tertiary bucket
+     * offset (0-based); basically divides primary physical offset into
+     * logical tertiary bucket index.
+     */
+    protected int _tertiaryOffsetShift;
+
+    /**
+     * Second part of shift used to get from primary offset into tertiary bucket
+     * offset (0-based); given logical tertiary bucket index, multiplies by
+     * size of tertiary slots to get relative physical offset from start of tertiary area.
+     */
+    protected int _tertiaryBucketShift;
     
     /**
      * Total number of Strings in the symbol table; only used for child tables.
@@ -257,7 +281,9 @@ public final class ByteQuadsCanonicalizer
         // Then copy shared state
         _count = state.count;
         _hashSize = state.size;
-        _secondaryOffset = _hashSize << 2; // 4 ints per entry
+        _secondaryStart = _hashSize << 2; // right after primary area
+        _tertiaryStart = _secondaryStart + (_secondaryStart >> 1); // right after secondary
+        
         _hashArea = state.mainHash;
         _names = state.names;
 
@@ -387,7 +413,7 @@ public final class ByteQuadsCanonicalizer
     public int primaryCount()
     {
         int count = 0;
-        for (int offset = 3, end = _secondaryOffset; offset < end; offset += 4) {
+        for (int offset = 3, end = _secondaryStart; offset < end; offset += 4) {
             if (_hashArea[offset] != 0) {
                 ++count;
             }
@@ -401,8 +427,8 @@ public final class ByteQuadsCanonicalizer
      */
     public int secondaryCount() {
         int count = 0;
-        int offset = _secondaryOffset + 3;
-        for (int end = offset + (_hashSize << 1); offset < end; offset += 4) {
+        int offset = _secondaryStart + 3;
+        for (int end = _tertiaryStart; offset < end; offset += 4) {
             if (_hashArea[offset] != 0) {
                 ++count;
             }
@@ -416,7 +442,7 @@ public final class ByteQuadsCanonicalizer
      */
     public int tertiaryCount() {
         int count = 0;
-        int offset = _secondaryOffset + (_hashSize << 1) + 3; // to 1.5x, starting point of tertiary
+        int offset = _tertiaryStart + 3; // to 1.5x, starting point of tertiary
         for (int end = offset + _hashSize; offset < end; offset += 4) {
             if (_hashArea[offset] != 0) {
                 ++count;
@@ -479,7 +505,7 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary? single slot shared by N/2 primaries
-        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
+        int offset2 = _secondaryStart + ((offset >> 3) << 2);
 
         q1b = hashArea[offset2];
         len = hashArea[offset2+3];
@@ -510,7 +536,7 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary?
-        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
+        int offset2 = _secondaryStart + ((offset >> 3) << 2);
 
         q1b = hashArea[offset2];
         len = hashArea[offset2+3];
@@ -540,7 +566,7 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary?
-        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
+        int offset2 = _secondaryStart + ((offset >> 3) << 2);
 
         q1b = hashArea[offset2];
         len = hashArea[offset2+3];
@@ -586,7 +612,7 @@ public final class ByteQuadsCanonicalizer
             return null;
         }
         // secondary?
-        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
+        int offset2 = _secondaryStart + ((offset >> 3) << 2);
 
         final int len2 = hashArea[offset2+3];
         if ((hash == hashArea[offset2]) && (len2 == qlen)) {
@@ -619,11 +645,17 @@ public final class ByteQuadsCanonicalizer
     private String _findSecondary(int origOffset, int q1)
     {
         // so, first tertiary, 4 cells shared by N/16 primary slots
-        int offset = _secondaryOffset + (_secondaryOffset >> 1);
-        offset += (origOffset >> 6) << 2;
+        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
 
         final int[] hashArea = _hashArea;
 
+        /*
+        // Since tertiary uses 8 slots, let's loop
+        for (int end = offset + 32; offset < end; offset += 4) {
+            ;
+        }
+        */
+        
         // then check up to 4 slots; don't worry about empty slots yet
         if ((q1 == hashArea[offset]) && (1 == hashArea[offset+3])) {
             return _names[offset >> 2];
@@ -656,8 +688,7 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int q1, int q2)
     {
-        int offset = _secondaryOffset + (_secondaryOffset >> 1);
-        offset += (origOffset >> 6) << 2;
+        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
 
         final int[] hashArea = _hashArea;
         
@@ -692,8 +723,7 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int q1, int q2, int q3)
     {
-        int offset = _secondaryOffset + (_secondaryOffset >> 1);
-        offset += (origOffset >> 6) << 2;
+        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
 
         final int[] hashArea = _hashArea;
         
@@ -729,8 +759,7 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int hash, int[] q, int qlen)
     {
-        int offset = _secondaryOffset + (_secondaryOffset >> 1);
-        offset += (origOffset >> 6) << 2;
+        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
         
         final int[] hashArea = _hashArea;
         
@@ -777,7 +806,6 @@ public final class ByteQuadsCanonicalizer
     {
         final int[] hashArea = _hashArea;
         // spillOffset assumed to be physical index right into quad string
-        
         int ix = 0;
         do {
             if (q[ix++] != hashArea[spillOffset++]) {
@@ -892,13 +920,13 @@ public final class ByteQuadsCanonicalizer
             return offset;
         }
         // then secondary
-        int offset2 = _secondaryOffset + ((offset >> 3) << 2);
+        int offset2 = _secondaryStart + ((offset >> 3) << 2);
         if (hashArea[offset2+3] == 0) {
             return offset2;
         }
         // if not, tertiary?
 
-        offset2 = _secondaryOffset + (_secondaryOffset >> 1);
+        offset2 = _secondaryStart + (_secondaryStart >> 1);
         offset2 += (offset >> 6) << 2; // and add 1/16th of orig index (but on 4 int boundary)
 
         if (hashArea[offset2+3] == 0) {
@@ -1098,7 +1126,8 @@ public final class ByteQuadsCanonicalizer
         // double up main hash area, but do not expand long-name area:
         _hashArea = new int[oldHashArea.length + (oldSize<<3)];
         _hashSize = newSize;
-        _secondaryOffset = _hashSize << 2; // 4 ints per entry
+        _secondaryStart = _hashSize << 2; // 4 ints per entry
+        _tertiaryStart = _secondaryStart + (_secondaryStart >> 1); // right after secondary
         
         // and simply double up name array
         _names = new String[oldNames.length << 1];

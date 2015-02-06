@@ -17,6 +17,7 @@ JSON library.
 2.6.0 (not yet released)
 
 #177: Add a check so `JsonGenerator.writeString()` won't work if `writeFieldName()` expected.
+- Implement a new yet more optimized symbol table for byte-backed parsers
 
 2.5.1 (not yet released)
 

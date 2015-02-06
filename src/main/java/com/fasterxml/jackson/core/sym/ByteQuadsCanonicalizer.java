@@ -757,9 +757,39 @@ public final class ByteQuadsCanonicalizer
     /**********************************************************
      */
 
+    public String addName(String name, int q1) {
+        _verifySharing();
+        if (_intern) {
+            name = InternCache.instance.intern(name);
+        }
+        int offset = _findOffsetForAdd(calcHash(q1));
+        _hashArea[offset] = q1;
+        _hashArea[offset+3] = 1;
+        _names[offset >> 2] = name;
+        ++_count;
+        _verifyNeedForRehash();
+        return name;
+    }
+
+    public String addName(String name, int q1, int q2) {
+        _verifySharing();
+        if (_intern) {
+            name = InternCache.instance.intern(name);
+        }
+        int hash = (q2 == 0) ? calcHash(q1) : calcHash(q1, q2);
+        int offset = _findOffsetForAdd(hash);
+        _hashArea[offset] = q1;
+        _hashArea[offset+1] = q2;
+        _hashArea[offset+3] = 1;
+        _names[offset >> 2] = name;
+        ++_count;
+        _verifyNeedForRehash();
+        return name;
+    }
+
     public String addName(String name, int[] q, int qlen)
     {
-        _verifyRehashAndSharing();
+        _verifySharing();
         if (_intern) {
             name = InternCache.instance.intern(name);
         }
@@ -804,7 +834,11 @@ public final class ByteQuadsCanonicalizer
 
         // and finally; see if we really should rehash.
         ++_count;
-
+        _verifyNeedForRehash();
+        return name;
+    }
+    
+    private void _verifyNeedForRehash() {
         // Yes if above 80%, or above 50% AND have ~1% spill-overs
         if (_count > (_hashSize >> 1)) { // over 50%
             int spillCount = (_spilloverEnd - _spilloverStart()) >> 2;
@@ -814,27 +848,9 @@ public final class ByteQuadsCanonicalizer
                 _needRehash = true;
             }
         }
-
-        // !!! SANITY CHECK -- may uncomment for testing
-        /*
-        int pri = primaryCount();
-        int sec = secondaryCount();
-        int tert = tertiaryCount();
-        int spill = spilloverCount();
-        int sum = pri+sec+tert+spill;
-
-        if (sum != _count) {
-            int total = totalCount();
-            System.out.printf("Mismatch adding '%s' at %d (qlen %d)/%d: %d/%d/%d/%d=%d, total=%d, count=%d\n",
-                    name, offset, qlen, _hashSize<<2,
-                    pri, sec, tert, spill, sum, total, _count);
-        }
-        */
-
-        return name;
     }
 
-    private void _verifyRehashAndSharing()
+    private void _verifySharing()
     {
         if (_hashShared) {
             _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);

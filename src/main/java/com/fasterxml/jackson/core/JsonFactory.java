@@ -196,6 +196,7 @@ public class JsonFactory
      *
      * @deprecated Since 2.6.0, only use {@link #_byteSymbolCanonicalizer}
      */
+    @Deprecated
     protected final transient ByteQuadsCanonicalizer _rootByteSymbols = ByteQuadsCanonicalizer.createRoot();
 
     /*

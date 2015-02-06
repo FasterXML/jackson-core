@@ -21,7 +21,7 @@ public class TestJsonParserSymbols
      */
     final static class MyJsonFactory extends JsonFactory
     {
-        public int byteSymbolCount() { return _rootByteSymbols.size(); }
+        public int byteSymbolCount() { return _byteSymbolCanonicalizer.size(); }
         public int charSymbolCount() { return _rootCharSymbols.size(); }
     }
 

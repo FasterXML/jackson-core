@@ -144,7 +144,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
                 String n = symbolsB.findName(quads, quads.length);
                 assertEquals(name, n);
             }
-System.out.println("New symbols: "+symbolsB);
+//System.out.println("New symbols: "+symbolsB);
             symbolsB.release();
             
             exp += 250;

@@ -132,24 +132,16 @@ public final class ByteQuadsCanonicalizer
     protected int _tertiaryStart;
     
     /**
-     * Size of tertiary buckets within tertiary area, in ints.
+     * Constant that determines size of buckets for tertiary entries:
+     * <code>1 << _tertiaryShift</code> is the size, and shift value
+     * is also used for translating from primary offset into
+     * tertiary bucket (shift right by <code>4 + _tertiaryShift</code>).
+     *<p>
+     * Default value is 2, for buckets of 4 slots; grows bigger with
+     * bigger table sizes.
      */
-    protected int _tertiaryBucketSize;
+    protected int _tertiaryShift;
 
-    /**
-     * First part of shift used to get from primary offset into tertiary bucket
-     * offset (0-based); basically divides primary physical offset into
-     * logical tertiary bucket index.
-     */
-    protected int _tertiaryOffsetShift;
-
-    /**
-     * Second part of shift used to get from primary offset into tertiary bucket
-     * offset (0-based); given logical tertiary bucket index, multiplies by
-     * size of tertiary slots to get relative physical offset from start of tertiary area.
-     */
-    protected int _tertiaryBucketShift;
-    
     /**
      * Total number of Strings in the symbol table; only used for child tables.
      */
@@ -283,6 +275,7 @@ public final class ByteQuadsCanonicalizer
         _hashSize = state.size;
         _secondaryStart = _hashSize << 2; // right after primary area
         _tertiaryStart = _secondaryStart + (_secondaryStart >> 1); // right after secondary
+        _tertiaryShift = state.tertiaryShift;
         
         _hashArea = state.mainHash;
         _names = state.names;
@@ -644,11 +637,14 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int q1)
     {
-        // so, first tertiary, 4 cells shared by N/16 primary slots
-        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
+        // tertiary area division is dynamic. First; its size is N/4 compared to
+        // primary hash size; and offsets are for 4 int slots. So to get to logical
+        // index would shift by 4. But! Tertiary area is further split into buckets,
+        // determined by shift value. And finally, from bucket back into physical offsets
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
         final int[] hashArea = _hashArea;
-        // Since tertiary uses 4 slots (of 4 ints), let's loop
-        for (int end = offset + 16; offset < end; offset += 4) {
+        final int bucketSize = (4 << _tertiaryShift);
+        for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((q1 == hashArea[offset]) && (1 == len)) {
                 return _names[offset >> 2];
@@ -670,10 +666,11 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int q1, int q2)
     {
-        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
         final int[] hashArea = _hashArea;
 
-        for (int end = offset + 16; offset < end; offset += 4) {
+        final int bucketSize = (4 << _tertiaryShift);
+        for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (2 == len)) {
                 return _names[offset >> 2];
@@ -692,10 +689,11 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int q1, int q2, int q3)
     {
-        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
         final int[] hashArea = _hashArea;
 
-        for (int end = offset + 16; offset < end; offset += 4) {
+        final int bucketSize = (4 << _tertiaryShift);
+        for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1]) && (q3 == hashArea[offset+2]) && (3 == len)) {
                 return _names[offset >> 2];
@@ -715,10 +713,11 @@ public final class ByteQuadsCanonicalizer
 
     private String _findSecondary(int origOffset, int hash, int[] q, int qlen)
     {
-        int offset = _tertiaryStart + ((origOffset >> 6) << 2);
+        int offset = _tertiaryStart + ((origOffset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
         final int[] hashArea = _hashArea;
 
-        for (int end = offset + 16; offset < end; offset += 4) {
+        final int bucketSize = (4 << _tertiaryShift);
+        for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((hash == hashArea[offset]) && (qlen == len)) {
                 return _names[offset >> 2];
@@ -804,10 +803,12 @@ public final class ByteQuadsCanonicalizer
         // and finally; see if we really should rehash.
         ++_count;
 
-        // Yes if above 75%, or above 50% AND have spill-overs
+        // Yes if above 80%, or above 50% AND have ~1% spill-overs
         if (_count > (_hashSize >> 1)) { // over 50%
-            if ((_spilloverEnd > _spilloverStart())
-                    || (_count > (_hashSize - (_hashSize >> 2)))) {
+            int spillCount = (_spilloverEnd - _spilloverStart()) >> 2;
+            
+            if ((spillCount > (1 + _count >> 7))
+                    || (_count > (_hashSize * 0.80))) {
                 _needRehash = true;
             }
         }
@@ -861,23 +862,12 @@ public final class ByteQuadsCanonicalizer
         }
         // if not, tertiary?
 
-        offset2 = _secondaryStart + (_secondaryStart >> 1);
-        offset2 += (offset >> 6) << 2; // and add 1/16th of orig index (but on 4 int boundary)
-
-        if (hashArea[offset2+3] == 0) {
-            return offset2;
-        }
-        offset2 += 4;
-        if (hashArea[offset2+3] == 0) {
-            return offset2;
-        }
-        offset2 += 4;
-        if (hashArea[offset2+3] == 0) {
-            return offset2;
-        }
-        offset2 += 4;
-        if (hashArea[offset2+3] == 0) {
-            return offset2;
+        offset2 = _tertiaryStart + ((offset >> (_tertiaryShift + 4)) << (_tertiaryShift + 2));
+        final int bucketSize = (4 << _tertiaryShift);
+        for (int end = offset2 + bucketSize; offset2 < end; offset2 += 4) {
+            if (hashArea[offset2+3] == 0) {
+                return offset2;
+            }
         }
 
         // and if even tertiary full, append at the end of spill area
@@ -917,27 +907,6 @@ public final class ByteQuadsCanonicalizer
         return start;
     }
 
-    /**
-     * Helper method that calculates start of the spillover area
-     */
-    private final int _spilloverStart() {
-        // we'll need slot at 1.75x of hashSize, but with 4-ints per slot.
-        // So basically multiply by 7
-        int offset = _hashSize;
-        return (offset << 3) - offset;
-    }
-
-    protected void reportTooManyCollisions()
-    {
-        // First: do not fuzz about small symbol tables
-        if (_hashSize <= 512) { // would have spill-over area of 64 entries
-            return;
-        }
-        throw new IllegalStateException("Spill-over slots in symbol table with "+_count
-                +" entries, hash area of "+_hashSize+" slots is now full (all "
-                +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions");
-    }
-    
     /*
     /**********************************************************
     /* Hash calculation
@@ -1061,8 +1030,9 @@ public final class ByteQuadsCanonicalizer
         // double up main hash area, but do not expand long-name area:
         _hashArea = new int[oldHashArea.length + (oldSize<<3)];
         _hashSize = newSize;
-        _secondaryStart = _hashSize << 2; // 4 ints per entry
+        _secondaryStart = (newSize << 2); // 4 ints per entry
         _tertiaryStart = _secondaryStart + (_secondaryStart >> 1); // right after secondary
+        _tertiaryShift = _calcTertiaryShift(newSize);
         
         // and simply double up name array
         _names = new String[oldNames.length << 1];
@@ -1135,6 +1105,57 @@ public final class ByteQuadsCanonicalizer
 
     /*
     /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    /**
+     * Helper method that calculates start of the spillover area
+     */
+    private final int _spilloverStart() {
+        // we'll need slot at 1.75x of hashSize, but with 4-ints per slot.
+        // So basically multiply by 7
+        int offset = _hashSize;
+        return (offset << 3) - offset;
+    }
+
+    protected void reportTooManyCollisions()
+    {
+        // First: do not fuzz about small symbol tables
+        if (_hashSize <= 512) { // would have spill-over area of 64 entries
+            return;
+        }
+        throw new IllegalStateException("Spill-over slots in symbol table with "+_count
+                +" entries, hash area of "+_hashSize+" slots is now full (all "
+                +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions");
+    }
+
+    static int _calcTertiaryShift(int primarySlots)
+    {
+        // first: we only get 1/4 of slots of primary, to divide
+        int tertSlots = (primarySlots) >> 2;
+        
+        // default is 2, meaning buckets of 4 (1 << 2) slots, up to 32 which is 8 buckets of 4 slots
+        if (tertSlots < 64) {
+            return 2;
+        }
+        // and then up to 256, with 32 buckets of 8 slots
+        if (tertSlots < 256) {
+            return 3;
+        }
+        // and 2048, with 128 buckets of 16 slots
+        if (tertSlots < 1024) {
+            return 4;
+        }
+        if (tertSlots < 4096) {
+            return 5;
+        }
+        // and biggest buckets have 64 slots
+        return 6;
+    }
+
+    /*
+    /**********************************************************
     /* Helper classes
     /**********************************************************
      */
@@ -1150,16 +1171,18 @@ public final class ByteQuadsCanonicalizer
     {
         public final int size;
         public final int count;
+        public final int tertiaryShift;
         public final int[] mainHash;
         public final String[] names;
         public final int spilloverEnd;
         public final int longNameOffset;
 
-        public TableInfo(int size, int count, int[] mainHash, String[] names,
-                int spilloverEnd, int longNameOffset)
+        public TableInfo(int size, int count, int tertiaryShift, 
+                int[] mainHash, String[] names, int spilloverEnd, int longNameOffset)
         {
             this.size = size;
             this.count = count;
+            this.tertiaryShift = tertiaryShift;
             this.mainHash = mainHash;
             this.names = names;
             this.spilloverEnd = spilloverEnd;
@@ -1170,6 +1193,7 @@ public final class ByteQuadsCanonicalizer
         {
             size = src._hashSize;
             count = src._count;
+            tertiaryShift = src._tertiaryShift;
             mainHash = src._hashArea;
             names = src._names;
             spilloverEnd = src._spilloverEnd;
@@ -1178,9 +1202,11 @@ public final class ByteQuadsCanonicalizer
 
         public static TableInfo createInitial(int sz) {
             int hashAreaSize = sz << 3;
+            int tertShift = _calcTertiaryShift(sz);
 
             return new TableInfo(sz, // hashSize
                     0, // count
+                    tertShift,
                     new int[hashAreaSize], // mainHash, 2x slots, 4 ints per slot
                     new String[sz << 1], // 2x slots
                     hashAreaSize - sz, // at 7/8 of the total area

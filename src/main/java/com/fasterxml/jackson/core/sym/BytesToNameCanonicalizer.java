@@ -33,7 +33,7 @@ public final class BytesToNameCanonicalizer
      * this corresponds to 64k main hash index. This should allow for enough distinct
      * names for almost any case.
      */
-    private final static int MAX_ENTRIES_FOR_REUSE = 6000;
+    final static int MAX_ENTRIES_FOR_REUSE = 6000;
 
     /**
      * Also: to thwart attacks based on hash collisions (which may or may not
@@ -748,6 +748,7 @@ public final class BytesToNameCanonicalizer
         hash += (q2 * MULT); // then add second quad
         hash ^= _seed;
         hash += (hash >>> 7); // and shuffle some more
+        hash ^= (hash >>> 19);
         return hash;
     }
 
@@ -1189,7 +1190,7 @@ public final class BytesToNameCanonicalizer
     /* Other helper methods
     /**********************************************************
      */
-    
+
     /**
      * @since 2.1
      */
@@ -1198,7 +1199,7 @@ public final class BytesToNameCanonicalizer
         throw new IllegalStateException("Longest collision chain in symbol table (of size "+_count
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes

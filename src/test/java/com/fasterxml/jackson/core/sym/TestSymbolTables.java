@@ -60,7 +60,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 //System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
     
         // Fewer collisions than with chars, but still quite a few
-        assertEquals(1686, symbols.collisionCount());
+        assertEquals(1715, symbols.collisionCount());
         // but not super long collision chains:
         assertEquals(9, symbols.maxCollisionLength());
 
@@ -68,17 +68,41 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [Issue#145]
-    public void testThousandsOfSymbols() throws IOException
+    public void testThousandsOfSymbolsWithChars() throws IOException
     {
         final int SEED = 33333;
 
-        BytesToNameCanonicalizer symbolsBRoot = BytesToNameCanonicalizer.createRoot(SEED);
         CharsToNameCanonicalizer symbolsCRoot = CharsToNameCanonicalizer.createRoot(SEED);
-        final Charset utf8 = Charset.forName("UTF-8");
+        int exp = 0;
         
         for (int doc = 0; doc < 100; ++doc) {
             CharsToNameCanonicalizer symbolsC =
                     symbolsCRoot.makeChild(JsonFactory.Feature.collectDefaults());
+            for (int i = 0; i < 250; ++i) {
+                String name = "f_"+doc+"_"+i;
+                char[] ch = name.toCharArray();
+                String str = symbolsC.findSymbol(ch, 0, ch.length,
+                        symbolsC.calcHash(name));
+                assertNotNull(str);
+            }
+            symbolsC.release();
+            exp += 250;
+            if (exp > CharsToNameCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
+                exp = 0;
+            }
+            assertEquals(exp, symbolsCRoot.size());
+        }
+    }
+    
+    public void testThousandsOfSymbolsWithOldBytes() throws IOException
+    {
+        final int SEED = 33333;
+
+        BytesToNameCanonicalizer symbolsBRoot = BytesToNameCanonicalizer.createRoot(SEED);
+        final Charset utf8 = Charset.forName("UTF-8");
+        int exp = 0;
+        
+        for (int doc = 0; doc < 100; ++doc) {
             BytesToNameCanonicalizer symbolsB =
                     symbolsBRoot.makeChild(JsonFactory.Feature.collectDefaults());
             for (int i = 0; i < 250; ++i) {
@@ -86,17 +110,51 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
                 int[] quads = BytesToNameCanonicalizer.calcQuads(name.getBytes(utf8));
                 symbolsB.addName(name, quads, quads.length);
-
-                char[] ch = name.toCharArray();
-                String str = symbolsC.findSymbol(ch, 0, ch.length,
-                        symbolsC.calcHash(name));
-                assertNotNull(str);
+                Name n = symbolsB.findName(quads, quads.length);
+                assertEquals(name, n.getName());
             }
             symbolsB.release();
-            symbolsC.release();
+            exp += 250;
+            if (exp > BytesToNameCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
+                exp = 0;
+            }
+            assertEquals(exp, symbolsBRoot.size());
         }
     }
 
+    // Since 2.6
+    public void testThousandsOfSymbolsWithNew() throws IOException
+    {
+        final int SEED = 33333;
+
+        ByteQuadsCanonicalizer symbolsBRoot = ByteQuadsCanonicalizer.createRoot(SEED);
+        final Charset utf8 = Charset.forName("UTF-8");
+        int exp = 0;
+
+        // loop to get 
+        for (int doc = 0; doc < 100; ++doc) {
+            ByteQuadsCanonicalizer symbolsB =
+                    symbolsBRoot.makeChild(JsonFactory.Feature.collectDefaults());
+            for (int i = 0; i < 250; ++i) {
+                String name = "f_"+doc+"_"+i;
+
+                int[] quads = BytesToNameCanonicalizer.calcQuads(name.getBytes(utf8));
+                
+                symbolsB.addName(name, quads, quads.length);
+                String n = symbolsB.findName(quads, quads.length);
+                assertEquals(name, n);
+            }
+System.out.println("New symbols: "+symbolsB);
+            symbolsB.release();
+            
+            exp += 250;
+            if (exp > ByteQuadsCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
+                exp = 0;
+            }
+            assertEquals(exp, symbolsBRoot.size());
+        }
+    }
+    
     // And then one more test just for Bytes-based symbol table
     public void testByteBasedSymbolTable() throws Exception
     {

@@ -38,11 +38,12 @@ public final class ByteQuadsCanonicalizer
     final static int MIN_HASH_SIZE = 16;
     
     /**
-     * Let's only share reasonably sized symbol tables. Max size set to 3/4 of 16k;
-     * this corresponds to 64k main hash index. This should allow for enough distinct
-     * names for almost any case.
+     * Let's only share reasonably sized symbol tables. Max size set to 3/4 of 8k;
+     * this corresponds to 256k main hash index. This should allow for enough distinct
+     * names for almost any case, while preventing ballooning for cases where names
+     * are unique (or close thereof).
      */
-    private final static int MAX_ENTRIES_FOR_REUSE = 6000;
+    final static int MAX_ENTRIES_FOR_REUSE = 6000;
 
     /*
     /**********************************************************
@@ -431,6 +432,29 @@ public final class ByteQuadsCanonicalizer
     public int spilloverCount() {
         // difference between spillover end, start, divided by 4 (four ints per slot)
         return (_spilloverEnd - _spilloverStart()) >> 2;
+    }
+
+    public int totalCount()
+    {
+        int count = 0;
+        for (int offset = 3, end = (_hashSize << 3); offset < end; offset += 4) {
+            if (_hashArea[offset] != 0) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public String toString() {
+        int pri = primaryCount();
+        int sec = secondaryCount();
+        int tert = tertiaryCount();
+        int spill = spilloverCount();
+        int total = totalCount();
+        return String.format("[%s: size=%d, hashSize=%d, %d/%d/%d/%d pri/sec/ter/spill (=%s), total:%d]",
+                getClass().getName(), _count, _hashSize,
+                pri, sec, tert, spill, total, (pri+sec+tert+spill), total);
     }
 
     /*
@@ -824,6 +848,23 @@ public final class ByteQuadsCanonicalizer
                 _needRehash = true;
             }
         }
+
+        // !!! SANITY CHECK -- may uncomment for testing
+        /*
+        int pri = primaryCount();
+        int sec = secondaryCount();
+        int tert = tertiaryCount();
+        int spill = spilloverCount();
+        int sum = pri+sec+tert+spill;
+
+        if (sum != _count) {
+            int total = totalCount();
+            System.out.printf("Mismatch adding '%s' at %d (qlen %d)/%d: %d/%d/%d/%d=%d, total=%d, count=%d\n",
+                    name, offset, qlen, _hashSize<<2,
+                    pri, sec, tert, spill, sum, total, _count);
+        }
+        */
+
         return name;
     }
 
@@ -881,8 +922,14 @@ public final class ByteQuadsCanonicalizer
         _spilloverEnd += 4;
 
         // one caveat: in the unlikely event if spill-over filling up,
-        // force rehash for the add that follows
+        // check if that could be considered a DoS attack; handle appropriately
+        // (NOTE: approximate for now; we could verify details if that becomes necessary)
         if (_spilloverEnd >= hashArea.length) {
+            if (_failOnDoS) {
+                reportTooManyCollisions();
+            }
+            // and if we didn't fail, we'll simply force rehash for next add
+            // (which, in turn, may double up or nuke contents, depending on size etc)
             _needRehash = true;
         }
         return offset;
@@ -916,6 +963,17 @@ public final class ByteQuadsCanonicalizer
         int offset = _hashSize;
         return (offset << 3) - offset;
     }
+
+    protected void reportTooManyCollisions()
+    {
+        // First: do not fuzz about small symbol tables
+        if (_hashSize <= 512) { // would have spill-over area of 64 entries
+            return;
+        }
+        throw new IllegalStateException("Spill-over slots in symbol table with "+_count
+                +" entries, hash area of "+_hashSize+" slots is now full (all "
+                +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions");
+    }
     
     /*
     /**********************************************************
@@ -947,11 +1005,17 @@ public final class ByteQuadsCanonicalizer
 
     public int calcHash(int q1, int q2)
     {
+        // For two quads, let's change algorithm a bit, to spice
+        // things up (can do bit more processing anyway)
         int hash = q1;
-        hash ^= (hash >>> 15); // try mixing first and second byte pairs first
+
+        hash += (hash >>> 15); // try mixing first and second byte pairs first
+        hash ^= (hash >>> 9); // as well as lowest 2 bytes
         hash += (q2 * MULT); // then add second quad
         hash ^= _seed;
         hash += (hash >>> 7); // and shuffle some more
+        hash ^= (hash >>> 19);
+        
         return hash;
     }
 
@@ -1011,7 +1075,7 @@ public final class ByteQuadsCanonicalizer
 
     private void rehash()
     {
-        _needRehash = false;        
+        _needRehash = false;
         // Note: since we'll make copies, no need to unshare, can just mark as such:
         _hashShared = false;
 
@@ -1022,6 +1086,7 @@ public final class ByteQuadsCanonicalizer
         final int oldSize = _hashSize;
         final int oldCount = _count;
         final int newSize = oldSize + oldSize;
+        final int oldEnd = _spilloverEnd;
 
         /* 13-Mar-2010, tatu: Let's guard against OOME that could be caused by
          *    large documents with unique (or mostly so) names
@@ -1033,6 +1098,7 @@ public final class ByteQuadsCanonicalizer
         // double up main hash area, but do not expand long-name area:
         _hashArea = new int[oldHashArea.length + (oldSize<<3)];
         _hashSize = newSize;
+        _secondaryOffset = _hashSize << 2; // 4 ints per entry
         
         // and simply double up name array
         _names = new String[oldNames.length << 1];
@@ -1045,7 +1111,7 @@ public final class ByteQuadsCanonicalizer
 
         int copyCount = 0;
         int[] q = new int[16];
-        for (int offset = 0, end = oldSize<<3; offset < end; offset += 4) {
+        for (int offset = 0, end = oldEnd; offset < end; offset += 4) {
             int len = oldHashArea[offset+3];
             if (len == 0) { // empty slot, skip
                 continue;

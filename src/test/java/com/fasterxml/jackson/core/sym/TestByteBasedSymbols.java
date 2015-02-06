@@ -76,8 +76,7 @@ public class TestByteBasedSymbols
         jp0.close();
     }
 
-    public void testAuxMethods()
-        throws Exception
+    public void testAuxMethodsWithOldSymboTable() throws Exception
     {
         final int A_BYTES = 0x41414141; // "AAAA"
         final int B_BYTES = 0x42424242; // "BBBB"
@@ -102,6 +101,30 @@ public class TestByteBasedSymbols
         assertNotNull(nc.toString());
     }
 
+    public void testAuxMethodsWithNewSymboTable() throws Exception
+    {
+        final int A_BYTES = 0x41414141; // "AAAA"
+        final int B_BYTES = 0x42424242; // "BBBB"
+
+        ByteQuadsCanonicalizer nc = ByteQuadsCanonicalizer.createRoot()
+                .makeChild(JsonFactory.Feature.collectDefaults());
+        assertNull(nc.findName(A_BYTES));
+        assertNull(nc.findName(A_BYTES, B_BYTES));
+
+        nc.addName("AAAA", new int[] { A_BYTES }, 1);
+        String n1 = nc.findName(A_BYTES);
+        assertEquals("AAAA", n1);
+        nc.addName("AAAABBBB", new int[] { A_BYTES, B_BYTES }, 2);
+        String n2 = nc.findName(A_BYTES, B_BYTES);
+        assertEquals("AAAABBBB", n2);
+        assertNotNull(n2);
+
+        /* and let's then just exercise this method so it gets covered;
+         * it's only used for debugging.
+         */
+        assertNotNull(nc.toString());
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

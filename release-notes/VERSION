@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.1 (not yet released)
+2.5.1 (06-Feb-2015)
 
 #178: Add `Lf2SpacesIndenter.withLinefeed` back to keep binary-compatibility with 2.4.x
  (reported by ansell@github)

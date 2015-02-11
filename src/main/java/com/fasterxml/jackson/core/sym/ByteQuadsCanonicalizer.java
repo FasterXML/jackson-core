@@ -547,12 +547,11 @@ public final class ByteQuadsCanonicalizer
     public String findName(int q1, int q2, int q3)
     {
         int offset = _calcOffset(calcHash(q1, q2, q3));
-
         final int[] hashArea = _hashArea;
 
         int q1b = hashArea[offset];
         int len = hashArea[offset+3];
-        
+
         if ((q1 == q1b) && (hashArea[offset+1] == q2) && (hashArea[offset+2] == q3) && (len == 3)) {
             return _names[offset >> 2];
         }
@@ -791,12 +790,11 @@ public final class ByteQuadsCanonicalizer
         if (_intern) {
             name = InternCache.instance.intern(name);
         }
-        int hash = calcHash(q1, q2, q3);
-        int offset = _findOffsetForAdd(hash);
+        int offset = _findOffsetForAdd(calcHash(q1, q2, q3));
         _hashArea[offset] = q1;
         _hashArea[offset+1] = q2;
         _hashArea[offset+2] = q3;
-        _hashArea[offset+3] = 2;
+        _hashArea[offset+3] = 3;
         _names[offset >> 2] = name;
         ++_count;
         _verifyNeedForRehash();

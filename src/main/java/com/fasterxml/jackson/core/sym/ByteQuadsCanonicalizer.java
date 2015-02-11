@@ -786,6 +786,23 @@ public final class ByteQuadsCanonicalizer
         return name;
     }
 
+    public String addName(String name, int q1, int q2, int q3) {
+        _verifySharing();
+        if (_intern) {
+            name = InternCache.instance.intern(name);
+        }
+        int hash = calcHash(q1, q2, q3);
+        int offset = _findOffsetForAdd(hash);
+        _hashArea[offset] = q1;
+        _hashArea[offset+1] = q2;
+        _hashArea[offset+2] = q3;
+        _hashArea[offset+3] = 2;
+        _names[offset >> 2] = name;
+        ++_count;
+        _verifyNeedForRehash();
+        return name;
+    }
+
     public String addName(String name, int[] q, int qlen)
     {
         _verifySharing();

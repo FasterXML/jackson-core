@@ -20,6 +20,7 @@ JSON library.
 - Minor improvement to construction of "default PrettyPrinter": now overridable by data format
   modules
 - Implement a new yet more optimized symbol table for byte-backed parsers
+- Add `JsonParser.Feature.IGNORE_UNDEFINED`, useful for data formats like protobuf
 
 2.5.1 (not yet released)
 

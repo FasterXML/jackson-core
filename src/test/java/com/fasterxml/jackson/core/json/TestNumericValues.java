@@ -446,10 +446,12 @@ public class TestNumericValues
         };
         for (int i = 0; i < values.length; ++i) {
             int COUNT = 4096;
-            int VCOUNT = 8 * COUNT;
+
+            // Don't see the failure with a multiple of 1
+            int VCOUNT = 2 * COUNT;
             String arrayJson = toJsonArray(values[i], VCOUNT);
 
-            StringBuilder sb = new StringBuilder(COUNT * arrayJson.length() + 20);
+            StringBuilder sb = new StringBuilder(COUNT + arrayJson.length() + 20);
             for (int j = 0; j < COUNT; ++j) {
                 sb.append(' ');
             }

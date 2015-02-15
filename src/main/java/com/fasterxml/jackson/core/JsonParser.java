@@ -185,7 +185,31 @@ public abstract class JsonParser
           * @since 2.3
           */
          STRICT_DUPLICATE_DETECTION(false),
-            ;
+
+         /**
+          * Feature that determines what to do if the underlying data format requires knowledge
+          * of all properties to decode (usually via a Schema), and if no definition is
+          * found for a property that input content contains.
+          * Typically most textual data formats do NOT require schema information (although
+          * some do, such as CSV), whereas many binary data formats do require definitions
+          * (such as Avro, protobuf), although not all (Smile, CBOR, BSON and MessagePack do not).
+          * Further note that some formats that do require schema information will not be able
+          * to ignore undefined properties: for example, Avro is fully positional and there is
+          * no possibility of undefined data. This leaves formats like Protobuf that have identifiers
+          * that may or may not map; and as such Protobuf format does make use of this feature.
+          *<p>
+          * Note that support for this feature is implemented by individual data format
+          * module, if (and only if) it makes sense for the format in question. For JSON,
+          * for example, this feature has no effect as properties need not be pre-defined.
+          *<p>
+          * Feature is disabled by default, meaning that if the underlying data format
+          * requires knowledge of all properties to output, attempts to read an unknown
+          * property will result in a {@link JsonProcessingException}
+          *
+          * @since 2.6
+          */
+         IGNORE_UNDEFINED(false)
+         ;
 
         /**
          * Whether feature is enabled or disabled by default.

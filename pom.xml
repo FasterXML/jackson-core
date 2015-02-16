@@ -66,6 +66,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <argLine>-Xmx128m</argLine>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
           <excludes>
             <exclude>**/failing/*.java</exclude>

@@ -474,6 +474,48 @@ public class TestNumericValues
         assertEquals(doc, v.toString());
     }
 
+    // for [jackson-core#181]
+    /**
+     * Method that tries to test that number parsing works in cases where
+     * input is split between buffer boundaries.
+     */
+    public void testParsingOfLongerSequencesWithNonNumeric() throws Exception
+    {
+        JsonFactory factory = new JsonFactory();
+        factory.enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+        double[] values = new double[] {
+                0.01, -10.5, 2.1e9, 4.0e-8,
+                Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY
+        };
+        for (int i = 0; i < values.length; ++i) {
+            int COUNT = 4096;
+            // Don't see the failure with a multiple of 1
+            int VCOUNT = 2 * COUNT;
+            String arrayJson = toJsonArray(values[i], VCOUNT);
+            StringBuilder sb = new StringBuilder(COUNT + arrayJson.length() + 20);
+            for (int j = 0; j < COUNT; ++j) {
+                sb.append(' ');
+            }
+            sb.append(arrayJson);
+            String DOC = sb.toString();
+            for (int input = 0; input < 2; ++input) {
+                JsonParser jp;
+                if (input == 0) {
+                    jp = createParserUsingStream(factory, DOC, "UTF-8");
+                } else {
+                    jp = factory.createParser(DOC);
+                }
+                assertToken(JsonToken.START_ARRAY, jp.nextToken());
+                for (int j = 0; j < VCOUNT; ++j) {
+                    assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
+                    assertEquals(values[i], jp.getDoubleValue());
+                }
+                assertToken(JsonToken.END_ARRAY, jp.nextToken());
+                jp.close();
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Tests for invalid access
@@ -506,5 +548,19 @@ public class TestNumericValues
             verifyException(e, "can not use numeric value accessors");
         }
         jp.close();
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    private String toJsonArray(double v, int n) {
+        StringBuilder sb = new StringBuilder().append('[').append(v);
+        for (int i = 1; i < n; ++i) {
+            sb.append(',').append(v);
+        }
+        return sb.append(']').toString();
     }
 }

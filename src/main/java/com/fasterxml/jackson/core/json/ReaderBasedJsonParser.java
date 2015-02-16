@@ -1047,7 +1047,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         // Also, integer part is not optional
         if (intLen == 0) {
-            reportInvalidNumber("Missing integer part (next char "+_getCharDesc(c)+")");
+            return _handleInvalidNumberStart(c, neg);
         }
 
         int fractLen = 0;

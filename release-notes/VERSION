@@ -22,7 +22,7 @@ JSON library.
 - Implement a new yet more optimized symbol table for byte-backed parsers
 - Add `JsonParser.Feature.IGNORE_UNDEFINED`, useful for data formats like protobuf
 
-2.5.1 (not yet released)
+2.5.1 (06-Feb-2015)
 
 #178: Add `Lf2SpacesIndenter.withLinefeed` back to keep binary-compatibility with 2.4.x
  (reported by ansell@github)
@@ -47,6 +47,10 @@ JSON library.
 - Added `JsonParser.hasExpectedStartObjectToken()` convenience method
 - Added `JsonParser.hasTokenId(id)` convenience method
 - Added `JsonParser.nextFieldName()` (no args)
+
+2.4.5 (13-Jan-2015)
+
+No changes since 2.4.4.
 
 2.4.4 (24-Nov-2014)
 

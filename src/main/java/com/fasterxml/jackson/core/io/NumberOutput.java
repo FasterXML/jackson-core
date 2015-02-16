@@ -316,6 +316,10 @@ public final class NumberOutput
         return Double.toString(v);
     }
 
+    public static String toString(float v) {
+        return Float.toString(v);
+    }
+
     /*
     /**********************************************************
     /* Internal methods

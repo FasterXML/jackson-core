@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.5.2 (not yet released)
+
+#181: Failure parsing -Infinity on buffer boundary
+ (reported by brharrington@github)
+
 2.5.1 (06-Feb-2015)
 
 #178: Add `Lf2SpacesIndenter.withLinefeed` back to keep binary-compatibility with 2.4.x

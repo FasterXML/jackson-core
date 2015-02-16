@@ -40,6 +40,10 @@ JSON library.
 - Added `JsonParser.hasTokenId(id)` convenience method
 - Added `JsonParser.nextFieldName()` (no args)
 
+2.4.5 (13-Jan-2015)
+
+No changes since 2.4.4.
+
 2.4.4 (24-Nov-2014)
 
 #157: ArrayIndexOutOfBoundsException: 200 on numbers with more than 200 digits.

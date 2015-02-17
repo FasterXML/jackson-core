@@ -316,6 +316,9 @@ public final class NumberOutput
         return Double.toString(v);
     }
 
+    /**
+     * @since 2.6.0
+     */
     public static String toString(float v) {
         return Float.toString(v);
     }

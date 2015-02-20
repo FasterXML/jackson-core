@@ -642,7 +642,7 @@ public final class WriterBasedJsonGenerator
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
-            _writeQuotedRaw(value);
+            _writeQuotedRaw(value.toString());
         } else {
             writeRaw(value.toString());
         }
@@ -685,7 +685,8 @@ public final class WriterBasedJsonGenerator
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
-            _writeQuotedRaw(value);
+            String raw = isEnabled(Feature.WRITE_BIGDECIMAL_AS_PLAIN) ? value.toPlainString() : value.toString();
+            _writeQuotedRaw(raw);
         } else if (isEnabled(Feature.WRITE_BIGDECIMAL_AS_PLAIN)) {
             writeRaw(value.toPlainString());
         } else {
@@ -704,13 +705,13 @@ public final class WriterBasedJsonGenerator
         }
     }
 
-    private void _writeQuotedRaw(Object value) throws IOException
+    private void _writeQuotedRaw(String value) throws IOException
     {
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = '"';
-        writeRaw(value.toString());
+        writeRaw(value);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }

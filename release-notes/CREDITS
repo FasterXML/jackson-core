@@ -50,3 +50,7 @@ Aaron Digulla:
   * Contributed #166: Allow to configure line endings and indentation
    (2.5.0)
 
+Derek Clarkson (drekka@github)
+  * Reported #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
+   (2.4.6 / 2.5.2)
+

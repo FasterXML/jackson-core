@@ -53,6 +53,11 @@ JSON library.
 - Added `JsonParser.hasTokenId(id)` convenience method
 - Added `JsonParser.nextFieldName()` (no args)
 
+2.4.6 (not released yet)
+
+#184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
+ (reported by Derek C)
+
 2.4.5 (13-Jan-2015)
 
 No changes since 2.4.4.

@@ -84,6 +84,28 @@ public class TestJsonGeneratorFeatures
         jg.close();
         assertEquals("100", sw.toString());
     }
+
+    // [issue#184]
+    public void testBigDecimalAsPlainString() throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        BigDecimal ENG = new BigDecimal("1E+2");
+        jf.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        jf.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+
+        StringWriter sw = new StringWriter();
+        JsonGenerator jg = jf.createGenerator(sw);
+        jg.writeNumber(ENG);
+        jg.close();
+        assertEquals(quote("100"), sw.toString());
+
+        // also, as bytes
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        jg = jf.createGenerator(bos);
+        jg.writeNumber(ENG);
+        jg.close();
+        assertEquals(quote("100"), bos.toString("UTF-8"));
+    }
     
     private String _writeNumbers(JsonFactory jf) throws IOException
     {

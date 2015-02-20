@@ -39,3 +39,7 @@ Shay Banon
 Alex Soto: (lordofthejars@github)
   * Reported #173: An exception is thrown for a valid JsonPointer expression
 
+Derek Clarkson (drekka@github)
+  * Reported #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
+   (2.4.6 / 2.5.2)
+

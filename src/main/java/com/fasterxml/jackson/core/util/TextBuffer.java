@@ -294,7 +294,12 @@ public final class TextBuffer
         if (_resultString != null) return false;
         return true;
     }
-    
+
+    /**
+     * Accessor that may be used to get the contents of this buffer in a single
+     * <code>char</code> array regardless of whether they were collected in a segmented
+     * fashion or not.
+     */
     public char[] getTextBuffer()
     {
         // Are we just using shared input buffer?
@@ -304,7 +309,9 @@ public final class TextBuffer
             return (_resultArray = _resultString.toCharArray());
         }
         // Nope; but does it fit in just one segment?
-        if (!_hasSegments && _currentSegment != null)  return _currentSegment;
+        if (!_hasSegments) {
+            return (_currentSegment == null) ? NO_CHARS : _currentSegment;
+        }
         // Nope, need to have/create a non-segmented array and return it
         return contentsAsArray();
     }

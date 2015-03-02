@@ -741,8 +741,32 @@ public final class ByteQuadsCanonicalizer
         final int[] hashArea = _hashArea;
         // spillOffset assumed to be physical index right into quad string
         int ix = 0;
+
+        switch (qlen) {
+        default:
+            return _verifyLongName2(q, qlen, spillOffset);
+        case 8:
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+        case 7:
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+        case 6:
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+        case 5:
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+        case 4: // always at least 4
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+            if (q[ix++] != hashArea[spillOffset++]) return false;
+        }
+        return true;
+    }
+
+    private boolean _verifyLongName2(int[] q, int qlen, int spillOffset)
+    {
+        int ix = 0;
         do {
-            if (q[ix++] != hashArea[spillOffset++]) {
+            if (q[ix++] != _hashArea[spillOffset++]) {
                 return false;
             }
         } while (ix < qlen);

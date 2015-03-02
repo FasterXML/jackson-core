@@ -318,6 +318,46 @@ public class UTF8StreamJsonParser
         }
         return super.getValueAsString(defValue);
     }
+
+    // since 2.6
+    @Override
+    public int getValueAsInt() throws IOException
+    {
+        JsonToken t = _currToken;
+        if ((t == JsonToken.VALUE_NUMBER_INT) || (t == JsonToken.VALUE_NUMBER_FLOAT)) {
+            // inlined 'getIntValue()'
+            if ((_numTypesValid & NR_INT) == 0) {
+                if (_numTypesValid == NR_UNKNOWN) {
+                    return _parseIntValue();
+                }
+                if ((_numTypesValid & NR_INT) == 0) {
+                    convertNumberToInt();
+                }
+            }
+            return _numberInt;
+        }
+        return super.getValueAsInt(0);
+    }
+
+    // since 2.6
+    @Override
+    public int getValueAsInt(int defValue) throws IOException
+    {
+        JsonToken t = _currToken;
+        if ((t == JsonToken.VALUE_NUMBER_INT) || (t == JsonToken.VALUE_NUMBER_FLOAT)) {
+            // inlined 'getIntValue()'
+            if ((_numTypesValid & NR_INT) == 0) {
+                if (_numTypesValid == NR_UNKNOWN) {
+                    return _parseIntValue();
+                }
+                if ((_numTypesValid & NR_INT) == 0) {
+                    convertNumberToInt();
+                }
+            }
+            return _numberInt;
+        }
+        return super.getValueAsInt(defValue);
+    }
     
     protected final String _getText2(JsonToken t)
     {

@@ -262,9 +262,28 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
+    public int getValueAsInt() throws IOException
+    {
+        JsonToken t = _currToken;
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return getIntValue();
+        }
+        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+            return getIntValue();
+        }
+        return getValueAsInt(0);
+    }
+
+    @Override
     public int getValueAsInt(int defaultValue) throws IOException
     {
         JsonToken t = _currToken;
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return getIntValue();
+        }
+        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+            return getIntValue();
+        }
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
@@ -273,9 +292,6 @@ public abstract class ParserMinimalBase extends JsonParser
                     return 0;
                 }
                 return NumberInput.parseAsInt(str, defaultValue);
-            case ID_NUMBER_INT:
-            case ID_NUMBER_FLOAT:
-                return getIntValue();
             case ID_TRUE:
                 return 1;
             case ID_FALSE:
@@ -291,11 +307,30 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return defaultValue;
     }
+
+    @Override
+    public long getValueAsLong() throws IOException
+    {
+        JsonToken t = _currToken;
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return getLongValue();
+        }
+        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+            return getLongValue();
+        }
+        return getValueAsLong(0L);
+    }
     
     @Override
     public long getValueAsLong(long defaultValue) throws IOException
     {
         JsonToken t = _currToken;
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return getLongValue();
+        }
+        if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+            return getLongValue();
+        }
         if (t != null) {
             switch (t.id()) {
             case ID_STRING:
@@ -304,9 +339,6 @@ public abstract class ParserMinimalBase extends JsonParser
                     return 0L;
                 }
                 return NumberInput.parseAsLong(str, defaultValue);
-            case ID_NUMBER_INT:
-            case ID_NUMBER_FLOAT:
-                return getLongValue();
             case ID_TRUE:
                 return 1L;
             case ID_FALSE:
@@ -352,6 +384,14 @@ public abstract class ParserMinimalBase extends JsonParser
         return defaultValue;
     }
 
+    @Override
+    public String getValueAsString() throws IOException {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            return getText();
+        }
+        return getValueAsString(null);
+    }
+    
     @Override
     public String getValueAsString(String defaultValue) throws IOException {
         if (_currToken != JsonToken.VALUE_STRING) {

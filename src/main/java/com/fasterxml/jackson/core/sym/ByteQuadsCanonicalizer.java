@@ -488,25 +488,25 @@ public final class ByteQuadsCanonicalizer
         // first: primary match?
         final int[] hashArea = _hashArea;
 
-        int q1b = hashArea[offset];
         int len = hashArea[offset+3];
 
-        if ((q1b == q1) && (len == 1)) {
-            return _names[offset >> 2];
-        }
-        if (len == 0) { // empty slot; unlikely but avoid further lookups if so
+        if (len == 1) {
+            if (hashArea[offset] == q1) {
+                return _names[offset >> 2];
+            }
+        } else if (len == 0) { // empty slot; unlikely but avoid further lookups if so
             return null;
         }
         // secondary? single slot shared by N/2 primaries
         int offset2 = _secondaryStart + ((offset >> 3) << 2);
 
-        q1b = hashArea[offset2];
         len = hashArea[offset2+3];
 
-        if ((q1b == q1) && (len == 1)) {
-            return _names[offset2 >> 2];
-        }
-        if (len == 0) { // empty slot; unlikely but avoid further lookups if so
+        if (len == 1) {
+            if (hashArea[offset2] == q1) {
+                return _names[offset2 >> 2];
+            }
+        } else if (len == 0) { // empty slot; unlikely but avoid further lookups if so
             return null;
         }
 
@@ -520,25 +520,25 @@ public final class ByteQuadsCanonicalizer
 
         final int[] hashArea = _hashArea;
 
-        int q1b = hashArea[offset];
         int len = hashArea[offset+3];
-        
-        if ((q1 == q1b) && (hashArea[offset+1] == q2) && (len == 2)) {
-            return _names[offset >> 2];
-        }
-        if (len == 0) { // empty slot; unlikely but avoid further lookups if so
+
+        if (len == 2) {
+            if ((q1 == hashArea[offset]) && (q2 == hashArea[offset+1])) {
+                return _names[offset >> 2];
+            }
+        } else if (len == 0) { // empty slot; unlikely but avoid further lookups if so
             return null;
         }
         // secondary?
         int offset2 = _secondaryStart + ((offset >> 3) << 2);
 
-        q1b = hashArea[offset2];
         len = hashArea[offset2+3];
 
-        if ((q1 == q1b) && (hashArea[offset2+1] == q2) && (len == 2)) {
-            return _names[offset2 >> 2];
-        }
-        if (len == 0) { // empty slot? Short-circuit if no more spillovers
+        if (len == 2) {
+            if ((q1 == hashArea[offset2]) && (q2 == hashArea[offset2+1])) {
+                return _names[offset2 >> 2];
+            }
+        } else if (len == 0) { // empty slot? Short-circuit if no more spillovers
             return null;
         }
         return _findSecondary(offset, q1, q2);
@@ -548,26 +548,25 @@ public final class ByteQuadsCanonicalizer
     {
         int offset = _calcOffset(calcHash(q1, q2, q3));
         final int[] hashArea = _hashArea;
-
-        int q1b = hashArea[offset];
         int len = hashArea[offset+3];
 
-        if ((q1 == q1b) && (hashArea[offset+1] == q2) && (hashArea[offset+2] == q3) && (len == 3)) {
-            return _names[offset >> 2];
-        }
-        if (len == 0) { // empty slot; unlikely but avoid further lookups if so
+        if (len == 3) {
+            if ((q1 == hashArea[offset]) && (hashArea[offset+1] == q2) && (hashArea[offset+2] == q3)) {
+                return _names[offset >> 2];
+            }
+        } else if (len == 0) { // empty slot; unlikely but avoid further lookups if so
             return null;
         }
         // secondary?
         int offset2 = _secondaryStart + ((offset >> 3) << 2);
 
-        q1b = hashArea[offset2];
         len = hashArea[offset2+3];
 
-        if ((q1 == q1b) && (hashArea[offset2+1] == q2) && (hashArea[offset2+2] == q3) && (len == 3)) {
-            return _names[offset2 >> 2];
-        }
-        if (len == 0) { // empty slot? Short-circuit if no more spillovers
+        if (len == 3) {
+            if ((q1 == hashArea[offset2]) && (hashArea[offset2+1] == q2) && (hashArea[offset2+2] == q3)) {
+                return _names[offset2 >> 2];
+            }
+        } else if (len == 0) { // empty slot? Short-circuit if no more spillovers
             return null;
         }
         return _findSecondary(offset, q1, q2, q3);

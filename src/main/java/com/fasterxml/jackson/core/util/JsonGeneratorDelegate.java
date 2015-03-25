@@ -27,7 +27,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Construction, initialization
     /**********************************************************
      */
-    
+
     public JsonGeneratorDelegate(JsonGenerator d) {
         this(d, true);
     }

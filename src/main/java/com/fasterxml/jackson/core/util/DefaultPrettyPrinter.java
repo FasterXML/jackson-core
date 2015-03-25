@@ -146,7 +146,7 @@ public class DefaultPrettyPrinter
      * @since 2.6.0
      */
     public DefaultPrettyPrinter withRootSeparator(String rootSeparator) {
-        return withRootSeparator(new SerializedString(rootSeparator));
+        return withRootSeparator((rootSeparator == null) ? null : new SerializedString(rootSeparator));
     }
     
     public void indentArraysWith(Indenter i) {
@@ -349,26 +349,24 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeArrayValueSeparator(JsonGenerator jg)
-        throws IOException, JsonGenerationException
+    public void writeArrayValueSeparator(JsonGenerator gen) throws IOException
     {
-        jg.writeRaw(',');
-        _arrayIndenter.writeIndentation(jg, _nesting);
+        gen.writeRaw(',');
+        _arrayIndenter.writeIndentation(gen, _nesting);
     }
 
     @Override
-    public void writeEndArray(JsonGenerator jg, int nrOfValues)
-        throws IOException, JsonGenerationException
+    public void writeEndArray(JsonGenerator gen, int nrOfValues) throws IOException
     {
         if (!_arrayIndenter.isInline()) {
             --_nesting;
         }
         if (nrOfValues > 0) {
-            _arrayIndenter.writeIndentation(jg, _nesting);
+            _arrayIndenter.writeIndentation(gen, _nesting);
         } else {
-            jg.writeRaw(' ');
+            gen.writeRaw(' ');
         }
-        jg.writeRaw(']');
+        gen.writeRaw(']');
     }
 
     /*
@@ -393,7 +391,7 @@ public class DefaultPrettyPrinter
     }
 
     /**
-     * This is a very simple indenter that only every adds a
+     * This is a very simple indenter that only adds a
      * single space for indentation. It is used as the default
      * indenter for array values.
      */
@@ -403,8 +401,7 @@ public class DefaultPrettyPrinter
         public static final FixedSpaceIndenter instance = new FixedSpaceIndenter();
 
         @Override
-        public void writeIndentation(JsonGenerator jg, int level)
-            throws IOException, JsonGenerationException
+        public void writeIndentation(JsonGenerator jg, int level) throws IOException
         {
             jg.writeRaw(' ');
         }

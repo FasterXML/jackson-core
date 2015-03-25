@@ -57,7 +57,7 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      */
-    void writeStartObject(JsonGenerator jg)
+    void writeStartObject(JsonGenerator gen)
         throws IOException, JsonGenerationException;
 
     /**
@@ -73,7 +73,7 @@ public interface PrettyPrinter
      * @param nrOfEntries Number of direct members of the array that
      *   have been output
      */
-    void writeEndObject(JsonGenerator jg, int nrOfEntries)
+    void writeEndObject(JsonGenerator gen, int nrOfEntries)
         throws IOException, JsonGenerationException;
 
     /**
@@ -85,7 +85,7 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      */
-    void writeObjectEntrySeparator(JsonGenerator jg)
+    void writeObjectEntrySeparator(JsonGenerator gen)
         throws IOException, JsonGenerationException;
 
     /**
@@ -97,7 +97,7 @@ public interface PrettyPrinter
      * to output a colon as well, but can surround that with other
      * (white-space) decoration.
      */
-    void writeObjectFieldValueSeparator(JsonGenerator jg)
+    void writeObjectFieldValueSeparator(JsonGenerator gen)
         throws IOException, JsonGenerationException;
 
     // // // Array handling
@@ -112,7 +112,7 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      */
-    void writeStartArray(JsonGenerator jg)
+    void writeStartArray(JsonGenerator gen)
         throws IOException, JsonGenerationException;
 
     /**
@@ -128,7 +128,7 @@ public interface PrettyPrinter
      * @param nrOfValues Number of direct members of the array that
      *   have been output
      */
-    void writeEndArray(JsonGenerator jg, int nrOfValues)
+    void writeEndArray(JsonGenerator gen, int nrOfValues)
         throws IOException, JsonGenerationException;
 
     /**
@@ -140,7 +140,7 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      */
-    void writeArrayValueSeparator(JsonGenerator jg)
+    void writeArrayValueSeparator(JsonGenerator gen)
         throws IOException, JsonGenerationException;
 
     /*
@@ -159,7 +159,7 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      */
-    void beforeArrayValues(JsonGenerator jg)
+    void beforeArrayValues(JsonGenerator gen)
         throws IOException, JsonGenerationException;
 
     /**
@@ -171,7 +171,7 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      */
-    void beforeObjectEntries(JsonGenerator jg)
+    void beforeObjectEntries(JsonGenerator gen)
         throws IOException, JsonGenerationException;
 }
 

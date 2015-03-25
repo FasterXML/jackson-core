@@ -37,12 +37,15 @@ public class DefaultIndenter
     private final int charsPerLevel;
     private final String eol;
 
-    /** Indent with two spaces and the system's default line feed */
+    /**
+     * Indent with two spaces and the system's default line feed
+     */
     public DefaultIndenter() {
         this("  ", SYS_LF);
     }
     
-    /** Create an indenter which uses the <code>indent</code> string to indent one level
+    /**
+     * Create an indenter which uses the <code>indent</code> string to indent one level
      *  and the <code>eol</code> string to separate lines.
      */
     public DefaultIndenter(String indent, String eol)

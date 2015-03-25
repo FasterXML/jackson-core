@@ -132,7 +132,7 @@ public class DefaultPrettyPrinter
 
         _rootSeparator = rootSeparator;
     }
-    
+
     public DefaultPrettyPrinter withRootSeparator(SerializableString rootSeparator)
     {
         if (_rootSeparator == rootSeparator ||
@@ -140,6 +140,13 @@ public class DefaultPrettyPrinter
             return this;
         }
         return new DefaultPrettyPrinter(this, rootSeparator);
+    }
+
+    /**
+     * @since 2.6.0
+     */
+    public DefaultPrettyPrinter withRootSeparator(String rootSeparator) {
+        return withRootSeparator(new SerializedString(rootSeparator));
     }
     
     public void indentArraysWith(Indenter i) {

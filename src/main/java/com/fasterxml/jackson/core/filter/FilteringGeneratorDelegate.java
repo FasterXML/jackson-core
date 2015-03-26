@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.util;
+package com.fasterxml.jackson.core.filter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,13 +6,30 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
 /**
  * @since 2.6.0
  */
 public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 {
+    /**
+     * Object consulted to determine whether to write parts of content generator
+     * is asked to write or not.
+     */
     protected TokenFilter filter;
+
+    /**
+     * Although delegate has its own output context it is not sufficient since we actually
+     * have to keep track of excluded (filtered out) structures as well as ones delegate
+     * actually outputs.
+     */
+    protected TokenFilterContext _filterContext;
+
+    /**
+     * The current state constant is kept here as well, not just at the tip of {@link #_filterContext}.
+     */
+    protected int _currentState;
 
     /*
     /**********************************************************
@@ -24,7 +41,18 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         // By default, do NOT delegate copy methods
         super(d, false);
         filter = f;
+        // Doesn't matter if it's include or exclude current, but shouldn't be including/excluding sub-tree
+        _currentState = TokenFilter.FILTER_INCLUDE_CURRENT;
+        _filterContext = TokenFilterContext.createRootContext(_currentState);
     }
+
+    /*
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
+
+    public TokenFilter getTokenFilter() { return filter; }
 
     /*
     /**********************************************************
@@ -33,33 +61,125 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeStartArray() throws IOException {
-        delegate.writeStartArray();
+    public void writeStartArray() throws IOException
+    {
+        /*
+        switch (_currentState) {
+        case TokenFilter.FILTER_SKIP_TREE: // filter all down the tree?
+            _filterContext = _filterContext.createChildArrayContext(_currentState);
+            return;
+        case TokenFilter.FILTER_SKIP_CURRENT: // may or may not include, need to check
+        case TokenFilter.FILTER_INCLUDE_CURRENT:
+            int newState = filter.startArray();
+            _filterContext = _filterContext.createChildArrayContext(newState);
+            if (newState >= TokenFilter.FILTER_INCLUDE_CURRENT) {
+                delegate.writeStartArray();
+            }
+            return;
+        case TokenFilter.FILTER_INCLUDE_TREE: // include the whole sub-tree?
+        default:
+            _filterContext = _filterContext.createChildArrayContext(_currentState);
+            delegate.writeStartArray();
+            return;
+        }
+        */
     }
 
     @Override
-    public void writeStartArray(int size) throws IOException {
-        delegate.writeStartArray(size);
+    public void writeStartArray(int size) throws IOException
+    {
+        /*
+        switch (_currentState) {
+        case TokenFilter.FILTER_SKIP_TREE: // filter all down the tree?
+            _filterContext = _filterContext.createChildArrayContext(_currentState);
+            return;
+        case TokenFilter.FILTER_SKIP_CURRENT: // may or may not include, need to check
+        case TokenFilter.FILTER_INCLUDE_CURRENT:
+            int newState = filter.startArray();
+            _filterContext = _filterContext.createChildArrayContext(newState);
+            if (newState >= TokenFilter.FILTER_INCLUDE_CURRENT) {
+                delegate.writeStartArray(size);
+            }
+            return;
+        case TokenFilter.FILTER_INCLUDE_TREE: // include the whole sub-tree?
+        default:
+            _filterContext = _filterContext.createChildArrayContext(_currentState);
+            delegate.writeStartArray(size);
+            return;
+        }
+        */
     }
     
     @Override
-    public void writeEndArray() throws IOException {
-        delegate.writeEndArray();
+    public void writeEndArray() throws IOException
+    {
+        if (_currentState >= TokenFilter.FILTER_INCLUDE_CURRENT) {
+            delegate.writeEndArray();
+        }
+        _filterContext = _filterContext.getParent();
+        if (_filterContext != null) {
+            _currentState = _filterContext.getFilterState();
+        }
     }
 
     @Override
-    public void writeStartObject() throws IOException {
-        delegate.writeStartObject();
+    public void writeStartObject() throws IOException
+    {
+        /*
+        switch (_currentState) {
+        case TokenFilter.FILTER_SKIP_TREE: // filter all down the tree?
+            _filterContext = _filterContext.createChildObjectContext(_currentState);
+            return;
+        case TokenFilter.FILTER_SKIP_CURRENT: // may or may not include, need to check
+        case TokenFilter.FILTER_INCLUDE_CURRENT:
+            int newState = filter.startObject();
+            _filterContext = _filterContext.createChildObjectContext(newState);
+            if (newState >= TokenFilter.FILTER_INCLUDE_CURRENT) {
+                delegate.writeStartObject();
+            }
+            return;
+        case TokenFilter.FILTER_INCLUDE_TREE: // include the whole sub-tree?
+        default:
+            _filterContext = _filterContext.createChildObjectContext(_currentState);
+            delegate.writeStartObject();
+            return;
+        }
+        */
     }
     
     @Override
-    public void writeEndObject() throws IOException {
-        delegate.writeEndObject();
+    public void writeEndObject() throws IOException
+    {
+        if (_currentState >= TokenFilter.FILTER_INCLUDE_CURRENT) {
+            delegate.writeEndObject();
+        }
+        _filterContext = _filterContext.getParent();
+        if (_filterContext != null) {
+            _currentState = _filterContext.getFilterState();
+        }
     }
 
     @Override
-    public void writeFieldName(String name) throws IOException {
-        delegate.writeFieldName(name);
+    public void writeFieldName(String name) throws IOException
+    {
+        /*
+        switch (_currentState) {
+        case TokenFilter.FILTER_SKIP_TREE:
+            return;
+        case TokenFilter.FILTER_SKIP_CURRENT: // may or may not include, need to check
+        case TokenFilter.FILTER_INCLUDE_CURRENT:
+            _propertyState = filter.
+            int state = filter.startObject();
+            if (state >= TokenFilter.FILTER_INCLUDE_CURRENT) {
+                delegate.writeStartObject();
+            }
+            return;
+        case TokenFilter.FILTER_INCLUDE_TREE: // include the whole sub-tree?
+        default:
+            delegate.writeFieldName(name);
+            return;
+        }
+        */
     }
 
     @Override

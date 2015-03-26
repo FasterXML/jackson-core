@@ -133,16 +133,12 @@ public class JsonWriteContext extends JsonStreamContext
         return ctxt.reset(TYPE_OBJECT);
     }
 
-    // // // Shared API
-
     @Override public final JsonWriteContext getParent() { return _parent; }
     @Override public final String getCurrentName() { return _currentName; }
 
     public DupDetector getDupDetector() {
         return _dups;
     }
-    
-    // // // API sub-classes are to implement
 
     /**
      * Method that writer is to call before it writes a field name.

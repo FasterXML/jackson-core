@@ -14,14 +14,14 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     {
         // pass seed, to keep results consistent:
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1);
-        final int COUNT = 6000;
+        final int COUNT = 12000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
             char[] ch = id.toCharArray();
             symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(id));
         }
 
-        assertEquals(8192, symbols.bucketCount());
+        assertEquals(16384, symbols.bucketCount());
         assertEquals(COUNT, symbols.size());
         
 //System.out.printf("Char stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
@@ -29,14 +29,9 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         // holy guacamoley... there are way too many. 31 gives 3567 (!), 33 gives 2747
         // ... at least before shuffling. Shuffling helps quite a lot, so:
 
-        assertEquals(1401, symbols.collisionCount()); // with 33
-//        assertEquals(1858, symbols.collisionCount()); // with 31
+        assertEquals(2691, symbols.collisionCount());
 
-        // esp. with collisions; first got about 30;
-        // with fixes 4 (for 33), 5 (for 31)
-
-        assertEquals(4, symbols.maxCollisionLength()); // 33
-//        assertEquals(5, symbols.maxCollisionLength()); // 31
+        assertEquals(3, symbols.maxCollisionLength());
     }
 
     // Test for verifying stability of hashCode, wrt collisions, using
@@ -49,21 +44,19 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         BytesToNameCanonicalizer symbols =
                 BytesToNameCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
 
-        final int COUNT = 6000;
+        final int COUNT = 12000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
             int[] quads = calcQuads(id.getBytes("UTF-8"));
             symbols.addName(id, quads, quads.length);
         }
         assertEquals(COUNT, symbols.size());
-        assertEquals(8192, symbols.bucketCount());
+        assertEquals(16384, symbols.bucketCount());
 
 //System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
-    
-        // Fewer collisions than with chars, but still quite a few
-        assertEquals(1715, symbols.collisionCount());
-        // but not super long collision chains:
-        assertEquals(9, symbols.maxCollisionLength());
+        assertEquals(3476, symbols.collisionCount());
+        // longest collision chain not optimal but ok:
+        assertEquals(15, symbols.maxCollisionLength());
 
         // But also verify entries are actually found?
     }
@@ -75,26 +68,26 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         ByteQuadsCanonicalizer symbols =
                 ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
 
-        final int COUNT = 6000;
+        final int COUNT = 12000;
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
             int[] quads = calcQuads(id.getBytes("UTF-8"));
             symbols.addName(id, quads, quads.length);
         }
         assertEquals(COUNT, symbols.size());
-        assertEquals(8192, symbols.bucketCount());
+        assertEquals(16384, symbols.bucketCount());
 
         // fragile, but essential to verify low collision counts;
         // anywhere between 70-80% primary matches
-        assertEquals(4270, symbols.primaryCount());
+        assertEquals(8566, symbols.primaryCount());
         // secondary between 10-20%
-        assertEquals(1234, symbols.secondaryCount());
+        assertEquals(2440, symbols.secondaryCount());
         // and most of remaining in tertiary
-        assertEquals(496, symbols.tertiaryCount());
+        assertEquals(994, symbols.tertiaryCount());
         // so that spill-over is empty or close to
         assertEquals(0, symbols.spilloverCount());
     }
-    
+
     // [Issue#145]
     public void testThousandsOfSymbolsWithChars() throws IOException
     {
@@ -121,7 +114,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             assertEquals(exp, symbolsCRoot.size());
         }
     }
-    
+
     @SuppressWarnings("deprecation")
     public void testThousandsOfSymbolsWithOldBytes() throws IOException
     {
@@ -187,10 +180,10 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
          *   rates are not accidentally increased...
          */
         assertEquals(6250, symbolsB.size());
-        assertEquals(4851, symbolsB.primaryCount()); // 77% primary hit rate
-        assertEquals(872, symbolsB.secondaryCount()); // 14% secondary
-        assertEquals(510, symbolsB.tertiaryCount()); // 8% tertiary
-        assertEquals(17, symbolsB.spilloverCount()); // and couple of leftovers
+        assertEquals(4992, symbolsB.primaryCount()); // 80% primary hit rate
+        assertEquals(803, symbolsB.secondaryCount()); // 13% secondary
+        assertEquals(445, symbolsB.tertiaryCount()); // 7% tertiary
+        assertEquals(10, symbolsB.spilloverCount()); // and couple of leftovers
     }
     
     // And then one more test just for Bytes-based symbol table
@@ -257,5 +250,74 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             result[i >> 2] = x;
         }
         return result;
+    }
+
+    // [core#187]: unexpectedly high number of collisions for straight numbers
+    @SuppressWarnings("deprecation")
+    public void testCollisionsWithBytes187() throws IOException
+    {
+        BytesToNameCanonicalizer symbols =
+                BytesToNameCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+        final int COUNT = 30000;
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.valueOf(10000 + i);
+            int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
+            symbols.addName(id, quads, quads.length);
+        }
+
+//System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
+        
+        assertEquals(COUNT, symbols.size());
+        assertEquals(65536, symbols.bucketCount());
+
+        // collision count acceptable
+        assertEquals(5782, symbols.collisionCount());
+        // as well as collision counts
+        assertEquals(24, symbols.maxCollisionLength());
+    }
+
+    // [core#187]: unexpectedly high number of collisions for straight numbers
+    public void testCollisionsWithChars187() throws IOException
+    {
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1);
+        final int COUNT = 30000;
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.valueOf(10000 + i);
+            char[] ch = id.toCharArray();
+            symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(id));
+        }
+        assertEquals(COUNT, symbols.size());
+        assertEquals(65536, symbols.bucketCount());
+
+        // collision count rather high, but has to do
+        assertEquals(14408, symbols.collisionCount());
+        // as well as collision counts
+        assertEquals(10, symbols.maxCollisionLength());
+    }
+
+    // [core#187]: unexpectedly high number of collisions for straight numbers
+    public void testCollisionsWithBytesNew187() throws IOException
+    {
+        ByteQuadsCanonicalizer symbols =
+                ByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+
+        final int COUNT = 43000;
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.valueOf(10000 + i);
+            int[] quads = calcQuads(id.getBytes("UTF-8"));
+            symbols.addName(id, quads, quads.length);
+        }
+        assertEquals(COUNT, symbols.size());
+        assertEquals(65536, symbols.bucketCount());
+
+        // fragile, but essential to verify low collision counts;
+        // anywhere between 70-80% primary matches
+        assertEquals(32446, symbols.primaryCount());
+        // secondary between 10-20%
+        assertEquals(6472, symbols.secondaryCount());
+        // and most of remaining in tertiary
+        assertEquals(3773, symbols.tertiaryCount());
+        // but number of spill-overs starts to grow beyond 30k quite a lot:
+        assertEquals(309, symbols.spilloverCount());
     }
 }

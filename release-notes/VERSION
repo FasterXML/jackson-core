@@ -18,6 +18,9 @@ JSON library.
 
 #181: Failure parsing -Infinity on buffer boundary
  (reported by brharrington@github)
+#187: Longest collision chain in symbol table exceeds maximum length routinely
+  in non-malicious code
+ (reported by mazzaferri@github)
 
 2.5.1 (06-Feb-2015)
 

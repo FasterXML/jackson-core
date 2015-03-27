@@ -57,8 +57,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
 //System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
     
-        // Fewer collisions than with chars, but still quite a few
-        assertEquals(1686, symbols.collisionCount());
+        assertEquals(1733, symbols.collisionCount());
         // but not super long collision chains:
         assertEquals(9, symbols.maxCollisionLength());
     }
@@ -91,5 +90,47 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             symbolsB.release();
             symbolsC.release();
         }
+    }
+
+    // [core#187]: unexpectedly high number of collisions for straight numbers
+    public void testCollisionsWithBytes187() throws IOException
+    {
+        BytesToNameCanonicalizer symbols =
+                BytesToNameCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+        final int COUNT = 30000;
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.valueOf(10000 + i);
+            int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
+            symbols.addName(id, quads, quads.length);
+        }
+
+//System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
+        
+        assertEquals(COUNT, symbols.size());
+        assertEquals(65536, symbols.bucketCount());
+
+        // collision count acceptable
+        assertEquals(5782, symbols.collisionCount());
+        // as well as collision counts
+        assertEquals(24, symbols.maxCollisionLength());
+    }
+
+    // [core#187]: unexpectedly high number of collisions for straight numbers
+    public void testCollisionsWithChars187() throws IOException
+    {
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1);
+        final int COUNT = 30000;
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.valueOf(10000 + i);
+            char[] ch = id.toCharArray();
+            symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(id));
+        }
+        assertEquals(COUNT, symbols.size());
+        assertEquals(65536, symbols.bucketCount());
+
+        // collision count rather high, but has to do
+        assertEquals(14408, symbols.collisionCount());
+        // as well as collision counts
+        assertEquals(10, symbols.maxCollisionLength());
     }
 }

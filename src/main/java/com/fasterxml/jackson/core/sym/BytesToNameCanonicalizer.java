@@ -47,11 +47,12 @@ public final class BytesToNameCanonicalizer
      * chains are shared between multiple primary cells, which could cause
      * problems for lower values.
      *<p>
-     * Also note that value was lowered from 255 (2.3 and earlier) to 100 for 2.4
+     * Also note that value was lowered from 255 (2.3 and earlier) to 100 for 2.4,
+     * but raised again to 200 for 2.5.2 (as per [core#187])
      * 
      * @since 2.1
      */
-    private final static int MAX_COLL_CHAIN_LENGTH = 100;
+    private final static int MAX_COLL_CHAIN_LENGTH = 200;
 
     /**
      * No point in trying to construct tiny tables, just need to resize soon.
@@ -741,15 +742,17 @@ public final class BytesToNameCanonicalizer
 
     public int calcHash(int q1, int q2)
     {
-        /* For two quads, let's change algorithm a bit, to spice
-         * things up (can do bit more processing anyway)
-         */
+        // For two quads, let's change algorithm a bit, to spice
+        // things up (can do bit more processing anyway)
         int hash = q1;
         hash ^= (hash >>> 15); // try mixing first and second byte pairs first
         hash += (q2 * MULT); // then add second quad
         hash ^= _seed;
         hash += (hash >>> 7); // and shuffle some more
-        hash ^= (hash >>> 19);
+        // 26-Mar-2015, tatu: As per [core#187] need bit more shuffling. This may
+        //   seem like a magical number (and in a way, it is), but it was the sweet
+        //   spot for some reason (5 and 3 work ok but converges for 4, for tested case)
+        hash ^= (hash >>> 4);
         return hash;
     }
 

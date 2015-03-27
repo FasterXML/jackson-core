@@ -1001,7 +1001,7 @@ public final class ByteQuadsCanonicalizer
         hash += (q2 * MULT); // then add second quad
         hash ^= _seed;
         hash += (hash >>> 7); // and shuffle some more
-        hash ^= (hash >>> 19);
+        hash ^= (hash >>> 4);
         
         return hash;
     }
@@ -1015,7 +1015,8 @@ public final class ByteQuadsCanonicalizer
         hash *= MULT2;
         hash += (hash >>> 15);
         hash ^= q3;
-        hash += (hash >>> 17);
+        // 26-Mar-2015, tatu: As per two-quad case, a short shift seems to help more here
+        hash += (hash >>> 4);
 
         hash += (hash >>> 15);
         hash ^= (hash << 9);
@@ -1040,17 +1041,15 @@ public final class ByteQuadsCanonicalizer
         hash *= MULT2;
         hash += (hash >>> 15);
         hash ^= q[2];
-        hash += (hash >>> 17);
+        hash += (hash >>> 4);
 
         for (int i = 3; i < qlen; ++i) {
             hash = (hash * MULT3) ^ q[i];
             // for longer entries, mess a bit in-between too
             hash += (hash >>> 3);
-            hash ^= (hash << 7);
         }
         // and finally shuffle some more once done
-        hash += (hash >>> 15); // to get high-order bits to mix more
-        hash ^= (hash << 9); // as well as lowest 2 bytes
+        hash += (hash >>> 4); // to get high-order bits to mix more
         return hash;
     }
 

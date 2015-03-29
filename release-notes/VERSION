@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.2 (not yet released)
+2.5.2 (29-Mar-2015)
 
 #181: Failure parsing -Infinity on buffer boundary
  (reported by brharrington@github)

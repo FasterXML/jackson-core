@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.sym;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
 

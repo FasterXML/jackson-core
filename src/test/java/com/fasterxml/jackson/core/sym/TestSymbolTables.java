@@ -79,11 +79,11 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         
         // fragile, but essential to verify low collision counts;
         // anywhere between 70-80% primary matches
-        assertEquals(8515, symbols.primaryCount());
+        assertEquals(8524, symbols.primaryCount());
         // secondary between 10-20%
-        assertEquals(2525, symbols.secondaryCount());
+        assertEquals(2534, symbols.secondaryCount());
         // and most of remaining in tertiary
-        assertEquals(960, symbols.tertiaryCount());
+        assertEquals(942, symbols.tertiaryCount());
         // so that spill-over is empty or close to
         assertEquals(0, symbols.spilloverCount());
     }

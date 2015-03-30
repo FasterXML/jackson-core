@@ -1016,9 +1016,9 @@ public final class ByteQuadsCanonicalizer
     { // use same algorithm as multi-byte, tested to work well
         int hash = q1 ^ _seed;
         hash += (hash >>> 9);
-        hash *= MULT;
+        hash *= MULT3;
         hash += q2;
-        hash *= MULT2;
+        hash *= MULT;
         hash += (hash >>> 15);
         hash ^= q3;
         // 26-Mar-2015, tatu: As per two-quad case, a short shift seems to help more here
@@ -1183,13 +1183,14 @@ public final class ByteQuadsCanonicalizer
 
     protected void reportTooManyCollisions()
     {
-        // First: do not fuzz about small symbol tables
-        if (_hashSize <= 512) { // would have spill-over area of 64 entries
+        // First: do not fuzz about small symbol tables; may get balanced by doubling up
+        if (_hashSize <= 1024) { // would have spill-over area of 128 entries
             return;
         }
         throw new IllegalStateException("Spill-over slots in symbol table with "+_count
                 +" entries, hash area of "+_hashSize+" slots is now full (all "
-                +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions");
+                +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions."
+                +" You can disable the check via `JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
     }
 
     static int _calcTertiaryShift(int primarySlots)
@@ -1204,7 +1205,7 @@ public final class ByteQuadsCanonicalizer
         if (tertSlots <= 256) { // buckets of 8 slots (up to 256 == 32 x 8)
             return 5;
         }
-        if (tertSlots <= 2048) { // buckets of 16 slots (up to 1024 == 64 x 16)
+        if (tertSlots <= 1024) { // buckets of 16 slots (up to 1024 == 64 x 16)
             return 6;
         }
         // and biggest buckets have 32 slots

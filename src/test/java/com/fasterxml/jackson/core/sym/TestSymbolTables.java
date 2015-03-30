@@ -28,10 +28,10 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         
         // holy guacamoley... there are way too many. 31 gives 3567 (!), 33 gives 2747
         // ... at least before shuffling. Shuffling helps quite a lot, so:
-
+        
         assertEquals(2691, symbols.collisionCount());
 
-        assertEquals(3, symbols.maxCollisionLength());
+        assertEquals(4, symbols.maxCollisionLength());
     }
 
     // Test for verifying stability of hashCode, wrt collisions, using
@@ -229,27 +229,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         return ((ByteQuadsCanonicalizer) syms.get(p));
     }
 
-    // Method only used by unit tests
-    protected static int[] calcQuads(byte[] wordBytes) {
-        int blen = wordBytes.length;
-        int[] result = new int[(blen + 3) / 4];
-        for (int i = 0; i < blen; ++i) {
-            int x = wordBytes[i] & 0xFF;
-
-            if (++i < blen) {
-                x = (x << 8) | (wordBytes[i] & 0xFF);
-                if (++i < blen) {
-                    x = (x << 8) | (wordBytes[i] & 0xFF);
-                    if (++i < blen) {
-                        x = (x << 8) | (wordBytes[i] & 0xFF);
-                    }
-                }
-            }
-            result[i >> 2] = x;
-        }
-        return result;
-    }
-
     // [core#187]: unexpectedly high number of collisions for straight numbers
     @SuppressWarnings("deprecation")
     public void testCollisionsWithBytes187() throws IOException
@@ -290,7 +269,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         // collision count rather high, but has to do
         assertEquals(14408, symbols.collisionCount());
         // as well as collision counts
-        assertEquals(10, symbols.maxCollisionLength());
+        assertEquals(5, symbols.maxCollisionLength());
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers

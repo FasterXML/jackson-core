@@ -554,7 +554,10 @@ public final class CharsToNameCanonicalizer
      * and truncates to be used as the index.
      */
     public int _hashToIndex(int rawHash) {
-        rawHash += (rawHash >>> 15); // this seems to help quite a bit, at least for our tests
+        // doing these seems to help a bit
+        rawHash += (rawHash >>> 15);
+//        rawHash ^= (rawHash >> 5);
+        rawHash += (rawHash << 3);
         return (rawHash & _indexMask);
     }
     

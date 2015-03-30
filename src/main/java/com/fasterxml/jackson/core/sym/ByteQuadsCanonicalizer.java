@@ -934,7 +934,7 @@ public final class ByteQuadsCanonicalizer
         // (NOTE: approximate for now; we could verify details if that becomes necessary)
         if (_spilloverEnd >= hashArea.length) {
             if (_failOnDoS) {
-                reportTooManyCollisions();
+                _reportTooManyCollisions();
             }
             // and if we didn't fail, we'll simply force rehash for next add
             // (which, in turn, may double up or nuke contents, depending on size etc)
@@ -1181,7 +1181,7 @@ public final class ByteQuadsCanonicalizer
         return (offset << 3) - offset;
     }
 
-    protected void reportTooManyCollisions()
+    protected void _reportTooManyCollisions()
     {
         // First: do not fuzz about small symbol tables; may get balanced by doubling up
         if (_hashSize <= 1024) { // would have spill-over area of 128 entries

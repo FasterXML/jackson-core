@@ -556,8 +556,8 @@ public final class CharsToNameCanonicalizer
     public int _hashToIndex(int rawHash) {
         // doing these seems to help a bit
         rawHash += (rawHash >>> 15);
-//        rawHash ^= (rawHash >> 5);
-        rawHash += (rawHash << 3);
+        rawHash ^= (rawHash << 7);
+        rawHash += (rawHash >>> 3);
         return (rawHash & _indexMask);
     }
     

@@ -87,14 +87,9 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
         assertEquals(13, symbols.size());
         assertEquals(64, symbols.bucketCount());
 
-        /* 30-Mar-2015, tatu: It is possible to tweak things to eliminate the
-         *    last collision, but difficult to make it overall beneficial
-         *    with other collision rate tests.
-         */
-        
-        // collision count rather high, but has to do
-        assertEquals(1, symbols.collisionCount());
-        // as well as collision counts
-        assertEquals(1, symbols.maxCollisionLength());
+        // usually get 1 collision, but sometimes get lucky with 0; other times less so with 2
+        // (with differing shifting for hash etc)
+        assertEquals(0, symbols.collisionCount());
+        assertEquals(0, symbols.maxCollisionLength());
     }
 }

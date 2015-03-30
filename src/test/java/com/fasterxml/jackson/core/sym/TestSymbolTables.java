@@ -79,11 +79,11 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 
         // fragile, but essential to verify low collision counts;
         // anywhere between 70-80% primary matches
-        assertEquals(8566, symbols.primaryCount());
+        assertEquals(8533, symbols.primaryCount());
         // secondary between 10-20%
-        assertEquals(2440, symbols.secondaryCount());
+        assertEquals(2468, symbols.secondaryCount());
         // and most of remaining in tertiary
-        assertEquals(994, symbols.tertiaryCount());
+        assertEquals(999, symbols.tertiaryCount());
         // so that spill-over is empty or close to
         assertEquals(0, symbols.spilloverCount());
     }
@@ -166,7 +166,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
                 String n = symbolsB.findName(quads, quads.length);
                 assertEquals(name, n);
             }
-//System.out.println("New symbols: "+symbolsB);
             symbolsB.release();
             
             exp += 250;
@@ -175,15 +174,14 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             }
             assertEquals(exp, symbolsBRoot.size());
         }
-
         /* 05-Feb-2015, tatu: Fragile, but it is important to ensure that collision
          *   rates are not accidentally increased...
          */
         assertEquals(6250, symbolsB.size());
-        assertEquals(4992, symbolsB.primaryCount()); // 80% primary hit rate
-        assertEquals(803, symbolsB.secondaryCount()); // 13% secondary
-        assertEquals(445, symbolsB.tertiaryCount()); // 7% tertiary
-        assertEquals(10, symbolsB.spilloverCount()); // and couple of leftovers
+        assertEquals(4761, symbolsB.primaryCount()); // 80% primary hit rate
+        assertEquals(1019, symbolsB.secondaryCount()); // 13% secondary
+        assertEquals(456, symbolsB.tertiaryCount()); // 7% tertiary
+        assertEquals(14, symbolsB.spilloverCount()); // and couple of leftovers
     }
     
     // And then one more test just for Bytes-based symbol table
@@ -296,7 +294,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers
-    public void testCollisionsWithBytesNew187() throws IOException
+    public void testCollisionsWithBytesNew187a() throws IOException
     {
         ByteQuadsCanonicalizer symbols =
                 ByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
@@ -307,17 +305,45 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             int[] quads = calcQuads(id.getBytes("UTF-8"));
             symbols.addName(id, quads, quads.length);
         }
+
         assertEquals(COUNT, symbols.size());
         assertEquals(65536, symbols.bucketCount());
 
         // fragile, but essential to verify low collision counts;
         // anywhere between 70-80% primary matches
-        assertEquals(32446, symbols.primaryCount());
+        assertEquals(32342, symbols.primaryCount());
         // secondary between 10-20%
-        assertEquals(6472, symbols.secondaryCount());
+        assertEquals(6759, symbols.secondaryCount());
         // and most of remaining in tertiary
-        assertEquals(3773, symbols.tertiaryCount());
+        assertEquals(3715, symbols.tertiaryCount());
         // but number of spill-overs starts to grow beyond 30k quite a lot:
-        assertEquals(309, symbols.spilloverCount());
+        assertEquals(184, symbols.spilloverCount());
+    }
+
+    // Another variant, but with 1-quad names
+    public void testCollisionsWithBytesNew187b() throws IOException
+    {
+        ByteQuadsCanonicalizer symbols =
+                ByteQuadsCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+
+        final int COUNT = 10000;
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.valueOf(i);
+            int[] quads = calcQuads(id.getBytes("UTF-8"));
+            symbols.addName(id, quads, quads.length);
+        }
+        assertEquals(COUNT, symbols.size());
+        
+        assertEquals(32768, symbols.bucketCount());
+
+        // fragile, but essential to verify low collision counts;
+        // anywhere between 70-80% primary matches
+        assertEquals(9386, symbols.primaryCount());
+        // secondary between 10-20%
+        assertEquals(345, symbols.secondaryCount());
+        // and most of remaining in tertiary
+        assertEquals(257, symbols.tertiaryCount());
+        // but number of spill-overs starts to grow beyond 30k quite a lot:
+        assertEquals(12, symbols.spilloverCount());
     }
 }

@@ -76,14 +76,14 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         }
         assertEquals(COUNT, symbols.size());
         assertEquals(16384, symbols.bucketCount());
-
+        
         // fragile, but essential to verify low collision counts;
         // anywhere between 70-80% primary matches
-        assertEquals(8533, symbols.primaryCount());
+        assertEquals(8515, symbols.primaryCount());
         // secondary between 10-20%
-        assertEquals(2468, symbols.secondaryCount());
+        assertEquals(2525, symbols.secondaryCount());
         // and most of remaining in tertiary
-        assertEquals(999, symbols.tertiaryCount());
+        assertEquals(960, symbols.tertiaryCount());
         // so that spill-over is empty or close to
         assertEquals(0, symbols.spilloverCount());
     }
@@ -179,9 +179,9 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
          */
         assertEquals(6250, symbolsB.size());
         assertEquals(4761, symbolsB.primaryCount()); // 80% primary hit rate
-        assertEquals(1019, symbolsB.secondaryCount()); // 13% secondary
-        assertEquals(456, symbolsB.tertiaryCount()); // 7% tertiary
-        assertEquals(14, symbolsB.spilloverCount()); // and couple of leftovers
+        assertEquals(1190, symbolsB.secondaryCount()); // 13% secondary
+        assertEquals(299, symbolsB.tertiaryCount()); // 7% tertiary
+        assertEquals(0, symbolsB.spilloverCount()); // and couple of leftovers
     }
     
     // And then one more test just for Bytes-based symbol table
@@ -309,15 +309,15 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(COUNT, symbols.size());
         assertEquals(65536, symbols.bucketCount());
 
-        // fragile, but essential to verify low collision counts;
-        // anywhere between 70-80% primary matches
+        /* 29-Mar-2015, tatu: To get collision counts down for this
+         *    test took quite a bit of tweaking...
+         */
         assertEquals(32342, symbols.primaryCount());
-        // secondary between 10-20%
-        assertEquals(6759, symbols.secondaryCount());
-        // and most of remaining in tertiary
-        assertEquals(3715, symbols.tertiaryCount());
-        // but number of spill-overs starts to grow beyond 30k quite a lot:
-        assertEquals(184, symbols.spilloverCount());
+        assertEquals(8863, symbols.secondaryCount());
+        assertEquals(1795, symbols.tertiaryCount());
+
+        // finally managed to get this to 0; other variants produced thousands
+        assertEquals(0, symbols.spilloverCount());
     }
 
     // Another variant, but with 1-quad names

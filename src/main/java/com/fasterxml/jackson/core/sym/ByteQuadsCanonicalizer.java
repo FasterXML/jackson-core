@@ -1007,6 +1007,7 @@ public final class ByteQuadsCanonicalizer
         hash ^= _seed;
         hash += (hash >>> 16); // and shuffle some more
         hash ^= (hash >>> 4);
+        hash += (hash << 3);
         
         return hash;
     }
@@ -1041,20 +1042,22 @@ public final class ByteQuadsCanonicalizer
          */
         int hash = q[0] ^ _seed;
         hash += (hash >>> 9);
-        hash *= MULT;
         hash += q[1];
-        hash *= MULT2;
         hash += (hash >>> 15);
+        hash *= MULT;
         hash ^= q[2];
         hash += (hash >>> 4);
 
         for (int i = 3; i < qlen; ++i) {
-            hash = (hash * MULT3) ^ q[i];
-            // for longer entries, mess a bit in-between too
-            hash += (hash >>> 3);
+            int next = q[i];
+            next = next ^ (next >> 21);
+            hash += next;
         }
+        hash *= MULT2;
+        
         // and finally shuffle some more once done
-        hash += (hash >>> 4); // to get high-order bits to mix more
+        hash += (hash >>> 19);
+        hash ^= (hash << 5);
         return hash;
     }
 

@@ -454,7 +454,7 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        _writeStringSegments(_charBuffer, 0, len);
+        _writeStringSegments(text, 0, len);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }

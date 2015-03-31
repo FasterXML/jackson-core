@@ -25,7 +25,7 @@ JSON library.
 - Implement a new yet more optimized symbol table for byte-backed parsers
 - Add `JsonParser.Feature.IGNORE_UNDEFINED`, useful for data formats like protobuf
 
-2.5.2 (not yet released)
+2.5.2 (29-Mar-2015)
 
 #181: Failure parsing -Infinity on buffer boundary
  (reported by brharrington@github)

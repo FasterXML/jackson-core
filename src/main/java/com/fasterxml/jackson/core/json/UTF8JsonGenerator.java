@@ -426,8 +426,6 @@ public class UTF8JsonGenerator
             _writeStringSegments(text, true);
             return;
         }
-        // yes: good.
-        text.getChars(0, len, _charBuffer, 0);
         // Output: if we can't guarantee it fits in output buffer, off-line as well:
         if (len > _outputMaxContiguous) {
             _writeLongString(_charBuffer, 0, len);
@@ -437,7 +435,7 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        _writeStringSegment(_charBuffer, 0, len); // we checked space already above
+        _writeStringSegment(text, 0, len); // we checked space already above
         /* [JACKSON-462] But that method may have had to expand multi-byte Unicode
          *   chars, so we must check again
          */

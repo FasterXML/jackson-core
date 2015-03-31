@@ -19,6 +19,7 @@ JSON library.
 #177: Add a check so `JsonGenerator.writeString()` won't work if `writeFieldName()` expected.
 #182: Inconsistent TextBuffer#getTextBuffer behavior
  (contributed by Masaru H)
+#188: `JsonParser.getValueAsString()` should return field name for `JsonToken.FIELD_NAME`, not `null`
 - Minor improvement to construction of "default PrettyPrinter": now overridable by data format
   modules
 - Implement a new yet more optimized symbol table for byte-backed parsers

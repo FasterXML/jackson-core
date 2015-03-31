@@ -302,6 +302,9 @@ public class UTF8StreamJsonParser
             }
             return _textBuffer.contentsAsString();
         }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
+        }
         return super.getValueAsString(null);
     }
     
@@ -315,6 +318,9 @@ public class UTF8StreamJsonParser
                 return _finishAndReturnString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
+        }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
         }
         return super.getValueAsString(defValue);
     }

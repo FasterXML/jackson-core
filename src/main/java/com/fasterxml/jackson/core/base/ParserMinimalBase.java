@@ -389,15 +389,22 @@ public abstract class ParserMinimalBase extends JsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             return getText();
         }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
+        }
         return getValueAsString(null);
     }
     
     @Override
     public String getValueAsString(String defaultValue) throws IOException {
-        if (_currToken != JsonToken.VALUE_STRING) {
-            if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
-                return defaultValue;
-            }
+        if (_currToken == JsonToken.VALUE_STRING) {
+            return getText();
+        }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
+        }
+        if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
+            return defaultValue;
         }
         return getText();
     }

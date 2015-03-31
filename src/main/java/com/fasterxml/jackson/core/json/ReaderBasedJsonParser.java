@@ -250,6 +250,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             return _textBuffer.contentsAsString();
         }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
+        }
         return super.getValueAsString(null);
     }
     
@@ -262,6 +265,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 _finishString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
+        }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
         }
         return super.getValueAsString(defValue);
     }

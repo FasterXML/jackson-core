@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import java.io.*;
 import java.net.URL;
@@ -510,7 +511,65 @@ public class TestJsonParser
         }
         jp.close();
     }
+
+    public void testGetValueAsTextBytes() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        _testGetValueAsText(f, true, false);
+        _testGetValueAsText(f, true, true);
+    }
+
+    public void testGetValueAsTextChars() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        _testGetValueAsText(f, false, false);
+        _testGetValueAsText(f, false, true);
+    }
     
+    @SuppressWarnings("resource")
+    private void _testGetValueAsText(JsonFactory f,
+            boolean useBytes, boolean delegate) throws Exception
+    {
+        String JSON = "{\"a\":1,\"b\":true,\"c\":null,\"d\":\"foo\"}";
+        JsonParser p = useBytes ? f.createParser(JSON.getBytes("UTF-8"))
+                : f.createParser(JSON);
+
+        if (delegate) {
+            p = new JsonParserDelegate(p);
+        }
+        
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertNull(p.getValueAsString());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("a", p.getText());
+        assertEquals("a", p.getValueAsString());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals("1", p.getValueAsString());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("b", p.getValueAsString());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertEquals("true", p.getValueAsString());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("c", p.getValueAsString());
+        assertToken(JsonToken.VALUE_NULL, p.nextToken());
+        // null token returned as Java null, as per javadoc
+        assertNull(p.getValueAsString());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("d", p.getValueAsString());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("foo", p.getValueAsString());
+
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.getValueAsString());
+
+        assertNull(p.nextToken());
+        p.close();
+    }
+
     /*
     /**********************************************************
     /* Helper methods

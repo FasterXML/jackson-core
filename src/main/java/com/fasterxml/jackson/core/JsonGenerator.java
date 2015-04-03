@@ -43,6 +43,8 @@ public abstract class JsonGenerator
      * Enumeration that defines all togglable features for generators.
      */
     public enum Feature {
+        // // Low-level I/O / content features
+        
         /**
          * Feature that determines whether generator will automatically
          * close underlying output target that is NOT owned by the
@@ -70,6 +72,21 @@ public abstract class JsonGenerator
          */
         AUTO_CLOSE_JSON_CONTENT(true),
 
+        /**
+         * Feature that specifies that calls to {@link #flush} will cause
+         * matching <code>flush()</code> to underlying {@link OutputStream}
+         * or {@link Writer}; if disabled this will not be done.
+         * Main reason to disable this feature is to prevent flushing at
+         * generator level, if it is not possible to prevent method being
+         * called by other code (like <code>ObjectMapper</code> or third
+         * party libraries).
+         *<p>
+         * Feature is enabled by default.
+         */
+        FLUSH_PASSED_TO_STREAM(true),
+
+        // // Quoting-related features
+        
         /**
          * Feature that determines whether JSON Object field names are
          * quoted using double-quotes, as specified by JSON specification
@@ -125,19 +142,6 @@ public abstract class JsonGenerator
         WRITE_BIGDECIMAL_AS_PLAIN(false),
         
         /**
-         * Feature that specifies that calls to {@link #flush} will cause
-         * matching <code>flush()</code> to underlying {@link OutputStream}
-         * or {@link Writer}; if disabled this will not be done.
-         * Main reason to disable this feature is to prevent flushing at
-         * generator level, if it is not possible to prevent method being
-         * called by other code (like <code>ObjectMapper</code> or third
-         * party libraries).
-         *<p>
-         * Feature is enabled by default.
-         */
-        FLUSH_PASSED_TO_STREAM(true),
-        
-        /**
          * Feature that specifies that all characters beyond 7-bit ASCII
          * range (i.e. code points of 128 and above) need to be output
          * using format-specific escapes (for JSON, backslash escapes),
@@ -153,6 +157,8 @@ public abstract class JsonGenerator
          * Feature is disabled by default.
          */
         ESCAPE_NON_ASCII(false),
+
+        // // Schema/Validity support features
 
         /**
          * Feature that determines whether {@link JsonGenerator} will explicitly
@@ -170,7 +176,7 @@ public abstract class JsonGenerator
          * @since 2.3
          */
         STRICT_DUPLICATE_DETECTION(false),
-
+        
         /**
          * Feature that determines what to do if the underlying data format requires knowledge
          * of all properties to output, and if no definition is found for a property that

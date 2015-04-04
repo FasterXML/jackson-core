@@ -7,6 +7,8 @@ import com.fasterxml.jackson.core.*;
 /**
  * Alternative variant of {@link JsonStreamContext}, used when filtering
  * content being read or written (based on {@link TokenFilter}).
+ * 
+ * @since 2.6
  */
 public class TokenFilterContext extends JsonStreamContext
 {
@@ -48,6 +50,12 @@ public class TokenFilterContext extends JsonStreamContext
      * regardless of inclusion status.
      */
     protected boolean _startWritten;
+
+    /**
+     * Flag that indicates that when context is closed, a call needs
+     * to be made to {@link TokenFilter}
+     */
+    protected boolean _needCloseCheck;
     
     /*
     /**********************************************************
@@ -111,12 +119,27 @@ public class TokenFilterContext extends JsonStreamContext
     /**********************************************************
      */
     
-    public void writeFieldName(String name) throws JsonProcessingException {
+    public int setFieldName(String name) throws JsonProcessingException {
         _currentName = name;
+        return _filterState;
     }
-    public int writeValue() {
-        return ++_index;
+
+    /**
+     * Method called to check whether value is to be included at current output
+     * position, either as Object property, Array element, or root value.
+     */
+    public int checkValue(TokenFilter filter) {
+        // First, checks for Object properties have been made earlier:
+        if (_type == TYPE_OBJECT) {
+            return TokenFilter.FILTER_CHECK;
+        }
+        int ix = ++_index;
+        if (_type == TYPE_ARRAY) {
+            return filter.includeElement(ix);
+        }
+        return filter.includeRootValue(ix);
     }
+
     /**
      * Method called to ensure that parent path from root is written up to
      * and including this node.
@@ -164,7 +187,8 @@ public class TokenFilterContext extends JsonStreamContext
     public int getFilterState() { return _filterState; }
     public boolean needsCloseToken() { return _startWritten; }
 
-    public void markStartToken() { _startWritten = true; }
+    public void markNeedsCloseCheck() { _needCloseCheck = true; }
+    public boolean needsCloseCheck() { return _needCloseCheck; }
     
     // // // Internally used abstract methods
 

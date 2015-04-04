@@ -9,7 +9,11 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
 /**
- * @since 2.6.0
+ * Specialized {@link JsonGeneratorDelegate} that allows use of
+ * {@link TokenFilter} for outputting a subset of content that
+ * caller tries to generate.
+ * 
+ * @since 2.6
  */
 public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 {
@@ -54,24 +58,19 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * actually outputs.
      */
     protected TokenFilterContext _filterContext;
-    
-    /**
-     * The current state constant is kept here as well,
-     * not just at the tip of {@link #_filterContext}.
-     */
-    protected int _currentState;
 
+    /**
+     * State that applies to the item within container, used where applicable.
+     * Specifically used to pass inclusion state between property name and
+     * property, and also used for array elements.
+     */
+    protected int _itemState;
+    
     /**
      * Number of tokens for which {@link TokenFilter#FILTER_INCLUDE}
      * has been returned
      */
-    protected int _fullMatchCount;
-
-    /**
-     * Number of tokens for which {@link TokenFilter#FILTER_INCLUDE_BUT_CHECK}
-     * has been returned
-     */
-    protected int _partialMatchCount;
+    protected int _matchCount;
 
     /*
     /**********************************************************
@@ -85,8 +84,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         super(d, false);
         filter = f;
         // Doesn't matter if it's include or exclude current, but shouldn't be including/excluding sub-tree
-        _currentState = TokenFilter.FILTER_CHECK;
-        _filterContext = TokenFilterContext.createRootContext(_currentState);
+        _itemState = TokenFilter.FILTER_CHECK;
+        _filterContext = TokenFilterContext.createRootContext(_itemState);
     }
 
     /*
@@ -98,24 +97,13 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public TokenFilter getTokenFilter() { return filter; }
 
     /**
-     * Accessor for finding number of "full" matches, where specific token and sub-tree
+     * Accessor for finding number of matches, where specific token and sub-tree
      * starting (if structured type) are passed.
      */
-    public int getFullMatchCount() {
-        return _partialMatchCount + _fullMatchCount;
-    }
-    
-    /**
-     * Accessor for finding number of total matches; both full matches (see
-     * {@link #getFullMatchCount()}) and partial matches, latter meaning inclusion
-     * of intermediate containers but not necessarily whole sub-tree.
-     * This method can be called to check if any content was passed: if <code>0</code>
-     * is returned, all content was filtered out and nothing was copied.
-     */
     public int getMatchCount() {
-        return _partialMatchCount + _fullMatchCount;
+        return _matchCount;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, structural
@@ -126,59 +114,52 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeStartArray() throws IOException
     {
         // First things first: whole-sale skipping easy
-        if (_currentState == TokenFilter.FILTER_SKIP) {
-            _filterContext = _filterContext.createChildArrayContext(_currentState, false);
+        if (_itemState == TokenFilter.FILTER_SKIP) {
+            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
             return;
         }
-        
-        switch (_currentState) {
-        case TokenFilter.FILTER_CHECK: // may or may not include, need to check
-            int oldState = _currentState;
-            _currentState = filter.filterStartArray();
-            if (_currentState == TokenFilter.FILTER_INCLUDE) {
-                // First: may need to re-create path
-                _checkContainerParentPath(oldState, _currentState);
-                _filterContext = _filterContext.createChildArrayContext(_currentState, true);
-                delegate.writeStartArray();
-            } else { // filter out
-                _filterContext = _filterContext.createChildArrayContext(_currentState, false);
-            }
-            return;
-        case TokenFilter.FILTER_INCLUDE: // include the whole sub-tree?
-        default:
-            _filterContext = _filterContext.createChildArrayContext(_currentState, true);
+        if (_itemState == TokenFilter.FILTER_INCLUDE) { // include the whole sub-tree?
+            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
             delegate.writeStartArray();
             return;
+        }
+        // Ok; regular checking state then
+        _itemState = filter.filterStartArray();
+        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+            // First: may need to re-create path
+            _checkParentPath();
+            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
+            delegate.writeStartArray();
+        } else { // filter out
+            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
+        }
+        if (_itemState != TokenFilter.FILTER_SKIP) {
+            _filterContext.markNeedsCloseCheck();
         }
     }
         
     @Override
     public void writeStartArray(int size) throws IOException
     {
-        // First things first: whole-sale skipping easy
-        if (_currentState == TokenFilter.FILTER_SKIP) {
-            _filterContext = _filterContext.createChildArrayContext(_currentState, false);
+        if (_itemState == TokenFilter.FILTER_SKIP) {
+            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
             return;
         }
-
-        switch (_currentState) {
-        case TokenFilter.FILTER_CHECK: // may or may not include, need to check
-            int oldState = _currentState;
-            _currentState = filter.filterStartArray();
-            if (_currentState == TokenFilter.FILTER_INCLUDE) {
-                // First: may need to re-create path
-                _checkContainerParentPath(oldState, _currentState);
-                _filterContext = _filterContext.createChildArrayContext(_currentState, true);
-                delegate.writeStartArray(size);
-            } else { // filter out
-                _filterContext = _filterContext.createChildArrayContext(_currentState, false);
-            }
-            return;
-        case TokenFilter.FILTER_INCLUDE: // include the whole sub-tree?
-        default:
-            _filterContext = _filterContext.createChildArrayContext(_currentState, true);
+        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
             delegate.writeStartArray(size);
             return;
+        }
+        _itemState = filter.filterStartArray();
+        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
+            delegate.writeStartArray(size);
+        } else {
+            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
+        }
+        if (_itemState != TokenFilter.FILTER_SKIP) {
+            _filterContext.markNeedsCloseCheck();
         }
     }
     
@@ -188,39 +169,37 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (_filterContext.needsCloseToken()) {
             delegate.writeEndArray();
         }
+        if (_filterContext.needsCloseCheck()) {
+            filter.filterFinishArray();
+        }
         _filterContext = _filterContext.getParent();
         if (_filterContext != null) {
-            _currentState = _filterContext.getFilterState();
+            _itemState = _filterContext.getFilterState();
         }
     }
 
     @Override
     public void writeStartObject() throws IOException
     {
-        // First things first: whole-sale skipping easy
-        if (_currentState == TokenFilter.FILTER_SKIP) {
-            _filterContext = _filterContext.createChildObjectContext(_currentState, false);
+        if (_itemState == TokenFilter.FILTER_SKIP) {
+            _filterContext = _filterContext.createChildObjectContext(_itemState, false);
             return;
         }
-
-        switch (_currentState) {
-        case TokenFilter.FILTER_CHECK: // may or may not include, need to check
-            int oldState = _currentState;
-            _currentState = filter.filterStartArray();
-            if (_currentState == TokenFilter.FILTER_INCLUDE) {
-                // First: may need to re-create path
-                _checkContainerParentPath(oldState, _currentState);
-                _filterContext = _filterContext.createChildObjectContext(_currentState, true);
-                delegate.writeStartObject();
-            } else { // filter out
-                _filterContext = _filterContext.createChildObjectContext(_currentState, false);
-            }
-            return;
-        case TokenFilter.FILTER_INCLUDE: // include the whole sub-tree?
-        default:
-            _filterContext = _filterContext.createChildObjectContext(_currentState, true);
+        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
             delegate.writeStartObject();
             return;
+        }
+        _itemState = filter.filterStartObject();
+        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildObjectContext(_itemState, true);
+            delegate.writeStartObject();
+        } else { // filter out
+            _filterContext = _filterContext.createChildObjectContext(_itemState, false);
+        }
+        if (_itemState != TokenFilter.FILTER_SKIP) {
+            _filterContext.markNeedsCloseCheck();
         }
     }
     
@@ -230,47 +209,49 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (_filterContext.needsCloseToken()) {
             delegate.writeEndArray();
         }
+        if (_filterContext.needsCloseCheck()) {
+            filter.filterFinishObject();
+        }
         _filterContext = _filterContext.getParent();
         if (_filterContext != null) {
-            _currentState = _filterContext.getFilterState();
+            _itemState = _filterContext.getFilterState();
         }
     }
 
     @Override
     public void writeFieldName(String name) throws IOException
     {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
-            return;
+        // Bit different here: we will actually need state of parent container
+        int state = _filterContext.setFieldName(name);
+
+        // used as-is for basic include/skip, but not if checking is needed
+        if (state == TokenFilter.FILTER_CHECK) {
+            state = filter.includeProperty(name);
+            if (state == TokenFilter.FILTER_INCLUDE) {
+                _checkParentPath();
+            }
         }
-        
-        // !!! TODO
-        
-        switch (_currentState) {
-        case TokenFilter.FILTER_CHECK:
-            return;
-        case TokenFilter.FILTER_INCLUDE:
-        default:
-            return;
+        _itemState = state;
+        if (state == TokenFilter.FILTER_INCLUDE) {
+            delegate.writeFieldName(name);
         }
     }
 
     @Override
     public void writeFieldName(SerializableString name) throws IOException
     {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
-            return;
-        }
+        int state = _filterContext.setFieldName(name.getValue());
 
-        // !!! TODO
-        
-        switch (_currentState) {
-        case TokenFilter.FILTER_CHECK:
-            return;
-        case TokenFilter.FILTER_INCLUDE:
-        default:
-            return;
+        if (state == TokenFilter.FILTER_CHECK) {
+            state = filter.includeProperty(name.getValue());
+            if (state == TokenFilter.FILTER_INCLUDE) {
+                _checkParentPath();
+            }
         }
-//        delegate.writeFieldName(name);
+        _itemState = state;
+        if (state == TokenFilter.FILTER_INCLUDE) {
+            delegate.writeFieldName(name);
+        }
     }
 
     /*
@@ -280,50 +261,114 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeString(String text) throws IOException
+    public void writeString(String value) throws IOException
     {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-
-        
-        if (_currentState == TokenFilter.FILTER_INCLUDE) {
-            delegate.writeString(text);
-        } else if (_currentState == TokenFilter.FILTER_CHECK) {
-//            if (filter.includeString(value))
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            int state = _filterContext.checkValue(filter);
+            if (state == TokenFilter.FILTER_SKIP) {
+                return;
+            }
+            if (state == TokenFilter.FILTER_CHECK) {
+                if (!filter.includeString(value)) {
+                    return;
+                }
+            }
+            _checkParentPath();
+            // one important thing: may need to write element name now
+            if (_filterContext.inObject()) {
+                delegate.writeFieldName(_filterContext.getCurrentName());
+            }
         } 
+        delegate.writeString(value);
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeString(char[] text, int offset, int len) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            String value = new String(text, offset, len);
+            int state = _filterContext.checkValue(filter);
+            if (state == TokenFilter.FILTER_SKIP) {
+                return;
+            }
+            if (state == TokenFilter.FILTER_CHECK) {
+                if (!filter.includeString(value)) {
+                    return;
+                }
+            }
+            _checkParentPath();
+            if (_filterContext.inObject()) {
+                delegate.writeFieldName(_filterContext.getCurrentName());
+            }
+        } 
         delegate.writeString(text, offset, len);
     }
 
     @Override
-    public void writeString(SerializableString text) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeString(SerializableString value) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeString(text);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            int state = _filterContext.checkValue(filter);
+            if (state == TokenFilter.FILTER_SKIP) {
+                return;
+            }
+            if (state == TokenFilter.FILTER_CHECK) {
+                if (!filter.includeString(value.getValue())) {
+                    return;
+                }
+            }
+            _checkParentPath();
+            if (_filterContext.inObject()) {
+                delegate.writeFieldName(_filterContext.getCurrentName());
+            }
+        } 
+        delegate.writeString(value);
     }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
+    {
+        /*
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+
+            
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        */
         delegate.writeRawUTF8String(text, offset, length);
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeUTF8String(byte[] text, int offset, int length) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeUTF8String(text, offset, length);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        delegate.writeRawUTF8String(text, offset, length);
     }
 
     /*
@@ -333,82 +378,161 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeRaw(String text) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRaw(String text) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeRaw(text);
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRaw(String text, int offset, int len) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeRaw(text, offset, len);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        delegate.writeRaw(text);
     }
 
     @Override
-    public void writeRaw(SerializableString raw) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRaw(SerializableString text) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeRaw(raw);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        delegate.writeRaw(text);
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRaw(char[] text, int offset, int len) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeRaw(text, offset, len);
     }
 
     @Override
     public void writeRaw(char c) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeRaw(c);
     }
 
     @Override
-    public void writeRawValue(String text) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRawValue(String text) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeRawValue(text);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        delegate.writeRaw(text);
     }
 
     @Override
-    public void writeRawValue(String text, int offset, int len) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRawValue(String text, int offset, int len) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeRawValue(text, offset, len);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        delegate.writeRaw(text, offset, len);
     }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeRawValue(char[] text, int offset, int len) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeRawValue(text, offset, len);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        delegate.writeRaw(text, offset, len);
     }
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeBinary()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeBinary(b64variant, data, offset, len);
     }
 
     @Override
-    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
-            return 0;
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
+            return -1;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeBinary()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         return delegate.writeBinary(b64variant, data, dataLength);
     }
 
@@ -419,82 +543,162 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeNumber(short v) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(short v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNumber(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(v);
     }
 
     @Override
-    public void writeNumber(int v) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(int v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNumber(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(v);
     }
 
     @Override
-    public void writeNumber(long v) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(long v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNumber(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(v);
     }
 
     @Override
-    public void writeNumber(BigInteger v) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(BigInteger v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNumber(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(v);
     }
 
     @Override
-    public void writeNumber(double v) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(double v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNumber(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(v);
     }
 
     @Override
-    public void writeNumber(float v) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(float v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNumber(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(v);
     }
 
     @Override
-    public void writeNumber(BigDecimal v) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(BigDecimal v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNumber(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(v);
     }
 
     @Override
-    public void writeNumber(String encodedValue) throws IOException, UnsupportedOperationException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNumber(String encodedValue) throws IOException, UnsupportedOperationException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeRawValue()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNumber(encodedValue);
     }
 
     @Override
-    public void writeBoolean(boolean state) throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeBoolean(boolean v) throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
-        delegate.writeBoolean(state);
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeBoolean(v)) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
+        delegate.writeBoolean(v);
     }
 
     @Override
-    public void writeNull() throws IOException {
-        if (_currentState == TokenFilter.FILTER_SKIP) {
+    public void writeNull() throws IOException
+    {
+        if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
+        if (_itemState == TokenFilter.FILTER_CHECK) {
+            if (filter.includeNull()) { // close enough?
+                if (_filterContext.inObject()) {
+                    delegate.writeFieldName(_filterContext.getCurrentName());
+                }
+            }
+        } 
         delegate.writeNull();
     }
 
@@ -520,17 +724,23 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     
     @Override
     public void writeObjectId(Object id) throws IOException {
-        delegate.writeObjectId(id);
+        if (_itemState != TokenFilter.FILTER_SKIP) {
+            delegate.writeObjectId(id);
+        }
     }
 
     @Override
     public void writeObjectRef(Object id) throws IOException {
-        delegate.writeObjectRef(id);
+        if (_itemState != TokenFilter.FILTER_SKIP) {
+            delegate.writeObjectRef(id);
+        }
     }
     
     @Override
     public void writeTypeId(Object id) throws IOException {
-        delegate.writeTypeId(id);
+        if (_itemState != TokenFilter.FILTER_SKIP) {
+            delegate.writeTypeId(id);
+        }
     }
 
     /*
@@ -606,46 +816,17 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
     
-    protected void _checkContainerParentPath(int oldState, int newState)
-        throws IOException
+    protected void _checkParentPath() throws IOException
     {
-        if (newState == TokenFilter.FILTER_INCLUDE) {
-            ++_fullMatchCount;
-        } else {
-            ++_partialMatchCount;
-        }
+        ++_matchCount;
         // only need to construct path if parent wasn't written
-        if (oldState == TokenFilter.FILTER_CHECK) {
-            // and even then only if parent path is actually desired...
-            if (_includePath) {
-                _filterContext.writePath(delegate);
-            }
-            // also: if no multiple matches desired, short-cut checks
-            if (newState == TokenFilter.FILTER_INCLUDE && !_filterAll) {
-                // Mark parents as "skip" so that further check calls are not made
-                _filterContext.skipParentChecks();
-            }
+        if (_includePath) {
+            _filterContext.writePath(delegate);
         }
-    }
-
-    protected void _checkScalarParentPath(int oldState, int newState)
-            throws IOException
-    {
-        if (newState == TokenFilter.FILTER_INCLUDE) {
-            ++_fullMatchCount;
-        } else {
-            ++_partialMatchCount;
-        }
-        if (oldState == TokenFilter.FILTER_CHECK) {
-            // and even then only if parent path is actually desired...
-            if (_includePath) {
-                _filterContext.writePath(delegate);
-            }
-            // also: if no multiple matches desired, short-cut checks
-            if (newState == TokenFilter.FILTER_INCLUDE && !_filterAll) {
-                // Mark parents as "skip" so that further check calls are not made
-                _filterContext.skipParentChecks();
-            }
+        // also: if no multiple matches desired, short-cut checks
+        if (!_filterAll) {
+            // Mark parents as "skip" so that further check calls are not made
+            _filterContext.skipParentChecks();
         }
     }
 }

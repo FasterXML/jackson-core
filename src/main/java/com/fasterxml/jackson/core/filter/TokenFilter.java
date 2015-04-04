@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
+ * Strategy class that can be implemented to specify actual inclusion/exclusion
+ * criteria for filtering, used by {@link FilteringGeneratorDelegate}.
+ *
  * @since 2.6
  */
 public abstract class TokenFilter
@@ -49,45 +52,68 @@ public abstract class TokenFilter
 
     // API, properties/elements
 
-    public int filterProperty(String name) {
+    /**
+     * Called to see if Object property with specified name (of any type)
+     * should be included or not
+     */
+    public int includeProperty(String name) {
         return FILTER_CHECK;
     }
 
-    public int filterElement(int index) {
+    /**
+     * Called to see if Array element with specified index (of any type)
+     * should be included or not
+     */
+    public int includeElement(int index) {
         return FILTER_CHECK;
     }
 
+    /**
+     * Called to see if root value about to be written should be included or not
+     */
+    public int includeRootValue(int index) {
+        return FILTER_CHECK;
+    }
+    
     // API, scalar
 
     public boolean includeBoolean(boolean value) {
-        return false;
+        return _includeScalar();
     }
 
     public boolean includeNull() {
-        return false;
+        return _includeScalar();
     }
 
     public boolean includeString(String value) {
-        return false;
+        return _includeScalar();
     }
 
     /**
      * NOTE: also called for `short`, `byte`
      */
-    public boolean includeNumber(int i) {
-        return false;
+    public boolean includeNumber(int v) {
+        return _includeScalar();
     }
 
-    public boolean includeNumber(long l) {
-        return false;
+    public boolean includeNumber(long v) {
+        return _includeScalar();
     }
 
+    public boolean includeNumber(float v) {
+        return _includeScalar();
+    }
+
+    public boolean includeNumber(double v) {
+        return _includeScalar();
+    }
+    
     public boolean includeNumber(BigDecimal v) {
-        return false;
+        return _includeScalar();
     }
 
     public boolean includeNumber(BigInteger v) {
-        return false;
+        return _includeScalar();
     }
 
     /**
@@ -95,7 +121,7 @@ public abstract class TokenFilter
      * use.
      */
     public boolean includeBinary() {
-        return false;
+        return _includeScalar();
     }
 
     /**
@@ -104,10 +130,18 @@ public abstract class TokenFilter
      * criteria.
      */
     public boolean includeRawValue() {
-        return false;
+        return _includeScalar();
     }
     
     public boolean includeEmbeddedValue(Object ob) {
+        return _includeScalar();
+    }
+
+    /**
+     * Overridable default implementation delegated to all scalar value
+     * inclusion check methods
+     */
+    protected boolean _includeScalar() {
         return false;
     }
 }

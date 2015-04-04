@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.filter;
 
-import com.fasterxml.jackson.core.JsonToken;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * @since 2.6
@@ -9,54 +10,104 @@ public abstract class TokenFilter
 {
     // Constants
 
-    public final static int FILTER_SKIP_TREE = 1;
-    public final static int FILTER_SKIP_CURRENT = 2;
-    public final static int FILTER_INCLUDE_CURRENT = 3;
-    public final static int FILTER_INCLUDE_TREE = 4;
+    /**
+     * Value that indicates that the current token (and its children, if any)
+     * should be (or is being) skipped and NOT to be passed on delegate.
+     */
+    public final static int FILTER_SKIP = 1;
 
-    // API, scalar values
+    /**
+     * Value that indicates that it is not yet certain whether the current token
+     * should or should not be included. If returned for leaf node it will
+     * usually be taken to mean same as {@link #FILTER_SKIP}; for container nodes
+     * and property names it means that traversal needs to check contents,
+     * and inclusion will be based on those.
+     */
+    public final static int FILTER_CHECK = 2;
 
-    public int writeRootScalarValue(JsonToken type) {
-        return FILTER_SKIP_TREE;
+    /**
+     * Value that indicates that the current token (and its children, if any)
+     * should be (or is being) included and to be passed on delegate.
+     * As state for container states this means that the start token has been
+     * passed, and matching end token must also be passed.
+     */
+    public final static int FILTER_INCLUDE = 3;
+
+
+    // API, container values
+
+    public int filterStartObject() {
+        return FILTER_CHECK;
     }
 
-    public int writeScalarProperty(String name, JsonToken type) {
-        return FILTER_SKIP_TREE;
+    public int filterStartArray() {
+        return FILTER_CHECK;
+    }
+    
+    public void filterFinishObject() { }
+    public void filterFinishArray() { }
+
+    // API, properties/elements
+
+    public int filterProperty(String name) {
+        return FILTER_CHECK;
     }
 
-    public int writeScalarElement(int index, JsonToken type) {
-        return FILTER_SKIP_TREE;
+    public int filterElement(int index) {
+        return FILTER_CHECK;
     }
 
-    // API, Objects
-    
-    public int startRootObject() {
-        return FILTER_SKIP_TREE;
-    }
-    
-    public int startObjectProperty(String name) {
-        return FILTER_SKIP_TREE;
-    }
-    
-    public int startObjectElement(int index) {
-        return FILTER_SKIP_TREE;
-    }
-    
-    public void finishObject() { }
+    // API, scalar
 
-    // API, Arrays
-    
-    public int startRootArray() {
-        return FILTER_SKIP_TREE;
+    public boolean includeBoolean(boolean value) {
+        return false;
+    }
+
+    public boolean includeNull() {
+        return false;
+    }
+
+    public boolean includeString(String value) {
+        return false;
+    }
+
+    /**
+     * NOTE: also called for `short`, `byte`
+     */
+    public boolean includeNumber(int i) {
+        return false;
+    }
+
+    public boolean includeNumber(long l) {
+        return false;
+    }
+
+    public boolean includeNumber(BigDecimal v) {
+        return false;
+    }
+
+    public boolean includeNumber(BigInteger v) {
+        return false;
+    }
+
+    /**
+     * NOTE: no binary payload passed; assumption is this won't be of much
+     * use.
+     */
+    public boolean includeBinary() {
+        return false;
+    }
+
+    /**
+     * NOTE: value itself not passed since it may come on multiple forms
+     * and is unlikely to be of much use in determining inclusion
+     * criteria.
+     */
+    public boolean includeRawValue() {
+        return false;
     }
     
-    public int startArrayProperty(String name) {
-        return FILTER_SKIP_TREE;
+    public boolean includeEmbeddedValue(Object ob) {
+        return false;
     }
-    
-    public int startArrayElement(int index) {
-        return FILTER_SKIP_TREE;
-    }
-    
-    public void finishArray() { }
 }

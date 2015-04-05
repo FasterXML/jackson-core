@@ -8,7 +8,20 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
 {
     static class NameMatchFilter extends TokenFilter
     {
+        private final String _name;
         
+        public NameMatchFilter(String n) { _name = n; }
+        
+        @Override
+        public int includeProperty(String name) {
+//System.err.println("Include? "+name);
+            if (name.equals(_name)) {
+//System.err.println(" -> true");
+                return TokenFilter.FILTER_INCLUDE;
+            }
+//System.err.println(" -> false");
+            return TokenFilter.FILTER_CHECK;
+        }
     }
 
     /*
@@ -30,14 +43,20 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
                 w.toString());
     }
 
+    @SuppressWarnings("resource")
     public void testSingleMatchFiltering() throws Exception
     {
         // First, verify non-filtering
         StringWriter w = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(w);
+        JsonGenerator gen0 = JSON_F.createGenerator(w);
+        JsonGenerator gen = new FilteringGeneratorDelegate(gen0, new NameMatchFilter("value"));
+        
         _writeSimpleDoc(gen);
         gen.close();
-        assertEquals(aposToQuotes("{'a':123,'array':[1,2],'ob':{'value':3},'b':true}"),
+
+//System.out.println("JSON -> "+w.toString());
+        
+        assertEquals(aposToQuotes("{'value':3}"),
                 w.toString());
     }
 

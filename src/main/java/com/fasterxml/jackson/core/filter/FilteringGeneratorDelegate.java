@@ -36,7 +36,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * checks are made; if `true` then filtering will be applied as necessary
      * until end of content.
      */
-    protected boolean _filterAll;
+    protected boolean _allowMultipleMatches;
 
     /**
      * Flag that determines whether path leading up to included content should
@@ -78,7 +78,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
-    public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f)
+    public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
+            boolean includePath, boolean allowMultipleMatches)
     {
         // By default, do NOT delegate copy methods
         super(d, false);
@@ -86,6 +87,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         // Doesn't matter if it's include or exclude current, but shouldn't be including/excluding sub-tree
         _itemState = TokenFilter.FILTER_CHECK;
         _filterContext = TokenFilterContext.createRootContext(_itemState);
+        _includePath = includePath;
+        _allowMultipleMatches = allowMultipleMatches;
     }
 
     /*
@@ -207,7 +210,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeEndObject() throws IOException
     {
         if (_filterContext.needsCloseToken()) {
-            delegate.writeEndArray();
+            delegate.writeEndObject();
         }
         if (_filterContext.needsCloseCheck()) {
             filter.filterFinishObject();
@@ -221,19 +224,27 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeFieldName(String name) throws IOException
     {
-        // Bit different here: we will actually need state of parent container
         int state = _filterContext.setFieldName(name);
 
-        // used as-is for basic include/skip, but not if checking is needed
-        if (state == TokenFilter.FILTER_CHECK) {
-            state = filter.includeProperty(name);
-            if (state == TokenFilter.FILTER_INCLUDE) {
-                _checkParentPath();
-            }
+//System.err.println("writeField '"+name+"', state = "+state);
+
+        if (state == TokenFilter.FILTER_SKIP) {
+            _itemState = state;
+            return;
         }
+        if (state == TokenFilter.FILTER_INCLUDE) {
+            _itemState = state;
+            delegate.writeFieldName(name);
+            return;
+        }
+
+        state = filter.includeProperty(name);
+
+//System.err.println(" -> include '"+name+"'? "+state);
+        
         _itemState = state;
         if (state == TokenFilter.FILTER_INCLUDE) {
-            delegate.writeFieldName(name);
+            _checkParentPath();
         }
     }
 
@@ -241,16 +252,19 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeFieldName(SerializableString name) throws IOException
     {
         int state = _filterContext.setFieldName(name.getValue());
-
-        if (state == TokenFilter.FILTER_CHECK) {
-            state = filter.includeProperty(name.getValue());
-            if (state == TokenFilter.FILTER_INCLUDE) {
-                _checkParentPath();
-            }
+        if (state == TokenFilter.FILTER_SKIP) {
+            _itemState = state;
+            return;
         }
+        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+            _itemState = state;
+            delegate.writeFieldName(name);
+            return;
+        }
+        state = filter.includeProperty(name.getValue());
         _itemState = state;
         if (state == TokenFilter.FILTER_INCLUDE) {
-            delegate.writeFieldName(name);
+            _checkParentPath();
         }
     }
 
@@ -278,9 +292,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             }
             _checkParentPath();
             // one important thing: may need to write element name now
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeString(value);
     }
@@ -303,9 +319,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeString(text, offset, len);
     }
@@ -327,9 +345,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeString(value);
     }
@@ -455,9 +475,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(v);
     }
@@ -465,6 +487,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(int v) throws IOException
     {
+//System.err.println("WriteNumber("+v+"), state == "+_itemState);        
         if (_itemState == TokenFilter.FILTER_SKIP) {
             return;
         }
@@ -473,9 +496,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(v);
     }
@@ -491,9 +516,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(v);
     }
@@ -509,9 +536,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(v);
     }
@@ -527,9 +556,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(v);
     }
@@ -545,9 +576,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(v);
     }
@@ -563,9 +596,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(v);
     }
@@ -581,9 +616,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNumber(encodedValue);
     }
@@ -599,9 +636,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeBoolean(v);
     }
@@ -617,9 +656,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 return;
             }
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
         } 
         delegate.writeNull();
     }
@@ -741,7 +782,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected void _checkParentPath() throws IOException
     {
         ++_matchCount;
@@ -750,7 +791,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext.writePath(delegate);
         }
         // also: if no multiple matches desired, short-cut checks
-        if (!_filterAll) {
+        if (!_allowMultipleMatches) {
             // Mark parents as "skip" so that further check calls are not made
             _filterContext.skipParentChecks();
         }
@@ -766,9 +807,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (filter.includeBinary()) { // close enough?
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
             return true;
         }
         return false;
@@ -784,9 +827,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (filter.includeRawValue()) { // close enough?
             _checkParentPath();
+            /*
             if (_filterContext.inObject()) {
                 delegate.writeFieldName(_filterContext.getCurrentName());
             }
+            */
             return true;
         }
         return false;

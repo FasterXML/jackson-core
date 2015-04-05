@@ -146,22 +146,52 @@ public class TokenFilterContext extends JsonStreamContext
      */
     public void writePath(JsonGenerator gen) throws IOException
     {
-        if (_filterState == TokenFilter.FILTER_CHECK) {
-            if (_parent != null) {
-                _parent.writePath(gen);
+        if (_filterState != TokenFilter.FILTER_CHECK) {
+            return;
+        }
+//System.err.println("writePath(), startWritten? "+_startWritten+" at "+toString());
+        if (_parent != null) {
+            _parent._writePath(gen);
+        }
+        if (_startWritten) {
+            // even if Object started, need to start leaf-level name
+            if (_type == TYPE_OBJECT) {
+//System.err.println(" write field name '"+_currentName+"'");                
+                gen.writeFieldName(_currentName);
             }
-            if (!_startWritten) {
-                _startWritten = true;
-                if (_type == TYPE_OBJECT) {
-                    gen.writeStartObject();
-                    gen.writeFieldName(_currentName);
-                } else if (_type == TYPE_ARRAY) {
-                    gen.writeStartArray();
-                }
+        } else {
+            _startWritten = true;
+            if (_type == TYPE_OBJECT) {
+//System.err.println(" write object start, field '"+_currentName+"'");                
+                gen.writeStartObject();
+                gen.writeFieldName(_currentName);
+            } else if (_type == TYPE_ARRAY) {
+                gen.writeStartArray();
             }
         }
     }
 
+    private void _writePath(JsonGenerator gen) throws IOException
+    {
+//System.err.println("_writePath(), startWritten? "+_startWritten+" at "+toString());
+        if (_filterState != TokenFilter.FILTER_CHECK) {
+            return;
+        }
+        if (_parent != null) {
+            _parent._writePath(gen);
+        }
+        if (!_startWritten) {
+            _startWritten = true;
+            if (_type == TYPE_OBJECT) {
+System.err.println(" write object start, field '"+_currentName+"'");                
+                gen.writeStartObject();
+                gen.writeFieldName(_currentName);
+            } else if (_type == TYPE_ARRAY) {
+                gen.writeStartArray();
+            }
+        }
+    }
+    
     public void skipParentChecks() {
         _filterState = TokenFilter.FILTER_SKIP;
         for (TokenFilterContext ctxt = _parent; ctxt != null; ctxt = ctxt._parent) {

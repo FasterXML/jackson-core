@@ -14,12 +14,11 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
         
         @Override
         public int includeProperty(String name) {
-//System.err.println("Include? "+name);
             if (name.equals(_name)) {
-//System.err.println(" -> true");
+//System.err.println("Include? "+name+" -> true");
                 return TokenFilter.FILTER_INCLUDE;
             }
-//System.err.println(" -> false");
+//System.err.println("Include? "+name+" -> false");
             return TokenFilter.FILTER_CHECK;
         }
     }
@@ -39,27 +38,41 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
         JsonGenerator gen = JSON_F.createGenerator(w);
         _writeSimpleDoc(gen);
         gen.close();
-        assertEquals(aposToQuotes("{'a':123,'array':[1,2],'ob':{'value':3},'b':true}"),
+        assertEquals(aposToQuotes(
+                "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}"),
                 w.toString());
     }
 
-    @SuppressWarnings("resource")
-    public void testSingleMatchFiltering() throws Exception
+    public void testSingleMatchFilteringWithPath() throws Exception
     {
         // First, verify non-filtering
         StringWriter w = new StringWriter();
-        JsonGenerator gen0 = JSON_F.createGenerator(w);
-        JsonGenerator gen = new FilteringGeneratorDelegate(gen0, new NameMatchFilter("value"));
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("value"),
+                true, // includePath
+                false // multipleMatches
+                );
         
         _writeSimpleDoc(gen);
         gen.close();
-
-//System.out.println("JSON -> "+w.toString());
-        
-        assertEquals(aposToQuotes("{'value':3}"),
-                w.toString());
+        assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
     }
 
+    public void testSingleMatchFilteringWithoutPath() throws Exception
+    {
+        // First, verify non-filtering
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("value"),
+                false, // includePath
+                false // multipleMatches
+                );
+        
+        _writeSimpleDoc(gen);
+        gen.close();
+        assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
+    }
+    
     protected void _writeSimpleDoc(JsonGenerator gen) throws IOException
     {
         // { "a" : 123,
@@ -81,8 +94,12 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
 
         gen.writeFieldName("ob");
         gen.writeStartObject();
+        gen.writeFieldName("value0");
+        gen.writeNumber(2);
         gen.writeFieldName("value");
         gen.writeNumber(3);
+        gen.writeFieldName("value2");
+        gen.writeNumber(4);
         gen.writeEndObject();
 
         gen.writeFieldName("b");

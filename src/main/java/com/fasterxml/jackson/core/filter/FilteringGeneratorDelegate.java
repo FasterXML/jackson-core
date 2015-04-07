@@ -27,7 +27,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * Object consulted to determine whether to write parts of content generator
      * is asked to write or not.
      */
-    protected TokenFilter filter;
+    protected TokenFilter rootFilter;
 
     /**
      * Flag that determines whether filtering will continue after the first
@@ -64,7 +64,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * Specifically used to pass inclusion state between property name and
      * property, and also used for array elements.
      */
-    protected int _itemState;
+    protected TokenFilter _itemFilter;
     
     /**
      * Number of tokens for which {@link TokenFilter#FILTER_INCLUDE}
@@ -83,10 +83,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     {
         // By default, do NOT delegate copy methods
         super(d, false);
-        filter = f;
-        // Doesn't matter if it's include or exclude current, but shouldn't be including/excluding sub-tree
-        _itemState = TokenFilter.FILTER_CHECK;
-        _filterContext = TokenFilterContext.createRootContext(_itemState);
+        rootFilter = f;
+        // and this is the currently active filter for root values
+        _itemFilter = f;
+        _filterContext = TokenFilterContext.createRootContext(f);
         _includePath = includePath;
         _allowMultipleMatches = allowMultipleMatches;
     }
@@ -97,7 +97,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
-    public TokenFilter getTokenFilter() { return filter; }
+    public TokenFilter getFilter() { return rootFilter; }
 
     /**
      * Accessor for finding number of matches, where specific token and sub-tree
@@ -117,26 +117,26 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeStartArray() throws IOException
     {
         // First things first: whole-sale skipping easy
-        if (_itemState == TokenFilter.FILTER_SKIP) {
-            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildArrayContext(null, false);
             return;
         }
-        if (_itemState == TokenFilter.FILTER_INCLUDE) { // include the whole sub-tree?
-            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) { // include the whole sub-tree?
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
             return;
         }
         // Ok; regular checking state then
-        _itemState = filter.filterStartArray();
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+        _itemFilter = _itemFilter.filterStartArray();
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             // First: may need to re-create path
             _checkParentPath();
-            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
-        } else { // filter out
-            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
+        } else { // either skip (null), or check (non-null)
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
         }
-        if (_itemState != TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != null) {
             _filterContext.markNeedsCloseCheck();
         }
     }
@@ -144,24 +144,24 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeStartArray(int size) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
-            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildArrayContext(null, false);
             return;
         }
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
-            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
             return;
         }
-        _itemState = filter.filterStartArray();
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+        _itemFilter = _itemFilter.filterStartArray();
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
         } else {
-            _filterContext = _filterContext.createChildArrayContext(_itemState, false);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
         }
-        if (_itemState != TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != null) {
             _filterContext.markNeedsCloseCheck();
         }
     }
@@ -169,39 +169,33 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeEndArray() throws IOException
     {
-        if (_filterContext.needsCloseToken()) {
-            delegate.writeEndArray();
-        }
-        if (_filterContext.needsCloseCheck()) {
-            filter.filterFinishArray();
-        }
-        _filterContext = _filterContext.getParent();
+        _filterContext = _filterContext.closeArray(delegate);
         if (_filterContext != null) {
-            _itemState = _filterContext.getFilterState();
+            _itemFilter = _filterContext.getFilterState();
         }
     }
 
     @Override
     public void writeStartObject() throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
-            _filterContext = _filterContext.createChildObjectContext(_itemState, false);
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, false);
             return;
         }
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
-            _filterContext = _filterContext.createChildArrayContext(_itemState, true);
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartObject();
             return;
         }
-        _itemState = filter.filterStartObject();
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+        _itemFilter = _itemFilter.filterStartObject();
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildObjectContext(_itemState, true);
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, true);
             delegate.writeStartObject();
         } else { // filter out
-            _filterContext = _filterContext.createChildObjectContext(_itemState, false);
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, false);
         }
-        if (_itemState != TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != null) {
             _filterContext.markNeedsCloseCheck();
         }
     }
@@ -209,41 +203,35 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeEndObject() throws IOException
     {
-        if (_filterContext.needsCloseToken()) {
-            delegate.writeEndObject();
-        }
-        if (_filterContext.needsCloseCheck()) {
-            filter.filterFinishObject();
-        }
-        _filterContext = _filterContext.getParent();
+        _filterContext = _filterContext.closeObject(delegate);
         if (_filterContext != null) {
-            _itemState = _filterContext.getFilterState();
+            _itemFilter = _filterContext.getFilterState();
         }
     }
 
     @Override
     public void writeFieldName(String name) throws IOException
     {
-        int state = _filterContext.setFieldName(name);
+        TokenFilter state = _filterContext.setFieldName(name);
 
-//System.err.println("writeField '"+name+"', state = "+state);
+System.err.println("writeField '"+name+"', state = "+state);
 
-        if (state == TokenFilter.FILTER_SKIP) {
-            _itemState = state;
+        if (state == null) {
+            _itemFilter = null;
             return;
         }
-        if (state == TokenFilter.FILTER_INCLUDE) {
-            _itemState = state;
+        if (state == TokenFilter.INCLUDE_ALL) {
+            _itemFilter = state;
             delegate.writeFieldName(name);
             return;
         }
 
-        state = filter.includeProperty(name);
+        state = _itemFilter.includeProperty(name);
 
-//System.err.println(" -> include '"+name+"'? "+state);
+System.err.println(" -> include '"+name+"'? "+state);
         
-        _itemState = state;
-        if (state == TokenFilter.FILTER_INCLUDE) {
+        _itemFilter = state;
+        if (state == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
         }
     }
@@ -251,19 +239,19 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeFieldName(SerializableString name) throws IOException
     {
-        int state = _filterContext.setFieldName(name.getValue());
-        if (state == TokenFilter.FILTER_SKIP) {
-            _itemState = state;
+        TokenFilter state = _filterContext.setFieldName(name.getValue());
+        if (state == null) {
+            _itemFilter = null;
             return;
         }
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
-            _itemState = state;
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _itemFilter = state;
             delegate.writeFieldName(name);
             return;
         }
-        state = filter.includeProperty(name.getValue());
-        _itemState = state;
-        if (state == TokenFilter.FILTER_INCLUDE) {
+        state = _itemFilter.includeProperty(name.getValue());
+        _itemFilter = state;
+        if (state == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
         }
     }
@@ -277,26 +265,20 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeString(String value) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            int state = _filterContext.checkValue(filter);
-            if (state == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
             }
-            if (state == TokenFilter.FILTER_CHECK) {
-                if (!filter.includeString(value)) {
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeString(value)) {
                     return;
                 }
             }
             _checkParentPath();
-            // one important thing: may need to write element name now
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeString(value);
     }
@@ -304,26 +286,21 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeString(char[] text, int offset, int len) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             String value = new String(text, offset, len);
-            int state = _filterContext.checkValue(filter);
-            if (state == TokenFilter.FILTER_SKIP) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
             }
-            if (state == TokenFilter.FILTER_CHECK) {
-                if (!filter.includeString(value)) {
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeString(value)) {
                     return;
                 }
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeString(text, offset, len);
     }
@@ -331,25 +308,20 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeString(SerializableString value) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            int state = _filterContext.checkValue(filter);
-            if (state == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
             }
-            if (state == TokenFilter.FILTER_CHECK) {
-                if (!filter.includeString(value.getValue())) {
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeString(value.getValue())) {
                     return;
                 }
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeString(value);
     }
@@ -467,19 +439,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(short v) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNumber(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNumber(v)) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(v);
     }
@@ -487,20 +454,15 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(int v) throws IOException
     {
-//System.err.println("WriteNumber("+v+"), state == "+_itemState);        
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+System.err.println("WriteNumber("+v+"), state == "+_itemFilter);        
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNumber(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNumber(v)) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(v);
     }
@@ -508,19 +470,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(long v) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNumber(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNumber(v)) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(v);
     }
@@ -528,19 +485,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(BigInteger v) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNumber(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNumber(v)) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(v);
     }
@@ -548,19 +500,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(double v) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNumber(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNumber(v)) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(v);
     }
@@ -568,19 +515,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(float v) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNumber(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNumber(v)) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(v);
     }
@@ -588,19 +530,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(BigDecimal v) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNumber(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNumber(v)) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(v);
     }
@@ -608,19 +545,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNumber(String encodedValue) throws IOException, UnsupportedOperationException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeRawValue()) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeRawValue()) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNumber(encodedValue);
     }
@@ -628,11 +560,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeBoolean(boolean v) throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeBoolean(v)) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeBoolean(v)) { // close enough?
                 return;
             }
             _checkParentPath();
@@ -648,19 +580,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeNull() throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return;
         }
-        if (_itemState == TokenFilter.FILTER_CHECK) {
-            if (!filter.includeNull()) { // close enough?
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            if (!_itemFilter.includeNull()) { // close enough?
                 return;
             }
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
         } 
         delegate.writeNull();
     }
@@ -674,7 +601,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeOmittedField(String fieldName) throws IOException {
         // Hmmh. Not sure how this would work but...
-        if (_itemState != TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != null) {
             return;
         }
         delegate.writeOmittedField(fieldName);
@@ -691,21 +618,21 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     
     @Override
     public void writeObjectId(Object id) throws IOException {
-        if (_itemState != TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != null) {
             delegate.writeObjectId(id);
         }
     }
 
     @Override
     public void writeObjectRef(Object id) throws IOException {
-        if (_itemState != TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != null) {
             delegate.writeObjectRef(id);
         }
     }
     
     @Override
     public void writeTypeId(Object id) throws IOException {
-        if (_itemState != TokenFilter.FILTER_SKIP) {
+        if (_itemFilter != null) {
             delegate.writeTypeId(id);
         }
     }
@@ -799,19 +726,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     protected boolean _checkBinaryWrite() throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return false;
         }
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             return true;
         }
-        if (filter.includeBinary()) { // close enough?
+        if (_itemFilter.includeBinary()) { // close enough?
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
             return true;
         }
         return false;
@@ -819,19 +741,14 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     
     protected boolean _checkRawValueWrite() throws IOException
     {
-        if (_itemState == TokenFilter.FILTER_SKIP) {
+        if (_itemFilter == null) {
             return false;
         }
-        if (_itemState == TokenFilter.FILTER_INCLUDE) {
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             return true;
         }
-        if (filter.includeRawValue()) { // close enough?
+        if (_itemFilter.includeRawValue()) { // close enough?
             _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
-            }
-            */
             return true;
         }
         return false;

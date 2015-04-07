@@ -13,13 +13,13 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
         public NameMatchFilter(String n) { _name = n; }
         
         @Override
-        public int includeProperty(String name) {
+        public TokenFilter includeProperty(String name) {
             if (name.equals(_name)) {
 //System.err.println("Include? "+name+" -> true");
-                return TokenFilter.FILTER_INCLUDE;
+                return TokenFilter.INCLUDE_ALL;
             }
 //System.err.println("Include? "+name+" -> false");
-            return TokenFilter.FILTER_CHECK;
+            return this;
         }
     }
 

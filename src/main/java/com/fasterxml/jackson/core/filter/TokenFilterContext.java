@@ -72,7 +72,7 @@ public class TokenFilterContext extends JsonStreamContext
         _parent = parent;
         _filter = filter;
         _index = -1;
-        _startWritten = false;
+        _startWritten = startWritten;
     }
 
     protected TokenFilterContext reset(int type,
@@ -248,6 +248,7 @@ public class TokenFilterContext extends JsonStreamContext
 
     public final TokenFilterContext closeArray(JsonGenerator gen) throws IOException
     {
+//System.err.println("closeArray, started? "+_startWritten+"; filter = "+_filter);        
         if (_startWritten) {
             gen.writeEndArray();
         }

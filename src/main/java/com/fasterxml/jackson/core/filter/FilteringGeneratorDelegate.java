@@ -226,9 +226,11 @@ System.err.println("writeField '"+name+"', state = "+state);
             return;
         }
 
+System.err.println("  ... call 'includeProperty("+name+")' on: "+_itemFilter);
+        
         state = _itemFilter.includeProperty(name);
 
-System.err.println(" -> include '"+name+"'? "+state);
+System.err.println(" -> include '"+name+"' (via "+_itemFilter+")? "+state);
         
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.filter;
 
 import java.io.*;
+import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
@@ -8,17 +9,19 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
 {
     static class NameMatchFilter extends TokenFilter
     {
-        private final String _name;
+        private final Set<String> _names;
         
-        public NameMatchFilter(String n) { _name = n; }
+        public NameMatchFilter(String... names) {
+            _names = new HashSet<String>(Arrays.asList(names));
+        }
         
         @Override
         public TokenFilter includeProperty(String name) {
-            if (name.equals(_name)) {
-//System.err.println("Include? "+name+" -> true");
+            if (_names.contains(name)) {
+System.err.println("Filter:Include? "+name+" -> true");
                 return TokenFilter.INCLUDE_ALL;
             }
-//System.err.println("Include? "+name+" -> false");
+System.err.println("Filter:Include? "+name+" -> false");
             return this;
         }
     }
@@ -57,6 +60,29 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
         assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
     }
 
+    public void testMultipleMatchFilteringWithPath1() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("value0", "value2"),
+                true, /* includePath */ true /* multipleMatches */ );
+        _writeSimpleDoc(gen);
+        gen.close();
+        assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':4}}"), w.toString());
+    }
+    
+    public void testMultipleMatchFilteringWithPath2() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("array", "b", "value"),
+                true, true);
+        _writeSimpleDoc(gen);
+        gen.close();
+        assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), w.toString());
+    
+    }
+    
     public void testSingleMatchFilteringWithoutPath() throws Exception
     {
         StringWriter w = new StringWriter();

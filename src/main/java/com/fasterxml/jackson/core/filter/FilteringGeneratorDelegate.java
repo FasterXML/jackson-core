@@ -228,7 +228,7 @@ System.err.println("writeField '"+name+"', state = "+state);
 
 System.err.println("  ... call 'includeProperty("+name+")' on: "+_itemFilter);
         
-        state = _itemFilter.includeProperty(name);
+        state = state.includeProperty(name);
 
 System.err.println(" -> include '"+name+"' (via "+_itemFilter+")? "+state);
         
@@ -251,7 +251,7 @@ System.err.println(" -> include '"+name+"' (via "+_itemFilter+")? "+state);
             delegate.writeFieldName(name);
             return;
         }
-        state = _itemFilter.includeProperty(name.getValue());
+        state = state.includeProperty(name.getValue());
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {
             _checkPropertyParentPath();

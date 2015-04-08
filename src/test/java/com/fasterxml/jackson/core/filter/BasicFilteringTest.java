@@ -45,7 +45,6 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
 
     public void testSingleMatchFilteringWithPath() throws Exception
     {
-        // First, verify non-filtering
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("value"),
@@ -60,7 +59,6 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
 
     public void testSingleMatchFilteringWithoutPath() throws Exception
     {
-        // First, verify non-filtering
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("value"),
@@ -70,7 +68,10 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
         
         _writeSimpleDoc(gen);
         gen.close();
-        assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
+        /* Since properties MUST be contained within an Object, inclusion needs
+         * to materialize surrounding Object too!
+         */
+        assertEquals(aposToQuotes("{'value':3}"), w.toString());
     }
     
     protected void _writeSimpleDoc(JsonGenerator gen) throws IOException

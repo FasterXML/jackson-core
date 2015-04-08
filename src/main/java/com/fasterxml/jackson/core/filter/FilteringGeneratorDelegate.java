@@ -232,7 +232,7 @@ System.err.println(" -> include '"+name+"'? "+state);
         
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {
-            _checkParentPath();
+            _checkPropertyParentPath();
         }
     }
 
@@ -252,7 +252,7 @@ System.err.println(" -> include '"+name+"'? "+state);
         state = _itemFilter.includeProperty(name.getValue());
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {
-            _checkParentPath();
+            _checkPropertyParentPath();
         }
     }
 
@@ -724,6 +724,27 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
         }
     }
 
+    /**
+     * Specialized variant of {@link #_checkParentPath} used when checking
+     * parent for a property name to be included with value: rules are slightly
+     * different.
+     */
+    protected void _checkPropertyParentPath() throws IOException
+    {
+        ++_matchCount;
+        if (_includePath) {
+            _filterContext.writePath(delegate);
+        } else {
+            _filterContext.writeImmediatePath(delegate);
+        }
+
+        // also: if no multiple matches desired, short-cut checks
+        if (!_allowMultipleMatches) {
+            // Mark parents as "skip" so that further check calls are not made
+            _filterContext.skipParentChecks();
+        }
+    }
+    
     protected boolean _checkBinaryWrite() throws IOException
     {
         if (_itemFilter == null) {

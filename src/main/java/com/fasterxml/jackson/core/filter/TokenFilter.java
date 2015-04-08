@@ -13,30 +13,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
  */
 public class TokenFilter
 {
-    // Constants
-
-    /**
-     * Value that indicates that the current token (and its children, if any)
-     * should be (or is being) skipped and NOT to be passed on delegate.
-     */
-    public final static int FILTER_SKIP = 1;
-
-    /**
-     * Value that indicates that it is not yet certain whether the current token
-     * should or should not be included. If returned for leaf node it will
-     * usually be taken to mean same as {@link #FILTER_SKIP}; for container nodes
-     * and property names it means that traversal needs to check contents,
-     * and inclusion will be based on those.
-     */
-    public final static int FILTER_CHECK = 2;
-
-    /**
-     * Value that indicates that the current token (and its children, if any)
-     * should be (or is being) included and to be passed on delegate.
-     * As state for container states this means that the start token has been
-     * passed, and matching end token must also be passed.
-     */
-    public final static int FILTER_INCLUDE = 3;
 
     // // Marker values
 
@@ -326,6 +302,20 @@ public class TokenFilter
      */
     public boolean includeEmbeddedValue(Object ob) {
         return _includeScalar();
+    }
+
+    /*
+    /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
+
+    @Override
+    public String toString() {
+        if (this == INCLUDE_ALL) {
+            return "TokenFilter.INCLUDE_ALL";
+        }
+        return super.toString();
     }
 
     /*

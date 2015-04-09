@@ -46,6 +46,22 @@ System.err.println("Filter:Include? "+name+" -> false");
                 w.toString());
     }
 
+    public void testSingleMatchFilteringWithoutPath() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("value"),
+                false, // includePath
+                false // multipleMatches
+                );
+        
+        _writeSimpleDoc(gen);
+        gen.close();
+        // Since properties MUST be contained within an Object, inclusion needs
+         // to materialize surrounding Object too!
+        assertEquals(aposToQuotes("{'value':3}"), w.toString());
+    }
+
     public void testSingleMatchFilteringWithPath() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -74,30 +90,18 @@ System.err.println("Filter:Include? "+name+" -> false");
     public void testMultipleMatchFilteringWithPath2() throws Exception
     {
         StringWriter w = new StringWriter();
+        
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("array", "b", "value"),
                 true, true);
+        try {
         _writeSimpleDoc(gen);
         gen.close();
+        } finally {
+            gen.flush();
+            System.out.println("JSON -> <"+w+">");
+        }
         assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), w.toString());
-    
-    }
-    
-    public void testSingleMatchFilteringWithoutPath() throws Exception
-    {
-        StringWriter w = new StringWriter();
-        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
-                new NameMatchFilter("value"),
-                false, // includePath
-                false // multipleMatches
-                );
-        
-        _writeSimpleDoc(gen);
-        gen.close();
-        /* Since properties MUST be contained within an Object, inclusion needs
-         * to materialize surrounding Object too!
-         */
-        assertEquals(aposToQuotes("{'value':3}"), w.toString());
     }
     
     protected void _writeSimpleDoc(JsonGenerator gen) throws IOException

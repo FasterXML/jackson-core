@@ -18,14 +18,32 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
         @Override
         public TokenFilter includeProperty(String name) {
             if (_names.contains(name)) {
-System.err.println("Filter:Include? "+name+" -> true");
                 return TokenFilter.INCLUDE_ALL;
             }
-System.err.println("Filter:Include? "+name+" -> false");
             return this;
         }
     }
 
+    static class IndexMatchFilter extends TokenFilter
+    {
+        private final BitSet _indices;
+        
+        public IndexMatchFilter(int... ixs) {
+            _indices = new BitSet();
+            for (int ix : ixs) {
+                _indices.set(ix);
+            }
+        }
+        
+        @Override
+        public TokenFilter includeElement(int index) {
+            if (_indices.get(index)) {
+                return TokenFilter.INCLUDE_ALL;
+            }
+            return null;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -86,7 +104,7 @@ System.err.println("Filter:Include? "+name+" -> false");
         gen.close();
         assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':4}}"), w.toString());
     }
-    
+
     public void testMultipleMatchFilteringWithPath2() throws Exception
     {
         StringWriter w = new StringWriter();
@@ -94,14 +112,39 @@ System.err.println("Filter:Include? "+name+" -> false");
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("array", "b", "value"),
                 true, true);
-        try {
         _writeSimpleDoc(gen);
         gen.close();
-        } finally {
-            gen.flush();
-            System.out.println("JSON -> <"+w+">");
-        }
         assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), w.toString());
+    }
+
+    public void testIndexMatchWithPath1() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new IndexMatchFilter(1),
+                true, true);
+        _writeSimpleDoc(gen);
+        gen.close();
+        assertEquals(aposToQuotes("{'array':[2]}"), w.toString());
+
+        w = new StringWriter();
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new IndexMatchFilter(0),
+                true, true);
+        _writeSimpleDoc(gen);
+        gen.close();
+        assertEquals(aposToQuotes("{'array':[1]}"), w.toString());
+    }
+
+    public void testIndexMatchWithPath2() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new IndexMatchFilter(0,1),
+                true, true);
+        _writeSimpleDoc(gen);
+        gen.close();
+        assertEquals(aposToQuotes("{'array':[1,2]}"), w.toString());
     }
     
     protected void _writeSimpleDoc(JsonGenerator gen) throws IOException

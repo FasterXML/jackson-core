@@ -159,24 +159,24 @@ public class TokenFilterContext extends JsonStreamContext
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
         }
-System.err.println("writePath("+_type+"), startWritten? "+_startWritten+", writeName? "+_needToWriteName+" at "+toString());
+//System.err.println("writePath("+_type+"), startWritten? "+_startWritten+", writeName? "+_needToWriteName+" at "+toString());
         if (_parent != null) {
             _parent._writePath(gen);
         }
         if (_startWritten) {
             // even if Object started, need to start leaf-level name
             if (_needToWriteName) {
-System.err.println(" write field name '"+_currentName+"'");                
+//System.err.println(" write field name '"+_currentName+"'");                
                 gen.writeFieldName(_currentName);
             }
         } else {
             _startWritten = true;
             if (_type == TYPE_OBJECT) {
-System.err.println(" write object start, field '"+_currentName+"'");                
+//System.err.println(" write object start, field '"+_currentName+"'");                
                 gen.writeStartObject();
                 gen.writeFieldName(_currentName); // we know name must be written
             } else if (_type == TYPE_ARRAY) {
-System.err.println(" write array start");
+//System.err.println(" write array start");
                 gen.writeStartArray();
             }
         }
@@ -213,7 +213,7 @@ System.err.println(" write array start");
 
     private void _writePath(JsonGenerator gen) throws IOException
     {
-System.err.println("_writePath("+_type+"), startWritten? "+_startWritten+", writeName? "+_needToWriteName+" at "+toString());
+//System.err.println("_writePath("+_type+"), startWritten? "+_startWritten+", writeName? "+_needToWriteName+" at "+toString());
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
         }
@@ -229,7 +229,7 @@ System.err.println("_writePath("+_type+"), startWritten? "+_startWritten+", writ
         } else {
             _startWritten = true;
             if (_type == TYPE_OBJECT) {
-System.err.println(" write object start, field '"+_currentName+"'");                
+//System.err.println(" write object start, field '"+_currentName+"'");                
                 gen.writeStartObject();
                 if (_needToWriteName) {
                     _needToWriteName = false; // at parent must explicitly clear

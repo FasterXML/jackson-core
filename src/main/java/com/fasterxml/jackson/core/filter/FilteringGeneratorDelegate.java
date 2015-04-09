@@ -213,9 +213,6 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeFieldName(String name) throws IOException
     {
         TokenFilter state = _filterContext.setFieldName(name);
-
-System.err.println("writeField '"+name+"', state = "+state);
-
         if (state == null) {
             _itemFilter = null;
             return;
@@ -225,13 +222,7 @@ System.err.println("writeField '"+name+"', state = "+state);
             delegate.writeFieldName(name);
             return;
         }
-
-System.err.println("  ... call 'includeProperty("+name+")' on: "+_itemFilter);
-        
         state = state.includeProperty(name);
-
-System.err.println(" -> include '"+name+"' (via "+_itemFilter+")? "+state);
-        
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {
             _checkPropertyParentPath();
@@ -445,8 +436,14 @@ System.err.println(" -> include '"+name+"' (via "+_itemFilter+")? "+state);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNumber(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNumber(v)) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -456,13 +453,18 @@ System.err.println(" -> include '"+name+"' (via "+_itemFilter+")? "+state);
     @Override
     public void writeNumber(int v) throws IOException
     {
-System.err.println("WriteNumber("+v+"), state == "+_itemFilter);        
         if (_itemFilter == null) {
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNumber(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNumber(v)) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -476,8 +478,14 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNumber(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNumber(v)) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -491,8 +499,14 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNumber(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNumber(v)) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -506,8 +520,14 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNumber(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNumber(v)) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -521,8 +541,14 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNumber(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNumber(v)) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -536,8 +562,14 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNumber(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNumber(v)) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -551,11 +583,17 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeRawValue()) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
             }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeRawValue()) { // close enough?
+                    return;
+                }
+            }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(encodedValue);
     }
 
@@ -566,15 +604,16 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeBoolean(v)) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
             }
-            _checkParentPath();
-            /*
-            if (_filterContext.inObject()) {
-                delegate.writeFieldName(_filterContext.getCurrentName());
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeBoolean(v)) {
+                    return;
+                }
             }
-            */
+            _checkParentPath();
         } 
         delegate.writeBoolean(v);
     }
@@ -586,8 +625,14 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
-            if (!_itemFilter.includeNull()) { // close enough?
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
                 return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeNull()) {
+                    return;
+                }
             }
             _checkParentPath();
         } 
@@ -604,9 +649,8 @@ System.err.println("WriteNumber("+v+"), state == "+_itemFilter);
     public void writeOmittedField(String fieldName) throws IOException {
         // Hmmh. Not sure how this would work but...
         if (_itemFilter != null) {
-            return;
+            delegate.writeOmittedField(fieldName);
         }
-        delegate.writeOmittedField(fieldName);
     }
     
     /*

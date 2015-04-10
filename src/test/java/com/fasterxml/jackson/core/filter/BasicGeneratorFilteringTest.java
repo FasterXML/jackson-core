@@ -18,7 +18,12 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
         public NameMatchFilter(String... names) {
             _names = new HashSet<String>(Arrays.asList(names));
         }
-        
+
+        @Override
+        public TokenFilter includeElement(int index) {
+            return this;
+        }
+
         @Override
         public TokenFilter includeProperty(String name) {
             if (_names.contains(name)) {
@@ -26,6 +31,9 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
             }
             return this;
         }
+
+        @Override
+        protected boolean _includeScalar() { return false; }
     }
 
     static class IndexMatchFilter extends TokenFilter
@@ -38,6 +46,11 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
                 _indices.set(ix);
             }
         }
+
+        @Override
+        public TokenFilter includeProperty(String name) {
+            return this;
+        }
         
         @Override
         public TokenFilter includeElement(int index) {
@@ -46,6 +59,9 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
             }
             return null;
         }
+
+        @Override
+        protected boolean _includeScalar() { return false; }
     }
     
     /*

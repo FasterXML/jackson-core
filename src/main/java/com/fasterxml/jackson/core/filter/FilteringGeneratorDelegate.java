@@ -32,7 +32,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**
      * Flag that determines whether filtering will continue after the first
      * match is indicated or not: if `false`, output is based on just the first
-     * full match (returning {@link TokenFilter#FILTER_INCLUDE}) and no more
+     * full match (returning {@link TokenFilter#INCLUDE_ALL}) and no more
      * checks are made; if `true` then filtering will be applied as necessary
      * until end of content.
      */
@@ -67,7 +67,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     protected TokenFilter _itemFilter;
     
     /**
-     * Number of tokens for which {@link TokenFilter#FILTER_INCLUDE}
+     * Number of tokens for which {@link TokenFilter#INCLUDE_ALL}
      * has been returned
      */
     protected int _matchCount;

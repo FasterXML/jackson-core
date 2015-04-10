@@ -20,6 +20,10 @@ public class TokenFilter
      * Marker value that should be used to indicate inclusion of a structured
      * value (sub-tree representing Object or Array), or value of a named
      * property (regardless of type).
+     * Note that if this instance is returned, it will used as a marker, and 
+     * no actual callbacks need to be made. For this reason, it is more efficient
+     * to return this instance if the whole sub-tree is to be included, instead
+     * of implementing similar filter functionality explicitly.
      */
     public final static TokenFilter INCLUDE_ALL = new TokenFilter();
 
@@ -50,8 +54,8 @@ public class TokenFilter
      *   </li>
      * </ul>
      *<p>
-     * The default implementation simply returns <code>this</code> to continue calling
-     * methods on this filter object, without full inclusion or exclusion.
+     * Default implementation returns <code>this</code>, which means that checks
+     * are made recursively for properties of the Object to determine possible inclusion.
      * 
      * @return TokenFilter to use for further calls within Array, unless return value
      *   is <code>null</code> or {@link #INCLUDE_ALL} (which have simpler semantics)
@@ -76,6 +80,9 @@ public class TokenFilter
      *  also be called on returned filter object
      *   </li>
      * </ul>
+     *<p>
+     * Default implementation returns <code>this</code>, which means that checks
+     * are made recursively for elements of the array to determine possible inclusion.
      * 
      * @return TokenFilter to use for further calls within Array, unless return value
      *   is <code>null</code> or {@link #INCLUDE_ALL} (which have simpler semantics)
@@ -86,14 +93,16 @@ public class TokenFilter
 
     /**
      * Method called to indicate that output of non-filtered Object (one that may
-     * have been included either completely, or in part) is completed.
+     * have been included either completely, or in part) is completed,
+     * in cases where filter other that {@link #INCLUDE_ALL} was returned.
      * This occurs when {@link JsonGenerator#writeEndObject()} is called.
      */
     public void filterFinishObject() { }
 
     /**
      * Method called to indicate that output of non-filtered Array (one that may
-     * have been included either completely, or in part) is completed.
+     * have been included either completely, or in part) is completed,
+     * in cases where filter other that {@link #INCLUDE_ALL} was returned.
      * This occurs when {@link JsonGenerator#writeEndArray()} is called.
      */
     public void filterFinishArray() { }
@@ -326,9 +335,10 @@ public class TokenFilter
     
     /**
      * Overridable default implementation delegated to all scalar value
-     * inclusion check methods
+     * inclusion check methods.
+     * The default implementation simply includes all leaf values.
      */
     protected boolean _includeScalar() {
-        return false;
+        return true;
     }
 }

@@ -48,7 +48,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     
     /*
     /**********************************************************
-    /* Construction, initialization
+    /* Additional state
     /**********************************************************
      */
 

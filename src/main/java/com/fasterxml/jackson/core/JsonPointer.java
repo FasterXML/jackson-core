@@ -208,10 +208,10 @@ public class JsonPointer
     }
     
     public JsonPointer matchProperty(String name) {
-        if (_nextSegment == null || !_matchingPropertyName.equals(name)) {
-            return null;
+        if ((_nextSegment != null) && _matchingPropertyName.equals(name)) {
+            return _nextSegment;
         }
-        return _nextSegment;
+        return null;
     }
 
     /**
@@ -222,6 +222,16 @@ public class JsonPointer
      */
     public boolean matchesElement(int index) {
         return (index == _matchingElementIndex) && (index >= 0);
+    }
+
+    /**
+     * @since 2.6
+     */
+    public JsonPointer matchElement(int index) {
+        if ((index != _matchingElementIndex) || (index < 0)) {
+            return null;
+        }
+        return _nextSegment;
     }
 
     /**

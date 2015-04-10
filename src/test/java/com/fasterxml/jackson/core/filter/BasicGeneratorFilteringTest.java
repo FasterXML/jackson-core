@@ -5,7 +5,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
-public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
+/**
+ * Low-level tests for explicit, hand-written tests for generator-side
+ * filtering.
+ */
+public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.BaseTest
 {
     static class NameMatchFilter extends TokenFilter
     {
@@ -49,9 +53,9 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final JsonFactory JSON_F = new JsonFactory();
-    
+
     public void testNonFiltering() throws Exception
     {
         // First, verify non-filtering
@@ -146,7 +150,7 @@ public class BasicFilteringTest extends com.fasterxml.jackson.core.BaseTest
         gen.close();
         assertEquals(aposToQuotes("{'array':[1,2]}"), w.toString());
     }
-    
+
     protected void _writeSimpleDoc(JsonGenerator gen) throws IOException
     {
         // { "a" : 123,

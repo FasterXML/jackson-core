@@ -311,6 +311,28 @@ public abstract class BaseTest
 
     /*
     /**********************************************************
+    /* Helper read/write methods
+    /**********************************************************
+     */
+    
+    protected void writeJsonDoc(JsonFactory f, String doc, Writer w) throws IOException
+    {
+        writeJsonDoc(f, doc, f.createGenerator(w));
+    }
+
+    protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
+    {
+        JsonParser p = f.createParser(doc);
+        
+        while (p.nextToken() != null) {
+            g.copyCurrentStructure(p);
+        }
+        p.close();
+        g.close();
+    }
+
+    /*
+    /**********************************************************
     /* Additional assertion methods
     /**********************************************************
      */

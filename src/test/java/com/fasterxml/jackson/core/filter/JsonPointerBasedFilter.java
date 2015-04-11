@@ -65,6 +65,11 @@ class JsonPointerBasedFilter extends TokenFilter
         return _pathToMatch.matches();
     }
 
+    @Override
+    public String toString() {
+        return "[JsonPointerFilter at: "+_pathToMatch+"]";
+    }
+    
     /**
      * Helper class needed to include value of an Object property, without
      * including surrounding Object. Used when path is not to be included.

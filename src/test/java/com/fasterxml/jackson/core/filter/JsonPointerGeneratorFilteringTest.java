@@ -44,9 +44,14 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         _assert(SIMPLE_INPUT, "/b", true, "{'b':[1,2,3]}");
         _assert(SIMPLE_INPUT, "/b/1", true, "{'b':[2]}");
         _assert(SIMPLE_INPUT, "/b/2", true, "{'b':[3]}");
-
+        
         // and then non-match
         _assert(SIMPLE_INPUT, "/b/8", true, "");
+    }
+
+    public void testArrayNestedWithPath() throws Exception
+    {
+        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", true, "{'a':[{'b':3}]}");
     }
     
     public void testArrayElementWithoutPath() throws Exception

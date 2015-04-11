@@ -153,15 +153,22 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeStartArray(size);
             return;
         }
-        _itemFilter = _itemFilter.filterStartArray();
-        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+
+        TokenFilter state = _filterContext.checkValue(_itemFilter);
+        if (state == null) {
+            return;
+        }
+        if (state != TokenFilter.INCLUDE_ALL) {
+            state = state.filterStartArray();
+        }
+        if (state == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            _filterContext = _filterContext.createChildArrayContext(state, true);
             delegate.writeStartArray(size);
         } else {
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
+            _filterContext = _filterContext.createChildArrayContext(state, false);
         }
-        if (_itemFilter != null) {
+        if (state != null) {
             _filterContext.markNeedsCloseCheck();
         }
     }
@@ -187,15 +194,23 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeStartObject();
             return;
         }
-        _itemFilter = _itemFilter.filterStartObject();
-        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+
+        TokenFilter state = _filterContext.checkValue(_itemFilter);
+        if (state == null) {
+            return;
+        }
+        
+        if (state != TokenFilter.INCLUDE_ALL) {
+            state = state.filterStartObject();
+        }
+        if (state == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, true);
+            _filterContext = _filterContext.createChildObjectContext(state, true);
             delegate.writeStartObject();
         } else { // filter out
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, false);
+            _filterContext = _filterContext.createChildObjectContext(state, false);
         }
-        if (_itemFilter != null) {
+        if (state != null) {
             _filterContext.markNeedsCloseCheck();
         }
     }

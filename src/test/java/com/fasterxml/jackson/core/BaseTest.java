@@ -322,7 +322,7 @@ public abstract class BaseTest
 
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
     {
-        JsonParser p = f.createParser(doc);
+        JsonParser p = f.createParser(aposToQuotes(doc));
         
         while (p.nextToken() != null) {
             g.copyCurrentStructure(p);

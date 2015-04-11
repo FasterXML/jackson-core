@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
  * Low-level tests for explicit, hand-written tests for generator-side
  * filtering.
  */
+@SuppressWarnings("resource")
 public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.BaseTest
 {
     static class NameMatchFilter extends TokenFilter
@@ -77,8 +78,8 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
         // First, verify non-filtering
         StringWriter w = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(w);
-        _writeSimpleDoc(gen);
-        gen.close();
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes(
                 "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}"),
                 w.toString());
@@ -92,9 +93,8 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
                 false, // includePath
                 false // multipleMatches
                 );
-        
-        _writeSimpleDoc(gen);
-        gen.close();
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
         // Since properties MUST be contained within an Object, inclusion needs
          // to materialize surrounding Object too!
         assertEquals(aposToQuotes("{'value':3}"), w.toString());
@@ -108,9 +108,8 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
                 true, // includePath
                 false // multipleMatches
                 );
-        
-        _writeSimpleDoc(gen);
-        gen.close();
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
     }
 
@@ -120,8 +119,8 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("value0", "value2"),
                 true, /* includePath */ true /* multipleMatches */ );
-        _writeSimpleDoc(gen);
-        gen.close();
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':4}}"), w.toString());
     }
 
@@ -132,27 +131,38 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("array", "b", "value"),
                 true, true);
-        _writeSimpleDoc(gen);
-        gen.close();
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), w.toString());
     }
 
+    public void testMultipleMatchFilteringWithPath3() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("value"),
+                true, true);
+        final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':4}},'b0':false}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':4}}}"), w.toString());
+    }
+    
     public void testIndexMatchWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new IndexMatchFilter(1),
                 true, true);
-        _writeSimpleDoc(gen);
-        gen.close();
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'array':[2]}"), w.toString());
 
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new IndexMatchFilter(0),
                 true, true);
-        _writeSimpleDoc(gen);
-        gen.close();
+        writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'array':[1]}"), w.toString());
     }
 
@@ -162,43 +172,8 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
         JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new IndexMatchFilter(0,1),
                 true, true);
-        _writeSimpleDoc(gen);
-        gen.close();
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'array':[1,2]}"), w.toString());
-    }
-
-    protected void _writeSimpleDoc(JsonGenerator gen) throws IOException
-    {
-        // { "a" : 123,
-        //   "array" : [ 1, 2 ],
-        //   "ob" : { "value" : 3 },
-        //   "b" : true
-        // }
-
-        gen.writeStartObject();
-
-        gen.writeFieldName("a");
-        gen.writeNumber(123);
-        
-        gen.writeFieldName("array");
-        gen.writeStartArray();
-        gen.writeNumber(1);
-        gen.writeNumber(2);
-        gen.writeEndArray();
-
-        gen.writeFieldName("ob");
-        gen.writeStartObject();
-        gen.writeFieldName("value0");
-        gen.writeNumber(2);
-        gen.writeFieldName("value");
-        gen.writeNumber(3);
-        gen.writeFieldName("value2");
-        gen.writeNumber(4);
-        gen.writeEndObject();
-
-        gen.writeFieldName("b");
-        gen.writeBoolean(true);
-
-        gen.writeEndObject();
     }
 }

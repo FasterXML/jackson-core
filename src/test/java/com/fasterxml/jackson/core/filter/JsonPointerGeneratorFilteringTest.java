@@ -65,7 +65,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
     public void testArrayNestedWithoutPath() throws Exception
     {
         _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", false, "3");
-        _assert("[true,[1,2,[true],3],0]", "/0", false, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/0", false, "true");
         _assert("[true,[1,2,[true],3],0]", "/1", false,
                 "[1,2,[true],3]");
 

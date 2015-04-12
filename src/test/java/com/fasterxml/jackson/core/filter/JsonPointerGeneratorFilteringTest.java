@@ -52,7 +52,29 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
     public void testArrayNestedWithPath() throws Exception
     {
         _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", true, "{'a':[{'b':3}]}");
+        _assert("[true,[1]]", "/0", true, "[true]");
+        _assert("[true,[1]]", "/1", true, "[[1]]");
+        _assert("[true,[1,2,[true],3],0]", "/0", true, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/1", true, "[[1,2,[true],3]]");
+
+        _assert("[true,[1,2,[true],3],0]", "/1/2", true, "[[[true]]]");
+        _assert("[true,[1,2,[true],3],0]", "/1/2/0", true, "[[[true]]]");
+        _assert("[true,[1,2,[true],3],0]", "/1/3/0", true, "");
     }
+
+    public void testArrayNestedWithoutPath() throws Exception
+    {
+        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", false, "3");
+        _assert("[true,[1,2,[true],3],0]", "/0", false, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/1", false,
+                "[1,2,[true],3]");
+
+        _assert("[true,[1,2,[true],3],0]", "/1/2", false, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/1/2/0", false, "true");
+        _assert("[true,[1,2,[true],3],0]", "/1/3/0", false, "");
+    }
+    
+//    final String SIMPLE_INPUT = aposToQuotes("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
     
     public void testArrayElementWithoutPath() throws Exception
     {
@@ -70,11 +92,19 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         throws Exception
     {
         StringWriter w = new StringWriter();
+
         JsonGenerator g0 = JSON_F.createGenerator(w);
         FilteringGeneratorDelegate g = new FilteringGeneratorDelegate(g0,
                 new JsonPointerBasedFilter(pathExpr, includeParent),
                 includeParent, false);
-        writeJsonDoc(JSON_F, input, g);
+
+        try {
+            writeJsonDoc(JSON_F, input, g);
+        } catch (Exception e) {
+            g0.flush();
+            System.err.println("With input '"+input+"', output at point of failure: <"+w+">");
+            throw e;
+        }
 
         assertEquals(aposToQuotes(exp), w.toString());
     }

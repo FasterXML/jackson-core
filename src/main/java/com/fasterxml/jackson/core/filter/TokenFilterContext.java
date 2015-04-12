@@ -80,6 +80,7 @@ public class TokenFilterContext extends JsonStreamContext
         _index = -1;
         _startWritten = startWritten;
         _needToWriteName = false;
+        _needCloseCheck = false;
     }
 
     protected TokenFilterContext reset(int type,
@@ -91,6 +92,7 @@ public class TokenFilterContext extends JsonStreamContext
         _currentName = null;
         _startWritten = startWritten;
         _needToWriteName = false;
+        _needCloseCheck = false;
         return this;
     }
 
@@ -143,6 +145,7 @@ public class TokenFilterContext extends JsonStreamContext
         if (_type == TYPE_OBJECT) {
             return filter;
         }
+        // We increaase it first because at the beginning of array, value is -1
         int ix = ++_index;
         if (_type == TYPE_ARRAY) {
             return filter.includeElement(ix);
@@ -159,24 +162,20 @@ public class TokenFilterContext extends JsonStreamContext
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
         }
-//System.err.println("writePath("+_type+"), startWritten? "+_startWritten+", writeName? "+_needToWriteName+" at "+toString());
         if (_parent != null) {
             _parent._writePath(gen);
         }
         if (_startWritten) {
             // even if Object started, need to start leaf-level name
             if (_needToWriteName) {
-//System.err.println(" write field name '"+_currentName+"'");                
                 gen.writeFieldName(_currentName);
             }
         } else {
             _startWritten = true;
             if (_type == TYPE_OBJECT) {
-//System.err.println(" write object start, field '"+_currentName+"'");                
                 gen.writeStartObject();
                 gen.writeFieldName(_currentName); // we know name must be written
             } else if (_type == TYPE_ARRAY) {
-//System.err.println(" write array start");
                 gen.writeStartArray();
             }
         }
@@ -293,6 +292,9 @@ public class TokenFilterContext extends JsonStreamContext
     // // // Internally used abstract methods
 
     protected void appendDesc(StringBuilder sb) {
+        if (_parent != null) {
+            _parent.appendDesc(sb);
+        }
         if (_type == TYPE_OBJECT) {
             sb.append('{');
             if (_currentName != null) {

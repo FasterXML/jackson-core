@@ -99,6 +99,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     public TokenFilter getFilter() { return rootFilter; }
 
+    public JsonStreamContext getFilterContext() {
+        return _filterContext;
+    }
+    
     /**
      * Accessor for finding number of matches, where specific token and sub-tree
      * starting (if structured type) are passed.
@@ -107,6 +111,21 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         return _matchCount;
     }
 
+    /*
+    /**********************************************************
+    /* Public API, accessors
+    /**********************************************************
+     */
+    
+    @Override
+    public JsonStreamContext getOutputContext() {
+        /* 11-Apr-2015, tatu: Choice is between pre- and post-filter context;
+         *   let's expose post-filter context that correlates with the view
+         *   of caller.
+         */
+        return _filterContext;
+    }
+    
     /*
     /**********************************************************
     /* Public API, write methods, structural
@@ -127,17 +146,23 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return;
         }
         // Ok; regular checking state then
-        _itemFilter = _itemFilter.filterStartArray();
+        _itemFilter = _filterContext.checkValue(_itemFilter);
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildArrayContext(null, false);
+            return;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            _itemFilter = _itemFilter.filterStartArray();
+        }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-            // First: may need to re-create path
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
-        } else { // either skip (null), or check (non-null)
+        } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
-        }
-        if (_itemFilter != null) {
-            _filterContext.markNeedsCloseCheck();
+            if (_itemFilter != null) {
+                _filterContext.markNeedsCloseCheck();
+            }
         }
     }
         
@@ -153,23 +178,23 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeStartArray(size);
             return;
         }
-
-        TokenFilter state = _filterContext.checkValue(_itemFilter);
-        if (state == null) {
+        _itemFilter = _filterContext.checkValue(_itemFilter);
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildArrayContext(null, false);
             return;
         }
-        if (state != TokenFilter.INCLUDE_ALL) {
-            state = state.filterStartArray();
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            _itemFilter = _itemFilter.filterStartArray();
         }
-        if (state == TokenFilter.INCLUDE_ALL) {
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildArrayContext(state, true);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
         } else {
-            _filterContext = _filterContext.createChildArrayContext(state, false);
-        }
-        if (state != null) {
-            _filterContext.markNeedsCloseCheck();
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
+            if (_itemFilter != null) {
+                _filterContext.markNeedsCloseCheck();
+            }
         }
     }
     
@@ -177,6 +202,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeEndArray() throws IOException
     {
         _filterContext = _filterContext.closeArray(delegate);
+
         if (_filterContext != null) {
             _itemFilter = _filterContext.getFilterState();
         }
@@ -209,9 +235,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeStartObject();
         } else { // filter out
             _filterContext = _filterContext.createChildObjectContext(state, false);
-        }
-        if (state != null) {
-            _filterContext.markNeedsCloseCheck();
+            if (state != null) {
+                _filterContext.markNeedsCloseCheck();
+            }
         }
     }
     

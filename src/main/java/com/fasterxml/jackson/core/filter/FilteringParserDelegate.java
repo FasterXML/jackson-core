@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 /**
@@ -66,12 +67,19 @@ public class FilteringParserDelegate extends JsonParserDelegate
     protected JsonToken _lastClearedToken;
     
     /**
-     * Although delegate has its own output context it is not sufficient since we actually
-     * have to keep track of excluded (filtered out) structures as well as ones delegate
-     * actually outputs.
+     * During traversal this is the actual "open" parse tree, which sometimes
+     * is the same as {@link #_exposedContext}, and at other times is ahead
+     * of it. Note that this context is never null.
      */
-    protected TokenFilterContext _filterContext;
+    protected TokenFilterContext _headContext;
 
+    /**
+     * In cases where {@link #_headContext} is "ahead" of context exposed to
+     * caller, this context points to what is currently exposed to caller.
+     * When the two are in sync, this context reference will be <code>null</code>.
+     */
+    protected TokenFilterContext _exposedContext;
+    
     /**
      * State that applies to the item within container, used where applicable.
      * Specifically used to pass inclusion state between property name and
@@ -98,7 +106,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         rootFilter = f;
         // and this is the currently active filter for root values
         _itemFilter = f;
-        _filterContext = TokenFilterContext.createRootContext(f);
+        _headContext = TokenFilterContext.createRootContext(f);
         _includePath = includePath;
         _allowMultipleMatches = allowMultipleMatches;
     }
@@ -149,11 +157,23 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
 
     @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
-    @Override public JsonStreamContext getParsingContext() { return _filterContext; }
 
-    // !!! TODO: not necessarily correct...
-    @Override public String getCurrentName() throws IOException { return delegate.getCurrentName(); }
+    @Override
+    public JsonStreamContext getParsingContext() {
+        return _filterContext();
+    }
     
+    // !!! TODO: Verify it works as expected: copied from standard JSON parser impl
+    @Override
+    public String getCurrentName() throws IOException {
+        JsonStreamContext ctxt = _filterContext();
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            JsonStreamContext parent = ctxt.getParent();
+            return (parent == null) ? null : parent.getCurrentName();
+        }
+        return ctxt.getCurrentName();
+    }
+
     /*
     /**********************************************************
     /* Public API, token state overrides
@@ -171,9 +191,14 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override
     public JsonToken getLastClearedToken() { return _lastClearedToken; }
 
-    // !!! TODO: re-implement
     @Override
-    public void overrideCurrentName(String name) { delegate.overrideCurrentName(name); }
+    public void overrideCurrentName(String name) {
+        /* 14-Apr-2015, tatu: Not sure whether this can be supported, and if so,
+         *    what to do with it... Delegation won't work for sure, so let's for
+         *    now throw an exception
+         */
+        throw new UnsupportedOperationException("Can not currently override name during filtering read");
+    }
 
     /*
     /**********************************************************
@@ -181,8 +206,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**********************************************************
      */
 
-    // !!! TODO: re-implement
-    @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
+    @Override
+    public JsonToken nextToken() throws IOException
+    {
+        return delegate.nextToken();
+    }
 
     @Override
     public JsonToken nextValue() throws IOException {
@@ -202,8 +230,8 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override
     public JsonParser skipChildren() throws IOException
     {
-        if (_currToken != JsonToken.START_OBJECT
-            && _currToken != JsonToken.START_ARRAY) {
+        if ((_currToken != JsonToken.START_OBJECT)
+            && (_currToken != JsonToken.START_ARRAY)) {
             return this;
         }
         int open = 1;
@@ -303,4 +331,18 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException { return delegate.getBinaryValue(b64variant); }
     @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException { return delegate.readBinaryValue(b64variant, out); }
     @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+
+    protected JsonStreamContext _filterContext() {
+        if (_exposedContext != null) {
+            return _exposedContext;
+        }
+        return _headContext;
+    }
+
 }

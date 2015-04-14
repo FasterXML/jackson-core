@@ -160,9 +160,6 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeStartArray();
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
-            if (_itemFilter != null) {
-                _filterContext.markNeedsCloseCheck();
-            }
         }
     }
         
@@ -192,9 +189,6 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeStartArray(size);
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
-            if (_itemFilter != null) {
-                _filterContext.markNeedsCloseCheck();
-            }
         }
     }
     
@@ -235,9 +229,6 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             delegate.writeStartObject();
         } else { // filter out
             _filterContext = _filterContext.createChildObjectContext(state, false);
-            if (state != null) {
-                _filterContext.markNeedsCloseCheck();
-            }
         }
     }
     

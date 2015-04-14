@@ -73,6 +73,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
     protected TokenFilterContext _filterContext;
 
     /**
+     * When parent tokens are buffered (during checking whether child tokens included),
+     * we need to keep a reference back to the context closest to root that is yet to
+     * be exposed.
+     */
+    protected TokenFilterContext _replayContext;
+    
+    /**
      * State that applies to the item within container, used where applicable.
      * Specifically used to pass inclusion state between property name and
      * property, and also used for array elements.
@@ -81,7 +88,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     
     /**
      * Number of tokens for which {@link TokenFilter#INCLUDE_ALL}
-     * has been returned
+     * has been returned.
      */
     protected int _matchCount;
 

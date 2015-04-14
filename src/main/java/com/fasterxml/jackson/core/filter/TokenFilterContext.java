@@ -46,23 +46,18 @@ public class TokenFilterContext extends JsonStreamContext
     protected TokenFilter _filter;
 
     /**
-     * Flag that indicates that start token has been written, so
-     * that matching close token needs to be written as well,
-     * regardless of inclusion status.
+     * Flag that indicates that start token has been read/written,
+     * so that matching close token needs to be read/written as well
+     * when context is getting closed.
      */
-    protected boolean _startWritten;
-
-    /**
-     * Flag that indicates that when context is closed, a call needs
-     * to be made to {@link TokenFilter}
-     */
-    protected boolean _needCloseCheck;
+    protected boolean _startHandled;
 
     /**
      * Flag that indicates that the current name of this context
-     * still needs to be written, if path from root is desired.
+     * still needs to be read/written, if path from root down to
+     * included leaf is to be exposed.
      */
-    protected boolean _needToWriteName;
+    protected boolean _needToHandleName;
     
     /*
     /**********************************************************
@@ -78,9 +73,8 @@ public class TokenFilterContext extends JsonStreamContext
         _parent = parent;
         _filter = filter;
         _index = -1;
-        _startWritten = startWritten;
-        _needToWriteName = false;
-        _needCloseCheck = false;
+        _startHandled = startWritten;
+        _needToHandleName = false;
     }
 
     protected TokenFilterContext reset(int type,
@@ -90,9 +84,8 @@ public class TokenFilterContext extends JsonStreamContext
         _filter = filter;
         _index = -1;
         _currentName = null;
-        _startWritten = startWritten;
-        _needToWriteName = false;
-        _needCloseCheck = false;
+        _startHandled = startWritten;
+        _needToHandleName = false;
         return this;
     }
 
@@ -132,7 +125,7 @@ public class TokenFilterContext extends JsonStreamContext
     
     public TokenFilter setFieldName(String name) throws JsonProcessingException {
         _currentName = name;
-        _needToWriteName = true;
+        _needToHandleName = true;
         return _filter;
     }
 
@@ -165,13 +158,13 @@ public class TokenFilterContext extends JsonStreamContext
         if (_parent != null) {
             _parent._writePath(gen);
         }
-        if (_startWritten) {
+        if (_startHandled) {
             // even if Object started, need to start leaf-level name
-            if (_needToWriteName) {
+            if (_needToHandleName) {
                 gen.writeFieldName(_currentName);
             }
         } else {
-            _startWritten = true;
+            _startHandled = true;
             if (_type == TYPE_OBJECT) {
                 gen.writeStartObject();
                 gen.writeFieldName(_currentName); // we know name must be written
@@ -192,16 +185,16 @@ public class TokenFilterContext extends JsonStreamContext
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
         }
-        if (_startWritten) {
+        if (_startHandled) {
             // even if Object started, need to start leaf-level name
-            if (_needToWriteName) {
+            if (_needToHandleName) {
                 gen.writeFieldName(_currentName);
             }
         } else {
-            _startWritten = true;
+            _startHandled = true;
             if (_type == TYPE_OBJECT) {
                 gen.writeStartObject();
-                if (_needToWriteName) {
+                if (_needToHandleName) {
                     gen.writeFieldName(_currentName);
                 }
             } else if (_type == TYPE_ARRAY) {
@@ -219,19 +212,19 @@ public class TokenFilterContext extends JsonStreamContext
         if (_parent != null) {
             _parent._writePath(gen);
         }
-        if (_startWritten) {
+        if (_startHandled) {
             // even if Object started, need to start leaf-level name
-            if (_needToWriteName) {
-                _needToWriteName = false; // at parent must explicitly clear
+            if (_needToHandleName) {
+                _needToHandleName = false; // at parent must explicitly clear
                 gen.writeFieldName(_currentName);
             }
         } else {
-            _startWritten = true;
+            _startHandled = true;
             if (_type == TYPE_OBJECT) {
 //System.err.println(" write object start, field '"+_currentName+"'");                
                 gen.writeStartObject();
-                if (_needToWriteName) {
-                    _needToWriteName = false; // at parent must explicitly clear
+                if (_needToHandleName) {
+                    _needToHandleName = false; // at parent must explicitly clear
                     gen.writeFieldName(_currentName);
                 }
             } else if (_type == TYPE_ARRAY) {
@@ -264,12 +257,10 @@ public class TokenFilterContext extends JsonStreamContext
 
     public TokenFilter getFilterState() { return _filter; }
 
-    public void markNeedsCloseCheck() { _needCloseCheck = true; }
-
     public final TokenFilterContext closeArray(JsonGenerator gen) throws IOException
     {
 //System.err.println("closeArray, started? "+_startWritten+"; filter = "+_filter);        
-        if (_startWritten) {
+        if (_startHandled) {
             gen.writeEndArray();
         }
         if ((_filter != null) && (_filter != TokenFilter.INCLUDE_ALL)) {
@@ -280,7 +271,7 @@ public class TokenFilterContext extends JsonStreamContext
     
     public final TokenFilterContext closeObject(JsonGenerator gen) throws IOException
     {
-        if (_startWritten) {
+        if (_startHandled) {
             gen.writeEndObject();
         }
         if ((_filter != null) && (_filter != TokenFilter.INCLUDE_ALL)) {

@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 /**
@@ -79,7 +78,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * When the two are in sync, this context reference will be <code>null</code>.
      */
     protected TokenFilterContext _exposedContext;
-    
+
     /**
      * State that applies to the item within container, used where applicable.
      * Specifically used to pass inclusion state between property name and
@@ -89,7 +88,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     
     /**
      * Number of tokens for which {@link TokenFilter#INCLUDE_ALL}
-     * has been returned
+     * has been returned.
      */
     protected int _matchCount;
 
@@ -209,6 +208,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override
     public JsonToken nextToken() throws IOException
     {
+        // Anything buffered?
+        if (_exposedContext != null) {
+            
+        }
         return delegate.nextToken();
     }
 

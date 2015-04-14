@@ -38,7 +38,7 @@ To use the package, you need to use following Maven dependency:
 </dependency>
 ```
 
-or download jars from Maven repository or links on [Wiki]](../../wiki).
+or download jars from Maven repository or links on [Wiki](../../wiki).
 Core jar is a functional OSGi bundle, with proper import/export declarations.
 
 Package has no external dependencies, except for testing (which uses `JUnit`).

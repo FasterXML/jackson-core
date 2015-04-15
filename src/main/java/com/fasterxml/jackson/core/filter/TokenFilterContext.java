@@ -233,7 +233,7 @@ public class TokenFilterContext extends JsonStreamContext
         }
     }
 
-    public final TokenFilterContext closeArray(JsonGenerator gen) throws IOException
+    public TokenFilterContext closeArray(JsonGenerator gen) throws IOException
     {
         if (_startHandled) {
             gen.writeEndArray();
@@ -243,8 +243,8 @@ public class TokenFilterContext extends JsonStreamContext
         }
         return _parent;
     }
-    
-    public final TokenFilterContext closeObject(JsonGenerator gen) throws IOException
+
+    public TokenFilterContext closeObject(JsonGenerator gen) throws IOException
     {
         if (_startHandled) {
             gen.writeEndObject();
@@ -277,7 +277,8 @@ public class TokenFilterContext extends JsonStreamContext
     @Override public final TokenFilterContext getParent() { return _parent; }
     @Override public final String getCurrentName() { return _currentName; }
 
-    public TokenFilter getFilterState() { return _filter; }
+    public TokenFilter getFilter() { return _filter; }
+    public boolean isStartHandled() { return _startHandled; }
 
     public JsonToken nextTokenToRead(JsonToken curr) {
         if (!_startHandled) {

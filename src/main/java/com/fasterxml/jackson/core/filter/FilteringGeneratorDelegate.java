@@ -198,7 +198,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         _filterContext = _filterContext.closeArray(delegate);
 
         if (_filterContext != null) {
-            _itemFilter = _filterContext.getFilterState();
+            _itemFilter = _filterContext.getFilter();
         }
     }
 
@@ -237,7 +237,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     {
         _filterContext = _filterContext.closeObject(delegate);
         if (_filterContext != null) {
-            _itemFilter = _filterContext.getFilterState();
+            _itemFilter = _filterContext.getFilter();
         }
     }
 
@@ -269,7 +269,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _itemFilter = null;
             return;
         }
-        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+        if (state == TokenFilter.INCLUDE_ALL) {
             _itemFilter = state;
             delegate.writeFieldName(name);
             return;

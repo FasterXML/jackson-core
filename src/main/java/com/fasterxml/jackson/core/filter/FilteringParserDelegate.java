@@ -8,6 +8,8 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
+import static com.fasterxml.jackson.core.JsonTokenId.*;
+
 /**
  * Specialized {@link JsonParserDelegate} that allows use of
  * {@link TokenFilter} for outputting a subset of content that
@@ -231,16 +233,68 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
         }
 
-        // If not, need to 
+        // If not, need to read more. If we got any:
         JsonToken t = delegate.nextToken();
         if (t == null) {
-            
+            // no strict need to close, since we have no state here
+            return (_currToken = t);
         }
 
+        // otherwise... to include or not?
+        switch (_currToken.id()) {
+        case ID_START_ARRAY:
+            if (_itemFilter == null) {
+                delegate.skipChildren();
+                break;
+            }
+            if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                _headContext = _headContext.createChildArrayContext(_itemFilter, true);
+                return (_currToken = t);
+            }
+            // TODO
+
+        case ID_START_OBJECT:
+            if (_itemFilter == null) {
+                delegate.skipChildren();
+                break;
+            }
+            if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                _headContext = _headContext.createChildObjectContext(_itemFilter, true);
+                return (_currToken = t);
+            }
+            // TODO
+
+        case ID_END_ARRAY:
+        case ID_END_OBJECT:
+            {
+                boolean returnEnd = _headContext.isStartHandled();
+                TokenFilter f = _headContext.getFilter();
+                if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                    f.filterFinishArray();
+                }
+                _headContext = _headContext.getParent();
+                _itemFilter = _headContext.getFilter();
+                if (returnEnd) {
+                    return (_currToken = t);
+                }
+            }
+            break;
+
+        case ID_FIELD_NAME:
+
+        default: // scalar value
+        }
+
+        // We get here if token was not yet found; offlined handling
+        return _nextToken2();
+    }
+
+    protected final JsonToken _nextToken2() throws IOException
+    {
         // !!! TODO
         return null;
     }
-
+    
     @Override
     public JsonToken nextValue() throws IOException {
         // Re-implemented same as ParserMinimalBase:

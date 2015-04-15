@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.core.filter;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 
 /**
  * Strategy class that can be implemented to specify actual inclusion/exclusion
@@ -190,10 +192,27 @@ public class TokenFilter
     public TokenFilter includeRootValue(int index) {
         return this;
     }
-    
+
     /*
     /**********************************************************
-    /* API, scalas values
+    /* API, scalar values (being read)
+    /**********************************************************
+     */
+
+    /**
+     * Call made when verifying whether a scaler value is being
+     * read from a parser.
+     *<p>
+     * Default action is to call {@link #_includeScalar()} and return
+     * whatever it indicates.
+     */
+    public boolean includeValue(JsonParser p) throws IOException {
+        return _includeScalar();
+    }
+
+    /*
+    /**********************************************************
+    /* API, scalar values (being written)
     /**********************************************************
      */
 

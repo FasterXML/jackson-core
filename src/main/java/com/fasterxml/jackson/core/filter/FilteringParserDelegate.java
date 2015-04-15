@@ -209,10 +209,33 @@ public class FilteringParserDelegate extends JsonParserDelegate
     public JsonToken nextToken() throws IOException
     {
         // Anything buffered?
-        if (_exposedContext != null) {
+        TokenFilterContext ctxt = _exposedContext;
+        if (ctxt != null) {
+            while (true) {
+                JsonToken t = _exposedContext.nextTokenToRead(_currToken);
+                if (t != null) {
+                    _currToken = t;
+                    return t;
+                }
+                // all done with buffered stuff?
+                if (ctxt == _headContext) {
+                    _exposedContext = null;
+                    break;
+                }
+                // If not, traverse down the context chain
+                ctxt = _exposedContext.findChildOf(_exposedContext);
+                _exposedContext = ctxt;
+                if (ctxt == null) { // should never occur
+                    throw _constructError("Unexpected problem: chain of filtered context broken");
+                }
+            }
+        }
+
+        // If not, need to 
+        JsonToken t = delegate.nextToken();
+        if (t == null) {
             
         }
-        return delegate.nextToken();
     }
 
     @Override

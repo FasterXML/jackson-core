@@ -236,6 +236,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
         if (t == null) {
             
         }
+
+        // !!! TODO
+        return null;
     }
 
     @Override

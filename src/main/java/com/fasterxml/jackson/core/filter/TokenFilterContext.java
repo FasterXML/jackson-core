@@ -66,14 +66,14 @@ public class TokenFilterContext extends JsonStreamContext
      */
 
     protected TokenFilterContext(int type, TokenFilterContext parent,
-            TokenFilter filter, boolean startWritten)
+            TokenFilter filter, boolean startHandled)
     {
         super();
         _type = type;
         _parent = parent;
         _filter = filter;
         _index = -1;
-        _startHandled = startWritten;
+        _startHandled = startHandled;
         _needToHandleName = false;
     }
 
@@ -96,7 +96,8 @@ public class TokenFilterContext extends JsonStreamContext
      */
 
     public static TokenFilterContext createRootContext(TokenFilter filter) {
-        return new TokenFilterContext(TYPE_ROOT, null, filter, false);
+        // true -> since we have no start/end marker, consider start handled
+        return new TokenFilterContext(TYPE_ROOT, null, filter, true);
     }
 
     public TokenFilterContext createChildArrayContext(TokenFilter filter, boolean writeStart) {

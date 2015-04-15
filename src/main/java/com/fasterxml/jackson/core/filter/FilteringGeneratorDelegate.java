@@ -210,7 +210,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, true);
             delegate.writeStartObject();
             return;
         }

@@ -215,20 +215,20 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return;
         }
 
-        TokenFilter state = _filterContext.checkValue(_itemFilter);
-        if (state == null) {
+        TokenFilter f = _filterContext.checkValue(_itemFilter);
+        if (f == null) {
             return;
         }
         
-        if (state != TokenFilter.INCLUDE_ALL) {
-            state = state.filterStartObject();
+        if (f != TokenFilter.INCLUDE_ALL) {
+            f = f.filterStartObject();
         }
-        if (state == TokenFilter.INCLUDE_ALL) {
+        if (f == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildObjectContext(state, true);
+            _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
         } else { // filter out
-            _filterContext = _filterContext.createChildObjectContext(state, false);
+            _filterContext = _filterContext.createChildObjectContext(f, false);
         }
     }
     

@@ -203,7 +203,7 @@ public class TokenFilter
      * Call made when verifying whether a scaler value is being
      * read from a parser.
      *<p>
-     * Default action is to call {@link #_includeScalar()} and return
+     * Default action is to call <code>_includeScalar()</code> and return
      * whatever it indicates.
      */
     public boolean includeValue(JsonParser p) throws IOException {

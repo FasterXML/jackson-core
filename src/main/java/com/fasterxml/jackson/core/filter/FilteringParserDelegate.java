@@ -241,34 +241,68 @@ public class FilteringParserDelegate extends JsonParserDelegate
         }
 
         // otherwise... to include or not?
-        switch (_currToken.id()) {
+        TokenFilter f;
+        
+        switch (t.id()) {
         case ID_START_ARRAY:
-            if (_itemFilter == null) {
+            f = _itemFilter;
+            if (f == TokenFilter.INCLUDE_ALL) {
+                _headContext = _headContext.createChildArrayContext(f, true);
+                return (_currToken = t);
+            }
+            if (f == null) { // does this occur?
                 delegate.skipChildren();
                 break;
             }
-            if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-                _headContext = _headContext.createChildArrayContext(_itemFilter, true);
+            // Otherwise still iffy, need to check
+            f = _headContext.checkValue(f);
+            if (f == null) {
+                delegate.skipChildren();
+                break;
+            }
+            if (f != TokenFilter.INCLUDE_ALL) {
+                f = f.filterStartArray();
+            }
+            _itemFilter = f;
+            _headContext = _headContext.createChildArrayContext(f, true);
+            if (f == TokenFilter.INCLUDE_ALL) {
                 return (_currToken = t);
             }
-            // TODO
+            // but if we didn't figure it out yet, need to buffer possible events
+            return _nextTokenWithBuffering(_headContext);
 
         case ID_START_OBJECT:
-            if (_itemFilter == null) {
+            f = _itemFilter;
+            if (f == TokenFilter.INCLUDE_ALL) {
+                _headContext = _headContext.createChildObjectContext(f, true);
+                return (_currToken = t);
+            }
+            if (f == null) { // does this occur?
                 delegate.skipChildren();
                 break;
             }
-            if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-                _headContext = _headContext.createChildObjectContext(_itemFilter, true);
+            // Otherwise still iffy, need to check
+            f = _headContext.checkValue(f);
+            if (f == null) {
+                delegate.skipChildren();
+                break;
+            }
+            if (f != TokenFilter.INCLUDE_ALL) {
+                f = f.filterStartObject();
+            }
+            _itemFilter = f;
+            _headContext = _headContext.createChildObjectContext(f, true);
+            if (f == TokenFilter.INCLUDE_ALL) {
                 return (_currToken = t);
             }
-            // TODO
+            // but if we didn't figure it out yet, need to buffer possible events
+            return _nextTokenWithBuffering(_headContext);
 
         case ID_END_ARRAY:
         case ID_END_OBJECT:
             {
                 boolean returnEnd = _headContext.isStartHandled();
-                TokenFilter f = _headContext.getFilter();
+                f = _headContext.getFilter();
                 if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
                     f.filterFinishArray();
                 }
@@ -281,16 +315,133 @@ public class FilteringParserDelegate extends JsonParserDelegate
             break;
 
         case ID_FIELD_NAME:
+            {
+                final String name = delegate.getCurrentName();
+                f = _headContext.setFieldName(name);
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    _itemFilter = f;
+                    return (_currToken = t);
+                }
+                if (f == null) { // filter out the value
+                    delegate.nextToken();
+                    delegate.skipChildren();
+                    break;
+                }
+                f = f.includeProperty(name);
+                if (f == null) { // filter out the value
+                    delegate.nextToken();
+                    delegate.skipChildren();
+                    break;
+                }
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    _itemFilter = f;
+                    return (_currToken = t);
+                }
+                // !!! TODO: still not decided if to include, so...
+                
+                _itemFilter = f;
+            }
+            break;
 
         default: // scalar value
+            if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                return (_currToken = t);
+            }
+            // Otherwise not included (leaves must be explicitly included)
+            break;
         }
 
         // We get here if token was not yet found; offlined handling
         return _nextToken2();
     }
 
+    /**
+     * Offlined handling for cases where there was no buffered token to
+     * return, and the token read next could not be returned as-is,
+     * at least not yet.
+     */
     protected final JsonToken _nextToken2() throws IOException
     {
+        while (true) {
+            JsonToken t = delegate.nextToken();
+            if (t == null) { // is this really legal? For the moment, assume it is
+                return (_currToken = t);
+            }
+            switch (_currToken.id()) {
+            case ID_START_ARRAY:
+                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildArrayContext(_itemFilter, true);
+                    return (_currToken = t);
+                }
+                if (_itemFilter == null) { // does this occur?
+                    delegate.skipChildren();
+                    break;
+                }
+                _exposedContext = _headContext = _headContext.createChildArrayContext(_itemFilter, false);
+                break;
+    
+            case ID_START_OBJECT:
+                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildObjectContext(_itemFilter, true);
+                    return (_currToken = t);
+                }
+                if (_itemFilter == null) { // does this occur?
+                    delegate.skipChildren();
+                    break;
+                }
+                _exposedContext = _headContext = _headContext.createChildObjectContext(_itemFilter, false);
+                break;
+    
+            case ID_END_ARRAY:
+            case ID_END_OBJECT:
+                {
+                    boolean returnEnd = _headContext.isStartHandled();
+                    TokenFilter f = _headContext.getFilter();
+                    if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                        f.filterFinishArray();
+                    }
+                    _headContext = _headContext.getParent();
+                    _itemFilter = _headContext.getFilter();
+                    if (returnEnd) {
+                        return (_currToken = t);
+                    }
+                }
+                break;
+    
+            case ID_FIELD_NAME:
+                {
+                    final String name = delegate.getCurrentName();
+                    TokenFilter f = _headContext.setFieldName(name);
+                    if (f == null) { // filter out the value
+                        delegate.nextToken();
+                        delegate.skipChildren();
+                        break;
+                    }
+                    if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                        _itemFilter = f;
+                        return (_currToken = t);
+                    }
+                    f = f.includeProperty(name);
+                    _itemFilter = f;
+                }
+                break;
+
+            default: // scalar value
+                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                    return (_currToken = t);
+                }
+                // Otherwise not included (leaves must be explicitly included)
+                break;
+            }
+        }
+    }
+
+    /**
+     * Method called when a new potentially included context is found.
+     */
+    protected final JsonToken _nextTokenWithBuffering(TokenFilterContext buffRoot) throws IOException
+    {
+        _exposedContext = _headContext;
         // !!! TODO
         return null;
     }

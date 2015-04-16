@@ -225,15 +225,18 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     _exposedContext = null;
                     // Almost! Most likely still have the current token;
                     // with the sole exception of 
+                    /*
                     t = delegate.getCurrentToken();
                     if (t != JsonToken.FIELD_NAME) {
                         _currToken = t;
                         return t;
                     }
+                    */
                     break;
                 }
                 // If not, traverse down the context chain
-                ctxt = _exposedContext.findChildOf(ctxt);
+                ctxt = _headContext.findChildOf(ctxt);
+
                 _exposedContext = ctxt;
                 if (ctxt == null) { // should never occur
                     throw _constructError("Unexpected problem: chain of filtered context broken");
@@ -574,10 +577,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     f = f.filterStartObject();
                 }
                 _itemFilter = f;
-                _headContext = _headContext.createChildObjectContext(f, true);
                 if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildObjectContext(f, true);
                     return _nextBuffered();
                 }
+                _headContext = _headContext.createChildObjectContext(f, false);
                 continue main_loop;
 
             case ID_END_ARRAY:

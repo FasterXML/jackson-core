@@ -373,8 +373,16 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
 
         default: // scalar value
-            if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            f = _itemFilter;
+            if (f == TokenFilter.INCLUDE_ALL) {
                 return (_currToken = t);
+            }
+            if (f != null) {
+                f = _headContext.checkValue(f);
+                if ((f == TokenFilter.INCLUDE_ALL)
+                        || ((f != null) && f.includeValue(delegate))) {
+                    return (_currToken = t);
+                }
             }
             // Otherwise not included (leaves must be explicitly included)
             break;
@@ -509,12 +517,18 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
             default: // scalar value
                 f = _itemFilter;
-                if ((f == TokenFilter.INCLUDE_ALL)
-                        || ((f != null) && f.includeValue(delegate))) {
+                if (f == TokenFilter.INCLUDE_ALL) {
                     return (_currToken = t);
                 }
+                if (f != null) {
+                    f = _headContext.checkValue(f);
+                    if ((f == TokenFilter.INCLUDE_ALL)
+                            || ((f != null) && f.includeValue(delegate))) {
+                        return (_currToken = t);
+                    }
+                }
                 // Otherwise not included (leaves must be explicitly included)
-                continue main_loop;
+                break;
             }
         }
     }
@@ -630,10 +644,19 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 continue main_loop;
 
             default: // scalar value
-                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                f = _itemFilter;
+                if (f == TokenFilter.INCLUDE_ALL) {
                     return _nextBuffered();
                 }
+                if (f != null) {
+                    f = _headContext.checkValue(f);
+                    if ((f == TokenFilter.INCLUDE_ALL)
+                            || ((f != null) && f.includeValue(delegate))) {
+                        return _nextBuffered();
+                    }
+                }
                 // Otherwise not included (leaves must be explicitly included)
+                continue main_loop;
             }
         }
     }

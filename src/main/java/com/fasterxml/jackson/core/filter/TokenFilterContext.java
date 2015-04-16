@@ -139,7 +139,7 @@ public class TokenFilterContext extends JsonStreamContext
         if (_type == TYPE_OBJECT) {
             return filter;
         }
-        // We increaase it first because at the beginning of array, value is -1
+        // We increase it first because at the beginning of array, value is -1
         int ix = ++_index;
         if (_type == TYPE_ARRAY) {
             return filter.includeElement(ix);

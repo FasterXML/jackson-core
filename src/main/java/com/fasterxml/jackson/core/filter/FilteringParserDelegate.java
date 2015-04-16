@@ -212,9 +212,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
     {
         // Anything buffered?
         TokenFilterContext ctxt = _exposedContext;
+
         if (ctxt != null) {
             while (true) {
-                JsonToken t = _exposedContext.nextTokenToRead(_currToken);
+                JsonToken t = _exposedContext.nextTokenToRead();
                 if (t != null) {
                     _currToken = t;
                     return t;
@@ -358,45 +359,203 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**
      * Offlined handling for cases where there was no buffered token to
      * return, and the token read next could not be returned as-is,
-     * at least not yet.
+     * at least not yet, but where we have not yet established that
+     * buffering is needed.
      */
     protected final JsonToken _nextToken2() throws IOException
     {
+        main_loop:
         while (true) {
             JsonToken t = delegate.nextToken();
-            if (t == null) { // is this really legal? For the moment, assume it is
+
+            if (t == null) { // is this even legal?
                 return (_currToken = t);
             }
-            switch (_currToken.id()) {
+            TokenFilter f;
+
+            switch (t.id()) {
             case ID_START_ARRAY:
-                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildArrayContext(_itemFilter, true);
+                f = _itemFilter;
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildArrayContext(f, true);
                     return (_currToken = t);
                 }
-                if (_itemFilter == null) { // does this occur?
+                if (f == null) { // does this occur?
                     delegate.skipChildren();
-                    break;
+                    continue main_loop;
                 }
-                _exposedContext = _headContext = _headContext.createChildArrayContext(_itemFilter, false);
-                break;
-    
+                // Otherwise still iffy, need to check
+                f = _headContext.checkValue(f);
+                if (f == null) {
+                    delegate.skipChildren();
+                    continue main_loop;
+                }
+                if (f != TokenFilter.INCLUDE_ALL) {
+                    f = f.filterStartArray();
+                }
+                _itemFilter = f;
+                _headContext = _headContext.createChildArrayContext(f, true);
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    return (_currToken = t);
+                }
+                // but if we didn't figure it out yet, need to buffer possible events
+                return _nextTokenWithBuffering(_headContext);
+
             case ID_START_OBJECT:
-                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildObjectContext(_itemFilter, true);
+                f = _itemFilter;
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildObjectContext(f, true);
                     return (_currToken = t);
                 }
-                if (_itemFilter == null) { // does this occur?
+                if (f == null) { // does this occur?
                     delegate.skipChildren();
-                    break;
+                    continue main_loop;
                 }
-                _exposedContext = _headContext = _headContext.createChildObjectContext(_itemFilter, false);
-                break;
-    
+                // Otherwise still iffy, need to check
+                f = _headContext.checkValue(f);
+                if (f == null) {
+                    delegate.skipChildren();
+                    continue main_loop;
+                }
+                if (f != TokenFilter.INCLUDE_ALL) {
+                    f = f.filterStartObject();
+                }
+                _itemFilter = f;
+                _headContext = _headContext.createChildObjectContext(f, true);
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    return (_currToken = t);
+                }
+                // but if we didn't figure it out yet, need to buffer possible events
+                return _nextTokenWithBuffering(_headContext);
+
             case ID_END_ARRAY:
             case ID_END_OBJECT:
                 {
                     boolean returnEnd = _headContext.isStartHandled();
-                    TokenFilter f = _headContext.getFilter();
+                    f = _headContext.getFilter();
+                    if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                        f.filterFinishArray();
+                    }
+                    _headContext = _headContext.getParent();
+                    _itemFilter = _headContext.getFilter();
+                    if (returnEnd) {
+                        return (_currToken = t);
+                    }
+                }
+                continue main_loop;
+
+            case ID_FIELD_NAME:
+                {
+                    final String name = delegate.getCurrentName();
+                    f = _headContext.setFieldName(name);
+                    if (f == TokenFilter.INCLUDE_ALL) {
+                        _itemFilter = f;
+                        return (_currToken = t);
+                    }
+                    if (f == null) { // filter out the value
+                        delegate.nextToken();
+                        delegate.skipChildren();
+                        break;
+                    }
+                    f = f.includeProperty(name);
+                    if (f == null) { // filter out the value
+                        delegate.nextToken();
+                        delegate.skipChildren();
+                        break;
+                    }
+                    if (f == TokenFilter.INCLUDE_ALL) {
+                        _itemFilter = f;
+                        return (_currToken = t);
+                    }
+                    // !!! TODO: still not decided if to include, so...
+                    
+                    _itemFilter = f;
+                }
+                continue main_loop;
+
+            default: // scalar value
+                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                    return (_currToken = t);
+                }
+                // Otherwise not included (leaves must be explicitly included)
+                continue main_loop;
+            }
+        }
+    }
+
+    /**
+     * Method called when a new potentially included context is found.
+     */
+    protected final JsonToken _nextTokenWithBuffering(TokenFilterContext buffRoot) throws IOException
+    {
+        _exposedContext = _headContext;
+
+        while (true) {
+            JsonToken t = delegate.nextToken();
+
+            if (t == null) { // is this even legal?
+                return (_currToken = t);
+            }
+            TokenFilter f;
+
+            switch (t.id()) {
+            case ID_START_ARRAY:
+                f = _itemFilter;
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildArrayContext(f, true);
+                    return (_currToken = t);
+                }
+                if (f == null) { // does this occur?
+                    delegate.skipChildren();
+                    break;
+                }
+                // Otherwise still iffy, need to check
+                f = _headContext.checkValue(f);
+                if (f == null) {
+                    delegate.skipChildren();
+                    break;
+                }
+                if (f != TokenFilter.INCLUDE_ALL) {
+                    f = f.filterStartArray();
+                }
+                _itemFilter = f;
+                _headContext = _headContext.createChildArrayContext(f, true);
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    return (_currToken = t);
+                }
+                break;
+
+            case ID_START_OBJECT:
+                f = _itemFilter;
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildObjectContext(f, true);
+                    return (_currToken = t);
+                }
+                if (f == null) { // does this occur?
+                    delegate.skipChildren();
+                    break;
+                }
+                // Otherwise still iffy, need to check
+                f = _headContext.checkValue(f);
+                if (f == null) {
+                    delegate.skipChildren();
+                    break;
+                }
+                if (f != TokenFilter.INCLUDE_ALL) {
+                    f = f.filterStartObject();
+                }
+                _itemFilter = f;
+                _headContext = _headContext.createChildObjectContext(f, true);
+                if (f == TokenFilter.INCLUDE_ALL) {
+                    return (_currToken = t);
+                }
+                break;
+
+            case ID_END_ARRAY:
+            case ID_END_OBJECT:
+                {
+                    boolean returnEnd = _headContext.isStartHandled();
+                    f = _headContext.getFilter();
                     if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
                         f.filterFinishArray();
                     }
@@ -407,21 +566,32 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                 }
                 break;
-    
+
             case ID_FIELD_NAME:
                 {
                     final String name = delegate.getCurrentName();
-                    TokenFilter f = _headContext.setFieldName(name);
+                    f = _headContext.setFieldName(name);
+                    if (f == TokenFilter.INCLUDE_ALL) {
+                        _itemFilter = f;
+                        return (_currToken = t);
+                    }
                     if (f == null) { // filter out the value
                         delegate.nextToken();
                         delegate.skipChildren();
                         break;
                     }
-                    if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                    f = f.includeProperty(name);
+                    if (f == null) { // filter out the value
+                        delegate.nextToken();
+                        delegate.skipChildren();
+                        break;
+                    }
+                    if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
                         return (_currToken = t);
                     }
-                    f = f.includeProperty(name);
+                    // !!! TODO: still not decided if to include, so...
+                    
                     _itemFilter = f;
                 }
                 break;
@@ -434,17 +604,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 break;
             }
         }
-    }
-
-    /**
-     * Method called when a new potentially included context is found.
-     */
-    protected final JsonToken _nextTokenWithBuffering(TokenFilterContext buffRoot) throws IOException
-    {
-        _exposedContext = _headContext;
-        // !!! TODO
-        return null;
-    }
+   }
     
     @Override
     public JsonToken nextValue() throws IOException {

@@ -280,7 +280,7 @@ public class TokenFilterContext extends JsonStreamContext
     public TokenFilter getFilter() { return _filter; }
     public boolean isStartHandled() { return _startHandled; }
 
-    public JsonToken nextTokenToRead(JsonToken curr) {
+    public JsonToken nextTokenToRead() {
         if (!_startHandled) {
             if (_type == TYPE_OBJECT) {
                 return JsonToken.START_OBJECT;
@@ -289,7 +289,8 @@ public class TokenFilterContext extends JsonStreamContext
             return JsonToken.START_ARRAY;
         }
         // But otherwise at most might have FIELD_NAME
-        if ((curr == JsonToken.START_OBJECT) && (_type == TYPE_OBJECT)) {
+        if (_needToHandleName && (_type == TYPE_OBJECT)) {
+            _needToHandleName = false;
             return JsonToken.FIELD_NAME;
         }
         return null;

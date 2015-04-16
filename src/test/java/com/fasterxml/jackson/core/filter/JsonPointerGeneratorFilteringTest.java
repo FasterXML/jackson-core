@@ -87,7 +87,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         // and then non-match
         _assert(SIMPLE_INPUT, "/x", false, "");
     }
-    
+
     private void _assert(String input, String pathExpr, boolean includeParent, String exp)
         throws Exception
     {

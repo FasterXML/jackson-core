@@ -392,7 +392,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
         main_loop:
         while (true) {
             JsonToken t = delegate.nextToken();
-
             if (t == null) { // is this even legal?
                 return (_currToken = t);
             }
@@ -506,7 +505,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 continue main_loop;
 
             default: // scalar value
-                if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+                f = _itemFilter;
+                if ((f == TokenFilter.INCLUDE_ALL)
+                        || ((f != null) && f.includeValue(delegate))) {
                     return (_currToken = t);
                 }
                 // Otherwise not included (leaves must be explicitly included)

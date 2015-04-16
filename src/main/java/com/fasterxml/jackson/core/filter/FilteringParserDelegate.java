@@ -272,12 +272,17 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 f = f.filterStartArray();
             }
             _itemFilter = f;
-            _headContext = _headContext.createChildArrayContext(f, true);
             if (f == TokenFilter.INCLUDE_ALL) {
+                _headContext = _headContext.createChildArrayContext(f, true);
                 return (_currToken = t);
             }
-            // but if we didn't figure it out yet, need to buffer possible events
-            return _nextTokenWithBuffering(_headContext);
+            _headContext = _headContext.createChildArrayContext(f, false);
+            
+            // Also: only need buffering if parent path to be included
+            if (_includePath) {
+                return _nextTokenWithBuffering(_headContext);
+            }
+            break;
 
         case ID_START_OBJECT:
             f = _itemFilter;
@@ -299,12 +304,18 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 f = f.filterStartObject();
             }
             _itemFilter = f;
-            _headContext = _headContext.createChildObjectContext(f, true);
             if (f == TokenFilter.INCLUDE_ALL) {
+                _headContext = _headContext.createChildObjectContext(f, true);
                 return (_currToken = t);
             }
-            // but if we didn't figure it out yet, need to buffer possible events
-            return _nextTokenWithBuffering(_headContext);
+            _headContext = _headContext.createChildObjectContext(f, false);
+            // Also: only need buffering if parent path to be included
+            if (_includePath) {
+                return _nextTokenWithBuffering(_headContext);
+            }
+            // note: inclusion of surrounding Object handled separately via
+            // FIELD_NAME
+            break;
 
         case ID_END_ARRAY:
         case ID_END_OBJECT:
@@ -329,15 +340,21 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 f = _headContext.setFieldName(name);
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _itemFilter = f;
+                    // Minor twist here: if parent NOT included, may need to induce output of
+                    // surrounding START_OBJECT/END_OBJECT
+                    if (!_includePath && !_headContext.isStartHandled()) {
+                        t = _headContext.nextTokenToRead(); // returns START_OBJECT but also marks it handled
+                        _exposedContext = _headContext;
+                    }
                     return (_currToken = t);
                 }
-                if (f == null) { // filter out the value
+                if (f == null) {
                     delegate.nextToken();
                     delegate.skipChildren();
                     break;
                 }
                 f = f.includeProperty(name);
-                if (f == null) { // filter out the value
+                if (f == null) {
                     delegate.nextToken();
                     delegate.skipChildren();
                     break;
@@ -346,7 +363,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (f == TokenFilter.INCLUDE_ALL) {
                     return (_currToken = t);
                 }
-                return _nextTokenWithBuffering(_headContext);
+                if (_includePath) {
+                    return _nextTokenWithBuffering(_headContext);
+                }
+                break;
             }
 
         default: // scalar value
@@ -399,12 +419,16 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     f = f.filterStartArray();
                 }
                 _itemFilter = f;
-                _headContext = _headContext.createChildArrayContext(f, true);
                 if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildArrayContext(f, true);
                     return (_currToken = t);
                 }
+                _headContext = _headContext.createChildArrayContext(f, false);
                 // but if we didn't figure it out yet, need to buffer possible events
-                return _nextTokenWithBuffering(_headContext);
+                if (_includePath) {
+                    return _nextTokenWithBuffering(_headContext);
+                }
+                continue main_loop;
 
             case ID_START_OBJECT:
                 f = _itemFilter;
@@ -426,12 +450,15 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     f = f.filterStartObject();
                 }
                 _itemFilter = f;
-                _headContext = _headContext.createChildObjectContext(f, true);
                 if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildObjectContext(f, true);
                     return (_currToken = t);
                 }
-                // but if we didn't figure it out yet, need to buffer possible events
-                return _nextTokenWithBuffering(_headContext);
+                _headContext = _headContext.createChildObjectContext(f, false);
+                if (_includePath) {
+                    return _nextTokenWithBuffering(_headContext);
+                }
+                continue main_loop;
 
             case ID_END_ARRAY:
             case ID_END_OBJECT:
@@ -472,8 +499,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     if (f == TokenFilter.INCLUDE_ALL) {
                         return (_currToken = t);
                     }
+                    if (_includePath) {
+                        return _nextTokenWithBuffering(_headContext);
+                    }
                 }
-                return _nextTokenWithBuffering(_headContext);
+                continue main_loop;
 
             default: // scalar value
                 if (_itemFilter == TokenFilter.INCLUDE_ALL) {
@@ -491,7 +521,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     protected final JsonToken _nextTokenWithBuffering(final TokenFilterContext buffRoot)
         throws IOException
     {
-        _exposedContext = _headContext;
+        _exposedContext = buffRoot;
 
         main_loop:
         while (true) {

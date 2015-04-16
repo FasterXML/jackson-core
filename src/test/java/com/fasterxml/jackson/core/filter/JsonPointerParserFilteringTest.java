@@ -34,12 +34,9 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
         JsonGenerator g = JSON_F.createGenerator(w);
 
         try {
-System.err.println("Start");            
             while (p.nextToken() != null) {
-System.err.println("Token -> "+p.getCurrentToken());                
                 g.copyCurrentEvent(p);
             }
-System.err.println("Finish");            
             p.close();
             g.close();
         } catch (Exception e) {

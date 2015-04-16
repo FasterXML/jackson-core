@@ -206,7 +206,6 @@ public class TokenFilterContext extends JsonStreamContext
 
     private void _writePath(JsonGenerator gen) throws IOException
     {
-//System.err.println("_writePath("+_type+"), startWritten? "+_startWritten+", writeName? "+_needToWriteName+" at "+toString());
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
         }
@@ -282,6 +281,7 @@ public class TokenFilterContext extends JsonStreamContext
 
     public JsonToken nextTokenToRead() {
         if (!_startHandled) {
+            _startHandled = true;
             if (_type == TYPE_OBJECT) {
                 return JsonToken.START_OBJECT;
             }

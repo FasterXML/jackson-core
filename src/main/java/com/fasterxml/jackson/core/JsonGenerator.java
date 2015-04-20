@@ -4,19 +4,7 @@
  */
 package com.fasterxml.jackson.core;
 
-import static com.fasterxml.jackson.core.JsonTokenId.ID_EMBEDDED_OBJECT;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_END_ARRAY;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_END_OBJECT;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_FALSE;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_FIELD_NAME;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_NOT_AVAILABLE;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_NULL;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_NUMBER_FLOAT;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_NUMBER_INT;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_START_ARRAY;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_START_OBJECT;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_STRING;
-import static com.fasterxml.jackson.core.JsonTokenId.ID_TRUE;
+import static com.fasterxml.jackson.core.JsonTokenId.*;
 
 import java.io.*;
 import java.math.BigDecimal;

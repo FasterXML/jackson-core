@@ -14,12 +14,20 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
 
     public void testSimplestWithPath() throws Exception
     {
+        _assert(SIMPLEST_INPUT, "/a", true, "{'a':1}");
         _assert(SIMPLEST_INPUT, "/b", true, "{'b':2}");
+        _assert(SIMPLEST_INPUT, "/c", true, "{'c':3}");
+        _assert(SIMPLEST_INPUT, "/c/0", true, "");
+        _assert(SIMPLEST_INPUT, "/d", true, "");
     }
 
     public void testSimplestNoPath() throws Exception
     {
+        _assert(SIMPLEST_INPUT, "/a", false, "1");
         _assert(SIMPLEST_INPUT, "/b", false, "2");
+        _assert(SIMPLEST_INPUT, "/b/2", false, "");
+        _assert(SIMPLEST_INPUT, "/c", false, "3");
+        _assert(SIMPLEST_INPUT, "/d", false, "");
     }
 
     public void testSimpleWithPath() throws Exception
@@ -29,8 +37,6 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
         _assert(SIMPLE_INPUT, "/a", true, "{'a':1}");
         _assert(SIMPLE_INPUT, "/b", true, "{'b':[1,2,3]}");
 
-        // !!! TODO: failing
-        
 //        _assert(SIMPLE_INPUT, "/b/1", true, "{'b':[2]}");
     }
 

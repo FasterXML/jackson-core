@@ -325,4 +325,79 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         // but number of spill-overs starts to grow beyond 30k quite a lot:
         assertEquals(12, symbols.spilloverCount());
     }
+
+    // [core#191]: similarly, but for "short" symbols:
+    public void testShortNameCollisionsViaParser() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        String json = _shortDoc191();
+        JsonParser p;
+
+        // First: ensure that char-based is fine
+        p = f.createParser(json);
+        while (p.nextToken() != null) { }
+        p.close();
+
+        // and then that byte-based
+        p = f.createParser(json.getBytes("UTF-8"));
+        while (p.nextToken() != null) { }
+        p.close();
+    }
+
+    // [core#191]
+    public void testShortNameCollisionsDirect() throws IOException
+    {
+        final int COUNT = 400;
+
+        // First, char-based
+        {
+            CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1);
+            for (int i = 0; i < COUNT; ++i) {
+                String id = String.valueOf((char) i);
+                char[] ch = id.toCharArray();
+                symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(id));
+            }
+            assertEquals(COUNT, symbols.size());
+            assertEquals(1024, symbols.bucketCount());
+    
+            assertEquals(0, symbols.collisionCount());
+            assertEquals(0, symbols.maxCollisionLength());
+        }
+
+        // then byte-based
+        {
+            BytesToNameCanonicalizer symbols =
+                    BytesToNameCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+            for (int i = 0; i < COUNT; ++i) {
+                String id = String.valueOf((char) i);
+                int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
+                symbols.addName(id, quads, quads.length);
+            }
+            assertEquals(COUNT, symbols.size());
+            assertEquals(1024, symbols.bucketCount());
+    
+            assertEquals(15, symbols.collisionCount());
+            assertEquals(1, symbols.maxCollisionLength());
+        }
+    }
+    
+    private String _shortDoc191() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        for (int i = 0; i < 400; ++i) {
+            if (i > 0) {
+                sb.append(",\n");
+            }
+            sb.append('"');
+            char c = (char) i;
+            if (Character.isLetterOrDigit(c)) {
+                sb.append((char) i);
+            } else {
+                sb.append(String.format("\\u%04x", i));
+            }
+            sb.append("\" : "+i);
+        }
+        sb.append("}\n");
+        return sb.toString();
+    }
 }

@@ -42,7 +42,8 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
 
     public void testSimpleNoPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/c", false, "{'d':{'a':true}}");
+//        _assert(SIMPLE_INPUT, "/c", false, "{'d':{'a':true}}");
+
         _assert(SIMPLE_INPUT, "/c/d", false, "{'a':true}");
         _assert(SIMPLE_INPUT, "/a", false, "1");
         _assert(SIMPLE_INPUT, "/b", false, "[1,2,3]");
@@ -58,7 +59,7 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
     {
         JsonParser p0 = JSON_F.createParser(input);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
-                new JsonPointerBasedFilter(pathExpr, includeParent),
+                new JsonPointerBasedFilter(pathExpr),
                 includeParent, false);
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);

@@ -47,6 +47,17 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * path from main level down to match is also included as necessary.
      */
     protected boolean _includePath;
+
+    /* NOTE: this feature is included in the first version (2.6), but
+     * there is no public API to enable it, yet, since there isn't an
+     * actual use case. But it seemed possible need could arise, which
+     * is feature has not yet been removed. If no use is found within
+     * first version or two, just remove.
+     * 
+     * Marked as deprecated since its status is uncertain.
+     */
+    @Deprecated
+    protected boolean _includeImmediateParent = false;
     
     /*
     /**********************************************************
@@ -343,11 +354,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 f = _headContext.setFieldName(name);
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _itemFilter = f;
-                    // Minor twist here: if parent NOT included, may need to induce output of
-                    // surrounding START_OBJECT/END_OBJECT
-                    if (!_includePath && !_headContext.isStartHandled()) {
-                        t = _headContext.nextTokenToRead(); // returns START_OBJECT but also marks it handled
-                        _exposedContext = _headContext;
+                    if (!_includePath) {
+                        // Minor twist here: if parent NOT included, may need to induce output of
+                        // surrounding START_OBJECT/END_OBJECT
+                        if (_includeImmediateParent && !_headContext.isStartHandled()) {
+                            t = _headContext.nextTokenToRead(); // returns START_OBJECT but also marks it handled
+                            _exposedContext = _headContext;
+                        }
                     }
                     return (_currToken = t);
                 }
@@ -364,7 +377,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    return (_currToken = t);
+                    if (_includePath) {
+                        return (_currToken = t);
+                    }
                 }
                 if (_includePath) {
                     return _nextTokenWithBuffering(_headContext);
@@ -507,7 +522,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                     _itemFilter = f;
                     if (f == TokenFilter.INCLUDE_ALL) {
-                        return (_currToken = t);
+                        if (_includePath) {
+                            return (_currToken = t);
+                        }
+//                        if (_includeImmediateParent) { ...
+                        continue main_loop;
                     }
                     if (_includePath) {
                         return _nextTokenWithBuffering(_headContext);
@@ -824,5 +843,4 @@ public class FilteringParserDelegate extends JsonParserDelegate
         }
         return _headContext;
     }
-
 }

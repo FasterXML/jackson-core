@@ -95,9 +95,13 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
                 );
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        // Since properties MUST be contained within an Object, inclusion needs
-         // to materialize surrounding Object too!
-        assertEquals(aposToQuotes("{'value':3}"), w.toString());
+
+        // 21-Apr-2015, tatu: note that there were plans to actually
+        //     allow "immediate parent inclusion" for matches on property
+        //    names. This behavior was NOT included in release however, so:
+//        assertEquals(aposToQuotes("{'value':3}"), w.toString());
+
+        assertEquals(aposToQuotes("3"), w.toString());
     }
 
     public void testSingleMatchFilteringWithPath() throws Exception

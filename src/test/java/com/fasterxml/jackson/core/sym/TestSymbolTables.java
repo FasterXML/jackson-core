@@ -153,6 +153,41 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
 
     // [core#191]
+    public void testShortQuotedDirectChars() throws IOException
+    {
+        final int COUNT = 400;
+        
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(1);
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.format("\\u%04x", i);
+            char[] ch = id.toCharArray();
+            symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(id));
+        }
+        assertEquals(COUNT, symbols.size());
+        assertEquals(1024, symbols.bucketCount());
+
+        assertEquals(112, symbols.collisionCount());
+        assertEquals(2, symbols.maxCollisionLength());
+    }
+
+    public void testShortQuotedDirectBytes() throws IOException
+    {
+        final int COUNT = 400;
+        BytesToNameCanonicalizer symbols =
+                BytesToNameCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
+        for (int i = 0; i < COUNT; ++i) {
+            String id = String.format("\\u%04x", i);
+            int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
+            symbols.addName(id, quads, quads.length);
+        }
+        assertEquals(COUNT, symbols.size());
+        assertEquals(1024, symbols.bucketCount());
+
+        assertEquals(44, symbols.collisionCount());
+        assertEquals(2, symbols.maxCollisionLength());
+    }
+    
+    // [core#191]
     public void testShortNameCollisionsDirect() throws IOException
     {
         final int COUNT = 400;
@@ -196,14 +231,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             if (i > 0) {
                 sb.append(",\n");
             }
-            sb.append('"');
-            char c = (char) i;
-            if (Character.isLetterOrDigit(c)) {
-                sb.append((char) i);
-            } else {
-                sb.append(String.format("\\u%04x", i));
-            }
-            sb.append("\" : "+i);
+            sb.append(String.format("\"\\u%04x\" : %d", i, i));
         }
         sb.append("}\n");
         return sb.toString();

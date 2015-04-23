@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.5.3 (not released yet)
+
+#191: Longest collision chain in symbol table now exceeds maximum -- suspect a DoS attack
+ (reported by Paul D)
+
 2.5.2 (29-Mar-2015)
 
 #181: Failure parsing -Infinity on buffer boundary

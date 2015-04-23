@@ -1302,7 +1302,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     }
                 }
             }
-            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + i;
+            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + c;
             // Ok, let's add char to output:
             outBuf[outPtr++] = c;
 
@@ -1318,7 +1318,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             char[] buf = tb.getTextBuffer();
             int start = tb.getTextOffset();
             int len = tb.size();
-
             return _symbols.findSymbol(buf, start, len, hash);
         }
     }

@@ -17,6 +17,7 @@ json-specificity (naming due to historical reasons).
 
 #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
  (reported by Derek C)
+#191: Longest collision chain in symbol table now exceeds maximum
 
 2.4.5 (13-Jan-2015)
 

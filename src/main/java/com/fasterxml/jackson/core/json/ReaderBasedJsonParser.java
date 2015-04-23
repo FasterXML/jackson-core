@@ -1302,7 +1302,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     }
                 }
             }
-            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + i;
+            hash = (hash * CharsToNameCanonicalizer.HASH_MULT) + c;
             // Ok, let's add char to output:
             outBuf[outPtr++] = c;
 

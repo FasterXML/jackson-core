@@ -38,6 +38,8 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
         _assert(SIMPLE_INPUT, "/b", true, "{'b':[1,2,3]}");
         _assert(SIMPLE_INPUT, "/b/0", true, "{'b':[1]}");
         _assert(SIMPLE_INPUT, "/b/1", true, "{'b':[2]}");
+        _assert(SIMPLE_INPUT, "/b/2", true, "{'b':[3]}");
+        _assert(SIMPLE_INPUT, "/b/3", true, "");
     }
 
     public void testSimpleNoPath() throws Exception

@@ -302,7 +302,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
             
             // Also: only need buffering if parent path to be included
             if (_includePath) {
-                return _nextTokenWithBuffering(_headContext);
+                t = _nextTokenWithBuffering(_headContext);
+                if (t != null) {
+                    _currToken = t;
+                    return t;
+                }
             }
             break;
 
@@ -333,7 +337,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
             _headContext = _headContext.createChildObjectContext(f, false);
             // Also: only need buffering if parent path to be included
             if (_includePath) {
-                return _nextTokenWithBuffering(_headContext);
+                t = _nextTokenWithBuffering(_headContext);
+                if (t != null) {
+                    _currToken = t;
+                    return t;
+                }
             }
             // note: inclusion of surrounding Object handled separately via
             // FIELD_NAME
@@ -390,7 +398,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                 }
                 if (_includePath) {
-                    return _nextTokenWithBuffering(_headContext);
+                    t = _nextTokenWithBuffering(_headContext);
+                    if (t != null) {
+                        _currToken = t;
+                        return t;
+                    }
                 }
                 break;
             }
@@ -459,7 +471,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 _headContext = _headContext.createChildArrayContext(f, false);
                 // but if we didn't figure it out yet, need to buffer possible events
                 if (_includePath) {
-                    return _nextTokenWithBuffering(_headContext);
+                    t = _nextTokenWithBuffering(_headContext);
+                    if (t != null) {
+                        _currToken = t;
+                        return t;
+                    }
                 }
                 continue main_loop;
 
@@ -489,7 +505,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 _headContext = _headContext.createChildObjectContext(f, false);
                 if (_includePath) {
-                    return _nextTokenWithBuffering(_headContext);
+                    t = _nextTokenWithBuffering(_headContext);
+                    if (t != null) {
+                        _currToken = t;
+                        return t;
+                    }
                 }
                 continue main_loop;
 
@@ -537,7 +557,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                         continue main_loop;
                     }
                     if (_includePath) {
-                        return _nextTokenWithBuffering(_headContext);
+                        t = _nextTokenWithBuffering(_headContext);
+                        if (t != null) {
+                            _currToken = t;
+                            return t;
+                        }
                     }
                 }
                 continue main_loop;
@@ -572,7 +596,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         while (true) {
             JsonToken t = delegate.nextToken();
             if (t == null) { // is this even legal?
-                return (_currToken = t);
+                return t;
             }
             TokenFilter f;
 
@@ -602,7 +626,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 f = _itemFilter;
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildObjectContext(f, true);
-                    return (_currToken = t);
+                    return t;
                 }
                 if (f == null) { // does this occur?
                     delegate.skipChildren();
@@ -638,8 +662,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     _itemFilter = _headContext.getFilter();
                     
                     if (_headContext == buffRoot) {
-                        // !!! TBI
-                        throw _constructError("Internal error: end of possible inclusion -- TBI");
+                        return null;
                     }
                 }
                 continue main_loop;
@@ -693,7 +716,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
         TokenFilterContext ctxt = _exposedContext;
         JsonToken t = ctxt.nextTokenToRead();
         if (t != null) {
-            _currToken = t;
             return t;
         }
         while (true) {
@@ -713,7 +735,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
             t = _exposedContext.nextTokenToRead();
             if (t != null) {
-                _currToken = t;
                 return t;
             }
         }

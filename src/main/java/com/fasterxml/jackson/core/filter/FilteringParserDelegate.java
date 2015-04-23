@@ -234,6 +234,14 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 // all done with buffered stuff?
                 if (ctxt == _headContext) {
                     _exposedContext = null;
+                    if (ctxt.inArray()) {
+                        t = delegate.getCurrentToken();
+// Is this guaranteed to work without further checks?
+//                        if (t != JsonToken.START_ARRAY) {
+                        _currToken = t;
+                        return t;
+                    }
+
                     // Almost! Most likely still have the current token;
                     // with the sole exception of 
                     /*
@@ -563,7 +571,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
         main_loop:
         while (true) {
             JsonToken t = delegate.nextToken();
-
             if (t == null) { // is this even legal?
                 return (_currToken = t);
             }
@@ -584,10 +591,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     f = f.filterStartArray();
                 }
                 _itemFilter = f;
-                _headContext = _headContext.createChildArrayContext(f, true);
                 if (f == TokenFilter.INCLUDE_ALL) {
+                    _headContext = _headContext.createChildArrayContext(f, true);
                     return _nextBuffered();
                 }
+                _headContext = _headContext.createChildArrayContext(f, false);
                 continue main_loop;
 
             case ID_START_OBJECT:

@@ -104,8 +104,7 @@ public class TestByteBasedSymbols
     /**********************************************************
      */
 
-    protected JsonParser createParser(JsonFactory jf, String input)
-        throws IOException, JsonParseException
+    protected JsonParser createParser(JsonFactory jf, String input) throws IOException
     {
         byte[] data = input.getBytes("UTF-8");
         InputStream is = new ByteArrayInputStream(data);

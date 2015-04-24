@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.3 (not released yet)
+2.5.3 (24-Apr-2015)
 
 #191: Longest collision chain in symbol table now exceeds maximum -- suspect a DoS attack
  (reported by Paul D)

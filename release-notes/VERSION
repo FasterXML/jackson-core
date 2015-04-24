@@ -13,7 +13,7 @@ json-specificity (naming due to historical reasons).
 === Releases ===
 ------------------------------------------------------------------------
 
-2.4.6 (not released yet)
+2.4.6 (23-Apr-2015)
 
 #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
  (reported by Derek C)

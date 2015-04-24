@@ -23,6 +23,9 @@ JSON library.
   uses new class `com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate`
   (and related, `TokenFilter`)
 #188: `JsonParser.getValueAsString()` should return field name for `JsonToken.FIELD_NAME`, not `null`
+#189: Add `JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING` (default: true), which may
+  be disabled to prevent use of ThreadLocal-based buffer recyling.
+ (suggested by soldierkam@github)
 - Minor improvement to construction of "default PrettyPrinter": now overridable by data format
   modules
 - Implement a new yet more optimized symbol table for byte-backed parsers

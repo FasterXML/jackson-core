@@ -4,7 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestJsonFactory
+public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testGeneratorFeatures() throws Exception
@@ -18,15 +18,64 @@ public class TestJsonFactory
         assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
     }
 
-    public void testParserFeatures() throws Exception
+    public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        assertNull(f.getCodec());
 
         f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, true);
         assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false);
         assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+
+        // by default, should be enabled
+        assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
+        f.configure(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING, false);
+        assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
+    }
+
+    // for [core#189]: verify that it's ok to disable recycling
+    // Basically simply exercises basic functionality, to ensure
+    // there are no obvious problems; needed since testing never
+    // disables this handling otherwise
+    public void testDisablingBufferRecycling() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+
+        f.disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING);
+
+        // First, generation
+        for (int i = 0; i < 3; ++i) {
+            StringWriter w = new StringWriter();
+            JsonGenerator gen = f.createGenerator(w);
+            gen.writeStartObject();
+            gen.writeEndObject();
+            gen.close();
+            assertEquals("{}", w.toString());
+        }
+    
+        for (int i = 0; i < 3; ++i) {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            JsonGenerator gen = f.createGenerator(bytes);
+            gen.writeStartArray();
+            gen.writeEndArray();
+            gen.close();
+            assertEquals("[]", bytes.toString("UTF-8"));
+        }
+
+        // Then parsing:
+        for (int i = 0; i < 3; ++i) {
+            JsonParser p = f.createParser("{}");
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertNull(p.nextToken());
+            p.close();
+
+            p = f.createParser("{}".getBytes("UTF-8"));
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            assertNull(p.nextToken());
+            p.close();
+        }
     }
     
     public void testJsonWithFiles() throws Exception

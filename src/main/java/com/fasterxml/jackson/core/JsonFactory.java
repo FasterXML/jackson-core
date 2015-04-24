@@ -101,6 +101,21 @@ public class JsonFactory
          */
         FAIL_ON_SYMBOL_HASH_OVERFLOW(true),
 
+        /**
+         * Feature that determines whether we will use {@link BufferRecycler} with
+         * {@link ThreadLocal} and {@link SoftReference}, for efficient reuse of
+         * underlying input/output buffers.
+         * This usually makes sense on normal J2SE/J2EE server-side processing;
+         * but may not make sense on platforms where {@link SoftReference} handling
+         * is broken (like Android), or if there are retention issues due to
+         * {@link ThreadLocal} (see
+         * <a href="https://github.com/FasterXML/jackson-core/issues/189">Issue #189</a>
+         * for a possible case)
+         *
+         * @since 2.6
+         */
+        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true)
+        
         ;
 
         /**
@@ -1384,12 +1399,22 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        SoftReference<BufferRecycler> ref = _recyclerRef.get();
-        BufferRecycler br = (ref == null) ? null : ref.get();
+        BufferRecycler br;
 
-        if (br == null) {
+        /* 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
+         *   scheme, for cases where it is considered harmful (possibly
+         *   on Android, for example)
+         */
+        if (isEnabled(Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)) {
+            SoftReference<BufferRecycler> ref = _recyclerRef.get();
+            br = (ref == null) ? null : ref.get();
+    
+            if (br == null) {
+                br = new BufferRecycler();
+                _recyclerRef.set(new SoftReference<BufferRecycler>(br));
+            }
+        } else {
             br = new BufferRecycler();
-            _recyclerRef.set(new SoftReference<BufferRecycler>(br));
         }
         return br;
     }

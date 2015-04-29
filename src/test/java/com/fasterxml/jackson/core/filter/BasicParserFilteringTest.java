@@ -117,12 +117,14 @@ public class BasicParserFilteringTest extends BaseTest
     @SuppressWarnings("resource")
     public void testMultipleMatchFilteringWithPath2() throws Exception
     {
-        JsonParser p0 = JSON_F.createParser(SIMPLE);
+        String INPUT = aposToQuotes("{'a':123,'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        JsonParser p0 = JSON_F.createParser(INPUT);
         JsonParser p = new FilteringParserDelegate(p0,
-                new NameMatchFilter("array", "b", "value"),
+                new NameMatchFilter("b", "value"),
                 true, true);
+
         String result = readAndWrite(JSON_F, p);
-        assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), result);
+        assertEquals(aposToQuotes("{'ob':{'value':3},'b':true}"), result);
     }
 
     @SuppressWarnings("resource")

@@ -255,7 +255,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 // If not, traverse down the context chain
                 ctxt = _headContext.findChildOf(ctxt);
-
                 _exposedContext = ctxt;
                 if (ctxt == null) { // should never occur
                     throw _constructError("Unexpected problem: chain of filtered context broken");
@@ -590,8 +589,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
     protected final JsonToken _nextTokenWithBuffering(final TokenFilterContext buffRoot)
         throws IOException
     {
-        _exposedContext = buffRoot;
-
         main_loop:
         while (true) {
             JsonToken t = delegate.nextToken();
@@ -617,7 +614,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildArrayContext(f, true);
-                    return _nextBuffered();
+                    return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildArrayContext(f, false);
                 continue main_loop;
@@ -644,7 +641,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildObjectContext(f, true);
-                    return _nextBuffered();
+                    return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildObjectContext(f, false);
                 continue main_loop;
@@ -658,10 +655,17 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
                         f.filterFinishArray();
                     }
+                    boolean gotEnd = (_headContext == buffRoot);
+                    boolean returnEnd = gotEnd && _headContext.isStartHandled();
+
                     _headContext = _headContext.getParent();
                     _itemFilter = _headContext.getFilter();
-                    
-                    if (_headContext == buffRoot) {
+
+                    if (returnEnd) {
+                        return t;
+                    }
+                    // Hmmh. Do we need both checks, or should above suffice?
+                    if (gotEnd || (_headContext == buffRoot)) {
                         return null;
                     }
                 }
@@ -673,7 +677,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     f = _headContext.setFieldName(name);
                     if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
-                        return _nextBuffered();
+                        return _nextBuffered(buffRoot);
                     }
                     if (f == null) { // filter out the value
                         delegate.nextToken();
@@ -688,7 +692,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                     _itemFilter = f;
                     if (f == TokenFilter.INCLUDE_ALL) {
-                        return _nextBuffered();
+                        return _nextBuffered(buffRoot);
                     }
                 }
                 continue main_loop;
@@ -696,13 +700,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
             default: // scalar value
                 f = _itemFilter;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    return _nextBuffered();
+                    return _nextBuffered(buffRoot);
                 }
                 if (f != null) {
                     f = _headContext.checkValue(f);
                     if ((f == TokenFilter.INCLUDE_ALL)
                             || ((f != null) && f.includeValue(delegate))) {
-                        return _nextBuffered();
+                        return _nextBuffered(buffRoot);
                     }
                 }
                 // Otherwise not included (leaves must be explicitly included)
@@ -711,9 +715,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
         }
     }
 
-    private JsonToken _nextBuffered() throws IOException
+    private JsonToken _nextBuffered(TokenFilterContext buffRoot) throws IOException
     {
-        TokenFilterContext ctxt = _exposedContext;
+        _exposedContext = buffRoot;
+        TokenFilterContext ctxt = buffRoot;
         JsonToken t = ctxt.nextTokenToRead();
         if (t != null) {
             return t;

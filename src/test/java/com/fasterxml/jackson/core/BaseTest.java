@@ -335,8 +335,13 @@ public abstract class BaseTest
     {
         StringWriter sw = new StringWriter(100);
         JsonGenerator g = f.createGenerator(sw);
-        while (p.nextToken() != null) {
-            g.copyCurrentEvent(p);
+        try {
+            while (p.nextToken() != null) {
+                g.copyCurrentEvent(p);
+            }
+        } catch (IOException e) {
+            g.flush();
+            fail("Unexpected problem during `readAndWrite`. Output so far: '"+sw+"'; problem: "+e);
         }
         p.close();
         g.close();

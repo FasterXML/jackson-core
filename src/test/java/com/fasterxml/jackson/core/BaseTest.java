@@ -331,6 +331,18 @@ public abstract class BaseTest
         g.close();
     }
 
+    protected String readAndWrite(JsonFactory f, JsonParser p) throws IOException
+    {
+        StringWriter sw = new StringWriter(100);
+        JsonGenerator g = f.createGenerator(sw);
+        while (p.nextToken() != null) {
+            g.copyCurrentEvent(p);
+        }
+        p.close();
+        g.close();
+        return sw.toString();
+    }
+
     /*
     /**********************************************************
     /* Additional assertion methods

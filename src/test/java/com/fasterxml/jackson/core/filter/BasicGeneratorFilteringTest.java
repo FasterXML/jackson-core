@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.*;
  * filtering.
  */
 @SuppressWarnings("resource")
-public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.BaseTest
+public class BasicGeneratorFilteringTest extends BaseTest
 {
     static class NameMatchFilter extends TokenFilter
     {
@@ -64,7 +64,7 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
         @Override
         protected boolean _includeScalar() { return false; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -151,7 +151,7 @@ public class BasicGeneratorFilteringTest extends com.fasterxml.jackson.core.Base
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':4}}}"), w.toString());
     }
-    
+
     public void testIndexMatchWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();

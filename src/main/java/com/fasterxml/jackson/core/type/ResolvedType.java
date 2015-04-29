@@ -46,6 +46,19 @@ public abstract class ResolvedType
 
     public abstract boolean isCollectionLikeType();
 
+    /**
+     * Whether this type is a referential type, meaning that values are
+     * basically pointers to "real" values (or null) and not regular
+     * values themselves. Typical examples include things like
+     * {@link java.util.concurrent.atomic.AtomicReference}, and various
+     * <code>Optional</code> types (in JDK8, Guava).
+     *
+     * @since 2.6
+     */
+    public boolean isReferenceType() {
+        return getReferencedType() != null;
+    }
+
     public abstract boolean isMapLikeType();
 
     /*

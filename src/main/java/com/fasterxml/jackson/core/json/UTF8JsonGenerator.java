@@ -420,15 +420,10 @@ public class UTF8JsonGenerator
             _writeNull();
             return;
         }
-        // First: can we make a local copy of chars that make up text?
+        // First: if we can't guarantee it all fits, quoted, within output, offline
         final int len = text.length();
-        if (len > _charBufferLength) { // nope: off-line handling
+        if (len > _outputMaxContiguous) { // nope: off-line handling
             _writeStringSegments(text, true);
-            return;
-        }
-        // Output: if we can't guarantee it fits in output buffer, off-line as well:
-        if (len > _outputMaxContiguous) {
-            _writeLongString(_charBuffer, 0, len);
             return;
         }
         if ((_outputTail + len) >= _outputEnd) {
@@ -436,22 +431,6 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = BYTE_QUOTE;
         _writeStringSegment(text, 0, len); // we checked space already above
-        /* [JACKSON-462] But that method may have had to expand multi-byte Unicode
-         *   chars, so we must check again
-         */
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = BYTE_QUOTE;
-    }
-
-    private void _writeLongString(char[] text, int offset, int len) throws IOException
-    {
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = BYTE_QUOTE;
-        _writeStringSegments(text, 0, len);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -1155,15 +1134,13 @@ public class UTF8JsonGenerator
 
         int left = text.length();
         int offset = 0;
-        final char[] cbuf = _charBuffer;
 
         while (left > 0) {
             int len = Math.min(_outputMaxContiguous, left);
-            text.getChars(offset, offset+len, cbuf, 0);
             if ((_outputTail + len) > _outputEnd) { // caller must ensure enough space
                 _flushBuffer();
             }
-            _writeStringSegment(cbuf, 0, len);
+            _writeStringSegment(text, offset, len);
             offset += len;
             left -= len;
         }

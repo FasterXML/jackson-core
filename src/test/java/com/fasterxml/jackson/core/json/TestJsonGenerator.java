@@ -11,11 +11,12 @@ import java.io.*;
 public class TestJsonGenerator
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = new JsonFactory();
+
     // // // First, tests for primitive (non-structured) values
 
     public void testStringWrite() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
         String[] inputStrings = new String[] { "", "X", "1234567890" };
         for (int useReader = 0; useReader < 2; ++useReader) {
             for (int writeString = 0; writeString < 2; ++writeString) {
@@ -24,9 +25,9 @@ public class TestJsonGenerator
                     JsonGenerator gen;
                     ByteArrayOutputStream bout = new ByteArrayOutputStream();
                     if (useReader != 0) {
-                        gen = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+                        gen = JSON_F.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
                     } else {
-                        gen = jf.createGenerator(bout, JsonEncoding.UTF8);
+                        gen = JSON_F.createGenerator(bout, JsonEncoding.UTF8);
                     }
                     if (writeString > 0) {
                         gen.writeString(input);
@@ -39,7 +40,7 @@ public class TestJsonGenerator
                     }
                     gen.flush();
                     gen.close();
-                    JsonParser jp = jf.createParser(new ByteArrayInputStream(bout.toByteArray()));
+                    JsonParser jp = JSON_F.createParser(new ByteArrayInputStream(bout.toByteArray()));
                 
                     JsonToken t = jp.nextToken();
                     assertNotNull("Document \""+bout.toString("UTF-8")+"\" yielded no tokens", t);
@@ -52,16 +53,16 @@ public class TestJsonGenerator
         }
     }
 
-    public void testIntWrite() throws Exception
+    public void testIntValueWrite() throws Exception
     {
-        doTestIntWrite(false);
-        doTestIntWrite(true);
+        doTestIntValueWrite(false);
+        doTestIntValueWrite(true);
     }
 
-    public void testLongWrite() throws Exception
+    public void testLongValueWrite() throws Exception
     {
-        doTestLongWrite(false);
-        doTestLongWrite(true);
+        doTestLongValueWrite(false);
+        doTestLongValueWrite(true);
     }
 
     public void testBooleanWrite() throws Exception
@@ -70,7 +71,7 @@ public class TestJsonGenerator
             boolean state = (i & 1) == 0;
             boolean pad = (i & 2) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(sw);
             gen.writeBoolean(state);
             if (pad) {
                 gen.writeRaw(" ");
@@ -95,7 +96,7 @@ public class TestJsonGenerator
         for (int i = 0; i < 2; ++i) {
             boolean pad = (i & 1) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(sw);
             gen.writeNull();
             if (pad) {
                 gen.writeRaw(" ");
@@ -120,7 +121,7 @@ public class TestJsonGenerator
          throws Exception
      {
          StringWriter sw = new StringWriter();
-         JsonGenerator gen = new JsonFactory().createGenerator(sw);
+         JsonGenerator gen = JSON_F.createGenerator(sw);
          gen.writeNumber(1);
          gen.writeNumber(2);
          gen.writeNumber(-13);
@@ -144,7 +145,7 @@ public class TestJsonGenerator
          throws Exception
      {
          StringWriter sw = new StringWriter();
-         JsonGenerator gen = new JsonFactory().createGenerator(sw);
+         JsonGenerator gen = JSON_F.createGenerator(sw);
          gen.writeStartObject();
          gen.writeNumberField("long", 3L);
          gen.writeNumberField("double", 0.25);
@@ -161,7 +162,7 @@ public class TestJsonGenerator
     public void testOutputContext() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(sw);
         JsonStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
 
@@ -232,7 +233,7 @@ public class TestJsonGenerator
     /**********************************************************
      */
 
-    private void doTestIntWrite(boolean pad) throws Exception
+    private void doTestIntValueWrite(boolean pad) throws Exception
     {
         int[] VALUES = new int[] {
             0, 1, -9, 32, -32, 57, 189, 2017, -9999, 13240, 123456,
@@ -241,7 +242,7 @@ public class TestJsonGenerator
         for (int i = 0; i < VALUES.length; ++i) {
             int VALUE = VALUES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(sw);
             gen.writeNumber(VALUE);
             if (pad) {
                 gen.writeRaw(" ");
@@ -263,8 +264,7 @@ public class TestJsonGenerator
         }
     }
 
-    private void doTestLongWrite(boolean pad)
-        throws Exception
+    private void doTestLongValueWrite(boolean pad) throws Exception
     {
         long[] VALUES = new long[] {
             0L, 1L, -1L, -12005002294L, Long.MIN_VALUE, Long.MAX_VALUE
@@ -272,7 +272,7 @@ public class TestJsonGenerator
         for (int i = 0; i < VALUES.length; ++i) {
             long VALUE = VALUES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = new JsonFactory().createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(sw);
             gen.writeNumber(VALUE);
             if (pad) {
                 gen.writeRaw(" ");
@@ -293,3 +293,4 @@ public class TestJsonGenerator
         }
     }
 }
+

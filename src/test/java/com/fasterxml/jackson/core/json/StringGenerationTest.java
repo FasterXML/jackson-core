@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.json;
 
 import java.io.*;
 
@@ -10,7 +10,7 @@ import java.util.Random;
  * Set of basic unit tests for verifying that the string
  * generation, including character escaping, works as expected.
  */
-public class TestStringGeneration
+public class StringGenerationTest
     extends BaseTest
 {
     final static String[] SAMPLES = new String[] {
@@ -23,15 +23,33 @@ public class TestStringGeneration
  
     private final JsonFactory FACTORY = new JsonFactory();
     
-    public void testBasicEscaping()
-        throws Exception
+    public void testBasicEscaping() throws Exception
     {
         doTestBasicEscaping(false);
         doTestBasicEscaping(true);
     }
 
-    public void testLongerRandomSingleChunk()
-        throws Exception
+    // for [core#194]
+    public void testMediumStringsBytes() throws Exception
+    {
+        _testMediumStrings(true, 1100);
+        _testMediumStrings(true, 2300);
+        _testMediumStrings(true, 3800);
+        _testMediumStrings(true, 7500);
+        _testMediumStrings(true, 19000);
+    }
+
+    // for [core#194]
+    public void testMediumStringsChars() throws Exception
+    {
+        _testMediumStrings(false, 1100);
+        _testMediumStrings(false, 2300);
+        _testMediumStrings(false, 3800);
+        _testMediumStrings(false, 7500);
+        _testMediumStrings(false, 19000);
+    }
+
+    public void testLongerRandomSingleChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range
@@ -43,8 +61,7 @@ public class TestStringGeneration
         }
     }
 
-    public void testLongerRandomMultiChunk()
-        throws Exception
+    public void testLongerRandomMultiChunk() throws Exception
     {
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range
@@ -62,6 +79,29 @@ public class TestStringGeneration
     /**********************************************************
      */
 
+    private String _generareMediumText(int minLen)
+    {
+        StringBuilder sb = new StringBuilder(minLen + 1000);
+        Random rnd = new Random(minLen);
+        do {
+            switch (rnd.nextInt() % 4) {
+            case 0:
+                sb.append(" foo");
+                break;
+            case 1:
+                sb.append(" bar");
+                break;
+            case 2:
+                sb.append(String.valueOf(sb.length()));
+                break;
+            default:
+                sb.append(" \"stuff\"");
+                break;
+            }
+        } while (sb.length() < minLen);
+        return sb.toString();
+    }
+    
     private String generateRandom(int len)
     {
         StringBuilder sb = new StringBuilder(len+1000); // pad for surrogates
@@ -84,8 +124,36 @@ public class TestStringGeneration
             }
         }
         return sb.toString();
-    }   
+    }
 
+    private void _testMediumStrings(boolean useBinary, int length) throws Exception
+    {
+        String text = _generareMediumText(length);
+        StringWriter sw = new StringWriter();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+        JsonGenerator gen = useBinary ? FACTORY.createGenerator(bytes)
+                : FACTORY.createGenerator(sw);
+        gen.writeStartArray();
+        gen.writeString(text);
+        gen.writeEndArray();
+        gen.close();
+
+        String json;
+        if (useBinary) {
+            json = bytes.toString("UTF-8");
+        } else {
+            json = sw.toString();
+        }
+
+        JsonParser p = FACTORY.createParser(json);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(text, p.getText());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
+    }
+    
     private void doTestBasicEscaping(boolean charArray)
         throws Exception
     {

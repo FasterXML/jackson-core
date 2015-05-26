@@ -16,6 +16,9 @@ JSON library.
 
 2.6.0 (not yet released)
 
+#137: Allow filtering content read via `JsonParser` by specifying `JsonPointer`;
+  uses new class `com.fasterxml.jackson.core.filter.FilteringParserDelegate`
+  (and related, `TokenFilter`)
 #177: Add a check so `JsonGenerator.writeString()` won't work if `writeFieldName()` expected.
 #182: Inconsistent TextBuffer#getTextBuffer behavior
  (contributed by Masaru H)

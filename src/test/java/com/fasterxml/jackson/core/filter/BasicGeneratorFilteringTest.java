@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core.filter;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -128,8 +130,30 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
+    public void testSingleMatchFilteringWithPathSkippedArray() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator origGen = JSON_F.createGenerator(w);
+        NameMatchFilter filter = new NameMatchFilter("value");
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(origGen,
+                filter,
+                true, // includePath
+                false // multipleMatches
+                );
+
+        // Hmmh. Should we get access to eventual target?
+        assertSame(w, gen.getOutputTarget());
+        assertNotNull(gen.getFilterContext());
+        assertSame(filter, gen.getFilter());
+
+        final String JSON = "{'array':[1,[2,3]],'ob':[{'value':'bar'}],'b':{'foo':[1,'foo']}}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'ob':[{'value':'bar'}]}"), w.toString());
+        assertEquals(1, gen.getMatchCount());
+    }
+
     // Alternative take, using slightly different calls for FIELD_NAME, START_ARRAY
-    public void testSingleMatchFilteringWithPathAlternate() throws Exception
+    public void testSingleMatchFilteringWithPathAlternate1() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
@@ -137,7 +161,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 true, // includePath
                 false // multipleMatches
                 );
-        //final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':'foo'},'b':true}";
+        //final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':[3],'value2':'foo'},'b':true}";
 
         gen.writeStartObject();
         gen.writeFieldName(new SerializedString("a"));
@@ -146,14 +170,16 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeFieldName("array");
         gen.writeStartArray(2);
         gen.writeNumber("1");
-        gen.writeNumber(2);
+        gen.writeNumber((short) 2);
         gen.writeEndArray();
 
         gen.writeFieldName(new SerializedString("ob"));
         gen.writeStartObject();
         gen.writeNumberField("value0", 2);
         gen.writeFieldName(new SerializedString("value"));
-        gen.writeNumber(3); // just to vary generation method
+        gen.writeStartArray(1);
+        gen.writeString(new SerializedString("x")); // just to vary generation method
+        gen.writeEndArray();
         gen.writeStringField("value2", "foo");
 
         gen.writeEndObject();
@@ -163,7 +189,57 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
         gen.close();
 
-        assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
+        assertEquals(aposToQuotes("{'ob':{'value':['x']}}"), w.toString());
+    }
+
+    public void testSingleMatchFilteringWithPathRawBinary() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("array"),
+                true, // includePath
+                false // multipleMatches
+                );
+        //final String JSON = "{'header':['ENCODED',raw],'array':['base64stuff',1,2,3,4,5,6.25,7.5],'extra':[1,2,3,4,5,6.25,7.5]}";
+
+        gen.writeStartObject();
+
+        gen.writeFieldName("header");
+        gen.writeStartArray();
+        gen.writeBinary(new byte[] { 1 });
+        gen.writeRawValue(new SerializedString("1"));
+        gen.writeRawValue("2");
+        gen.writeEndArray();
+        
+        gen.writeFieldName("array");
+
+        gen.writeStartArray();
+        gen.writeBinary(new byte[] { 1 });
+        gen.writeNumber((short) 1);
+        gen.writeNumber((int) 2);
+        gen.writeNumber((long) 3);
+        gen.writeNumber(BigInteger.valueOf(4));
+        gen.writeRaw(" ");
+        gen.writeNumber(new BigDecimal("5.0"));
+        gen.writeRaw(new SerializedString(" /*x*/"));
+        gen.writeNumber(6.25f);
+        gen.writeNumber(7.5);
+        gen.writeEndArray();
+
+        gen.writeArrayFieldStart("extra");
+        gen.writeNumber((short) 1);
+        gen.writeNumber((int) 2);
+        gen.writeNumber((long) 3);
+        gen.writeNumber(BigInteger.valueOf(4));
+        gen.writeNumber(new BigDecimal("5.0"));
+        gen.writeNumber(6.25f);
+        gen.writeNumber(7.5);
+        gen.writeEndArray();
+        
+        gen.writeEndObject();
+        gen.close();
+
+        assertEquals(aposToQuotes("{'array':['AQ==',1,2,3,4 ,5.0 /*x*/,6.25,7.5]}"), w.toString());
     }
     
     public void testMultipleMatchFilteringWithPath1() throws Exception

@@ -57,3 +57,8 @@ Derek Clarkson (drekka@github)
 Masaru Hasegawa (masaruh@github):
   * Reported, contributed fix for#182: Inconsistent TextBuffer#getTextBuffer behavior
    (2.6.0)
+
+Ruediger Moeller (RuedigerMoeller@github)
+  * Requested #195: Add `JsonGenerator.getOutputBuffered()` to find out amount of content buffered,
+     not yet flushed.
+   (2.6.0)

@@ -84,7 +84,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
 
     public void testRootSeparator() throws IOException
     {
-        PrettyPrinter pp = new DefaultPrettyPrinter()
+        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
             .withRootSeparator("|");
         final String EXP = "1|2|3";
 
@@ -107,6 +107,27 @@ public class TestDefaultPrettyPrinter extends BaseTest
         gen.writeNumber(3);
         gen.close();
         assertEquals(EXP, bytes.toString("UTF-8"));
+
+        // Also: let's try removing separator altogether
+        pp = pp.withRootSeparator((String) null)
+                .withArrayIndenter(null)
+                .withObjectIndenter(null)
+                .withoutSpacesInObjectEntries();
+        sw = new StringWriter();
+        gen = JSON_F.createGenerator(sw);
+        gen.setPrettyPrinter(pp);
+
+        gen.writeNumber(1);
+        gen.writeStartArray();
+        gen.writeNumber(2);
+        gen.writeEndArray();
+        gen.writeStartObject();
+        gen.writeFieldName("a");
+        gen.writeNumber(3);
+        gen.writeEndObject();
+        gen.close();
+        // no root separator, nor array, object
+        assertEquals("1[2]{\"a\":3}", sw.toString());
     }
     
     private String _printTestData(PrettyPrinter pp, boolean useBytes) throws IOException

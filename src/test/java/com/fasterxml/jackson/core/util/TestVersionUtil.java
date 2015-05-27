@@ -19,6 +19,7 @@ public class TestVersionUtil extends com.fasterxml.jackson.core.BaseTest
                 VersionUtil.parseVersion("1.2.15-foo", "group", "artifact"));
     }
 
+    @SuppressWarnings("deprecation")
     public void testMavenVersionParsing() {
         assertEquals(new Version(1, 2, 3, "SNAPSHOT", "foo.bar", "foo-bar"),
                 VersionUtil.mavenVersionFor(TestVersionUtil.class.getClassLoader(), "foo.bar", "foo-bar"));

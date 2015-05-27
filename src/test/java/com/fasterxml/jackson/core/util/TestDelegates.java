@@ -13,30 +13,37 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
      */
     public void testParserDelegate() throws IOException
     {
-        JsonParser jp0 = JSON_F.createParser("[ 1, true, null, { } ]");
-        JsonParserDelegate jp = new JsonParserDelegate(jp0);
+        final String TOKEN ="foo";
+
+        JsonParser parser = JSON_F.createParser("[ 1, true, null, { } ]");
+        JsonParserDelegate del = new JsonParserDelegate(parser);
         
-        assertNull(jp.getCurrentToken());
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertEquals("[", jp.getText());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(1, jp.getIntValue());
+        assertNull(del.getCurrentToken());
+        assertToken(JsonToken.START_ARRAY, del.nextToken());
+        assertEquals("[", del.getText());
+        assertToken(JsonToken.VALUE_NUMBER_INT, del.nextToken());
+        assertEquals(1, del.getIntValue());
 
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertTrue(jp.getBooleanValue());
+        assertToken(JsonToken.VALUE_TRUE, del.nextToken());
+        assertTrue(del.getBooleanValue());
 
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, del.nextToken());
+        assertNull(del.getCurrentValue());
+        del.setCurrentValue(TOKEN);
 
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_OBJECT, del.nextToken());
+        assertNull(del.getCurrentValue());
 
-        jp.close();
-        assertTrue(jp.isClosed());
-        assertTrue(jp0.isClosed());
+        assertToken(JsonToken.END_OBJECT, del.nextToken());
+        assertEquals(TOKEN, del.getCurrentValue());
 
-        jp0.close();
+        assertToken(JsonToken.END_ARRAY, del.nextToken());
+
+        del.close();
+        assertTrue(del.isClosed());
+        assertTrue(parser.isClosed());
+
+        parser.close();
     }
 
     /**
@@ -44,28 +51,37 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
      */
     public void testGeneratorDelegate() throws IOException
     {
+        final String TOKEN ="foo";
+
         StringWriter sw = new StringWriter();
         JsonGenerator g0 = JSON_F.createGenerator(sw);
-        JsonGeneratorDelegate jg = new JsonGeneratorDelegate(g0);
-        jg.writeStartArray();
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+        del.writeStartArray();
 
-        assertEquals(1, jg.getOutputBuffered());
+        assertEquals(1, del.getOutputBuffered());
         
-        jg.writeNumber(13);
-        jg.writeNull();
-        jg.writeBoolean(false);
-        jg.writeString("foo");
-        jg.writeStartObject();
-        jg.writeEndObject();
+        del.writeNumber(13);
+        del.writeNull();
+        del.writeBoolean(false);
+        del.writeString("foo");
 
-        jg.writeStartArray(0);
-        jg.writeEndArray();
+        // verify that we can actually set/get "current value" as expected, even with delegates
+        assertNull(del.getCurrentValue());
+        del.setCurrentValue(TOKEN);
 
-        jg.writeEndArray();
+        del.writeStartObject();
+        assertNull(del.getCurrentValue());
+        del.writeEndObject();
+        assertEquals(TOKEN, del.getCurrentValue());
+
+        del.writeStartArray(0);
+        del.writeEndArray();
+
+        del.writeEndArray();
         
-        jg.flush();
-        jg.close();
-        assertTrue(jg.isClosed());        
+        del.flush();
+        del.close();
+        assertTrue(del.isClosed());        
         assertTrue(g0.isClosed());        
         assertEquals("[13,null,false,\"foo\",{},[]]", sw.toString());
 

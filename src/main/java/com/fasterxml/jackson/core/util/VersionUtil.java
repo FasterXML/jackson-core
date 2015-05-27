@@ -19,6 +19,9 @@ import com.fasterxml.jackson.core.Versioned;
  * 2.1 and 2.2; earlier code used file named "VERSION.txt"; but this has serious
  * performance issues on some platforms (Android), so a replacement system
  * was implemented to use class generation and dynamic class loading.
+ *<p>
+ * Note that functionality for reading "VERSION.txt" was removed completely
+ * from Jackson 2.6.
  */
 public class VersionUtil
 {
@@ -64,31 +67,11 @@ public class VersionUtil
      * First, tries to load version info from a class named
      * "PackageVersion" in the same package as the class.
      *
-     * Next, if that fails, class loader that loaded specified class is
-     * asked to load resource with name "VERSION" from same location
-     * (package) as class itself had.
-     *
      * If no version information is found, {@link Version#unknownVersion()} is returned.
      */
-    @SuppressWarnings("resource")
     public static Version versionFor(Class<?> cls)
     {
-        Version packageVersion = packageVersionFor(cls);
-        if (packageVersion != null) {
-            return packageVersion;
-        }
-        final InputStream in = cls.getResourceAsStream("VERSION.txt");
-        if (in == null) {
-            return Version.unknownVersion();
-        }
-        try {
-            InputStreamReader reader = new InputStreamReader(in, "UTF-8");
-            return doReadVersion(reader);
-        } catch (UnsupportedEncodingException e) {
-            return Version.unknownVersion();
-        } finally {
-            _close(in);
-        }
+        return packageVersionFor(cls);
     }
 
     /**
@@ -109,36 +92,9 @@ public class VersionUtil
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to get Versioned out of "+vClass);
             }
-        } catch (Exception e) { // ok to be missing (not good, acceptable)
+        } catch (Exception e) { // ok to be missing (not good but acceptable)
             return null;
         }
-    }
-
-    private static Version doReadVersion(final Reader r)
-    {
-        String version = null, group = null, artifact = null;
-
-        final BufferedReader br = new BufferedReader(r);
-        try {
-            version = br.readLine();
-            if (version != null) {
-                group = br.readLine();
-                if (group != null) {
-                    artifact = br.readLine();
-                }
-            }
-        } catch (IOException ignored) {
-        } finally {
-            _close(br);
-        }
-        // We don't trim() version: parseVersion() takes care ot that
-        if (group != null) {
-            group = group.trim();
-        }
-        if (artifact != null) {
-            artifact = artifact.trim();
-        }
-        return parseVersion(version, group, artifact);
     }
 
     /**
@@ -151,8 +107,12 @@ public class VersionUtil
      * @param groupId the groupId of the library
      * @param artifactId the artifactId of the library
      * @return The version
+     * 
+     * @deprecated Since 2.6: functionality not used by any official Jackson component, should be
+     *   moved out if anyone needs it
      */
     @SuppressWarnings("resource")
+    @Deprecated // since 2.6
     public static Version mavenVersionFor(ClassLoader cl, String groupId, String artifactId)
     {
         InputStream pomProperties = cl.getResourceAsStream("META-INF/maven/"
@@ -174,6 +134,9 @@ public class VersionUtil
         return Version.unknownVersion();
     }
 
+    /**
+     * Method used by {@link PackageVersion} to decode version injected by Maven build.
+     */
     public static Version parseVersion(String s, String groupId, String artifactId)
     {
         if (s != null && (s = s.trim()).length() > 0) {

@@ -264,53 +264,6 @@ public abstract class JsonGenerator
     @Override
     public abstract Version version();
 
-    /**
-     * Method that can be used to get access to object that is used
-     * as target for generated output; this is usually either
-     * {@link OutputStream} or {@link Writer}, depending on what
-     * generator was constructed with.
-     * Note that returned value may be null in some cases; including
-     * case where implementation does not want to exposed raw
-     * source to caller.
-     * In cases where output has been decorated, object returned here
-     * is the decorated version; this allows some level of interaction
-     * between users of generator and decorator object.
-     *<p>
-     * In general use of this accessor should be considered as
-     * "last effort", i.e. only used if no other mechanism is applicable.
-     */
-    public Object getOutputTarget() {
-        return null;
-    }
-
-    /**
-     * Helper method, usually equivalent to:
-     *<code>
-     *   getOutputContext().getCurrentValue();
-     *</code>
-     * 
-     * @since 2.5
-     */
-    public Object getCurrentValue() {
-        JsonStreamContext ctxt = getOutputContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
-
-    /**
-     * Helper method, usually equivalent to:
-     *<code>
-     *   getOutputContext().setCurrentValue(v);
-     *</code>
-     * 
-     * @since 2.5
-     */
-    public void setCurrentValue(Object v) {
-        JsonStreamContext ctxt = getOutputContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
-    }
-
     /*
     /**********************************************************
     /* Public API, Feature configuration
@@ -513,6 +466,81 @@ public abstract class JsonGenerator
         throw new UnsupportedOperationException();
     }
 
+    /*
+    /**********************************************************
+    /* Public API, output state access
+    /**********************************************************
+     */
+    
+    /**
+     * Method that can be used to get access to object that is used
+     * as target for generated output; this is usually either
+     * {@link OutputStream} or {@link Writer}, depending on what
+     * generator was constructed with.
+     * Note that returned value may be null in some cases; including
+     * case where implementation does not want to exposed raw
+     * source to caller.
+     * In cases where output has been decorated, object returned here
+     * is the decorated version; this allows some level of interaction
+     * between users of generator and decorator object.
+     *<p>
+     * In general use of this accessor should be considered as
+     * "last effort", i.e. only used if no other mechanism is applicable.
+     */
+    public Object getOutputTarget() {
+        return null;
+    }
+
+    /**
+     * Method for verifying amount of content that is buffered by generator
+     * but not yet flushed to the underlying target (stream, writer),
+     * in units (byte, char) that the generator implementation uses for buffering;
+     * or -1 if this information is not available.
+     * Unit used is often the same as the unit of underlying target (that is,
+     * `byte` for {@link java.io.OutputStream}, `char` for {@link java.io.Writer}),
+     * but may differ if buffering is done before encoding.
+     * Default JSON-backed implementations do use matching units.
+     *<p>
+     * Note: non-JSON implementations will be retrofitted for 2.6 and beyond;
+     * please report if you see -1 (missing override)
+     *
+     * @return Amount of content buffered in internal units, if amount known and
+     *    accessible; -1 if not accessible.
+     *
+     * @since 2.6
+     */
+    public int getOutputBuffered() {
+        return -1;
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getOutputContext().getCurrentValue();
+     *</code>
+     * 
+     * @since 2.5
+     */
+    public Object getCurrentValue() {
+        JsonStreamContext ctxt = getOutputContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getOutputContext().setCurrentValue(v);
+     *</code>
+     * 
+     * @since 2.5
+     */
+    public void setCurrentValue(Object v) {
+        JsonStreamContext ctxt = getOutputContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Public API, capability introspection methods

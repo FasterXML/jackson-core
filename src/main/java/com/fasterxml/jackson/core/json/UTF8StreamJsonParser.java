@@ -47,13 +47,13 @@ public class UTF8StreamJsonParser
      * Symbol table that contains field names encountered so far
      */
     final protected ByteQuadsCanonicalizer _symbols;
-    
+
     /*
     /**********************************************************
     /* Parsing state
     /**********************************************************
      */
-    
+
     /**
      * Temporary buffer used for name parsing.
      */
@@ -70,13 +70,13 @@ public class UTF8StreamJsonParser
      * Temporary storage for partially parsed name bytes.
      */
     private int _quad1;
-    
+
     /*
     /**********************************************************
     /* Input buffering (from former 'StreamBasedParserBase')
     /**********************************************************
      */
-    
+
     protected InputStream _inputStream;
 
     /*

@@ -145,7 +145,7 @@ public class UTF8JsonGenerator
         _outputBuffer = outputBuffer;
         _outputEnd = _outputBuffer.length;
         // up to 6 bytes per char (see above), rounded up to 1/8
-        _outputMaxContiguous = _outputEnd >> 3;
+        _outputMaxContiguous = (_outputEnd >> 3);
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
         _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
@@ -160,6 +160,12 @@ public class UTF8JsonGenerator
     @Override
     public Object getOutputTarget() {
         return _outputStream;
+    }
+
+    @Override
+    public int getOutputBuffered() {
+        // Assuming tail is always valid, set to 0 on close
+        return _outputTail;
     }
 
     /*
@@ -1027,7 +1033,7 @@ public class UTF8JsonGenerator
          *   scopes.
          */
         // First: let's see that we still have buffers...
-        if (_outputBuffer != null
+        if ((_outputBuffer != null)
             && isEnabled(Feature.AUTO_CLOSE_JSON_CONTENT)) {
             while (true) {
                 JsonStreamContext ctxt = getOutputContext();
@@ -1041,6 +1047,7 @@ public class UTF8JsonGenerator
             }
         }
         _flushBuffer();
+        _outputTail = 0; // just to ensure we don't think there's anything buffered
 
         /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()
          *   on the underlying Reader, unless we "own" it, or auto-closing

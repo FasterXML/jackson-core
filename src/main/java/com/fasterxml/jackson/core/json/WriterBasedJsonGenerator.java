@@ -87,7 +87,14 @@ public final class WriterBasedJsonGenerator
     public Object getOutputTarget() {
         return _writer;
     }
-    
+
+    @Override
+    public int getOutputBuffered() {
+        // Assuming tail and head are kept but... trust and verify:
+        int len = _outputTail - _outputHead;
+        return Math.max(0, len);
+    }
+
     /*
     /**********************************************************
     /* Overridden methods
@@ -840,8 +847,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void close()
-        throws IOException
+    public void close() throws IOException
     {
         super.close();
 
@@ -863,6 +869,8 @@ public final class WriterBasedJsonGenerator
             }
         }
         _flushBuffer();
+        _outputHead = 0;
+        _outputTail = 0;
 
         /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()
          *   on the underlying Reader, unless we "own" it, or auto-closing

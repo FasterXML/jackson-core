@@ -29,6 +29,9 @@ JSON library.
 #189: Add `JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING` (default: true), which may
   be disabled to prevent use of ThreadLocal-based buffer recyling.
  (suggested by soldierkam@github)
+#195: Add `JsonGenerator.getOutputBuffered()` to find out amount of content buffered,
+  not yet flushed.
+ (requested by Ruediger M)
 - Minor improvement to construction of "default PrettyPrinter": now overridable by data format
   modules
 - Implement a new yet more optimized symbol table for byte-backed parsers

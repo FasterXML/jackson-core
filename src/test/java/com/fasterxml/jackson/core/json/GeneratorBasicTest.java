@@ -8,7 +8,7 @@ import java.io.*;
  * Set of basic unit tests for verifying that the basic generator
  * functionality works as expected.
  */
-public class TestJsonGenerator
+public class GeneratorBasicTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
@@ -225,6 +225,46 @@ public class TestJsonGenerator
         assertTrue(gen.getOutputContext().inRoot());
         
         gen.close();
+    }
+
+    public void testGetOutputTarget() throws Exception
+    {
+        OutputStream out = new ByteArrayOutputStream();
+        JsonGenerator gen = JSON_F.createGenerator(out);
+        assertSame(out, gen.getOutputTarget());
+        gen.close();
+
+        StringWriter sw = new StringWriter();
+        gen = JSON_F.createGenerator(sw);
+        assertSame(sw, gen.getOutputTarget());
+        gen.close();
+    }
+
+    // for [core#195]
+    public void testGetOutputBufferd() throws Exception
+    {
+        OutputStream out = new ByteArrayOutputStream();
+        JsonGenerator gen = JSON_F.createGenerator(out);
+        _testOutputBuffered(gen);
+        gen.close();
+
+        StringWriter sw = new StringWriter();
+        gen = JSON_F.createGenerator(sw);
+        _testOutputBuffered(gen);
+        gen.close();
+    }
+
+    private void _testOutputBuffered(JsonGenerator gen) throws IOException
+    {
+        gen.writeStartArray(); // 1 byte
+        gen.writeNumber(1234); // 4 bytes
+        assertEquals(5, gen.getOutputBuffered());
+        gen.flush();
+        assertEquals(0, gen.getOutputBuffered());
+        gen.writeEndArray();
+        assertEquals(1, gen.getOutputBuffered());
+        gen.close();
+        assertEquals(0, gen.getOutputBuffered());
     }
 
     /*

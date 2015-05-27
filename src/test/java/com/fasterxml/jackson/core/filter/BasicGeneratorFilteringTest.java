@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 
 /**
  * Low-level tests for explicit, hand-written tests for generator-side
@@ -107,16 +108,64 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testSingleMatchFilteringWithPath() throws Exception
     {
         StringWriter w = new StringWriter();
-        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        JsonGenerator origGen = JSON_F.createGenerator(w);
+        NameMatchFilter filter = new NameMatchFilter("value");
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(origGen,
+                filter,
+                true, // includePath
+                false // multipleMatches
+                );
+
+        // Hmmh. Should we get access to eventual target?
+        assertSame(w, gen.getOutputTarget());
+        assertNotNull(gen.getFilterContext());
+        assertSame(filter, gen.getFilter());
+
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
+
+        assertEquals(1, gen.getMatchCount());
+    }
+
+    // Alternative take, using slightly different calls for FIELD_NAME, START_ARRAY
+    public void testSingleMatchFilteringWithPathAlternate() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("value"),
                 true, // includePath
                 false // multipleMatches
                 );
-        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
-        writeJsonDoc(JSON_F, JSON, gen);
+        //final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':'foo'},'b':true}";
+
+        gen.writeStartObject();
+        gen.writeFieldName(new SerializedString("a"));
+        gen.writeNumber(123);
+
+        gen.writeFieldName("array");
+        gen.writeStartArray(2);
+        gen.writeNumber("1");
+        gen.writeNumber(2);
+        gen.writeEndArray();
+
+        gen.writeFieldName(new SerializedString("ob"));
+        gen.writeStartObject();
+        gen.writeNumberField("value0", 2);
+        gen.writeFieldName(new SerializedString("value"));
+        gen.writeNumber(3); // just to vary generation method
+        gen.writeStringField("value2", "foo");
+
+        gen.writeEndObject();
+
+        gen.writeBooleanField("b", true);
+        
+        gen.writeEndObject();
+        gen.close();
+
         assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
     }
-
+    
     public void testMultipleMatchFilteringWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();

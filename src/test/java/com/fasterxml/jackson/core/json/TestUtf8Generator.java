@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
-public class TestUtf8Generator
-    extends BaseTest
+public class TestUtf8Generator extends BaseTest
 {
+    private final JsonFactory JSON_F = new JsonFactory();
+
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -25,8 +26,7 @@ public class TestUtf8Generator
         gen.close();
         
         // Also verify it's parsable?
-        JsonFactory f = new JsonFactory();
-        JsonParser p = f.createParser(bytes.toByteArray());
+        JsonParser p = JSON_F.createParser(bytes.toByteArray());
         for (int i = 1; i <= length; ++i) {
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(1, p.getIntValue());
@@ -41,9 +41,8 @@ public class TestUtf8Generator
     public void testSurrogatesWithRaw() throws Exception
     {
         final String VALUE = quote("\ud83d\ude0c");
-        JsonFactory f = new JsonFactory();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JsonGenerator jgen = f.createGenerator(out);
+        JsonGenerator jgen = JSON_F.createGenerator(out);
         jgen.writeStartArray();
         jgen.writeRaw(VALUE);
         jgen.writeEndArray();
@@ -51,7 +50,7 @@ public class TestUtf8Generator
 
         final byte[] JSON = out.toByteArray();
 
-        JsonParser jp = f.createParser(JSON);
+        JsonParser jp = JSON_F.createParser(JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         String str = jp.getText();

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.UTF8Writer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
-public class TestUTF8Writer
+public class UTF8WriterTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testSimple() throws Exception
@@ -25,6 +25,7 @@ public class TestUTF8Writer
         w.append(ch[0]);
         w.write(ch[1]);
         w.write(ch, 2, 3);
+        w.flush();
 
         w.write(str, 0, str.length());
         w.close();
@@ -39,6 +40,26 @@ public class TestUTF8Writer
         assertEquals(str+str+str, act);
     }
 
+    public void testSimpleAscii() throws Exception
+    {
+        BufferRecycler rec = new BufferRecycler();
+        IOContext ctxt = new IOContext(rec, null, false);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        UTF8Writer w = new UTF8Writer(ctxt, out);
+
+        String str = "abcdefghijklmnopqrst\u00A0";
+        char[] ch = str.toCharArray();
+
+        w.write(ch, 0, ch.length);
+        w.close();
+
+        byte[] data = out.toByteArray();
+        // one 2-byte encoded char
+        assertEquals(ch.length+1, data.length);
+        String act = out.toString("UTF-8");
+        assertEquals(str, act);
+    }
+    
     public void testFlushAfterClose() throws Exception
     {
         BufferRecycler rec = new BufferRecycler();

@@ -564,12 +564,9 @@ public abstract class JsonGenerator
      *
      * @since 2.6
      */
-    public abstract int getOutputBuffered();
-    /*
     public int getOutputBuffered() {
         return -1;
     }
-    */
 
     /**
      * Helper method, usually equivalent to:

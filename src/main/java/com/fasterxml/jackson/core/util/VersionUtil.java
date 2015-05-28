@@ -135,7 +135,7 @@ public class VersionUtil
     }
 
     /**
-     * Method used by {@link PackageVersion} to decode version injected by Maven build.
+     * Method used by <code>PackageVersion</code> classes to decode version injected by Maven build.
      */
     public static Version parseVersion(String s, String groupId, String artifactId)
     {

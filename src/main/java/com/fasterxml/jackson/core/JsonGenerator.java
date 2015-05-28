@@ -305,9 +305,10 @@ public abstract class JsonGenerator
 
 
     /**
-     * Bulk access method for getting state of all standard {@link Feature}s.
+     * Bulk access method for getting state of all standard (non-dataformat-specific)
+     * {@link JsonGenerator.Feature}s.
      * 
-     * @return Bit mask that defines current states of all standard {@link Feature}s.
+     * @return Bit mask that defines current states of all standard {@link JsonGenerator.Feature}s.
      * 
      * @since 2.3
      */
@@ -325,6 +326,60 @@ public abstract class JsonGenerator
      */
     public abstract JsonGenerator setFeatureMask(int values);
 
+    /**
+     * Bulk set method for (re)setting states of features specified by <code>mask</code>.
+     * Functionally equivalent to
+     *<code>
+     *    int oldState = getFeatureMask();
+     *    int newState = (oldState & ~mask) | (values & mask);
+     *    setFeatureMask(newState);
+     *</code>
+     * 
+     * @param values Bit mask of set/clear state for features to change
+     * @param mask Bit mask of features to change
+     * 
+     * @since 2.6
+     */
+    public JsonGenerator overrideStdFeatures(int values, int mask) {
+        int oldState = getFeatureMask();
+        int newState = (oldState & ~mask) | (values & mask);
+        return setFeatureMask(newState);
+    }
+
+    /**
+     * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
+     * on/off configuration settings.
+     * 
+     * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
+     * 
+     * @since 2.6
+     */
+    public int getFormatFeatures() {
+        return 0;
+    }
+    
+    /**
+     * Bulk set method for (re)setting states of {@link FormatFeature}s,
+     * by specifying values (set / clear) along with a mask, to determine
+     * which features to change, if any.
+     *<p>
+     * Default implementation will simply throw an exception to indicate that
+     * the generator implementation does not support any {@link FormatFeature}s.
+     * 
+     * @param values Bit mask of set/clear state for features to change
+     * @param mask Bit mask of features to change
+     * 
+     * @since 2.6
+     */
+    public JsonGenerator overrideFormatFeatures(int values, int mask) {
+        throw new IllegalArgumentException("No FormatFeatures defined for generator of type "+getClass().getName());
+        /*
+        int oldState = getFeatureMask();
+        int newState = (oldState & ~mask) | (values & mask);
+        return setFeatureMask(newState);
+        */
+    }
+    
     /*
     /**********************************************************
     /* Public API, Schema configuration
@@ -509,9 +564,12 @@ public abstract class JsonGenerator
      *
      * @since 2.6
      */
+    public abstract int getOutputBuffered();
+    /*
     public int getOutputBuffered() {
         return -1;
     }
+    */
 
     /**
      * Helper method, usually equivalent to:

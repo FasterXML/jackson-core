@@ -413,10 +413,31 @@ public class JsonFactory
      * @since 2.4
      */
     public boolean canUseCharArrays() { return true; }
-    
+
+    /**
+     * Method for accessing kind of {@link FormatFeature} that a parser
+     * {@link JsonParser} produced by this factory would accept, if any;
+     * <code>null</code> returned if none.
+     *
+     * @since 2.6
+     */
+    public Class<? extends FormatFeature> getFormatReadFeatureType() {
+        return null;
+    }
+
+    /**
+     * Method for accessing kind of {@link FormatFeature} that a parser
+     * {@link JsonGenerator} produced by this factory would accept, if any;
+     * <code>null</code> returned if none.
+     *
+     * @since 2.6
+     */
+    public Class<? extends FormatFeature> getFormatWriteFeatureType() {
+        return null;
+    }
     /*
     /**********************************************************
-    /* Format detection functionality (since 1.8)
+    /* Format detection functionality
     /**********************************************************
      */
 
@@ -454,6 +475,10 @@ public class JsonFactory
         return null;
     }
 
+    /**
+     * Convenience method for trying to determine whether input via given accessor
+     * is of format type supported by this factory.
+     */
     public MatchStrength hasFormat(InputAccessor acc) throws IOException
     {
         // since we can't keep this abstract, only implement for "vanilla" instance

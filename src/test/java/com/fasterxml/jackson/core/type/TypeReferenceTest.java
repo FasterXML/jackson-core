@@ -18,8 +18,8 @@ public class TypeReferenceTest extends BaseTest
     public void testInvalid()
     {
         try { 
-            new TypeReference() { };
-            fail("Should not pass!");
+            Object ob = new TypeReference() { };
+            fail("Should not pass, got: "+ob);
         } catch (IllegalArgumentException e) {
             verifyException(e, "without actual type information");
         }

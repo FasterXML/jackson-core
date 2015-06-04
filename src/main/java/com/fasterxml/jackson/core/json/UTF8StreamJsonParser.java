@@ -1311,16 +1311,16 @@ public class UTF8StreamJsonParser
             return null;
         }
 
-        switch (nextToken().id()) {
-        case ID_TRUE:
+        JsonToken t = nextToken();
+        if (t == JsonToken.VALUE_TRUE) {
             return Boolean.TRUE;
-        case ID_FALSE:
-            return Boolean.FALSE;
-        default:
-            return null;
         }
+        if (t == JsonToken.VALUE_FALSE) {
+            return Boolean.FALSE;
+        }
+        return null;
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, number parsing

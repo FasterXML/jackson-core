@@ -774,7 +774,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             _nextTokenNotInObject(i);
             return null;
         }
-        
+
         String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
         _parsingContext.setCurrentName(name);
         _currToken = JsonToken.FIELD_NAME;
@@ -824,9 +824,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         case '{':
             t = JsonToken.START_OBJECT;
             break;
-        case ']':
-        case '}':
-            _reportUnexpectedChar(i, "expected a value");
         default:
             t = _handleOddValue(i);
             break;

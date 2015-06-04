@@ -550,10 +550,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     }
 
     /*
-   /**********************************************************
-   /* Public API, traversal
-   /**********************************************************
-    */
+    /**********************************************************
+    /* Public API, traversal
+    /**********************************************************
+     */
 
     /**
      * @return Next token from the stream, if any found, or null
@@ -713,11 +713,171 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     }
 
     /*
-    @Override
-    public boolean nextFieldName(SerializableString str)
-         throws IOException
+    /**********************************************************
+    /* Public API, nextXxx() overrides
+    /**********************************************************
      */
 
+    /*
+    @Override
+    public boolean nextFieldName(SerializableString str)
+        throws IOException
+    {
+    
+    }
+    */
+
+    @Override
+    public String nextFieldName() throws IOException
+    {
+        // // // Note: this is almost a verbatim copy of nextToken() (minus comments)
+
+        _numTypesValid = NR_UNKNOWN;
+        if (_currToken == JsonToken.FIELD_NAME) {
+            _nextAfterName();
+            return null;
+        }
+        if (_tokenIncomplete) {
+            _skipString();
+        }
+        int i = _skipWSOrEnd();
+        if (i < 0) {
+            close();
+            _currToken = null;
+            return null;
+        }
+        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
+        _tokenInputRow = _currInputRow;
+        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+        _binaryValue = null;
+        if (i == INT_RBRACKET) {
+            if (!_parsingContext.inArray()) {
+                _reportMismatchedEndMarker(i, '}');
+            }
+            _parsingContext = _parsingContext.getParent();
+            _currToken = JsonToken.END_ARRAY;
+            return null;
+        }
+        if (i == INT_RCURLY) {
+            if (!_parsingContext.inObject()) {
+                _reportMismatchedEndMarker(i, ']');
+            }
+            _parsingContext = _parsingContext.getParent();
+            _currToken = JsonToken.END_OBJECT;
+            return null;
+        }
+        if (_parsingContext.expectComma()) {
+            i = _skipComma(i);
+        }
+
+        if (!_parsingContext.inObject()) {
+            _nextTokenNotInObject(i);
+            return null;
+        }
+        
+        String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
+        _parsingContext.setCurrentName(name);
+        _currToken = JsonToken.FIELD_NAME;
+        i = _skipColon();
+
+        if (i == INT_QUOTE) {
+            _tokenIncomplete = true;
+            _nextToken = JsonToken.VALUE_STRING;
+            return name;
+        }
+        
+        // Ok: we must have a value... what is it?
+
+        JsonToken t;
+
+        switch (i) {
+        case '-':
+            t = _parseNegNumber();
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            t = _parsePosNumber(i);
+            break;
+        case 'f':
+            _matchFalse();
+            t = JsonToken.VALUE_FALSE;
+            break;
+        case 'n':
+            _matchNull();
+            t = JsonToken.VALUE_NULL;
+            break;
+        case 't':
+            _matchTrue();
+            t = JsonToken.VALUE_TRUE;
+            break;
+        case '[':
+            t = JsonToken.START_ARRAY;
+            break;
+        case '{':
+            t = JsonToken.START_OBJECT;
+            break;
+        case ']':
+        case '}':
+            _reportUnexpectedChar(i, "expected a value");
+        default:
+            t = _handleOddValue(i);
+            break;
+        }
+        _nextToken = t;
+        return name;
+    }
+
+    private final JsonToken _nextTokenNotInObject(int i) throws IOException
+    {
+        if (i == INT_QUOTE) {
+            _tokenIncomplete = true;
+            return (_currToken = JsonToken.VALUE_STRING);
+        }
+        switch (i) {
+        case '[':
+            _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            return (_currToken = JsonToken.START_ARRAY);
+        case '{':
+            _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            return (_currToken = JsonToken.START_OBJECT);
+        case 't':
+            _matchToken("true", 1);
+            return (_currToken = JsonToken.VALUE_TRUE);
+        case 'f':
+            _matchToken("false", 1);
+            return (_currToken = JsonToken.VALUE_FALSE);
+        case 'n':
+            _matchToken("null", 1);
+            return (_currToken = JsonToken.VALUE_NULL);
+        case '-':
+            return (_currToken = _parseNegNumber());
+            /* Should we have separate handling for plus? Although
+             * it is not allowed per se, it may be erroneously used,
+             * and could be indicated by a more specific error message.
+             */
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return (_currToken = _parsePosNumber(i));
+        }
+        return (_currToken = _handleOddValue(i));
+    }
+    
     // note: identical to one in UTF8StreamJsonParser
     @Override
     public final String nextTextValue() throws IOException

@@ -32,6 +32,8 @@ JSON library.
 #195: Add `JsonGenerator.getOutputBuffered()` to find out amount of content buffered,
   not yet flushed.
  (requested by Ruediger M)
+#196: Add support for `FormatFeature` extension, for format-specifc Enum-backed
+  parser/generator options
 - Minor improvement to construction of "default PrettyPrinter": now overridable by data format
   modules
 - Implement a new yet more optimized symbol table for byte-backed parsers

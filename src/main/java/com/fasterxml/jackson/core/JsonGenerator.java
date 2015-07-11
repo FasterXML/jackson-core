@@ -331,7 +331,7 @@ public abstract class JsonGenerator
      * Functionally equivalent to
      *<code>
      *    int oldState = getFeatureMask();
-     *    int newState = (oldState & ~mask) | (values & mask);
+     *    int newState = (oldState &amp; ~mask) | (values &amp; mask);
      *    setFeatureMask(newState);
      *</code>
      * 

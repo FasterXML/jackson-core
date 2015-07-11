@@ -22,7 +22,7 @@ public interface FormatFeature
     
     /**
      * Returns bit mask for this feature instance; must be a single bit,
-     * that is of form <code>(1 << N)</code>
+     * that is of form <code>(1 &lt;&lt; N)</code>
      */
     public int getMask();
 

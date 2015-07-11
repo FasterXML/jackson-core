@@ -520,10 +520,10 @@ public abstract class JsonParser
 
     /**
      * Bulk set method for (re)setting states of all standard {@link Feature}s
-     *
-     * @since 2.3
      * 
      * @return This parser object, to allow chaining of calls
+     * 
+     * @since 2.3
      */
     public JsonParser setFeatureMask(int mask) {
         _features = mask;
@@ -535,7 +535,7 @@ public abstract class JsonParser
      * Functionally equivalent to
      *<code>
      *    int oldState = getFeatureMask();
-     *    int newState = (oldState & ~mask) | (values & mask);
+     *    int newState = (oldState &amp; ~mask) | (values &amp; mask);
      *    setFeatureMask(newState);
      *</code>
      * 

@@ -133,7 +133,7 @@ public final class ByteQuadsCanonicalizer
     
     /**
      * Constant that determines size of buckets for tertiary entries:
-     * <code>1 << _tertiaryShift</code> is the size, and shift value
+     * <code>1 &lt;&lt; _tertiaryShift</code> is the size, and shift value
      * is also used for translating from primary offset into
      * tertiary bucket (shift right by <code>4 + _tertiaryShift</code>).
      *<p>

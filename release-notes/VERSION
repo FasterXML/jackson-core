@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.0 (not yet released)
+2.6.0 (17-Jul-2015)
 
 #137: Allow filtering content read via `JsonParser` by specifying `JsonPointer`;
   uses new class `com.fasterxml.jackson.core.filter.FilteringParserDelegate`

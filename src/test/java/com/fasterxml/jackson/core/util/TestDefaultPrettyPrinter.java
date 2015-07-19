@@ -37,7 +37,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
     public void testWithIndent() throws IOException
     {
         PrettyPrinter pp = new DefaultPrettyPrinter()
-        .withObjectIndenter(new DefaultIndenter().withIndent(" "));
+        .withObjectIndenter(new DefaultIndenter().withLinefeed("\n").withIndent(" "));
         String EXP = "{\n" +
             " \"name\" : \"John Doe\",\n" +
             " \"age\" : 3.14\n" +

@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.core.sym;
 
 import java.io.*;
+import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.core.*;
 
 /**
  * Unit test(s) to verify that handling of (byte-based) symbol tables
- * is working. Created to verify fix to [JACKSON-5] (although not very
- * good at catching it...).
+ * is working.
  */
 public class TestByteBasedSymbols
     extends com.fasterxml.jackson.core.BaseTest
@@ -97,7 +97,29 @@ public class TestByteBasedSymbols
          */
         assertNotNull(nc.toString());
     }
-    
+
+    // as per name, for [core#207]
+    public void testIssue207() throws Exception
+    {
+        ByteQuadsCanonicalizer nc = ByteQuadsCanonicalizer.createRoot(-523743345);
+        Field byteSymbolCanonicalizerField = JsonFactory.class.getDeclaredField("_byteSymbolCanonicalizer");
+        byteSymbolCanonicalizerField.setAccessible(true);
+        JsonFactory jsonF = new JsonFactory();
+        byteSymbolCanonicalizerField.set(jsonF, nc);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{\n");
+        stringBuilder.append("    \"expectedGCperPosition\": null");
+        for (int i = 0; i < 60; ++i) {
+            stringBuilder.append(",\n    \"").append(i + 1).append("\": null");
+        }
+        stringBuilder.append("\n}");
+
+        JsonParser p = jsonF.createParser(stringBuilder.toString().getBytes("UTF-8"));
+        while (p.nextToken() != null) { }
+        p.close();
+    }
+
     /*
     /**********************************************************
     /* Helper methods

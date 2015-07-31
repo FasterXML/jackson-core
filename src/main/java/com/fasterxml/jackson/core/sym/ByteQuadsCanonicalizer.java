@@ -151,7 +151,7 @@ public final class ByteQuadsCanonicalizer
      * Array that contains <code>String</code> instances matching
      * entries in {@link #_hashArea}.
      * Contains nulls for unused entries. Note that this size is twice
-     * that o
+     * that of {@link #_hashArea}
      */
     protected String[] _names;
 
@@ -1266,7 +1266,7 @@ public final class ByteQuadsCanonicalizer
                     0, // count
                     tertShift,
                     new int[hashAreaSize], // mainHash, 2x slots, 4 ints per slot
-                    new String[sz << 1], // 2x slots
+                    new String[sz << 1], // names == 2x slots
                     hashAreaSize - sz, // at 7/8 of the total area
                     hashAreaSize // longNameOffset, immediately after main hashes
             );

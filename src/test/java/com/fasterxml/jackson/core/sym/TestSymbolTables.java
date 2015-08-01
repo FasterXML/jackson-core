@@ -79,11 +79,11 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         
         // fragile, but essential to verify low collision counts;
         // anywhere between 70-80% primary matches
-        assertEquals(8524, symbols.primaryCount());
+        assertEquals(8534, symbols.primaryCount());
         // secondary between 10-20%
         assertEquals(2534, symbols.secondaryCount());
         // and most of remaining in tertiary
-        assertEquals(942, symbols.tertiaryCount());
+        assertEquals(932, symbols.tertiaryCount());
         // so that spill-over is empty or close to
         assertEquals(0, symbols.spilloverCount());
     }
@@ -313,17 +313,17 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         }
         assertEquals(COUNT, symbols.size());
         
-        assertEquals(32768, symbols.bucketCount());
+        assertEquals(16384, symbols.bucketCount());
 
         // fragile, but essential to verify low collision counts;
-        // anywhere between 70-80% primary matches
-        assertEquals(9386, symbols.primaryCount());
-        // secondary between 10-20%
-        assertEquals(345, symbols.secondaryCount());
+        // here bit low primary, 55% 
+        assertEquals(5402, symbols.primaryCount());
+        // secondary higher than usual, above 25%
+        assertEquals(2744, symbols.secondaryCount());
         // and most of remaining in tertiary
-        assertEquals(257, symbols.tertiaryCount());
-        // but number of spill-overs starts to grow beyond 30k quite a lot:
-        assertEquals(12, symbols.spilloverCount());
+        assertEquals(1834, symbols.tertiaryCount());
+        // with a bit of spillover
+        assertEquals(20, symbols.spilloverCount());
     }
 
     // [core#191]: similarly, but for "short" symbols:
@@ -470,13 +470,13 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             }
             assertEquals(COUNT, symbols.size());
 
-            assertEquals(2048, symbols.bucketCount());
+            assertEquals(1024, symbols.bucketCount());
 
             // Primary is good, but secondary spills cluster in nasty way...
-            assertEquals(640, symbols.primaryCount());
-            assertEquals(30, symbols.secondaryCount());
-            assertEquals(16, symbols.tertiaryCount());
-            assertEquals(14, symbols.spilloverCount());
+            assertEquals(564, symbols.primaryCount());
+            assertEquals(122, symbols.secondaryCount());
+            assertEquals(14, symbols.tertiaryCount());
+            assertEquals(0, symbols.spilloverCount());
 
             assertEquals(COUNT,
                     symbols.primaryCount() + symbols.secondaryCount() + symbols.tertiaryCount() + symbols.spilloverCount());

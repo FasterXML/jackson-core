@@ -62,3 +62,7 @@ Ruediger Moeller (RuedigerMoeller@github)
   * Requested #195: Add `JsonGenerator.getOutputBuffered()` to find out amount of content buffered,
      not yet flushed.
    (2.6.0)
+
+Florian Schoppmann (fschopp@github@github)
+  * Reported #207: `ArrayIndexOutOfBoundsException` in `ByteQuadsCanonicalizer`
+   (2.6.1)

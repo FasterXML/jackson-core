@@ -306,6 +306,11 @@ public abstract class JsonParser
      *<code>
      *   getParsingContext().getCurrentValue();
      *</code>
+     *<p>
+     * Note that "current value" is NOT populated (or used) by Streaming parser;
+     * it is only used by higher-level data-binding functionality.
+     * The reason it is included here is that it can be stored and accessed hierarchically,
+     * and gets passed through data-binding.
      * 
      * @since 2.5
      */

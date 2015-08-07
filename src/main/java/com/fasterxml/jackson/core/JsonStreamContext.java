@@ -108,9 +108,11 @@ public abstract class JsonStreamContext
      * Method for accessing currently active value being used by data-binding
      * (as the source of streaming data to write, or destination of data being
      * read), at this level in hierarchy.
-     * The value may not exist or be available due to various limitations (at
-     * least during reading of data, as target value object may not have yet
-     * been constructed).
+     *<p>
+     * Note that "current value" is NOT populated (or used) by Streaming parser or generator;
+     * it is only used by higher-level data-binding functionality.
+     * The reason it is included here is that it can be stored and accessed hierarchically,
+     * and gets passed through data-binding.
      * 
      * @return Currently active value, if one has been assigned.
      * 

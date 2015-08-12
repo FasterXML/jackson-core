@@ -737,7 +737,8 @@ public class UTF8StreamJsonParser
             return _nextTokenNotInObject(i);
         }
         // So first parse the field name itself:
-        String n = _parseName(i);
+        String n = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
+
         _parsingContext.setCurrentName(n);
         _currToken = JsonToken.FIELD_NAME;
 
@@ -1004,7 +1005,7 @@ public class UTF8StreamJsonParser
             return null;
         }
 
-        final String nameStr = _parseName(i);
+        final String nameStr = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
         _parsingContext.setCurrentName(nameStr);
         _currToken = JsonToken.FIELD_NAME;
 
@@ -1154,7 +1155,7 @@ public class UTF8StreamJsonParser
     {
         // // // and this is back to standard nextToken()
 
-        String name = _parseName(i);
+        String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
         _parsingContext.setCurrentName(name);
         _currToken = JsonToken.FIELD_NAME;
         i = _skipColon();
@@ -1639,11 +1640,8 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
     
-    protected final String _parseName(int i) throws IOException
+    protected final String _parseName() throws IOException
     {
-        if (i != INT_QUOTE) {
-            return _handleOddName(i);
-        }
         // First: can we optimize out bounds checks?
         if ((_inputPtr + 13) > _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
             return slowParseName();
@@ -1661,7 +1659,7 @@ public class UTF8StreamJsonParser
         int q = input[_inputPtr++] & 0xFF;
 
         if (codes[q] == 0) {
-            i = input[_inputPtr++] & 0xFF;
+            int i = input[_inputPtr++] & 0xFF;
             if (codes[i] == 0) {
                 q = (q << 8) | i;
                 i = input[_inputPtr++] & 0xFF;

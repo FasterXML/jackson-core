@@ -16,7 +16,8 @@ JSON library.
 
 2.7.0 (not yet released)
 
-...
+- Implemented `ReaderBasedJsonParser.nextFieldName(SerializableString)`
+  (to improved Afterburner performance over String/char[] sources)
 
 2.6.1 (09-Aug-2015)
 

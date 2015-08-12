@@ -718,14 +718,84 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /**********************************************************
      */
 
-    /*
+    // Implemented since 2.7
     @Override
-    public boolean nextFieldName(SerializableString str)
-        throws IOException
+    public boolean nextFieldName(SerializableString sstr) throws IOException
     {
-    
+        // // // Note: most of code below is copied from nextToken()
+
+        _numTypesValid = NR_UNKNOWN;
+        if (_currToken == JsonToken.FIELD_NAME) {
+            _nextAfterName();
+            return false;
+        }
+        if (_tokenIncomplete) {
+            _skipString();
+        }
+        int i = _skipWSOrEnd();
+        if (i < 0) {
+            close();
+            _currToken = null;
+            return false;
+        }
+        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
+        _tokenInputRow = _currInputRow;
+        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+        _binaryValue = null;
+        if (i == INT_RBRACKET) {
+            if (!_parsingContext.inArray()) {
+                _reportMismatchedEndMarker(i, '}');
+            }
+            _parsingContext = _parsingContext.getParent();
+            _currToken = JsonToken.END_ARRAY;
+            return false;
+        }
+        if (i == INT_RCURLY) {
+            if (!_parsingContext.inObject()) {
+                _reportMismatchedEndMarker(i, ']');
+            }
+            _parsingContext = _parsingContext.getParent();
+            _currToken = JsonToken.END_OBJECT;
+            return false;
+        }
+        if (_parsingContext.expectComma()) {
+            i = _skipComma(i);
+        }
+
+        if (!_parsingContext.inObject()) {
+            _nextTokenNotInObject(i);
+            return false;
+        }
+
+        if (i == INT_QUOTE) {
+            // when doing literal match, must consider escaping:
+            char[] nameChars = sstr.asQuotedChars();
+            final int len = nameChars.length;
+
+            // Require 4 more bytes for faster skipping of colon that follows name
+            if ((_inputPtr + len + 4) < _inputEnd) { // maybe...
+                // first check length match by
+                final int end = _inputPtr+len;
+                if (_inputBuffer[end] == '"') {
+                    int offset = 0;
+                    int ptr = _inputPtr;
+                    while (true) {
+                        if (ptr == end) { // yes, match!
+                            _parsingContext.setCurrentName(sstr.getValue());
+                            _isNextTokenNameYes(_skipColonFast(ptr+1));
+                            return true;
+                        }
+                        if (nameChars[offset] != _inputBuffer[ptr]) {
+                            break;
+                        }
+                        ++offset;
+                        ++ptr;
+                    }
+                }
+            }
+        }
+        return _isNextTokenNameMaybe(i, sstr.getValue());
     }
-    */
 
     @Override
     public String nextFieldName() throws IOException
@@ -830,6 +900,108 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         _nextToken = t;
         return name;
+    }
+
+    private final void _isNextTokenNameYes(int i) throws IOException
+    {
+        _currToken = JsonToken.FIELD_NAME;
+
+        switch (i) {
+        case '"':
+            _tokenIncomplete = true;
+            _nextToken = JsonToken.VALUE_STRING;
+            return;
+        case '[':
+            _nextToken = JsonToken.START_ARRAY;
+            return;
+        case '{':
+            _nextToken = JsonToken.START_OBJECT;
+            return;
+        case 't':
+            _matchToken("true", 1);
+            _nextToken = JsonToken.VALUE_TRUE;
+            return;
+        case 'f':
+            _matchToken("false", 1);
+            _nextToken = JsonToken.VALUE_FALSE;
+            return;
+        case 'n':
+            _matchToken("null", 1);
+            _nextToken = JsonToken.VALUE_NULL;
+            return;
+        case '-':
+            _nextToken = _parseNegNumber();
+            return;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            _nextToken = _parsePosNumber(i);
+            return;
+        }
+        _nextToken = _handleOddValue(i);
+    }
+
+    protected boolean _isNextTokenNameMaybe(int i, String nameToMatch) throws IOException
+    {
+        // // // and this is back to standard nextToken()
+        String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
+        _parsingContext.setCurrentName(name);
+        _currToken = JsonToken.FIELD_NAME;
+        i = _skipColon();
+        if (i == INT_QUOTE) {
+            _tokenIncomplete = true;
+            _nextToken = JsonToken.VALUE_STRING;
+            return nameToMatch.equals(name);
+        }
+        // Ok: we must have a value... what is it?
+        JsonToken t;
+        switch (i) {
+        case '-':
+            t = _parseNegNumber();
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            t = _parsePosNumber(i);
+            break;
+        case 'f':
+            _matchFalse();
+            t = JsonToken.VALUE_FALSE;
+            break;
+        case 'n':
+            _matchNull();
+            t = JsonToken.VALUE_NULL;
+            break;
+        case 't':
+            _matchTrue();
+            t = JsonToken.VALUE_TRUE;
+            break;
+        case '[':
+            t = JsonToken.START_ARRAY;
+            break;
+        case '{':
+            t = JsonToken.START_OBJECT;
+            break;
+        default:
+            t = _handleOddValue(i);
+            break;
+        }
+        _nextToken = t;
+        return nameToMatch.equals(name);
     }
 
     private final JsonToken _nextTokenNotInObject(int i) throws IOException
@@ -1949,7 +2121,54 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
         }
     }
- 
+
+    // Variant called when we know there's at least 4 more bytes available
+    private final int _skipColonFast(int ptr) throws IOException
+    {
+        int i = (int) _inputBuffer[ptr++];
+        if (i == INT_COLON) { // common case, no leading space
+            i = _inputBuffer[ptr++];
+            if (i > INT_SPACE) { // nor trailing
+                if (i != INT_SLASH && i != INT_HASH) {
+                    _inputPtr = ptr;
+                    return i;
+                }
+            } else if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[ptr++];
+                if (i > INT_SPACE) {
+                    if (i != INT_SLASH && i != INT_HASH) {
+                        _inputPtr = ptr;
+                        return i;
+                    }
+                }
+            }
+            _inputPtr = ptr-1;
+            return _skipColon2(true); // true -> skipped colon
+        }
+        if (i == INT_SPACE || i == INT_TAB) {
+            i = _inputBuffer[ptr++];
+        }
+        if (i == INT_COLON) {
+            i = _inputBuffer[ptr++];
+            if (i > INT_SPACE) {
+                if (i != INT_SLASH && i != INT_HASH) {
+                    _inputPtr = ptr;
+                    return i;
+                }
+            } else if (i == INT_SPACE || i == INT_TAB) {
+                i = (int) _inputBuffer[ptr++];
+                if (i > INT_SPACE) {
+                    if (i != INT_SLASH && i != INT_HASH) {
+                        _inputPtr = ptr;
+                        return i;
+                    }
+                }
+            }
+        }
+        _inputPtr = ptr-1;
+        return _skipColon2(false);
+    }
+    
     // Primary loop: no reloading, comment handling
     private final int _skipComma(int i) throws IOException
     {

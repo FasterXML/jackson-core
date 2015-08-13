@@ -21,19 +21,27 @@ public class TestNextXxx
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    // [JACKSON-653]
     public void testIsNextTokenName() throws Exception
     {
         _testIsNextTokenName1(false);
         _testIsNextTokenName1(true);
+    }
+
+    public void testIsNextTokenName2() throws Exception {
         _testIsNextTokenName2(false);
         _testIsNextTokenName2(true);
+    }        
+    
+    public void testIsNextTokenName3() throws Exception {
         _testIsNextTokenName3(false);
         _testIsNextTokenName3(true);
+    }
+    
+    public void testIsNextTokenName4() throws Exception {
         _testIsNextTokenName4(false);
         _testIsNextTokenName4(true);
     }
-
+    
     // [Issue#34]
     public void testIssue34() throws Exception
     {

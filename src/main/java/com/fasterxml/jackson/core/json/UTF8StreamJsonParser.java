@@ -678,7 +678,6 @@ public class UTF8StreamJsonParser
     @Override
     public JsonToken nextToken() throws IOException
     {
-        _numTypesValid = NR_UNKNOWN;
         /* First: field names are special -- we will always tokenize
          * (part of) value along with field name to simplify
          * state handling. If so, can and need to use secondary token:
@@ -686,6 +685,9 @@ public class UTF8StreamJsonParser
         if (_currToken == JsonToken.FIELD_NAME) {
             return _nextAfterName();
         }
+        // But if we didn't already have a name, and (partially?) decode number,
+        // need to ensure no numeric information is leaked
+        _numTypesValid = NR_UNKNOWN;
         if (_tokenIncomplete) {
             _skipString(); // only strings can be partial
         }

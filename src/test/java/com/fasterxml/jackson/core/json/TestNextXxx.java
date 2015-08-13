@@ -30,6 +30,8 @@ public class TestNextXxx
         _testIsNextTokenName2(true);
         _testIsNextTokenName3(false);
         _testIsNextTokenName3(true);
+        _testIsNextTokenName4(false);
+        _testIsNextTokenName4(true);
     }
 
     // [Issue#34]
@@ -104,6 +106,7 @@ public class TestNextXxx
         assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
         assertEquals("name2", jp.getCurrentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        // do NOT check number value, to enforce skipping
 
         assertFalse(jp.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
@@ -224,6 +227,27 @@ public class TestNextXxx
 
         assertNull(jp.nextFieldName());
         assertNull(jp.getCurrentToken());
+
+        jp.close();
+    }
+
+    private void _testIsNextTokenName4(boolean useStream) throws Exception
+    {
+        final String DOC = "{\"name\":-123,\"name2\":99}";
+        JsonParser jp = useStream ?
+                JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : JSON_F.createParser(new StringReader(DOC));
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+
+        assertTrue(jp.nextFieldName(new SerializedString("name")));
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(-123, jp.getIntValue());
+
+        assertTrue(jp.nextFieldName(new SerializedString("name2")));
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(99, jp.getIntValue());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        assertNull(jp.nextToken());
 
         jp.close();
     }

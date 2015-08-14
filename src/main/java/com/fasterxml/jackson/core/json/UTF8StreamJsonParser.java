@@ -739,8 +739,7 @@ public class UTF8StreamJsonParser
             return _nextTokenNotInObject(i);
         }
         // So first parse the field name itself:
-        String n = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
-
+        String n = _parseName(i);
         _parsingContext.setCurrentName(n);
         _currToken = JsonToken.FIELD_NAME;
 
@@ -949,7 +948,7 @@ public class UTF8StreamJsonParser
                 }
             }
         }
-        return _isNextTokenNameMaybe(i, str.getValue());
+        return _isNextTokenNameMaybe(i, str);
     }
 
     @Override
@@ -1007,7 +1006,7 @@ public class UTF8StreamJsonParser
             return null;
         }
 
-        final String nameStr = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
+        final String nameStr = _parseName(i);
         _parsingContext.setCurrentName(nameStr);
         _currToken = JsonToken.FIELD_NAME;
 
@@ -1106,7 +1105,7 @@ public class UTF8StreamJsonParser
         _inputPtr = ptr-1;
         return _skipColon2(false);
     }
-
+    
     private final void _isNextTokenNameYes(int i) throws IOException
     {
         _currToken = JsonToken.FIELD_NAME;
@@ -1152,13 +1151,15 @@ public class UTF8StreamJsonParser
         }
         _nextToken = _handleUnexpectedValue(i);
     }
-
-    private final boolean _isNextTokenNameMaybe(int i, String str) throws IOException
+    
+    
+    private final boolean _isNextTokenNameMaybe(int i, SerializableString str) throws IOException
     {
         // // // and this is back to standard nextToken()
 
-        String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
-        _parsingContext.setCurrentName(name);
+        String n = _parseName(i);
+        _parsingContext.setCurrentName(n);
+        final boolean match = n.equals(str.getValue());
         _currToken = JsonToken.FIELD_NAME;
         i = _skipColon();
 
@@ -1166,7 +1167,7 @@ public class UTF8StreamJsonParser
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
             _nextToken = JsonToken.VALUE_STRING;
-            return name.equals(str);
+            return match;
         }
         JsonToken t;
 
@@ -1208,7 +1209,7 @@ public class UTF8StreamJsonParser
             t = _handleUnexpectedValue(i);
         }
         _nextToken = t;
-        return name.equals(str);
+        return match;
     }
 
     @Override
@@ -1642,8 +1643,11 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
     
-    protected final String _parseName() throws IOException
+    protected final String _parseName(int i) throws IOException
     {
+        if (i != INT_QUOTE) {
+            return _handleOddName(i);
+        }
         // First: can we optimize out bounds checks?
         if ((_inputPtr + 13) > _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
             return slowParseName();
@@ -1661,7 +1665,7 @@ public class UTF8StreamJsonParser
         int q = input[_inputPtr++] & 0xFF;
 
         if (codes[q] == 0) {
-            int i = input[_inputPtr++] & 0xFF;
+            i = input[_inputPtr++] & 0xFF;
             if (codes[i] == 0) {
                 q = (q << 8) | i;
                 i = input[_inputPtr++] & 0xFF;

@@ -19,7 +19,7 @@ public class Version
     private static final long serialVersionUID = 1L;
 
     private final static Version UNKNOWN_VERSION = new Version(0, 0, 0, null, null, null);
-    
+
     protected final int _majorVersion;
 
     protected final int _minorVersion;
@@ -27,9 +27,9 @@ public class Version
     protected final int _patchLevel;
 
     protected final String _groupId;
-    
+
     protected final String _artifactId;
-    
+
     /**
      * Additional information for snapshot versions; null for non-snapshot
      * (release) versions.
@@ -46,7 +46,7 @@ public class Version
     {
         this(major, minor, patchLevel, snapshotInfo, null, null);
     }
-    
+
     public Version(int major, int minor, int patchLevel, String snapshotInfo,
             String groupId, String artifactId)
     {
@@ -74,19 +74,19 @@ public class Version
      * @deprecated Since 2.7 use correctly spelled method {@link #isUnknownVersion()}
      */
     @Deprecated
-    public boolean isUknownVersion() { return (this == UNKNOWN_VERSION); }
-    
+    public boolean isUknownVersion() { return isUnknownVersion(); }
+
     public int getMajorVersion() { return _majorVersion; }
     public int getMinorVersion() { return _minorVersion; }
     public int getPatchLevel() { return _patchLevel; }
 
     public String getGroupId() { return _groupId; }
     public String getArtifactId() { return _artifactId; }
-    
+
     public String toFullString() {
         return _groupId + '/' + _artifactId + '/' + toString();
     }
-    
+
     @Override public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(_majorVersion).append('.');

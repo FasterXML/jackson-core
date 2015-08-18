@@ -64,8 +64,17 @@ public class Version
      */
     public static Version unknownVersion() { return UNKNOWN_VERSION; }
 
-    public boolean isUknownVersion() { return (this == UNKNOWN_VERSION); }
+    /**
+     * @since 2.7 to replace misspelled {@link #isUknownVersion()}
+     */
+    public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
     public boolean isSnapshot() { return (_snapshotInfo != null && _snapshotInfo.length() > 0); }
+
+    /**
+     * @deprecated Since 2.7 use correctly spelled method {@link #isUnknownVersion()}
+     */
+    @Deprecated
+    public boolean isUknownVersion() { return (this == UNKNOWN_VERSION); }
     
     public int getMajorVersion() { return _majorVersion; }
     public int getMinorVersion() { return _minorVersion; }

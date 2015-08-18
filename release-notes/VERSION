@@ -18,6 +18,8 @@ JSON library.
 
 #198: Add back-references to `JsonParser` / `JsonGenerator` for low-level parsing issues
  (via `JsonParseException`, `JsonGenerationException`)
+#211: Typo of function name com.fasterxml.jackson.core.Version.isUknownVersion()
+ (reported by timray@github)
 - Implemented `ReaderBasedJsonParser.nextFieldName(SerializableString)`
   (to improved Afterburner performance over String/char[] sources)
 

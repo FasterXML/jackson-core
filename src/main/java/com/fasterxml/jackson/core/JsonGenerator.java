@@ -1178,7 +1178,7 @@ public abstract class JsonGenerator
      * @since 2.3
      */
     public void writeObjectId(Object id) throws IOException {
-        throw new JsonGenerationException("No native support for writing Object Ids");
+        throw new JsonGenerationException("No native support for writing Object Ids", this);
     }
 
     /**
@@ -1191,7 +1191,7 @@ public abstract class JsonGenerator
      * a {@link JsonGenerationException} will be thrown.
      */
     public void writeObjectRef(Object id) throws IOException {
-        throw new JsonGenerationException("No native support for writing Object Ids");
+        throw new JsonGenerationException("No native support for writing Object Ids", this);
     }
     
     /**
@@ -1206,7 +1206,7 @@ public abstract class JsonGenerator
      * @since 2.3
      */
     public void writeTypeId(Object id) throws IOException {
-        throw new JsonGenerationException("No native support for writing Type Ids");
+        throw new JsonGenerationException("No native support for writing Type Ids", this);
     }
     
     /*
@@ -1646,7 +1646,7 @@ public abstract class JsonGenerator
      * or use a {@link JsonGenerationException} sub-class.
      */
     protected void _reportError(String msg) throws JsonGenerationException {
-        throw new JsonGenerationException(msg);
+        throw new JsonGenerationException(msg, this);
     }
 
     protected final void _throwInternal() { VersionUtil.throwInternal(); }
@@ -1654,7 +1654,7 @@ public abstract class JsonGenerator
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
     }
-    
+
     /**
      * Helper method to try to call appropriate write method for given
      * untyped Object. At this point, no structural conversions should be done,
@@ -1702,9 +1702,8 @@ public abstract class JsonGenerator
             } else if (n instanceof BigDecimal) {
                 writeNumber((BigDecimal) n);
                 return;
-                
+
             // then Atomic types
-                
             } else if (n instanceof AtomicInteger) {
                 writeNumber(((AtomicInteger) n).get());
                 return;

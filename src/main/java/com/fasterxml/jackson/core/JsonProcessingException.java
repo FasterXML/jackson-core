@@ -45,14 +45,14 @@ public class JsonProcessingException extends java.io.IOException
         this(null, null, rootCause);
     }
 
-    public JsonLocation getLocation() { return _location; }
-
     /*
     /**********************************************************
     /* Extended API
     /**********************************************************
      */
 
+    public JsonLocation getLocation() { return _location; }
+    
     /**
      * Method that allows accessing the original "message" argument,
      * without additional decorations (like location information)
@@ -61,6 +61,22 @@ public class JsonProcessingException extends java.io.IOException
      * @since 2.1
      */
     public String getOriginalMessage() { return super.getMessage(); }
+
+    /**
+     * Method that allows accessing underlying processor that triggered
+     * this exception; typically either {@link JsonParser} or {@link JsonGenerator}
+     * for exceptions that originate from streaming API.
+     * Note that it is possible that `null` may be returned if code throwing
+     * exception either has no access to processor; or has not been retrofitted
+     * to set it; this means that caller needs to take care to check for nulls.
+     * Subtypes override this method with co-variant return type, for more
+     * type-safe access.
+     * 
+     * @return Originating processor, if available; null if not.
+     *
+     * @since 2.7
+     */
+    public Object getProcessor() { return null; }
 
     /*
     /**********************************************************

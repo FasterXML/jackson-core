@@ -530,7 +530,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected final JsonParseException _constructError(String msg, Throwable t) {
-        return new JsonParseException(msg, getCurrentLocation(), t);
+        return new JsonParseException(this, msg, t);
     }
 
     protected static byte[] _asciiBytes(String str) {
@@ -540,7 +540,7 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return b;
     }
-    
+
     protected static String _ascii(byte[] b) {
         try {
             return new String(b, "US-ASCII");

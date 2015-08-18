@@ -16,6 +16,8 @@ JSON library.
 
 2.7.0 (not yet released)
 
+#198: Add back-references to `JsonParser` / `JsonGenerator` for low-level parsing issues
+ (via `JsonParseException`, `JsonGenerationException`)
 - Implemented `ReaderBasedJsonParser.nextFieldName(SerializableString)`
   (to improved Afterburner performance over String/char[] sources)
 

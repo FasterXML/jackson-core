@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.*;
 public class DupDetector
 {
     /**
-     * We need to store a back-reference here to parser/generator, unfortunately.
+     * We need to store a back-reference here to parser/generator.
      */
     protected final Object _source;
 
@@ -63,7 +63,14 @@ public class DupDetector
         // do generators have a way to provide Location? Apparently not...
         return null;
     }
-    
+
+    /**
+     * @since 2.7
+     */
+    public Object getSource() {
+        return _source;
+    }
+
     public boolean isDup(String name) throws JsonParseException
     {
         if (_firstName == null) {

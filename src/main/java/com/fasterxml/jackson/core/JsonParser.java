@@ -1172,7 +1172,8 @@ public abstract class JsonParser
         JsonToken t = getCurrentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
-        throw new JsonParseException("Current token ("+t+") not of boolean type", getCurrentLocation());
+        throw new JsonParseException(this,
+                String.format("Current token (%s) not of boolean type", t));
     }
 
     /**
@@ -1578,7 +1579,7 @@ public abstract class JsonParser
      * based on current state of the parser
      */
     protected JsonParseException _constructError(String msg) {
-        return new JsonParseException(msg, getCurrentLocation());
+        return new JsonParseException(this, msg);
     }
 
     /**

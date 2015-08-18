@@ -156,7 +156,11 @@ public class JsonWriteContext extends JsonStreamContext
     }
 
     private final void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
-        if (dd.isDup(name)) { throw new JsonGenerationException("Duplicate field '"+name+"'"); }
+        if (dd.isDup(name)) {
+            Object src = dd.getSource();
+            throw new JsonGenerationException("Duplicate field '"+name+"'",
+                    ((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null));
+        }
     }
     
     public int writeValue() {

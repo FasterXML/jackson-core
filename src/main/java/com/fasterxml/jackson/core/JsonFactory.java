@@ -205,16 +205,6 @@ public class JsonFactory
      */
     protected final transient ByteQuadsCanonicalizer _byteSymbolCanonicalizer = ByteQuadsCanonicalizer.createRoot();
 
-    /**
-     * Earlier byte-based symbol table; replaced with 2.6 with a new implementation.
-     * Left in for version 2.6.0: will be removed in 2.7 or later.
-     *
-     * @deprecated Since 2.6.0, only use {@link #_byteSymbolCanonicalizer}
-     */
-    @Deprecated
-    protected final transient com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer _rootByteSymbols
-        = com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer.createRoot();
-
     /*
     /**********************************************************
     /* Configuration

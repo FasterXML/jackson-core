@@ -34,33 +34,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(6, symbols.maxCollisionLength());
     }
 
-    // Test for verifying stability of hashCode, wrt collisions, using
-    // synthetic field name generation and byte-based input (UTF-8)
-    @SuppressWarnings("deprecation")
-    public void testSyntheticWithBytesOld() throws IOException
-    {
-        // pass seed, to keep results consistent:
-        final int SEED = 33333;
-        BytesToNameCanonicalizer symbols =
-                BytesToNameCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
-
-        final int COUNT = 12000;
-        for (int i = 0; i < COUNT; ++i) {
-            String id = fieldNameFor(i);
-            int[] quads = calcQuads(id.getBytes("UTF-8"));
-            symbols.addName(id, quads, quads.length);
-        }
-        assertEquals(COUNT, symbols.size());
-        assertEquals(16384, symbols.bucketCount());
-
-//System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
-        assertEquals(3476, symbols.collisionCount());
-        // longest collision chain not optimal but ok:
-        assertEquals(15, symbols.maxCollisionLength());
-
-        // But also verify entries are actually found?
-    }
-
     public void testSyntheticWithBytesNew() throws IOException
     {
         // pass seed, to keep results consistent:
@@ -112,35 +85,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
                 exp = 0;
             }
             assertEquals(exp, symbolsCRoot.size());
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public void testThousandsOfSymbolsWithOldBytes() throws IOException
-    {
-        final int SEED = 33333;
-
-        BytesToNameCanonicalizer symbolsBRoot = BytesToNameCanonicalizer.createRoot(SEED);
-        final Charset utf8 = Charset.forName("UTF-8");
-        int exp = 0;
-        
-        for (int doc = 0; doc < 100; ++doc) {
-            BytesToNameCanonicalizer symbolsB =
-                    symbolsBRoot.makeChild(JsonFactory.Feature.collectDefaults());
-            for (int i = 0; i < 250; ++i) {
-                String name = "f_"+doc+"_"+i;
-
-                int[] quads = BytesToNameCanonicalizer.calcQuads(name.getBytes(utf8));
-                symbolsB.addName(name, quads, quads.length);
-                Name n = symbolsB.findName(quads, quads.length);
-                assertEquals(name, n.getName());
-            }
-            symbolsB.release();
-            exp += 250;
-            if (exp > BytesToNameCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
-                exp = 0;
-            }
-            assertEquals(exp, symbolsBRoot.size());
         }
     }
 
@@ -227,30 +171,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         Field syms = p.getClass().getDeclaredField("_symbols");
         syms.setAccessible(true);
         return ((ByteQuadsCanonicalizer) syms.get(p));
-    }
-
-    // [core#187]: unexpectedly high number of collisions for straight numbers
-    @SuppressWarnings("deprecation")
-    public void testCollisionsWithBytes187() throws IOException
-    {
-        BytesToNameCanonicalizer symbols =
-                BytesToNameCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
-        final int COUNT = 30000;
-        for (int i = 0; i < COUNT; ++i) {
-            String id = String.valueOf(10000 + i);
-            int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
-            symbols.addName(id, quads, quads.length);
-        }
-
-//System.out.printf("Byte stuff: collisions %d, max-coll %d\n", symbols.collisionCount(), symbols.maxCollisionLength());
-        
-        assertEquals(COUNT, symbols.size());
-        assertEquals(65536, symbols.bucketCount());
-
-        // collision count acceptable
-        assertEquals(5782, symbols.collisionCount());
-        // as well as collision counts
-        assertEquals(24, symbols.maxCollisionLength());
     }
 
     // [core#187]: unexpectedly high number of collisions for straight numbers
@@ -382,24 +302,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(2, symbols.maxCollisionLength());
     }
 
-    @SuppressWarnings("deprecation")
-    public void testShortQuotedDirectBytesOld() throws IOException
-    {
-        final int COUNT = 400;
-        BytesToNameCanonicalizer symbols =
-                BytesToNameCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
-        for (int i = 0; i < COUNT; ++i) {
-            String id = String.format("\\u%04x", i);
-            int[] quads = BytesToNameCanonicalizer.calcQuads(id.getBytes("UTF-8"));
-            symbols.addName(id, quads, quads.length);
-        }
-        assertEquals(COUNT, symbols.size());
-        assertEquals(1024, symbols.bucketCount());
-
-        assertEquals(44, symbols.collisionCount());
-        assertEquals(2, symbols.maxCollisionLength());
-    }
-
     public void testShortQuotedDirectBytes() throws IOException
     {
         final int COUNT = 400;
@@ -420,7 +322,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     }
     
     // [core#191]
-    @SuppressWarnings("deprecation")
     public void testShortNameCollisionsDirect() throws IOException
     {
         final int COUNT = 600;
@@ -437,22 +338,6 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             assertEquals(1024, symbols.bucketCount());
     
             assertEquals(16, symbols.collisionCount());
-            assertEquals(1, symbols.maxCollisionLength());
-        }
-        
-        // then byte-based
-        {
-            BytesToNameCanonicalizer symbols =
-                    BytesToNameCanonicalizer.createRoot(1).makeChild(JsonFactory.Feature.collectDefaults());
-            for (int i = 0; i < COUNT; ++i) {
-                String id = String.valueOf((char) i);
-                int[] quads = calcQuads(id.getBytes("UTF-8"));
-                symbols.addName(id, quads, quads.length);
-            }
-            assertEquals(COUNT, symbols.size());
-            assertEquals(1024, symbols.bucketCount());
-    
-            assertEquals(209, symbols.collisionCount());
             assertEquals(1, symbols.maxCollisionLength());
         }
     }

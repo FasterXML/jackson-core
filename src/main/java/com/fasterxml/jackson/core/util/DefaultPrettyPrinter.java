@@ -245,8 +245,7 @@ public class DefaultPrettyPrinter
      */
 
     @Override
-    public void writeRootValueSeparator(JsonGenerator jg)
-        throws IOException, JsonGenerationException
+    public void writeRootValueSeparator(JsonGenerator jg) throws IOException
     {
         if (_rootSeparator != null) {
             jg.writeRaw(_rootSeparator);
@@ -254,8 +253,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void writeStartObject(JsonGenerator jg)
-        throws IOException, JsonGenerationException
+    public void writeStartObject(JsonGenerator jg) throws IOException
     {
         jg.writeRaw('{');
         if (!_objectIndenter.isInline()) {
@@ -264,8 +262,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void beforeObjectEntries(JsonGenerator jg)
-        throws IOException, JsonGenerationException
+    public void beforeObjectEntries(JsonGenerator jg) throws IOException
     {
         _objectIndenter.writeIndentation(jg, _nesting);
     }
@@ -280,8 +277,7 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeObjectFieldValueSeparator(JsonGenerator jg)
-        throws IOException, JsonGenerationException
+    public void writeObjectFieldValueSeparator(JsonGenerator jg) throws IOException
     {
         if (_spacesInObjectEntries) {
             jg.writeRaw(" : ");
@@ -300,16 +296,14 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeObjectEntrySeparator(JsonGenerator jg)
-        throws IOException, JsonGenerationException
+    public void writeObjectEntrySeparator(JsonGenerator jg) throws IOException
     {
         jg.writeRaw(',');
         _objectIndenter.writeIndentation(jg, _nesting);
     }
 
     @Override
-    public void writeEndObject(JsonGenerator jg, int nrOfEntries)
-        throws IOException, JsonGenerationException
+    public void writeEndObject(JsonGenerator jg, int nrOfEntries) throws IOException
     {
         if (!_objectIndenter.isInline()) {
             --_nesting;
@@ -323,8 +317,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void writeStartArray(JsonGenerator jg)
-        throws IOException, JsonGenerationException
+    public void writeStartArray(JsonGenerator jg) throws IOException
     {
         if (!_arrayIndenter.isInline()) {
             ++_nesting;
@@ -333,9 +326,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void beforeArrayValues(JsonGenerator jg)
-        throws IOException, JsonGenerationException
-    {
+    public void beforeArrayValues(JsonGenerator jg) throws IOException {
         _arrayIndenter.writeIndentation(jg, _nesting);
     }
 
@@ -408,44 +399,5 @@ public class DefaultPrettyPrinter
 
         @Override
         public boolean isInline() { return true; }
-    }
-    
-    /**
-     * @deprecated Since 2.5 use {@link DefaultIndenter} instead
-     */
-    @Deprecated
-    public static class Lf2SpacesIndenter extends DefaultIndenter
-    {
-        /** @deprecated Use {@link DefaultIndenter#SYSTEM_LINEFEED_INSTANCE} instead.
-         */
-        @SuppressWarnings("hiding")
-        @Deprecated
-        public static final Lf2SpacesIndenter instance = new Lf2SpacesIndenter();
-
-        /** @deprecated Use {@code new DefaultIndenter("  ", DefaultIndenter.SYS_LF)} instead
-         */
-        @Deprecated
-        public Lf2SpacesIndenter() {
-            super("  ", DefaultIndenter.SYS_LF);
-        }
-        
-        /** @deprecated Use {@code new DefaultIndenter("  ", lf)} instead
-         */
-        @Deprecated
-        public Lf2SpacesIndenter(String lf) {
-            super("  ", lf);
-        }
-
-        /**
-         * Note: method was accidentally missing from 2.5.0; put back for 2.5.1 and
-         * later 2.5.x versions.
-         */
-        @Override
-        public Lf2SpacesIndenter withLinefeed(String lf) {
-            if (lf.equals(getEol())) {
-                return this;
-            }
-            return new Lf2SpacesIndenter(lf);
-        }
     }
 }

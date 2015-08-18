@@ -103,18 +103,8 @@ public final class JsonReadContext extends JsonStreamContext
     /**********************************************************
      */
 
-    @Deprecated // since 2.3, use variant that takes dup detector
-    public static JsonReadContext createRootContext(int lineNr, int colNr) {
-        return createRootContext(lineNr, colNr, null);
-    }
-
     public static JsonReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
         return new JsonReadContext(null, dups, TYPE_ROOT, lineNr, colNr);
-    }
-
-    @Deprecated // since 2.3, use variant that takes dup detector
-    public static JsonReadContext createRootContext() {
-        return createRootContext(null);
     }
 
     public static JsonReadContext createRootContext(DupDetector dups) {

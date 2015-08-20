@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
 import com.fasterxml.jackson.core.*;
 
@@ -108,6 +111,15 @@ public class JsonFactoryTest
 
         // ok, delete once we are done
         file.delete();
+    }
+    
+    public void testJsonWithHttp() throws Exception
+    {
+        final JsonFactory f = new JsonFactory();
+        final JsonParser jp = f.createParser(URI.create("https://api.github.com/repos/FasterXML/jackson-core/branches").toURL());
+        assertNotNull(jp);
+        
+        jp.close();
     }
 
     // #72

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
  * merge back symbols to the root symbol table
  */
 @SuppressWarnings("serial")
-public class TestJsonParserSymbols
+public class SymbolTableMergingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     /**

@@ -8,6 +8,11 @@ import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 /**
  * Some unit tests to try to exercise part of parser code that
  * deals with symbol (table) management.
+ *<p>
+ * Note that the problem does not necessarily affect code at or
+ * after Jackson 2.6, since hash calculation algorithm has been
+ * completely changed. It may still be relevant for character-backed
+ * sources, however.
  */
 public class TestHashCollisionChars
     extends BaseTest

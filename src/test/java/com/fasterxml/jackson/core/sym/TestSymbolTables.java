@@ -6,6 +6,10 @@ import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
 
+/**
+ * Tests that directly modify/access underlying low-level symbol tables
+ * (instead of indirectly using them via JsonParser).
+ */
 public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
 {
     // Test for verifying stability of hashCode, wrt collisions, using
@@ -481,5 +485,24 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             assertEquals(COUNT,
                     symbols.primaryCount() + symbols.secondaryCount() + symbols.tertiaryCount() + symbols.spilloverCount());
         }
+    }
+
+    // to verify [jackson-core#213] -- did not fail, but ruled out low-level bug
+
+    public void testLongSymbols17Bytes() throws Exception
+    {
+        ByteQuadsCanonicalizer symbolsB =
+                ByteQuadsCanonicalizer.createRoot(3).makeChild(JsonFactory.Feature.collectDefaults());
+        CharsToNameCanonicalizer symbolsC = CharsToNameCanonicalizer.createRoot(3);
+
+        for (int i = 1001; i <= 1050; ++i) {
+            String id = "lengthmatters"+i;
+            int[] quads = calcQuads(id.getBytes("UTF-8"));
+            symbolsB.addName(id, quads, quads.length);
+            char[] idChars = id.toCharArray();
+            symbolsC.findSymbol(idChars, 0, idChars.length, symbolsC.calcHash(id));
+        }
+        assertEquals(50, symbolsB.size());
+        assertEquals(50, symbolsC.size());
     }
 }

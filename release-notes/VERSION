@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.2 (not yet released)
+
+#213: Parser is sometimes wrong when using CANONICALIZE_FIELD_NAMES
+ (reported by ichernev@github)
+
 2.6.1 (09-Aug-2015)
 
 #207: `ArrayIndexOutOfBoundsException` in `ByteQuadsCanonicalizer`

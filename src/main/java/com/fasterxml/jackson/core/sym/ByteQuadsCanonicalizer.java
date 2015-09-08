@@ -702,7 +702,9 @@ public final class ByteQuadsCanonicalizer
         for (int end = offset + bucketSize; offset < end; offset += 4) {
             int len = hashArea[offset+3];
             if ((hash == hashArea[offset]) && (qlen == len)) {
-                return _names[offset >> 2];
+                if (_verifyLongName(q, qlen, hashArea[offset+1])) {
+                    return _names[offset >> 2];
+                }
             }
             if (len == 0) {
                 return null;

@@ -66,3 +66,7 @@ Ruediger Moeller (RuedigerMoeller@github)
 Florian Schoppmann (fschopp@github@github)
   * Reported #207: `ArrayIndexOutOfBoundsException` in `ByteQuadsCanonicalizer`
    (2.6.1)
+
+Iskren Ivov Chernev (ichernev@github)
+  * Reported #213: Parser is sometimes wrong when using CANONICALIZE_FIELD_NAMES
+   (2.6.2)

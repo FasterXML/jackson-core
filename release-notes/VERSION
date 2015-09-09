@@ -18,6 +18,8 @@ JSON library.
 
 #213: Parser is sometimes wrong when using CANONICALIZE_FIELD_NAMES
  (reported by ichernev@github)
+#216: ArrayIndexOutOfBoundsException: 128 when repeatedly serializing to a byte array
+ (reported by geekbeast@github)
 
 2.6.1 (09-Aug-2015)
 

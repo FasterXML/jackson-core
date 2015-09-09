@@ -877,12 +877,15 @@ public final class ByteQuadsCanonicalizer
             _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);
             _names = Arrays.copyOf(_names, _names.length);
             _hashShared = false;
+            // 09-Sep-2015, tatu: As per [jackson-core#216], also need to ensure
+            //    we rehash as needed, as need-rehash flag is not copied from parent
+            _verifyNeedForRehash();
         }
         if (_needRehash) {
             rehash();
         }
     }
-    
+
     /**
      * Method called to find the location within hash table to add a new symbol in.
      */

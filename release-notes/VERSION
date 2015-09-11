@@ -91,7 +91,7 @@ JSON library.
 - Added `JsonParser.hasTokenId(id)` convenience method
 - Added `JsonParser.nextFieldName()` (no args)
 
-2.4.6 (not released yet)
+2.4.6 (23-Apr-2015)
 
 #184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
  (reported by Derek C)
@@ -136,6 +136,13 @@ No changes since 2.4.4.
   of `String` input as well.
 - Refactor `BufferRecycler` to eliminate helper enums
 
+2.3.5 (13-Jan-2015)
+
+#152: Exception for property names longer than 256k
+#173: An exception is thrown for a valid JsonPointer expression
+#176: `JsonPointer` should not consider "00" to be valid index
+
+2.3.4 (17-Jul-2014)
 2.3.3 (10-Apr-2014)
 
 No changes since 2.3.2.

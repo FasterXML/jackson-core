@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.2 (not yet released)
+2.6.2 (14-Sep-2015)
 
 #213: Parser is sometimes wrong when using CANONICALIZE_FIELD_NAMES
  (reported by ichernev@github)

@@ -303,7 +303,6 @@ public abstract class JsonGenerator
      */
     public abstract boolean isEnabled(Feature f);
 
-
     /**
      * Bulk access method for getting state of all standard (non-dataformat-specific)
      * {@link JsonGenerator.Feature}s.
@@ -323,7 +322,10 @@ public abstract class JsonGenerator
      *    and which disabled
      *
      * @return This parser object, to allow chaining of calls
+     *
+     * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead
      */
+    @Deprecated
     public abstract JsonGenerator setFeatureMask(int values);
 
     /**
@@ -334,6 +336,7 @@ public abstract class JsonGenerator
      *    int newState = (oldState &amp; ~mask) | (values &amp; mask);
      *    setFeatureMask(newState);
      *</code>
+     * but preferred as this lets caller more efficiently specify actual changes made.
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change

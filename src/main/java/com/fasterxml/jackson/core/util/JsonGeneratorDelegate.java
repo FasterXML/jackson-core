@@ -128,8 +128,21 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public int getFeatureMask() { return delegate.getFeatureMask(); }
 
     @Override
+    @Deprecated
     public JsonGenerator setFeatureMask(int mask) {
         delegate.setFeatureMask(mask);
+        return this;
+    }
+
+    @Override
+    public JsonGenerator overrideStdFeatures(int values, int mask) {
+        delegate.overrideStdFeatures(values, mask);
+        return this;
+    }
+
+    @Override
+    public JsonGenerator overrideFormatFeatures(int values, int mask) {
+        delegate.overrideFormatFeatures(values, mask);
         return this;
     }
 

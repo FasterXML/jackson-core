@@ -60,8 +60,21 @@ public class JsonParserDelegate extends JsonParser
     @Override public int getFeatureMask() { return delegate.getFeatureMask(); }
 
     @Override
+    @Deprecated // since 2.7
     public JsonParser setFeatureMask(int mask) {
         delegate.setFeatureMask(mask);
+        return this;
+    }
+
+    @Override
+    public JsonParser overrideStdFeatures(int values, int mask) {
+        delegate.overrideStdFeatures(values, mask);
+        return this;
+    }
+
+    @Override
+    public JsonParser overrideFormatFeatures(int values, int mask) {
+        delegate.overrideFormatFeatures(values, mask);
         return this;
     }
 

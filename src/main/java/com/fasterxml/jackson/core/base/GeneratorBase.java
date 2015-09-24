@@ -174,32 +174,59 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public JsonGenerator setFeatureMask(int newMask) {
         int changed = newMask ^ _features;
         _features = newMask;
-        if ((changed & DERIVED_FEATURES_MASK) != 0) {
-            _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(newMask);
-            if (Feature.ESCAPE_NON_ASCII.enabledIn(changed)) {
-                if (Feature.ESCAPE_NON_ASCII.enabledIn(newMask)) {
-                    setHighestNonEscapedChar(127);
-                } else {
-                    setHighestNonEscapedChar(0);
-                }
-            }
-            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(changed)) {
-                if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newMask)) { // enabling
-                    if (_writeContext.getDupDetector() == null) { // but only if disabled currently
-                        _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
-                    }
-                } else { // disabling
-                    _writeContext = _writeContext.withDupDetector(null);
-                }
-            }
+        if (changed != 0) {
+            _checkStdFeatureChanges(newMask, changed);
         }
         return this;
     }
+
+    @Override // since 2.7
+    public JsonGenerator overrideStdFeatures(int values, int mask) {
+        int oldState = _features;
+        int newState = (oldState & ~mask) | (values & mask);
+        int changed = oldState ^ newState;
+        if (changed != 0) {
+            _features = newState;
+            _checkStdFeatureChanges(newState, changed);
+        }
+        return this;
+    }
+
+    /**
+     * Helper method called to verify changes to standard features.
+     *
+     * @param newFeatureFlags Bitflag of standard features after they were changed
+     * @param changedFeatures Bitflag of standard features for which setting
+     *    did change
+     *
+     * @since 2.7
+     */
+    protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures)
+    {
+        if ((changedFeatures & DERIVED_FEATURES_MASK) == 0) {
+            return;
+        }
+        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(newFeatureFlags);
+        if (Feature.ESCAPE_NON_ASCII.enabledIn(changedFeatures)) {
+            if (Feature.ESCAPE_NON_ASCII.enabledIn(newFeatureFlags)) {
+                setHighestNonEscapedChar(127);
+            } else {
+                setHighestNonEscapedChar(0);
+            }
+        }
+        if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(changedFeatures)) {
+            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newFeatureFlags)) { // enabling
+                if (_writeContext.getDupDetector() == null) { // but only if disabled currently
+                    _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
+                }
+            } else { // disabling
+                _writeContext = _writeContext.withDupDetector(null);
+            }
+        }
+    }
     
     @Override public JsonGenerator useDefaultPrettyPrinter() {
-        /* 28-Sep-2012, tatu: As per [Issue#84], should not override a
-         *  pretty printer if one already assigned.
-         */
+        // Should not override a pretty printer if one already assigned.
         if (getPrettyPrinter() != null) {
             return this;
         }

@@ -529,7 +529,10 @@ public abstract class JsonParser
      * @return This parser object, to allow chaining of calls
      * 
      * @since 2.3
+     * 
+     * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead
      */
+    @Deprecated
     public JsonParser setFeatureMask(int mask) {
         _features = mask;
         return this;
@@ -543,6 +546,7 @@ public abstract class JsonParser
      *    int newState = (oldState &amp; ~mask) | (values &amp; mask);
      *    setFeatureMask(newState);
      *</code>
+     * but preferred as this lets caller more efficiently specify actual changes made.
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
@@ -550,8 +554,8 @@ public abstract class JsonParser
      * @since 2.6
      */
     public JsonParser overrideStdFeatures(int values, int mask) {
-        _features = (_features & ~mask) | (values & mask);
-        return this;
+        int newState = (_features & ~mask) | (values & mask);
+        return setFeatureMask(newState);
     }
 
     /**

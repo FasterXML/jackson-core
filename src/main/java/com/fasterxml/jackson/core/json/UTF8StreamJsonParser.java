@@ -936,7 +936,8 @@ public class UTF8StreamJsonParser
                     while (true) {
                         if (ptr == end) { // yes, match!
                             _parsingContext.setCurrentName(str.getValue());
-                            _isNextTokenNameYes(_skipColonFast(ptr+1));
+                            i = _skipColonFast(ptr+1);
+                            _isNextTokenNameYes(i);
                             return true;
                         }
                         if (nameBytes[offset] != _inputBuffer[ptr]) {
@@ -1101,6 +1102,8 @@ public class UTF8StreamJsonParser
                     }
                 }
             }
+            _inputPtr = ptr-1;
+            return _skipColon2(true);
         }
         _inputPtr = ptr-1;
         return _skipColon2(false);
@@ -2982,7 +2985,7 @@ public class UTF8StreamJsonParser
         }
         return _skipColon2(false);
     }
-    
+
     private final int _skipColon2(boolean gotColon) throws IOException
     {
         while (_inputPtr < _inputEnd || loadMore()) {

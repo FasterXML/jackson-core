@@ -2149,7 +2149,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (i == INT_SPACE || i == INT_TAB) {
             i = _inputBuffer[ptr++];
         }
-        if (i == INT_COLON) {
+        boolean gotColon = (i == INT_COLON);
+        if (gotColon) {
             i = _inputBuffer[ptr++];
             if (i > INT_SPACE) {
                 if (i != INT_SLASH && i != INT_HASH) {
@@ -2167,7 +2168,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
         }
         _inputPtr = ptr-1;
-        return _skipColon2(false);
+        return _skipColon2(gotColon);
     }
     
     // Primary loop: no reloading, comment handling

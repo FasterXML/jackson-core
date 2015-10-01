@@ -1065,6 +1065,8 @@ public class UTF8StreamJsonParser
                     }
                 }
             }
+            _inputPtr = ptr-1;
+            return _skipColon2(true);
         }
         _inputPtr = ptr-1;
         return _skipColon2(false);

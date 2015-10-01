@@ -18,8 +18,7 @@ public class TestNextXxx
     /* Wrappers to test InputStream vs Reader
     /********************************************************
      */
-    
-    // [JACKSON-653]
+
     public void testIsNextTokenName() throws Exception
     {
         _testIsNextTokenName1(false);
@@ -30,14 +29,21 @@ public class TestNextXxx
         _testIsNextTokenName3(true);
     }
 
-    // [Issue#34]
+    // for [core#220]: problem with `nextFieldName(str)`, indented content
+    public void testNextNameWithIndentation() throws Exception
+    {
+        _testNextFieldNameIndent(false);
+        _testNextFieldNameIndent(true);
+    }
+
+    // [core#34]
     public void testIssue34() throws Exception
     {
         _testIssue34(false);
         _testIssue34(true);
     }
 
-    // [Issue#38] with nextFieldName
+    // [core#38] with nextFieldName
     public void testIssue38() throws Exception
     {
         _testIssue38(false);
@@ -51,7 +57,7 @@ public class TestNextXxx
         _testLong(jf, false);
         _testLong(jf, true);
     }
-    
+
     /*
     /********************************************************
     /* Actual test code
@@ -204,6 +210,25 @@ public class TestNextXxx
         assertNull(jp.getCurrentToken());
 
         jp.close();
+    }
+
+    private void _testNextFieldNameIndent(boolean useStream) throws Exception
+    {
+        final String DOC = "{\n  \"name\" : \n  [\n  ]\n   }";
+        JsonFactory f = new JsonFactory();
+        JsonParser p = useStream ?
+                f.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : f.createParser(new StringReader(DOC));
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertTrue(p.nextFieldName(new SerializedString("name")));
+
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+
+        assertNull(p.nextToken());
+
+        p.close();
     }
 
     private void _testIssue34(boolean useStream) throws Exception

@@ -326,8 +326,9 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return this;
     }
-    
+
     @Override
+    @Deprecated
     public JsonParser setFeatureMask(int newMask) {
         int changes = (_features ^ newMask);
         if (changes != 0) {

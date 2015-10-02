@@ -171,7 +171,9 @@ public abstract class GeneratorBase extends JsonGenerator
         return this;
     }
 
-    @Override public JsonGenerator setFeatureMask(int newMask) {
+    @Override
+    @Deprecated
+    public JsonGenerator setFeatureMask(int newMask) {
         int changed = newMask ^ _features;
         _features = newMask;
         if (changed != 0) {

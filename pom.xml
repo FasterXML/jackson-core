@@ -23,6 +23,10 @@
   </scm>
 
   <properties>
+    <!-- 02-Oct-2015, tatu: Retain Java6/JDK1.6 compatibility for streaming for Jackson 2.7 -->
+    <javac.src.version>1.6</javac.src.version>
+    <javac.target.version>1.6</javac.target.version>
+
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>

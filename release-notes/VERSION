@@ -17,6 +17,8 @@ JSON library.
 2.5.5 (not yet released)
 
 #220: Problem with `JsonParser.nextFieldName(SerializableString)` for byte-backed parser
+#221: Fixed ArrayIndexOutOfBounds exception for character-based `JsonGenerator`
+ (reported by a-lerion@github)
 
 2.5.4 (09-Jun-2015)
 

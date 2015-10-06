@@ -65,6 +65,16 @@ JSON library.
 - Add `JsonParser.Feature.IGNORE_UNDEFINED`, useful for data formats like protobuf
 - Optimize writing of String names (remove intermediate copy; with JDK7 no speed benefit)
 
+2.5.5 (not yet released)
+
+#220: Problem with `JsonParser.nextFieldName(SerializableString)` for byte-backed parser
+#221: Fixed ArrayIndexOutOfBounds exception for character-based `JsonGenerator`
+ (reported by a-lerion@github)
+
+2.5.4 (09-Jun-2015)
+
+No changes.
+
 2.5.3 (24-Apr-2015)
 
 #191: Longest collision chain in symbol table now exceeds maximum -- suspect a DoS attack

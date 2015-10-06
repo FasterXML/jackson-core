@@ -1821,7 +1821,7 @@ public final class WriterBasedJsonGenerator
             return;
         }
         if (escCode != CharacterEscapes.ESCAPE_CUSTOM) { // std, \\uXXXX
-            if ((_outputTail + 2) > _outputEnd) {
+            if ((_outputTail + 5) >= _outputEnd) {
                 _flushBuffer();
             }
             int ptr = _outputTail;

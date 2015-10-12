@@ -23,7 +23,7 @@ JSON library.
 - Implemented `ReaderBasedJsonParser.nextFieldName(SerializableString)`
   (to improved Afterburner performance over String/char[] sources)
 
-2.6.3 (not yet released)
+2.6.3 (12-Oct-2015)
 
 #220: Problem with `JsonParser.nextFieldName(SerializableString)` for byte-backed parser
 

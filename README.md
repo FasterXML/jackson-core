@@ -104,6 +104,6 @@ Note that the main differences compared to 1.0 core jar are:
 * Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
 * [Jackson Github Hub](https://github.com/FasterXML/jackson) has links to all official Jackson components
 * [Jackson Github Doc](https://github.com/FasterXML/jackson-docs) is the hub for official Jackson documentation
-* [FasterXML Jackson Project Wiki](http://wiki.fasterxml.com/JacksonHome) has additional documentation (especailly for older Jackson versions)
+* [FasterXML Jackson Project Wiki](http://wiki.fasterxml.com/JacksonHome) has additional documentation (especially for older Jackson versions)
 * Commercial support (including alternative licensing arrangements) is available by [FasterXML.com](http://fasterxml.com)
 

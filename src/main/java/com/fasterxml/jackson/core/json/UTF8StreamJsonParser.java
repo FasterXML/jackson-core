@@ -1855,7 +1855,7 @@ public class UTF8StreamJsonParser
 
     /**
      * Method called when not even first 8 bytes are guaranteed
-     * to come consequtively. Happens rarely, so this is offlined;
+     * to come consecutively. Happens rarely, so this is offlined;
      * plus we'll also do full checks for escaping etc.
      */
     protected String slowParseName() throws IOException
@@ -1990,7 +1990,7 @@ public class UTF8StreamJsonParser
     /**
      * Method called when we see non-white space character other
      * than double quote, when expecting a field name.
-     * In standard mode will just throw an expection; but
+     * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
      */
     protected String _handleOddName(int ch) throws IOException

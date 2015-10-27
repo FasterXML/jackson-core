@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 
 /**
  * Set of basic unit tests for verifying that the low-level number
- * printingg methods work as expected.
+ * printing methods work as expected.
  */
 public class TestNumberPrinting
     extends com.fasterxml.jackson.core.BaseTest

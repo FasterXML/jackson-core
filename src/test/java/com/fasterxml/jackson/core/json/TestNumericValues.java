@@ -389,7 +389,7 @@ public class TestNumericValues
             }
             sb.append(segment);
             sb.append('\n');
-            // let's add somewhat arbitray number of spaces
+            // let's add somewhat arbitrary number of spaces
             int x = (i & 3);
             if (i > 300) {
                 x += i % 5;

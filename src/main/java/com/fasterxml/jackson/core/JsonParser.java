@@ -103,7 +103,7 @@ public abstract class JsonParser
          * Feature that determines whether parser will allow use
          * of single quotes (apostrophe, character '\'') for
          * quoting Strings (names and String values). If so,
-         * this is in addition to other acceptabl markers.
+         * this is in addition to other acceptable markers.
          * but not by JSON specification).
          *<p>
          * Since JSON specification requires use of double quotes for

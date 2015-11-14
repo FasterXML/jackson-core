@@ -29,6 +29,29 @@ public class TestRootValues
         jp.close();
     }
 
+    public void testBrokeanNumber() throws Exception
+    {
+    	_testBrokeanNumber(false);
+    	_testBrokeanNumber(true);
+    }
+
+    private void _testBrokeanNumber(boolean useStream) throws Exception
+    {
+    	JsonFactory f = new JsonFactory();
+        final String DOC = "14:89:FD:D3:E7:8C";
+        JsonParser p = useStream ?
+                createParserUsingStream(f, DOC, "UTF-8")
+                : createParserUsingReader(f, DOC);
+        // Should fail, right away
+        try {
+        	p.nextToken();
+        	fail("Ought to fail! Instead, got token: "+p.getCurrentToken());
+        } catch (JsonParseException e) {
+        	verifyException(e, "unexpected character");
+        }
+        p.close();
+    }
+    
     public void testSimpleBooleans() throws Exception
     {
         _testSimpleBooleans(false);

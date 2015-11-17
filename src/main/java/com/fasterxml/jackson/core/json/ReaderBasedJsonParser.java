@@ -579,19 +579,12 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             close();
             return (_currToken = null);
         }
-
-        /* First, need to ensure we know the starting location of token
-         * after skipping leading white space
-         */
-        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
-        _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
-
-        // finally: clear any data retained so far
+        // clear any data retained so far
         _binaryValue = null;
 
         // Closing scope?
         if (i == INT_RBRACKET) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -599,6 +592,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return (_currToken = JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -610,6 +604,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
         }
+        _updateLocationFromInputPtr();
 
         /* And should we now have a name? Always true for
          * Object contexts, since the intermediate 'expect-value'
@@ -700,6 +695,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
         _nextToken = null;
+
+// !!! 16-Nov-2015, tatu: TODO: fix [databind#37], copy next location to current here
+        
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
             _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
@@ -735,11 +733,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             _currToken = null;
             return false;
         }
-        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
-        _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
         _binaryValue = null;
+
         if (i == INT_RBRACKET) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -748,6 +745,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return false;
         }
         if (i == INT_RCURLY) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -758,6 +756,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
         }
+        _updateLocationFromInputPtr();
 
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
@@ -813,11 +812,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             _currToken = null;
             return null;
         }
-        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
-        _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
         _binaryValue = null;
         if (i == INT_RBRACKET) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -826,6 +823,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return null;
         }
         if (i == INT_RCURLY) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -837,6 +835,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             i = _skipComma(i);
         }
 
+        _updateLocationFromInputPtr();
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
             return null;
@@ -2644,6 +2643,20 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             decodedData = (decodedData << 6) | bits;
             builder.appendThreeBytes(decodedData);
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods, location updating (refactored in 2.7)
+    /**********************************************************
+     */
+
+    // @since 2.7
+    private final void _updateLocationFromInputPtr()
+    {
+        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
+        _tokenInputRow = _currInputRow;
+        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
     }
 
     /*

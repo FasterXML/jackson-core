@@ -697,18 +697,12 @@ public class UTF8StreamJsonParser
             close();
             return (_currToken = null);
         }
-
-        // First, need to ensure we know the starting location of token
-        // after skipping leading white space
-        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
-        _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
-
-        // finally: clear any data retained so far
+        // clear any data retained so far
         _binaryValue = null;
 
         // Closing scope?
         if (i == INT_RBRACKET) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -716,6 +710,7 @@ public class UTF8StreamJsonParser
             return (_currToken = JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -730,6 +725,7 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
         }
+        _updateLocationFromInputPtr();
 
         /* And should we now have a name? Always true for
          * Object contexts, since the intermediate 'expect-value'
@@ -848,6 +844,9 @@ public class UTF8StreamJsonParser
         _nameCopied = false; // need to invalidate if it was copied
         JsonToken t = _nextToken;
         _nextToken = null;
+
+ // !!! 16-Nov-2015, tatu: TODO: fix [databind#37], copy next location to current here
+        
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
             _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
@@ -867,7 +866,6 @@ public class UTF8StreamJsonParser
     public boolean nextFieldName(SerializableString str) throws IOException
     {
         // // // Note: most of code below is copied from nextToken()
-        
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.FIELD_NAME) { // can't have name right after name
             _nextAfterName();
@@ -882,15 +880,11 @@ public class UTF8StreamJsonParser
             _currToken = null;
             return false;
         }
-        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
-        _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
-
-        // finally: clear any data retained so far
         _binaryValue = null;
 
         // Closing scope?
         if (i == INT_RBRACKET) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -899,6 +893,7 @@ public class UTF8StreamJsonParser
             return false;
         }
         if (i == INT_RCURLY) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -915,6 +910,7 @@ public class UTF8StreamJsonParser
             i = _skipWS();
         }
 
+        _updateLocationFromInputPtr();
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
             return false;
@@ -971,13 +967,10 @@ public class UTF8StreamJsonParser
             _currToken = null;
             return null;
         }
-        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
-        _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
-
         _binaryValue = null;
 
         if (i == INT_RBRACKET) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -986,6 +979,7 @@ public class UTF8StreamJsonParser
             return null;
         }
         if (i == INT_RCURLY) {
+            _updateLocationFromInputPtr();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -1001,7 +995,7 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
         }
-
+        _updateLocationFromInputPtr();
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
             return null;
@@ -3608,6 +3602,20 @@ public class UTF8StreamJsonParser
         }
     }
 
+    /*
+    /**********************************************************
+    /* Internal methods, location updating (refactored in 2.7)
+    /**********************************************************
+     */
+
+    // @since 2.7
+    private final void _updateLocationFromInputPtr()
+    {
+        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
+        _tokenInputRow = _currInputRow;
+        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+    }
+    
     /*
     /**********************************************************
     /* Internal methods, other

@@ -39,6 +39,15 @@ public class LocationInArrayTest extends com.fasterxml.jackson.core.BaseTest
         _assertLocation(useBytes, p.getTokenLocation(), 7L, 1, 8);
         assertEquals(251, p.getIntValue()); // just to ensure read proceeds to end
         _assertLocation(useBytes, p.getCurrentLocation(), 10L, 1, 11);
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        _assertLocation(useBytes, p.getTokenLocation(), 15L, 2, 4);
+        assertEquals(3, p.getIntValue());
+        _assertLocation(useBytes, p.getCurrentLocation(), 16L, 2, 5);
+
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        _assertLocation(useBytes, p.getTokenLocation(), 18L, 2, 7);
+        _assertLocation(useBytes, p.getCurrentLocation(), 19L, 2, 8);
         
         p.close();
     }

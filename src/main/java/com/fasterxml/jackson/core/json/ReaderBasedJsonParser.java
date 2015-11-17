@@ -50,7 +50,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * buffer.
      */
     protected boolean _bufferRecyclable;
-    
+
     /*
     /**********************************************************
     /* Configuration
@@ -60,7 +60,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     protected ObjectCodec _objectCodec;
 
     final protected CharsToNameCanonicalizer _symbols;
-    
+
     final protected int _hashSeed;
 
     /*
@@ -68,7 +68,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /* Parsing state
     /**********************************************************
      */
-    
+
     /**
      * Flag that indicates that the current token has not yet
      * been fully processed, and needs to be finished for
@@ -216,7 +216,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /* Public API, data access
     /**********************************************************
      */
-    
+
     /**
      * Method for accessing textual representation of the current event;
      * if no current event (before first call to {@link #nextToken}, or
@@ -238,7 +238,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     }
 
     // // // Let's override default impls for improved performance
-    
+
     // @since 2.1
     @Override
     public final String getValueAsString() throws IOException
@@ -255,7 +255,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         return super.getValueAsString(null);
     }
-    
+
     // @since 2.1
     @Override
     public final String getValueAsString(String defValue) throws IOException {
@@ -308,7 +308,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     _nameCopied = true;
                 }
                 return _nameCopyBuffer;
-    
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
@@ -318,7 +317,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
                 return _textBuffer.getTextBuffer();
-                
             default:
                 return _currToken.asCharArray();
             }
@@ -331,7 +329,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
-                
             case ID_FIELD_NAME:
                 return _parsingContext.getCurrentName().length();
             case ID_STRING:
@@ -343,7 +340,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             case ID_NUMBER_INT:
             case ID_NUMBER_FLOAT:
                 return _textBuffer.size();
-                
             default:
                 return _currToken.asCharArray().length;
             }
@@ -404,7 +400,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         return _binaryValue;
     }
-    
+
     @Override
     public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException
     {
@@ -1485,7 +1481,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         // and offline the less common case
         return _verifyNLZ2();
     }
-        
+
     private char _verifyNLZ2() throws IOException
     {
         if (_inputPtr >= _inputEnd && !loadMore()) {
@@ -1571,7 +1567,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         _reportMissingRootWS(ch);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, secondary parsing

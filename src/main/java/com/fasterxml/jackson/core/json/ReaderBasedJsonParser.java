@@ -85,7 +85,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /**
      * Method called when caller wants to provide input buffer directly,
      * and it may or may not be recyclable use standard recycle context.
-     * 
+     *
      * @since 2.4
      */
     public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
@@ -130,7 +130,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     @Override public ObjectCodec getCodec() { return _objectCodec; }
     @Override public void setCodec(ObjectCodec c) { _objectCodec = c; }
-    
+
     @Override
     public int releaseBuffered(Writer w) throws IOException {
         int count = _inputEnd - _inputPtr;
@@ -210,7 +210,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Public API, data access
@@ -1043,7 +1043,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         return (_currToken = _handleOddValue(i));
     }
-    
+
     // note: identical to one in UTF8StreamJsonParser
     @Override
     public final String nextTextValue() throws IOException
@@ -1184,15 +1184,15 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (ch == INT_0) {
             return _parseNumber2(false, startPtr);
         }
-            
+
         /* First, let's see if the whole number is contained within
          * the input buffer unsplit. This should be the common case;
          * and to simplify processing, we will just reparse contents
          * in the alternative case (number split on buffer boundary)
          */
-        
+
         int intLen = 1; // already got one
-        
+
         // First let's get the obligatory integer part:
         int_loop:
         while (true) {
@@ -1306,7 +1306,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return _parseNumber2(true, startPtr);
         }
         int intLen = 1; // already got one
-        
+
         // First let's get the obligatory integer part:
         int_loop:
         while (true) {
@@ -1503,7 +1503,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     return '0';
                 }
                 ++_inputPtr; // skip previous zero
-                if (ch != '0') { // followed by other number; return 
+                if (ch != '0') { // followed by other number; return
                     break;
                 }
             }
@@ -1793,7 +1793,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _reportUnexpectedChar(i, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
         return null;
     }
-    
+
     protected JsonToken _handleApos() throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1834,7 +1834,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _textBuffer.setCurrentLength(outPtr);
         return JsonToken.VALUE_STRING;
     }
-    
+
     private String _handleOddName2(int startPtr, int hash, int[] codes) throws IOException
     {
         _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
@@ -1878,7 +1878,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return _symbols.findSymbol(buf, start, len, hash);
         }
     }
-  
+
     @Override
     protected final void _finishString() throws IOException
     {
@@ -2008,7 +2008,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /* Internal methods, other parsing
     /**********************************************************
      */
-    
+
     /**
      * We actually need to check the character value here
      * (to see if we have \n following \r).
@@ -2022,7 +2022,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         ++_currInputRow;
         _currInputRowStart = _inputPtr;
     }
-    
+
     private final int _skipColon() throws IOException
     {
         if ((_inputPtr + 4) >= _inputEnd) {
@@ -2044,7 +2044,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     if (i == INT_SLASH || i == INT_HASH) {
                         return _skipColon2(true);
                     }
-                    ++_inputPtr;                    
+                    ++_inputPtr;
                     return i;
                 }
             }
@@ -2166,7 +2166,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _inputPtr = ptr-1;
         return _skipColon2(gotColon);
     }
-    
+
     // Primary loop: no reloading, comment handling
     private final int _skipComma(int i) throws IOException
     {
@@ -2225,7 +2225,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
     }
-    
+
     private final int _skipWSOrEnd() throws IOException
     {
         // Let's handle first character separately since it is likely that
@@ -2253,7 +2253,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 _throwInvalidSpace(i);
             }
         }
-        
+
         while (_inputPtr < _inputEnd) {
             i = (int) _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
@@ -2309,7 +2309,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
         }
     }
-    
+
     private void _skipComment() throws IOException
     {
         if (!isEnabled(Feature.ALLOW_COMMENTS)) {
@@ -2368,7 +2368,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _skipLine();
         return true;
     }
-    
+
     private void _skipLine() throws IOException
     {
         // Ok: need to find EOF or linefeed
@@ -2442,7 +2442,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         return (char) value;
     }
-    
+
     private final void _matchTrue() throws IOException {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) {
@@ -2563,9 +2563,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 }
             }
             int decodedData = bits;
-            
+
             // then second base64 char; can't get padding yet, nor ws
-            
+
             if (_inputPtr >= _inputEnd) {
                 loadMoreGuaranteed();
             }
@@ -2575,7 +2575,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 bits = _decodeBase64Escape(b64variant, ch, 1);
             }
             decodedData = (decodedData << 6) | bits;
-            
+
             // third base64 char; can be padding, but not ws
             if (_inputPtr >= _inputEnd) {
                 loadMoreGuaranteed();
@@ -2655,7 +2655,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     protected void _reportInvalidToken(String matchedPart) throws IOException {
         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
     }
-    
+
     protected void _reportInvalidToken(String matchedPart, String msg) throws IOException
     {
         StringBuilder sb = new StringBuilder(matchedPart);

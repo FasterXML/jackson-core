@@ -37,7 +37,7 @@ public class TestUtf8Generator extends BaseTest
         p.close();
     }
 
-    // for [Issue#115]
+    // for [core#115]
     public void testSurrogatesWithRaw() throws Exception
     {
         final String VALUE = quote("\ud83d\ude0c");

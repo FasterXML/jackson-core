@@ -146,6 +146,30 @@ public abstract class JsonGenerator
          */
         ESCAPE_NON_ASCII(false),
 
+// 23-Nov-2015, tatu: for [core#223], if and when it gets implemented
+        /**
+         * Feature that specifies handling of UTF-8 content that contains
+         * characters beyond BMP (Basic Multilingual Plane), which are
+         * represented in UCS-2 (Java internal character encoding) as two
+         * "surrogate" characters. If feature is enabled, these surrogate
+         * pairs are separately escaped using backslash escapes; if disabled,
+         * native output (4-byte UTF-8 sequence, or, with char-backed output
+         * targets, writing of surrogates as is which is typically converted
+         * by {@link java.io.Writer} into 4-byte UTF-8 sequence eventually)
+         * is used.
+         *<p>
+         * Note that the original JSON specification suggests use of escaping;
+         * but that this is not correct from standard UTF-8 handling perspective.
+         * Because of two competing goals, this feature was added to allow either
+         * behavior to be used, but defaulting to UTF-8 specification compliant
+         * mode.
+         *<p>
+         * Feature is disabled by default.
+         *
+         * @since 2.7
+         */
+//        ESCAPE_UTF8_SURROGATES(false),
+        
         // // Schema/Validity support features
 
         /**

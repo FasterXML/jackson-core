@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
 

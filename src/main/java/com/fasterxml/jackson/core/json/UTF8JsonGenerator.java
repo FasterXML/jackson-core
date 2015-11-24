@@ -747,8 +747,7 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public void writeNumber(short s)
-        throws IOException, JsonGenerationException
+    public void writeNumber(short s) throws IOException
     {
         _verifyValueWrite(WRITE_NUMBER);
         // up to 5 digits and possible minus sign
@@ -772,8 +771,7 @@ public class UTF8JsonGenerator
     } 
     
     @Override
-    public void writeNumber(int i)
-        throws IOException, JsonGenerationException
+    public void writeNumber(int i) throws IOException
     {
         _verifyValueWrite(WRITE_NUMBER);
         // up to 10 digits and possible minus sign
@@ -798,8 +796,7 @@ public class UTF8JsonGenerator
     }    
 
     @Override
-    public void writeNumber(long l)
-        throws IOException, JsonGenerationException
+    public void writeNumber(long l) throws IOException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
@@ -824,8 +821,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeNumber(BigInteger value)
-        throws IOException, JsonGenerationException
+    public void writeNumber(BigInteger value) throws IOException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
@@ -839,13 +835,11 @@ public class UTF8JsonGenerator
 
     
     @Override
-    public void writeNumber(double d)
-        throws IOException, JsonGenerationException
+    public void writeNumber(double d) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-            // [JACKSON-139]
             (((Double.isNaN(d) || Double.isInfinite(d))
-                && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS)))) {
+                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_features)))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -855,13 +849,12 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeNumber(float f)
-        throws IOException, JsonGenerationException
+    public void writeNumber(float f) throws IOException
     {
         if (_cfgNumbersAsStrings ||
             // [JACKSON-139]
             (((Float.isNaN(f) || Float.isInfinite(f))
-                && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS)))) {
+                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_features)))) {
             writeString(String.valueOf(f));
             return;
         }
@@ -871,17 +864,17 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeNumber(BigDecimal value)
-        throws IOException, JsonGenerationException
+    public void writeNumber(BigDecimal value) throws IOException
     {
         // Don't really know max length for big decimal, no point checking
         _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
             _writeNull();
         } else if (_cfgNumbersAsStrings) {
-            String raw = isEnabled(Feature.WRITE_BIGDECIMAL_AS_PLAIN) ? value.toPlainString() : value.toString();
+            String raw = Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_features)
+                    ? value.toPlainString() : value.toString();
             _writeQuotedRaw(raw);
-        } else if (isEnabled(Feature.WRITE_BIGDECIMAL_AS_PLAIN)) {
+        } else if (Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_features)) {
             writeRaw(value.toPlainString());
         } else {
             writeRaw(value.toString());
@@ -889,8 +882,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeNumber(String encodedValue)
-        throws IOException, JsonGenerationException
+    public void writeNumber(String encodedValue) throws IOException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
@@ -914,8 +906,7 @@ public class UTF8JsonGenerator
     }
     
     @Override
-    public void writeBoolean(boolean state)
-        throws IOException, JsonGenerationException
+    public void writeBoolean(boolean state) throws IOException
     {
         _verifyValueWrite(WRITE_BOOLEAN);
         if ((_outputTail + 5) >= _outputEnd) {
@@ -928,8 +919,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeNull()
-        throws IOException, JsonGenerationException
+    public void writeNull() throws IOException
     {
         _verifyValueWrite(WRITE_NULL);
         _writeNull();
@@ -1918,8 +1908,7 @@ public class UTF8JsonGenerator
         return inputOffset;
     }
 
-    protected final void _outputSurrogates(int surr1, int surr2)
-        throws IOException
+    protected final void _outputSurrogates(int surr1, int surr2) throws IOException
     {
         int c = _decodeSurrogate(surr1, surr2);
         if ((_outputTail + 4) > _outputEnd) {
@@ -1945,13 +1934,18 @@ public class UTF8JsonGenerator
     {
         byte[] bbuf = _outputBuffer;
         if (ch >= SURR1_FIRST && ch <= SURR2_LAST) { // yes, outside of BMP; add an escape
-            bbuf[outputPtr++] = BYTE_BACKSLASH;
-            bbuf[outputPtr++] = BYTE_u;
-            
-            bbuf[outputPtr++] = HEX_CHARS[(ch >> 12) & 0xF];
-            bbuf[outputPtr++] = HEX_CHARS[(ch >> 8) & 0xF];
-            bbuf[outputPtr++] = HEX_CHARS[(ch >> 4) & 0xF];
-            bbuf[outputPtr++] = HEX_CHARS[ch & 0xF];
+            // 23-Nov-2015, tatu: As per [core#223], may or may not want escapes;
+            //   it would be added here... but as things are, we do not have proper
+            //   access yet...
+//            if (Feature.ESCAPE_UTF8_SURROGATES.enabledIn(_features)) {
+                bbuf[outputPtr++] = BYTE_BACKSLASH;
+                bbuf[outputPtr++] = BYTE_u;
+                
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 12) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 8) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 4) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[ch & 0xF];
+//            } else { ... }
         } else {
             bbuf[outputPtr++] = (byte) (0xe0 | (ch >> 12));
             bbuf[outputPtr++] = (byte) (0x80 | ((ch >> 6) & 0x3f));
@@ -1959,7 +1953,7 @@ public class UTF8JsonGenerator
         }
         return outputPtr;
     }
-    
+
     private final void _writeNull() throws IOException
     {
         if ((_outputTail + 4) >= _outputEnd) {
@@ -1974,8 +1968,7 @@ public class UTF8JsonGenerator
      * 
      * @param charToEscape Character to escape using escape sequence (\\uXXXX)
      */
-    private int _writeGenericEscape(int charToEscape, int outputPtr)
-        throws IOException
+    private int _writeGenericEscape(int charToEscape, int outputPtr) throws IOException
     {
         final byte[] bbuf = _outputBuffer;
         bbuf[outputPtr++] = BYTE_BACKSLASH;

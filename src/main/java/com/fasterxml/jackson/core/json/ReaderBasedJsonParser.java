@@ -77,22 +77,24 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     protected boolean _tokenIncomplete = false;
 
     /**
-     * NOTE: value stored is 1 greater than value reported, as update
-     * is called _after_ reading first character of name token (usually quote)
+     * Value of {@link #_inputPtr} at the time when the first character of
+     * name token was read. Used for calculating token location when requested;
+     * combined with {@link #_currInputProcessed}, may be updated appropriately
+     * as needed.
      *
      * @since 2.7
      */
-    protected long _nameInputTotal; 
+    protected long _nameStartOffset;
 
     /**
      * @since 2.7
      */
-    protected int _nameInputRow;
+    protected int _nameStartRow;
 
     /**
      * @since 2.7
      */
-    protected int _nameInputCol;
+    protected int _nameStartCol;
 
     /*
     /**********************************************************
@@ -164,8 +166,15 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     @Override
     protected boolean loadMore() throws IOException
     {
-        _currInputProcessed += _inputEnd;
-        _currInputRowStart -= _inputEnd;
+        final int bufSize = _inputEnd;
+
+        _currInputProcessed += bufSize;
+        _currInputRowStart -= bufSize;
+
+        // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
+        //   this increase to avoid "moving" name-offset, resulting most likely
+        //   in negative value, which is fine as combine value remains unchanged.
+        _nameStartOffset -= bufSize;
 
         if (_reader != null) {
             int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
@@ -2678,8 +2687,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     {
         final Object src = _ioContext.getSourceReference();
         if (_currToken == JsonToken.FIELD_NAME) {
+            long total = _currInputProcessed + (_nameStartOffset-1);
             return new JsonLocation(src,
-                    -1L, _nameInputTotal-1, _nameInputRow, _nameInputCol);
+                    -1L, total, _nameStartRow, _nameStartCol);
         }
         return new JsonLocation(src,
                 -1L, _tokenInputTotal-1, _tokenInputRow, _tokenInputCol);
@@ -2706,9 +2716,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     private final void _updateNameLocation()
     {
         int ptr = _inputPtr;
-        _nameInputTotal = _currInputProcessed + ptr;
-        _nameInputRow = _currInputRow;
-        _nameInputCol = ptr - _currInputRowStart;
+        _nameStartOffset = ptr;
+        _nameStartRow = _currInputRow;
+        _nameStartCol = ptr - _currInputRowStart;
     }
 
     /*

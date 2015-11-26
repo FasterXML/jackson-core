@@ -76,6 +76,21 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      */
     protected boolean _tokenIncomplete = false;
 
+    /**
+     * @since 2.7
+     */
+    protected long _nameInputTotal; 
+
+    /**
+     * @since 2.7
+     */
+    protected int _nameInputRow;
+
+    /**
+     * @since 2.7
+     */
+    protected int _nameInputCol;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -584,7 +599,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         // Closing scope?
         if (i == INT_RBRACKET) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -592,7 +607,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return (_currToken = JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -604,7 +619,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
         }
-        _updateLocationFromInputPtr();
+        _updateLocation();
 
         /* And should we now have a name? Always true for
          * Object contexts, since the intermediate 'expect-value'
@@ -736,7 +751,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _binaryValue = null;
 
         if (i == INT_RBRACKET) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -745,7 +760,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return false;
         }
         if (i == INT_RCURLY) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -756,7 +771,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
         }
-        _updateLocationFromInputPtr();
+        _updateLocation();
 
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
@@ -814,7 +829,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         _binaryValue = null;
         if (i == INT_RBRACKET) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -823,7 +838,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return null;
         }
         if (i == INT_RCURLY) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -835,7 +850,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             i = _skipComma(i);
         }
 
-        _updateLocationFromInputPtr();
+        _updateLocation();
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
             return null;
@@ -2652,11 +2667,19 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      */
 
     // @since 2.7
-    private final void _updateLocationFromInputPtr()
+    private final void _updateLocation()
     {
         _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
         _tokenInputRow = _currInputRow;
         _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+    }
+
+    // @since 2.7
+    private final void _updateNameLocation()
+    {
+        _nameInputTotal = _currInputProcessed + _inputPtr - 1;
+        _nameInputRow = _currInputRow;
+        _nameInputCol = _inputPtr - _currInputRowStart - 1;
     }
 
     /*

@@ -71,6 +71,21 @@ public class UTF8StreamJsonParser
      */
     private int _quad1;
 
+    /**
+     * @since 2.7
+     */
+    protected long _nameInputTotal; 
+
+    /**
+     * @since 2.7
+     */
+    protected int _nameInputRow;
+
+    /**
+     * @since 2.7
+     */
+    protected int _nameInputCol;
+
     /*
     /**********************************************************
     /* Input buffering (from former 'StreamBasedParserBase')
@@ -702,7 +717,7 @@ public class UTF8StreamJsonParser
 
         // Closing scope?
         if (i == INT_RBRACKET) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -710,7 +725,7 @@ public class UTF8StreamJsonParser
             return (_currToken = JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -725,7 +740,7 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
         }
-        _updateLocationFromInputPtr();
+        _updateLocation();
 
         /* And should we now have a name? Always true for
          * Object contexts, since the intermediate 'expect-value'
@@ -884,7 +899,7 @@ public class UTF8StreamJsonParser
 
         // Closing scope?
         if (i == INT_RBRACKET) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -893,7 +908,7 @@ public class UTF8StreamJsonParser
             return false;
         }
         if (i == INT_RCURLY) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -910,7 +925,7 @@ public class UTF8StreamJsonParser
             i = _skipWS();
         }
 
-        _updateLocationFromInputPtr();
+        _updateLocation();
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
             return false;
@@ -970,7 +985,7 @@ public class UTF8StreamJsonParser
         _binaryValue = null;
 
         if (i == INT_RBRACKET) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
@@ -979,7 +994,7 @@ public class UTF8StreamJsonParser
             return null;
         }
         if (i == INT_RCURLY) {
-            _updateLocationFromInputPtr();
+            _updateLocation();
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
@@ -995,7 +1010,7 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
         }
-        _updateLocationFromInputPtr();
+        _updateLocation();
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);
             return null;
@@ -3604,18 +3619,26 @@ public class UTF8StreamJsonParser
 
     /*
     /**********************************************************
-    /* Internal methods, location updating (refactored in 2.7)
+    /* Improved location updating (refactored in 2.7)
     /**********************************************************
      */
 
     // @since 2.7
-    private final void _updateLocationFromInputPtr()
+    private final void _updateLocation()
     {
         _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
         _tokenInputRow = _currInputRow;
         _tokenInputCol = _inputPtr - _currInputRowStart - 1;
     }
-    
+
+    // @since 2.7
+    private final void _updateNameLocation()
+    {
+        _nameInputTotal = _currInputProcessed + _inputPtr - 1;
+        _nameInputRow = _currInputRow;
+        _nameInputCol = _inputPtr - _currInputRowStart - 1;
+    }
+
     /*
     /**********************************************************
     /* Internal methods, other

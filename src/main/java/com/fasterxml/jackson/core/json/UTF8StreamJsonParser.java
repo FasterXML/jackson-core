@@ -3622,8 +3622,7 @@ public class UTF8StreamJsonParser
                     _nameInputTotal-1, -1L, _nameInputRow, _nameInputCol);
         }
         return new JsonLocation(src,
-                _tokenInputTotal-1, -1L, _tokenInputRow,
-                getTokenColumnNr());
+                _tokenInputTotal-1, -1L, _tokenInputRow, _tokenInputCol);
     }
 
     // As per [core#108], must ensure we call the right method
@@ -3639,17 +3638,19 @@ public class UTF8StreamJsonParser
     // @since 2.7
     private final void _updateLocation()
     {
-        _tokenInputTotal = _currInputProcessed + _inputPtr;
+        int ptr = _inputPtr;
+        _tokenInputTotal = _currInputProcessed + ptr;
         _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+        _tokenInputCol = ptr - _currInputRowStart;
     }
 
     // @since 2.7
     private final void _updateNameLocation()
     {
-        _nameInputTotal = _currInputProcessed + _inputPtr;
+        int ptr = _inputPtr;
+        _nameInputTotal = _currInputProcessed + ptr;
         _nameInputRow = _currInputRow;
-        _nameInputCol = _inputPtr - _currInputRowStart - 1;
+        _nameInputCol = ptr - _currInputRowStart;
     }
 
     /*

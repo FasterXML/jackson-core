@@ -2682,8 +2682,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     -1L, _nameInputTotal-1, _nameInputRow, _nameInputCol);
         }
         return new JsonLocation(src,
-                -1L, _tokenInputTotal-1, _tokenInputRow,
-                getTokenColumnNr());
+                -1L, _tokenInputTotal-1, _tokenInputRow, _tokenInputCol);
     }
 
     @Override
@@ -2697,17 +2696,19 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     // @since 2.7
     private final void _updateLocation()
     {
-        _tokenInputTotal = _currInputProcessed + _inputPtr;
+        int ptr = _inputPtr;
+        _tokenInputTotal = _currInputProcessed + ptr;
         _tokenInputRow = _currInputRow;
-        _tokenInputCol = _inputPtr - _currInputRowStart - 1;
+        _tokenInputCol = ptr - _currInputRowStart;
     }
 
     // @since 2.7
     private final void _updateNameLocation()
     {
-        _nameInputTotal = _currInputProcessed + _inputPtr;
+        int ptr = _inputPtr;
+        _nameInputTotal = _currInputProcessed + ptr;
         _nameInputRow = _currInputRow;
-        _nameInputCol = _inputPtr - _currInputRowStart - 1;
+        _nameInputCol = ptr - _currInputRowStart;
     }
 
     /*

@@ -72,6 +72,9 @@ public class UTF8StreamJsonParser
     private int _quad1;
 
     /**
+     * NOTE: value stored is 1 greater than value reported, as update
+     * is called _after_ reading first character of name token (usually quote)
+     * 
      * @since 2.7
      */
     protected long _nameInputTotal; 
@@ -3616,10 +3619,10 @@ public class UTF8StreamJsonParser
         final Object src = _ioContext.getSourceReference();
         if (_currToken == JsonToken.FIELD_NAME) {
             return new JsonLocation(src,
-                    _nameInputTotal, -1L, _nameInputRow, _tokenInputCol);
+                    _nameInputTotal-1, -1L, _nameInputRow, _nameInputCol);
         }
         return new JsonLocation(src,
-                _tokenInputTotal, -1L, _tokenInputRow,
+                _tokenInputTotal-1, -1L, _tokenInputRow,
                 getTokenColumnNr());
     }
 
@@ -3636,7 +3639,7 @@ public class UTF8StreamJsonParser
     // @since 2.7
     private final void _updateLocation()
     {
-        _tokenInputTotal = _currInputProcessed + _inputPtr - 1;
+        _tokenInputTotal = _currInputProcessed + _inputPtr;
         _tokenInputRow = _currInputRow;
         _tokenInputCol = _inputPtr - _currInputRowStart - 1;
     }
@@ -3644,7 +3647,7 @@ public class UTF8StreamJsonParser
     // @since 2.7
     private final void _updateNameLocation()
     {
-        _nameInputTotal = _currInputProcessed + _inputPtr - 1;
+        _nameInputTotal = _currInputProcessed + _inputPtr;
         _nameInputRow = _currInputRow;
         _nameInputCol = _inputPtr - _currInputRowStart - 1;
     }

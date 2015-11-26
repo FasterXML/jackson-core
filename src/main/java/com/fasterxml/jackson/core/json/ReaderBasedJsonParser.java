@@ -2666,6 +2666,24 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /**********************************************************
      */
 
+    @Override
+    public JsonLocation getTokenLocation()
+    {
+        final Object src = _ioContext.getSourceReference();
+        return new JsonLocation(src,
+                -1L, getTokenCharacterOffset(),
+                getTokenLineNr(),
+                getTokenColumnNr());
+    }
+
+    @Override
+    public JsonLocation getCurrentLocation() {
+        int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_ioContext.getSourceReference(),
+                -1L, _currInputProcessed + _inputPtr,
+                _currInputRow, col);
+    }
+    
     // @since 2.7
     private final void _updateLocation()
     {

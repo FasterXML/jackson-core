@@ -660,26 +660,6 @@ public class UTF8StreamJsonParser
         return outputCount;
     }
 
-    // As per [Issue#108], must ensure we call the right method
-    @Override
-    public JsonLocation getTokenLocation()
-    {
-        return new JsonLocation(_ioContext.getSourceReference(),
-                getTokenCharacterOffset(), -1L, // bytes, chars
-                getTokenLineNr(),
-                getTokenColumnNr());
-    }
-
-    // As per [Issue#108], must ensure we call the right method
-    @Override
-    public JsonLocation getCurrentLocation()
-    {
-        int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_ioContext.getSourceReference(),
-                _currInputProcessed + _inputPtr, -1L, // bytes, chars
-                _currInputRow, col);
-    }
-    
     /*
     /**********************************************************
     /* Public API, traversal, basic
@@ -740,21 +720,23 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
         }
-        _updateLocation();
 
         /* And should we now have a name? Always true for
          * Object contexts, since the intermediate 'expect-value'
          * state is never retained.
          */
         if (!_parsingContext.inObject()) {
+            _updateLocation();
             return _nextTokenNotInObject(i);
         }
         // So first parse the field name itself:
+        _updateNameLocation();
         String n = _parseName(i);
         _parsingContext.setCurrentName(n);
         _currToken = JsonToken.FIELD_NAME;
 
         i = _skipColon();
+        _updateLocation();
 
         // Ok: we must have a value... what is it? Strings are very common, check first:
         if (i == INT_QUOTE) {
@@ -925,13 +907,14 @@ public class UTF8StreamJsonParser
             i = _skipWS();
         }
 
-        _updateLocation();
         if (!_parsingContext.inObject()) {
+            _updateLocation();
             _nextTokenNotInObject(i);
             return false;
         }
         
         // // // This part differs, name parsing
+        _updateNameLocation();
         if (i == INT_QUOTE) {
             // when doing literal match, must consider escaping:
             byte[] nameBytes = str.asQuotedUTF8();
@@ -1010,17 +993,19 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
         }
-        _updateLocation();
         if (!_parsingContext.inObject()) {
+            _updateLocation();
             _nextTokenNotInObject(i);
             return null;
         }
 
+        _updateNameLocation();
         final String nameStr = _parseName(i);
         _parsingContext.setCurrentName(nameStr);
         _currToken = JsonToken.FIELD_NAME;
 
         i = _skipColon();
+        _updateLocation();
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
             _nextToken = JsonToken.VALUE_STRING;
@@ -1121,6 +1106,7 @@ public class UTF8StreamJsonParser
     private final void _isNextTokenNameYes(int i) throws IOException
     {
         _currToken = JsonToken.FIELD_NAME;
+        _updateLocation();
 
         switch (i) {
         case '"':
@@ -1163,8 +1149,7 @@ public class UTF8StreamJsonParser
         }
         _nextToken = _handleUnexpectedValue(i);
     }
-    
-    
+
     private final boolean _isNextTokenNameMaybe(int i, SerializableString str) throws IOException
     {
         // // // and this is back to standard nextToken()
@@ -1174,6 +1159,7 @@ public class UTF8StreamJsonParser
         final boolean match = n.equals(str.getValue());
         _currToken = JsonToken.FIELD_NAME;
         i = _skipColon();
+        _updateLocation();
 
         // Ok: we must have a value... what is it? Strings are very common, check first:
         if (i == INT_QUOTE) {
@@ -3622,6 +3608,31 @@ public class UTF8StreamJsonParser
     /* Improved location updating (refactored in 2.7)
     /**********************************************************
      */
+
+    // As per [core#108], must ensure we call the right method
+    @Override
+    public JsonLocation getTokenLocation()
+    {
+        final Object src = _ioContext.getSourceReference();
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return new JsonLocation(src,
+                    _nameInputTotal, -1L, _nameInputRow, _tokenInputCol);
+        }
+        return new JsonLocation(src,
+                getTokenCharacterOffset(), -1L,
+                getTokenLineNr(),
+                getTokenColumnNr());
+    }
+
+    // As per [core#108], must ensure we call the right method
+    @Override
+    public JsonLocation getCurrentLocation()
+    {
+        int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        return new JsonLocation(_ioContext.getSourceReference(),
+                _currInputProcessed + _inputPtr, -1L, // bytes, chars
+                _currInputRow, col);
+    }
 
     // @since 2.7
     private final void _updateLocation()

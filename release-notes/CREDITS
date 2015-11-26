@@ -70,3 +70,8 @@ Florian Schoppmann (fschopp@github@github)
 Iskren Ivov Chernev (ichernev@github)
   * Reported #213: Parser is sometimes wrong when using CANONICALIZE_FIELD_NAMES
    (2.6.2)
+
+Michael Lehenbauer (mikelehen@github)
+  * Reported #37: JsonParser.getTokenLocation() doesn't update after field names
+   (2.7.0)
+

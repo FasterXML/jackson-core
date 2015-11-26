@@ -16,6 +16,8 @@ JSON library.
 
 2.7.0 (not yet released)
 
+#37: JsonParser.getTokenLocation() doesn't update after field names
+ (reported by Michael L)
 #198: Add back-references to `JsonParser` / `JsonGenerator` for low-level parsing issues
  (via `JsonParseException`, `JsonGenerationException`)
 #211: Typo of function name com.fasterxml.jackson.core.Version.isUknownVersion()

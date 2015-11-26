@@ -3619,8 +3619,7 @@ public class UTF8StreamJsonParser
                     _nameInputTotal, -1L, _nameInputRow, _tokenInputCol);
         }
         return new JsonLocation(src,
-                getTokenCharacterOffset(), -1L,
-                getTokenLineNr(),
+                _tokenInputTotal, -1L, _tokenInputRow,
                 getTokenColumnNr());
     }
 

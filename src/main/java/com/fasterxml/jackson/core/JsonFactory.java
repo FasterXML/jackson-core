@@ -729,9 +729,15 @@ public class JsonFactory
 
     /**
      * Method for constructing JSON parser instance to parse
-     * contents of specified file. Encoding is auto-detected
-     * from contents according to JSON specification recommended
-     * mechanism.
+     * contents of specified file.
+     *
+     *<p>
+     * Encoding is auto-detected from contents according to JSON
+     * specification recommended mechanism. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *
      *<p>
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
@@ -751,9 +757,14 @@ public class JsonFactory
     /**
      * Method for constructing JSON parser instance to parse
      * contents of resource reference by given URL.
-     * Encoding is auto-detected
-     * from contents according to JSON specification recommended
-     * mechanism.
+     *
+     *<p>
+     * Encoding is auto-detected from contents according to JSON
+     * specification recommended mechanism. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *
      *<p>
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
@@ -780,8 +791,12 @@ public class JsonFactory
      * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *<p>
+     *
      * Note: no encoding argument is taken since it can always be
-     * auto-detected as suggested by JSON RFC.
+     * auto-detected as suggested by JSON RFC. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
      *
      * @param in InputStream to use for reading JSON content to parse
      * 
@@ -903,9 +918,15 @@ public class JsonFactory
 
     /**
      * Method for constructing JSON parser instance to parse
-     * contents of specified file. Encoding is auto-detected
-     * from contents according to JSON specification recommended
-     * mechanism.
+     * contents of specified file.
+     *
+     *<p>
+     * Encoding is auto-detected from contents according to JSON
+     * specification recommended mechanism. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *
      *<p>
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
@@ -923,9 +944,14 @@ public class JsonFactory
     /**
      * Method for constructing JSON parser instance to parse
      * contents of resource reference by given URL.
-     * Encoding is auto-detected
-     * from contents according to JSON specification recommended
-     * mechanism.
+     *
+     *<p>
+     * Encoding is auto-detected from contents according to JSON
+     * specification recommended mechanism. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *
      *<p>
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
@@ -950,8 +976,12 @@ public class JsonFactory
      * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *<p>
+     *
      * Note: no encoding argument is taken since it can always be
-     * auto-detected as suggested by JSON RFC.
+     * auto-detected as suggested by JSON RFC. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
      *
      * @param in InputStream to use for reading JSON content to parse
      * 

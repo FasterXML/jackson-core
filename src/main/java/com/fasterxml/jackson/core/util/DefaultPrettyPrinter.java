@@ -79,7 +79,7 @@ public class DefaultPrettyPrinter
      * Number of open levels of nesting. Used to determine amount of
      * indentation to use.
      */
-    protected transient int _nesting = 0;
+    protected transient int _nesting;
 
     /*
     /**********************************************************

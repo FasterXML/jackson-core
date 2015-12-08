@@ -35,13 +35,13 @@ public final class WriterBasedJsonGenerator
     /**
      * Pointer to the first buffered character to output
      */
-    protected int _outputHead = 0;
+    protected int _outputHead;
 
     /**
      * Pointer to the position right beyond the last character to output
      * (end marker; may point to position right beyond the end of the buffer)
      */
-    protected int _outputTail = 0;
+    protected int _outputTail;
 
     /**
      * End marker of the output buffer; one past the last valid position

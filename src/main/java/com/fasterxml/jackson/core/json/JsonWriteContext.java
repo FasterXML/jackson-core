@@ -35,7 +35,7 @@ public class JsonWriteContext extends JsonStreamContext
     /**********************************************************
      */
 
-    protected JsonWriteContext _child = null;
+    protected JsonWriteContext _child;
 
     /*
     /**********************************************************

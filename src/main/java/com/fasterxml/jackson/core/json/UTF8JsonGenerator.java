@@ -54,7 +54,7 @@ public class UTF8JsonGenerator
      * Pointer to the position right beyond the last character to output
      * (end marker; may be past the buffer)
      */
-    protected int _outputTail = 0;
+    protected int _outputTail;
 
     /**
      * End marker of the output buffer; one past the last valid position

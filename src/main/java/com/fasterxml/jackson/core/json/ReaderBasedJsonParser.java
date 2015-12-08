@@ -74,7 +74,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * been fully processed, and needs to be finished for
      * some access (or skipped to obtain the next token)
      */
-    protected boolean _tokenIncomplete = false;
+    protected boolean _tokenIncomplete;
 
     /**
      * Value of {@link #_inputPtr} at the time when the first character of

@@ -55,7 +55,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * Marked as deprecated since its status is uncertain.
      */
     @Deprecated
-    protected boolean _includeImmediateParent = false;
+    protected boolean _includeImmediateParent;
 
     /*
     /**********************************************************

@@ -24,7 +24,7 @@ public final class UTF8Writer extends Writer
      * To do this, both pairs must be known first; and since it is possible
      * pairs may be split, we need temporary storage for the first half
      */
-    private int _surrogate = 0;
+    private int _surrogate;
 
     public UTF8Writer(IOContext ctxt, OutputStream out)
     {

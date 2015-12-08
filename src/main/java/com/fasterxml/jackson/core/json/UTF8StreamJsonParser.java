@@ -64,7 +64,7 @@ public class UTF8StreamJsonParser
      * been fully processed, and needs to be finished for
      * some access (or skipped to obtain the next token)
      */
-    protected boolean _tokenIncomplete = false;
+    protected boolean _tokenIncomplete;
 
     /**
      * Temporary storage for partially parsed name bytes.

@@ -106,7 +106,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      */
 
     @Override
-    public JsonGenerator setHighestNonEscapedChar(int charCode) {
+    public final JsonGenerator setHighestNonEscapedChar(int charCode) {
         _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;
         return this;
     }

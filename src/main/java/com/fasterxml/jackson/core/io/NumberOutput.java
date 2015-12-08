@@ -14,8 +14,8 @@ public final class NumberOutput
 
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
 
-    final static char[] LEAD_3 = new char[4000];
-    final static char[] FULL_3 = new char[4000];
+    private final static char[] LEAD_3 = new char[4000];
+    private final static char[] FULL_3 = new char[4000];
     static {
         /* Let's fill it with NULLs for ignorable leading digits,
          * and digit chars for others
@@ -42,17 +42,17 @@ public final class NumberOutput
         }
     }
 
-    final static byte[] FULL_TRIPLETS_B = new byte[4000];
+    private final static byte[] FULL_TRIPLETS_B = new byte[4000];
     static {
         for (int i = 0; i < 4000; ++i) {
             FULL_TRIPLETS_B[i] = (byte) FULL_3[i];
         }
     }
     
-    final static String[] sSmallIntStrs = new String[] {
+    private final static String[] sSmallIntStrs = new String[] {
         "0","1","2","3","4","5","6","7","8","9","10"
     };
-    final static String[] sSmallIntStrs2 = new String[] {
+    private final static String[] sSmallIntStrs2 = new String[] {
         "-1","-2","-3","-4","-5","-6","-7","-8","-9","-10"
     };
 

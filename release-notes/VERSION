@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.5 (not yet released)
+2.5.5 (07-Dec-2015)
 
 #220: Problem with `JsonParser.nextFieldName(SerializableString)` for byte-backed parser
 #221: Fixed ArrayIndexOutOfBounds exception for character-based `JsonGenerator`

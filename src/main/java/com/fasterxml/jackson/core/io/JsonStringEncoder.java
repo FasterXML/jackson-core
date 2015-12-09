@@ -34,25 +34,25 @@ public final class JsonStringEncoder
      * to a {@link BufferRecycler} used to provide a low-cost
      * buffer recycling between reader and writer instances.
      */
-    final protected static ThreadLocal<SoftReference<JsonStringEncoder>> _threadEncoder
+    final static ThreadLocal<SoftReference<JsonStringEncoder>> _threadEncoder
         = new ThreadLocal<SoftReference<JsonStringEncoder>>();
 
     /**
      * Lazily constructed text buffer used to produce JSON encoded Strings
      * as characters (without UTF-8 encoding)
      */
-    protected TextBuffer _text;
+    TextBuffer _text;
 
     /**
      * Lazily-constructed builder used for UTF-8 encoding of text values
      * (quoted and unquoted)
      */
-    protected ByteArrayBuilder _bytes;
+    ByteArrayBuilder _bytes;
     
     /**
      * Temporary buffer used for composing quote/escape sequences
      */
-    protected final char[] _qbuf;
+    final char[] _qbuf;
     
     /*
     /**********************************************************

@@ -14,9 +14,9 @@ import com.fasterxml.jackson.core.io.*;
 public final class WriterBasedJsonGenerator
     extends JsonGeneratorImpl
 {
-    final protected static int SHORT_WRITE = 32;
+    final static int SHORT_WRITE = 32;
 
-    final protected static char[] HEX_CHARS = CharTypes.copyHexChars();
+    final static char[] HEX_CHARS = CharTypes.copyHexChars();
     
     /*
     /**********************************************************
@@ -24,42 +24,42 @@ public final class WriterBasedJsonGenerator
     /**********************************************************
      */
 
-    final protected Writer _writer;
+    final Writer _writer;
     
     /**
      * Intermediate buffer in which contents are buffered before
      * being written using {@link #_writer}.
      */
-    protected char[] _outputBuffer;
+    char[] _outputBuffer;
 
     /**
      * Pointer to the first buffered character to output
      */
-    protected int _outputHead = 0;
+    int _outputHead = 0;
 
     /**
      * Pointer to the position right beyond the last character to output
      * (end marker; may point to position right beyond the end of the buffer)
      */
-    protected int _outputTail = 0;
+    int _outputTail = 0;
 
     /**
      * End marker of the output buffer; one past the last valid position
      * within the buffer.
      */
-    protected int _outputEnd;
+    int _outputEnd;
 
     /**
      * Short (14 char) temporary buffer allocated if needed, for constructing
      * escape sequences
      */
-    protected char[] _entityBuffer;
+    char[] _entityBuffer;
 
     /**
      * When custom escapes are used, this member variable is used
      * internally to hold a reference to currently used escape
      */
-    protected SerializableString _currentEscape;
+    SerializableString _currentEscape;
     
     
     /*
@@ -192,7 +192,7 @@ public final class WriterBasedJsonGenerator
         _writeContext = _writeContext.getParent();
     }
 
-    protected void _writeFieldName(String name, boolean commaBefore) throws IOException
+    void _writeFieldName(String name, boolean commaBefore) throws IOException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name, commaBefore);
@@ -225,7 +225,7 @@ public final class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = '"';
     }
 
-    protected void _writeFieldName(SerializableString name, boolean commaBefore) throws IOException
+    void _writeFieldName(SerializableString name, boolean commaBefore) throws IOException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name, commaBefore);
@@ -268,7 +268,7 @@ public final class WriterBasedJsonGenerator
      * Specialized version of <code>_writeFieldName</code>, off-lined
      * to keep the "fast path" as simple (and hopefully fast) as possible.
      */
-    protected void _writePPFieldName(String name, boolean commaBefore)
+    void _writePPFieldName(String name, boolean commaBefore)
         throws IOException, JsonGenerationException
     {
         if (commaBefore) {
@@ -292,7 +292,7 @@ public final class WriterBasedJsonGenerator
         }
     }
 
-    protected void _writePPFieldName(SerializableString name, boolean commaBefore)
+    void _writePPFieldName(SerializableString name, boolean commaBefore)
         throws IOException, JsonGenerationException
     {
         if (commaBefore) {
@@ -797,7 +797,7 @@ public final class WriterBasedJsonGenerator
         ++_outputTail;
     }
 
-    protected void _verifyPrettyValueWrite(String typeMsg) throws IOException
+    void _verifyPrettyValueWrite(String typeMsg) throws IOException
     {
         final int status = _writeContext.writeValue();
         if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
@@ -1422,7 +1422,7 @@ public final class WriterBasedJsonGenerator
     /**********************************************************
      */
     
-    protected void _writeBinary(Base64Variant b64variant, byte[] input, int inputPtr, final int inputEnd)
+    void _writeBinary(Base64Variant b64variant, byte[] input, int inputPtr, final int inputEnd)
         throws IOException, JsonGenerationException
     {
         // Encoding is by chunks of 3 input, 4 output chars, so:
@@ -1464,7 +1464,7 @@ public final class WriterBasedJsonGenerator
     }
 
     // write-method called when length is definitely known
-    protected int _writeBinary(Base64Variant b64variant,
+    int _writeBinary(Base64Variant b64variant,
             InputStream data, byte[] readBuffer, int bytesLeft)
         throws IOException, JsonGenerationException
     {
@@ -1524,7 +1524,7 @@ public final class WriterBasedJsonGenerator
     }
     
     // write method when length is unknown
-    protected int _writeBinary(Base64Variant b64variant,
+    int _writeBinary(Base64Variant b64variant,
             InputStream data, byte[] readBuffer)
         throws IOException, JsonGenerationException
     {
@@ -1879,7 +1879,7 @@ public final class WriterBasedJsonGenerator
         return buf;
     }
     
-    protected void _flushBuffer() throws IOException
+    void _flushBuffer() throws IOException
     {
         int len = _outputTail - _outputHead;
         if (len > 0) {

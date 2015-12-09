@@ -56,7 +56,7 @@ public final class ByteQuadsCanonicalizer
      * Reference to the root symbol table, for child tables, so
      * that they can merge table information back as necessary.
      */
-    final protected ByteQuadsCanonicalizer _parent;
+    final ByteQuadsCanonicalizer _parent;
 
     /**
      * Member that is only used by the root table instance: root
@@ -64,7 +64,7 @@ public final class ByteQuadsCanonicalizer
      * may return new state if they add entries to the table.
      * Child tables do NOT use the reference.
      */
-    final protected AtomicReference<TableInfo> _tableInfo;
+    final AtomicReference<TableInfo> _tableInfo;
     
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -88,7 +88,7 @@ public final class ByteQuadsCanonicalizer
      * NOTE: non-final to allow disabling intern()ing in case of excessive
      * collisions.
      */
-    protected boolean _intern;
+    boolean _intern;
 
     /**
      * Flag that indicates whether we should throw an exception if enough 
@@ -96,7 +96,7 @@ public final class ByteQuadsCanonicalizer
      * 
      * @since 2.4
      */
-    protected final boolean _failOnDoS;
+    final boolean _failOnDoS;
     
     /*
     /**********************************************************
@@ -110,7 +110,7 @@ public final class ByteQuadsCanonicalizer
      * structure (details of which may be tweaked depending on expected rates
      * of collisions).
      */
-    protected int[] _hashArea;
+    int[] _hashArea;
 
     /**
      * Number of slots for primary entries within {@link #_hashArea}; which is
@@ -118,17 +118,17 @@ public final class ByteQuadsCanonicalizer
      * primary covers only half of the area; plus, additional area for longer
      * symbols after hash area).
      */
-    protected int _hashSize;
+    int _hashSize;
 
     /**
      * Offset within {@link #_hashArea} where secondary entries start
      */
-    protected int _secondaryStart;
+    int _secondaryStart;
 
     /**
      * Offset within {@link #_hashArea} where tertiary entries start
      */
-    protected int _tertiaryStart;
+    int _tertiaryStart;
     
     /**
      * Constant that determines size of buckets for tertiary entries:
@@ -139,12 +139,12 @@ public final class ByteQuadsCanonicalizer
      * Default value is 2, for buckets of 4 slots; grows bigger with
      * bigger table sizes.
      */
-    protected int _tertiaryShift;
+    int _tertiaryShift;
 
     /**
      * Total number of Strings in the symbol table; only used for child tables.
      */
-    protected int _count;
+    int _count;
 
     /**
      * Array that contains <code>String</code> instances matching
@@ -152,7 +152,7 @@ public final class ByteQuadsCanonicalizer
      * Contains nulls for unused entries. Note that this size is twice
      * that of {@link #_hashArea}
      */
-    protected String[] _names;
+    String[] _names;
 
     /*
     /**********************************************************
@@ -165,7 +165,7 @@ public final class ByteQuadsCanonicalizer
      * for more spilled over entries (if any).
      * Spill over area is within fixed-size portion of {@link #_hashArea}.
      */
-    protected int _spilloverEnd;
+    int _spilloverEnd;
 
     /**
      * Offset within {@link #_hashArea} that follows main slots and contains
@@ -175,7 +175,7 @@ public final class ByteQuadsCanonicalizer
      * Note that long name area follows immediately after the fixed-size
      * main hash area ({@link #_hashArea}).
      */
-    protected int _longNameOffset;
+    int _longNameOffset;
 
     /**
      * This flag is set if, after adding a new entry, it is deemed
@@ -295,7 +295,7 @@ public final class ByteQuadsCanonicalizer
      * Factory method that should only be called from unit tests, where seed
      * value should remain the same.
      */
-    protected static ByteQuadsCanonicalizer createRoot(int seed) {
+    static ByteQuadsCanonicalizer createRoot(int seed) {
         return new ByteQuadsCanonicalizer(DEFAULT_T_SIZE, true, seed, true);
     }
     
@@ -1178,7 +1178,7 @@ public final class ByteQuadsCanonicalizer
         return (offset << 3) - offset;
     }
 
-    protected void _reportTooManyCollisions()
+    void _reportTooManyCollisions()
     {
         // First: do not fuzz about small symbol tables; may get balanced by doubling up
         if (_hashSize <= 1024) { // would have spill-over area of 128 entries

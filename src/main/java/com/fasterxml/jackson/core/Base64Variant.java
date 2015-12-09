@@ -78,17 +78,17 @@ public final class Base64Variant
      * Note that this is the only non-transient field; used when reading
      * back from serialized state
      */
-    protected final String _name;
+    final String _name;
 
     /**
      * Whether this variant uses padding or not.
      */
-    protected final transient boolean _usesPadding;
+    final transient boolean _usesPadding;
 
     /**
      * Characted used for padding, if any ({@link #PADDING_CHAR_NONE} if not).
      */
-    protected final transient char _paddingChar;
+    final transient char _paddingChar;
     
     /**
      * Maximum number of encoded base64 characters to output during encoding
@@ -98,7 +98,7 @@ public final class Base64Variant
      * Note: for some output modes (when writing attributes) linefeeds may
      * need to be avoided, and this value ignored.
      */
-    protected final transient int _maxLineLength;
+    final transient int _maxLineLength;
 
     /*
     /**********************************************************
@@ -176,7 +176,7 @@ public final class Base64Variant
      * Method used to "demote" deserialized instances back to 
      * canonical ones
      */
-    protected Object readResolve() {
+    Object readResolve() {
         return Base64Variants.valueOf(_name);
     }
     
@@ -566,7 +566,7 @@ public final class Base64Variant
      * @param bindex Relative index within base64 character unit; between 0
      *   and 3 (as unit has exactly 4 characters)
      */
-    protected void _reportInvalidBase64(char ch, int bindex, String msg)
+    void _reportInvalidBase64(char ch, int bindex, String msg)
         throws IllegalArgumentException
     {
         String base;
@@ -586,7 +586,7 @@ public final class Base64Variant
         throw new IllegalArgumentException(base);
     }
 
-    protected void _reportBase64EOF() throws IllegalArgumentException {
+    void _reportBase64EOF() throws IllegalArgumentException {
         throw new IllegalArgumentException("Unexpected end-of-String in base64 content");
     }
 }

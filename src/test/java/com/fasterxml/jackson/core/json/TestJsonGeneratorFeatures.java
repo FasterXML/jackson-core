@@ -49,6 +49,19 @@ public class TestJsonGeneratorFeatures
         _testNonNumericQuoting(jf, true);
     }
 
+    public void testSingleQuoting() throws IOException
+    {
+        JsonFactory jf = new JsonFactory();
+        // by default, single quoting should be disabled
+        _testSingleQuoting(jf, false);
+        // can enable it
+        jf.enable(JsonGenerator.Feature.WRITE_SINGLE_QUOTES);
+        _testSingleQuoting(jf, true);
+        // and disable it again
+        jf.disable(JsonGenerator.Feature.WRITE_SINGLE_QUOTES);
+        _testSingleQuoting(jf, false);
+    }
+
     /**
      * Testing for [JACKSON-176], ability to force serializing numbers
      * as JSON Strings.
@@ -170,6 +183,26 @@ public class TestJsonGeneratorFeatures
             assertEquals("{\"double\":\"NaN\"} {\"float\":\"NaN\"}", result);
         } else {
             assertEquals("{\"double\":NaN} {\"float\":NaN}", result);
+        }
+    }
+    private void _testSingleQuoting(JsonFactory jf, boolean singleQuoted)
+        throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator jg = jf.createGenerator(sw);
+        jg.writeStartObject();
+        jg.writeFieldName("single");
+        jg.writeString("'");
+        jg.writeFieldName("double");
+        jg.writeString("\"");
+        jg.writeEndObject();
+        jg.close();
+
+        String result = sw.toString();
+        if (singleQuoted) {
+            assertEquals("{'single':'\\'','double':'\"'}", result);
+        } else {
+            assertEquals("{\"single\":\"'\",\"double\":\"\\\"\"}", result);
         }
     }
 }

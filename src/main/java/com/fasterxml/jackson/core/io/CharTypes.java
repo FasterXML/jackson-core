@@ -154,6 +154,7 @@ public final class CharTypes
      * 7-bit ASCII range need to be quoted.
      */
     final static int[] sOutputEscapes128;
+    final static int[] sOutputEscapes128SingleQuoted;
     static {
         int[] table = new int[128];
         // Control chars need generic escape sequence
@@ -173,6 +174,9 @@ public final class CharTypes
         table[0x0A] = 'n';
         table[0x0D] = 'r';
         sOutputEscapes128 = table;
+        sOutputEscapes128SingleQuoted = Arrays.copyOf(table, 128);
+        sOutputEscapes128SingleQuoted['"'] = 0;
+        sOutputEscapes128SingleQuoted['\''] = '\'';
     }
 
     /**
@@ -209,6 +213,15 @@ public final class CharTypes
      * escaping is to be used.
      */
     public static int[] get7BitOutputEscapes() { return sOutputEscapes128; }
+
+    /**
+     * Accessor for getting a read-only encoding table for first 128 Unicode
+     * code points (single-byte UTF-8 characters) in single quoted strings.
+     * Value of 0 means "no escaping"; other positive values that value is character
+     * to use after backslash; and negative values that generic (backslash - u)
+     * escpaing is to be used.
+     */
+    public static int[] get7BitOutputEscapesSingleQuoted() { return sOutputEscapes128SingleQuoted; }
 
     public static int charToHex(int ch)
     {

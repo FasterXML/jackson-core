@@ -29,7 +29,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * (first 128 character codes), used for single-byte UTF-8 characters.
      */
     protected final static int[] sOutputEscapes = CharTypes.get7BitOutputEscapes();
-    
+    protected final static int[] sOutputEscapesSingleQuoted
+        = CharTypes.get7BitOutputEscapesSingleQuoted();
+
     /*
     /**********************************************************
     /* Configuration, basic I/O
@@ -50,7 +52,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * character codes). Defined separately to make potentially
      * customizable
      */
-    protected int[] _outputEscapes = sOutputEscapes;
+    protected int[] _outputEscapes;
 
     /**
      * Value between 128 (0x80) and 65535 (0xFFFF) that indicates highest
@@ -97,6 +99,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
             setHighestNonEscapedChar(127);
         }
+        if (isEnabled(Feature.WRITE_SINGLE_QUOTES)) {
+            _outputEscapes = sOutputEscapesSingleQuoted;
+        } else {
+            _outputEscapes = sOutputEscapes;
+        }
     }
 
     /*
@@ -121,7 +128,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     {
         _characterEscapes = esc;
         if (esc == null) { // revert to standard escapes
-            _outputEscapes = sOutputEscapes;
+            if (isEnabled(Feature.WRITE_SINGLE_QUOTES)) {
+                _outputEscapes = sOutputEscapesSingleQuoted;
+            } else {
+                _outputEscapes = sOutputEscapes;
+            }
         } else {
             _outputEscapes = esc.getEscapeCodesForAscii();
         }

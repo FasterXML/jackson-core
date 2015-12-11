@@ -150,6 +150,8 @@ public abstract class GeneratorBase extends JsonGenerator
                 if (_writeContext.getDupDetector() == null) { // but only if disabled currently
                     _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
                 }
+            } else if (f == Feature.WRITE_SINGLE_QUOTES) {
+                setCharacterEscapes(getCharacterEscapes());
             }
         }
         return this;
@@ -166,6 +168,8 @@ public abstract class GeneratorBase extends JsonGenerator
                 setHighestNonEscapedChar(0);
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
                 _writeContext = _writeContext.withDupDetector(null);
+            } else if (f == Feature.WRITE_SINGLE_QUOTES) {
+                setCharacterEscapes(getCharacterEscapes());
             }
         }
         return this;

@@ -210,6 +210,15 @@ public abstract class JsonGenerator
          * @since 2.5
          */
         IGNORE_UNKNOWN(false),
+
+        /**
+         * Features that determines whether generator will write strings with single quotes
+         * (apostrophe, character '\'') instead of double quotes.
+         * <p>
+         * Since JSON specification requires use of double quotes for field names, this is a
+         * non-standard feature, and as such is disabled by default.
+         */
+        WRITE_SINGLE_QUOTES(false),
         ;
 
         private final boolean _defaultState;

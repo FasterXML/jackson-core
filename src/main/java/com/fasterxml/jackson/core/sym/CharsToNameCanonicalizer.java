@@ -58,14 +58,14 @@ public final class CharsToNameCanonicalizer
      * reuse factories it doesn't matter either way; but when
      * recreating factories often, initial overhead may dominate.
      */
-    protected static final int DEFAULT_T_SIZE = 64;
+    static final int DEFAULT_T_SIZE = 64;
 
     /**
      * Let's not expand symbol tables past some maximum size;
      * this should protected against OOMEs caused by large documents
      * with unique (~= random) names.
      */
-    protected static final int MAX_T_SIZE = 0x10000; // 64k entries == 256k mem
+    static final int MAX_T_SIZE = 0x10000; // 64k entries == 256k mem
 
     /**
      * Let's only share reasonably sized symbol tables. Max size set to 3/4 of 16k;
@@ -104,7 +104,7 @@ public final class CharsToNameCanonicalizer
      * defined, and child instance is released (call to <code>release</code>),
      * parent's shared tables may be updated from the child instance.
      */
-    protected CharsToNameCanonicalizer _parent;
+    CharsToNameCanonicalizer _parent;
 
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -117,13 +117,13 @@ public final class CharsToNameCanonicalizer
      */
     final private int _hashSeed;
 
-    final protected int _flags;
+    final int _flags;
     
     /**
      * Whether any canonicalization should be attempted (whether using
      * intern or not)
      */
-    protected boolean _canonicalize;
+    boolean _canonicalize;
     
     /*
     /**********************************************************
@@ -135,7 +135,7 @@ public final class CharsToNameCanonicalizer
      * Primary matching symbols; it's expected most match occur from
      * here.
      */
-    protected String[] _symbols;
+    String[] _symbols;
 
     /**
      * Overflow buckets; if primary doesn't match, lookup is done
@@ -144,27 +144,27 @@ public final class CharsToNameCanonicalizer
      * Note: Number of buckets is half of number of symbol entries, on
      * assumption there's less need for buckets.
      */
-    protected Bucket[] _buckets;
+    Bucket[] _buckets;
 
     /**
      * Current size (number of entries); needed to know if and when
      * rehash.
      */
-    protected int _size;
+    int _size;
 
     /**
      * Limit that indicates maximum size this instance can hold before
      * it needs to be expanded and rehashed. Calculated using fill
      * factor passed in to constructor.
      */
-    protected int _sizeThreshold;
+    int _sizeThreshold;
 
     /**
      * Mask used to get index from hash values; equal to
      * <code>_buckets.length - 1</code>, when _buckets.length is
      * a power of two.
      */
-    protected int _indexMask;
+    int _indexMask;
 
     /**
      * We need to keep track of the longest collision list; this is needed
@@ -173,7 +173,7 @@ public final class CharsToNameCanonicalizer
      * 
      * @since 2.1
      */
-    protected int _longestCollisionList;
+    int _longestCollisionList;
     
     /*
     /**********************************************************
@@ -187,7 +187,7 @@ public final class CharsToNameCanonicalizer
      * (first) change is made, and potentially if updated bucket list
      * is to be resync'ed back to master instance.
      */
-    protected boolean _dirty;
+    boolean _dirty;
 
     /*
     /**********************************************************
@@ -203,7 +203,7 @@ public final class CharsToNameCanonicalizer
      * 
      * @since 2.4
      */
-    protected BitSet _overflows;
+    BitSet _overflows;
     
     /*
     /**********************************************************
@@ -226,7 +226,7 @@ public final class CharsToNameCanonicalizer
         return createRoot(seed);
     }
     
-    protected static CharsToNameCanonicalizer createRoot(int hashSeed) {
+    static CharsToNameCanonicalizer createRoot(int hashSeed) {
         return sBootstrapSymbolTable.makeOrphan(hashSeed);
     }
 
@@ -696,7 +696,7 @@ public final class CharsToNameCanonicalizer
     /**
      * @since 2.1
      */
-    protected void reportTooManyCollisions(int maxLen) {
+    void reportTooManyCollisions(int maxLen) {
         throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
     }

@@ -28,9 +28,9 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
 
-    protected final IOContext _context;
+    final IOContext _context;
 
-    protected final InputStream _in;
+    final InputStream _in;
 
     /*
     /**********************************************************
@@ -38,7 +38,7 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
 
-    protected final byte[] _inputBuffer;
+    final byte[] _inputBuffer;
 
     private int _inputPtr;
 
@@ -63,7 +63,7 @@ public final class ByteSourceJsonBootstrapper
      *<p>
      * Note: includes possible BOMs, if those were part of the input.
      */
-    protected int _inputProcessed;
+    int _inputProcessed;
 
     /*
     /**********************************************************
@@ -71,9 +71,9 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
 
-    protected boolean _bigEndian = true;
+    boolean _bigEndian = true;
 
-    protected int _bytesPerChar = 0; // 0 means "dunno yet"
+    int _bytesPerChar = 0; // 0 means "dunno yet"
 
     /*
     /**********************************************************
@@ -475,7 +475,7 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************
      */
 
-    protected boolean ensureLoaded(int minimum) throws IOException {
+    boolean ensureLoaded(int minimum) throws IOException {
         /* Let's assume here buffer has enough room -- this will always
          * be true for the limited used this method gets
          */

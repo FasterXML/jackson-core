@@ -15,11 +15,11 @@ public final class JsonReadContext extends JsonStreamContext
     /**
      * Parent context for this context; null for root context.
      */
-    protected final JsonReadContext _parent;
+    final JsonReadContext _parent;
     
     // // // Optional duplicate detection
 
-    protected DupDetector _dups;
+    DupDetector _dups;
 
     /*
     /**********************************************************
@@ -30,7 +30,7 @@ public final class JsonReadContext extends JsonStreamContext
     /**********************************************************
      */
 
-    protected JsonReadContext _child = null;
+    JsonReadContext _child = null;
 
     /*
     /**********************************************************
@@ -38,15 +38,15 @@ public final class JsonReadContext extends JsonStreamContext
     /**********************************************************
      */
 
-    protected String _currentName;
+    String _currentName;
 
     /**
      * @since 2.5
      */
-    protected Object _currentValue;
+    Object _currentValue;
     
-    protected int _lineNr;
-    protected int _columnNr;
+    int _lineNr;
+    int _columnNr;
 
     /*
     /**********************************************************
@@ -64,7 +64,7 @@ public final class JsonReadContext extends JsonStreamContext
         _index = -1;
     }
 
-    protected void reset(int type, int lineNr, int colNr) {
+    void reset(int type, int lineNr, int colNr) {
         _type = type;
         _index = -1;
         _lineNr = lineNr;

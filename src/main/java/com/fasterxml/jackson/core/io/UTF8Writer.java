@@ -353,7 +353,7 @@ public final class UTF8Writer extends Writer
     /**
      * Method called to calculate UTF codepoint, from a surrogate pair.
      */
-    protected int convertSurrogate(int secondPart)
+    int convertSurrogate(int secondPart)
         throws IOException
     {
         int firstPart = _surrogate;
@@ -366,11 +366,11 @@ public final class UTF8Writer extends Writer
         return 0x10000 + ((firstPart - SURR1_FIRST) << 10) + (secondPart - SURR2_FIRST);
     }
     
-    protected static void illegalSurrogate(int code) throws IOException {
+    static void illegalSurrogate(int code) throws IOException {
         throw new IOException(illegalSurrogateDesc(code));
     }
     
-    protected static String illegalSurrogateDesc(int code)
+    static String illegalSurrogateDesc(int code)
     {
         if (code > 0x10FFFF) { // over max?
             return "Illegal character point (0x"+Integer.toHexString(code)+") to output; max is 0x10FFFF as per RFC 4627";

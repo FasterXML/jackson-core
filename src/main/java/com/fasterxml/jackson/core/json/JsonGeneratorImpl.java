@@ -95,7 +95,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         super(features, codec);
         _ioContext = ctxt;
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
-            setHighestNonEscapedChar(127);
+            // inlined `setHighestNonEscapedChar()`
+            _maximumNonEscapedChar = 127;
         }
     }
 
@@ -106,7 +107,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      */
 
     @Override
-    public final JsonGenerator setHighestNonEscapedChar(int charCode) {
+    public JsonGenerator setHighestNonEscapedChar(int charCode) {
         _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;
         return this;
     }

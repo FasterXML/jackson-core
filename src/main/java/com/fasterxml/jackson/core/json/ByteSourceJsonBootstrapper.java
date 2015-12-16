@@ -73,7 +73,7 @@ public final class ByteSourceJsonBootstrapper
 
     protected boolean _bigEndian = true;
 
-    protected int _bytesPerChar = 0; // 0 means "dunno yet"
+    protected int _bytesPerChar; // 0 means "dunno yet"
 
     /*
     /**********************************************************

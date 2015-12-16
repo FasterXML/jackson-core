@@ -39,12 +39,12 @@ public class UTF32Reader extends Reader
     /**
      * Total read character count; used for error reporting purposes
      */
-    protected int _charCount = 0;
+    protected int _charCount;
 
     /**
      * Total read byte count; used for error reporting purposes
      */
-    protected int _byteCount = 0;
+    protected int _byteCount;
 
     protected final boolean _managedBuffers;
     
@@ -81,7 +81,7 @@ public class UTF32Reader extends Reader
         }
     }
 
-    protected char[] _tmpBuf = null;
+    protected char[] _tmpBuf;
 
     /**
      * Although this method is implemented by the base class, AND it should

@@ -25,7 +25,7 @@ public class TokenFilterContext extends JsonStreamContext
     /**********************************************************
      */
 
-    protected TokenFilterContext _child = null;
+    protected TokenFilterContext _child;
 
     /*
     /**********************************************************

@@ -30,7 +30,7 @@ public final class JsonReadContext extends JsonStreamContext
     /**********************************************************
      */
 
-    protected JsonReadContext _child = null;
+    protected JsonReadContext _child;
 
     /*
     /**********************************************************

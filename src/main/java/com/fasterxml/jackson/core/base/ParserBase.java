@@ -50,12 +50,12 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Pointer to next available character in buffer
      */
-    protected int _inputPtr = 0;
+    protected int _inputPtr;
 
     /**
      * Index of character after last available one in the buffer.
      */
-    protected int _inputEnd = 0;
+    protected int _inputEnd;
 
     /*
     /**********************************************************
@@ -67,7 +67,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * Number of characters/bytes that were contained in previous blocks
      * (blocks that were already processed prior to the current buffer).
      */
-    protected long _currInputProcessed = 0L;
+    protected long _currInputProcessed;
 
     /**
      * Current row location of current point in input buffer, starting
@@ -81,7 +81,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * of not having column itself is that this only has to be updated
      * once per line.
      */
-    protected int _currInputRowStart = 0;
+    protected int _currInputRowStart;
 
     /*
     /**********************************************************
@@ -97,7 +97,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * For big (gigabyte-sized) sizes are possible, needs to be long,
      * unlike pointers and sizes related to in-memory buffers.
      */
-    protected long _tokenInputTotal = 0; 
+    protected long _tokenInputTotal;
 
     /**
      * Input row on which current token starts, 1-based
@@ -108,7 +108,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * Column on input row that current token starts; 0-based (although
      * in the end it'll be converted to 1-based)
      */
-    protected int _tokenInputCol = 0;
+    protected int _tokenInputCol;
 
     /*
     /**********************************************************
@@ -147,20 +147,20 @@ public abstract class ParserBase extends ParserMinimalBase
      * using {@link #getTextCharacters} method (instead of String
      * returning alternatives)
      */
-    protected char[] _nameCopyBuffer = null;
+    protected char[] _nameCopyBuffer;
 
     /**
      * Flag set to indicate whether the field name is available
      * from the name copy buffer or not (in addition to its String
      * representation  being available via read context)
      */
-    protected boolean _nameCopied = false;
+    protected boolean _nameCopied;
 
     /**
      * ByteArrayBuilder is needed if 'getBinaryValue' is called. If so,
      * we better reuse it for remainder of content.
      */
-    protected ByteArrayBuilder _byteArrayBuilder = null;
+    protected ByteArrayBuilder _byteArrayBuilder;
 
     /**
      * We will hold on to decoded binary data, for duration of

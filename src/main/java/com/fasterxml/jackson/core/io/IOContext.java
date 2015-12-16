@@ -56,33 +56,33 @@ public class IOContext
      * Reference to the allocated I/O buffer for low-level input reading,
      * if any allocated.
      */
-    protected byte[] _readIOBuffer = null;
+    protected byte[] _readIOBuffer;
 
     /**
      * Reference to the allocated I/O buffer used for low-level
      * encoding-related buffering.
      */
-    protected byte[] _writeEncodingBuffer = null;
+    protected byte[] _writeEncodingBuffer;
     
     /**
      * Reference to the buffer allocated for temporary use with
      * base64 encoding or decoding.
      */
-    protected byte[] _base64Buffer = null;
+    protected byte[] _base64Buffer;
 
     /**
      * Reference to the buffer allocated for tokenization purposes,
      * in which character input is read, and from which it can be
      * further returned.
      */
-    protected char[] _tokenCBuffer = null;
+    protected char[] _tokenCBuffer;
 
     /**
      * Reference to the buffer allocated for buffering it for
      * output, before being encoded: generally this means concatenating
      * output, then encoding when buffer fills up.
      */
-    protected char[] _concatCBuffer = null;
+    protected char[] _concatCBuffer;
 
     /**
      * Reference temporary buffer Parser instances need if calling
@@ -90,7 +90,7 @@ public class IOContext
      * Regular text buffer can not be used as it may contain textual
      * representation of the value token.
      */
-    protected char[] _nameCopyBuffer = null;
+    protected char[] _nameCopyBuffer;
 
     /*
     /**********************************************************

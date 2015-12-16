@@ -82,7 +82,7 @@ public final class TextBuffer
     /**
      * Flag that indicates whether _seqments is non-empty
      */
-    private boolean _hasSegments = false;
+    private boolean _hasSegments;
 
     // // // Currently used segment; not (yet) contained in _seqments
 

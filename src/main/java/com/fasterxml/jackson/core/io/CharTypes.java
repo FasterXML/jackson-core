@@ -19,7 +19,7 @@ public final class CharTypes
      * Lookup table used for determining which input characters
      * need special handling when contained in text segment.
      */
-    final static int[] sInputCodes;
+    private final static int[] sInputCodes;
     static {
         /* 96 would do for most cases (backslash is ASCII 94)
          * but if we want to do lookups by raw bytes it's better
@@ -40,7 +40,7 @@ public final class CharTypes
      * Additionally we can combine UTF-8 decoding info into similar
      * data table.
      */
-    final static int[] sInputCodesUTF8;
+    private final static int[] sInputCodesUTF8;
     static {
         final int[] table = new int[sInputCodes.length];
         System.arraycopy(sInputCodes, 0, table, 0, table.length);
@@ -70,7 +70,7 @@ public final class CharTypes
      * Basically this is list of 8-bit ASCII characters that are legal
      * as part of Javascript identifier
      */
-    final static int[] sInputCodesJsNames;
+    private final static int[] sInputCodesJsNames;
     static {
         final int[] table = new int[256];
         // Default is "not a name char", mark ones that are
@@ -97,7 +97,7 @@ public final class CharTypes
      * code as ok. They will be validated at a later point, when decoding
      * name
      */
-    final static int[] sInputCodesUtf8JsNames;
+    private final static int[] sInputCodesUtf8JsNames;
     static {
         final int[] table = new int[256];
         // start with 8-bit JS names
@@ -110,7 +110,7 @@ public final class CharTypes
      * Decoding table used to quickly determine characters that are
      * relevant within comment content.
      */
-    final static int[] sInputCodesComment;
+    private final static int[] sInputCodesComment;
     static {
         final int[] buf = new int[256];
         // but first: let's start with UTF-8 multi-byte markers:
@@ -130,7 +130,7 @@ public final class CharTypes
      * 
      * @since 2.3
      */
-    final static int[] sInputCodesWS;
+    private final static int[] sInputCodesWS;
     static {
         // but first: let's start with UTF-8 multi-byte markers:
         final int[] buf = new int[256];
@@ -153,7 +153,7 @@ public final class CharTypes
      * Lookup table used for determining which output characters in
      * 7-bit ASCII range need to be quoted.
      */
-    final static int[] sOutputEscapes128;
+    private final static int[] sOutputEscapes128;
     static {
         int[] table = new int[128];
         // Control chars need generic escape sequence
@@ -180,7 +180,7 @@ public final class CharTypes
      * range. For actual hex digits, contains corresponding value;
      * for others -1.
      */
-    final static int[] sHexValues = new int[128];
+    private final static int[] sHexValues = new int[128];
     static {
         Arrays.fill(sHexValues, -1);
         for (int i = 0; i < 10; ++i) {

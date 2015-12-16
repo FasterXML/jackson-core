@@ -27,7 +27,7 @@ public class UTF8JsonGenerator
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
 
-    final static byte[] HEX_CHARS = CharTypes.copyHexBytes();
+    private final static byte[] HEX_CHARS = CharTypes.copyHexBytes();
 
     private final static byte[] NULL_BYTES = { 'n', 'u', 'l', 'l' };
     private final static byte[] TRUE_BYTES = { 't', 'r', 'u', 'e' };

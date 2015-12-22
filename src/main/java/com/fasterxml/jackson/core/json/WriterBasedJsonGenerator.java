@@ -121,6 +121,72 @@ public final class WriterBasedJsonGenerator
         }
         _writeFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
     }
+
+    protected void _writeFieldName(String name, boolean commaBefore) throws IOException
+    {
+        if (_cfgPrettyPrinter != null) {
+            _writePPFieldName(name, commaBefore);
+            return;
+        }
+        // for fast+std case, need to output up to 2 chars, comma, dquote
+        if ((_outputTail + 1) >= _outputEnd) {
+            _flushBuffer();
+        }
+        if (commaBefore) {
+            _outputBuffer[_outputTail++] = ',';
+        }
+        // Alternate mode, in which quoting of field names disabled?
+        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
+            _writeString(name);
+            return;
+        }
+        // we know there's room for at least one more char
+        _outputBuffer[_outputTail++] = '"';
+        // The beef:
+        _writeString(name);
+        // and closing quotes; need room for one more char:
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = '"';
+    }
+    
+    protected void _writeFieldName(SerializableString name, boolean commaBefore) throws IOException
+    {
+        if (_cfgPrettyPrinter != null) {
+            _writePPFieldName(name, commaBefore);
+            return;
+        }
+        // for fast+std case, need to output up to 2 chars, comma, dquote
+        if ((_outputTail + 1) >= _outputEnd) {
+            _flushBuffer();
+        }
+        if (commaBefore) {
+            _outputBuffer[_outputTail++] = ',';
+        }
+        // Alternate mode, in which quoting of field names disabled?
+        final char[] quoted = name.asQuotedChars();
+        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
+            writeRaw(quoted, 0, quoted.length);
+            return;
+        }
+        // we know there's room for at least one more char
+        _outputBuffer[_outputTail++] = '"';
+        // The beef:
+        final int qlen = quoted.length;
+        if ((_outputTail + qlen + 1) >= _outputEnd) {
+            writeRaw(quoted, 0, qlen);
+            // and closing quotes; need room for one more char:
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = '"';
+        } else {
+            System.arraycopy(quoted, 0, _outputBuffer, _outputTail, qlen);
+            _outputTail += qlen;
+            _outputBuffer[_outputTail++] = '"';
+        }
+    }
     
     /*
     /**********************************************************
@@ -192,84 +258,11 @@ public final class WriterBasedJsonGenerator
         _writeContext = _writeContext.clearAndGetParent();
     }
 
-    protected void _writeFieldName(String name, boolean commaBefore) throws IOException
-    {
-        if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name, commaBefore);
-            return;
-        }
-        // for fast+std case, need to output up to 2 chars, comma, dquote
-        if ((_outputTail + 1) >= _outputEnd) {
-            _flushBuffer();
-        }
-        if (commaBefore) {
-            _outputBuffer[_outputTail++] = ',';
-        }
-
-        /* To support [JACKSON-46], we'll do this:
-         * (Question: should quoting of spaces (etc) still be enabled?)
-         */
-        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
-            _writeString(name);
-            return;
-        }
-
-        // we know there's room for at least one more char
-        _outputBuffer[_outputTail++] = '"';
-        // The beef:
-        _writeString(name);
-        // and closing quotes; need room for one more char:
-        if (_outputTail >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = '"';
-    }
-
-    protected void _writeFieldName(SerializableString name, boolean commaBefore) throws IOException
-    {
-        if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name, commaBefore);
-            return;
-        }
-        // for fast+std case, need to output up to 2 chars, comma, dquote
-        if ((_outputTail + 1) >= _outputEnd) {
-            _flushBuffer();
-        }
-        if (commaBefore) {
-            _outputBuffer[_outputTail++] = ',';
-        }
-        /* To support [JACKSON-46], we'll do this:
-         * (Question: should quoting of spaces (etc) still be enabled?)
-         */
-        final char[] quoted = name.asQuotedChars();
-        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
-            writeRaw(quoted, 0, quoted.length);
-            return;
-        }
-        // we know there's room for at least one more char
-        _outputBuffer[_outputTail++] = '"';
-        // The beef:
-        final int qlen = quoted.length;
-        if ((_outputTail + qlen + 1) >= _outputEnd) {
-            writeRaw(quoted, 0, qlen);
-            // and closing quotes; need room for one more char:
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail++] = '"';
-        } else {
-            System.arraycopy(quoted, 0, _outputBuffer, _outputTail, qlen);
-            _outputTail += qlen;
-            _outputBuffer[_outputTail++] = '"';
-        }
-    }
-    
     /**
      * Specialized version of <code>_writeFieldName</code>, off-lined
      * to keep the "fast path" as simple (and hopefully fast) as possible.
      */
-    protected void _writePPFieldName(String name, boolean commaBefore)
-        throws IOException, JsonGenerationException
+    protected void _writePPFieldName(String name, boolean commaBefore) throws IOException
     {
         if (commaBefore) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);
@@ -292,8 +285,7 @@ public final class WriterBasedJsonGenerator
         }
     }
 
-    protected void _writePPFieldName(SerializableString name, boolean commaBefore)
-        throws IOException, JsonGenerationException
+    protected void _writePPFieldName(SerializableString name, boolean commaBefore) throws IOException
     {
         if (commaBefore) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);

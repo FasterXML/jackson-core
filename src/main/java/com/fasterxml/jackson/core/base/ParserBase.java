@@ -387,7 +387,7 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override public String getCurrentName() throws IOException {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-            JsonReadContext parent = _parsingContext.getParent();
+            JsonReadContext parent = _parsingContext.clearAndGetParent();
             return parent.getCurrentName();
         }
         return _parsingContext.getCurrentName();

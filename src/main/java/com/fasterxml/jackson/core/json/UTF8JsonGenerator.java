@@ -305,7 +305,7 @@ public class UTF8JsonGenerator
             }
             _outputBuffer[_outputTail++] = BYTE_RBRACKET;
         }
-        _writeContext = _writeContext.getParent();
+        _writeContext = _writeContext.clearAndGetParent();
     }
 
     @Override
@@ -337,7 +337,7 @@ public class UTF8JsonGenerator
             }
             _outputBuffer[_outputTail++] = BYTE_RCURLY;
         }
-        _writeContext = _writeContext.getParent();
+        _writeContext = _writeContext.clearAndGetParent();
     }
 
     /**

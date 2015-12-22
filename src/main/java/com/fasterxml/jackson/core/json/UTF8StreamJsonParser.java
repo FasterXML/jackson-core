@@ -719,7 +719,7 @@ public class UTF8StreamJsonParser
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             return (_currToken = JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
@@ -727,7 +727,7 @@ public class UTF8StreamJsonParser
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             return (_currToken = JsonToken.END_OBJECT);
         }
 
@@ -903,7 +903,7 @@ public class UTF8StreamJsonParser
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_ARRAY;
             return false;
         }
@@ -912,7 +912,7 @@ public class UTF8StreamJsonParser
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_OBJECT;
             return false;
         }
@@ -990,7 +990,7 @@ public class UTF8StreamJsonParser
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_ARRAY;
             return null;
         }
@@ -999,7 +999,7 @@ public class UTF8StreamJsonParser
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_OBJECT;
             return null;
         }

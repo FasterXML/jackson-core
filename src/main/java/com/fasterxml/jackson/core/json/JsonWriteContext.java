@@ -136,6 +136,22 @@ public class JsonWriteContext extends JsonStreamContext
     @Override public final JsonWriteContext getParent() { return _parent; }
     @Override public final String getCurrentName() { return _currentName; }
 
+    /**
+     * Method that can be used to both clear the accumulated references
+     * (specifically value set with {@link #setCurrentValue(Object)})
+     * that should not be retained, and returns parent (as would
+     * {@link #getParent()} do). Typically called when closing the active
+     * context when encountering {@link JsonToken#END_ARRAY} or
+     * {@link JsonToken#END_OBJECT}.
+     *
+     * @since 2.7
+     */
+    public JsonWriteContext clearAndGetParent() {
+        _currentValue = null;
+        // could also clear the current name, but seems cheap enough to leave?
+        return _parent;
+    }
+    
     public DupDetector getDupDetector() {
         return _dups;
     }

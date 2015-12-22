@@ -17,7 +17,7 @@ public final class WriterBasedJsonGenerator
     final protected static int SHORT_WRITE = 32;
 
     final protected static char[] HEX_CHARS = CharTypes.copyHexChars();
-    
+
     /*
     /**********************************************************
     /* Output buffering
@@ -25,7 +25,7 @@ public final class WriterBasedJsonGenerator
      */
 
     final protected Writer _writer;
-    
+
     /**
      * Intermediate buffer in which contents are buffered before
      * being written using {@link #_writer}.
@@ -157,7 +157,7 @@ public final class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = ']';
         }
-        _writeContext = _writeContext.getParent();
+        _writeContext = _writeContext.clearAndGetParent();
     }
 
     @Override
@@ -189,7 +189,7 @@ public final class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '}';
         }
-        _writeContext = _writeContext.getParent();
+        _writeContext = _writeContext.clearAndGetParent();
     }
 
     protected void _writeFieldName(String name, boolean commaBefore) throws IOException

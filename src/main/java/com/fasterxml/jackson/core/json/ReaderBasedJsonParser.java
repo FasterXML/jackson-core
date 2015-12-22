@@ -615,7 +615,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             return (_currToken = JsonToken.END_ARRAY);
         }
         if (i == INT_RCURLY) {
@@ -623,7 +623,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             return (_currToken = JsonToken.END_OBJECT);
         }
 
@@ -767,7 +767,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_ARRAY;
             return false;
         }
@@ -776,7 +776,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_OBJECT;
             return false;
         }
@@ -846,7 +846,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_ARRAY;
             return null;
         }
@@ -855,7 +855,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             if (!_parsingContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.getParent();
+            _parsingContext = _parsingContext.clearAndGetParent();
             _currToken = JsonToken.END_OBJECT;
             return null;
         }

@@ -88,7 +88,11 @@ public abstract class ResolvedType
      * subtypes they may be different parameters or possibly none at all).
      * 
      * @since 2.5
+     *
+     * @deprecated Since 2.7: does not have meaning as parameters depend on type
+     *    resolved.
      */
+    @Deprecated // since 2.7
     public Class<?> getParameterSource() {
         return null;
     }

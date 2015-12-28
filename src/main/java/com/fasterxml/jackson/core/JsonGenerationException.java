@@ -17,17 +17,17 @@ public class JsonGenerationException
 
     protected JsonGenerator _processor;
 
-    // TODO: mark deprecated in 2.7
+    @Deprecated // since 2.7
     public JsonGenerationException(Throwable rootCause) {
         super(rootCause);
     }
 
-    // TODO: mark deprecated in 2.7
+    @Deprecated // since 2.7
     public JsonGenerationException(String msg) {
         super(msg, (JsonLocation)null);
     }
 
-    // TODO: mark deprecated in 2.7
+    @Deprecated // since 2.7
     public JsonGenerationException(String msg, Throwable rootCause) {
         super(msg, null, rootCause);
     }

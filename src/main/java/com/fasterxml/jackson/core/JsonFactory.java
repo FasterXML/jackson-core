@@ -912,14 +912,13 @@ public class JsonFactory
 
     /*
     /**********************************************************
-    /* Parser factories (old ones, as per [Issue-25])
+    /* Parser factories (old ones, pre-2.2)
     /**********************************************************
      */
 
     /**
      * Method for constructing JSON parser instance to parse
      * contents of specified file.
-     *
      *<p>
      * Encoding is auto-detected from contents according to JSON
      * specification recommended mechanism. Json specification
@@ -1151,7 +1150,7 @@ public class JsonFactory
 
     /*
     /**********************************************************
-    /* Generator factories, old (as per [Issue-25]
+    /* Generator factories, old (pre-2.2)
     /**********************************************************
      */
 
@@ -1213,27 +1212,6 @@ public class JsonFactory
     @Deprecated
     public JsonGenerator createJsonGenerator(OutputStream out) throws IOException {
         return createGenerator(out, JsonEncoding.UTF8);
-    }
-    
-    /**
-     * Method for constructing JSON generator for writing JSON content
-     * to specified file, overwriting contents it might have (or creating
-     * it if such file does not yet exist).
-     * Encoding to use must be specified, and needs to be one of available
-     * types (as per JSON specification).
-     *<p>
-     * Underlying stream <b>is owned</b> by the generator constructed,
-     * i.e. generator will handle closing of file when
-     * {@link JsonGenerator#close} is called.
-     *
-     * @param f File to write contents to
-     * @param enc Character encoding to use
-     * 
-     * @deprecated Since 2.2, use {@link #createGenerator(File,JsonEncoding)} instead.
-     */
-    @Deprecated
-    public JsonGenerator createJsonGenerator(File f, JsonEncoding enc) throws IOException {
-        return createGenerator(f, enc);
     }
 
     /*
@@ -1463,7 +1441,7 @@ public class JsonFactory
         }
         return br;
     }
-    
+
     /**
      * Overridable factory method that actually instantiates desired
      * context object.
@@ -1471,7 +1449,7 @@ public class JsonFactory
     protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
     }
-    
+
     /**
      * Helper methods used for constructing an optimal stream for
      * parsers to use, when input is to be read from an URL.

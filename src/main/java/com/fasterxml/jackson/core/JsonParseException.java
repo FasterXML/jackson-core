@@ -15,12 +15,12 @@ public class JsonParseException extends JsonProcessingException {
 
     protected JsonParser _processor;
 
-    // TODO: mark deprecated in 2.7
+    @Deprecated // since 2.7
     public JsonParseException(String msg, JsonLocation loc) {
         super(msg, loc);
     }
 
-    // TODO: mark deprecated in 2.7
+    @Deprecated // since 2.7
     public JsonParseException(String msg, JsonLocation loc, Throwable root) {
         super(msg, loc, root);
     }

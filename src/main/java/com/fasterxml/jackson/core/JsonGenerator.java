@@ -277,7 +277,7 @@ public abstract class JsonGenerator
 
     /**
      * Method for accessing the object used for writing Java
-     * object as Json content
+     * object as JSON content
      * (using method {@link #writeObject}).
      */
     public abstract ObjectCodec getCodec();
@@ -980,7 +980,7 @@ public abstract class JsonGenerator
      * encoded, as a complete String value (surrounded by double quotes).
      * This method defaults
      *<p>
-     * Note: because Json Strings can not contain unescaped linefeeds,
+     * Note: because JSON Strings can not contain unescaped linefeeds,
      * if linefeeds are included (as per last argument), they must be
      * escaped. This adds overhead for decoding without improving
      * readability.
@@ -1169,7 +1169,7 @@ public abstract class JsonGenerator
     public abstract void writeNumber(String encodedValue) throws IOException;
 
     /**
-     * Method for outputting literal Json boolean value (one of
+     * Method for outputting literal JSON boolean value (one of
      * Strings 'true' and 'false').
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
@@ -1179,7 +1179,7 @@ public abstract class JsonGenerator
     public abstract void writeBoolean(boolean state) throws IOException;
 
     /**
-     * Method for outputting literal Json null value.
+     * Method for outputting literal JSON null value.
      * Can be called in any context where a value is expected
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
@@ -1235,7 +1235,7 @@ public abstract class JsonGenerator
     public void writeTypeId(Object id) throws IOException {
         throw new JsonGenerationException("No native support for writing Type Ids", this);
     }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, serializing Java objects
@@ -1246,8 +1246,8 @@ public abstract class JsonGenerator
      * Method for writing given Java object (POJO) as Json.
      * Exactly how the object gets written depends on object
      * in question (ad on codec, its configuration); for most
-     * beans it will result in Json object, but for others Json
-     * array, or String or numeric value (and for nulls, Json
+     * beans it will result in JSON Object, but for others JSON
+     * Array, or String or numeric value (and for nulls, JSON
      * null literal.
      * <b>NOTE</b>: generator must have its <b>object codec</b>
      * set to non-null value; for generators created by a mapping
@@ -1463,7 +1463,7 @@ public abstract class JsonGenerator
      * Method for copying contents of the current event that
      * the given parser instance points to.
      * Note that the method <b>will not</b> copy any other events,
-     * such as events contained within Json Array or Object structures.
+     * such as events contained within JSON Array or Object structures.
      *<p>
      * Calling this method will not advance the given
      * parser, although it may cause parser to internally process
@@ -1561,7 +1561,7 @@ public abstract class JsonGenerator
      *  </li>
      * <li>{@link JsonToken#FIELD_NAME} the logical value (which
      *   can consist of a single scalar value; or a sequence of related
-     *   events for structured types (Json Arrays, Objects)) will
+     *   events for structured types (JSON Arrays, Objects)) will
      *   be copied along with the name itself. So essentially the
      *   whole <b>field entry</b> (name and value) will be copied.
      *  </li>

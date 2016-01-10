@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.0 (not yet released)
+2.7.0 (10-Jun-2016)
 
 #37: JsonParser.getTokenLocation() doesn't update after field names
  (reported by Michael L)

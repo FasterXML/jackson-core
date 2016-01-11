@@ -166,7 +166,7 @@ public abstract class JsonGenerator
          *<p>
          * Feature is disabled by default.
          *
-         * @since 2.7
+         * @since Xxx
          */
 //        ESCAPE_UTF8_SURROGATES(false),
         

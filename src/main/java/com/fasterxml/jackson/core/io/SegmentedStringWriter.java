@@ -58,7 +58,10 @@ public final class SegmentedStringWriter extends Writer
     public void write(char[] cbuf, int off, int len) { _buffer.append(cbuf, off, len); }
 
     @Override
-    public void write(int c) { _buffer.append((char) c); }
+    public void write(int c) {
+    	char[] chars = Character.toChars(c);
+    	_buffer.append(chars, 0, chars.length);
+    }
 
     @Override
     public void write(String str) { _buffer.append(str, 0, str.length()); }

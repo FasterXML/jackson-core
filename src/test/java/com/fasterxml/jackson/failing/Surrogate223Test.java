@@ -23,7 +23,7 @@ public class Surrogate223Test extends BaseTest
         assertEquals(2, toQuote.length()); // just sanity check
 
         // default should be disabled:
-//        assertFalse(JSON_F.isEnabled(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES));
+        assertFalse(JSON_F.isEnabled(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES));
 
         out = new ByteArrayOutputStream();
         g = JSON_F.createGenerator(out);
@@ -41,16 +41,14 @@ public class Surrogate223Test extends BaseTest
         p.close();
         
         // but may revert back to original behavior
-        /*
         out = new ByteArrayOutputStream();
         g = JSON_F.createGenerator(out);
-//        g.enable(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES);
+        g.enable(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES);
         g.writeStartArray();
         g.writeString(toQuote);
         g.writeEndArray();
         g.close();
         assertEquals(2 + 2 + 12, out.size()); // brackets, quotes, 2 x 6 byte JSON escape
-        */
     }
 
     // for [core#223]
@@ -62,7 +60,7 @@ public class Surrogate223Test extends BaseTest
         assertEquals(2, toQuote.length()); // just sanity check
 
         // default should be disabled:
-//        assertFalse(JSON_F.isEnabled(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES));
+        assertFalse(JSON_F.isEnabled(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES));
 
         out = new StringWriter();
         g = JSON_F.createGenerator(out);
@@ -80,15 +78,13 @@ public class Surrogate223Test extends BaseTest
         p.close();
         
         // but may revert back to original behavior
-        /*
         out = new StringWriter();
         g = JSON_F.createGenerator(out);
-//        g.enable(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES);
+        g.enable(JsonGenerator.Feature.ESCAPE_UTF8_SURROGATES);
         g.writeStartArray();
         g.writeString(toQuote);
         g.writeEndArray();
         g.close();
-        assertEquals(2 + 2 + 12, out.toString().length()); // brackets, quotes, 2 x 6 byte JSON escape
-        */
+        assertEquals(2 + 2 + 2, out.toString().length()); // brackets, quotes, 2 chars as is
     }
 }

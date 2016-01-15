@@ -1976,25 +1976,34 @@ public class UTF8JsonGenerator
     private final int _outputMultiByteChar(int ch, int outputPtr) throws IOException
     {
         byte[] bbuf = _outputBuffer;
-        // surrogate characters is not valid on UTF8 (RFC 3629)
-        if (ch > 0xffff) { // 4 bytes sequence, max bytes length
-        	bbuf[outputPtr++] = (byte) (0xf0 | (ch >> 18));
-        	bbuf[outputPtr++] = (byte) (0x80 | ((ch >> 12) & 0x3f));
-        	bbuf[outputPtr++] = (byte) (0x80 | ((ch >> 6) & 0x3f));
-            bbuf[outputPtr++] = (byte) (0x80 | (ch & 0x3f));
-        //if (ch >= SURR1_FIRST && ch <= SURR2_LAST) { // yes, outside of BMP; add an escape
-            // 23-Nov-2015, tatu: As per [core#223], may or may not want escapes;
-            //   it would be added here... but as things are, we do not have proper
-            //   access yet...
-//            if (Feature.ESCAPE_UTF8_SURROGATES.enabledIn(_features)) {
-//                bbuf[outputPtr++] = BYTE_BACKSLASH;
-//                bbuf[outputPtr++] = BYTE_u;
-//                
-//                bbuf[outputPtr++] = HEX_CHARS[(ch >> 12) & 0xF];
-//                bbuf[outputPtr++] = HEX_CHARS[(ch >> 8) & 0xF];
-//                bbuf[outputPtr++] = HEX_CHARS[(ch >> 4) & 0xF];
-//                bbuf[outputPtr++] = HEX_CHARS[ch & 0xF];
-//            } else { ... }
+        if (ch > 0xffff) {
+        	// 4 byte
+            if (Feature.ESCAPE_UTF8_SURROGATES.enabledIn(_features)) {
+            	char[] chars = Character.toChars(ch);
+            	
+            	ch = chars[0];
+                bbuf[outputPtr++] = BYTE_BACKSLASH;
+                bbuf[outputPtr++] = BYTE_u;
+          
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 12) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 8) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 4) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[ch & 0xF];
+
+            	ch = chars[1];
+                bbuf[outputPtr++] = BYTE_BACKSLASH;
+                bbuf[outputPtr++] = BYTE_u;
+          
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 12) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 8) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[(ch >> 4) & 0xF];
+                bbuf[outputPtr++] = HEX_CHARS[ch & 0xF];
+            } else {
+          	    bbuf[outputPtr++] = (byte) (0xf0 | (ch >> 18));
+                bbuf[outputPtr++] = (byte) (0x80 | ((ch >> 12) & 0x3f));
+      	        bbuf[outputPtr++] = (byte) (0x80 | ((ch >> 6) & 0x3f));
+                bbuf[outputPtr++] = (byte) (0x80 | (ch & 0x3f));        	  
+            }
         } else {
             bbuf[outputPtr++] = (byte) (0xe0 | (ch >> 12));
             bbuf[outputPtr++] = (byte) (0x80 | ((ch >> 6) & 0x3f));

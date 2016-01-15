@@ -85,6 +85,6 @@ public class Surrogate223Test extends BaseTest
         g.writeString(toQuote);
         g.writeEndArray();
         g.close();
-        assertEquals(2 + 2 + 2, out.toString().length()); // brackets, quotes, 2 chars as is
+        assertEquals(2 + 2 + 2, out.toString().length()); // brackets, quotes, 2 chars as is - WriterBasedJsonGenerator not handles surrogate characters.
     }
 }

@@ -465,7 +465,22 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // No embedded objects with base impl...
     @Override public Object getEmbeddedObject() throws IOException { return null; }
-    
+
+    @SuppressWarnings("resource")
+    @Override // since 2.7
+    public byte[] getBinaryValue(Base64Variant variant) throws IOException
+    {
+        if (_binaryValue == null) {
+            if (_currToken != JsonToken.VALUE_STRING) {
+                _reportError("Current token ("+_currToken+") not VALUE_STRING, can not access as binary");
+            }
+            ByteArrayBuilder builder = _getByteArrayBuilder();
+            _decodeBase64(getText(), builder, variant);
+            _binaryValue = builder.toByteArray();
+        }
+        return _binaryValue;
+    }
+
     /*
     /**********************************************************
     /* Public low-level accessors

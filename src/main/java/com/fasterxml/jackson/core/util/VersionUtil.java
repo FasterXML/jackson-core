@@ -71,7 +71,8 @@ public class VersionUtil
      */
     public static Version versionFor(Class<?> cls)
     {
-        return packageVersionFor(cls);
+        Version version = packageVersionFor(cls);
+        return version == null ? Version.unknownVersion() : version;
     }
 
     /**

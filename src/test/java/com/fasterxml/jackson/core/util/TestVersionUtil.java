@@ -28,4 +28,9 @@ public class TestVersionUtil extends com.fasterxml.jackson.core.BaseTest
     public void testPackageVersionMatches() {
         assertEquals(PackageVersion.VERSION, VersionUtil.versionFor(UTF8JsonGenerator.class));
     }
+
+    public void testVersionForUnknownVersion() {
+        // expecting return version.unknownVersion() instead of null
+        assertEquals(Version.unknownVersion(), VersionUtil.versionFor(TestVersionUtil.class));
+    }
 }

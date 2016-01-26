@@ -77,24 +77,26 @@ public class VersionUtil
     /**
      * Loads version information by introspecting a class named
      * "PackageVersion" in the same package as the given class.
-     *
+     *<p>
      * If the class could not be found or does not have a public
      * static Version field named "VERSION", returns null.
      */
     public static Version packageVersionFor(Class<?> cls)
     {
+        Version v = null;
         try {
             String versionInfoClassName = cls.getPackage().getName() + ".PackageVersion";
             Class<?> vClass = Class.forName(versionInfoClassName, true, cls.getClassLoader());
             // However, if class exists, it better work correctly, no swallowing exceptions
             try {
-                return ((Versioned) vClass.newInstance()).version();
+                v = ((Versioned) vClass.newInstance()).version();
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to get Versioned out of "+vClass);
             }
         } catch (Exception e) { // ok to be missing (not good but acceptable)
-            return null;
+            ;
         }
+        return (v == null) ? Version.unknownVersion() : v;
     }
 
     /**
@@ -147,7 +149,7 @@ public class VersionUtil
                     (parts.length > 3) ? parts[3] : null,
                     groupId, artifactId);
         }
-        return null;
+        return Version.unknownVersion();
     }
 
     protected static int parseVersionPart(String s) {

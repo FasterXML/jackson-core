@@ -42,7 +42,7 @@ public class JsonWriteContext extends JsonStreamContext
     /* Location/state information (minus source reference)
     /**********************************************************
      */
-    
+
     /**
      * Name of the field of which value is to be parsed; only
      * used for OBJECT contexts
@@ -53,7 +53,7 @@ public class JsonWriteContext extends JsonStreamContext
      * @since 2.5
      */
     protected Object _currentValue;
-    
+
     /**
      * Marker used to indicate that we just received a name, and
      * now expect a value
@@ -163,7 +163,7 @@ public class JsonWriteContext extends JsonStreamContext
      */
     public int writeFieldName(String name) throws JsonProcessingException {
         if (_gotName) {
-            return JsonWriteContext.STATUS_EXPECT_VALUE;
+            return STATUS_EXPECT_VALUE;
         }
         _gotName = true;
         _currentName = name;

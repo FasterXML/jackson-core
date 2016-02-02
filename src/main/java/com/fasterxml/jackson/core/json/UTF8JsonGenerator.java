@@ -1048,7 +1048,7 @@ public class UTF8JsonGenerator
         if (_outputStream != null) {
             if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_TARGET)) {
                 _outputStream.close();
-            } else  if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
+            } else if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
                 // If we can't close it, we should at least flush
                 _outputStream.flush();
             }

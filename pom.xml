@@ -9,7 +9,7 @@
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
-  <version>2.7.2-SNAPSHOT</version>
+  <version>2.8.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <description>Core Jackson abstractions, basic JSON streaming API implementation</description>
   <inceptionYear>2008</inceptionYear>
@@ -23,7 +23,7 @@
   </scm>
 
   <properties>
-    <!-- 02-Oct-2015, tatu: Retain Java6/JDK1.6 compatibility for streaming for Jackson 2.7 -->
+    <!-- 03-Feb-2016, tatu: Retain Java6/JDK1.6 compatibility for streaming for Jackson 2.8 -->
     <javac.src.version>1.6</javac.src.version>
     <javac.target.version>1.6</javac.target.version>
 
@@ -103,8 +103,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
               <encoding>UTF-8</encoding>
               <maxmemory>1g</maxmemory>
               <links>
-                  <!-- JDK, other Jackson pkgs -->
-                  <link>http://docs.oracle.com/javase/6/docs/api/</link>
+                  <link>http://docs.oracle.com/javase/7/docs/api/</link>
               </links>
               <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
               <bootclasspath>${sun.boot.class.path}</bootclasspath>

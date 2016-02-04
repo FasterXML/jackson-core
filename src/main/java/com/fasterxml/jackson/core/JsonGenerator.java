@@ -1579,30 +1579,25 @@ public abstract class JsonGenerator
             _reportError("No current event to copy");
         }
         // Let's handle field-name separately first
-        int id = t.id();
-        if (id == ID_FIELD_NAME) {
+        if (t == JsonToken.FIELD_NAME) {
             writeFieldName(jp.getCurrentName());
             t = jp.nextToken();
-            id = t.id();
             // fall-through to copy the associated value
         }
-        switch (id) {
-        case ID_START_OBJECT:
-            writeStartObject();
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
-                copyCurrentStructure(jp);
+        int depth = 0;
+        while (true) {
+            if (t == null) {
+                _reportError("No current event to copy");
+            } else if (t.isStructStart()) {
+                ++depth;
+            } else if (t.isStructEnd()) {
+                --depth;
             }
-            writeEndObject();
-            break;
-        case ID_START_ARRAY:
-            writeStartArray();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(jp);
-            }
-            writeEndArray();
-            break;
-        default:
             copyCurrentEvent(jp);
+            if (depth == 0) {
+                break;
+            }
+            t = jp.nextToken();
         }
     }
 

@@ -156,7 +156,23 @@ public class UTF8JsonGenerator
     /* Overridden configuration methods
     /**********************************************************
      */
-    
+
+    public UTF8JsonGenerator enable(Feature f) {
+        super.enable(f);
+        if (f == Feature.QUOTE_FIELD_NAMES) {
+            _cfgUnqNames = false;
+        }
+        return this;
+    }
+
+    public UTF8JsonGenerator disable(Feature f) {
+        super.disable(f);
+        if (f == Feature.QUOTE_FIELD_NAMES) {
+            _cfgUnqNames = true;
+        }
+        return this;
+    }
+
     @Override
     public Object getOutputTarget() {
         return _outputStream;

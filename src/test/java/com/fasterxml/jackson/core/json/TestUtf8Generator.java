@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
@@ -24,7 +25,7 @@ public class TestUtf8Generator extends BaseTest
         gen.writeString(str);
         gen.flush();
         gen.close();
-        
+
         // Also verify it's parsable?
         JsonParser p = JSON_F.createParser(bytes.toByteArray());
         for (int i = 1; i <= length; ++i) {
@@ -59,5 +60,34 @@ public class TestUtf8Generator extends BaseTest
         assertEquals((char) 0xDE0C, str.charAt(1));
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
+    }
+
+    public void testFieldNameQuotingEnabled() throws IOException
+    {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final JsonGenerator jg = JSON_F.createGenerator(out);
+        jg.writeStartObject();
+        jg.writeFieldName("foo");
+        jg.writeNumber(1);
+        jg.writeEndObject();
+        jg.close();
+
+        final String result = new String(out.toByteArray(), "UTF-8");
+        assertEquals("{\"foo\":1}", result);
+    }
+
+    public void testFieldNameQuotingDisabled() throws IOException
+    {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final JsonGenerator jg =
+            JSON_F.createGenerator(out).disable(Feature.QUOTE_FIELD_NAMES);
+        jg.writeStartObject();
+        jg.writeFieldName("foo");
+        jg.writeNumber(1);
+        jg.writeEndObject();
+        jg.close();
+
+        final String result = new String(out.toByteArray(), "UTF-8");
+        assertEquals("{foo:1}", result);
     }
 }

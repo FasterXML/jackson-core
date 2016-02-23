@@ -84,6 +84,14 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected SerializableString _rootValueSeparator
         = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
 
+    /**
+     * Flag that is set if quoting is not to be added around
+     * JSON Object property names.
+     *
+     * @since 2.7
+     */
+    protected boolean _cfgUnqNames;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -94,10 +102,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     {
         super(features, codec);
         _ioContext = ctxt;
-        if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
+        if (Feature.ESCAPE_NON_ASCII.enabledIn(features)) {
             // inlined `setHighestNonEscapedChar()`
             _maximumNonEscapedChar = 127;
         }
+        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
 
     /*
@@ -105,6 +114,30 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /* Overridden configuration methods
     /**********************************************************
      */
+
+    @Override
+    public JsonGenerator enable(Feature f) {
+        super.enable(f);
+        if (f == Feature.QUOTE_FIELD_NAMES) {
+            _cfgUnqNames = false;
+        }
+        return this;
+    }
+
+    @Override
+    public JsonGenerator disable(Feature f) {
+        super.disable(f);
+        if (f == Feature.QUOTE_FIELD_NAMES) {
+            _cfgUnqNames = true;
+        }
+        return this;
+    }
+
+    @Override
+    protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures) {
+        super._checkStdFeatureChanges(newFeatureFlags, changedFeatures);
+        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(newFeatureFlags);
+    }
 
     @Override
     public JsonGenerator setHighestNonEscapedChar(int charCode) {

@@ -136,7 +136,7 @@ public final class WriterBasedJsonGenerator
             _outputBuffer[_outputTail++] = ',';
         }
         // Alternate mode, in which quoting of field names disabled?
-        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
+        if (_cfgUnqNames) {
             _writeString(name);
             return;
         }
@@ -166,7 +166,7 @@ public final class WriterBasedJsonGenerator
         }
         // Alternate mode, in which quoting of field names disabled?
         final char[] quoted = name.asQuotedChars();
-        if (!isEnabled(Feature.QUOTE_FIELD_NAMES)) {
+        if (_cfgUnqNames) {
             writeRaw(quoted, 0, quoted.length);
             return;
         }
@@ -270,7 +270,9 @@ public final class WriterBasedJsonGenerator
             _cfgPrettyPrinter.beforeObjectEntries(this);
         }
 
-        if (isEnabled(Feature.QUOTE_FIELD_NAMES)) { // standard
+        if (_cfgUnqNames) {// non-standard, omit quotes
+            _writeString(name);
+        } else { 
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
@@ -280,8 +282,6 @@ public final class WriterBasedJsonGenerator
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = '"';
-        } else { // non-standard, omit quotes
-            _writeString(name);
         }
     }
 
@@ -294,7 +294,9 @@ public final class WriterBasedJsonGenerator
         }
     
         final char[] quoted = name.asQuotedChars();
-        if (isEnabled(Feature.QUOTE_FIELD_NAMES)) { // standard
+        if (_cfgUnqNames) {// non-standard, omit quotes
+            writeRaw(quoted, 0, quoted.length);
+        } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
@@ -304,8 +306,6 @@ public final class WriterBasedJsonGenerator
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = '"';
-        } else { // non-standard, omit quotes
-            writeRaw(quoted, 0, quoted.length);
         }
     }
 

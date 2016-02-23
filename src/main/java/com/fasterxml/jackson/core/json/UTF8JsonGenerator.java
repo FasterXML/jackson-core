@@ -93,18 +93,6 @@ public class UTF8JsonGenerator
 
     /*
     /**********************************************************
-    /* Quick flags
-    /**********************************************************
-     */
-
-    /**
-     * Flag that is set if quoting is not to be added around
-     * JSON Object property names.
-     */
-    protected boolean _cfgUnqNames;
-
-    /*
-    /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
@@ -130,7 +118,6 @@ public class UTF8JsonGenerator
         if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
             setHighestNonEscapedChar(127);
         }
-        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
     
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
@@ -148,7 +135,6 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = (_outputEnd >> 3);
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
-        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
 
     /*

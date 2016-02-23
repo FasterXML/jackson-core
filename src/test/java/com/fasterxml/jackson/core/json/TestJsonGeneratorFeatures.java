@@ -13,10 +13,11 @@ import com.fasterxml.jackson.core.*;
 public class TestJsonGeneratorFeatures
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = new JsonFactory();
+
     public void testConfigDefaults() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
-        JsonGenerator jg = jf.createGenerator(new StringWriter());
+        JsonGenerator jg = JSON_F.createGenerator(new StringWriter());
         assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
         assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
         jg.close();
@@ -35,8 +36,7 @@ public class TestJsonGeneratorFeatures
         _testFieldNameQuoting(jf, true);
     }
 
-    public void testNonNumericQuoting()
-        throws IOException
+    public void testNonNumericQuoting() throws IOException
     {
         JsonFactory jf = new JsonFactory();
         // by default, quoting should be enabled
@@ -126,6 +126,54 @@ public class TestJsonGeneratorFeatures
         return sw.toString();
     }
 
+    // for [core#246]
+    public void testFieldNameQuotingEnabled() throws IOException
+    {
+        // // First, test with default factory, with quoting enabled by default
+        
+        // First, default, with quotes
+        _testFieldNameQuotingEnabled(JSON_F, true, true, "{\"foo\":1}");
+        _testFieldNameQuotingEnabled(JSON_F, false, true, "{\"foo\":1}");
+
+        // then without quotes
+        _testFieldNameQuotingEnabled(JSON_F, true, false, "{foo:1}");
+        _testFieldNameQuotingEnabled(JSON_F, false, false, "{foo:1}");
+
+        // // Then with alternatively configured factory
+
+        JsonFactory JF2 = new JsonFactory();
+        JF2.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+
+        _testFieldNameQuotingEnabled(JF2, true, true, "{\"foo\":1}");
+        _testFieldNameQuotingEnabled(JF2, false, true, "{\"foo\":1}");
+
+        // then without quotes
+        _testFieldNameQuotingEnabled(JF2, true, false, "{foo:1}");
+        _testFieldNameQuotingEnabled(JF2, false, false, "{foo:1}");
+    }
+
+    private void _testFieldNameQuotingEnabled(JsonFactory jf, boolean useBytes,
+            boolean useQuotes, String exp) throws IOException
+    {
+        ByteArrayOutputStream bytes = useBytes ? new ByteArrayOutputStream() : null;
+        StringWriter sw = useBytes ? null : new StringWriter();
+        JsonGenerator gen = useBytes ? jf.createGenerator(bytes) : jf.createGenerator(sw);
+        if (useQuotes) {
+            gen.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        } else {
+            gen.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        }
+
+        gen.writeStartObject();
+        gen.writeFieldName("foo");
+        gen.writeNumber(1);
+        gen.writeEndObject();
+        gen.close();
+
+        String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
+        assertEquals(exp, json);
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

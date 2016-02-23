@@ -26,7 +26,8 @@ public abstract class GeneratorBase extends JsonGenerator
      * 
      * @since 2.5
      */
-    protected final static int DERIVED_FEATURES_MASK = Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
+    protected final static int DERIVED_FEATURES_MASK =
+            Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
             | Feature.ESCAPE_NON_ASCII.getMask()
             | Feature.STRICT_DUPLICATE_DETECTION.getMask()
             ;
@@ -61,7 +62,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_NUMBERS_AS_STRINGS}).
      */
     protected boolean _cfgNumbersAsStrings;
-    
+
     /*
     /**********************************************************
     /* State
@@ -136,12 +137,13 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public int getFeatureMask() { return _features; }
 
     //public JsonGenerator configure(Feature f, boolean state) { }
-    
+
     @Override
     public JsonGenerator enable(Feature f) {
         final int mask = f.getMask();
         _features |= mask;
         if ((mask & DERIVED_FEATURES_MASK) != 0) {
+            // why not switch? Requires addition of a generated class, alas
             if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = true;
             } else if (f == Feature.ESCAPE_NON_ASCII) {
@@ -226,7 +228,7 @@ public abstract class GeneratorBase extends JsonGenerator
             }
         }
     }
-    
+
     @Override public JsonGenerator useDefaultPrettyPrinter() {
         // Should not override a pretty printer if one already assigned.
         if (getPrettyPrinter() != null) {

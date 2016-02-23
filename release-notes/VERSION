@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.2 (not yet released)
+
+#246: Fix UTF8JsonGenerator to allow QUOTE_FIELD_NAMES to be toggled
+ (suggested by philipa@github)
+
 2.7.1 (02-Feb-2016)
 
 No changes since 2.7.0.

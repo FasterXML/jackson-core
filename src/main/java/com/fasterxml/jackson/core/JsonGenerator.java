@@ -1236,6 +1236,17 @@ public abstract class JsonGenerator
         throw new JsonGenerationException("No native support for writing Type Ids", this);
     }
 
+    /**
+     * Method that can be called on backends that support passing opaque datatypes of
+     * non-JSON formats
+     *
+     * @since 2.8
+     */
+    public void writeEmbeddedObject(Object object) throws IOException {
+        throw new JsonGenerationException("No native support for writing embedded objects",
+                this);
+    }
+
     /*
     /**********************************************************
     /* Public API, write methods, serializing Java objects

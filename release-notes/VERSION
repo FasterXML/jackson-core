@@ -19,7 +19,7 @@ JSON library.
 #253: Add `JsonGenerator. writeEmbeddedObject()` to allow writes of opaque native types
  (suggested by Gregoire C)
 
-2.7.2 (not yet released)
+2.7.2 (26-Feb-2016)
 
 #246: Fix UTF8JsonGenerator to allow QUOTE_FIELD_NAMES to be toggled
  (suggested by philipa@github)

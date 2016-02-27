@@ -1480,9 +1480,9 @@ public abstract class JsonGenerator
      * parser, although it may cause parser to internally process
      * more data (if it lazy loads contents of value events, for example)
      */
-    public void copyCurrentEvent(JsonParser jp) throws IOException
+    public void copyCurrentEvent(JsonParser p) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         // sanity check; what to do?
         if (t == null) {
             _reportError("No current event to copy");
@@ -1503,36 +1503,36 @@ public abstract class JsonGenerator
             writeEndArray();
             break;
         case ID_FIELD_NAME:
-            writeFieldName(jp.getCurrentName());
+            writeFieldName(p.getCurrentName());
             break;
         case ID_STRING:
-            if (jp.hasTextCharacters()) {
-                writeString(jp.getTextCharacters(), jp.getTextOffset(), jp.getTextLength());
+            if (p.hasTextCharacters()) {
+                writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
             } else {
-                writeString(jp.getText());
+                writeString(p.getText());
             }
             break;
         case ID_NUMBER_INT:
         {
-            NumberType n = jp.getNumberType();
+            NumberType n = p.getNumberType();
             if (n == NumberType.INT) {
-                writeNumber(jp.getIntValue());
+                writeNumber(p.getIntValue());
             } else if (n == NumberType.BIG_INTEGER) {
-                writeNumber(jp.getBigIntegerValue());
+                writeNumber(p.getBigIntegerValue());
             } else {
-                writeNumber(jp.getLongValue());
+                writeNumber(p.getLongValue());
             }
             break;
         }
         case ID_NUMBER_FLOAT:
         {
-            NumberType n = jp.getNumberType();
+            NumberType n = p.getNumberType();
             if (n == NumberType.BIG_DECIMAL) {
-                writeNumber(jp.getDecimalValue());
+                writeNumber(p.getDecimalValue());
             } else if (n == NumberType.FLOAT) {
-                writeNumber(jp.getFloatValue());
+                writeNumber(p.getFloatValue());
             } else {
-                writeNumber(jp.getDoubleValue());
+                writeNumber(p.getDoubleValue());
             }
             break;
         }
@@ -1546,7 +1546,7 @@ public abstract class JsonGenerator
             writeNull();
             break;
         case ID_EMBEDDED_OBJECT:
-            writeObject(jp.getEmbeddedObject());
+            writeObject(p.getEmbeddedObject());
             break;
         default:
             _throwInternal();
@@ -1583,37 +1583,37 @@ public abstract class JsonGenerator
      * the event parser already pointed to (if there were no
      * enclosed events), or the last enclosed event copied.
      */
-    public void copyCurrentStructure(JsonParser jp) throws IOException
+    public void copyCurrentStructure(JsonParser p) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == null) {
             _reportError("No current event to copy");
         }
         // Let's handle field-name separately first
         int id = t.id();
         if (id == ID_FIELD_NAME) {
-            writeFieldName(jp.getCurrentName());
-            t = jp.nextToken();
+            writeFieldName(p.getCurrentName());
+            t = p.nextToken();
             id = t.id();
             // fall-through to copy the associated value
         }
         switch (id) {
         case ID_START_OBJECT:
             writeStartObject();
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
-                copyCurrentStructure(jp);
+            while (p.nextToken() != JsonToken.END_OBJECT) {
+                copyCurrentStructure(p);
             }
             writeEndObject();
             break;
         case ID_START_ARRAY:
             writeStartArray();
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(jp);
+            while (p.nextToken() != JsonToken.END_ARRAY) {
+                copyCurrentStructure(p);
             }
             writeEndArray();
             break;
         default:
-            copyCurrentEvent(jp);
+            copyCurrentEvent(p);
         }
     }
 

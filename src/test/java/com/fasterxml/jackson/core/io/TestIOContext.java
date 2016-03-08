@@ -24,7 +24,7 @@ public class TestIOContext
         try {
             ctxt.releaseReadIOBuffer(new byte[1]);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "not owned");
+            verifyException(e, "smaller than original");
         }
         // but call with null is a NOP for convenience
         ctxt.releaseReadIOBuffer(null);
@@ -40,7 +40,7 @@ public class TestIOContext
         try {
             ctxt.releaseWriteEncodingBuffer(new byte[1]);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "not owned");
+            verifyException(e, "smaller than original");
         }
         ctxt.releaseWriteEncodingBuffer(null);
 
@@ -55,7 +55,7 @@ public class TestIOContext
         try {
             ctxt.releaseTokenBuffer(new char[1]);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "not owned");
+            verifyException(e, "smaller than original");
         }
         ctxt.releaseTokenBuffer(null);
 
@@ -70,7 +70,7 @@ public class TestIOContext
         try {
             ctxt.releaseConcatBuffer(new char[1]);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "not owned");
+            verifyException(e, "smaller than original");
         }
         ctxt.releaseConcatBuffer(null);
 
@@ -85,7 +85,7 @@ public class TestIOContext
         try {
             ctxt.releaseNameCopyBuffer(new char[1]);
         } catch (IllegalArgumentException e) {
-            verifyException(e, "not owned");
+            verifyException(e, "smaller than original");
         }
         ctxt.releaseNameCopyBuffer(null);
     }

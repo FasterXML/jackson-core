@@ -18,6 +18,7 @@ JSON library.
 
 #253: Add `JsonGenerator. writeEmbeddedObject()` to allow writes of opaque native types
  (suggested by Gregoire C)
+#255: Relax ownership checks for buffers not to require increase in size
 
 2.7.2 (26-Feb-2016)
 

@@ -65,6 +65,10 @@ public class Version
     public static Version unknownVersion() { return UNKNOWN_VERSION; }
 
     public boolean isUknownVersion() { return (this == UNKNOWN_VERSION); }
+
+    // Added in patch 2.5.6 (added for good in 2.7)
+    public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
+
     public boolean isSnapshot() { return (_snapshotInfo != null && _snapshotInfo.length() > 0); }
     
     public int getMajorVersion() { return _majorVersion; }

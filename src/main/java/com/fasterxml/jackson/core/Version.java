@@ -68,6 +68,7 @@ public class Version
      * @since 2.7 to replace misspelled {@link #isUknownVersion()}
      */
     public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
+
     public boolean isSnapshot() { return (_snapshotInfo != null && _snapshotInfo.length() > 0); }
 
     /**

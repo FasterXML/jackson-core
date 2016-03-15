@@ -260,6 +260,20 @@ public abstract class JsonParser
      * are enabled.
      */
     protected int _features;
+    
+    /**
+     * Boolean field to include the request body in the exception
+     * default value is false
+     */
+    protected boolean addRequestBodyOnError;
+    
+    public boolean isaddRequestBodyOnError() {
+		return addRequestBodyOnError;
+	}
+	public void addRequestBodyOnError(boolean addRequestBodyOnError) {
+		this.addRequestBodyOnError = addRequestBodyOnError;
+	}
+	
 
     /*
     /**********************************************************
@@ -1177,7 +1191,7 @@ public abstract class JsonParser
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         throw new JsonParseException(this,
-                String.format("Current token (%s) not of boolean type", t));
+                String.format("Current token (%s) not of boolean type", t),addRequestBodyOnError);
     }
 
     /**
@@ -1583,7 +1597,7 @@ public abstract class JsonParser
      * based on current state of the parser
      */
     protected JsonParseException _constructError(String msg) {
-        return new JsonParseException(this, msg);
+        return new JsonParseException(this, msg, addRequestBodyOnError);
     }
 
     /**

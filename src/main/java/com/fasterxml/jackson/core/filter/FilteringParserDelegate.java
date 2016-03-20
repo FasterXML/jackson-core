@@ -221,6 +221,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override
     public JsonToken nextToken() throws IOException
     {
+    	//Check for _allowMultipleMatches - false and atleast there is one token - which is _currToken
+    	// and check for _itemFilter matching INCLUDE_ALL. 
+    	//If all the conditions matches then return null
+    	if(!_allowMultipleMatches && _currToken != null 
+    			&& _itemFilter == TokenFilter.INCLUDE_ALL){
+    		return null;
+    	}
         // Anything buffered?
         TokenFilterContext ctxt = _exposedContext;
 

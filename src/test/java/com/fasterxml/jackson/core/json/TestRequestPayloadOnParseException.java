@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-public class TestRequestBodyOnParseException extends BaseTest {
+public class TestRequestPayloadOnParseException extends BaseTest {
 	
 	/**
 	 * Tests for Request body data on parsing error
@@ -34,15 +34,15 @@ public class TestRequestBodyOnParseException extends BaseTest {
 		final String doc = "{ \"key1\" : "+value+" }";
 	     JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8")
 	                : createParserUsingReader(doc);
-	     jp.setRequestBodyOnError(doc.getBytes(), "UTF-8");
+	     jp.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
 	     assertToken(JsonToken.START_OBJECT, jp.nextToken());
 	     try{
 	    	 jp.nextToken();
 	    	 fail("Expecting parsing exception");
 	     }
 	     catch(JsonParseException ex){
-	    	 assertEquals("Request body data should match", doc, ex.getRequestBody());
-	    	 assertTrue("Message contains request body", ex.getMessage().contains("Request Body : "+doc));
+	    	 assertEquals("Request payload data should match", doc, ex.getRequestPayload());
+	    	 assertTrue("Message contains request body", ex.getMessage().contains("Request Payload : "+doc));
 	     }
 	}
 
@@ -56,7 +56,7 @@ public class TestRequestBodyOnParseException extends BaseTest {
 	    	 fail("Expecting parsing exception");
 	     }
 	     catch(JsonParseException ex){
-	    	 assertEquals("Request body data should be empty", "", ex.getRequestBody());
+	    	 assertEquals("Request payload data should be null", null, ex.getRequestPayload());
 	     }
 	}
 }

@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.RequestPayloadWrapper;
 
 /**
  * Base class that defines public API for reading JSON content.
@@ -262,22 +263,17 @@ public abstract class JsonParser
     protected int _features;
     
     /**
-     * Byte[] to be included as the request body in case of error
+     * Wrapper object holding the request payload which will be displayed on json parsing error
      */
-    protected byte[] requestBodyOnError;
+    protected RequestPayloadWrapper requestPayloadWrapper;
     
     /**
-     * Charset for the request body in case of error
+     * Sets the byte[] request payload and the charset
+     * @param requestPayloadOnError
+     * @param charset
      */
-    protected String requestBodyCharset;
-    
-    /**
-     * Sets the byte[] request body and the charset
-     * @param requestBodyOnError
-     */
-	public void setRequestBodyOnError(byte[] requestBodyOnError, String charset) {
-		this.requestBodyOnError = requestBodyOnError;
-		this.requestBodyCharset = charset;
+	public void setRequestPayloadOnError(byte[] requestPayloadOnError, String charset) {
+		this.requestPayloadWrapper = new RequestPayloadWrapper(requestPayloadOnError, charset);
 	}
 	
 
@@ -1197,7 +1193,7 @@ public abstract class JsonParser
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         throw new JsonParseException(this,
-                String.format("Current token (%s) not of boolean type", t), requestBodyOnError, requestBodyCharset);
+                String.format("Current token (%s) not of boolean type", t), requestPayloadWrapper);
     }
 
     /**
@@ -1603,7 +1599,7 @@ public abstract class JsonParser
      * based on current state of the parser
      */
     protected JsonParseException _constructError(String msg) {
-        return new JsonParseException(this, msg, requestBodyOnError, requestBodyCharset);
+        return new JsonParseException(this, msg, requestPayloadWrapper);
     }
 
     /**

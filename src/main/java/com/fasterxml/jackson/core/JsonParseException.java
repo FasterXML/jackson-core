@@ -13,6 +13,8 @@ import java.io.StringWriter;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
+import com.fasterxml.jackson.core.util.RequestPayloadWrapper;
+
 /**
  * Exception type for parsing problems, used when non-well-formed content
  * (content that does not conform to JSON syntax as per specification)
@@ -22,8 +24,7 @@ public class JsonParseException extends JsonProcessingException {
     private static final long serialVersionUID = 2L; // 2.7
 
     protected JsonParser _processor;
-    protected byte[] requestBody;
-    protected String requestBodyCharset;
+    protected RequestPayloadWrapper requestPayload;
 
     @Deprecated // since 2.7
     public JsonParseException(String msg, JsonLocation loc) {
@@ -76,28 +77,24 @@ public class JsonParseException extends JsonProcessingException {
      Extended Constructors for setting the Request Body in the exception
      *******************************************************************
      */
-    public JsonParseException(JsonParser p, String msg, byte[] requestBody, String requestBodyCharset) {
+    public JsonParseException(JsonParser p, String msg, RequestPayloadWrapper requestPayload) {
         this(p, msg);
-        this.requestBody = requestBody;
-        this.requestBodyCharset = requestBodyCharset;
+        this.requestPayload = requestPayload;
     }
 
-    public JsonParseException(JsonParser p, String msg, Throwable root, byte[] requestBody, String requestBodyCharset) {
+    public JsonParseException(JsonParser p, String msg, Throwable root, RequestPayloadWrapper requestPayload) {
         this(p, msg, root);
-        this.requestBody = requestBody;
-        this.requestBodyCharset = requestBodyCharset;
+        this.requestPayload = requestPayload;
     }
 
-    public JsonParseException(JsonParser p, String msg, JsonLocation loc, byte[] requestBody, String requestBodyCharset) {
+    public JsonParseException(JsonParser p, String msg, JsonLocation loc, RequestPayloadWrapper requestPayload) {
         this(p, msg, loc);
-        this.requestBody = requestBody;
-        this.requestBodyCharset = requestBodyCharset;
+        this.requestPayload = requestPayload;
     }
     
-    public JsonParseException(JsonParser p, String msg, JsonLocation loc, Throwable root, byte[] requestBody, String requestBodyCharset) {
+    public JsonParseException(JsonParser p, String msg, JsonLocation loc, Throwable root, RequestPayloadWrapper requestPayload) {
         this(p, msg, loc, root);
-        this.requestBody = requestBody;
-        this.requestBodyCharset = requestBodyCharset;
+        this.requestPayload = requestPayload;
     }
 
     /**
@@ -117,15 +114,11 @@ public class JsonParseException extends JsonProcessingException {
     }
 
     /**
-     * Method to get the request body as string
+     * Method to get the request payload as string if present
      * @return request body
      */
-    public String getRequestBody(){
-    	String requestBodyStr = "";
-    	if(requestBody != null){
-    		requestBodyStr = new String(requestBody, Charset.forName(requestBodyCharset));
-    	}
-    	return requestBodyStr;
+    public String getRequestPayload(){
+    	return requestPayload != null ? requestPayload.toString() : null;
     }
     
     /**
@@ -134,7 +127,7 @@ public class JsonParseException extends JsonProcessingException {
     @Override 
     public String getMessage() {
     	String msg = super.getMessage();
-    	return requestBody != null ? (msg + "\nRequest Body : " + getRequestBody()) : msg;
+    	return requestPayload != null ? (msg + "\nRequest Payload : " + getRequestPayload()) : msg;
     }
 
     

@@ -756,6 +756,26 @@ public abstract class JsonGenerator
     public abstract void writeStartObject() throws IOException;
 
     /**
+     * Method for writing starting marker of a JSON Object value
+     * (character '{'; plus possible white space decoration
+     * if pretty-printing is enabled), to represent Java given
+     * as the argument. Argument is offered as metadata, but more
+     * importantly it should be assigned as the "current value"
+     * for the Object content that gets constructed and initialized.
+     *<p>
+     * Object values can be written in any context where values
+     * are allowed: meaning everywhere except for when
+     * a field name is expected.
+     *
+     * @since 2.8.
+     */
+    public void writeStartObject(Object forValue) throws IOException
+    {
+        writeStartObject();
+        setCurrentValue(forValue);
+    }
+
+    /**
      * Method for writing closing marker of a JSON Object value
      * (character '}'; plus possible white space decoration
      * if pretty-printing is enabled).

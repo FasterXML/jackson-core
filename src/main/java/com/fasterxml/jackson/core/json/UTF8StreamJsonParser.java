@@ -15,8 +15,6 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 /**
  * This is a concrete implementation of {@link JsonParser}, which is
  * based on a {@link java.io.InputStream} as the input source.
- *<p>
- * Note: non-final since version 2.3.
  */
 public class UTF8StreamJsonParser
     extends ParserBase
@@ -870,7 +868,15 @@ public class UTF8StreamJsonParser
         }
         return (_currToken = t);
     }
-    
+
+    @Override
+    public void finishToken() throws IOException {
+        if (_tokenIncomplete) {
+            _tokenIncomplete = false;
+            _finishString(); // only strings can be incomplete
+        }
+    }
+
     /*
     /**********************************************************
     /* Public API, traversal, nextXxxValue/nextFieldName

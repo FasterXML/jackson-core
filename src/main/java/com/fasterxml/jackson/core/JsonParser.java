@@ -736,7 +736,22 @@ public abstract class JsonParser
      * available token, if any.
      */
     public abstract JsonParser skipChildren() throws IOException, JsonParseException;
-    
+
+    /**
+     * Method that may be used to force full handling of the current token
+     * so that even if lazy processing is enabled, the whole contents are
+     * read for possible retrieval. This is usually used to ensure that
+     * the token end location is available, as well as token contents
+     * (similar to what calling, say {@link #getTextCharacters()}, would
+     * achieve).
+     *<p>
+     * Note that for many implementations for other dataformats this method
+     * will not do anything.
+     *
+     * @since 2.8
+     */
+    public abstract void finishToken() throws IOException;
+
     /**
      * Method that can be called to determine whether this parser
      * is closed or not. If it is closed, no new tokens can be

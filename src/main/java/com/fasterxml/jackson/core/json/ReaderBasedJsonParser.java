@@ -600,9 +600,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         int i = _skipWSOrEnd();
         if (i < 0) { // end-of-input
-            /* 19-Feb-2009, tatu: Should actually close/release things
-             *    like input source, symbol table and recyclable buffers now.
-             */
+            // Should actually close/release things
+            // like input source, symbol table and recyclable buffers now.
             close();
             return (_currToken = null);
         }
@@ -732,6 +731,14 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
         }
         return (_currToken = t);
+    }
+
+    @Override
+    public void finishToken() throws IOException {
+        if (_tokenIncomplete) {
+            _tokenIncomplete = false;
+            _finishString(); // only strings can be incomplete
+        }
     }
 
     /*

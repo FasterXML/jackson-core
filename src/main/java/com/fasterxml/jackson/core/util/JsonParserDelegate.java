@@ -209,6 +209,8 @@ public class JsonParserDelegate extends JsonParser
     @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
     @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
     @Override public JsonToken nextValue() throws IOException { return delegate.nextValue(); }
+
+    @Override public void finishToken() throws IOException { delegate.finishToken(); }
     
     @Override
     public JsonParser skipChildren() throws IOException {

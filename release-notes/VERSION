@@ -20,6 +20,7 @@ JSON library.
  (suggested by Gregoire C)
 #255: Relax ownership checks for buffers not to require increase in size
 #257: Add `writeStartObject(Object pojo)` to streamline assignment of current value
+#280: Add `JsonParser.finishToken()` to force full, non-lazy reading of current token
 
 2.7.4 (not yet released)
 

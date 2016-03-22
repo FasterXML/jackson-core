@@ -75,3 +75,7 @@ Michael Lehenbauer (mikelehen@github)
   * Reported #37: JsonParser.getTokenLocation() doesn't update after field names
    (2.7.0)
 
+Lokesh Kumar N (LokeshN@github)
+  * Contributed #209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`
+   (2.7.4)
+

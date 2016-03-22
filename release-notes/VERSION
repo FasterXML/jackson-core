@@ -14,6 +14,13 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.0 (not yet released)
+
+#253: Add `JsonGenerator. writeEmbeddedObject()` to allow writes of opaque native types
+ (suggested by Gregoire C)
+#255: Relax ownership checks for buffers not to require increase in size
+#257: Add `writeStartObject(Object pojo)` to streamline assignment of current value
+
 2.7.4 (not yet released)
 
 #209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`

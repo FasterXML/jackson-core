@@ -195,7 +195,7 @@ public final class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeStartArray() throws IOException, JsonGenerationException
+    public void writeStartArray() throws IOException
     {
         _verifyValueWrite("start an array");
         _writeContext = _writeContext.createChildArrayContext();
@@ -210,7 +210,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeEndArray() throws IOException, JsonGenerationException
+    public void writeEndArray() throws IOException
     {
         if (!_writeContext.inArray()) {
             _reportError("Current context not an ARRAY but "+_writeContext.getTypeDesc());
@@ -226,8 +226,27 @@ public final class WriterBasedJsonGenerator
         _writeContext = _writeContext.clearAndGetParent();
     }
 
+    @Override // since 2.8
+    public void writeStartObject(Object forValue) throws IOException
+    {
+        _verifyValueWrite("start an object");
+        JsonWriteContext ctxt = _writeContext.createChildObjectContext();
+        _writeContext = ctxt;
+        if (forValue != null) {
+            ctxt.setCurrentValue(forValue);
+        }
+        if (_cfgPrettyPrinter != null) {
+            _cfgPrettyPrinter.writeStartObject(this);
+        } else {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = '{';
+        }
+    }
+    
     @Override
-    public void writeStartObject() throws IOException, JsonGenerationException
+    public void writeStartObject() throws IOException
     {
         _verifyValueWrite("start an object");
         _writeContext = _writeContext.createChildObjectContext();
@@ -242,7 +261,7 @@ public final class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeEndObject() throws IOException, JsonGenerationException
+    public void writeEndObject() throws IOException
     {
         if (!_writeContext.inObject()) {
             _reportError("Current context not an object but "+_writeContext.getTypeDesc());

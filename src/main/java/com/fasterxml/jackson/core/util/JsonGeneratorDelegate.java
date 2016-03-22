@@ -200,6 +200,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeStartObject() throws IOException { delegate.writeStartObject(); }
+
+    @Override
+    public void writeStartObject(Object forValue) throws IOException { delegate.writeStartObject(forValue); }
     
     @Override
     public void writeEndObject() throws IOException { delegate.writeEndObject(); }
@@ -326,6 +329,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     
     @Override
     public void writeTypeId(Object id) throws IOException { delegate.writeTypeId(id); }
+
+    @Override
+    public void writeEmbeddedObject(Object object) throws IOException { delegate.writeEmbeddedObject(object); }
     
     /*
     /**********************************************************

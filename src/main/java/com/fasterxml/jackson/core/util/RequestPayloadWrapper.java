@@ -21,7 +21,7 @@ public class RequestPayloadWrapper {
 	public String toString() {
 		//if request payload is null, return
 		if(requestPayload == null){
-			return "";
+			return null;
 		}
 		
 		//check if charset is present, if not use the default charset

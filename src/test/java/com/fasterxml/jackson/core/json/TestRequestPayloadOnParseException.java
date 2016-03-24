@@ -10,27 +10,45 @@ import com.fasterxml.jackson.core.JsonToken;
 public class TestRequestPayloadOnParseException extends BaseTest {
 	
 	/**
-	 * Tests for Request body data on parsing error
+	 * Tests for Request payload data on parsing error
 	 * @throws Exception
 	 */
-	public void testRequestBodyOnParseException() throws Exception{
-		testRequestBodyOnParseExceptionInternal(true,"nul");
-		testRequestBodyOnParseExceptionInternal(false,"nul");
+	public void testRequestPayloadOnParseException() throws Exception{
+		testRequestPayloadOnParseExceptionInternal(true,"nul");
+		testRequestPayloadOnParseExceptionInternal(false,"nul");
 	}
 	
 	/**
-	 * Tests for no Request body data on parsing error
+	 * Tests for no Request payload data on parsing error
 	 * @throws Exception
 	 */
-	public void testNoRequestBodyOnParseException() throws Exception{
-		testNoRequestBodyOnParseExceptionInternal(true,"nul");
-		testNoRequestBodyOnParseExceptionInternal(false,"nul");
+	public void testNoRequestPayloadOnParseException() throws Exception{
+		testNoRequestPayloadOnParseExceptionInternal(true,"nul");
+		testNoRequestPayloadOnParseExceptionInternal(false,"nul");
+	}
+	
+	/**
+	 * Tests for Request payload data which is null
+	 * @throws Exception
+	 */
+	public void testNullRequestPayloadOnParseException() throws Exception{
+		testNullRequestPayloadOnParseExceptionInternal(true,"nul");
+		testNullRequestPayloadOnParseExceptionInternal(false,"nul");
+	}
+	
+	/**
+	 * Tests for null Charset in Request payload data
+	 * @throws Exception
+	 */
+	public void testNullCharsetOnParseException() throws Exception{
+		testNullCharsetOnParseExceptionInternal(true,"nul");
+		testNullCharsetOnParseExceptionInternal(false,"nul");
 	}
 	
 	/*
 	 * *******************Private Methods*************************
 	 */
-	private void testRequestBodyOnParseExceptionInternal(boolean isStream, String value) throws Exception{
+	private void testRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception{
 		final String doc = "{ \"key1\" : "+value+" }";
 	     JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8")
 	                : createParserUsingReader(doc);
@@ -46,7 +64,7 @@ public class TestRequestPayloadOnParseException extends BaseTest {
 	     }
 	}
 
-	private void testNoRequestBodyOnParseExceptionInternal(boolean isStream, String value) throws Exception{
+	private void testNoRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception{
 		final String doc = "{ \"key1\" : "+value+" }";
 	     JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8")
 	                : createParserUsingReader(doc);
@@ -57,6 +75,37 @@ public class TestRequestPayloadOnParseException extends BaseTest {
 	     }
 	     catch(JsonParseException ex){
 	    	 assertEquals("Request payload data should be null", null, ex.getRequestPayload());
+	     }
+	}
+	
+	private void testNullRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception{
+		final String doc = "{ \"key1\" : "+value+" }";
+	     JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8")
+	                : createParserUsingReader(doc);
+	     jp.setRequestPayloadOnError(null, "UTF-8");
+	     assertToken(JsonToken.START_OBJECT, jp.nextToken());
+	     try{
+	    	 jp.nextToken();
+	    	 fail("Expecting parsing exception");
+	     }
+	     catch(JsonParseException ex){
+	    	 assertEquals("Request payload data should be null", null, ex.getRequestPayload());
+	     }
+	}
+	
+	private void testNullCharsetOnParseExceptionInternal(boolean isStream, String value) throws Exception{
+		final String doc = "{ \"key1\" : "+value+" }";
+	     JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8")
+	                : createParserUsingReader(doc);
+	     jp.setRequestPayloadOnError(doc.getBytes(), "");
+	     assertToken(JsonToken.START_OBJECT, jp.nextToken());
+	     try{
+	    	 jp.nextToken();
+	    	 fail("Expecting parsing exception");
+	     }
+	     catch(JsonParseException ex){
+	    	 assertEquals("Request payload data should match", doc, ex.getRequestPayload());
+	    	 assertTrue("Message contains request body", ex.getMessage().contains("Request Payload : "+doc));
 	     }
 	}
 }

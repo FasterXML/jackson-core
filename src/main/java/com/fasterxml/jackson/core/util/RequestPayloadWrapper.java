@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
  */
 public class RequestPayloadWrapper {
 	
+	private static final String DEFAULT_CHARSET = "UTF-8";
 	private byte[] requestPayload;
 	private String charset;
 	
@@ -18,11 +19,21 @@ public class RequestPayloadWrapper {
 
 	@Override
 	public String toString() {
-		String requestPayloadStr = "";
-		if(requestPayload != null){
-			requestPayloadStr = new String(requestPayload, Charset.forName(charset));
+		//if request payload is null, return
+		if(requestPayload == null){
+			return "";
 		}
-		return requestPayloadStr;
+		
+		//check if charset is present, if not use the default charset
+		Charset charsetObj = null;
+		if(charset == null || "".equals(charset.trim())){
+			charsetObj = Charset.forName(DEFAULT_CHARSET);
+		}
+		else{
+			charsetObj = Charset.forName(charset);
+		}
+		
+		return (new String(requestPayload, charsetObj));
 	}
 	
 	

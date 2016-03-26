@@ -154,7 +154,7 @@ public final class JsonStringEncoder
      *
      * Use this variant if you have e.g. a {@link StringBuilder} and want to avoid superfluous copying of it.
      */
-    public char[] quoteAsString(CharSequence input)
+    public char[] quoteCharSequenceAsString(CharSequence input)
     {
         TextBuffer textBuffer = _text;
         if (textBuffer == null) {

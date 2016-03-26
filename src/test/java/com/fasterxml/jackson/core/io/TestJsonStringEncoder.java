@@ -20,16 +20,16 @@ public class TestJsonStringEncoder
         assertArrayEquals("\\\"x\\\"".toCharArray(), result);
     }
 
-    public void testQuoteAsString2() throws Exception
+    public void testQuoteCharSequenceAsString() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();
         StringBuilder builder = new StringBuilder();
         builder.append("foobar");
-        char[] result = encoder.quoteAsString(builder);
+        char[] result = encoder.quoteCharSequenceAsString(builder);
         assertArrayEquals("foobar".toCharArray(), result);
         builder.setLength(0);
         builder.append("\"x\"");
-        result = encoder.quoteAsString(builder);
+        result = encoder.quoteCharSequenceAsString(builder);
         assertArrayEquals("\\\"x\\\"".toCharArray(), result);
     }
 
@@ -52,7 +52,7 @@ public class TestJsonStringEncoder
     }
 
     // For [JACKSON-853]
-    public void testQuoteLongAsString2() throws Exception
+    public void testQuoteLongCharSequenceAsString() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();
         StringBuilder input = new StringBuilder();
@@ -62,7 +62,7 @@ public class TestJsonStringEncoder
             sb2.append("\\\"");
         }
         String exp = sb2.toString();
-        char[] result = encoder.quoteAsString(input);
+        char[] result = encoder.quoteCharSequenceAsString(input);
         assertEquals(2*input.length(), result.length);
         assertEquals(exp, new String(result));
 
@@ -114,12 +114,12 @@ public class TestJsonStringEncoder
     }
 
     // [JACKSON-884]
-    public void testCtrlChars2() throws Exception
+    public void testCharSequenceWithCtrlChars() throws Exception
     {
         char[] input = new char[] { 0, 1, 2, 3, 4 };
         StringBuilder builder = new StringBuilder();
         builder.append(input);
-        char[] quoted = JsonStringEncoder.getInstance().quoteAsString(builder);
+        char[] quoted = JsonStringEncoder.getInstance().quoteCharSequenceAsString(builder);
         assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", new String(quoted));
     }
 

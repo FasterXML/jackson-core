@@ -208,7 +208,20 @@ public abstract class JsonParser
           *
           * @since 2.6
           */
-         IGNORE_UNDEFINED(false)
+         IGNORE_UNDEFINED(false),
+         
+         
+         /**
+          * Feature allows the support for missing values in a JSON array. Enabling this feature 
+          * will replace any missing value by null in the JSON array.
+          * <p>
+          * For example, enabling this feature will represent a JSON array <code>["value1",,"value3",]</code>
+          * as <code>["value1", null, "value3", null]</code> 
+          * <p>
+          * Since the JSON specification does not allow missing values, this is a non-compliant JSON
+          * feature, and is disabled by default
+          */
+         ALLOW_MISSING_VALUES(false)
          ;
 
         /**

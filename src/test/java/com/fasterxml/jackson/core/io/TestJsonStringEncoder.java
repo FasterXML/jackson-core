@@ -51,7 +51,6 @@ public class TestJsonStringEncoder
         
     }
 
-    // For [JACKSON-853]
     public void testQuoteLongCharSequenceAsString() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();

@@ -106,10 +106,10 @@ public class TestArrayParsing
     }
     
     private void _testMissingValueByEnablingFeature(boolean useStream) throws Exception {
-    	final String DOC = "[ \"a\",,,,\"abc\", ] ";
+        String DOC = "[ \"a\",,,,\"abc\", ] ";
 
-    	JsonFactory f = new JsonFactory();
-    	f.configure(JsonParser.Feature.ALLOW_MISSING_VALUES, true);
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_MISSING_VALUES, true);
     	
         JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
    			          : createParserUsingReader(f, DOC);
@@ -124,7 +124,21 @@ public class TestArrayParsing
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertToken(JsonToken.VALUE_NULL, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertNull(jp.nextToken());
              
+        jp.close();
+
+        // And another take
+        DOC = "[,] ";
+        jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+                : createParserUsingReader(f, DOC);
+
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertNull(jp.nextToken());
+
         jp.close();
     }
     

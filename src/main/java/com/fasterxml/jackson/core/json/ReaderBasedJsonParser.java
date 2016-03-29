@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -667,20 +666,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             t = JsonToken.START_OBJECT;
             break;
-        /*
-         * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
-         * The Check is for missing values. Incase of missing values in an array, the next token will be either ',' or ']'.
-         * This case, decrements the already incremented _inputPtr in the buffer in case of comma(,) 
-         * so that the existing flow goes back to checking the next token which will be comma again and
-         * it continues the parsing.
-         * Also the case returns NULL as current token in case of ',' or ']'.    
-         */
-        case ',':
-        case ']':
-        	if(isEnabled(Feature.ALLOW_MISSING_VALUES)) {
-        		_inputPtr--;
-        		return (_currToken = JsonToken.VALUE_NULL);  
-        	}    
         case '}':
             // Error: } is not valid at this point; valid closers have
             // been handled earlier
@@ -1817,15 +1802,28 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         // Most likely an error, unless we are to allow single-quote-strings
         switch (i) {
         case '\'':
-            /* [JACKSON-173]: allow single quotes. Unlike with regular
-             * Strings, we'll eagerly parse contents; this so that there's
-             * no need to store information on quote char used.
-             *
+            /* Allow single quotes? Unlike with regular Strings, we'll eagerly parse
+             * contents; this so that there'sno need to store information on quote char used.
              * Also, no separation to fast/slow parsing; we'll just do
              * one regular (~= slowish) parsing, to keep code simple
              */
             if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
                 return _handleApos();
+            }
+            break;
+        case ']':
+            /* 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
+             *   we may allow "missing values", that is, encountering a trailing
+             *   comma or closing marker where value would be expected
+             */
+            if (!_parsingContext.inArray()) {
+                break;
+            }
+            // fall through
+        case ',':
+            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+                --_inputPtr;
+                return JsonToken.VALUE_NULL;
             }
             break;
         case 'N':

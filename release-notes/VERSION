@@ -16,6 +16,8 @@ JSON library.
 
 2.8.0 (not yet released)
 
+#117: Add `JsonParser.Feature.ALLOW_MISSING_VALUES` to support for missing values
+ (contributed by LokeshN)
 #253: Add `JsonGenerator. writeEmbeddedObject()` to allow writes of opaque native types
  (suggested by Gregoire C)
 #255: Relax ownership checks for buffers not to require increase in size

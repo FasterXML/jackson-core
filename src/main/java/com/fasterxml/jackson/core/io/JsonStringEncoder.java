@@ -151,8 +151,9 @@ public final class JsonStringEncoder
     /**
      * Method that will quote text contents using JSON standard quoting,
      * and return results as a character array
-     *
      * Use this variant if you have e.g. a {@link StringBuilder} and want to avoid superfluous copying of it.
+     *
+     * @since 2.8
      */
     public char[] quoteCharSequenceAsString(CharSequence input)
     {

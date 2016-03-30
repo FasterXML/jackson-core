@@ -81,3 +81,6 @@ Lokesh Kumar N (LokeshN@github)
   * Contributed fix for #117: Support for missing values (non-compliant JSON)
    (2.8.0)
 
+Mikael Staldal (mikaelstaldal@github)
+  * Contributed fix for #265: `JsonStringEncoder` should allow passing `CharSequence`
+   (2.8.0)

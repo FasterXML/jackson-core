@@ -20,6 +20,19 @@ public class TestJsonStringEncoder
         assertArrayEquals("\\\"x\\\"".toCharArray(), result);
     }
 
+    public void testQuoteCharSequenceAsString() throws Exception
+    {
+        JsonStringEncoder encoder = new JsonStringEncoder();
+        StringBuilder builder = new StringBuilder();
+        builder.append("foobar");
+        char[] result = encoder.quoteCharSequenceAsString(builder);
+        assertArrayEquals("foobar".toCharArray(), result);
+        builder.setLength(0);
+        builder.append("\"x\"");
+        result = encoder.quoteCharSequenceAsString(builder);
+        assertArrayEquals("\\\"x\\\"".toCharArray(), result);
+    }
+
     // For [JACKSON-853]
     public void testQuoteLongAsString() throws Exception
     {
@@ -37,7 +50,23 @@ public class TestJsonStringEncoder
         assertEquals(exp, new String(result));
         
     }
-    
+
+    public void testQuoteLongCharSequenceAsString() throws Exception
+    {
+        JsonStringEncoder encoder = new JsonStringEncoder();
+        StringBuilder input = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        for (int i = 0; i < 1111; ++i) {
+            input.append('"');
+            sb2.append("\\\"");
+        }
+        String exp = sb2.toString();
+        char[] result = encoder.quoteCharSequenceAsString(input);
+        assertEquals(2*input.length(), result.length);
+        assertEquals(exp, new String(result));
+
+    }
+
     public void testQuoteAsUTF8() throws Exception
     {
         // In this case, let's actually use existing JsonGenerator to produce expected values
@@ -82,7 +111,17 @@ public class TestJsonStringEncoder
         char[] quoted = JsonStringEncoder.getInstance().quoteAsString(new String(input));
         assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", new String(quoted));
     }
-    
+
+    // [JACKSON-884]
+    public void testCharSequenceWithCtrlChars() throws Exception
+    {
+        char[] input = new char[] { 0, 1, 2, 3, 4 };
+        StringBuilder builder = new StringBuilder();
+        builder.append(input);
+        char[] quoted = JsonStringEncoder.getInstance().quoteCharSequenceAsString(builder);
+        assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", new String(quoted));
+    }
+
     /*
     /**********************************************************
     /* Helper methods

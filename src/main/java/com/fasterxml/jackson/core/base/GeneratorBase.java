@@ -242,7 +242,7 @@ public abstract class GeneratorBase extends JsonGenerator
         return this;
     }
 
-    @Override public final ObjectCodec getCodec() { return _objectCodec; }
+    @Override public ObjectCodec getCodec() { return _objectCodec; }
 
     /*
     /**********************************************************
@@ -253,7 +253,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Note: co-variant return type.
      */
-    @Override public final JsonWriteContext getOutputContext() { return _writeContext; }
+    @Override public JsonWriteContext getOutputContext() { return _writeContext; }
 
     /*
     /**********************************************************

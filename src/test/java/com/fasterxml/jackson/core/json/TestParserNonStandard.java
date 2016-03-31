@@ -71,6 +71,14 @@ public class TestParserNonStandard
         _testAllowInf(false);
         _testAllowInf(true);
     }
+
+    // [#118]: allow trailing commas
+    public void testAllowTrailingCommas() throws Exception {
+        _testAllowTrailingCommaInArray(false);
+        _testAllowTrailingCommaInArray(true);
+        _testAllowTrailingCommaInObject(false);
+        _testAllowTrailingCommaInObject(true);
+    }
     
     /*
     /****************************************************************
@@ -501,5 +509,178 @@ public class TestParserNonStandard
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         
         jp.close();
+    }
+
+    private void _testAllowTrailingCommaInArray(boolean useStream) throws Exception {
+        String json = "[true,]";
+        JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_TRAILING_COMMAS));
+
+        // Without enabling, should get an exception
+        JsonParser jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        try {
+            jp.nextToken();
+            fail("Expected exception");
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character (']' (code 93)): expected a value");
+        } finally {
+            jp.close();
+        }
+
+        // Enable feature
+        f.configure(JsonParser.Feature.ALLOW_TRAILING_COMMAS, true);
+
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
+
+        // Try with a more advanced case
+        json = "[true, 3, \"a\", null,]";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        jp.close();
+
+        // Consecutive trailing commas are prohibited
+        json = "[true,,]";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        try {
+            jp.nextToken();
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character (',' (code 44)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
+        } finally {
+            jp.close();
+        }
+
+        // Spurious commas are prohibited
+        json = "[,true]";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        try {
+            jp.nextToken();
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character (',' (code 44)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
+        } finally {
+            jp.close();
+        }
+
+        // Empty with comma is prohibited
+        json = "[,]";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        try {
+            jp.nextToken();
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character (',' (code 44)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
+        } finally {
+            jp.close();
+        }
+    }
+
+    private void _testAllowTrailingCommaInObject(boolean useStream) throws Exception {
+        String json = "{\"a\": true,}";
+        JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_TRAILING_COMMAS));
+
+        // Without enabling, should get an exception
+        JsonParser jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        try {
+            jp.nextToken();
+            fail("Expected exception");
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character ('}' (code 125)): was expecting double-quote to start field name");
+        } finally {
+            jp.close();
+        }
+
+        // Enable feature
+        f.configure(JsonParser.Feature.ALLOW_TRAILING_COMMAS, true);
+
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
+
+        // Check with a more advanced case
+        json = "{ \"a\": true, \"b\": 3, \"c\": null, }";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
+
+        // Consecutive trailing commas are prohibited
+        json = "{\"a\": true,,}";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        try {
+            jp.nextToken();
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character (',' (code 44)): was expecting double-quote to start field name");
+        } finally {
+            jp.close();
+        }
+
+        // Spurious commas are prohibited
+        json = "{,\"a\": true}";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        try {
+            jp.nextToken();
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character (',' (code 44)): was expecting double-quote to start field name");
+        } finally {
+            jp.close();
+        }
+
+        // Empty with comma is prohibited
+        json = "{,}";
+        jp = useStream ? createParserUsingStream(f, json, "UTF-8")
+            : createParserUsingReader(f, json);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        try {
+            jp.nextToken();
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character (',' (code 44)): was expecting double-quote to start field name");
+        } finally {
+            jp.close();
+        }
     }
 }

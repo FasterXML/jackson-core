@@ -712,21 +712,9 @@ public class UTF8StreamJsonParser
         _binaryValue = null;
 
         // Closing scope?
-        if (i == INT_RBRACKET) {
-            _updateLocation();
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            return (_currToken = JsonToken.END_ARRAY);
-        }
-        if (i == INT_RCURLY) {
-            _updateLocation();
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            return (_currToken = JsonToken.END_OBJECT);
+        if (i == INT_RBRACKET || i == INT_RCURLY) {
+            _closeScope(i);
+            return _currToken;
         }
 
         // Nope: do we then expect a comma?
@@ -735,6 +723,12 @@ public class UTF8StreamJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
             }
             i = _skipWS();
+
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMAS) && (i == INT_RBRACKET || i == INT_RCURLY)) {
+                _closeScope(i);
+                return _currToken;
+            }
         }
 
         /* And should we now have a name? Always true for
@@ -904,22 +898,8 @@ public class UTF8StreamJsonParser
         _binaryValue = null;
 
         // Closing scope?
-        if (i == INT_RBRACKET) {
-            _updateLocation();
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_ARRAY;
-            return false;
-        }
-        if (i == INT_RCURLY) {
-            _updateLocation();
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_OBJECT;
+        if (i == INT_RBRACKET || i == INT_RCURLY) {
+            _closeScope(i);
             return false;
         }
 
@@ -929,6 +909,12 @@ public class UTF8StreamJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
             }
             i = _skipWS();
+
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMAS) && (i == INT_RBRACKET || i == INT_RCURLY)) {
+                _closeScope(i);
+                return false;
+            }
         }
 
         if (!_parsingContext.inObject()) {
@@ -991,22 +977,8 @@ public class UTF8StreamJsonParser
         }
         _binaryValue = null;
 
-        if (i == INT_RBRACKET) {
-            _updateLocation();
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_ARRAY;
-            return null;
-        }
-        if (i == INT_RCURLY) {
-            _updateLocation();
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_OBJECT;
+        if (i == INT_RBRACKET || i == INT_RCURLY) {
+            _closeScope(i);
             return null;
         }
 
@@ -1016,7 +988,14 @@ public class UTF8StreamJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
             }
             i = _skipWS();
+
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMAS) && (i == INT_RBRACKET || i == INT_RCURLY)) {
+                _closeScope(i);
+                return null;
+            }
         }
+
         if (!_parsingContext.inObject()) {
             _updateLocation();
             _nextTokenNotInObject(i);
@@ -3702,6 +3681,25 @@ public class UTF8StreamJsonParser
     /* Internal methods, other
     /**********************************************************
      */
+
+    private void _closeScope(int i) throws JsonParseException {
+        if (i == INT_RBRACKET) {
+            _updateLocation();
+            if (!_parsingContext.inArray()) {
+                _reportMismatchedEndMarker(i, '}');
+            }
+            _parsingContext = _parsingContext.clearAndGetParent();
+            _currToken = JsonToken.END_ARRAY;
+        }
+        if (i == INT_RCURLY) {
+            _updateLocation();
+            if (!_parsingContext.inObject()) {
+                _reportMismatchedEndMarker(i, ']');
+            }
+            _parsingContext = _parsingContext.clearAndGetParent();
+            _currToken = JsonToken.END_OBJECT;
+        }
+    }
 
     /**
      * Helper method needed to fix [Issue#148], masking of 0x00 character

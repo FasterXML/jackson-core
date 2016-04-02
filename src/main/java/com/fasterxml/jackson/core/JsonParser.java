@@ -208,7 +208,25 @@ public abstract class JsonParser
           *
           * @since 2.6
           */
-         IGNORE_UNDEFINED(false)
+         IGNORE_UNDEFINED(false),
+
+         /**
+          * Feature allows the support for "missing" values in a JSON array: missing
+          * value meaning sequence of two commas, without value in-between but only
+          * optional white space.
+          * Enabling this feature will expose "missing" values as {@link JsonToken#VALUE_NULL}
+          * tokens, which typically become Java nulls in arrays and {@link java.util.Collection}
+          * in data-binding.
+          * <p>
+          * For example, enabling this feature will represent a JSON array <code>["value1",,"value3",]</code>
+          * as <code>["value1", null, "value3", null]</code> 
+          * <p>
+          * Since the JSON specification does not allow missing values this is a non-compliant JSON
+          * feature and is disabled by default.
+          * 
+          * @since 2.8
+          */
+         ALLOW_MISSING_VALUES(false)
          ;
 
         /**

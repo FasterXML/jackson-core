@@ -2594,7 +2594,29 @@ public class UTF8StreamJsonParser
     {
         // Most likely an error, unless we are to allow single-quote-strings
         switch (c) {
+        /*
+         * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
+         * The Check is for missing values. Incase of missing values in an array, the next token will be either ',' or ']'.
+         * This case, decrements the already incremented _inputPtr in the buffer in case of comma(,) 
+         * so that the existing flow goes back to checking the next token which will be comma again and
+         * it continues the parsing.
+         * Also the case returns NULL as current token in case of ',' or ']'.    
+         */
         case ']':
+            if (!_parsingContext.inArray()) {
+                break;
+            }
+            // fall through
+        case ',':
+            /* 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
+             *   we may allow "missing values", that is, encountering a trailing
+             *   comma or closing marker where value would be expected
+             */
+            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+               _inputPtr--;
+               return JsonToken.VALUE_NULL;
+            }
+            // fall through
         case '}':
             // Error: neither is valid at this point; valid closers have
             // been handled earlier
@@ -2626,7 +2648,7 @@ public class UTF8StreamJsonParser
             }
             return _handleInvalidNumberStart(_inputBuffer[_inputPtr++] & 0xFF, false);
         }
-        // [Issue#77] Try to decode most likely token
+        // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(c)) {
             _reportInvalidToken(""+((char) c), "('true', 'false' or 'null')");
         }

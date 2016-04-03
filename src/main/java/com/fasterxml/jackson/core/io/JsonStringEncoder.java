@@ -155,7 +155,7 @@ public final class JsonStringEncoder
      *
      * @since 2.8
      */
-    public void quoteCharSequenceAsString(CharSequence input, StringBuilder output)
+    public void quoteAsString(CharSequence input, StringBuilder output)
     {
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;

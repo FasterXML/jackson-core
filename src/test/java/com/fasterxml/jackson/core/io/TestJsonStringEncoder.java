@@ -6,7 +6,6 @@ import java.util.Random;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 public class TestJsonStringEncoder
     extends com.fasterxml.jackson.core.BaseTest
@@ -26,12 +25,12 @@ public class TestJsonStringEncoder
         StringBuilder output = new StringBuilder();
         StringBuilder builder = new StringBuilder();
         builder.append("foobar");
-        encoder.quoteCharSequenceAsString(builder, output);
+        encoder.quoteAsString(builder, output);
         assertEquals("foobar", output.toString());
         builder.setLength(0);
         output.setLength(0);
         builder.append("\"x\"");
-        encoder.quoteCharSequenceAsString(builder, output);
+        encoder.quoteAsString(builder, output);
         assertEquals("\\\"x\\\"", output.toString());
     }
 
@@ -64,7 +63,7 @@ public class TestJsonStringEncoder
             sb2.append("\\\"");
         }
         String exp = sb2.toString();
-        encoder.quoteCharSequenceAsString(input, output);
+        encoder.quoteAsString(input, output);
         assertEquals(2*input.length(), output.length());
         assertEquals(exp, output.toString());
 
@@ -122,7 +121,7 @@ public class TestJsonStringEncoder
         StringBuilder builder = new StringBuilder();
         builder.append(input);
         StringBuilder output = new StringBuilder();
-        JsonStringEncoder.getInstance().quoteCharSequenceAsString(builder, output);
+        JsonStringEncoder.getInstance().quoteAsString(builder, output);
         assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", output.toString());
     }
 

@@ -56,7 +56,7 @@ No changes since 2.7.0.
 - Implemented `ReaderBasedJsonParser.nextFieldName(SerializableString)`
   (to improved Afterburner performance over String/char[] sources)
 
-2.6.6 (not yet released)
+2.6.6 (05-Apr-2016)
 
 #248: VersionUtil.versionFor() unexpectedly return null instead of Version.unknownVersion()
  (reported by sammyhk@github)

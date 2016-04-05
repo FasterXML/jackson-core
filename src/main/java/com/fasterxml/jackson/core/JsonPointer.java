@@ -263,6 +263,18 @@ public class JsonPointer
         }
         return h;
     }
+    
+    /**
+     * Check to determine whether the JsonPointer is an EMPTY JsonPointer
+     * 
+     * @return true if the JsonPointer is EMPTY, false otherwise
+     */
+    public boolean isEmpty() {
+        if (this == EMPTY) {
+            return true;
+        }
+        return false;
+    }
 
     /*
     /**********************************************************

@@ -269,12 +269,23 @@ public abstract class JsonParser
     
     /**
      * Sets the byte[] request payload and the charset
+     *
      * @param requestPayloadOnError
      * @param charset
      */
 	public void setRequestPayloadOnError(byte[] requestPayloadOnError, String charset) {
 		this.requestPayloadWrapper = new RequestPayloadWrapper(requestPayloadOnError, charset);
 	}
+	
+    /**
+     * Sets the String request payload
+     *
+     * @param requestPayloadOnError
+     * @param charset
+     */
+    public void setRequestPayloadOnError(String requestPayloadOnError) {
+        this.requestPayloadWrapper = new RequestPayloadWrapper(requestPayloadOnError);
+    }
 	
 
     /*

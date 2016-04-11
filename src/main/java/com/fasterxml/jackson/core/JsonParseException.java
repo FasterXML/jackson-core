@@ -112,12 +112,25 @@ public class JsonParseException extends JsonProcessingException {
     public JsonParser getProcessor() {
         return _processor;
     }
+    
+    /**
+     * Method to get the raw request payload
+     * The raw payload will be in either byte[] or String
+     * 
+     * @return raw request payload object either in bytes or in string
+     */
+    public Object getRawRequestPayload() {
+        return requestPayload != null ? requestPayload.getRawRequestPayload() : null;
+    }
 
     /**
-     * Method to get the request payload as string if present
-     * @return request body
+     * The method returns the String representation of the request payload
+     * The raw request payload could be in String or in byte[], the method 
+     * returns the raw request payload in String format
+     * 
+     * @return request body as String
      */
-    public String getRequestPayload(){
+    public String getRequestPayload() {
     	return requestPayload != null ? requestPayload.toString() : null;
     }
     

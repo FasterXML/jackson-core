@@ -18,8 +18,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * <p>
  * Note: Even if the pointer starts in the middle, the full path will be set by
  * default in the result json, since not having a path will result in malformed
- * json output The JsonPointerBasedParser does not support the pointer to the
- * particular index in an array
+ * json output
  * </p>
  * 
  * <pre>
@@ -50,6 +49,12 @@ public class JsonPointerBasedParser extends JsonParserDelegate {
     // Reference to the current pointer, used internally
     private JsonPointer currPointer;
 
+    // boolean to determine whether to continue handling the array context
+    private boolean handleArrayContext;
+
+    // Reference to the array context
+    private JsonStreamContext arrayContext;
+
     protected JsonPointerBasedParser(JsonParser parser, String ptrExpr) {
         this(parser, JsonPointer.compile(ptrExpr));
     }
@@ -66,13 +71,32 @@ public class JsonPointerBasedParser extends JsonParserDelegate {
         loop: while (true) {
             token = delegate.nextToken();
             if (token != null) {
+
+                if (handleArrayContext) {
+                    if (continueHandlingArrayContext()) {
+                        continue;
+                    }
+                    handleArrayContext = false;
+                }
+
                 switch (token.id()) {
                 case ID_START_ARRAY:
+                    currToken = token;
+                    if (!matchFound) {
+                        arrayContext = delegate.getParsingContext();
+                        handleArrayContext = true;
+                    }
+                    break loop;
                 case ID_START_OBJECT:
                     currToken = token;
                     break loop;
 
                 case ID_END_ARRAY:
+                    arrayContext = null;
+                    handleArrayContext = false;
+                    currToken = token;
+                    break loop;
+
                 case ID_END_OBJECT:
                     currToken = token;
                     break loop;
@@ -83,11 +107,12 @@ public class JsonPointerBasedParser extends JsonParserDelegate {
                     if (isCurrentPointerPathInContext()) {
                         currToken = token;
                         // if exact full pointer path matches the full context
-                        // path, then
-                        // the match is found
-                        if (isExactPointerPathInContext()) {
+                        // path, then the match is found
+                        if ((arrayContext != null && isExactPointerPathInArrayContext())
+                                || isExactPointerPathInContext()) {
                             matchFound = true;
                         }
+
                         break loop;
                     } else {
                         // If token does not match the pointer, then check if
@@ -108,6 +133,9 @@ public class JsonPointerBasedParser extends JsonParserDelegate {
 
                 // any scalar value
                 default:
+                    if (arrayContext != null && isExactPointerPathInArrayContext()) {
+                        matchFound = true;
+                    }
                     currToken = token;
                     break loop;
                 }
@@ -136,6 +164,54 @@ public class JsonPointerBasedParser extends JsonParserDelegate {
         }
 
         return false;
+    }
+
+    /**
+     * Checks whether the exact full pointer path expression matches the full
+     * context path in an array
+     *
+     * @return true if the full pointer path expression matches the array
+     *         context path, false otherwise
+     */
+    private boolean isExactPointerPathInArrayContext() {
+        JsonPointer pointer = this.pointer;
+        JsonStreamContext ctxt = delegate.getParsingContext();
+        Stack<Object> ctxtList = new Stack<Object>();
+        if (ctxt.inObject() && ctxt.getCurrentName() == null) {
+            return false;
+        }
+        while (ctxt.getParent() != null) {
+            ctxtList.push(ctxt.getCurrentName() != null ? ctxt.getCurrentName() : ctxt.getCurrentIndex());
+            ctxt = ctxt.getParent();
+        }
+        // if all of the hierarchy in the pointer matches the context, then
+        // return true;
+        while (!ctxtList.isEmpty() && !pointer.isEmpty()) {
+            // if there is an object/array in an array, then the type will be
+            // string,
+            // if not the type will be the index which will be an integer
+            // TODO: Check if there is any better way to handle array/object
+            // nested in an array
+            if (ctxtList.peek() instanceof String) {
+                if (pointer.matchesProperty(ctxtList.pop().toString())) {
+                    pointer = pointer.tail();
+                } else {
+                    return false;
+                }
+            } else {
+                if (pointer.matchesElement(((Integer) ctxtList.pop()).intValue())) {
+                    pointer = pointer.tail();
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        if (!pointer.isEmpty() || !ctxtList.isEmpty()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -170,6 +246,30 @@ public class JsonPointerBasedParser extends JsonParserDelegate {
         return true;
     }
 
+    /**
+     * Check to determine whether to continue handling the array context
+     *
+     * @return true, if it is required to continue handling the array context,
+     *         false if it is required to stop handling
+     */
+    private boolean continueHandlingArrayContext() {
+        int matchingIndex = currPointer.getMatchingIndex();
+        if (matchingIndex > 0) {
+            if (arrayContext.getCurrentIndex() != matchingIndex) {
+                return true;
+            }
+        }
+        // move the current pointer
+        currPointer = currPointer.tail();
+        return false;
+
+    }
+
+    /**
+     * Skips the current token and it's children
+     *
+     * @throws IOException
+     */
     private void skipToken() throws IOException {
         delegate.nextToken();
         delegate.skipChildren();

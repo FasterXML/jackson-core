@@ -76,12 +76,33 @@ public class TestJsonPointerBasedParser extends BaseTest {
      * @throws Exception
      */
     public void testArraysInJsonPointerBasedParser() throws Exception {
-        final String pointerExpr = "/c/d/b";
-        final String jsonInput = aposToQuotes(
-                "{'a':1,'b':[1,2,3]," + "'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+        String pointerExpr = "/b/1";
+        String jsonInput = aposToQuotes(
+                "{'a':1,'b':[1,2,3]}");//,'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
 
         JsonPointer pointer = JsonPointer.compile(pointerExpr);
-        _assert(pointer, jsonInput, "{'c':{'d':{'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+        _assert(pointer, jsonInput, "{'b':[2,3]}");
+        
+        pointerExpr = "/b/1";
+        jsonInput = aposToQuotes(
+                "{'a':1,'b':[1,2,3],'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+
+        pointer = JsonPointer.compile(pointerExpr);
+        _assert(pointer, jsonInput, "{'b':[2,3],'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+        
+        pointerExpr = "/b/1/b3";
+        jsonInput = aposToQuotes(
+                "{'a':1,'b':[{'b1':true,'b2':true},{'b3':true},{'b4':true}],'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+
+        pointer = JsonPointer.compile(pointerExpr);
+        _assert(pointer, jsonInput, "{'b':[{'b3':true},{'b4':true}],'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+        
+        pointerExpr = "/b/1/b3/1/b32";
+        jsonInput = aposToQuotes(
+                "{'a':1,'b':[{'b1':true,'b2':true},{'b3':[{'b31':true},{'b32':true},3]},{'b4':true}],'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+
+        pointer = JsonPointer.compile(pointerExpr);
+        _assert(pointer, jsonInput, "{'b':[{'b3':[{'b32':true},3]},{'b4':true}],'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
     }
 
     /**
@@ -91,7 +112,7 @@ public class TestJsonPointerBasedParser extends BaseTest {
      */
     public void testInvalidPointer() throws Exception {
         String pointerExpr = "/invalid";
-        final String jsonInput = aposToQuotes(
+        String jsonInput = aposToQuotes(
                 "{'a':1,'b':[1,2,3]," + "'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
 
         JsonPointer pointer = JsonPointer.compile(pointerExpr);
@@ -104,6 +125,13 @@ public class TestJsonPointerBasedParser extends BaseTest {
         pointerExpr = "/c/d/invalid";
         pointer = JsonPointer.compile(pointerExpr);
         _assert(pointer, jsonInput, "{'c':{'d':{}}}");
+        
+        pointerExpr = "/b/1/b3/1/b321";
+        jsonInput = aposToQuotes(
+                "{'a':1,'b':[{'b1':true,'b2':true},{'b3':[{'b31':true},{'b32':true}]}],'c':{'d':{'g':true,'b':[1,2,3],'a':true},'e':{'b':true}},'d':null}");
+
+        pointer = JsonPointer.compile(pointerExpr);
+        _assert(pointer, jsonInput, "{'b':[{'b3':[{}]}]}");
     }
 
     private void _assert(JsonPointer pointer, final String jsonInput, final String expectedOutput)

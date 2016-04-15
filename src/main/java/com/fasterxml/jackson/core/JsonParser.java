@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.RequestPayloadWrapper;
 
 /**
  * Base class that defines public API for reading JSON content.
@@ -278,6 +279,32 @@ public abstract class JsonParser
      * are enabled.
      */
     protected int _features;
+    
+    /**
+     * Wrapper object holding the request payload which will be displayed on json parsing error
+     */
+    protected RequestPayloadWrapper requestPayloadWrapper;
+    
+    /**
+     * Sets the byte[] request payload and the charset
+     *
+     * @param requestPayloadOnError
+     * @param charset
+     */
+	public void setRequestPayloadOnError(byte[] requestPayloadOnError, String charset) {
+		this.requestPayloadWrapper = new RequestPayloadWrapper(requestPayloadOnError, charset);
+	}
+	
+    /**
+     * Sets the String request payload
+     *
+     * @param requestPayloadOnError
+     * @param charset
+     */
+    public void setRequestPayloadOnError(String requestPayloadOnError) {
+        this.requestPayloadWrapper = new RequestPayloadWrapper(requestPayloadOnError);
+    }
+	
 
     /*
     /**********************************************************
@@ -1213,7 +1240,7 @@ public abstract class JsonParser
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         throw new JsonParseException(this,
-                String.format("Current token (%s) not of boolean type", t));
+                String.format("Current token (%s) not of boolean type", t), requestPayloadWrapper);
     }
 
     /**
@@ -1619,7 +1646,7 @@ public abstract class JsonParser
      * based on current state of the parser
      */
     protected JsonParseException _constructError(String msg) {
-        return new JsonParseException(this, msg);
+        return new JsonParseException(this, msg, requestPayloadWrapper);
     }
 
     /**

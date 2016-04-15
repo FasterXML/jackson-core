@@ -47,6 +47,58 @@ public class TestJDKSerializability extends BaseTest
         // what should we test?
         assertNotNull(back);
     }
+
+    public void testLocation() throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        JsonParser jp = jf.createParser("  { }");
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        JsonLocation loc = jp.getCurrentLocation();
+
+        byte[] stuff = jdkSerialize(loc);
+        JsonLocation loc2 = jdkDeserialize(stuff);
+        assertNotNull(loc2);
+        
+        assertEquals(loc.getLineNr(), loc2.getLineNr());
+        assertEquals(loc.getColumnNr(), loc2.getColumnNr());
+        jp.close();
+    }
+
+    public void testParseException() throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        JsonParser p = jf.createParser("  { garbage! }");
+        JsonParseException exc = null;
+        try {
+            p.nextToken();
+            p.nextToken();
+            fail("Should not get here");
+        } catch (JsonParseException e) {
+            exc = e;
+        }
+        p.close();
+        byte[] stuff = jdkSerialize(exc);
+        JsonParseException result = jdkDeserialize(stuff);
+        assertNotNull(result);
+    }
+
+    public void testGenerationException() throws Exception
+    {
+        JsonFactory jf = new JsonFactory();
+        JsonGenerator g = jf.createGenerator(new ByteArrayOutputStream());
+        JsonGenerationException exc = null;
+        g.writeStartObject();
+        try {
+            g.writeNumber(4);
+            fail("Should not get here");
+        } catch (JsonGenerationException e) {
+            exc = e;
+        }
+        g.close();
+        byte[] stuff = jdkSerialize(exc);
+        JsonGenerationException result = jdkDeserialize(stuff);
+        assertNotNull(result);
+    }
     
     /*
     /**********************************************************

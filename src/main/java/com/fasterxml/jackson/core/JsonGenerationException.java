@@ -15,7 +15,8 @@ public class JsonGenerationException
 {
     private final static long serialVersionUID = 123; // Stupid eclipse...
 
-    protected JsonGenerator _processor;
+    // transient since 2.7.4
+    protected transient JsonGenerator _processor;
 
     @Deprecated // since 2.7
     public JsonGenerationException(Throwable rootCause) {

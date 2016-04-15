@@ -13,7 +13,8 @@ package com.fasterxml.jackson.core;
 public class JsonParseException extends JsonProcessingException {
     private static final long serialVersionUID = 2L; // 2.7
 
-    protected JsonParser _processor;
+    // since 2.7.4
+    protected transient JsonParser _processor;
 
     @Deprecated // since 2.7
     public JsonParseException(String msg, JsonLocation loc) {

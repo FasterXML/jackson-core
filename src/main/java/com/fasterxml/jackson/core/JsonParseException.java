@@ -5,15 +5,7 @@
 
 package com.fasterxml.jackson.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-
-import com.fasterxml.jackson.core.util.RequestPayloadWrapper;
+import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
  * Exception type for parsing problems, used when non-well-formed content
@@ -24,7 +16,7 @@ public class JsonParseException extends JsonProcessingException {
     private static final long serialVersionUID = 2L; // 2.7
 
     protected JsonParser _processor;
-    protected RequestPayloadWrapper requestPayload;
+    protected RequestPayload _requestPayload;
 
     @Deprecated // since 2.7
     public JsonParseException(String msg, JsonLocation loc) {
@@ -71,35 +63,12 @@ public class JsonParseException extends JsonProcessingException {
         super(msg, loc, root);
         _processor = p;
     }
-    
-    /*
-     *******************************************************************
-     Extended Constructors for setting the Request Body in the exception
-     *******************************************************************
-     */
-    public JsonParseException(JsonParser p, String msg, RequestPayloadWrapper requestPayload) {
-        this(p, msg);
-        this.requestPayload = requestPayload;
-    }
-
-    public JsonParseException(JsonParser p, String msg, Throwable root, RequestPayloadWrapper requestPayload) {
-        this(p, msg, root);
-        this.requestPayload = requestPayload;
-    }
-
-    public JsonParseException(JsonParser p, String msg, JsonLocation loc, RequestPayloadWrapper requestPayload) {
-        this(p, msg, loc);
-        this.requestPayload = requestPayload;
-    }
-    
-    public JsonParseException(JsonParser p, String msg, JsonLocation loc, Throwable root, RequestPayloadWrapper requestPayload) {
-        this(p, msg, loc, root);
-        this.requestPayload = requestPayload;
-    }
 
     /**
      * Fluent method that may be used to assign originating {@link JsonParser},
      * to be accessed using {@link #getProcessor()}.
+     *<p>
+     * NOTE: `this` instance is modified and no new instance is constructed.
      *
      * @since 2.7
      */
@@ -108,30 +77,46 @@ public class JsonParseException extends JsonProcessingException {
         return this;
     }
 
+    /**
+     * Fluent method that may be used to assign payload to this exception,
+     * to let recipient access it for diagnostics purposes.
+     *<p>
+     * NOTE: `this` instance is modified and no new instance is constructed.
+     *
+     * @since 2.8
+     */
+    public JsonParseException withRequestPayload(RequestPayload p) {
+        _requestPayload = p;
+        return this;
+    }
+    
     @Override
     public JsonParser getProcessor() {
         return _processor;
     }
-    
+
     /**
-     * Method to get the raw request payload
-     * The raw payload will be in either byte[] or String
-     * 
-     * @return raw request payload object either in bytes or in string
+     * Method that may be called to find payload that was being parsed, if
+     * one was specified for parser that threw this Exception.
+     *
+     * @return request body, if payload was specified; `null` otherwise
+     *
+     * @since 2.8
      */
-    public Object getRawRequestPayload() {
-        return requestPayload != null ? requestPayload.getRawRequestPayload() : null;
+    public RequestPayload getRequestPayload() {
+        return _requestPayload;
     }
 
     /**
-     * The method returns the String representation of the request payload
-     * The raw request payload could be in String or in byte[], the method 
-     * returns the raw request payload in String format
+     * The method returns the String representation of the request payload if
+     * one was specified for parser that threw this Exception.
      * 
-     * @return request body as String
+     * @return request body as String, if payload was specified; `null` otherwise
+     * 
+     * @since 2.8
      */
-    public String getRequestPayload() {
-    	return requestPayload != null ? requestPayload.toString() : null;
+    public String getRequestPayloadAsString() {
+        return (_requestPayload != null) ? _requestPayload.toString() : null;
     }
     
     /**
@@ -139,9 +124,10 @@ public class JsonParseException extends JsonProcessingException {
      */
     @Override 
     public String getMessage() {
-    	String msg = super.getMessage();
-    	return requestPayload != null ? (msg + "\nRequest Payload : " + getRequestPayload()) : msg;
+        String msg = super.getMessage();
+        if (_requestPayload != null) {
+            msg +=  "\nRequest payload : " + _requestPayload.toString();
+        }
+        return msg;
     }
-
-    
 }

@@ -11,7 +11,7 @@ import java.math.BigInteger;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.RequestPayloadWrapper;
+import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
  * Base class that defines public API for reading JSON content.
@@ -281,30 +281,11 @@ public abstract class JsonParser
     protected int _features;
     
     /**
-     * Wrapper object holding the request payload which will be displayed on json parsing error
-     */
-    protected RequestPayloadWrapper requestPayloadWrapper;
-    
-    /**
-     * Sets the byte[] request payload and the charset
+     * Optional container that holds the request payload which will be displayed on JSON parsing error.
      *
-     * @param requestPayloadOnError
-     * @param charset
+     * @since 2.8
      */
-	public void setRequestPayloadOnError(byte[] requestPayloadOnError, String charset) {
-		this.requestPayloadWrapper = new RequestPayloadWrapper(requestPayloadOnError, charset);
-	}
-	
-    /**
-     * Sets the String request payload
-     *
-     * @param requestPayloadOnError
-     * @param charset
-     */
-    public void setRequestPayloadOnError(String requestPayloadOnError) {
-        this.requestPayloadWrapper = new RequestPayloadWrapper(requestPayloadOnError);
-    }
-	
+    protected transient RequestPayload _requestPayload;
 
     /*
     /**********************************************************
@@ -378,13 +359,40 @@ public abstract class JsonParser
             ctxt.setCurrentValue(v);
         }
     }
+
+    /**
+     * Sets the payload to be passed if {@link JsonParseException} is thrown.
+     *
+     * @since 2.8
+     */
+    public void setRequestPayloadOnError(RequestPayload payload) {
+        _requestPayload = payload;
+    }
     
+    /**
+     * Sets the byte[] request payload and the charset
+     *
+     * @since 2.8
+     */
+     public void setRequestPayloadOnError(byte[] payload, String charset) {
+         _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
+     }
+
+     /**
+     * Sets the String request payload
+     *
+     * @since 2.8
+     */
+    public void setRequestPayloadOnError(String payload) {
+        _requestPayload = (payload == null) ? null : new RequestPayload(payload);
+    }
+
     /*
     /**********************************************************
     /* Format support
     /**********************************************************
      */
-    
+
     /**
      * Method to call to make this parser use specified schema. Method must
      * be called before trying to parse any content, right after parser instance
@@ -1240,7 +1248,8 @@ public abstract class JsonParser
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         throw new JsonParseException(this,
-                String.format("Current token (%s) not of boolean type", t), requestPayloadWrapper);
+                String.format("Current token (%s) not of boolean type", t))
+        .withRequestPayload(_requestPayload);
     }
 
     /**
@@ -1646,7 +1655,8 @@ public abstract class JsonParser
      * based on current state of the parser
      */
     protected JsonParseException _constructError(String msg) {
-        return new JsonParseException(this, msg, requestPayloadWrapper);
+        return new JsonParseException(this, msg)
+            .withRequestPayload(_requestPayload);
     }
 
     /**

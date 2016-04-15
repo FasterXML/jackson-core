@@ -32,6 +32,7 @@ JSON library.
 
 #209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`
  (contributed by Lokesh N)
+- Make `processor` transient in `JsonParseException` to keep it Serializable
 
 2.7.3 (16-Mar-2016)
 

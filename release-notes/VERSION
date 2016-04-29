@@ -28,7 +28,7 @@ JSON library.
  (contributed by Mikael S)
 #280: Add `JsonParser.finishToken()` to force full, non-lazy reading of current token
 
-2.7.4 (not yet released)
+2.7.4 (29-Apr-2016)
 
 #209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`
  (contributed by Lokesh N)

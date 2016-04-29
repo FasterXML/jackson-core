@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.4 (not yet released)
+2.7.4 (29-Apr-2016)
 
 #209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`
  (contributed by Lokesh N)

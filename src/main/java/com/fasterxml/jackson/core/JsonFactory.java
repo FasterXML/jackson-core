@@ -1148,6 +1148,28 @@ public class JsonFactory
         return _createGenerator(_decorate(w, ctxt), ctxt);
     }    
 
+    /**
+     * Method for constructing generator for writing content using specified
+     * {@link DataOutput} instance.
+     * 
+     * @since 2.8
+     */
+    public JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException {
+        return createGenerator(_createDataOutputWrapper(out), enc);
+    }
+
+    /**
+     * Convenience method for constructing generator that uses default
+     * encoding of the format (UTF-8 for JSON and most other data formats).
+     *<p>
+     * Note: there are formats that use fixed encoding (like most binary data formats).
+     * 
+     * @since 2.8
+     */
+    public JsonGenerator createGenerator(DataOutput out) throws IOException {
+        return createGenerator(_createDataOutputWrapper(out), JsonEncoding.UTF8);
+    }
+
     /*
     /**********************************************************
     /* Generator factories, old (pre-2.2)
@@ -1451,6 +1473,13 @@ public class JsonFactory
     }
 
     /**
+     * @since 2.8
+     */
+    protected OutputStream _createDataOutputWrapper(DataOutput out) {
+        return new DataOutputAsStream(out);
+    }
+
+    /**
      * Helper methods used for constructing an optimal stream for
      * parsers to use, when input is to be read from an URL.
      * This helps when reading file content via URL.
@@ -1465,7 +1494,7 @@ public class JsonFactory
              */
             String host = url.getHost();
             if (host == null || host.length() == 0) {
-                // [Issue#48]: Let's try to avoid probs with URL encoded stuff
+                // [core#48]: Let's try to avoid probs with URL encoded stuff
                 String path = url.getPath();
                 if (path.indexOf('%') < 0) {
                     return new FileInputStream(url.getPath());

@@ -42,7 +42,7 @@ public final class ByteArrayBuilder extends OutputStream
     private int _pastLen;
     private byte[] _currBlock;
     private int _currBlockPtr;
-    
+
     public ByteArrayBuilder() { this(null); }
     public ByteArrayBuilder(BufferRecycler br) { this(br, INITIAL_BLOCK_SIZE); }
     public ByteArrayBuilder(int firstBlockSize) { this(null, firstBlockSize); }

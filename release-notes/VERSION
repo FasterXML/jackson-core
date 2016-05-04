@@ -26,6 +26,7 @@ JSON library.
 #257: Add `writeStartObject(Object pojo)` to streamline assignment of current value
 #265: `JsonStringEncoder` should allow passing `CharSequence`
  (contributed by Mikael S)
+#276: Add support for serializing using `java.io.DataOutput`
 #280: Add `JsonParser.finishToken()` to force full, non-lazy reading of current token
 
 2.7.4 (29-Apr-2016)

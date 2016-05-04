@@ -27,6 +27,12 @@
     <javac.src.version>1.6</javac.src.version>
     <javac.target.version>1.6</javac.target.version>
 
+    <!-- 04-May-2016, tatu: Bundle-plugin 3.x seems to require Java 7, so to
+           build for Java 6 need to downgrade here to last working 2.x version
+          (2.5.4 had some issues wrt shading)
+      -->
+    <version.plugin.bundle>2.5.3</version.plugin.bundle>
+
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>

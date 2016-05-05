@@ -168,7 +168,7 @@ public abstract class JsonGenerator
          *
          * @since Xxx
          */
-//        ESCAPE_UTF8_SURROGATES(false),
+        ESCAPE_UTF8_SURROGATES(false),
         
         // // Schema/Validity support features
 

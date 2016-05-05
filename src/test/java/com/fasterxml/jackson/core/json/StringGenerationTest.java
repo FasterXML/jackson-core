@@ -118,7 +118,8 @@ public class StringGenerationTest
                     sb.append((char) (0xD800 + (fullValue >> 10)));
                     value = 0xDC00 + (fullValue & 0x3FF);
                 }
-                sb.append((char) value);
+                char[] chars = Character.toChars(value);
+                sb.append(chars);
             } else { // ascii
                 sb.append((char) (r.nextInt() & 0x7F));
             }

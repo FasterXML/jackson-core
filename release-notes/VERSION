@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.6.1 (not released)
+
+#280: FilteringGeneratorDelegate.writeUTF8String() should delegate to writeUTF8String()
+ (reported by Tanguy L)
+
 2.6.6 (05-Apr-2016)
 
 #248: VersionUtil.versionFor() unexpectedly return null instead of Version.unknownVersion()

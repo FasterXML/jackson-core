@@ -83,6 +83,11 @@ Lokesh Kumar N (LokeshN@github)
   * Contributed implementation for #86: Allow inclusion of request body for JsonParseException
    (2.8.0)
 
+Tanguy Leroux (tlrx@github)
+  * Reported, contributed fix for #280: FilteringGeneratorDelegate.writeUTF8String()
+    should delegate to writeUTF8String()
+   (2.7.5)
+
 Mikael Staldal (mikaelstaldal@github)
   * Contributed fix for #265: `JsonStringEncoder` should allow passing `CharSequence`
    (2.8.0)

@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.5 (not yet released)
+
+#280: FilteringGeneratorDelegate.writeUTF8String() should delegate to writeUTF8String()
+ (reported by Tanguy L)
+
 2.7.4 (29-Apr-2016)
 
 #209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`

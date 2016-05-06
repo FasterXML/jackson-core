@@ -375,7 +375,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     {
         // not exact match, but best we can do
         if (_checkRawValueWrite()) {
-            delegate.writeRawUTF8String(text, offset, length);
+            delegate.writeUTF8String(text, offset, length);
         }
     }
 

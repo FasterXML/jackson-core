@@ -1,10 +1,17 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.*;
-
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
+import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
+import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+
+import java.io.ByteArrayOutputStream;
 
 public class TestUtf8Generator extends BaseTest
 {
@@ -59,5 +66,52 @@ public class TestUtf8Generator extends BaseTest
         assertEquals((char) 0xDE0C, str.charAt(1));
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
+    }
+
+    public void testFilteringWithEscapedChars() throws Exception
+    {
+        final String SAMPLE_WITH_QUOTES = "\b\t\f\n\r\"foo\"\u0000";
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        JsonGenerator jgen = JSON_F.createGenerator(out);
+
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(jgen,
+                new JsonPointerBasedFilter("/escapes"),
+                true, // includePath
+                false // multipleMatches
+        );
+
+        //final String JSON = "{'a':123,'array':[1,2],'escapes':'\b\t\f\n\r\"foo\"\u0000'}";
+
+        gen.writeStartObject();
+
+        gen.writeFieldName("a");
+        gen.writeNumber((int) 123);
+
+        gen.writeFieldName("array");
+        gen.writeStartArray();
+        gen.writeNumber((short) 1);
+        gen.writeNumber((short) 2);
+        gen.writeEndArray();
+
+        gen.writeFieldName("escapes");
+
+        final byte[] raw = SAMPLE_WITH_QUOTES.toString().getBytes("UTF-8");
+        gen.writeUTF8String(raw, 0, raw.length);
+
+        gen.writeEndObject();
+        gen.close();
+
+        JsonParser p = JSON_F.createParser(out.toByteArray());
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("escapes", p.getCurrentName());
+
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(SAMPLE_WITH_QUOTES, p.getText());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
     }
 }

@@ -15,7 +15,7 @@ JSON library.
 ------------------------------------------------------------------------
 
 2.7.5 (not yet released)
-
+ 
 #280: FilteringGeneratorDelegate.writeUTF8String() should delegate to writeUTF8String()
  (reported by Tanguy L)
 

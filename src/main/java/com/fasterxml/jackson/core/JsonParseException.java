@@ -19,6 +19,11 @@ public class JsonParseException extends JsonProcessingException {
     protected transient JsonParser _processor;
 
     /**
+     * Optional payload that can be assigned to pass along for error reporting
+     * or handling purposes. Core streaming parser implementations DO NOT
+     * initialize this; it is up to using applications and frameworks to
+     * populate it.
+     *
      * @since 2.8
      */
     protected RequestPayload _requestPayload;

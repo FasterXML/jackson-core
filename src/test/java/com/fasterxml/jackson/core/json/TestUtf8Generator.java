@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
-import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
@@ -73,6 +72,7 @@ public class TestUtf8Generator extends BaseTest
         final String SAMPLE_WITH_QUOTES = "\b\t\f\n\r\"foo\"\u0000";
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+        @SuppressWarnings("resource")
         JsonGenerator jgen = JSON_F.createGenerator(out);
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(jgen,

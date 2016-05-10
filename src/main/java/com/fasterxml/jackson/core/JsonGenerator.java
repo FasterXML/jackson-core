@@ -1094,7 +1094,7 @@ public abstract class JsonGenerator
      *
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
-     * @param len Number of elements in array to write, from `offset` to `offset + len - 1`
+     * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
      */
     public void writeArray(int[] array, int offset, int length) throws IOException
     {

@@ -20,7 +20,7 @@ public class StringGenerationTest
         "\"\"\"", "\\r)'\"",
         "Longer text & other stuff:\twith some\r\n\r\n random linefeeds etc added in to cause some \"special\" handling \\\\ to occur...\n"
     };
- 
+
     private final JsonFactory FACTORY = new JsonFactory();
     
     public void testBasicEscaping() throws Exception

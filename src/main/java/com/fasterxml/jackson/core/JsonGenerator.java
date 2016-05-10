@@ -1079,6 +1079,35 @@ public abstract class JsonGenerator
      */
     public abstract int writeBinary(Base64Variant bv,
             InputStream data, int dataLength) throws IOException;
+    /*
+    /**********************************************************
+    /* Public API, write methods, scalar arrays (2.8)
+    /**********************************************************
+     */
+
+    /**
+     * Value write method that can be called to write a single
+     * array (sequence of {@link JsonToken#START_ARRAY}, zero or
+     * more {@link JsonToken#VALUE_NUMBER_INT}, {@link JsonToken#END_ARRAY})
+     *
+     * @since 2.8
+     *
+     * @param array Array that contains values to write
+     * @param offset Offset of the first element to write, within array
+     * @param len Number of elements in array to write, from `offset` to `offset + len - 1`
+     */
+    public void writeArray(int[] array, int offset, int length) throws IOException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        _verifyOffsets(array.length, offset, length);
+        writeStartArray();
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
 
     /*
     /**********************************************************
@@ -1711,6 +1740,18 @@ public abstract class JsonGenerator
 
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
+    }
+
+    /**
+     * @since 2.8
+     */
+    protected final void _verifyOffsets(int arrayLength, int offset, int length)
+    {
+        if ((offset < 0) || (offset + length) > arrayLength) {
+            throw new IllegalArgumentException(String.format(
+                    "invalid argument(s) (offset=%d, length=%d) for input array of %d element",
+                    offset, length, arrayLength));
+        }
     }
 
     /**

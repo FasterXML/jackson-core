@@ -82,6 +82,4 @@ public class GeneratorFailTest
         }
         gen.close();
     }
-
-
 }

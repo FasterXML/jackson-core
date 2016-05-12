@@ -813,6 +813,36 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************
+    /* Public API, write methods, scalar arrays (2.8)
+    /**********************************************************
+     */
+
+    /**
+     * Value write method that can be called to write a single
+     * array (sequence of {@link JsonToken#START_ARRAY}, zero or
+     * more {@link JsonToken#VALUE_NUMBER_INT}, {@link JsonToken#END_ARRAY})
+     *
+     * @since 2.8
+     *
+     * @param array Array that contains values to write
+     * @param offset Offset of the first element to write, within array
+     * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     */
+    public void writeArray(int[] array, int offset, int length) throws IOException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        _verifyOffsets(array.length, offset, length);
+        writeStartArray();
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
+
+    /*
+    /**********************************************************
     /* Public API, write methods, text/String values
     /**********************************************************
      */
@@ -1079,35 +1109,6 @@ public abstract class JsonGenerator
      */
     public abstract int writeBinary(Base64Variant bv,
             InputStream data, int dataLength) throws IOException;
-    /*
-    /**********************************************************
-    /* Public API, write methods, scalar arrays (2.8)
-    /**********************************************************
-     */
-
-    /**
-     * Value write method that can be called to write a single
-     * array (sequence of {@link JsonToken#START_ARRAY}, zero or
-     * more {@link JsonToken#VALUE_NUMBER_INT}, {@link JsonToken#END_ARRAY})
-     *
-     * @since 2.8
-     *
-     * @param array Array that contains values to write
-     * @param offset Offset of the first element to write, within array
-     * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
-     */
-    public void writeArray(int[] array, int offset, int length) throws IOException
-    {
-        if (array == null) {
-            throw new IllegalArgumentException("null array");
-        }
-        _verifyOffsets(array.length, offset, length);
-        writeStartArray();
-        for (int i = offset, end = offset+length; i < end; ++i) {
-            writeNumber(array[i]);
-        }
-        writeEndArray();
-    }
 
     /*
     /**********************************************************

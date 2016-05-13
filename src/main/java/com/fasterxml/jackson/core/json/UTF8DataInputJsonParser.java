@@ -123,7 +123,7 @@ public class UTF8DataInputJsonParser
     public void setCodec(ObjectCodec c) {
         _objectCodec = c;
     }
-    
+
     /*
     /**********************************************************
     /* Overrides for life-cycle
@@ -139,7 +139,7 @@ public class UTF8DataInputJsonParser
     public Object getInputSource() {
         return _inputData;
     }
-    
+
     /*
     /**********************************************************
     /* Overrides, low-level reading
@@ -183,7 +183,6 @@ public class UTF8DataInputJsonParser
     }
 
     // // // Let's override default impls for improved performance
-    
     @Override
     public String getValueAsString() throws IOException
     {
@@ -544,12 +543,7 @@ public class UTF8DataInputJsonParser
         if (_tokenIncomplete) {
             _skipString(); // only strings can be partial
         }
-        int i = _skipWSOrEnd();
-        if (i < 0) { // end-of-input
-            // Close/release things like input source, symbol table and recyclable buffers
-            close();
-            return (_currToken = null);
-        }
+        int i = _skipWS();
         // clear any data retained so far
         _binaryValue = null;
 
@@ -734,12 +728,7 @@ public class UTF8DataInputJsonParser
         if (_tokenIncomplete) {
             _skipString();
         }
-        int i = _skipWSOrEnd();
-        if (i < 0) {
-            close();
-            _currToken = null;
-            return null;
-        }
+        int i = _skipWS();
         _binaryValue = null;
 
         if (i == INT_RBRACKET) {
@@ -974,7 +963,9 @@ public class UTF8DataInputJsonParser
         _textBuffer.setCurrentLength(outPtr);
         // As per [core#105], need separating space between root values; check here
         if (_parsingContext.inRoot()) {
-            _verifyRootSpace(c);
+            _verifyRootSpace();
+        } else {
+            _nextCharByte = c;
         }
         // And there we have it!
         return resetInt(false, intLen);
@@ -1016,10 +1007,10 @@ public class UTF8DataInputJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         // As per [core#105], need separating space between root values; check here
+        _nextCharByte = c;
         if (_parsingContext.inRoot()) {
-            _verifyRootSpace(c);
+            _verifyRootSpace();
         }
-
         // And there we have it!
         return resetInt(true, intLen);
     }
@@ -1111,8 +1102,9 @@ public class UTF8DataInputJsonParser
 
         // Ok; unless we hit end-of-input, need to push last char read back
         // As per #105, need separating space between root values; check here
+        _nextCharByte = c;
         if (_parsingContext.inRoot()) {
-            _verifyRootSpace(c);
+            _verifyRootSpace();
         }
         _textBuffer.setCurrentLength(outPtr);
 
@@ -1128,10 +1120,16 @@ public class UTF8DataInputJsonParser
      * If we did want, we could rearrange things to require space before
      * next read, but initially let's just do nothing.
      */
-    private final void _verifyRootSpace(int ch) throws IOException
+    private final void _verifyRootSpace() throws IOException
     {
-        // TOOO
-        
+        int ch = _nextCharByte;
+        if (ch <= INT_SPACE) {
+            _nextCharByte = -1;
+            if (ch == INT_CR || ch == INT_LF) {
+                ++_currInputRow;
+            }
+            return;
+        }
         _reportMissingRootWS(ch);
     }
 
@@ -2150,15 +2148,26 @@ public class UTF8DataInputJsonParser
 
     private final int _skipWS() throws IOException
     {
+        int i = _nextCharByte;
+        if (i < 0) {
+            i = _inputData.readUnsignedByte();
+        } else {
+            _nextCharByte = -1;
+        }
         while (true) {
-            int i = _inputData.readUnsignedByte();
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
                     return _skipWSComment(i);
                 }
                 return i;
+            } else {
+                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
+                //   ... but line number is useful thingy
+                if (i == INT_CR || i == INT_LF) {
+                    ++_currInputRow;
+                }
             }
-            // 06-May-2016, tatu: Could verify validity of WS, but for now why bother
+            i = _inputData.readUnsignedByte();
         }
     }
 
@@ -2175,56 +2184,20 @@ public class UTF8DataInputJsonParser
                 } else {
                     return i;
                 }
+            } else {
+                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
+                //   ... but line number is useful thingy
+                if (i == INT_CR || i == INT_LF) {
+                    ++_currInputRow;
+                }
+                /*
+                if ((i != INT_SPACE) && (i != INT_LF) && (i != INT_CR)) {
+                    _throwInvalidSpace(i);
+                }
+                */
             }
-            // 06-May-2016, tatu: Could verify validity of WS, but for now why bother
-            /*
-            if ((i != INT_SPACE) && (i != INT_LF) && (i != INT_CR)) {
-                _throwInvalidSpace(i);
-            }
-            */
-
             i = _inputData.readUnsignedByte();
         }        
-    }
-
-    private final int _skipWSOrEnd() throws IOException
-    {
-        int i = _inputData.readUnsignedByte();
-        if (i > INT_SPACE) {
-            if (i == INT_SLASH || i == INT_HASH) {
-                return _skipWSOrEnd2(i);
-            }
-            return i;
-        }
-        
-        while (true) {
-            i = _inputData.readUnsignedByte();
-            if (i > INT_SPACE) {
-                if (i == INT_SLASH || i == INT_HASH) {
-                    return _skipWSOrEnd2(i);
-                }
-                return i;
-            }
-            // 06-May-2016, tatu: Could verify validity of WS, but for now why bother
-        }
-    }
-
-    private final int _skipWSOrEnd2(int i) throws IOException
-    {
-        while (true) {
-            if (i > INT_SPACE) {
-                if (i == INT_SLASH) {
-                    _skipComment();
-                } else if ((i == INT_HASH) && _skipYAMLComment()) {
-                    ;
-                } else {
-                    return i;
-                }
-            }
-            // 06-May-2016, tatu: Could verify validity of WS, but for now why bother
-
-            i = _inputData.readUnsignedByte();
-        }
     }
 
     private final int _skipColon() throws IOException
@@ -2298,6 +2271,12 @@ public class UTF8DataInputJsonParser
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;
+            } else {
+                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
+                //   ... but line number is useful thingy
+                if (i == INT_CR || i == INT_LF) {
+                    ++_currInputRow;
+                }
             }
             // 06-May-2016, tatu: Could verify validity of WS, but for now why bother
 
@@ -2338,8 +2317,9 @@ public class UTF8DataInputJsonParser
                         return;
                     }
                     continue main_loop;
-                case INT_LF: // no line nr tracking so whatever
+                case INT_LF:
                 case INT_CR:
+                    ++_currInputRow;
                     break;
                 case 2: // 2-byte UTF
                     _skipUtf8_2(i);
@@ -2381,8 +2361,9 @@ public class UTF8DataInputJsonParser
             int code = codes[i];
             if (code != 0) {
                 switch (code) {
-                case INT_LF: // can't check for 2-char lf, so simply return
+                case INT_LF:
                 case INT_CR:
+                    ++_currInputRow;
                     return;
                 case '*': // nop for these comments
                     break;
@@ -2766,7 +2747,9 @@ public class UTF8DataInputJsonParser
 
     @Override
     public JsonLocation getCurrentLocation() {
-        return JsonLocation.NA;
+        final Object src = _ioContext.getSourceReference();
+        return new JsonLocation(src,
+                -1L, -1L, _currInputRow, -1);
     }
 
     /*

@@ -603,11 +603,9 @@ public class JsonParserTest
 
         // and finally, new (as of May 2016) source, DataInput:
         // 13-May-2016, tatu: Not yet ready -- comment out for now
-/*        
         p = createParserForDataInput(JSON_FACTORY, new MockDataInput(SAMPLE_DOC_JSON_SPEC));
         verifyJsonSpecSampleDoc(p, verify);
         p.close();
-        */
     }
 }
 

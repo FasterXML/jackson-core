@@ -499,6 +499,7 @@ public abstract class ParserBase extends ParserMinimalBase
     /* Abstract methods needed from sub-classes
     /**********************************************************
      */
+
     protected abstract void _closeInput() throws IOException;
     
     /*
@@ -1058,11 +1059,13 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     protected void reportOverflowInt() throws IOException {
-        _reportError("Numeric value ("+getText()+") out of range of int ("+Integer.MIN_VALUE+" - "+Integer.MAX_VALUE+")");
+        _reportError(String.format("Numeric value (%s) out of range of int (%d - %s)",
+                getText(), Integer.MIN_VALUE, Integer.MAX_VALUE));
     }
     
     protected void reportOverflowLong() throws IOException {
-        _reportError("Numeric value ("+getText()+") out of range of long ("+Long.MIN_VALUE+" - "+Long.MAX_VALUE+")");
+        _reportError(String.format("Numeric value (%s) out of range of long (%d - %s)",
+                getText(), Long.MIN_VALUE, Long.MAX_VALUE));
     }    
 
     /*

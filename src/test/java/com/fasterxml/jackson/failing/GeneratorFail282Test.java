@@ -41,7 +41,7 @@ public class GeneratorFail282Test
             String json = bout.toString("UTF-8");
             fail("Should not have let "+gen.getClass().getName()+".writeFieldName() be used in root context: output = "+json);
         } catch (JsonProcessingException e) {
-            verifyException(e, "can not write a String");
+            verifyException(e, "can not write a field name");
         }
         gen.close();
     }

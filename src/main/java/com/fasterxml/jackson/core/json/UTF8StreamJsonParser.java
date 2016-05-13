@@ -183,7 +183,6 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    @Override
     protected final boolean loadMore() throws IOException
     {
         final int bufSize = _inputEnd;
@@ -2370,7 +2369,10 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    @Override
+    protected void loadMoreGuaranteed() throws IOException {
+        if (!loadMore()) { _reportInvalidEOF(); }
+    }
+    
     protected void _finishString() throws IOException
     {
         // First, single tight loop for ASCII content, not split across input buffer boundary:        

@@ -163,36 +163,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     @Override public Object getInputSource() { return _reader; }
 
-    @Override
-    protected boolean loadMore() throws IOException
-    {
-        final int bufSize = _inputEnd;
-
-        _currInputProcessed += bufSize;
-        _currInputRowStart -= bufSize;
-
-        // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
-        //   this increase to avoid "moving" name-offset, resulting most likely
-        //   in negative value, which is fine as combine value remains unchanged.
-        _nameStartOffset -= bufSize;
-
-        if (_reader != null) {
-            int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
-            if (count > 0) {
-                _inputPtr = 0;
-                _inputEnd = count;
-                return true;
-            }
-            // End of input
-            _closeInput();
-            // Should never return 0, so let's fail
-            if (count == 0) {
-                throw new IOException("Reader returned 0 characters when trying to read "+_inputEnd);
-            }
-        }
-        return false;
-    }
-
     protected char getNextChar(String eofMsg) throws IOException {
         if (_inputPtr >= _inputEnd) {
             if (!loadMore()) { _reportInvalidEOF(eofMsg); }
@@ -236,6 +206,45 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 _ioContext.releaseTokenBuffer(buf);
             }
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Low-level access, supporting
+    /**********************************************************
+     */
+
+    protected void loadMoreGuaranteed() throws IOException {
+        if (!loadMore()) { _reportInvalidEOF(); }
+    }
+    
+    protected boolean loadMore() throws IOException
+    {
+        final int bufSize = _inputEnd;
+
+        _currInputProcessed += bufSize;
+        _currInputRowStart -= bufSize;
+
+        // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
+        //   this increase to avoid "moving" name-offset, resulting most likely
+        //   in negative value, which is fine as combine value remains unchanged.
+        _nameStartOffset -= bufSize;
+
+        if (_reader != null) {
+            int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
+            if (count > 0) {
+                _inputPtr = 0;
+                _inputEnd = count;
+                return true;
+            }
+            // End of input
+            _closeInput();
+            // Should never return 0, so let's fail
+            if (count == 0) {
+                throw new IOException("Reader returned 0 characters when trying to read "+_inputEnd);
+            }
+        }
+        return false;
     }
 
     /*
@@ -1942,7 +1951,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
     }
 
-    @Override
     protected final void _finishString() throws IOException
     {
         /* First: let's try to see if we have simple String value: one

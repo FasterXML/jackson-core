@@ -1259,9 +1259,12 @@ public abstract class JsonParser
      *<p>
      * Note: only some specialized parser implementations support
      * embedding of objects (usually ones that are facades on top
-     * of non-streaming sources, such as object trees).
+     * of non-streaming sources, such as object trees). One exception
+     * is access to binary content (whether via base64 encoding or not)
+     * which typically is accessible using this method, as well as
+     * {@link #getBinaryValue()}.
      */
-    public abstract Object getEmbeddedObject() throws IOException;
+    public Object getEmbeddedObject() throws IOException { return null; }
 
     /*
     /**********************************************************

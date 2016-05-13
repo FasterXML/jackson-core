@@ -250,7 +250,7 @@ public abstract class ParserMinimalBase extends JsonParser
             case ID_NULL:
                 return false;
             case ID_EMBEDDED_OBJECT:
-                Object value = this.getEmbeddedObject();
+                Object value = getEmbeddedObject();
                 if (value instanceof Boolean) {
                     return (Boolean) value;
                 }
@@ -293,7 +293,7 @@ public abstract class ParserMinimalBase extends JsonParser
             case ID_NULL:
                 return 0;
             case ID_EMBEDDED_OBJECT:
-                Object value = this.getEmbeddedObject();
+                Object value = getEmbeddedObject();
                 if (value instanceof Number) {
                     return ((Number) value).intValue();
                 }
@@ -333,7 +333,7 @@ public abstract class ParserMinimalBase extends JsonParser
             case ID_NULL:
                 return 0L;
             case ID_EMBEDDED_OBJECT:
-                Object value = this.getEmbeddedObject();
+                Object value = getEmbeddedObject();
                 if (value instanceof Number) {
                     return ((Number) value).longValue();
                 }
@@ -409,7 +409,6 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant) throws IOException
     {
-        // just call helper method introduced in 2.2.3
         try {
             b64variant.decode(str, builder);
         } catch (IllegalArgumentException e) {

@@ -147,12 +147,6 @@ public class UTF8DataInputJsonParser
      */
 
     @Override
-    protected final boolean loadMore() throws IOException
-    {
-        return false;
-    }
-
-    @Override
     protected void _closeInput() throws IOException { }
 
     /**
@@ -1793,7 +1787,6 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    @Override
     protected void _finishString() throws IOException
     {
         int outPtr = 0;

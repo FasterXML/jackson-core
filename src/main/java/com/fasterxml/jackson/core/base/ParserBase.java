@@ -465,9 +465,6 @@ public abstract class ParserBase extends ParserMinimalBase
         return false;
     }
 
-    // No embedded objects with base impl...
-    @Override public Object getEmbeddedObject() throws IOException { return null; }
-
     @SuppressWarnings("resource")
     @Override // since 2.7
     public byte[] getBinaryValue(Base64Variant variant) throws IOException
@@ -499,22 +496,9 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /*
     /**********************************************************
-    /* Low-level reading, other
-    /**********************************************************
-     */
-
-    protected final void loadMoreGuaranteed() throws IOException {
-        if (!loadMore()) { _reportInvalidEOF(); }
-    }
-    
-    /*
-    /**********************************************************
     /* Abstract methods needed from sub-classes
     /**********************************************************
      */
-
-    protected abstract boolean loadMore() throws IOException;
-    protected abstract void _finishString() throws IOException;
     protected abstract void _closeInput() throws IOException;
     
     /*
@@ -1119,7 +1103,6 @@ public abstract class ParserBase extends ParserMinimalBase
     
     protected final int _decodeBase64Escape(Base64Variant b64variant, char ch, int index) throws IOException
     {
-        // 17-May-2011, tatu: As per [JACKSON-xxx], need to handle escaped chars
         if (ch != '\\') {
             throw reportInvalidBase64Char(b64variant, ch, index);
         }
@@ -1163,4 +1146,21 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return new IllegalArgumentException(base);
     }
+
+    /*
+    /**********************************************************
+    /* Stuff deprecated in 2.8, to be removed in 2.9 or later
+    /**********************************************************
+     */
+
+    @Deprecated // since 2.8
+    protected void loadMoreGuaranteed() throws IOException {
+        if (!loadMore()) { _reportInvalidEOF(); }
+    }
+
+    @Deprecated // since 2.8
+    protected boolean loadMore() throws IOException { return false; }
+
+    @Deprecated // since 2.8
+    protected void _finishString() throws IOException { }
 }

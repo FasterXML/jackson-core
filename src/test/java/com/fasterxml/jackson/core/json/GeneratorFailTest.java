@@ -32,6 +32,12 @@ public class GeneratorFailTest
         _testFailOnWritingStringNotFieldName(F, true);        
     }
 
+    // for [core#282]
+    public void testFailOnWritingFieldNameInRoot() throws Exception {
+        _testFailOnWritingFieldNameInRoot(F, false);
+        _testFailOnWritingFieldNameInRoot(F, true);
+    }
+    
     /*
     /**********************************************************
     /* Internal methods
@@ -79,6 +85,27 @@ public class GeneratorFailTest
             fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeFieldName()': output = "+json);
         } catch (JsonProcessingException e) {
             verifyException(e, "can not write a String");
+        }
+        gen.close();
+    }
+
+    // for [core#282]
+    private void _testFailOnWritingFieldNameInRoot(JsonFactory f, boolean useReader) throws Exception
+    {
+        JsonGenerator gen;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        if (useReader) {
+            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+        } else {
+            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+        }
+        try {
+            gen.writeFieldName("a");
+            gen.flush();
+            String json = bout.toString("UTF-8");
+            fail("Should not have let "+gen.getClass().getName()+".writeFieldName() be used in root context: output = "+json);
+        } catch (JsonProcessingException e) {
+            verifyException(e, "can not write a field name");
         }
         gen.close();
     }

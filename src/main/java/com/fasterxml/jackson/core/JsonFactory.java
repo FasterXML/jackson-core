@@ -875,7 +875,7 @@ public class JsonFactory
     public JsonParser createParser(String content) throws IOException, JsonParseException {
         final int strLen = content.length();
         // Actually, let's use this for medium-sized content, up to 64kB chunk (32kb char)
-        if (_inputDecorator != null || strLen > 0x8000 || !canUseCharArrays()) {
+        if ((_inputDecorator != null) || (strLen > 0x8000) || !canUseCharArrays()) {
             // easier to just wrap in a Reader than extend InputDecorator; or, if content
             // is too long for us to copy it over
             return createParser(new StringReader(content));
@@ -908,6 +908,14 @@ public class JsonFactory
         return _createParser(content, offset, len, _createContext(content, true),
                 // important: buffer is NOT recyclable, as it's from caller
                 false);
+    }
+
+    /**
+     * @since 2.8
+     */
+    public JsonParser createParser(DataInput in) throws IOException {
+        IOContext ctxt = _createContext(in, false);
+        return _createParser(_decorate(in, ctxt), ctxt);
     }
 
     /*
@@ -1308,6 +1316,23 @@ public class JsonFactory
                 _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
+    /**
+     * @since 2.8
+     */
+    protected JsonParser _createParser(DataInput input, IOContext ctxt) throws IOException
+    {
+        // 13-May-2016, tatu: Need to take care not to accidentally create JSON parser for
+        //   non-JSON input. So, bit unclean but...
+        String format = getFormatName();
+        if (format != FORMAT_NAME_JSON) {
+            throw new UnsupportedOperationException(String.format(
+                    "InputData source not (yet?) support for this format (%s)", format));
+        }
+        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
+        return new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
+                _objectCodec, can);
+    }
+
     /*
     /**********************************************************
     /* Factory methods used by factory for creating generator instances,
@@ -1390,7 +1415,7 @@ public class JsonFactory
         }
         return in;
     }
-    
+
     /**
      * @since 2.4
      */
@@ -1404,6 +1429,19 @@ public class JsonFactory
         return in;
     }
 
+    /**
+     * @since 2.8
+     */
+    protected final DataInput _decorate(DataInput in, IOContext ctxt) throws IOException {
+        if (_inputDecorator != null) {
+            DataInput in2 = _inputDecorator.decorate(ctxt, in);
+            if (in2 != null) {
+                return in2;
+            }
+        }
+        return in;
+    }
+    
     /**
      * @since 2.4
      */

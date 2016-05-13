@@ -105,9 +105,8 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    public UTF8DataInputJsonParser(IOContext ctxt, int features, InputStream in,
-            ObjectCodec codec, ByteQuadsCanonicalizer sym,
-            DataInput inputData)
+    public UTF8DataInputJsonParser(IOContext ctxt, int features, DataInput inputData,
+            ObjectCodec codec, ByteQuadsCanonicalizer sym)
     {
         super(ctxt, features);
         _objectCodec = codec;
@@ -854,7 +853,6 @@ public class UTF8DataInputJsonParser
             }
             return null;
         }
-        // !!! TODO: optimize this case as well
         return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
     }
 
@@ -877,7 +875,6 @@ public class UTF8DataInputJsonParser
             }
             return defaultValue;
         }
-        // !!! TODO: optimize this case as well
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getIntValue() : defaultValue;
     }
 
@@ -900,7 +897,6 @@ public class UTF8DataInputJsonParser
             }
             return defaultValue;
         }
-        // !!! TODO: optimize this case as well
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
     }
 
@@ -1484,9 +1480,6 @@ public class UTF8DataInputJsonParser
         int currQuad = 0;
         int currQuadBytes = 0;
 
-        // !!! FIX
-        byte[] _inputBuffer = null;
-        
         while (true) {
             // Ok, we have one more byte to add at any rate:
             if (currQuadBytes < 4) {
@@ -1500,13 +1493,13 @@ public class UTF8DataInputJsonParser
                 currQuad = ch;
                 currQuadBytes = 1;
             }
-            ch = _inputBuffer[_inputPtr] & 0xFF;
+            ch = _inputData.readUnsignedByte();
             if (codes[ch] != 0) {
                 break;
             }
-            ++_inputPtr;
         }
-
+        // Note: we must "push back" character read here for future consumption
+        _nextCharByte = ch;
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growArrayBy(quads, quads.length);
@@ -1884,7 +1877,7 @@ public class UTF8DataInputJsonParser
                 c = _decodeUtf8_2(c);
                 break;
             case 3: // 3-byte UTF
-                c = _decodeUtf8_3fast(c);
+                c = _decodeUtf8_3(c);
                 break;
             case 4: // 4-byte UTF
                 c = _decodeUtf8_4(c);
@@ -2071,11 +2064,7 @@ public class UTF8DataInputJsonParser
                 c = _decodeUtf8_2(c);
                 break;
             case 3: // 3-byte UTF
-                if ((_inputEnd - _inputPtr) >= 2) {
-                    c = _decodeUtf8_3fast(c);
-                } else {
-                    c = _decodeUtf8_3(c);
-                }
+                c = _decodeUtf8_3(c);
                 break;
             case 4: // 4-byte UTF
                 c = _decodeUtf8_4(c);
@@ -2145,13 +2134,11 @@ public class UTF8DataInputJsonParser
             }
         } while (++i < len);
 
-        // !!! FIX
-        byte[] _inputBuffer = null;
-        
-        int ch = _inputBuffer[_inputPtr] & 0xFF;
+        int ch = _inputData.readUnsignedByte();
         if (ch >= '0' && ch != ']' && ch != '}') { // expected/allowed chars
             _checkMatchEnd(matchStr, i, ch);
         }
+        _nextCharByte = ch;
     }
 
     private final void _checkMatchEnd(String matchStr, int i, int ch) throws IOException {
@@ -2161,7 +2148,7 @@ public class UTF8DataInputJsonParser
             _reportInvalidToken(matchStr.substring(0, i));
         }
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, ws skipping, escape/unescape
@@ -2170,15 +2157,11 @@ public class UTF8DataInputJsonParser
 
     private final int _skipWS() throws IOException
     {
-        // !!! FIX
-        int inputPtr = 0;
-        
         while (true) {
             int i = _inputData.readUnsignedByte();
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
-                    --inputPtr;
-                    return _skipWS2(i);
+                    return _skipWSComment(i);
                 }
                 return i;
             }
@@ -2186,7 +2169,7 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private final int _skipWS2(int i) throws IOException
+    private final int _skipWSComment(int i) throws IOException
     {
         while (true) {
             if (i > INT_SPACE) {
@@ -2253,64 +2236,55 @@ public class UTF8DataInputJsonParser
 
     private final int _skipColon() throws IOException
     {
-        // !!! FIX
-        byte[] _inputBuffer = null;
-
         // Fast path: colon with optional single-space/tab before and/or after:
-        int i = _inputBuffer[_inputPtr];
+        int i = _inputData.readUnsignedByte();
         if (i == INT_COLON) { // common case, no leading space
-            i = _inputBuffer[++_inputPtr];
+            i = _inputData.readUnsignedByte();
             if (i > INT_SPACE) { // nor trailing
                 if (i == INT_SLASH || i == INT_HASH) {
-                    return _skipColon2(true);
+                    return _skipColon2(i, true);
                 }
-                ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[++_inputPtr];
+                i = _inputData.readUnsignedByte();
                 if (i > INT_SPACE) {
                     if (i == INT_SLASH || i == INT_HASH) {
-                        return _skipColon2(true);
+                        return _skipColon2(i, true);
                     }
-                    ++_inputPtr;                    
                     return i;
                 }
             }
-            return _skipColon2(true); // true -> skipped colon
+            return _skipColon2(i, true); // true -> skipped colon
         }
         if (i == INT_SPACE || i == INT_TAB) {
-            i = _inputBuffer[++_inputPtr];
+            i = _inputData.readUnsignedByte();
         }
         if (i == INT_COLON) {
-            i = _inputBuffer[++_inputPtr];
+            i = _inputData.readUnsignedByte();
             if (i > INT_SPACE) {
                 if (i == INT_SLASH || i == INT_HASH) {
-                    return _skipColon2(true);
+                    return _skipColon2(i, true);
                 }
-                ++_inputPtr;
                 return i;
             }
             if (i == INT_SPACE || i == INT_TAB) {
-                i = (int) _inputBuffer[++_inputPtr];
+                i = _inputData.readUnsignedByte();
                 if (i > INT_SPACE) {
                     if (i == INT_SLASH || i == INT_HASH) {
-                        return _skipColon2(true);
+                        return _skipColon2(i, true);
                     }
-                    ++_inputPtr;
                     return i;
                 }
             }
-            return _skipColon2(true);
+            return _skipColon2(i, true);
         }
-        return _skipColon2(false);
+        return _skipColon2(i, false);
     }
 
-    private final int _skipColon2(boolean gotColon) throws IOException
+    private final int _skipColon2(int i, boolean gotColon) throws IOException
     {
         while (true) {
-            int i = _inputData.readUnsignedByte();
-
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
                     _skipComment();
@@ -2333,6 +2307,8 @@ public class UTF8DataInputJsonParser
                 gotColon = true;
             }
             // 06-May-2016, tatu: Could verify validity of WS, but for now why bother
+
+            i = _inputData.readUnsignedByte();
         }
     }
 
@@ -2536,7 +2512,7 @@ public class UTF8DataInputJsonParser
     {
         int d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
         return ((c & 0x1F) << 6) | (d & 0x3F);
     }
@@ -2546,28 +2522,12 @@ public class UTF8DataInputJsonParser
         c1 &= 0x0F;
         int d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
         int c = (c1 << 6) | (d & 0x3F);
         d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
-        }
-        c = (c << 6) | (d & 0x3F);
-        return c;
-    }
-
-    private final int _decodeUtf8_3fast(int c1) throws IOException
-    {
-        c1 &= 0x0F;
-        int d = _inputData.readUnsignedByte();
-        if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
-        }
-        int c = (c1 << 6) | (d & 0x3F);
-        d = _inputData.readUnsignedByte();
-        if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
         return c;
@@ -2581,17 +2541,17 @@ public class UTF8DataInputJsonParser
     {
         int d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
         c = ((c & 0x07) << 6) | (d & 0x3F);
         d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
         c = (c << 6) | (d & 0x3F);
         d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
 
         /* note: won't change it to negative here, since caller
@@ -2604,7 +2564,7 @@ public class UTF8DataInputJsonParser
     {
         c = _inputData.readUnsignedByte();
         if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+            _reportInvalidOther(c & 0xFF);
         }
     }
 
@@ -2616,11 +2576,11 @@ public class UTF8DataInputJsonParser
         //c &= 0x0F;
         c = _inputData.readUnsignedByte();
         if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+            _reportInvalidOther(c & 0xFF);
         }
         c = _inputData.readUnsignedByte();
         if ((c & 0xC0) != 0x080) {
-            _reportInvalidOther(c & 0xFF, _inputPtr);
+            _reportInvalidOther(c & 0xFF);
         }
     }
 
@@ -2628,15 +2588,15 @@ public class UTF8DataInputJsonParser
     {
         int d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
         d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
         d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {
-            _reportInvalidOther(d & 0xFF, _inputPtr);
+            _reportInvalidOther(d & 0xFF);
         }
     }
 
@@ -2690,13 +2650,6 @@ public class UTF8DataInputJsonParser
         throws JsonParseException
     {
         _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
-    }
-
-    private void _reportInvalidOther(int mask, int ptr)
-        throws JsonParseException
-    {
-        _inputPtr = ptr;
-        _reportInvalidOther(mask);
     }
 
     private static int[] _growArrayBy(int[] arr, int more)

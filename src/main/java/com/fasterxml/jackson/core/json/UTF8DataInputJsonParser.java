@@ -546,6 +546,7 @@ public class UTF8DataInputJsonParser
         int i = _skipWS();
         // clear any data retained so far
         _binaryValue = null;
+        _tokenInputRow = _currInputRow;
 
         // Closing scope?
         if (i == INT_RBRACKET) {
@@ -730,6 +731,7 @@ public class UTF8DataInputJsonParser
         }
         int i = _skipWS();
         _binaryValue = null;
+        _tokenInputRow = _currInputRow;
 
         if (i == INT_RBRACKET) {
             if (!_parsingContext.inArray()) {
@@ -2742,7 +2744,9 @@ public class UTF8DataInputJsonParser
 
     @Override
     public JsonLocation getTokenLocation() {
-        return JsonLocation.NA;
+        final Object src = _ioContext.getSourceReference();
+        return new JsonLocation(src,
+                -1L, -1L, _tokenInputRow, -1);
     }
 
     @Override

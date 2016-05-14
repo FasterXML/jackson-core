@@ -597,6 +597,108 @@ if (type == MODE_INPUT_DATA) {
         assertNull(p.nextToken());
         p.close();
     }
+    
+    public void testReadText() throws Exception {
+        final String JSON = "{\"a\":\"this is a sample text for json parsing using readText() method\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
+        //create parser in reader mode..
+        JsonParser parser = _createParser(MODE_READER, JSON);
+        //move the token until the string field
+        parser.nextToken();
+        parser.nextToken();
+        parser.nextToken();
+        
+        Writer writer = new StringWriter();
+        while(!parser.readText(writer)) {
+            writer.flush();
+            assertTrue("String not empty", writer.toString().length() > 0);
+        }
+        
+        assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
+        
+        //create parser in stream mode..
+        parser = _createParser(MODE_INPUT_STREAM, JSON);
+        //move the token until the string field
+        parser.nextToken();
+        parser.nextToken();
+        parser.nextToken();
+        
+        writer = new StringWriter();
+        while(!parser.readText(writer)) {
+            writer.flush();
+            assertTrue("String not empty", writer.toString().length() > 0);
+        }
+        
+        assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
+        
+        //create parser in data input mode..
+        parser = createParserForDataInput(JSON_FACTORY, new MockDataInput(JSON));
+        //move the token until the string field
+        parser.nextToken();
+        parser.nextToken();
+        parser.nextToken();
+        
+        writer = new StringWriter();
+        while(!parser.readText(writer)) {
+            writer.flush();
+            assertTrue("String not empty", writer.toString().length() > 0);
+        }
+        
+        assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
+    }
+    
+    public void testLongerReadText() throws Exception {
+        StringBuilder builder = new StringBuilder();
+        for(int i= 0; i < 1000; i++) {
+            builder.append("Sample Text"+i);
+        }
+        String longText = builder.toString();
+        final String JSON = "{\"a\":\""+ longText +"\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
+        //create parser in reader mode..
+        JsonParser parser = _createParser(MODE_READER, JSON);
+        //move the token until the string field
+        parser.nextToken();
+        parser.nextToken();
+        parser.nextToken();
+        
+        Writer writer = new StringWriter();
+        while(!parser.readText(writer)) {
+            writer.flush();
+            assertTrue("String not empty", writer.toString().length() > 0);
+        }
+        
+        assertTrue("String length should be same", writer.toString().length() == longText.length());
+        
+        //create parser in stream mode..
+        parser = _createParser(MODE_INPUT_STREAM, JSON);
+        //move the token until the string field
+        parser.nextToken();
+        parser.nextToken();
+        parser.nextToken();
+        
+        writer = new StringWriter();
+        while(!parser.readText(writer)) {
+            writer.flush();
+            assertTrue("String not empty", writer.toString().length() > 0);
+        }
+        
+        assertTrue("String length should be same", writer.toString().length() == longText.length());
+        
+        //create parser in data input mode..
+        parser = _createParser(MODE_INPUT_DATA, SAMPLE_DOC_JSON_SPEC);
+        //move the token until the string field
+        parser.nextToken();
+        parser.nextToken();
+        parser.nextToken();
+        
+        writer = new StringWriter();
+        while(!parser.readText(writer)) {
+            writer.flush();
+            assertTrue("String not empty", writer.toString().length() > 0);
+        }
+        //Need to check this...
+        //assertTrue("String length should be same", writer.toString().length() == SAMPLE_DOC_JSON_SPEC.length());
+        
+    }
 
     /*
     /**********************************************************

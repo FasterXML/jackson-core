@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -140,6 +141,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public char[] getTextCharacters() throws IOException { return delegate.getTextCharacters(); }
     @Override public int getTextLength() throws IOException { return delegate.getTextLength(); }
     @Override public int getTextOffset() throws IOException { return delegate.getTextOffset(); }
+    @Override public boolean readText(Writer writer) throws IOException { return delegate.readText(writer);  }
 
     /*
     /**********************************************************

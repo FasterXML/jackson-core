@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.util;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.core.io.NumberInput;
 
@@ -554,6 +555,15 @@ public final class TextBuffer
         return curr;
     }
 
+    /**
+     * Returns the raw list of character segments
+     * 
+     * @return The character segments
+     */
+    public List<char[]> getCharacterSegments() {
+        return _segments;
+    }
+    
     public int getCurrentSegmentSize() { return _currentSize; }
     public void setCurrentLength(int len) { _currentSize = len; }
 

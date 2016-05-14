@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
- * Unit tests for [Issue#31] (https://github.com/FasterXML/jackson-core/issues/31)
+ * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
  */
 public class TestJDKSerializability extends BaseTest
 {
@@ -128,7 +128,7 @@ public class TestJDKSerializability extends BaseTest
             objIn.close();
         }
     }
-    
+
     @SuppressWarnings("resource")
     protected String _copyJson(JsonFactory f, String json, boolean useBytes) throws IOException
     {
@@ -144,13 +144,13 @@ public class TestJDKSerializability extends BaseTest
         return sw.toString();
     }
         
-    protected void _copyJson(JsonFactory f, String json, JsonGenerator jg) throws IOException
+    protected void _copyJson(JsonFactory f, String json, JsonGenerator g) throws IOException
     {
-        JsonParser jp = f.createParser(json);
-        while (jp.nextToken() != null) {
-            jg.copyCurrentEvent(jp);
+        JsonParser p = f.createParser(json);
+        while (p.nextToken() != null) {
+            g.copyCurrentEvent(p);
         }
-        jp.close();
-        jg.close();
+        p.close();
+        g.close();
     }
 }

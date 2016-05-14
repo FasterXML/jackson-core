@@ -442,6 +442,9 @@ public class JsonFactory
      * @since 2.1
      */
     public boolean canUseSchema(FormatSchema schema) {
+        if (schema == null){
+            return false;
+        }
         String ourFormat = getFormatName();
         return (ourFormat != null) && ourFormat.equals(schema.getSchemaType());
     }

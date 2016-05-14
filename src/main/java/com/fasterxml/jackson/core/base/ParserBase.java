@@ -1152,7 +1152,8 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /*
     /**********************************************************
-    /* Stuff deprecated in 2.8, to be removed in 2.9 or later
+    /* Stuff that was abstract and required before 2.8, but that
+    /* is not mandatory in 2.8 or above.
     /**********************************************************
      */
 
@@ -1164,6 +1165,6 @@ public abstract class ParserBase extends ParserMinimalBase
     @Deprecated // since 2.8
     protected boolean loadMore() throws IOException { return false; }
 
-    @Deprecated // since 2.8
+    // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
 }

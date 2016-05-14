@@ -1787,6 +1787,7 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
+    @Override
     protected void _finishString() throws IOException
     {
         int outPtr = 0;

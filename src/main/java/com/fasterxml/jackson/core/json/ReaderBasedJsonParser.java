@@ -165,7 +165,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     protected char getNextChar(String eofMsg) throws IOException {
         if (_inputPtr >= _inputEnd) {
-            if (!loadMore()) { _reportInvalidEOF(eofMsg); }
+            if (!_loadMore()) { _reportInvalidEOF(eofMsg); }
         }
         return _inputBuffer[_inputPtr++];
     }
@@ -214,11 +214,11 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /**********************************************************
      */
 
-    protected void loadMoreGuaranteed() throws IOException {
-        if (!loadMore()) { _reportInvalidEOF(); }
+    protected void _loadMoreGuaranteed() throws IOException {
+        if (!_loadMore()) { _reportInvalidEOF(); }
     }
     
-    protected boolean loadMore() throws IOException
+    protected boolean _loadMore() throws IOException
     {
         final int bufSize = _inputEnd;
 
@@ -466,7 +466,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             char ch;
             do {
                 if (_inputPtr >= _inputEnd) {
-                    loadMoreGuaranteed();
+                    _loadMoreGuaranteed();
                 }
                 ch = _inputBuffer[_inputPtr++];
             } while (ch <= INT_SPACE);
@@ -493,7 +493,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             // then second base64 char; can't get padding yet, nor ws
 
             if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+                _loadMoreGuaranteed();
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -504,7 +504,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
             // third base64 char; can be padding, but not ws
             if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+                _loadMoreGuaranteed();
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -523,7 +523,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
                     // Ok, must get padding
                     if (_inputPtr >= _inputEnd) {
-                        loadMoreGuaranteed();
+                        _loadMoreGuaranteed();
                     }
                     ch = _inputBuffer[_inputPtr++];
                     if (!b64variant.usesPaddingChar(ch)) {
@@ -539,7 +539,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
             if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+                _loadMoreGuaranteed();
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -1428,7 +1428,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 outPtr = 0;
             }
             outBuf[outPtr++] = c;
-            if (_inputPtr >= _inputEnd && !loadMore()) {
+            if (_inputPtr >= _inputEnd && !_loadMore()) {
                 // EOF is legal for main level int values
                 c = CHAR_NULL;
                 eof = true;
@@ -1448,7 +1448,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
             fract_loop:
             while (true) {
-                if (_inputPtr >= _inputEnd && !loadMore()) {
+                if (_inputPtr >= _inputEnd && !_loadMore()) {
                     eof = true;
                     break fract_loop;
                 }
@@ -1499,7 +1499,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     outPtr = 0;
                 }
                 outBuf[outPtr++] = c;
-                if (_inputPtr >= _inputEnd && !loadMore()) {
+                if (_inputPtr >= _inputEnd && !_loadMore()) {
                     eof = true;
                     break exp_loop;
                 }
@@ -1543,7 +1543,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     private char _verifyNLZ2() throws IOException
     {
-        if (_inputPtr >= _inputEnd && !loadMore()) {
+        if (_inputPtr >= _inputEnd && !_loadMore()) {
             return '0';
         }
         char ch = _inputBuffer[_inputPtr];
@@ -1556,7 +1556,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)
         ++_inputPtr; // Leading zero to be skipped
         if (ch == INT_0) {
-            while (_inputPtr < _inputEnd || loadMore()) {
+            while (_inputPtr < _inputEnd || _loadMore()) {
                 ch = _inputBuffer[_inputPtr];
                 if (ch < '0' || ch > '9') { // followed by non-number; retain one zero
                     return '0';
@@ -1578,7 +1578,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     {
         if (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) { _reportInvalidEOFInValue(); }
+                if (!_loadMore()) { _reportInvalidEOFInValue(); }
             }
             ch = _inputBuffer[_inputPtr++];
             if (ch == 'N') {
@@ -1671,7 +1671,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     _reportInvalidEOF(": was expecting closing '"+((char) endChar)+"' for name");
                 }
             }
@@ -1851,7 +1851,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             break;
         case '+': // note: '-' is taken as number
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     _reportInvalidEOFInValue();
                 }
             }
@@ -1873,7 +1873,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     _reportInvalidEOF(": was expecting closing quote for a string value");
                 }
             }
@@ -1916,7 +1916,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) { // acceptable for now (will error out later)
+                if (!_loadMore()) { // acceptable for now (will error out later)
                     break;
                 }
             }
@@ -1951,6 +1951,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
     }
 
+    @Override
     protected final void _finishString() throws IOException
     {
         /* First: let's try to see if we have simple String value: one
@@ -1996,7 +1997,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     _reportInvalidEOF(": was expecting closing quote for a string value");
                 }
             }
@@ -2042,7 +2043,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         while (true) {
             if (inPtr >= inLen) {
                 _inputPtr = inPtr;
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     _reportInvalidEOF(": was expecting closing quote for a string value");
                 }
                 inPtr = _inputPtr;
@@ -2085,7 +2086,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * (to see if we have \n following \r).
      */
     protected final void _skipCR() throws IOException {
-        if (_inputPtr < _inputEnd || loadMore()) {
+        if (_inputPtr < _inputEnd || _loadMore()) {
             if (_inputBuffer[_inputPtr] == '\n') {
                 ++_inputPtr;
             }
@@ -2152,7 +2153,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+                _loadMoreGuaranteed();
             }
             int i = (int) _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
@@ -2269,7 +2270,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     private final int _skipAfterComma2() throws IOException
     {
-        while (_inputPtr < _inputEnd || loadMore()) {
+        while (_inputPtr < _inputEnd || _loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
@@ -2302,7 +2303,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         // Let's handle first character separately since it is likely that
         // it is either non-whitespace; or we have longer run of white space
         if (_inputPtr >= _inputEnd) {
-            if (!loadMore()) {
+            if (!_loadMore()) {
                 return _eofAsNextChar();
             }
         }
@@ -2352,7 +2353,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) { // We ran out of input...
+                if (!_loadMore()) { // We ran out of input...
                     return _eofAsNextChar();
                 }
             }
@@ -2387,7 +2388,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
-        if (_inputPtr >= _inputEnd && !loadMore()) {
+        if (_inputPtr >= _inputEnd && !_loadMore()) {
             _reportInvalidEOF(" in a comment");
         }
         char c = _inputBuffer[_inputPtr++];
@@ -2403,11 +2404,11 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     private void _skipCComment() throws IOException
     {
         // Ok: need the matching '*/'
-        while ((_inputPtr < _inputEnd) || loadMore()) {
+        while ((_inputPtr < _inputEnd) || _loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
             if (i <= '*') {
                 if (i == '*') { // end?
-                    if ((_inputPtr >= _inputEnd) && !loadMore()) {
+                    if ((_inputPtr >= _inputEnd) && !_loadMore()) {
                         break;
                     }
                     if (_inputBuffer[_inputPtr] == INT_SLASH) {
@@ -2443,7 +2444,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     private void _skipLine() throws IOException
     {
         // Ok: need to find EOF or linefeed
-        while ((_inputPtr < _inputEnd) || loadMore()) {
+        while ((_inputPtr < _inputEnd) || _loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
             if (i < INT_SPACE) {
                 if (i == INT_LF) {
@@ -2464,7 +2465,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     protected char _decodeEscaped() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
-            if (!loadMore()) {
+            if (!_loadMore()) {
                 _reportInvalidEOF(" in character escape sequence");
             }
         }
@@ -2500,7 +2501,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         int value = 0;
         for (int i = 0; i < 4; ++i) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     _reportInvalidEOF(" in character escape sequence");
                 }
             }
@@ -2571,7 +2572,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         do {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     _reportInvalidToken(matchStr.substring(0, i));
                 }
             }
@@ -2583,7 +2584,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
         // but let's also ensure we either get EOF, or non-alphanum char...
         if (_inputPtr >= _inputEnd) {
-            if (!loadMore()) {
+            if (!_loadMore()) {
                 return;
             }
         }
@@ -2619,7 +2620,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             char ch;
             do {
                 if (_inputPtr >= _inputEnd) {
-                    loadMoreGuaranteed();
+                    _loadMoreGuaranteed();
                 }
                 ch = _inputBuffer[_inputPtr++];
             } while (ch <= INT_SPACE);
@@ -2638,7 +2639,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             // then second base64 char; can't get padding yet, nor ws
 
             if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+                _loadMoreGuaranteed();
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -2649,7 +2650,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
             // third base64 char; can be padding, but not ws
             if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+                _loadMoreGuaranteed();
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -2668,7 +2669,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
                     // Ok, must get more padding chars, then
                     if (_inputPtr >= _inputEnd) {
-                        loadMoreGuaranteed();
+                        _loadMoreGuaranteed();
                     }
                     ch = _inputBuffer[_inputPtr++];
                     if (!b64variant.usesPaddingChar(ch)) {
@@ -2685,7 +2686,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
             if (_inputPtr >= _inputEnd) {
-                loadMoreGuaranteed();
+                _loadMoreGuaranteed();
             }
             ch = _inputBuffer[_inputPtr++];
             bits = b64variant.decodeBase64Char(ch);
@@ -2781,7 +2782,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
          */
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                if (!loadMore()) {
+                if (!_loadMore()) {
                     break;
                 }
             }

@@ -834,8 +834,12 @@ public abstract class JsonParser
      *   if any: null before any tokens have been read, and
      *   after end-of-input has been encountered, as well as
      *   if the current token has been explicitly cleared.
+     *
+     * @since 2.8
      */
-    public abstract JsonToken getCurrentToken();
+    public JsonToken currentToken() {
+        return getCurrentToken();
+    }
 
     /**
      * Method similar to {@link #getCurrentToken()} but that returns an
@@ -846,9 +850,21 @@ public abstract class JsonParser
      * Note, however, that effect may not be big enough to matter: make sure
      * to profile performance before deciding to use this method.
      * 
-     * @since 2.3
+     * @since 2.8
      * 
      * @return <code>int</code> matching one of constants from {@link JsonTokenId}.
+     */
+    public int currentTokenId() {
+        return getCurrentTokenId();
+    }
+
+    /**
+     * Alias for {@link #currentToken()}, will be deprecated in Jackson 2.9
+     */
+    public abstract JsonToken getCurrentToken();
+
+    /**
+     * Alias for {@link #currentTokenId()}, will be deprecated in Jackson 2.9
      */
     public abstract int getCurrentTokenId();
     

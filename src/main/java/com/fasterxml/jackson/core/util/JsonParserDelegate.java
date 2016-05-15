@@ -106,7 +106,10 @@ public class JsonParserDelegate extends JsonParser
     /* Public API, token accessors
     /**********************************************************
      */
- 
+
+    @Override public JsonToken currentToken() { return delegate.currentToken(); }
+    @Override public int currentTokenId() { return delegate.currentTokenId(); }
+    
     @Override public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
     @Override public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
     @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }

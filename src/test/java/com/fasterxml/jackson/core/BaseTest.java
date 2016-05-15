@@ -145,7 +145,7 @@ public abstract class BaseTest
         if (!p.hasCurrentToken()) {
             p.nextToken();
         }
-        assertToken(JsonToken.START_OBJECT, p.getCurrentToken()); // main object
+        assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Image'
         if (verifyContents) {
@@ -369,7 +369,7 @@ public abstract class BaseTest
 
     protected void assertToken(JsonToken expToken, JsonParser p)
     {
-        assertToken(expToken, p.getCurrentToken());
+        assertToken(expToken, p.currentToken());
     }
 
     protected void assertType(Object ob, Class<?> expType)
@@ -410,7 +410,7 @@ public abstract class BaseTest
         String str = p.getText();
 
         if (str.length() !=  actLen) {
-            fail("Internal problem (p.token == "+p.getCurrentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);
+            fail("Internal problem (p.token == "+p.currentToken()+"): p.getText().length() ['"+str+"'] == "+str.length()+"; p.getTextLength() == "+actLen);
         }
         assertEquals("String access via getText(), getTextXxx() must be the same", str, str2);
 

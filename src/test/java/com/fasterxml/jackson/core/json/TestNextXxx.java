@@ -7,6 +7,7 @@ import java.util.Random;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 
@@ -102,111 +103,112 @@ public class TestNextXxx
     private void _testIsNextTokenName1(boolean useStream) throws Exception
     {
         final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
-        JsonFactory jf = new JsonFactory();
-        JsonParser jp = useStream ?
-            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-            : jf.createParser(new StringReader(DOC));
+        JsonFactory f = new JsonFactory();
+        JsonParser p = useStream
+            ? f.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : f.createParser(new StringReader(DOC));
         final SerializedString NAME = new SerializedString("name");
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.START_OBJECT, jp.getCurrentToken());
-        assertTrue(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals(NAME.getValue(), jp.getCurrentName());
-        assertEquals(NAME.getValue(), jp.getText());
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.getCurrentToken());
-        assertEquals(123, jp.getIntValue());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.START_OBJECT, p.currentToken());
+        assertEquals(JsonTokenId.ID_START_OBJECT, p.currentTokenId());
+        assertTrue(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals(NAME.getValue(), p.getCurrentName());
+        assertEquals(NAME.getValue(), p.getText());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+        assertEquals(123, p.getIntValue());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals("name2", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals("name2", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // do NOT check number value, to enforce skipping
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals("x", jp.getCurrentName());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals("x", p.getCurrentName());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.VALUE_STRING, jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.END_OBJECT, jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertNull(jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertNull(p.currentToken());
 
-        jp.close();
+        p.close();
 
         // Actually, try again with slightly different sequence...
-        jp = useStream ? jf.createParser(DOC.getBytes("UTF-8"))
-                : jf.createParser(DOC);
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertFalse(jp.nextFieldName(new SerializedString("Nam")));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals(NAME.getValue(), jp.getCurrentName());
-        assertEquals(NAME.getValue(), jp.getText());
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.getCurrentToken());
-        assertEquals(123, jp.getIntValue());
+        p = useStream ? f.createParser(DOC.getBytes("UTF-8"))
+                : f.createParser(DOC);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertFalse(p.nextFieldName(new SerializedString("Nam")));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals(NAME.getValue(), p.getCurrentName());
+        assertEquals(NAME.getValue(), p.getText());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+        assertEquals(123, p.getIntValue());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals("name2", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals("name2", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals("x", jp.getCurrentName());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals("x", p.getCurrentName());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.VALUE_STRING, jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.END_OBJECT, jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertNull(jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertNull(p.currentToken());
 
-        jp.close();
+        p.close();
     }
 
     private void _testIsNextTokenName2(boolean useStream) throws Exception
     {
         final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
-        JsonParser jp = useStream ?
+        JsonParser p = useStream ?
                 JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : JSON_F.createParser(new StringReader(DOC));
         SerializableString NAME = new SerializedString("name");
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.START_OBJECT, jp.getCurrentToken());
-        assertTrue(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals(NAME.getValue(), jp.getCurrentName());
-        assertEquals(NAME.getValue(), jp.getText());
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.getCurrentToken());
-        assertEquals(123, jp.getIntValue());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.START_OBJECT, p.currentToken());
+        assertTrue(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals(NAME.getValue(), p.getCurrentName());
+        assertEquals(NAME.getValue(), p.getText());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
+        assertEquals(123, p.getIntValue());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals("name2", jp.getCurrentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals("name2", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.FIELD_NAME, jp.getCurrentToken());
-        assertEquals("x", jp.getCurrentName());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
+        assertEquals("x", p.getCurrentName());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.VALUE_STRING, jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertToken(JsonToken.END_OBJECT, jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
 
-        assertFalse(jp.nextFieldName(NAME));
-        assertNull(jp.getCurrentToken());
+        assertFalse(p.nextFieldName(NAME));
+        assertNull(p.currentToken());
 
-        jp.close();
+        p.close();
     }
 
     private void _testIsNextTokenName3(boolean useStream) throws Exception
@@ -216,32 +218,32 @@ public class TestNextXxx
                 JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : JSON_F.createParser(new StringReader(DOC));
         assertNull(p.nextFieldName());
-        assertToken(JsonToken.START_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertEquals("name", p.nextFieldName());
-        assertToken(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("name", p.getCurrentName());
         assertEquals("name", p.getText());
         assertNull(p.nextFieldName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(123, p.getIntValue());
 
         assertEquals("name2", p.nextFieldName());
-        assertToken(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("name2", p.getCurrentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
         assertEquals("x", p.nextFieldName());
-        assertToken(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("x", p.getCurrentName());
 
         assertNull(p.nextFieldName());
-        assertToken(JsonToken.VALUE_STRING, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
         assertNull(p.nextFieldName());
-        assertToken(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
 
         assertNull(p.nextFieldName());
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
 
         p.close();
     }
@@ -249,22 +251,22 @@ public class TestNextXxx
     private void _testIsNextTokenName4(boolean useStream) throws Exception
     {
         final String DOC = "{\"name\":-123,\"name2\":99}";
-        JsonParser jp = useStream ?
+        JsonParser p = useStream ?
                 JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : JSON_F.createParser(new StringReader(DOC));
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertTrue(jp.nextFieldName(new SerializedString("name")));
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(-123, jp.getIntValue());
+        assertTrue(p.nextFieldName(new SerializedString("name")));
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(-123, p.getIntValue());
 
-        assertTrue(jp.nextFieldName(new SerializedString("name2")));
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(99, jp.getIntValue());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        assertNull(jp.nextToken());
+        assertTrue(p.nextFieldName(new SerializedString("name2")));
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(99, p.getIntValue());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.nextToken());
 
-        jp.close();
+        p.close();
     }
 
     private void _testNextFieldNameIndent(boolean useStream) throws Exception
@@ -292,31 +294,31 @@ public class TestNextXxx
             JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : JSON_F.createParser(new StringReader(DOC));
         assertNull(p.nextTextValue());
-        assertToken(JsonToken.START_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertNull(p.nextTextValue());
-        assertToken(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("a", p.getCurrentName());
 
         assertEquals("123", p.nextTextValue());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("b", p.getCurrentName());
         assertNull(p.nextFieldName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
 
         assertEquals("c", p.nextFieldName());
         
         assertNull(p.nextTextValue());
-        assertToken(JsonToken.START_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertNull(p.nextTextValue());
-        assertToken(JsonToken.VALUE_FALSE, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_FALSE, p.currentToken());
         assertEquals("foo", p.nextTextValue());
         
         assertNull(p.nextTextValue());
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertNull(p.nextTextValue());
-        assertToken(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
         assertNull(p.nextTextValue());
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
 
         p.close();
     }
@@ -328,13 +330,13 @@ public class TestNextXxx
             JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : JSON_F.createParser(new StringReader(DOC));
         assertEquals(0, p.nextIntValue(0));
-        assertToken(JsonToken.START_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertEquals(0, p.nextIntValue(0));
-        assertToken(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("a", p.getCurrentName());
 
         assertEquals(0, p.nextIntValue(0));
-        assertToken(JsonToken.VALUE_STRING, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_STRING, p.currentToken());
         assertEquals("123", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("b", p.getCurrentName());
@@ -343,17 +345,17 @@ public class TestNextXxx
         assertEquals("c", p.nextFieldName());
         
         assertEquals(0, p.nextIntValue(0));
-        assertToken(JsonToken.START_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertEquals(0, p.nextIntValue(0));
-        assertToken(JsonToken.VALUE_FALSE, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_FALSE, p.currentToken());
         assertEquals(456, p.nextIntValue(0));
         
         assertEquals(0, p.nextIntValue(0));
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertEquals(0, p.nextIntValue(0));
-        assertToken(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
         assertEquals(0, p.nextIntValue(0));
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
 
         p.close();
     }
@@ -365,13 +367,13 @@ public class TestNextXxx
             JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : JSON_F.createParser(new StringReader(DOC));
         assertEquals(0L, p.nextLongValue(0L));
-        assertToken(JsonToken.START_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertEquals(0L, p.nextLongValue(0L));
-        assertToken(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("a", p.getCurrentName());
 
         assertEquals(0L, p.nextLongValue(0L));
-        assertToken(JsonToken.VALUE_STRING, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_STRING, p.currentToken());
         assertEquals("xyz", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("b", p.getCurrentName());
@@ -380,17 +382,17 @@ public class TestNextXxx
         assertEquals("c", p.nextFieldName());
         
         assertEquals(0L, p.nextLongValue(0L));
-        assertToken(JsonToken.START_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertEquals(0L, p.nextLongValue(0L));
-        assertToken(JsonToken.VALUE_FALSE, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_FALSE, p.currentToken());
         assertEquals(-1L, p.nextLongValue(0L));
         
         assertEquals(0L, p.nextLongValue(0L));
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertEquals(0L, p.nextLongValue(0L));
-        assertToken(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
         assertEquals(0L, p.nextLongValue(0L));
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
 
         p.close();
     }
@@ -402,13 +404,13 @@ public class TestNextXxx
             JSON_F.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
             : JSON_F.createParser(new StringReader(DOC));
         assertNull(p.nextBooleanValue());
-        assertToken(JsonToken.START_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertNull(p.nextBooleanValue());
-        assertToken(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertToken(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("a", p.getCurrentName());
 
         assertNull(p.nextBooleanValue());
-        assertToken(JsonToken.VALUE_STRING, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_STRING, p.currentToken());
         assertEquals("xyz", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("b", p.getCurrentName());
@@ -417,18 +419,18 @@ public class TestNextXxx
         assertEquals("c", p.nextFieldName());
         
         assertNull(p.nextBooleanValue());
-        assertToken(JsonToken.START_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.START_ARRAY, p.currentToken());
         assertEquals(Boolean.FALSE, p.nextBooleanValue());
         assertNull(p.nextBooleanValue());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(0, p.getIntValue());
         
         assertNull(p.nextBooleanValue());
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertNull(p.nextBooleanValue());
-        assertToken(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
         assertNull(p.nextBooleanValue());
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
 
         p.close();
     }
@@ -446,10 +448,10 @@ public class TestNextXxx
         final String DOC = sb.toString();
 
         SerializableString fieldName = new SerializedString("fieldName");
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         JsonParser parser = useStream ?
-            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-            : jf.createParser(new StringReader(DOC));
+            f.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : f.createParser(new StringReader(DOC));
 
         for (int i = 0; i < TESTROUNDS - 1; i++) {
             assertEquals(JsonToken.START_OBJECT, parser.nextToken());
@@ -472,10 +474,10 @@ public class TestNextXxx
     {
         final String DOC = "{\"field\" :\"value\"}";
         SerializableString fieldName = new SerializedString("field");
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         JsonParser parser = useStream ?
-            jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-            : jf.createParser(new StringReader(DOC));
+            f.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+            : f.createParser(new StringReader(DOC));
         assertEquals(JsonToken.START_OBJECT, parser.nextToken());
         assertTrue(parser.nextFieldName(fieldName));
         assertEquals(JsonToken.VALUE_STRING, parser.nextToken());

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.util.List;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
@@ -95,6 +96,12 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * @since 2.7
      */
     protected int _nameStartCol;
+    
+    /**
+     * Indicates the currently read text buffer index which refers to the 
+     * TextBuffer character segment
+     */
+    protected int _readTextBufferIndex;
 
     /*
     /**********************************************************
@@ -122,6 +129,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = bufferRecyclable;
+        _readTextBufferIndex = 0;
     }
 
     /**
@@ -140,6 +148,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = true;
+        _readTextBufferIndex = 0;
     }
 
     /*
@@ -271,6 +280,51 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return _textBuffer.contentsAsString();
         }
         return _getText2(t);
+    }
+    
+    @Override
+    public final int readText(Writer writer) throws IOException, UnsupportedOperationException {
+        JsonToken t = _currToken;
+        //Stores the length of the bytes read
+        int len = 0;
+        if (t == JsonToken.VALUE_STRING) {
+            if (_tokenIncomplete) {
+                _tokenIncomplete = false;
+                _finishString(); // only strings can be incomplete
+            }
+            List<char[]> segments = _textBuffer.getCharacterSegments();
+            
+            //if there are character segments, then use them and write them to the writer
+            while(segments != null && _readTextBufferIndex < segments.size()) {
+                writer.write(segments.get(_readTextBufferIndex));
+                len += segments.get(_readTextBufferIndex).length;
+                _readTextBufferIndex++;
+            }
+            //if there are no character segments left, then read the string from the current segment, and 
+            //write them directly to the buffer
+            writer.write(_textBuffer.getCurrentSegment(), 0, _textBuffer.getCurrentSegmentSize());
+            len += _textBuffer.getCurrentSegmentSize();
+           
+        }
+        else if(t != null) {
+            switch (t.id()) {
+            case ID_FIELD_NAME:
+                writer.write(_parsingContext.getCurrentName());
+                break;    
+            case ID_STRING:
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
+                writer.write(_textBuffer.contentsAsString());
+                break;
+            default:
+                writer.write(t.asString());
+            }
+        }
+        //resetting the text buffer index back to zero, once all the chunks are passed to the
+        //given writer object
+        _readTextBufferIndex = 0;
+        
+        return len;
     }
 
     // // // Let's override default impls for improved performance

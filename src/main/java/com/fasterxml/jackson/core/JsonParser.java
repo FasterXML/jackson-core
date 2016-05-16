@@ -1029,6 +1029,16 @@ public abstract class JsonParser
      * Method can be called for any token type.
      */
     public abstract String getText() throws IOException;
+    
+    /**
+     * Method to read the textual representation of the current token in chunks and 
+     * pass it to the given Writer
+     * 
+     *  @return The number of characters written to the Writer 
+     *  
+     *  @since 2.5
+     */
+    public abstract int readText(Writer writer) throws IOException, UnsupportedOperationException;
 
     /**
      * Method similar to {@link #getText}, but that will return

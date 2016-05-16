@@ -97,12 +97,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      */
     protected int _nameStartCol;
     
-    /**
-     * Indicates the currently read text buffer index which refers to the 
-     * TextBuffer character segment
-     */
-    protected int _readTextBufferIndex;
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -129,7 +123,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = bufferRecyclable;
-        _readTextBufferIndex = 0;
     }
 
     /**
@@ -148,7 +141,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = true;
-        _readTextBufferIndex = 0;
     }
 
     /*
@@ -283,8 +275,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     }
     
     @Override
-    public final boolean readText(Writer writer) throws IOException {
+    public final int readText(Writer writer) throws IOException, UnsupportedOperationException {
         JsonToken t = _currToken;
+        //Stores the length of the bytes read
+        int len = 0;
         if (t == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
@@ -292,17 +286,19 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             List<char[]> segments = _textBuffer.getCharacterSegments();
             
-            
+            //Indicates the currently read text buffer index which refers to the 
+            //TextBuffer character segment
+            int readTextBufferIndex = 0;
             //if there are character segments, then use them and write them to the writer
-            if(segments != null && _readTextBufferIndex < segments.size()) {
-                writer.write(segments.get(_readTextBufferIndex++));
-                return false;
+            while(segments != null && readTextBufferIndex < segments.size()) {
+                writer.write(segments.get(readTextBufferIndex));
+                len += segments.get(readTextBufferIndex).length;
+                readTextBufferIndex++;
             }
-            //if there are no character segments, then read the string from the current segment, and 
+            //if there are no character segments left, then read the string from the current segment, and 
             //write them directly to the buffer
-            else {
-                writer.write(_textBuffer.getCurrentSegment(), 0, _textBuffer.getCurrentSegmentSize());
-            }
+            writer.write(_textBuffer.getCurrentSegment(), 0, _textBuffer.getCurrentSegmentSize());
+            len += _textBuffer.getCurrentSegmentSize();
            
         }
         else if(t != null) {
@@ -319,10 +315,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 writer.write(t.asString());
             }
         }
-        //resetting the text buffer index back to zero, once all the chunks are passed to the
-        //given writer object
-        _readTextBufferIndex = 0;
-        return true;
+        
+        return len;
     }
 
     // // // Let's override default impls for improved performance

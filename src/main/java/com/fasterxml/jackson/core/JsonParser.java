@@ -1018,10 +1018,11 @@ public abstract class JsonParser
      * Method to read the textual representation of the current token in chunks and 
      * pass it to the given Writer
      * 
-     *  @return true, if the text chunks has been processed completely and passed to the given writer
-     *          false, if the text chunks are still being processed
+     *  @return The number of characters written to the Writer 
+     *  
+     *  @since 2.5
      */
-    public abstract boolean readText(Writer writer) throws IOException;
+    public abstract int readText(Writer writer) throws IOException, UnsupportedOperationException;
 
     /**
      * Method similar to {@link #getText}, but that will return

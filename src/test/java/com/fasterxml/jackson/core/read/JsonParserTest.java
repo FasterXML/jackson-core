@@ -608,12 +608,10 @@ if (type == MODE_INPUT_DATA) {
         parser.nextToken();
         
         Writer writer = new StringWriter();
-        while(!parser.readText(writer)) {
-            writer.flush();
-            assertTrue("String not empty", writer.toString().length() > 0);
-        }
+        int len = parser.readText(writer);
         
         assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
+        assertEquals("Returned length should be same", len, writer.toString().length());
         
         //create parser in stream mode..
         parser = _createParser(MODE_INPUT_STREAM, JSON);
@@ -623,12 +621,10 @@ if (type == MODE_INPUT_DATA) {
         parser.nextToken();
         
         writer = new StringWriter();
-        while(!parser.readText(writer)) {
-            writer.flush();
-            assertTrue("String not empty", writer.toString().length() > 0);
-        }
+        len = parser.readText(writer);
         
         assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
+        assertEquals("Returned length should be same", len, writer.toString().length());
         
         //create parser in data input mode..
         parser = createParserForDataInput(JSON_FACTORY, new MockDataInput(JSON));
@@ -638,12 +634,10 @@ if (type == MODE_INPUT_DATA) {
         parser.nextToken();
         
         writer = new StringWriter();
-        while(!parser.readText(writer)) {
-            writer.flush();
-            assertTrue("String not empty", writer.toString().length() > 0);
-        }
+        len = parser.readText(writer);
         
         assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
+        assertEquals("Returned length should be same", len, writer.toString().length());
     }
     
     public void testLongerReadText() throws Exception {
@@ -661,12 +655,8 @@ if (type == MODE_INPUT_DATA) {
         parser.nextToken();
         
         Writer writer = new StringWriter();
-        while(!parser.readText(writer)) {
-            writer.flush();
-            assertTrue("String not empty", writer.toString().length() > 0);
-        }
-        
-        assertTrue("String length should be same", writer.toString().length() == longText.length());
+        int len = parser.readText(writer);
+        assertEquals("Returned length should be same", len, writer.toString().length());
         
         //create parser in stream mode..
         parser = _createParser(MODE_INPUT_STREAM, JSON);
@@ -676,27 +666,19 @@ if (type == MODE_INPUT_DATA) {
         parser.nextToken();
         
         writer = new StringWriter();
-        while(!parser.readText(writer)) {
-            writer.flush();
-            assertTrue("String not empty", writer.toString().length() > 0);
-        }
-        
-        assertTrue("String length should be same", writer.toString().length() == longText.length());
+        len = parser.readText(writer);
+        assertEquals("Returned length should be same", len, writer.toString().length());
         
         //create parser in data input mode..
-        parser = _createParser(MODE_INPUT_DATA, SAMPLE_DOC_JSON_SPEC);
+        parser = _createParser(MODE_INPUT_DATA, JSON);
         //move the token until the string field
         parser.nextToken();
         parser.nextToken();
         parser.nextToken();
         
         writer = new StringWriter();
-        while(!parser.readText(writer)) {
-            writer.flush();
-            assertTrue("String not empty", writer.toString().length() > 0);
-        }
-        //Need to check this...
-        //assertTrue("String length should be same", writer.toString().length() == SAMPLE_DOC_JSON_SPEC.length());
+        len = parser.readText(writer);
+        assertEquals("Returned length should be same", len, writer.toString().length());
         
     }
 

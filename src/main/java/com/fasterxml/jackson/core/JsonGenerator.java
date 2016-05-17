@@ -347,7 +347,7 @@ public abstract class JsonGenerator
      *
      * @return This parser object, to allow chaining of calls
      *
-     * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead
+     * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead -- remove from 2.9
      */
     @Deprecated
     public abstract JsonGenerator setFeatureMask(int values);

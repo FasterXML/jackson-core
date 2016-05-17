@@ -97,7 +97,7 @@ public class UTF8DataInputJsonParser
      * Sometimes we need buffering for just a single byte we read but
      * have to "push back"
      */
-    protected int _nextCharByte = -1;
+    protected int _nextByte = -1;
 
     /*
     /**********************************************************
@@ -106,12 +106,14 @@ public class UTF8DataInputJsonParser
      */
 
     public UTF8DataInputJsonParser(IOContext ctxt, int features, DataInput inputData,
-            ObjectCodec codec, ByteQuadsCanonicalizer sym)
+            ObjectCodec codec, ByteQuadsCanonicalizer sym,
+            int firstByte)
     {
         super(ctxt, features);
         _objectCodec = codec;
         _symbols = sym;
         _inputData = inputData;
+        _nextByte = firstByte;
     }
 
     @Override
@@ -964,7 +966,7 @@ public class UTF8DataInputJsonParser
         if (_parsingContext.inRoot()) {
             _verifyRootSpace();
         } else {
-            _nextCharByte = c;
+            _nextByte = c;
         }
         // And there we have it!
         return resetInt(false, intLen);
@@ -1006,7 +1008,7 @@ public class UTF8DataInputJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         // As per [core#105], need separating space between root values; check here
-        _nextCharByte = c;
+        _nextByte = c;
         if (_parsingContext.inRoot()) {
             _verifyRootSpace();
         }
@@ -1101,7 +1103,7 @@ public class UTF8DataInputJsonParser
 
         // Ok; unless we hit end-of-input, need to push last char read back
         // As per #105, need separating space between root values; check here
-        _nextCharByte = c;
+        _nextByte = c;
         if (_parsingContext.inRoot()) {
             _verifyRootSpace();
         }
@@ -1121,9 +1123,9 @@ public class UTF8DataInputJsonParser
      */
     private final void _verifyRootSpace() throws IOException
     {
-        int ch = _nextCharByte;
+        int ch = _nextByte;
         if (ch <= INT_SPACE) {
-            _nextCharByte = -1;
+            _nextByte = -1;
             if (ch == INT_CR || ch == INT_LF) {
                 ++_currInputRow;
             }
@@ -1490,7 +1492,7 @@ public class UTF8DataInputJsonParser
             }
         }
         // Note: we must "push back" character read here for future consumption
-        _nextCharByte = ch;
+        _nextByte = ch;
         if (currQuadBytes > 0) {
             if (qlen >= quads.length) {
                 _quadBuffer = quads = _growArrayBy(quads, quads.length);
@@ -1966,7 +1968,7 @@ public class UTF8DataInputJsonParser
              */
             if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
 //               _inputPtr--;
-                _nextCharByte = c;
+                _nextByte = c;
                return JsonToken.VALUE_NULL;
             }
             // fall through
@@ -2121,7 +2123,7 @@ public class UTF8DataInputJsonParser
         if (ch >= '0' && ch != ']' && ch != '}') { // expected/allowed chars
             _checkMatchEnd(matchStr, i, ch);
         }
-        _nextCharByte = ch;
+        _nextByte = ch;
     }
 
     private final void _checkMatchEnd(String matchStr, int i, int ch) throws IOException {
@@ -2140,11 +2142,11 @@ public class UTF8DataInputJsonParser
 
     private final int _skipWS() throws IOException
     {
-        int i = _nextCharByte;
+        int i = _nextByte;
         if (i < 0) {
             i = _inputData.readUnsignedByte();
         } else {
-            _nextCharByte = -1;
+            _nextByte = -1;
         }
         while (true) {
             if (i > INT_SPACE) {

@@ -367,7 +367,6 @@ public class JsonParserTest
         
         final String DOC = sw.toString();
 
-        main_loop:
         for (int type = 0; type < 4; ++type) {
             JsonParser p;
             switch (type) {
@@ -444,10 +443,12 @@ public class JsonParserTest
         bytes.write(0xBB);
         bytes.write(0xBF);
         bytes.write("[ 1 ]".getBytes("UTF-8"));
-        JsonParser p = JSON_FACTORY.createParser(bytes.toByteArray());
+        byte[] input = bytes.toByteArray();
+
+        JsonParser p = JSON_FACTORY.createParser(input);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         // should also have skipped first 3 bytes of BOM; but do we have offset available?
-        /* 08-Oct-2013, tatu: Alas, due to [Issue#111], we have to omit BOM in calculations
+        /* 08-Oct-2013, tatu: Alas, due to [core#111], we have to omit BOM in calculations
          *   as we do not know what the offset is due to -- may need to revisit, if this
          *   discrepancy becomes an issue. For now it just means that BOM is considered
          *   "out of stream" (not part of input).
@@ -456,10 +457,22 @@ public class JsonParserTest
         // so if BOM was consider in-stream (part of input), this should expect 3:
         assertEquals(0, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
+
+        p = JSON_FACTORY.createParser(new MockDataInput(input));
+        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+        // same BOM, but DataInput is more restrctive so can skip but offsets
+        // are not reliable...
+        loc = p.getTokenLocation();
+        assertNotNull(loc);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
 
-    // [Issue#48]
+    // [core#48]
     public void testSpacesInURL() throws Exception
     {
         File f = File.createTempFile("pre fix&stuff", ".txt");
@@ -474,24 +487,28 @@ public class JsonParserTest
         p.close();
     }
 
-    // [#142]
-    public void testHandlingOfInvalidSpaceBytes() throws Exception {
-        _testHandlingOfInvalidSpace(true);
+    // [core#142]
+    public void testHandlingOfInvalidSpaceByteStream() throws Exception {
+        _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
         _testHandlingOfInvalidSpaceFromResource(true);
     }
     
-    // [#142]
+    // [core#142]
     public void testHandlingOfInvalidSpaceChars() throws Exception {
-        _testHandlingOfInvalidSpace(false);
+        _testHandlingOfInvalidSpace(MODE_READER);
         _testHandlingOfInvalidSpaceFromResource(false);
     }
 
-    private void _testHandlingOfInvalidSpace(boolean useStream) throws Exception
+    // [core#142]
+    public void testHandlingOfInvalidSpaceDataInput() throws Exception {
+        _testHandlingOfInvalidSpace(MODE_INPUT_DATA);
+    }
+    
+    private void _testHandlingOfInvalidSpace(int mode) throws Exception
     {
         final String JSON = "{ \u00A0 \"a\":1}";
-        JsonParser p = useStream
-                ? createParserUsingStream(JSON_FACTORY, JSON, "UTF-8")
-                : createParserUsingReader(JSON_FACTORY, JSON);
+
+        JsonParser p = _createParser(mode, JSON);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();

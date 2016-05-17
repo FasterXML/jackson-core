@@ -1331,9 +1331,12 @@ public class JsonFactory
             throw new UnsupportedOperationException(String.format(
                     "InputData source not (yet?) support for this format (%s)", format));
         }
+        // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
+        // at least handle possible UTF-8 BOM
+        int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
-                _objectCodec, can);
+                _objectCodec, can, firstByte);
     }
 
     /*

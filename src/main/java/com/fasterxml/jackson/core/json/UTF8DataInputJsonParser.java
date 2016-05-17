@@ -312,24 +312,21 @@ public class UTF8DataInputJsonParser
     @Override
     public int getTextLength() throws IOException
     {
-        if (_currToken != null) { // null only before/after document
-            switch (_currToken.id()) {
-                
-            case ID_FIELD_NAME:
-                return _parsingContext.getCurrentName().length();
-            case ID_STRING:
-                if (_tokenIncomplete) {
-                    _tokenIncomplete = false;
-                    _finishString(); // only strings can be incomplete
-                }
-                // fall through
-            case ID_NUMBER_INT:
-            case ID_NUMBER_FLOAT:
-                return _textBuffer.size();
-                
-            default:
-                return _currToken.asCharArray().length;
+        if (_currToken == JsonToken.VALUE_STRING) {
+            if (_tokenIncomplete) {
+                _tokenIncomplete = false;
+                _finishString(); // only strings can be incomplete
             }
+            return _textBuffer.size();
+        }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return _parsingContext.getCurrentName().length();
+        }
+        if (_currToken != null) { // null only before/after document
+            if (_currToken.isNumeric()) {
+                return _textBuffer.size();
+            }
+            return _currToken.asCharArray().length;
         }
         return 0;
     }
@@ -1840,29 +1837,21 @@ public class UTF8DataInputJsonParser
         int outEnd = outBuf.length;
 
         main_loop:
-        while (true) {
+        for (;; c = _inputData.readUnsignedByte()) {
             // Then the tight ASCII non-funny-char loop:
-            ascii_loop:
-            while (true) {
+            while (codes[c] == 0) {
                 if (outPtr >= outEnd) {
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                     outEnd = outBuf.length;
                 }
-                do {
-                    c = _inputData.readUnsignedByte();
-                    if (codes[c] != 0) {
-                        break ascii_loop;
-                    }
-                    outBuf[outPtr++] = (char) c;
-                    c = _inputData.readUnsignedByte();
-                } while (outPtr < outEnd);
+                outBuf[outPtr++] = (char) c;
+                c = _inputData.readUnsignedByte();
             }
             // Ok: end marker, escape or multi-byte?
             if (c == INT_QUOTE) {
                 break main_loop;
             }
-
             switch (codes[c]) {
             case 1: // backslash
                 c = _decodeEscaped();

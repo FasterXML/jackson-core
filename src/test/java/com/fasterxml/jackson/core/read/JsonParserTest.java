@@ -127,9 +127,7 @@ public class JsonParserTest
         assertEquals(0, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
 
-        /* Before advancing to content, we should have following
-         * default state...
-         */
+        // Before advancing to content, we should have following default state...
         assertFalse(p.hasCurrentToken());
         assertNull(p.getText());
         assertNull(p.getTextCharacters());
@@ -218,7 +216,7 @@ public class JsonParserTest
 
     private void _testSkipping(int mode) throws Exception
     {
-        // InputData has some limitations:
+        // InputData has some limitations to take into consideration
         boolean isInputData = (mode == MODE_INPUT_DATA);
         String DOC =
             "[ 1, 3, [ true, null ], 3, { \"a\":\"b\" }, [ [ ] ], { } ]";
@@ -369,12 +367,8 @@ public class JsonParserTest
         
         final String DOC = sw.toString();
 
+        main_loop:
         for (int type = 0; type < 4; ++type) {
-// !!! TEST: InputData impl broken; skip for now
-if (type == MODE_INPUT_DATA) {
-    continue;
-}
-
             JsonParser p;
             switch (type) {
             case MODE_INPUT_STREAM:

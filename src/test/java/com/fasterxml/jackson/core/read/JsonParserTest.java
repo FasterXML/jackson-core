@@ -615,89 +615,59 @@ public class JsonParserTest
         }
         p.close();
     }
-    
-    public void testReadText() throws Exception {
-        final String JSON = "{\"a\":\"this is a sample text for json parsing using readText() method\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
-        //create parser in reader mode..
-        JsonParser parser = createParser(MODE_READER, JSON);
-        //move the token until the string field
-        parser.nextToken();
-        parser.nextToken();
-        parser.nextToken();
+
+    public void testGetTextViaWriter() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testGetTextViaWriter(mode);
+        }
+    }
+
+    private void _testGetTextViaWriter(int mode) throws Exception
+    {
+        final String INPUT_TEXT = "this is a sample text for json parsing using readText() method";
+        final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
+        JsonParser parser = createParser(mode, JSON);
+        assertToken(JsonToken.START_OBJECT, parser.nextToken());
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("a", parser.getCurrentName());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         
         Writer writer = new StringWriter();
-        int len = parser.readText(writer);
-        
-        assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
-        assertEquals("Returned length should be same", len, writer.toString().length());
-        
-        //create parser in stream mode..
-        parser = createParser(MODE_INPUT_STREAM, JSON);
-        //move the token until the string field
-        parser.nextToken();
-        parser.nextToken();
-        parser.nextToken();
-        
-        writer = new StringWriter();
-        len = parser.readText(writer);
-        
-        assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
-        assertEquals("Returned length should be same", len, writer.toString().length());
-        
-        //create parser in data input mode..
-        parser = createParser(MODE_DATA_INPUT, JSON);
-        //move the token until the string field
-        parser.nextToken();
-        parser.nextToken();
-        parser.nextToken();
-        
-        writer = new StringWriter();
-        len = parser.readText(writer);
-        
-        assertTrue("String length should be same", writer.toString().length() == "this is a sample text for json parsing using readText() method".length());
-        assertEquals("Returned length should be same", len, writer.toString().length());
+        int len = parser.getText(writer);
+        String resultString = writer.toString();
+        assertEquals(len, resultString.length());
+        assertEquals(INPUT_TEXT, resultString);
+        parser.close();
     }
     
-    public void testLongerReadText() throws Exception {
+    public void testLongerReadText() throws Exception
+    {
+        for (int mode : ALL_MODES) {
+            _testLongerReadText(mode);
+        }
+    }
+
+    private void _testLongerReadText(int mode) throws Exception
+    {
         StringBuilder builder = new StringBuilder();
         for(int i= 0; i < 1000; i++) {
             builder.append("Sample Text"+i);
         }
         String longText = builder.toString();
         final String JSON = "{\"a\":\""+ longText +"\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
-        //create parser in reader mode..
         JsonParser parser = createParser(MODE_READER, JSON);
-        //move the token until the string field
-        parser.nextToken();
-        parser.nextToken();
-        parser.nextToken();
+        assertToken(JsonToken.START_OBJECT, parser.nextToken());
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("a", parser.getCurrentName());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         
         Writer writer = new StringWriter();
-        int len = parser.readText(writer);
-        assertEquals("Returned length should be same", len, writer.toString().length());
-        
-        //create parser in stream mode..
-        parser = createParser(MODE_INPUT_STREAM, JSON);
-        //move the token until the string field
-        parser.nextToken();
-        parser.nextToken();
-        parser.nextToken();
-        
-        writer = new StringWriter();
-        len = parser.readText(writer);
-        assertEquals("Returned length should be same", len, writer.toString().length());
-        
-        //create parser in data input mode..
-        parser = createParser(MODE_DATA_INPUT, JSON);
-        //move the token until the string field
-        parser.nextToken();
-        parser.nextToken();
-        parser.nextToken();
-        
-        writer = new StringWriter();
-        len = parser.readText(writer);
-        assertEquals("Returned length should be same", len, writer.toString().length());
-        
+        int len = parser.getText(writer);
+        String resultString = writer.toString();
+        assertEquals(len, resultString.length());
+        assertEquals(longText, resultString);
+        parser.close();
     }
 
     /*
@@ -733,7 +703,6 @@ public class JsonParserTest
         p.close();
 
         // and finally, new (as of May 2016) source, DataInput:
-        // 13-May-2016, tatu: Not yet ready -- comment out for now
         p = createParserForDataInput(JSON_FACTORY, new MockDataInput(SAMPLE_DOC_JSON_SPEC));
         verifyJsonSpecSampleDoc(p, verify);
         p.close();

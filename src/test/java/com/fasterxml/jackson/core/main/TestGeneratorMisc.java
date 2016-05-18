@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
  * Set of basic unit tests for verifying basic generator
  * features.
  */
+@SuppressWarnings("resource")
 public class TestGeneratorMisc
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -20,8 +21,7 @@ public class TestGeneratorMisc
     /**********************************************************
      */
 
-    public void testIsClosed()
-        throws IOException
+    public void testIsClosed() throws IOException
     {
         JsonFactory jf = new JsonFactory();
         for (int i = 0; i < 2; ++i) {
@@ -248,29 +248,29 @@ public class TestGeneratorMisc
 
     public void _testLongerObjects(JsonFactory jf, int mode) throws Exception
     {
-        JsonGenerator jgen;
+        JsonGenerator g;
         ByteArrayOutputStream bout = new ByteArrayOutputStream(200);
 
         switch (mode) {
         case 0:
-            jgen = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            g = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
             break;
         case 1:
-            jgen = jf.createGenerator(bout, JsonEncoding.UTF8);
+            g = jf.createGenerator(bout, JsonEncoding.UTF8);
             break;
         case 2:
             {
                 DataOutputStream dout = new DataOutputStream(bout);
-                jgen = jf.createGenerator((DataOutput) dout);
+                g = jf.createGenerator((DataOutput) dout);
             }
         
             break;
         default:
             fail("Unknown mode "+mode);
-            jgen = null;
+            g = null;
         }
 
-        jgen.writeStartObject();
+        g.writeStartObject();
 
         for (int rounds = 0; rounds < 1500; ++rounds) {
             for (int letter = 'a'; letter <= 'z'; ++letter) {
@@ -283,14 +283,14 @@ public class TestGeneratorMisc
                     } else {
                         name = "__"+index+letter;
                     }
-                    jgen.writeFieldName(name);
-                    jgen.writeNumber(index-1);
+                    g.writeFieldName(name);
+                    g.writeNumber(index-1);
                 }
-                jgen.writeRaw('\n');
+                g.writeRaw('\n');
             }
         }
-        jgen.writeEndObject();
-        jgen.close();
+        g.writeEndObject();
+        g.close();
 
         byte[] json = bout.toByteArray();
         JsonParser jp = jf.createParser(json);

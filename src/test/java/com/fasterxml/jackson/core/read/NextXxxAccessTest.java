@@ -1,14 +1,8 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.ByteArrayInputStream;
-import java.io.StringReader;
 import java.util.Random;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.JsonTokenId;
-import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 public class NextXxxAccessTest
@@ -479,7 +473,6 @@ public class NextXxxAccessTest
     {
         final String DOC = "{\"field\" :\"value\"}";
         SerializableString fieldName = new SerializedString("field");
-        JsonFactory f = new JsonFactory();
         JsonParser parser = createParser(mode, DOC);
         assertEquals(JsonToken.START_OBJECT, parser.nextToken());
         assertTrue(parser.nextFieldName(fieldName));

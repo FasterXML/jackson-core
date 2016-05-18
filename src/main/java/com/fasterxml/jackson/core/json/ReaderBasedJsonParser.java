@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
-import java.util.List;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
@@ -274,49 +273,31 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         return _getText2(t);
     }
 
-    @Override
-    public final int readText(Writer writer) throws IOException, UnsupportedOperationException {
+    @Override // since 2.8
+    public int getText(Writer writer) throws IOException
+    {
         JsonToken t = _currToken;
-        //Stores the length of the bytes read
-        int len = 0;
         if (t == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
                 _finishString(); // only strings can be incomplete
             }
-            List<char[]> segments = _textBuffer.getCharacterSegments();
-            
-            //Indicates the currently read text buffer index which refers to the 
-            //TextBuffer character segment
-            int readTextBufferIndex = 0;
-            //if there are character segments, then use them and write them to the writer
-            while(segments != null && readTextBufferIndex < segments.size()) {
-                writer.write(segments.get(readTextBufferIndex));
-                len += segments.get(readTextBufferIndex).length;
-                readTextBufferIndex++;
-            }
-            //if there are no character segments left, then read the string from the current segment, and 
-            //write them directly to the buffer
-            writer.write(_textBuffer.getCurrentSegment(), 0, _textBuffer.getCurrentSegmentSize());
-            len += _textBuffer.getCurrentSegmentSize();
-           
+            return _textBuffer.contentsToWriter(writer);
         }
-        else if(t != null) {
-            switch (t.id()) {
-            case ID_FIELD_NAME:
-                writer.write(_parsingContext.getCurrentName());
-                break;    
-            case ID_STRING:
-            case ID_NUMBER_INT:
-            case ID_NUMBER_FLOAT:
-                writer.write(_textBuffer.contentsAsString());
-                break;
-            default:
-                writer.write(t.asString());
-            }
+        if (t == JsonToken.FIELD_NAME) {
+            String n = _parsingContext.getCurrentName();
+            writer.write(n);
+            return n.length();
         }
-        
-        return len;
+        if (t != null) {
+            if (t.isNumeric()) {
+                return _textBuffer.contentsToWriter(writer);
+            }
+            char[] ch = t.asCharArray();
+            writer.write(ch);
+            return ch.length;
+        }
+        return 0;
     }
     
     // // // Let's override default impls for improved performance

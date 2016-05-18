@@ -29,6 +29,8 @@ JSON library.
 #276: Add support for serializing using `java.io.DataOutput`
 #280: Add `JsonParser.finishToken()` to force full, non-lazy reading of current token
 #282: Fail to report error for trying to write field name outside Object (root level)
+#285: Add `JsonParser.getText(Writer)`
+ (contributed by LokesN)
 - Add `JsonParser.currentToken()` and `JsonParser.currentTokenId()` as replacements
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.

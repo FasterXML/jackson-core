@@ -82,6 +82,8 @@ Lokesh Kumar N (LokeshN@github)
    (2.8.0)
   * Contributed implementation for #86: Allow inclusion of request body for JsonParseException
    (2.8.0)
+  * Contributed implementation for #285: Allow inclusion of request body for JsonParseException
+   (2.8.0)
 
 Tanguy Leroux (tlrx@github)
   * Reported, contributed fix for #280: FilteringGeneratorDelegate.writeUTF8String()

@@ -1032,14 +1032,21 @@ public abstract class JsonParser
 
     /**
      * Method to read the textual representation of the current token in chunks and 
-     * pass it to the given Writer
+     * pass it to the given Writer.
+     * Conceptually same as calling:
+     *<pre>
+     *  writer.write(parser.getText());
+     *</pre>
+     * but should typically be more efficient as longer content does need to
+     * be combined into a single <code>String</code> to return, and write
+     * can occur directly from intermediate buffers Jackson uses.
      * 
      *  @return The number of characters written to the Writer 
      *  
      *  @since 2.8
      */
-    public abstract int readText(Writer writer) throws IOException, UnsupportedOperationException;
-    
+    public abstract int getText(Writer writer) throws IOException, UnsupportedOperationException;
+
     /**
      * Method similar to {@link #getText}, but that will return
      * underlying (unmodifiable) character array that contains

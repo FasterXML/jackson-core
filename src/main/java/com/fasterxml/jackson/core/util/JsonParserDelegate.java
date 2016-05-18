@@ -144,7 +144,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public char[] getTextCharacters() throws IOException { return delegate.getTextCharacters(); }
     @Override public int getTextLength() throws IOException { return delegate.getTextLength(); }
     @Override public int getTextOffset() throws IOException { return delegate.getTextOffset(); }
-    @Override public int readText(Writer writer) throws IOException, UnsupportedOperationException { return delegate.readText(writer);  }
+    @Override public int getText(Writer writer) throws IOException, UnsupportedOperationException { return delegate.getText(writer);  }
 
     /*
     /**********************************************************

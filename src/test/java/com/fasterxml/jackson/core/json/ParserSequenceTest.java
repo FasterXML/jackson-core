@@ -6,8 +6,6 @@ import com.fasterxml.jackson.core.util.JsonParserSequence;
 public class ParserSequenceTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory JSON_FACTORY = new JsonFactory();
-
     public void testSimple() throws Exception
     {
         JsonParser p1 = JSON_FACTORY.createParser("[ 1 ]");

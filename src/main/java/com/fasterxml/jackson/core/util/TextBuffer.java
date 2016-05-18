@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.util;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.core.io.NumberInput;
 
@@ -506,6 +507,15 @@ public final class TextBuffer
         } while (len > 0);
     }
 
+    /**
+     * Returns the raw list of character segments
+     * 
+     * @return The character segments
+     */
+     public List<char[]> getCharacterSegments() {
+         return _segments;
+     }
+    
     /*
     /**********************************************************
     /* Raw access, for high-performance use:

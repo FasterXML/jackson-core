@@ -54,10 +54,12 @@ public class StringGenerationTest
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range
          */
-        for (int round = 0; round < 80; ++round) {
-            String content = generateRandom(75000+round);
-            doTestLongerRandom(content, false);
-            doTestLongerRandom(content, true);
+        for (int mode : ALL_TEXT_MODES) {
+            for (int round = 0; round < 80; ++round) {
+                String content = generateRandom(75000+round);
+                _testLongerRandom(mode, content, false);
+                _testLongerRandom(mode, content, true);
+            }
         }
     }
 
@@ -66,10 +68,12 @@ public class StringGenerationTest
         /* Let's first generate 100k of pseudo-random characters, favoring
          * 7-bit ascii range
          */
-        for (int round = 0; round < 70; ++round) {
-            String content = generateRandom(73000+round);
-            doTestLongerRandomMulti(content, false, round);
-            doTestLongerRandomMulti(content, true, round);
+        for (int mode : ALL_TEXT_MODES) {
+            for (int round = 0; round < 70; ++round) {
+                String content = generateRandom(73000+round);
+                _testLongerRandomMulti(mode, content, false, round);
+                _testLongerRandomMulti(mode, content, true, round);
+            }
         }
     }
 
@@ -180,7 +184,7 @@ public class StringGenerationTest
         }
     }
 
-    private void doTestLongerRandom(String text, boolean charArray)
+    private void _testLongerRandom(int readMode, String text, boolean charArray)
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
@@ -197,7 +201,7 @@ public class StringGenerationTest
         gen.writeEndArray();
         gen.close();
         byte[] docData = bow.toByteArray();
-        JsonParser p = FACTORY.createParser(new ByteArrayInputStream(docData));
+        JsonParser p = createParser(FACTORY, readMode, docData);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         JsonToken t = p.nextToken();
         assertEquals(JsonToken.VALUE_STRING, t);
@@ -215,11 +219,10 @@ public class StringGenerationTest
             fail("Strings differ at position #"+i+" (len "+text.length()+"): expected char 0x"+Integer.toHexString(text.charAt(i))+", actual 0x"+Integer.toHexString(act.charAt(i)));
         }
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
-        assertEquals(null, p.nextToken());
         p.close();
     }
 
-    private void doTestLongerRandomMulti(String text, boolean charArray, int round)
+    private void _testLongerRandomMulti(int readMode, String text, boolean charArray, int round)
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
@@ -262,7 +265,7 @@ public class StringGenerationTest
         gen.writeEndArray();
         gen.close();
         byte[] docData = bow.toByteArray();
-        JsonParser p = FACTORY.createParser(new ByteArrayInputStream(docData));
+        JsonParser p = createParser(FACTORY, readMode, docData);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
         offset = 0;

@@ -53,6 +53,8 @@ public class NumberParsingTest
         assertEquals(""+EXP_I, p.getText());
 
         assertEquals(EXP_I, p.getIntValue());
+        assertEquals(EXP_I, p.getValueAsInt(EXP_I + 3));
+        assertEquals(EXP_I, p.getValueAsInt());
         assertEquals((long) EXP_I, p.getLongValue());
         assertEquals((double) EXP_I, p.getDoubleValue());
         assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
@@ -71,9 +73,7 @@ public class NumberParsingTest
         } catch (Exception e) {
             throw new Exception("Failed to parse input '"+DOC+"' (parser of type "+p.getClass().getSimpleName()+")", e);
         }
-        
         assertEquals(EXP_I, i);
-
         assertEquals((long) EXP_I, p.getLongValue());
         assertEquals((double) EXP_I, p.getDoubleValue());
         assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());

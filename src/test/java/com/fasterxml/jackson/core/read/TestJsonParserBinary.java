@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.base64;
+package com.fasterxml.jackson.core.read;
 
 import java.io.*;
 
@@ -18,36 +18,33 @@ public class TestJsonParserBinary
     /**********************************************************************
      */
 
-    public void testSimple()
-        throws IOException
+    public void testSimple() throws IOException
     {
-        // let's test reader (char) based first, then stream (byte)
-        _testSimple(false);
-        _testSimple(true);
+        for (int mode : ALL_MODES) {
+            _testSimple(mode);
+        }
     }
 
-    public void testInArray()
-        throws IOException
+    public void testInArray() throws IOException
     {
-        // let's test reader (char) based first, then stream (byte)
-        _testInArray(false);
-        _testInArray(true);
+        for (int mode : ALL_MODES) {
+            _testInArray(mode);
+        }
     }
 
-    public void testWithEscaped() throws IOException
-    {
-        // let's test reader (char) based first, then stream (byte)
-        _testEscaped(false);
-        _testEscaped(true);
+    public void testWithEscaped() throws IOException {
+        for (int mode : ALL_MODES) {
+            _testEscaped(mode);
+        }
     }
-    
+
     /*
     /**********************************************************************
     /* Actual test methods
     /**********************************************************************
      */
 
-    private void _testSimple(boolean useStream)
+    private void _testSimple(int mode)
         throws IOException
     {
         /* The usual sample input string, from Thomas Hobbes's "Leviathan"
@@ -66,24 +63,23 @@ public class TestJsonParserBinary
             ;
 
         final String DOC = "\""+INPUT_STR+"\"";
-        JsonParser jp = _getParser(DOC, useStream);
+        JsonParser p = createParser(mode, DOC);
 
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        byte[] data = jp.getBinaryValue();
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        byte[] data = p.getBinaryValue();
         assertNotNull(data);
         assertArrayEquals(RESULT_BYTES, data);
-        jp.close();
+        p.close();
     }
 
-    private void _testInArray(boolean useStream)
-        throws IOException
+    private void _testInArray(int mode) throws IOException
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
 
         final int entryCount = 7;
 
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createGenerator(sw);
+        JsonGenerator jg = f.createGenerator(sw);
         jg.writeStartArray();
 
         byte[][] entries = new byte[entryCount][];
@@ -99,57 +95,45 @@ public class TestJsonParserBinary
         jg.writeEndArray();
         jg.close();
 
-        JsonParser jp = _getParser(sw.toString(), useStream);
+        JsonParser p = createParser(f, mode, sw.toString());
 
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         for (int i = 0; i < entryCount; ++i) {
-            assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-            byte[] b = jp.getBinaryValue();
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            byte[] b = p.getBinaryValue();
             assertArrayEquals(entries[i], b);
         }
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        jp.close();
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
     }
 
-    private void _testEscaped(boolean useStream) throws IOException
+    private void _testEscaped(int mode) throws IOException
     {
         // Input: "Test!" -> "VGVzdCE="
 
         // First, try with embedded linefeed half-way through:
 
         String DOC = quote("VGVz\\ndCE="); // note: must double-quote to get linefeed
-        JsonParser jp = _getParser(DOC, useStream);
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        byte[] b = jp.getBinaryValue();
+        JsonParser p = createParser(mode, DOC);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        byte[] b = p.getBinaryValue();
         assertEquals("Test!", new String(b, "US-ASCII"));
-        assertNull(jp.nextToken());
-        jp.close();
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
+        }
+        p.close();
 
         // and then with escaped chars
 //        DOC = quote("V\\u0047V\\u007AdCE="); // note: must escape backslash...
         DOC = quote("V\\u0047V\\u007AdCE="); // note: must escape backslash...
-        jp = _getParser(DOC, useStream);
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        b = jp.getBinaryValue();
+        p = createParser(mode, DOC);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        b = p.getBinaryValue();
         assertEquals("Test!", new String(b, "US-ASCII"));
-        assertNull(jp.nextToken());
-        jp.close();
-    }
-    
-    /*
-    /**********************************************************************
-    /* Other helper methods
-    /**********************************************************************
-     */
-    
-    private JsonParser _getParser(String doc, boolean useStream)
-        throws IOException
-    {
-        JsonFactory jf = new JsonFactory();
-        if (useStream) {
-            return jf.createParser(doc.getBytes("UTF-8"));
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
         }
-        return jf.createParser(new StringReader(doc));
+        p.close();
     }
 }

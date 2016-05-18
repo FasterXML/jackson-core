@@ -48,11 +48,11 @@ public class TestUtf8Generator extends BaseTest
     {
         final String VALUE = quote("\ud83d\ude0c");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JsonGenerator jgen = JSON_F.createGenerator(out);
-        jgen.writeStartArray();
-        jgen.writeRaw(VALUE);
-        jgen.writeEndArray();
-        jgen.close();
+        JsonGenerator g = JSON_F.createGenerator(out);
+        g.writeStartArray();
+        g.writeRaw(VALUE);
+        g.writeEndArray();
+        g.close();
 
         final byte[] JSON = out.toByteArray();
 
@@ -73,9 +73,9 @@ public class TestUtf8Generator extends BaseTest
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         @SuppressWarnings("resource")
-        JsonGenerator jgen = JSON_F.createGenerator(out);
+        JsonGenerator g = JSON_F.createGenerator(out);
 
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(jgen,
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(g,
                 new JsonPointerBasedFilter("/escapes"),
                 true, // includePath
                 false // multipleMatches

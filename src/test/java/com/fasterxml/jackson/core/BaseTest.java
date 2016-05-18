@@ -35,6 +35,13 @@ public abstract class BaseTest
     protected final static int[] ALL_TEXT_MODES = new int[] {
         MODE_READER
     };
+
+    // DataInput not streaming
+    protected final static int[] ALL_STREAMING_MODES = new int[] {
+        MODE_INPUT_STREAM,
+        MODE_INPUT_STREAM_THROTTLED,
+        MODE_READER
+    };
     
     /*
     /**********************************************************
@@ -337,7 +344,7 @@ public abstract class BaseTest
                 return f.createParser(in);
             }
         case MODE_READER:
-            throw new UnsupportedOperationException("No reader for byte[]s for tests");
+            return f.createParser(new StringReader(new String(doc, "UTF-8")));
         case MODE_DATA_INPUT:
             return createParserForDataInput(f, new MockDataInput(doc));
         default:

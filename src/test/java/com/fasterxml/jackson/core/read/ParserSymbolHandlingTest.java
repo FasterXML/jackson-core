@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestParserSymbols
+public class ParserSymbolHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    // For [Issue#148]
+    // For [core#148]
     public void testSymbolsWithNullBytes() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, true);
@@ -13,7 +13,7 @@ public class TestParserSymbols
         _testSymbolsWithNull(f, true);
     }
 
-    // For [Issue#148]
+    // For [core#148]
     public void testSymbolsWithNullChars() throws Exception {
         JsonFactory f = new JsonFactory();
         _testSymbolsWithNull(f, false);

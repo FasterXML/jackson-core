@@ -102,18 +102,18 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         final String VALUE = "chars: [\u00A0]/[\u1234]";
         final String KEY = "fun:\u0088:\u3456";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        JsonGenerator jgen;
+        JsonGenerator g;
 
         // First: output normally; should not add escaping
         if (useStream) {
-            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
-        jgen.writeStartArray();
-        jgen.writeString(VALUE);
-        jgen.writeEndArray();
-        jgen.close();
+        g.writeStartArray();
+        g.writeString(VALUE);
+        g.writeEndArray();
+        g.close();
         String json = bytes.toString("UTF-8");
         
         assertEquals("["+quote(VALUE)+"]", json);
@@ -122,31 +122,31 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
-        jgen.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
-        jgen.writeStartArray();
-        jgen.writeString(VALUE);
-        jgen.writeEndArray();
-        jgen.close();
+        g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+        g.writeStartArray();
+        g.writeString(VALUE);
+        g.writeEndArray();
+        g.close();
         json = bytes.toString("UTF-8");
         assertEquals("["+quote("chars: [\\u00A0]/[\\u1234]")+"]", json);
 
         // and then keys
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
-        jgen.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
-        jgen.writeStartObject();
-        jgen.writeFieldName(KEY);
-        jgen.writeBoolean(true);
-        jgen.writeEndObject();
-        jgen.close();
+        g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+        g.writeStartObject();
+        g.writeFieldName(KEY);
+        g.writeBoolean(true);
+        g.writeEndObject();
+        g.close();
         json = bytes.toString("UTF-8");
         assertEquals("{"+quote("fun:\\u0088:\\u3456")+":true}", json);
     }
@@ -158,18 +158,18 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         final String STR_IN = "[abcd/"+((char) TWO_BYTE_ESCAPED)+"/"+((char) THREE_BYTE_ESCAPED)+"]";
         final String STR_OUT = "[\\A\\u0062c[D]/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        JsonGenerator jgen;
+        JsonGenerator g;
         
         // First: output normally; should not add escaping
         if (useStream) {
-            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
-        jgen.writeStartObject();
-        jgen.writeStringField(STR_IN, STR_IN);
-        jgen.writeEndObject();
-        jgen.close();
+        g.writeStartObject();
+        g.writeStringField(STR_IN, STR_IN);
+        g.writeEndObject();
+        g.close();
         String json = bytes.toString("UTF-8");
         assertEquals("{"+quote(STR_OUT)+":"+quote(STR_OUT)+"}", json);
     }

@@ -17,10 +17,10 @@ public class TestJsonGeneratorFeatures
 
     public void testConfigDefaults() throws IOException
     {
-        JsonGenerator jg = JSON_F.createGenerator(new StringWriter());
-        assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
-        assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
-        jg.close();
+        JsonGenerator g = JSON_F.createGenerator(new StringWriter());
+        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
+        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        g.close();
     }
 
     public void testFieldNameQuoting() throws IOException
@@ -65,27 +65,25 @@ public class TestJsonGeneratorFeatures
                      _writeNumbers(jf));
     }
 
-    // [Issue#85]
     public void testBigDecimalAsPlain() throws IOException
     {
         JsonFactory jf = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
 
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeNumber(ENG);
-        jg.close();
+        JsonGenerator g = jf.createGenerator(sw);
+        g.writeNumber(ENG);
+        g.close();
         assertEquals("1E+2", sw.toString());
 
         jf.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
         sw = new StringWriter();
-        jg = jf.createGenerator(sw);
-        jg.writeNumber(ENG);
-        jg.close();
+        g = jf.createGenerator(sw);
+        g.writeNumber(ENG);
+        g.close();
         assertEquals("100", sw.toString());
     }
 
-    // [issue#184]
     public void testBigDecimalAsPlainString() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -94,34 +92,34 @@ public class TestJsonGeneratorFeatures
         jf.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
 
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeNumber(ENG);
-        jg.close();
+        JsonGenerator g = jf.createGenerator(sw);
+        g.writeNumber(ENG);
+        g.close();
         assertEquals(quote("100"), sw.toString());
 
         // also, as bytes
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        jg = jf.createGenerator(bos);
-        jg.writeNumber(ENG);
-        jg.close();
+        g = jf.createGenerator(bos);
+        g.writeNumber(ENG);
+        g.close();
         assertEquals(quote("100"), bos.toString("UTF-8"));
     }
     
     private String _writeNumbers(JsonFactory jf) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createGenerator(sw);
+        JsonGenerator g = jf.createGenerator(sw);
     
-        jg.writeStartArray();
-        jg.writeNumber(1);
-        jg.writeNumber(2L);
-        jg.writeNumber(1.25);
-        jg.writeNumber(2.25f);
-        jg.writeNumber(BigInteger.valueOf(3001));
-        jg.writeNumber(BigDecimal.valueOf(0.5));
-        jg.writeNumber("-1");
-        jg.writeEndArray();
-        jg.close();
+        g.writeStartArray();
+        g.writeNumber(1);
+        g.writeNumber(2L);
+        g.writeNumber(1.25);
+        g.writeNumber(2.25f);
+        g.writeNumber(BigInteger.valueOf(3001));
+        g.writeNumber(BigDecimal.valueOf(0.5));
+        g.writeNumber("-1");
+        g.writeEndArray();
+        g.close();
 
         return sw.toString();
     }
@@ -184,12 +182,12 @@ public class TestJsonGeneratorFeatures
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeStartObject();
-        jg.writeFieldName("foo");
-        jg.writeNumber(1);
-        jg.writeEndObject();
-        jg.close();
+        JsonGenerator g = jf.createGenerator(sw);
+        g.writeStartObject();
+        g.writeFieldName("foo");
+        g.writeNumber(1);
+        g.writeEndObject();
+        g.close();
 
         String result = sw.toString();
         if (quoted) {
@@ -202,16 +200,16 @@ public class TestJsonGeneratorFeatures
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = jf.createGenerator(sw);
-        jg.writeStartObject();
-        jg.writeFieldName("double");
-        jg.writeNumber(Double.NaN);
-        jg.writeEndObject();
-        jg.writeStartObject();
-        jg.writeFieldName("float");
-        jg.writeNumber(Float.NaN);
-        jg.writeEndObject();
-        jg.close();
+        JsonGenerator g = jf.createGenerator(sw);
+        g.writeStartObject();
+        g.writeFieldName("double");
+        g.writeNumber(Double.NaN);
+        g.writeEndObject();
+        g.writeStartObject();
+        g.writeFieldName("float");
+        g.writeNumber(Float.NaN);
+        g.writeEndObject();
+        g.close();
 	
         String result = sw.toString();
         if (quoted) {

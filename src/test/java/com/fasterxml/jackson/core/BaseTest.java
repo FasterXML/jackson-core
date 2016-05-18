@@ -17,7 +17,7 @@ public abstract class BaseTest
     protected final static int MODE_INPUT_STREAM = 0;
     protected final static int MODE_INPUT_STREAM_THROTTLED = 1;
     protected final static int MODE_READER = 2;
-    protected final static int MODE_INPUT_DATA = 3;
+    protected final static int MODE_DATA_INPUT = 3;
 
     /*
     /**********************************************************
@@ -302,7 +302,7 @@ public abstract class BaseTest
             }
         case MODE_READER:
             return createParserUsingReader(f, doc);
-        case MODE_INPUT_DATA:
+        case MODE_DATA_INPUT:
             return createParserForDataInput(f, new MockDataInput(doc));
         default:
         }
@@ -314,9 +314,14 @@ public abstract class BaseTest
         switch (mode) {
         case MODE_INPUT_STREAM:
             return f.createParser(new ByteArrayInputStream(doc));
+        case MODE_INPUT_STREAM_THROTTLED:
+            {
+                InputStream in = new ThrottledInputStream(doc, 1);
+                return f.createParser(in);
+            }
         case MODE_READER:
             throw new UnsupportedOperationException("No reader for byte[]s for tests");
-        case MODE_INPUT_DATA:
+        case MODE_DATA_INPUT:
             return createParserForDataInput(f, new MockDataInput(doc));
         default:
         }

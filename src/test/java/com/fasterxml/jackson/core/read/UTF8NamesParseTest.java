@@ -34,7 +34,7 @@ public class UTF8NamesParseTest
     public void testEmptyName() throws Exception
     {
         _testEmptyName(MODE_INPUT_STREAM);
-        _testEmptyName(MODE_INPUT_DATA);
+        _testEmptyName(MODE_DATA_INPUT);
     }
 
     private void _testEmptyName(int mode) throws Exception
@@ -53,7 +53,7 @@ public class UTF8NamesParseTest
     public void testUtf8Name2Bytes() throws Exception
     {
         _testUtf8Name2Bytes(MODE_INPUT_STREAM);
-        _testUtf8Name2Bytes(MODE_INPUT_DATA);
+        _testUtf8Name2Bytes(MODE_DATA_INPUT);
     }
 
     private void _testUtf8Name2Bytes(int mode) throws Exception
@@ -87,7 +87,7 @@ public class UTF8NamesParseTest
     public void testUtf8Name3Bytes() throws Exception
     {
         _testUtf8Name3Bytes(MODE_INPUT_STREAM);
-        _testUtf8Name3Bytes(MODE_INPUT_DATA);
+        _testUtf8Name3Bytes(MODE_DATA_INPUT);
     }
 
     public void _testUtf8Name3Bytes(int mode) throws Exception
@@ -117,7 +117,7 @@ public class UTF8NamesParseTest
     public void testUtf8StringTrivial() throws Exception
     {
         _testUtf8StringTrivial(MODE_INPUT_STREAM);
-        _testUtf8StringTrivial(MODE_INPUT_DATA);
+        _testUtf8StringTrivial(MODE_DATA_INPUT);
     }
     
     public void _testUtf8StringTrivial(int mode) throws Exception
@@ -154,7 +154,7 @@ public class UTF8NamesParseTest
     public void testUtf8StringValue() throws Exception
     {
         _testUtf8StringValue(MODE_INPUT_STREAM);
-        _testUtf8StringValue(MODE_INPUT_DATA);
+        _testUtf8StringValue(MODE_DATA_INPUT);
     }
 
     public void _testUtf8StringValue(int mode) throws Exception
@@ -215,7 +215,7 @@ public class UTF8NamesParseTest
 		byte[] data = os.toByteArray();
 
 		_testNextFieldName(MODE_INPUT_STREAM, data);
-          _testNextFieldName(MODE_INPUT_DATA, data);
+          _testNextFieldName(MODE_DATA_INPUT, data);
     }
 
     private void _testNextFieldName(int mode, byte[] doc) throws IOException

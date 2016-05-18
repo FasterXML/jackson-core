@@ -210,13 +210,13 @@ public class JsonParserTest
         _testSkipping(MODE_INPUT_STREAM);
         _testSkipping(MODE_INPUT_STREAM_THROTTLED);
         _testSkipping(MODE_READER);
-        _testSkipping(MODE_INPUT_DATA);
+        _testSkipping(MODE_DATA_INPUT);
     }
 
     private void _testSkipping(int mode) throws Exception
     {
         // InputData has some limitations to take into consideration
-        boolean isInputData = (mode == MODE_INPUT_DATA);
+        boolean isInputData = (mode == MODE_DATA_INPUT);
         String DOC =
             "[ 1, 3, [ true, null ], 3, { \"a\":\"b\" }, [ [ ] ], { } ]";
             ;
@@ -272,7 +272,7 @@ public class JsonParserTest
     {
         _testNameEscaping(MODE_INPUT_STREAM);
         _testNameEscaping(MODE_READER);
-        _testNameEscaping(MODE_INPUT_DATA);
+        _testNameEscaping(MODE_DATA_INPUT);
     }
 
     private void _testNameEscaping(int mode) throws IOException
@@ -371,7 +371,7 @@ public class JsonParserTest
             switch (type) {
             case MODE_INPUT_STREAM:
             case MODE_READER:
-            case MODE_INPUT_DATA:
+            case MODE_DATA_INPUT:
                 p = createParser(type, DOC);
                 break;
             default:
@@ -395,7 +395,7 @@ public class JsonParserTest
             assertToken(JsonToken.END_OBJECT, p.nextToken());
 
             // InputDate somewhat special, so:
-            if (type != MODE_INPUT_DATA) {
+            if (type != MODE_DATA_INPUT) {
                 assertNull(p.nextToken());
             }
             p.close();
@@ -499,7 +499,7 @@ public class JsonParserTest
 
     // [core#142]
     public void testHandlingOfInvalidSpaceDataInput() throws Exception {
-        _testHandlingOfInvalidSpace(MODE_INPUT_DATA);
+        _testHandlingOfInvalidSpace(MODE_DATA_INPUT);
     }
     
     private void _testHandlingOfInvalidSpace(int mode) throws Exception
@@ -558,8 +558,8 @@ public class JsonParserTest
 
     public void testGetValueAsTextDataInput() throws Exception
     {
-        _testGetValueAsText(MODE_INPUT_DATA, false);
-        _testGetValueAsText(MODE_INPUT_DATA, true);
+        _testGetValueAsText(MODE_DATA_INPUT, false);
+        _testGetValueAsText(MODE_DATA_INPUT, true);
     }
     
     public void testGetValueAsTextChars() throws Exception
@@ -605,7 +605,7 @@ public class JsonParserTest
         assertNull(p.getValueAsString());
 
         // InputData can't peek into end-of-input so:
-        if (mode != MODE_INPUT_DATA) {
+        if (mode != MODE_DATA_INPUT) {
             assertNull(p.nextToken());
         }
         p.close();

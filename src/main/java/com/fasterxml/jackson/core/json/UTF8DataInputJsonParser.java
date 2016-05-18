@@ -941,22 +941,22 @@ public class UTF8DataInputJsonParser
     protected JsonToken _parsePosNumber(int c) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = (char) c;
+
         // One special case: if first char is 0, must not be followed by a digit
         if (c == INT_0) {
             c = _handleLeadingZeroes();
+        } else {
+            c = _inputData.readUnsignedByte();
         }
-        // Ok: we can first just add digit we saw first:
-        outBuf[0] = (char) c;
         int intLen = 1;
         int outPtr = 1;
+
         // With this, we have a nice and tight loop:
-        while (true) {
-            c = _inputData.readUnsignedByte();
-            if (c < INT_0 || c > INT_9) {
-                break;
-            }
+        while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             outBuf[outPtr++] = (char) c;
+            c = _inputData.readUnsignedByte();
         }
         if (c == '.' || c == 'e' || c == 'E') {
             return _parseFloat(outBuf, outPtr, c, false, intLen);

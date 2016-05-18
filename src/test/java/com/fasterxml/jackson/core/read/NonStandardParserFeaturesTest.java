@@ -8,7 +8,7 @@ public class NonStandardParserFeaturesTest
     public void testSimpleUnquotedBytes() throws Exception {
         _testSimpleUnquoted(MODE_INPUT_STREAM);
         _testSimpleUnquoted(MODE_INPUT_STREAM_THROTTLED);
-        _testSimpleUnquoted(MODE_INPUT_DATA);
+        _testSimpleUnquoted(MODE_DATA_INPUT);
     }
 
     public void testSimpleUnquotedChars() throws Exception {
@@ -19,7 +19,7 @@ public class NonStandardParserFeaturesTest
     {
         _testLargeUnquoted(MODE_INPUT_STREAM);
         _testLargeUnquoted(MODE_INPUT_STREAM_THROTTLED);
-        _testLargeUnquoted(MODE_INPUT_DATA);
+        _testLargeUnquoted(MODE_DATA_INPUT);
         _testLargeUnquoted(MODE_READER);
     }
 
@@ -27,7 +27,7 @@ public class NonStandardParserFeaturesTest
     {
         _testSingleQuotesDefault(MODE_INPUT_STREAM);
         _testSingleQuotesDefault(MODE_INPUT_STREAM_THROTTLED);
-        _testSingleQuotesDefault(MODE_INPUT_DATA);
+        _testSingleQuotesDefault(MODE_DATA_INPUT);
         _testSingleQuotesDefault(MODE_READER);
     }
 
@@ -35,12 +35,12 @@ public class NonStandardParserFeaturesTest
     {
         _testSingleQuotesEnabled(MODE_INPUT_STREAM);
         _testSingleQuotesEnabled(MODE_INPUT_STREAM_THROTTLED);
-        _testSingleQuotesEnabled(MODE_INPUT_DATA);
+        _testSingleQuotesEnabled(MODE_DATA_INPUT);
         _testSingleQuotesEnabled(MODE_READER);
 
         _testSingleQuotesEscaped(MODE_INPUT_STREAM);
         _testSingleQuotesEscaped(MODE_INPUT_STREAM_THROTTLED);
-        _testSingleQuotesEscaped(MODE_INPUT_DATA);
+        _testSingleQuotesEscaped(MODE_DATA_INPUT);
         _testSingleQuotesEscaped(MODE_READER);
     }
 
@@ -48,7 +48,7 @@ public class NonStandardParserFeaturesTest
     {
         _testNonStandardNameChars(MODE_INPUT_STREAM);
         _testNonStandardNameChars(MODE_INPUT_STREAM_THROTTLED);
-        _testNonStandardNameChars(MODE_INPUT_DATA);
+        _testNonStandardNameChars(MODE_DATA_INPUT);
         _testNonStandardNameChars(MODE_READER);
     }
 
@@ -56,7 +56,7 @@ public class NonStandardParserFeaturesTest
     {
         _testNonStandarBackslashQuoting(MODE_INPUT_STREAM);
         _testNonStandarBackslashQuoting(MODE_INPUT_STREAM_THROTTLED);
-        _testNonStandarBackslashQuoting(MODE_INPUT_DATA);
+        _testNonStandarBackslashQuoting(MODE_DATA_INPUT);
         _testNonStandarBackslashQuoting(MODE_READER);
     }
 
@@ -65,8 +65,10 @@ public class NonStandardParserFeaturesTest
         _testLeadingZeroes(MODE_INPUT_STREAM, true);
         _testLeadingZeroes(MODE_INPUT_STREAM_THROTTLED, false);
         _testLeadingZeroes(MODE_INPUT_STREAM_THROTTLED, true);
-//        _testLeadingZeroes(MODE_INPUT_DATA, false);
-        _testLeadingZeroes(MODE_INPUT_DATA, true);
+
+        // 17-May-2016, tatu: With DataInput, must have trailing space
+        //   since there's no way to detect end of input
+        _testLeadingZeroes(MODE_DATA_INPUT, true);
     }
 
     public void testLeadingZeroesReader() throws Exception {
@@ -78,7 +80,7 @@ public class NonStandardParserFeaturesTest
     public void testAllowNaN() throws Exception {
         _testAllowNaN(MODE_INPUT_STREAM);
         _testAllowNaN(MODE_INPUT_STREAM_THROTTLED);
-        _testAllowNaN(MODE_INPUT_DATA);
+        _testAllowNaN(MODE_DATA_INPUT);
         _testAllowNaN(MODE_READER);
     }
 
@@ -86,7 +88,7 @@ public class NonStandardParserFeaturesTest
     public void testAllowInfinity() throws Exception {
         _testAllowInf(MODE_INPUT_STREAM);
         _testAllowInf(MODE_INPUT_STREAM_THROTTLED);
-        _testAllowInf(MODE_INPUT_DATA);
+        _testAllowInf(MODE_DATA_INPUT);
         _testAllowInf(MODE_READER);
     }
 

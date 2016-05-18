@@ -46,8 +46,8 @@ public class CommentParsingTest
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_STREAM_THROTTLED);
         _testDisabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_READER);
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_READER);
-        _testDisabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_DATA);
-        _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_DATA);
+        _testDisabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_DATA_INPUT);
+        _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_DATA_INPUT);
     }
 
     public void testCommentsEnabled() throws Exception
@@ -58,8 +58,8 @@ public class CommentParsingTest
         _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_STREAM_THROTTLED);
         _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_READER);
         _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_READER);
-        _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_DATA);
-        _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_DATA);
+        _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_DATA_INPUT);
+        _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_DATA_INPUT);
     }
 
     public void testCommentsWithUTF8() throws Exception
@@ -68,7 +68,7 @@ public class CommentParsingTest
         _testWithUTF8Chars(JSON, MODE_INPUT_STREAM);
         _testWithUTF8Chars(JSON, MODE_INPUT_STREAM_THROTTLED);
         _testWithUTF8Chars(JSON, MODE_READER);
-        _testWithUTF8Chars(JSON, MODE_INPUT_DATA);
+        _testWithUTF8Chars(JSON, MODE_DATA_INPUT);
     }
 
     public void testYAMLCommentsBytes() throws Exception {
@@ -79,8 +79,8 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM, "# foo\n");
         _testYAMLComments(f, MODE_INPUT_STREAM_THROTTLED);
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM_THROTTLED, "# foo\n");
-        _testYAMLComments(f, MODE_INPUT_DATA);
-        _testCommentsBeforePropValue(f, MODE_INPUT_DATA, "# foo\n");
+        _testYAMLComments(f, MODE_DATA_INPUT);
+        _testCommentsBeforePropValue(f, MODE_DATA_INPUT, "# foo\n");
     }
 
     public void testYAMLCommentsChars() throws Exception {
@@ -98,7 +98,7 @@ public class CommentParsingTest
         final String COMMENT = "/* foo */\n";
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM, COMMENT);
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM_THROTTLED, COMMENT);
-        _testCommentsBeforePropValue(f, MODE_INPUT_DATA, COMMENT);
+        _testCommentsBeforePropValue(f, MODE_DATA_INPUT, COMMENT);
     }
 
     public void testCCommentsChars() throws Exception {
@@ -114,7 +114,7 @@ public class CommentParsingTest
         final String COMMENT = "// foo\n";
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM, COMMENT);
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM_THROTTLED, COMMENT);
-        _testCommentsBeforePropValue(f, MODE_INPUT_DATA, COMMENT);
+        _testCommentsBeforePropValue(f, MODE_DATA_INPUT, COMMENT);
     }
 
     public void testCppCommentsChars() throws Exception {
@@ -228,7 +228,7 @@ public class CommentParsingTest
         assertEquals(3, p.getIntValue());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
-        if (mode != MODE_INPUT_DATA) {
+        if (mode != MODE_DATA_INPUT) {
             assertNull(p.nextToken());
         }
         p.close();
@@ -246,7 +246,7 @@ public class CommentParsingTest
         JsonParser p = _createParser(doc, mode, true);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        if (mode != MODE_INPUT_DATA) {
+        if (mode != MODE_DATA_INPUT) {
             assertNull(p.nextToken());
         }
         p.close();

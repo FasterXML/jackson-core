@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.base64;
+package com.fasterxml.jackson.core.read;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -6,24 +6,27 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestBase64Parsing
+public class Base64BinaryParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testBase64UsingInputStream() throws Exception
     {
-        _testBase64Text(true);
+        _testBase64Text(MODE_INPUT_STREAM);
+        _testBase64Text(MODE_INPUT_STREAM_THROTTLED);
+        _testBase64Text(MODE_DATA_INPUT);
     }
 
     public void testBase64UsingReader() throws Exception
     {
-        _testBase64Text(false);
+        _testBase64Text(MODE_READER);
     }
 
-    // [Issue-15] (streaming binary reads)
     public void testStreaming() throws IOException
     {
-        _testStreaming(false);
-        _testStreaming(true);
+        _testStreaming(MODE_INPUT_STREAM);
+        _testStreaming(MODE_INPUT_STREAM_THROTTLED);
+        _testStreaming(MODE_DATA_INPUT);
+        _testStreaming(MODE_READER);
     }
 
     /*
@@ -31,10 +34,9 @@ public class TestBase64Parsing
     /* Test helper methods
     /**********************************************************
      */
-    
-    // Test for [JACKSON-631]
+
     @SuppressWarnings("resource")
-    public void _testBase64Text(boolean useBytes) throws Exception
+    public void _testBase64Text(int mode) throws Exception
     {
         // let's actually iterate over sets of encoding modes, lengths
         
@@ -55,26 +57,27 @@ public class TestBase64Parsing
                 input[i] = (byte) i;
             }
             for (Base64Variant variant : VARIANTS) {
-                JsonGenerator jgen;
-                if (useBytes) {
-                    bytes.reset();
-                    jgen = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
-                } else {
+                JsonGenerator g;
+
+                if (mode == MODE_READER) {
                     chars = new StringWriter();
-                    jgen = jsonFactory.createGenerator(chars);
-                }
-                jgen.writeBinary(variant, input, 0, input.length);
-                jgen.close();
-                JsonParser jp;
-                if (useBytes) {
-                    jp = jsonFactory.createParser(bytes.toByteArray());
+                    g = jsonFactory.createGenerator(chars);
                 } else {
-                    jp = jsonFactory.createParser(chars.toString());
+                    bytes.reset();
+                    g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
                 }
-                assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+                g.writeBinary(variant, input, 0, input.length);
+                g.close();
+                JsonParser p;
+                if (mode == MODE_READER) {
+                    p = jsonFactory.createParser(chars.toString());
+                } else {
+                    p = createParser(jsonFactory, mode, bytes.toByteArray());
+                }
+                assertToken(JsonToken.VALUE_STRING, p.nextToken());
                 byte[] data = null;
                 try {
-                    data = jp.getBinaryValue(variant);
+                    data = p.getBinaryValue(variant);
                 } catch (Exception e) {
                     IOException ioException = new IOException("Failed (variant "+variant+", data length "+len+"): "+e.getMessage());
                     ioException.initCause(e);
@@ -82,8 +85,10 @@ public class TestBase64Parsing
                 }
                 assertNotNull(data);
                 assertArrayEquals(data, input);
-                assertNull(jp.nextToken());
-                jp.close();
+                if (mode != MODE_DATA_INPUT) { // no look-ahead for DataInput
+                    assertNull(p.nextToken());
+                }
+                p.close();
             }
         }
     }
@@ -97,7 +102,7 @@ public class TestBase64Parsing
         return result;
     }
 
-    private void _testStreaming(boolean useBytes) throws IOException
+    private void _testStreaming(int mode) throws IOException
     {
         final int[] SIZES = new int[] {
             1, 2, 3, 4, 5, 6,
@@ -113,12 +118,12 @@ public class TestBase64Parsing
         for (int size : SIZES) {
             byte[] data = _generateData(size);
             JsonGenerator g;
-            if (useBytes) {
-                bytes.reset();
-                g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
-            } else {
+            if (mode == MODE_READER) {
                 chars = new StringWriter();
                 g = jsonFactory.createGenerator(chars);
+            } else {
+                bytes.reset();
+                g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
             }
 
             g.writeStartObject();
@@ -129,10 +134,10 @@ public class TestBase64Parsing
 
             // and verify
             JsonParser p;
-            if (useBytes) {
-                p = jsonFactory.createParser(bytes.toByteArray());
-            } else {
+            if (mode == MODE_READER) {
                 p = jsonFactory.createParser(chars.toString());
+            } else {
+                p = createParser(jsonFactory, mode, bytes.toByteArray());
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
     
@@ -144,7 +149,9 @@ public class TestBase64Parsing
             assertEquals(size, gotten);
             assertArrayEquals(data, result.toByteArray());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
-            assertNull(p.nextToken());
+            if (mode != MODE_DATA_INPUT) { // no look-ahead for DataInput
+                assertNull(p.nextToken());
+            }
             p.close();
         }
     }

@@ -34,6 +34,7 @@ public class UTF8NamesParseTest
     public void testEmptyName() throws Exception
     {
         _testEmptyName(MODE_INPUT_STREAM);
+        _testEmptyName(MODE_INPUT_STREAM_THROTTLED);
         _testEmptyName(MODE_DATA_INPUT);
     }
 
@@ -53,6 +54,7 @@ public class UTF8NamesParseTest
     public void testUtf8Name2Bytes() throws Exception
     {
         _testUtf8Name2Bytes(MODE_INPUT_STREAM);
+        _testUtf8Name2Bytes(MODE_INPUT_STREAM_THROTTLED);
         _testUtf8Name2Bytes(MODE_DATA_INPUT);
     }
 
@@ -88,6 +90,7 @@ public class UTF8NamesParseTest
     {
         _testUtf8Name3Bytes(MODE_INPUT_STREAM);
         _testUtf8Name3Bytes(MODE_DATA_INPUT);
+        _testUtf8Name3Bytes(MODE_INPUT_STREAM_THROTTLED);
     }
 
     public void _testUtf8Name3Bytes(int mode) throws Exception
@@ -118,6 +121,7 @@ public class UTF8NamesParseTest
     {
         _testUtf8StringTrivial(MODE_INPUT_STREAM);
         _testUtf8StringTrivial(MODE_DATA_INPUT);
+        _testUtf8StringTrivial(MODE_INPUT_STREAM_THROTTLED);
     }
     
     public void _testUtf8StringTrivial(int mode) throws Exception
@@ -155,6 +159,7 @@ public class UTF8NamesParseTest
     {
         _testUtf8StringValue(MODE_INPUT_STREAM);
         _testUtf8StringValue(MODE_DATA_INPUT);
+        _testUtf8StringValue(MODE_INPUT_STREAM_THROTTLED);
     }
 
     public void _testUtf8StringValue(int mode) throws Exception
@@ -216,6 +221,7 @@ public class UTF8NamesParseTest
 
 		_testNextFieldName(MODE_INPUT_STREAM, data);
           _testNextFieldName(MODE_DATA_INPUT, data);
+          _testNextFieldName(MODE_INPUT_STREAM_THROTTLED, data);
     }
 
     private void _testNextFieldName(int mode, byte[] doc) throws IOException

@@ -12,6 +12,7 @@ import java.util.*;
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
+@SuppressWarnings("resource")
 public class JsonParserTest
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -578,10 +579,12 @@ public class JsonParserTest
         
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertNull(p.getValueAsString());
+        assertEquals("foobar", p.getValueAsString("foobar"));
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("a", p.getText());
         assertEquals("a", p.getValueAsString());
+        assertEquals("a", p.getValueAsString("default"));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("1", p.getValueAsString());
 
@@ -589,6 +592,7 @@ public class JsonParserTest
         assertEquals("b", p.getValueAsString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals("true", p.getValueAsString());
+        assertEquals("true", p.getValueAsString("foobar"));
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("c", p.getValueAsString());
@@ -599,6 +603,7 @@ public class JsonParserTest
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("d", p.getValueAsString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("foo", p.getValueAsString("default"));
         assertEquals("foo", p.getValueAsString());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());

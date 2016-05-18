@@ -2009,7 +2009,7 @@ public class UTF8DataInputJsonParser
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(c)) {
-            _reportInvalidToken(""+((char) c), "('true', 'false' or 'null')");
+            _reportInvalidToken(c, ""+((char) c), "('true', 'false' or 'null')");
         }
         // but if it doesn't look like a token:
         _reportUnexpectedChar(c, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
@@ -2124,7 +2124,7 @@ public class UTF8DataInputJsonParser
         do {
             int ch = _inputData.readUnsignedByte();
             if (ch != matchStr.charAt(i)) {
-                _reportInvalidToken(matchStr.substring(0, i));
+                _reportInvalidToken(ch, matchStr.substring(0, i));
             }
         } while (++i < len);
 
@@ -2139,7 +2139,7 @@ public class UTF8DataInputJsonParser
         // but actually only alphanums are problematic
         char c = (char) _decodeCharForError(ch);
         if (Character.isJavaIdentifierPart(c)) {
-            _reportInvalidToken(matchStr.substring(0, i));
+            _reportInvalidToken(c, matchStr.substring(0, i));
         }
     }
 
@@ -2585,12 +2585,13 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    protected void _reportInvalidToken(String matchedPart) throws IOException
+    protected void _reportInvalidToken(int ch, String matchedPart) throws IOException
      {
-         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
+         _reportInvalidToken(ch, matchedPart, "'null', 'true', 'false' or NaN");
      }
 
-    protected void _reportInvalidToken(String matchedPart, String msg) throws IOException
+    protected void _reportInvalidToken(int ch, String matchedPart, String msg)
+        throws IOException
      {
          StringBuilder sb = new StringBuilder(matchedPart);
 
@@ -2599,12 +2600,12 @@ public class UTF8DataInputJsonParser
           * nothing fancy here (nor fast).
           */
          while (true) {
-             int i = _inputData.readUnsignedByte();
-             char c = (char) _decodeCharForError(i);
+             char c = (char) _decodeCharForError(ch);
              if (!Character.isJavaIdentifierPart(c)) {
                  break;
              }
              sb.append(c);
+             ch = _inputData.readUnsignedByte();
          }
          _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
      }

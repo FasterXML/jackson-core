@@ -32,21 +32,21 @@ public class StringGenerationTest
     // for [core#194]
     public void testMediumStringsBytes() throws Exception
     {
-        _testMediumStrings(true, 1100);
-        _testMediumStrings(true, 2300);
-        _testMediumStrings(true, 3800);
-        _testMediumStrings(true, 7500);
-        _testMediumStrings(true, 19000);
+        for (int mode : ALL_BINARY_MODES) {
+            for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
+                _testMediumStrings(mode, size);
+            }
+        }
     }
 
     // for [core#194]
     public void testMediumStringsChars() throws Exception
     {
-        _testMediumStrings(false, 1100);
-        _testMediumStrings(false, 2300);
-        _testMediumStrings(false, 3800);
-        _testMediumStrings(false, 7500);
-        _testMediumStrings(false, 19000);
+        for (int mode : ALL_TEXT_MODES) {
+            for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
+                _testMediumStrings(mode, size);
+            }
+        }
     }
 
     public void testLongerRandomSingleChunk() throws Exception
@@ -126,27 +126,25 @@ public class StringGenerationTest
         return sb.toString();
     }
 
-    private void _testMediumStrings(boolean useBinary, int length) throws Exception
+    private void _testMediumStrings(int readMode, int length) throws Exception
     {
         String text = _generareMediumText(length);
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBinary ? FACTORY.createGenerator(bytes)
+        JsonGenerator gen = (readMode != MODE_READER) ? FACTORY.createGenerator(bytes)
                 : FACTORY.createGenerator(sw);
         gen.writeStartArray();
         gen.writeString(text);
         gen.writeEndArray();
         gen.close();
 
-        String json;
-        if (useBinary) {
-            json = bytes.toString("UTF-8");
+        JsonParser p;
+        if (readMode == MODE_READER) {
+            p = FACTORY.createParser(sw.toString());
         } else {
-            json = sw.toString();
+            p = createParser(FACTORY, readMode, bytes.toByteArray());
         }
-
-        JsonParser p = FACTORY.createParser(json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(text, p.getText());
@@ -154,8 +152,7 @@ public class StringGenerationTest
         p.close();
     }
     
-    private void doTestBasicEscaping(boolean charArray)
-        throws Exception
+    private void doTestBasicEscaping(boolean charArray) throws Exception
     {
         for (int i = 0; i < SAMPLES.length; ++i) {
             String VALUE = SAMPLES[i];

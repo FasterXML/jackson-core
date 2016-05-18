@@ -25,6 +25,16 @@ public abstract class BaseTest
         MODE_READER,
         MODE_DATA_INPUT
     };
+
+    protected final static int[] ALL_BINARY_MODES = new int[] {
+        MODE_INPUT_STREAM,
+        MODE_INPUT_STREAM_THROTTLED,
+        MODE_DATA_INPUT
+    };
+
+    protected final static int[] ALL_TEXT_MODES = new int[] {
+        MODE_READER
+    };
     
     /*
     /**********************************************************

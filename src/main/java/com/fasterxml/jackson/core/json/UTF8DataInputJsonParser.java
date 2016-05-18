@@ -941,16 +941,24 @@ public class UTF8DataInputJsonParser
     protected JsonToken _parsePosNumber(int c) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = (char) c;
+        int outPtr;
 
-        // One special case: if first char is 0, must not be followed by a digit
+        // One special case: if first char is 0, must not be followed by a digit.
+        // Gets bit tricky as we only want to retain 0 if it's the full value
         if (c == INT_0) {
             c = _handleLeadingZeroes();
+            if (c <= INT_9 && c >= INT_0) { // skip if followed by digit
+                outPtr = 0;
+            } else {
+                outBuf[0] = '0';
+                outPtr = 1;
+            }
         } else {
+            outBuf[0] = (char) c;
             c = _inputData.readUnsignedByte();
+            outPtr = 1;
         }
-        int intLen = 1;
-        int outPtr = 1;
+        int intLen = outPtr;
 
         // With this, we have a nice and tight loop:
         while (c <= INT_9 && c >= INT_0) {
@@ -980,28 +988,29 @@ public class UTF8DataInputJsonParser
         // Need to prepend sign?
         outBuf[outPtr++] = '-';
         int c = _inputData.readUnsignedByte();
+        outBuf[outPtr++] = (char) c;
         // Note: must be followed by a digit
         if (c <= INT_0) {
             // One special case: if first char is 0 need to check no leading zeroes
             if (c == INT_0) {
                 c = _handleLeadingZeroes();
+            } else {
+                return _handleInvalidNumberStart(c, true);
             }
-            return _handleInvalidNumberStart(c, true);
-        } else if (c > INT_9) {
-            return _handleInvalidNumberStart(c, true);
+        } else {
+            if (c > INT_9) {
+                return _handleInvalidNumberStart(c, true);
+            }
+            c = _inputData.readUnsignedByte();
         }
         // Ok: we can first just add digit we saw first:
-        outBuf[outPtr++] = (char) c;
         int intLen = 1;
 
         // With this, we have a nice and tight loop:
-        while (true) {
-            c = _inputData.readUnsignedByte();
-            if (c < INT_0 || c > INT_9) {
-                break;
-            }
+        while (c <= INT_9 && c >= INT_0) {
             ++intLen;
             outBuf[outPtr++] = (char) c;
+            c = _inputData.readUnsignedByte();
         }
         if (c == '.' || c == 'e' || c == 'E') {
             return _parseFloat(outBuf, outPtr, c, true, intLen);

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.read;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,181 +10,178 @@ import com.fasterxml.jackson.core.*;
  * functionality works as expected.
  */
 @SuppressWarnings("resource")
-public class TestNumericValues
+public class NumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory FACTORY = new JsonFactory();
-    
+
     public void testSimpleBoolean() throws Exception
     {
-        JsonParser jp = FACTORY.createParser("[ true ]");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertEquals(true, jp.getBooleanValue());
-        jp.close();
+        _testSimpleBoolean(MODE_INPUT_STREAM);
+        _testSimpleBoolean(MODE_INPUT_STREAM_THROTTLED);
+        _testSimpleBoolean(MODE_READER);
+        _testSimpleBoolean(MODE_DATA_INPUT);
     }
-    
+
+    private void _testSimpleBoolean(int mode) throws Exception
+    {
+        JsonParser p = createParser(mode, "[ true ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertEquals(true, p.getBooleanValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
+    }
+
     public void testSimpleInt() throws Exception
     {
         for (int EXP_I : new int[] { 1234, -999, 0, 1, -2 }) {
-            _testSimpleInt(EXP_I, false);
-            _testSimpleInt(EXP_I, true);
+            _testSimpleInt(EXP_I, MODE_INPUT_STREAM);
+            _testSimpleInt(EXP_I, MODE_INPUT_STREAM_THROTTLED);
+            _testSimpleInt(EXP_I, MODE_READER);
+            _testSimpleInt(EXP_I, MODE_DATA_INPUT);
         }
     }
 
-    private void _testSimpleInt(int EXP_I, boolean useStream) throws Exception
+    private void _testSimpleInt(int EXP_I, int mode) throws Exception
     {
         String DOC = "[ "+EXP_I+" ]";
-        JsonParser jp = useStream
-                ? FACTORY.createParser(DOC)
-                : FACTORY.createParser(DOC.getBytes("UTF-8"));
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(JsonParser.NumberType.INT, jp.getNumberType());
-        assertEquals(""+EXP_I, jp.getText());
+        JsonParser p = createParser(mode, DOC);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+        assertEquals(""+EXP_I, p.getText());
 
-        assertEquals(EXP_I, jp.getIntValue());
-        assertEquals((long) EXP_I, jp.getLongValue());
-        assertEquals((double) EXP_I, jp.getDoubleValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_I), jp.getDecimalValue());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        assertEquals(EXP_I, p.getIntValue());
+        assertEquals((long) EXP_I, p.getLongValue());
+        assertEquals((double) EXP_I, p.getDoubleValue());
+        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
 
         DOC = String.valueOf(EXP_I);
-        jp = useStream
-                ? FACTORY.createParser(DOC)
-                : FACTORY.createParser(DOC.getBytes("UTF-8"));
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(DOC, jp.getText());
+        p = createParser(mode, DOC + " "); // DataInput requires separator
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(DOC, p.getText());
 
         int i = 0;
         
         try {
-            i = jp.getIntValue();
+            i = p.getIntValue();
         } catch (Exception e) {
-            throw new Exception("Failed to parse input '"+DOC+"' (parser of type "+jp.getClass().getSimpleName()+")", e);
+            throw new Exception("Failed to parse input '"+DOC+"' (parser of type "+p.getClass().getSimpleName()+")", e);
         }
         
         assertEquals(EXP_I, i);
 
-        assertEquals((long) EXP_I, jp.getLongValue());
-        assertEquals((double) EXP_I, jp.getDoubleValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_I), jp.getDecimalValue());
-        assertNull(jp.nextToken());
-        jp.close();
+        assertEquals((long) EXP_I, p.getLongValue());
+        assertEquals((double) EXP_I, p.getDoubleValue());
+        assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        p.close();
     }
 
     public void testIntRange() throws Exception
     {
         // let's test with readers and streams, separate code paths:
-        for (int i = 0; i < 2; ++i) {
-            String input = "[ "+Integer.MAX_VALUE+","+Integer.MIN_VALUE+" ]";
-            JsonParser jp;
-            if (i == 0) {
-                jp = FACTORY.createParser(input);                
-            } else {
-                jp = createParserUsingStream(input, "UTF-8");
-            }
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.INT, jp.getNumberType());
-            assertEquals(Integer.MAX_VALUE, jp.getIntValue());
+        for (int mode : ALL_MODES) {
+            String DOC = "[ "+Integer.MAX_VALUE+","+Integer.MIN_VALUE+" ]";
+            JsonParser p = createParser(mode, DOC);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+            assertEquals(Integer.MAX_VALUE, p.getIntValue());
     
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.INT, jp.getNumberType());
-            assertEquals(Integer.MIN_VALUE, jp.getIntValue());
-            jp.close();
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+            assertEquals(Integer.MIN_VALUE, p.getIntValue());
+            p.close();
         }
     }
 
     public void testSimpleLong() throws Exception
     {
+        _testSimpleLong(MODE_INPUT_STREAM);
+        _testSimpleLong(MODE_INPUT_STREAM_THROTTLED);
+        _testSimpleLong(MODE_READER);
+        _testSimpleLong(MODE_DATA_INPUT);
+    }
+    
+    private void _testSimpleLong(int mode) throws Exception
+    {
         long EXP_L = 12345678907L;
-
-        JsonParser jp = FACTORY.createParser("[ "+EXP_L+" ]");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        
+        JsonParser p = createParser(mode, "[ "+EXP_L+" ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // beyond int, should be long
-        assertEquals(JsonParser.NumberType.LONG, jp.getNumberType());
-        assertEquals(""+EXP_L, jp.getText());
+        assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+        assertEquals(""+EXP_L, p.getText());
 
-        assertEquals(EXP_L, jp.getLongValue());
+        assertEquals(EXP_L, p.getLongValue());
         // Should get an exception if trying to convert to int 
         try {
-            jp.getIntValue();
-        } catch (JsonParseException jpe) {
-            verifyException(jpe, "out of range");
+            p.getIntValue();
+        } catch (JsonParseException pe) {
+            verifyException(pe, "out of range");
         }
-        assertEquals((double) EXP_L, jp.getDoubleValue());
-        assertEquals(BigDecimal.valueOf((long) EXP_L), jp.getDecimalValue());
-        jp.close();
+        assertEquals((double) EXP_L, p.getDoubleValue());
+        assertEquals(BigDecimal.valueOf((long) EXP_L), p.getDecimalValue());
+        p.close();
     }
 
     public void testLongRange() throws Exception
     {
-        for (int i = 0; i < 2; ++i) {
+        for (int mode : ALL_MODES) {
             long belowMinInt = -1L + Integer.MIN_VALUE;
             long aboveMaxInt = 1L + Integer.MAX_VALUE;
             String input = "[ "+Long.MAX_VALUE+","+Long.MIN_VALUE+","+aboveMaxInt+", "+belowMinInt+" ]";
-            JsonParser jp;
-            if (i == 0) {
-                jp = FACTORY.createParser(input);                
-            } else {
-                jp = this.createParserUsingStream(input, "UTF-8");
-            }
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.LONG, jp.getNumberType());
-            assertEquals(Long.MAX_VALUE, jp.getLongValue());
+            JsonParser p = createParser(mode, input);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(Long.MAX_VALUE, p.getLongValue());
         
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.LONG, jp.getNumberType());
-            assertEquals(Long.MIN_VALUE, jp.getLongValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(Long.MIN_VALUE, p.getLongValue());
 
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.LONG, jp.getNumberType());
-            assertEquals(aboveMaxInt, jp.getLongValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(aboveMaxInt, p.getLongValue());
 
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.LONG, jp.getNumberType());
-            assertEquals(belowMinInt, jp.getLongValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
+            assertEquals(belowMinInt, p.getLongValue());
 
             
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());        
-            jp.close();
+            assertToken(JsonToken.END_ARRAY, p.nextToken());        
+            p.close();
         }
     }
 
-    public void testBigDecimalRange()
-        throws Exception
+    public void testBigDecimalRange() throws Exception
     {
-        for (int i = 0; i < 2; ++i) {
+        for (int mode : ALL_MODES) {
             // let's test first values outside of Long range
             BigInteger small = new BigDecimal(Long.MIN_VALUE).toBigInteger();
             small = small.subtract(BigInteger.ONE);
             BigInteger big = new BigDecimal(Long.MAX_VALUE).toBigInteger();
             big = big.add(BigInteger.ONE);
             String input = "[ "+small+"  ,  "+big+"]";
-            JsonParser jp;
-            if (i == 0) {
-                jp = FACTORY.createParser(input);                
-            } else {
-                jp = this.createParserUsingStream(input, "UTF-8");
-            }
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.BIG_INTEGER, jp.getNumberType());
-            assertEquals(small, jp.getBigIntegerValue());
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.BIG_INTEGER, jp.getNumberType());
-            assertEquals(big, jp.getBigIntegerValue());
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());        
-            jp.close();
+            JsonParser p = createParser(mode, input);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+            assertEquals(small, p.getBigIntegerValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+            assertEquals(big, p.getBigIntegerValue());
+            assertToken(JsonToken.END_ARRAY, p.nextToken());        
+            p.close();
         }
     }
 
-    // for [Issue#78]
+    // for [core#78]
     public void testBigNumbers() throws Exception
     {
         StringBuilder sb = new StringBuilder();
@@ -193,19 +190,14 @@ public class TestNumericValues
         }
         final String NUMBER_STR = sb.toString();
         BigInteger biggie = new BigInteger(NUMBER_STR);
-        
-        for (int i = 0; i < 2; ++i) {
-            JsonParser jp;
-            if (i == 0) {
-                jp = FACTORY.createParser(NUMBER_STR);                
-            } else {
-                jp = this.createParserUsingStream(NUMBER_STR, "UTF-8");
-            }
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(JsonParser.NumberType.BIG_INTEGER, jp.getNumberType());
-            assertEquals(NUMBER_STR, jp.getText());
-            assertEquals(biggie, jp.getBigIntegerValue());
-            jp.close();
+
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(mode, NUMBER_STR +" ");
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
+            assertEquals(NUMBER_STR, p.getText());
+            assertEquals(biggie, p.getBigIntegerValue());
+            p.close();
         }
     }
     
@@ -216,7 +208,7 @@ public class TestNumericValues
             "-0.5", "-12.9", "-999.0",
             "2.5e+5", "9e4", "-12e-3", "0.25",
         };
-        for (int input = 0; input < 2; ++input) {
+        for (int mode : ALL_MODES) {
             for (int i = 0; i < INPUTS.length; ++i) {
 
                 // First in array
@@ -225,98 +217,93 @@ public class TestNumericValues
                 double EXP_D = Double.parseDouble(STR);
                 String DOC = "["+STR+"]";
 
-                JsonParser jp;
-                
-                if (input == 0) {
-                    jp = createParserUsingStream(DOC, "UTF-8");
-                } else {
-                    jp = FACTORY.createParser(DOC);
+                JsonParser p = createParser(mode, DOC+" ");
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(STR, p.getText());
+                assertEquals(EXP_D, p.getDoubleValue());
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+                if (mode != MODE_DATA_INPUT) {
+                    assertNull(p.nextToken());
                 }
-                assertToken(JsonToken.START_ARRAY, jp.nextToken());
-                assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-                assertEquals(STR, jp.getText());
-                assertEquals(EXP_D, jp.getDoubleValue());
-                assertToken(JsonToken.END_ARRAY, jp.nextToken());
-                assertNull(jp.nextToken());
-                jp.close();
+                p.close();
 
                 // then outside
-                if (input == 0) {
-                    jp = createParserUsingStream(STR, "UTF-8");
-                } else {
-                    jp = FACTORY.createParser(STR);
-                }
+                p = createParser(mode, STR + " ");
                 JsonToken t = null;
 
                 try {
-                    t = jp.nextToken();
+                    t = p.nextToken();
                 } catch (Exception e) {
-                    throw new Exception("Failed to parse input '"+STR+"' (parser of type "+jp.getClass().getSimpleName()+")", e);
+                    throw new Exception("Failed to parse input '"+STR+"' (parser of type "+p.getClass().getSimpleName()+")", e);
                 }
                 
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
-                assertEquals(STR, jp.getText());
-                assertNull(jp.nextToken());
-                jp.close();
+                assertEquals(STR, p.getText());
+                if (mode != MODE_DATA_INPUT) {
+                    assertNull(p.nextToken());
+                }
+                p.close();
             }
         }
     }
 
     public void testNumbers() throws Exception
     {
+        _testNumbers(MODE_INPUT_STREAM);
+        _testNumbers(MODE_INPUT_STREAM_THROTTLED);
+        _testNumbers(MODE_READER);
+        _testNumbers(MODE_DATA_INPUT);
+    }
+    
+    private void _testNumbers(int mode) throws Exception
+    {
         final String DOC = "[ -13, 8100200300, 13.5, 0.00010, -2.033 ]";
 
-        for (int input = 0; input < 2; ++input) {
-            JsonParser jp;
+        JsonParser p = createParser(mode, DOC);
 
-            if (input == 0) {
-                jp = createParserUsingStream(DOC, "UTF-8");
-            } else {
-                jp = FACTORY.createParser(DOC);
-            }
-
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
-            
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(-13, jp.getIntValue());
-            assertEquals(-13L, jp.getLongValue());
-            assertEquals(-13., jp.getDoubleValue());
-            assertEquals("-13", jp.getText());
-            
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(8100200300L, jp.getLongValue());
-            // Should get exception for overflow:
-            try {
-                /*int x =*/ jp.getIntValue();
-                fail("Expected an exception for overflow");
-            } catch (Exception e) {
-                verifyException(e, "out of range of int");
-            }
-            assertEquals(8100200300., jp.getDoubleValue());
-            assertEquals("8100200300", jp.getText());
-            
-            assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-            assertEquals(13, jp.getIntValue());
-            assertEquals(13L, jp.getLongValue());
-            assertEquals(13.5, jp.getDoubleValue());
-            assertEquals("13.5", jp.getText());
-            
-            assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-            assertEquals(0, jp.getIntValue());
-            assertEquals(0L, jp.getLongValue());
-            assertEquals(0.00010, jp.getDoubleValue());
-            assertEquals("0.00010", jp.getText());
-            
-            assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-            assertEquals(-2, jp.getIntValue());
-            assertEquals(-2L, jp.getLongValue());
-            assertEquals(-2.033, jp.getDoubleValue());
-            assertEquals("-2.033", jp.getText());
-
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());
-
-            jp.close();
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(-13, p.getIntValue());
+        assertEquals(-13L, p.getLongValue());
+        assertEquals(-13., p.getDoubleValue());
+        assertEquals("-13", p.getText());
+        
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(8100200300L, p.getLongValue());
+        // Should get exception for overflow:
+        try {
+            /*int x =*/ p.getIntValue();
+            fail("Expected an exception for overflow");
+        } catch (Exception e) {
+            verifyException(e, "out of range of int");
         }
+        assertEquals(8100200300.0, p.getDoubleValue());
+        assertEquals("8100200300", p.getText());
+        
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(13, p.getIntValue());
+        assertEquals(13L, p.getLongValue());
+        assertEquals(13.5, p.getDoubleValue());
+        assertEquals("13.5", p.getText());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(0, p.getIntValue());
+        assertEquals(0L, p.getLongValue());
+        assertEquals(0.00010, p.getDoubleValue());
+        assertEquals("0.00010", p.getText());
+        
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(-2, p.getIntValue());
+        assertEquals(-2L, p.getLongValue());
+        assertEquals(-2.033, p.getDoubleValue());
+        assertEquals("-2.033", p.getText());
+
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+
+        p.close();
     }
 
     public void testLongOverflow() throws Exception
@@ -328,36 +315,27 @@ public class TestNumericValues
 
         String DOC_BELOW = below.toString() + " ";
         String DOC_ABOVE = below.toString() + " ";
-        for (int input = 0; input < 2; ++input) {
-            JsonParser jp;
 
-            if (input == 0) {
-                jp = createParserUsingStream(DOC_BELOW, "UTF-8");
-            } else {
-                jp = FACTORY.createParser(DOC_BELOW);
-            }
-            jp.nextToken();
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(mode, DOC_BELOW);
+            p.nextToken();
             try {
-                long x = jp.getLongValue();
-                fail("Expected an exception for underflow (input "+jp.getText()+"): instead, got long value: "+x);
+                long x = p.getLongValue();
+                fail("Expected an exception for underflow (input "+p.getText()+"): instead, got long value: "+x);
             } catch (JsonParseException e) {
                 verifyException(e, "out of range of long");
             }
-            jp.close();
+            p.close();
 
-            if (input == 0) {
-                jp = createParserUsingStream(DOC_ABOVE, "UTF-8");
-            } else {
-                jp = createParserUsingReader(DOC_ABOVE);
-            }
-            jp.nextToken();
+            p = createParser(mode, DOC_ABOVE);
+            p.nextToken();
             try {
-                long x = jp.getLongValue();
-                fail("Expected an exception for underflow (input "+jp.getText()+"): instead, got long value: "+x);
+                long x = p.getLongValue();
+                fail("Expected an exception for underflow (input "+p.getText()+"): instead, got long value: "+x);
             } catch (JsonParseException e) {
                 verifyException(e, "out of range of long");
             }
-            jp.close();
+            p.close();
             
         }
     }
@@ -366,8 +344,7 @@ public class TestNumericValues
      * Method that tries to test that number parsing works in cases where
      * input is split between buffer boundaries.
      */
-    public void testParsingOfLongerSequences()
-        throws Exception
+    public void testParsingOfLongerSequences() throws Exception
     {
         double[] values = new double[] { 0.01, -10.5, 2.1e9, 4.0e-8 };
         StringBuilder sb = new StringBuilder();
@@ -402,23 +379,23 @@ public class TestNumericValues
         String DOC = sb.toString();
 
         for (int input = 0; input < 2; ++input) {
-            JsonParser jp;
+            JsonParser p;
 
             if (input == 0) {
-                jp = createParserUsingStream(DOC, "UTF-8");
+                p = createParserUsingStream(DOC, "UTF-8");
             } else {
-                jp = FACTORY.createParser(DOC);
+                p = FACTORY.createParser(DOC);
             }
 
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = 0; i < COUNT; ++i) {
                 for (double d : values) {
-                    assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-                    assertEquals(d, jp.getDoubleValue());
+                    assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                    assertEquals(d, p.getDoubleValue());
                 }
             }
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());
-            jp.close();
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
         }
     }
 
@@ -439,13 +416,13 @@ public class TestNumericValues
     private void _testLongNumbers(JsonFactory f, String num, boolean useStream) throws Exception
     {
         final String doc = "[ "+num+" ]";
-        JsonParser jp = useStream
+        JsonParser p = useStream
                 ? f.createParser(doc.getBytes("UTF-8"))
                         : f.createParser(doc);
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(num, jp.getText());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(num, p.getText());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
     }
 
     // and alternate take on for #157 (with negative num)
@@ -465,12 +442,12 @@ public class TestNumericValues
 
     private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream) throws Exception
     {
-        JsonParser jp = useStream
+        JsonParser p = useStream
                 ? FACTORY.createParser(doc.getBytes("UTF-8"))
                         : FACTORY.createParser(doc);
-        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        BigInteger v = jp.getBigIntegerValue();
-        assertNull(jp.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        BigInteger v = p.getBigIntegerValue();
+        assertNull(p.nextToken());
         assertEquals(doc, v.toString());
     }
 
@@ -499,19 +476,19 @@ public class TestNumericValues
             sb.append(arrayJson);
             String DOC = sb.toString();
             for (int input = 0; input < 2; ++input) {
-                JsonParser jp;
+                JsonParser p;
                 if (input == 0) {
-                    jp = createParserUsingStream(factory, DOC, "UTF-8");
+                    p = createParserUsingStream(factory, DOC, "UTF-8");
                 } else {
-                    jp = factory.createParser(DOC);
+                    p = factory.createParser(DOC);
                 }
-                assertToken(JsonToken.START_ARRAY, jp.nextToken());
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
                 for (int j = 0; j < VCOUNT; ++j) {
-                    assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-                    assertEquals(values[i], jp.getDoubleValue());
+                    assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                    assertEquals(values[i], p.getDoubleValue());
                 }
-                assertToken(JsonToken.END_ARRAY, jp.nextToken());
-                jp.close();
+                assertToken(JsonToken.END_ARRAY, p.nextToken());
+                p.close();
             }
         }
     }
@@ -521,35 +498,70 @@ public class TestNumericValues
     /* Tests for invalid access
     /**********************************************************
      */
-    
-    public void testInvalidBooleanAccess() throws Exception
+
+    public void testInvalidBooleanAccess() throws Exception {
+        _testInvalidBooleanAccess(MODE_INPUT_STREAM);
+        _testInvalidBooleanAccess(MODE_INPUT_STREAM_THROTTLED);
+        _testInvalidBooleanAccess(MODE_READER);
+        _testInvalidBooleanAccess(MODE_DATA_INPUT);
+    }
+
+    private void _testInvalidBooleanAccess(int mode) throws Exception
     {
-        JsonParser jp = FACTORY.createParser("[ \"abc\" ]");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        JsonParser p = createParser(mode, "[ \"abc\" ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
-            jp.getBooleanValue();
+            p.getBooleanValue();
             fail("Expected error trying to call getBooleanValue on non-boolean value");
         } catch (JsonParseException e) {
             verifyException(e, "not of boolean type");
         }
-        jp.close();
+        p.close();
     }
 
-    public void testInvalidIntAccess() throws Exception
+    public void testInvalidIntAccess() throws Exception {
+        _testInvalidIntAccess(MODE_INPUT_STREAM);
+        _testInvalidIntAccess(MODE_INPUT_STREAM_THROTTLED);
+        _testInvalidIntAccess(MODE_READER);
+        _testInvalidIntAccess(MODE_DATA_INPUT);
+    }
+    
+    private void _testInvalidIntAccess(int mode) throws Exception
     {
-        JsonParser jp = FACTORY.createParser("[ \"abc\" ]");
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        JsonParser p = createParser(mode, "[ \"abc\" ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
-            jp.getIntValue();
+            p.getIntValue();
             fail("Expected error trying to call getIntValue on non-numeric value");
         } catch (JsonParseException e) {
             verifyException(e, "can not use numeric value accessors");
         }
-        jp.close();
+        p.close();
     }
 
+    public void testInvalidLongAccess() throws Exception {
+        _testInvalidLongAccess(MODE_INPUT_STREAM);
+        _testInvalidLongAccess(MODE_INPUT_STREAM_THROTTLED);
+        _testInvalidLongAccess(MODE_READER);
+        _testInvalidLongAccess(MODE_DATA_INPUT);
+    }
+    
+    private void _testInvalidLongAccess(int mode) throws Exception
+    {
+        JsonParser p = createParser(mode, "[ false ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        try {
+            p.getLongValue();
+            fail("Expected error trying to call getLongValue on non-numeric value");
+        } catch (JsonParseException e) {
+            verifyException(e, "can not use numeric value accessors");
+        }
+        p.close();
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

@@ -172,14 +172,14 @@ public class StringGenerationTest
             gen.writeEndArray();
             gen.close();
             String docStr = sw.toString();
-            JsonParser jp = createParserUsingReader(docStr);
-            assertEquals(JsonToken.START_ARRAY, jp.nextToken());
-            JsonToken t = jp.nextToken();
+            JsonParser p = createParserUsingReader(docStr);
+            assertEquals(JsonToken.START_ARRAY, p.nextToken());
+            JsonToken t = p.nextToken();
             assertEquals(JsonToken.VALUE_STRING, t);
-            assertEquals(VALUE, jp.getText());
-            assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-            assertEquals(null, jp.nextToken());
-            jp.close();
+            assertEquals(VALUE, p.getText());
+            assertEquals(JsonToken.END_ARRAY, p.nextToken());
+            assertEquals(null, p.nextToken());
+            p.close();
         }
     }
 
@@ -200,11 +200,11 @@ public class StringGenerationTest
         gen.writeEndArray();
         gen.close();
         byte[] docData = bow.toByteArray();
-        JsonParser jp = FACTORY.createParser(new ByteArrayInputStream(docData));
-        assertEquals(JsonToken.START_ARRAY, jp.nextToken());
-        JsonToken t = jp.nextToken();
+        JsonParser p = FACTORY.createParser(new ByteArrayInputStream(docData));
+        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+        JsonToken t = p.nextToken();
         assertEquals(JsonToken.VALUE_STRING, t);
-        String act = jp.getText();
+        String act = p.getText();
         if (!text.equals(act)) {
             if (text.length() != act.length()) {
                 fail("Expected string length "+text.length()+", actual "+act.length());
@@ -217,9 +217,9 @@ public class StringGenerationTest
             }
             fail("Strings differ at position #"+i+" (len "+text.length()+"): expected char 0x"+Integer.toHexString(text.charAt(i))+", actual 0x"+Integer.toHexString(act.charAt(i)));
         }
-        assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(null, jp.nextToken());
-        jp.close();
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertEquals(null, p.nextToken());
+        p.close();
     }
 
     private void doTestLongerRandomMulti(String text, boolean charArray, int round)
@@ -265,13 +265,13 @@ public class StringGenerationTest
         gen.writeEndArray();
         gen.close();
         byte[] docData = bow.toByteArray();
-        JsonParser jp = FACTORY.createParser(new ByteArrayInputStream(docData));
-        assertEquals(JsonToken.START_ARRAY, jp.nextToken());
+        JsonParser p = FACTORY.createParser(new ByteArrayInputStream(docData));
+        assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
         offset = 0;
-        while (jp.nextToken() == JsonToken.VALUE_STRING) {
+        while (p.nextToken() == JsonToken.VALUE_STRING) {
             // Let's verify, piece by piece
-            String act = jp.getText();
+            String act = p.getText();
             String exp = text.substring(offset, offset+act.length());
             if (act.length() != exp.length()) {
                 fail("String segment ["+offset+" - "+(offset+act.length())+"[ differs; exp length "+exp+", actual "+act);                
@@ -287,7 +287,7 @@ public class StringGenerationTest
             }
             offset += act.length();
         }
-        assertEquals(JsonToken.END_ARRAY, jp.getCurrentToken());
-        jp.close();
+        assertEquals(JsonToken.END_ARRAY, p.getCurrentToken());
+        p.close();
     }
 }

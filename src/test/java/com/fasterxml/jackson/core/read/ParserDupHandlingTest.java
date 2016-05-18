@@ -1,8 +1,8 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestParserDupHandling
+public class ParserDupHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final String[] DUP_DOCS = new String[] {
@@ -15,18 +15,20 @@ public class TestParserDupHandling
     };
     {
         for (int i = 0; i < DUP_DOCS.length; ++i) {
-            DUP_DOCS[i] = DUP_DOCS[i].replace("'", "\"");
+            DUP_DOCS[i] = aposToQuotes(DUP_DOCS[i]);
         }
     }
-    
-    public void testSimpleDupsDisabled() throws Exception
+
+    public void testSimpleDupCheckDisabled() throws Exception
     {
         // first: verify no problems if detection NOT enabled
         final JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
         for (String doc : DUP_DOCS) {
-            _testSimpleDupsOk(doc, f, false);
-            _testSimpleDupsOk(doc, f, true);
+            _testSimpleDupsOk(doc, f, MODE_INPUT_STREAM);
+            _testSimpleDupsOk(doc, f, MODE_INPUT_STREAM_THROTTLED);
+            _testSimpleDupsOk(doc, f, MODE_READER);
+            _testSimpleDupsOk(doc, f, MODE_DATA_INPUT);
         }
     }
 
@@ -37,54 +39,103 @@ public class TestParserDupHandling
         dupF.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
         for (String doc : DUP_DOCS) {
             // First, with static setting
-            _testSimpleDupsFail(doc, dupF, true, "a", false);
-
+            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM, "a", false);
             // and then dynamic
-            _testSimpleDupsFail(doc, nonDupF, true, "a", true);
+            _testSimpleDupsFail(doc, nonDupF, MODE_INPUT_STREAM, "a", true);
+
+            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM_THROTTLED, "a", false);
+            _testSimpleDupsFail(doc, nonDupF, MODE_INPUT_STREAM_THROTTLED, "a", true);
         }
     }
 
+    public void testSimpleDupsDataInput() throws Exception
+    {
+        JsonFactory nonDupF = new JsonFactory();
+        JsonFactory dupF = new JsonFactory();
+        dupF.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        for (String doc : DUP_DOCS) {
+            _testSimpleDupsFail(doc, dupF, MODE_DATA_INPUT, "a", false);
+            _testSimpleDupsFail(doc, nonDupF, MODE_DATA_INPUT, "a", true);
+        }
+    }
+    
     public void testSimpleDupsChars() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = new JsonFactory();
         dupF.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
         for (String doc : DUP_DOCS) {
-            _testSimpleDupsFail(doc, dupF, false, "a", false);
-            _testSimpleDupsFail(doc, nonDupF, false, "a", true);
+            _testSimpleDupsFail(doc, dupF, MODE_READER, "a", false);
+            _testSimpleDupsFail(doc, nonDupF, MODE_READER, "a", true);
         }
     }
     
     private void _testSimpleDupsOk(final String doc, JsonFactory f,
-            boolean useStream) throws Exception
+            int mode) throws Exception
     {
-        JsonParser jp = useStream ?
-                createParserUsingStream(f, doc, "UTF-8") : createParserUsingReader(f, doc);
-        JsonToken t = jp.nextToken();
+        JsonParser p = createParser(f, mode, doc);
+        JsonToken t = p.nextToken();
         assertNotNull(t);
         assertTrue(t.isStructStart());
-        while (jp.nextToken() != null) { }
-        jp.close();
+
+        int depth = 1;
+
+        while (depth > 0) {
+            switch (p.nextToken()) {
+            case START_ARRAY:
+            case START_OBJECT:
+                ++depth;
+                break;
+            case END_ARRAY:
+            case END_OBJECT:
+                --depth;
+                break;
+            default:
+            }
+        }
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
+        }
+        p.close();
     }
 
     private void _testSimpleDupsFail(final String doc, JsonFactory f,
-            boolean useStream, String name, boolean lazily) throws Exception
+            int mode, String name, boolean lazily) throws Exception
     {
-        JsonParser jp = useStream ?
-                createParserUsingStream(f, doc, "UTF-8") : createParserUsingReader(f, doc);
+        JsonParser p = createParser(f, mode, doc);
         if (lazily) {
-            jp.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+            p.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
         }
-        JsonToken t = jp.nextToken();
+        JsonToken t = p.nextToken();
         assertNotNull(t);
         assertTrue(t.isStructStart());
-        try {
-            while (jp.nextToken() != null) { }
-            fail("Should have caught dups in document: "+doc);
-        } catch (JsonParseException e) {
-            verifyException(e, "duplicate field '"+name+"'");
+
+        int depth = 1;
+        JsonParseException e = null;
+
+        while (depth > 0) {
+            try {
+                switch (p.nextToken()) {
+                case START_ARRAY:
+                case START_OBJECT:
+                    ++depth;
+                    break;
+                case END_ARRAY:
+                case END_OBJECT:
+                    --depth;
+                    break;
+                default:
+                }
+            } catch (JsonParseException e0) {
+                e = e0;
+                break;
+            }
         }
-        jp.close();
+        p.close();
+
+        if (e == null) {
+            fail("Should have caught exception for dup");
+        }
+        verifyException(e, "duplicate field '"+name+"'");
     }
-    
 }

@@ -254,6 +254,46 @@ public class NonStandardParserFeaturesTest
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
+
+
+        JSON = "{'b':1,'array':[{'b':3}],'ob':{'b':4,'x':0,'y':3,'a':false }}";
+        p = createParser(f, mode, JSON);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("b", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("b", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(3, p.getIntValue());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("b", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(4, p.getIntValue());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("x", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(0, p.getIntValue());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("y", p.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(3, p.getIntValue());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("a", p.getCurrentName());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
     }
 
     // test to verify that we implicitly allow escaping of apostrophe

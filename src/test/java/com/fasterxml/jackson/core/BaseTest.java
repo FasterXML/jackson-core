@@ -19,6 +19,13 @@ public abstract class BaseTest
     protected final static int MODE_READER = 2;
     protected final static int MODE_DATA_INPUT = 3;
 
+    protected final static int[] ALL_MODES = new int[] {
+        MODE_INPUT_STREAM,
+        MODE_INPUT_STREAM_THROTTLED,
+        MODE_READER,
+        MODE_DATA_INPUT
+    };
+    
     /*
     /**********************************************************
     /* Some sample documents:

@@ -1031,6 +1031,16 @@ public abstract class JsonParser
     public abstract String getText() throws IOException;
 
     /**
+     * Method to read the textual representation of the current token in chunks and 
+     * pass it to the given Writer
+     * 
+     *  @return The number of characters written to the Writer 
+     *  
+     *  @since 2.8
+     */
+    public abstract int readText(Writer writer) throws IOException, UnsupportedOperationException;
+    
+    /**
      * Method similar to {@link #getText}, but that will return
      * underlying (unmodifiable) character array that contains
      * textual value, instead of constructing a String object

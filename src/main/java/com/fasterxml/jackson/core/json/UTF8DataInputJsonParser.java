@@ -2196,8 +2196,13 @@ public class UTF8DataInputJsonParser
 
     private final int _skipColon() throws IOException
     {
+        int i = _nextByte;
+        if (i < 0) {
+            i = _inputData.readUnsignedByte();
+        } else {
+            _nextByte = -1;
+        }
         // Fast path: colon with optional single-space/tab before and/or after:
-        int i = _inputData.readUnsignedByte();
         if (i == INT_COLON) { // common case, no leading space
             i = _inputData.readUnsignedByte();
             if (i > INT_SPACE) { // nor trailing

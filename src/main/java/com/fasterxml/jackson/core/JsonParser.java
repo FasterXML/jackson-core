@@ -1041,11 +1041,19 @@ public abstract class JsonParser
      * be combined into a single <code>String</code> to return, and write
      * can occur directly from intermediate buffers Jackson uses.
      * 
-     *  @return The number of characters written to the Writer 
+     * @return The number of characters written to the Writer
      *  
-     *  @since 2.8
+     * @since 2.8
      */
-    public abstract int getText(Writer writer) throws IOException, UnsupportedOperationException;
+    public int getText(Writer writer) throws IOException, UnsupportedOperationException
+    {
+        String str = getText();
+        if (str == null) {
+            return 0;
+        }
+        writer.write(str);
+        return str.length();
+    }
 
     /**
      * Method similar to {@link #getText}, but that will return

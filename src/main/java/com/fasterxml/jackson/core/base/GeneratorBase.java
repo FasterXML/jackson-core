@@ -251,9 +251,11 @@ public abstract class GeneratorBase extends JsonGenerator
      */
 
     /**
-     * Note: co-variant return type.
+     * Note: type was co-variant until Jackson 2.7; reverted back to
+     * base type in 2.8 to allow for overriding by subtypes that use
+     * custom context type.
      */
-    @Override public JsonWriteContext getOutputContext() { return _writeContext; }
+    @Override public JsonStreamContext getOutputContext() { return _writeContext; }
 
     /*
     /**********************************************************

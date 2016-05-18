@@ -4,17 +4,20 @@ import java.io.*;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
+import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("resource")
 public abstract class BaseTest
     extends TestCase
 {
     protected final static String FIELD_BASENAME = "f";
 
     protected final static int MODE_INPUT_STREAM = 0;
-    protected final static int MODE_READER = 1;
-    protected final static int MODE_INPUT_DATA = 2;
+    protected final static int MODE_INPUT_STREAM_THROTTLED = 1;
+    protected final static int MODE_READER = 2;
+    protected final static int MODE_INPUT_DATA = 3;
 
     /*
     /**********************************************************
@@ -292,6 +295,11 @@ public abstract class BaseTest
         switch (mode) {
         case MODE_INPUT_STREAM:
             return createParserUsingStream(f, doc, "UTF-8");
+        case MODE_INPUT_STREAM_THROTTLED:
+            {
+                InputStream in = new ThrottledInputStream(doc.getBytes("UTF-8"), 1);
+                return f.createParser(in);
+            }
         case MODE_READER:
             return createParserUsingReader(f, doc);
         case MODE_INPUT_DATA:

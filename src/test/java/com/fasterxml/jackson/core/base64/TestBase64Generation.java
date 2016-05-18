@@ -3,37 +3,13 @@ package com.fasterxml.jackson.core.base64;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 
 public class TestBase64Generation
     extends com.fasterxml.jackson.core.BaseTest
 {
-    static class ThrottledInputStream extends FilterInputStream
-    {
-        protected final int _maxBytes;
-
-        public ThrottledInputStream(byte[] data, int maxBytes)
-        {
-            this(new ByteArrayInputStream(data), maxBytes);
-        }
-        
-        public ThrottledInputStream(InputStream in, int maxBytes)
-        {
-            super(in);
-            _maxBytes = maxBytes;
-        }
-
-        @Override
-        public int read(byte[] buf) throws IOException {
-            return read(buf, 0, buf.length);
-        }
-        
-        @Override
-        public int read(byte[] buf, int offset, int len) throws IOException {
-            return in.read(buf, offset, Math.min(_maxBytes, len));
-        }
-        
-    }
     
+
     /*
     /**********************************************************
     /* Test methods

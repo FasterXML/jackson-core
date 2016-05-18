@@ -2244,7 +2244,7 @@ public class UTF8DataInputJsonParser
 
     private final int _skipColon2(int i, boolean gotColon) throws IOException
     {
-        while (true) {
+        for (;; i = _inputData.readUnsignedByte()) {
             if (i > INT_SPACE) {
                 if (i == INT_SLASH) {
                     _skipComment();
@@ -2272,9 +2272,6 @@ public class UTF8DataInputJsonParser
                     ++_currInputRow;
                 }
             }
-            // 06-May-2016, tatu: Could verify validity of WS, but for now why bother
-
-            i = _inputData.readUnsignedByte();
         }
     }
 

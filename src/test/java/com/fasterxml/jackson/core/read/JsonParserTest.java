@@ -208,6 +208,7 @@ public class JsonParserTest
 
     public void testSkipping() throws Exception {
         _testSkipping(MODE_INPUT_STREAM);
+        _testSkipping(MODE_INPUT_STREAM_THROTTLED);
         _testSkipping(MODE_READER);
         _testSkipping(MODE_INPUT_DATA);
     }

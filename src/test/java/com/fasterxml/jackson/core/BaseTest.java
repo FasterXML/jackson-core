@@ -3,13 +3,19 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.core.testsupport.MockDataInput;
+
 import junit.framework.TestCase;
 
 public abstract class BaseTest
     extends TestCase
 {
     protected final static String FIELD_BASENAME = "f";
-    
+
+    protected final static int MODE_INPUT_STREAM = 0;
+    protected final static int MODE_READER = 1;
+    protected final static int MODE_INPUT_DATA = 2;
+
     /*
     /**********************************************************
     /* Some sample documents:
@@ -125,7 +131,9 @@ public abstract class BaseTest
             return true;
         }
     }
-    
+
+    protected final JsonFactory JSON_FACTORY = new JsonFactory();
+
     /*
     /**********************************************************
     /* High-level helpers
@@ -271,6 +279,42 @@ public abstract class BaseTest
     /**********************************************************
      */
 
+    protected JsonParser createParser(int mode, String doc) throws IOException {
+        return createParser(JSON_FACTORY, mode, doc);
+    }
+
+    protected JsonParser createParser(int mode, byte[] doc) throws IOException {
+        return createParser(JSON_FACTORY, mode, doc);
+    }
+
+    protected JsonParser createParser(JsonFactory f, int mode, String doc) throws IOException
+    {
+        switch (mode) {
+        case MODE_INPUT_STREAM:
+            return createParserUsingStream(f, doc, "UTF-8");
+        case MODE_READER:
+            return createParserUsingReader(f, doc);
+        case MODE_INPUT_DATA:
+            return createParserForDataInput(f, new MockDataInput(doc));
+        default:
+        }
+        throw new RuntimeException("internal error");
+    }
+
+    protected JsonParser createParser(JsonFactory f, int mode, byte[] doc) throws IOException
+    {
+        switch (mode) {
+        case MODE_INPUT_STREAM:
+            return f.createParser(new ByteArrayInputStream(doc));
+        case MODE_READER:
+            throw new UnsupportedOperationException("No reader for byte[]s for tests");
+        case MODE_INPUT_DATA:
+            return createParserForDataInput(f, new MockDataInput(doc));
+        default:
+        }
+        throw new RuntimeException("internal error");
+    }
+    
     protected JsonParser createParserUsingReader(String input) throws IOException
     {
         return createParserUsingReader(new JsonFactory(), input);

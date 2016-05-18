@@ -12,16 +12,9 @@ import java.util.*;
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
-@SuppressWarnings("resource")
 public class JsonParserTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    final static int MODE_INPUT_STREAM = 0;
-    final static int MODE_READER = 1;
-    final static int MODE_INPUT_DATA = 2;
-
-    private final JsonFactory JSON_FACTORY = new JsonFactory();
-
     public void testConfig() throws Exception
     {
         JsonParser p = createParserUsingReader("[ ]");
@@ -121,6 +114,7 @@ public class JsonParserTest
     private void _testKeywords(JsonParser p, boolean checkColumn) throws Exception
     {
         JsonStreamContext ctxt = p.getParsingContext();
+        assertEquals("/", ctxt.toString());
         assertTrue(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());
@@ -136,6 +130,7 @@ public class JsonParserTest
         assertEquals(0, p.getTextOffset());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertEquals("/", ctxt.toString());
 
         assertTrue(p.hasCurrentToken());
         JsonLocation loc = p.getTokenLocation();
@@ -154,6 +149,7 @@ public class JsonParserTest
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         verifyFieldName(p, "key1");
+        assertEquals("{\"key1\"}", ctxt.toString());
         assertEquals(2, p.getTokenLocation().getLineNr());
 
         ctxt = p.getParsingContext();
@@ -195,6 +191,8 @@ public class JsonParserTest
         assertEquals("key4", ctxt.getParent().getCurrentName());
         
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        assertEquals("[0]", ctxt.toString());
+
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
@@ -221,7 +219,7 @@ public class JsonParserTest
         String DOC =
             "[ 1, 3, [ true, null ], 3, { \"a\":\"b\" }, [ [ ] ], { } ]";
             ;
-        JsonParser p = _createParser(mode, DOC);
+        JsonParser p = createParser(mode, DOC);
 
         // First, skipping of the whole thing
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -236,7 +234,7 @@ public class JsonParserTest
         p.close();
 
         // Then individual ones
-        p = _createParser(mode, DOC);
+        p = createParser(mode, DOC);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -296,7 +294,7 @@ public class JsonParserTest
             String input = en.getKey();
             String expResult = en.getValue();
             final String DOC = "{ \""+input+"\":null}";
-            JsonParser p = _createParser(mode, DOC);
+            JsonParser p = createParser(mode, DOC);
 
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
@@ -373,7 +371,7 @@ public class JsonParserTest
             case MODE_INPUT_STREAM:
             case MODE_READER:
             case MODE_INPUT_DATA:
-                p = _createParser(type, DOC);
+                p = createParser(type, DOC);
                 break;
             default:
                 p = JSON_FACTORY.createParser(encodeInUTF32BE(DOC));
@@ -434,7 +432,6 @@ public class JsonParserTest
         p.close();
     }
 
-    // [JACKSON-632]
     public void testUtf8BOMHandling() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -508,7 +505,7 @@ public class JsonParserTest
     {
         final String JSON = "{ \u00A0 \"a\":1}";
 
-        JsonParser p = _createParser(mode, JSON);
+        JsonParser p = createParser(mode, JSON);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();
@@ -554,25 +551,26 @@ public class JsonParserTest
 
     public void testGetValueAsTextBytes() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        _testGetValueAsText(f, true, false);
-        _testGetValueAsText(f, true, true);
+        _testGetValueAsText(MODE_INPUT_STREAM, false);
+        _testGetValueAsText(MODE_INPUT_STREAM, true);
     }
 
+    public void testGetValueAsTextDataInput() throws Exception
+    {
+        _testGetValueAsText(MODE_INPUT_DATA, false);
+        _testGetValueAsText(MODE_INPUT_DATA, true);
+    }
+    
     public void testGetValueAsTextChars() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        _testGetValueAsText(f, false, false);
-        _testGetValueAsText(f, false, true);
+        _testGetValueAsText(MODE_READER, false);
+        _testGetValueAsText(MODE_READER, true);
     }
 
-    private void _testGetValueAsText(JsonFactory f,
-            boolean useBytes, boolean delegate) throws Exception
+    private void _testGetValueAsText(int mode, boolean delegate) throws Exception
     {
         String JSON = "{\"a\":1,\"b\":true,\"c\":null,\"d\":\"foo\"}";
-        JsonParser p = useBytes ? f.createParser(JSON.getBytes("UTF-8"))
-                : f.createParser(JSON);
-
+        JsonParser p = createParser(mode, JSON);
         if (delegate) {
             p = new JsonParserDelegate(p);
         }
@@ -605,7 +603,10 @@ public class JsonParserTest
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.getValueAsString());
 
-        assertNull(p.nextToken());
+        // InputData can't peek into end-of-input so:
+        if (mode != MODE_INPUT_DATA) {
+            assertNull(p.nextToken());
+        }
         p.close();
     }
 
@@ -646,19 +647,5 @@ public class JsonParserTest
         p = createParserForDataInput(JSON_FACTORY, new MockDataInput(SAMPLE_DOC_JSON_SPEC));
         verifyJsonSpecSampleDoc(p, verify);
         p.close();
-    }
-
-    private JsonParser _createParser(int mode, String doc) throws IOException
-    {
-        switch (mode) {
-        case MODE_INPUT_STREAM:
-            return createParserUsingStream(JSON_FACTORY, doc, "UTF-8");
-        case MODE_READER:
-            return createParserUsingReader(JSON_FACTORY, doc);
-        case MODE_INPUT_DATA:
-            return createParserForDataInput(JSON_FACTORY, new MockDataInput(doc));
-        default:
-            throw new RuntimeException("internal error");
-        }
     }
 }

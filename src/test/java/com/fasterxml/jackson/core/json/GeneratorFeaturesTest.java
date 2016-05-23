@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.*;
  * Set of basic unit tests for verifying that the basic generator
  * functionality works as expected.
  */
-public class TestJsonGeneratorFeatures
+public class GeneratorFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
@@ -23,30 +23,48 @@ public class TestJsonGeneratorFeatures
         g.close();
     }
 
+    @SuppressWarnings("deprecation")
+    public void testConfigOverrides() throws IOException
+    {
+        // but also allow overide
+        JsonGenerator g = JSON_F.createGenerator(new StringWriter());
+        int mask = JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
+                | JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN.getMask();
+        g.overrideStdFeatures(mask, mask);
+        assertTrue(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
+        assertTrue(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+
+        // and for now, also test straight override
+        g.setFeatureMask(0);
+        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
+        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        g.close();
+    }
+
     public void testFieldNameQuoting() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
-        _testFieldNameQuoting(jf, true);
+        _testFieldNameQuoting(f, true);
         // can disable it
-        jf.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
-        _testFieldNameQuoting(jf, false);
+        f.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        _testFieldNameQuoting(f, false);
         // and (re)enable:
-        jf.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
-        _testFieldNameQuoting(jf, true);
+        f.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        _testFieldNameQuoting(f, true);
     }
 
     public void testNonNumericQuoting() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
-        _testNonNumericQuoting(jf, true);
+        _testNonNumericQuoting(f, true);
         // can disable it
-        jf.disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
-        _testNonNumericQuoting(jf, false);
+        f.disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
+        _testNonNumericQuoting(f, false);
         // and (re)enable:
-        jf.enable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
-        _testNonNumericQuoting(jf, true);
+        f.enable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
+        _testNonNumericQuoting(f, true);
     }
 
     /**
@@ -55,30 +73,32 @@ public class TestJsonGeneratorFeatures
      */
     public void testNumbersAsJSONStrings() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         // by default should output numbers as-is:
-        assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(jf));        
+        assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(f));        
 
         // but if overridden, quotes as Strings
-        jf.configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
+        f.configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
         assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
-                     _writeNumbers(jf));
+                     _writeNumbers(f));
+
+        
     }
 
     public void testBigDecimalAsPlain() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
 
         StringWriter sw = new StringWriter();
-        JsonGenerator g = jf.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(sw);
         g.writeNumber(ENG);
         g.close();
         assertEquals("1E+2", sw.toString());
 
-        jf.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        f.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
         sw = new StringWriter();
-        g = jf.createGenerator(sw);
+        g = f.createGenerator(sw);
         g.writeNumber(ENG);
         g.close();
         assertEquals("100", sw.toString());
@@ -86,29 +106,29 @@ public class TestJsonGeneratorFeatures
 
     public void testBigDecimalAsPlainString() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
-        jf.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        jf.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+        f.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        f.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
 
         StringWriter sw = new StringWriter();
-        JsonGenerator g = jf.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(sw);
         g.writeNumber(ENG);
         g.close();
         assertEquals(quote("100"), sw.toString());
 
         // also, as bytes
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        g = jf.createGenerator(bos);
+        g = f.createGenerator(bos);
         g.writeNumber(ENG);
         g.close();
         assertEquals(quote("100"), bos.toString("UTF-8"));
     }
     
-    private String _writeNumbers(JsonFactory jf) throws IOException
+    private String _writeNumbers(JsonFactory f) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g = jf.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(sw);
     
         g.writeStartArray();
         g.writeNumber(1);
@@ -139,23 +159,23 @@ public class TestJsonGeneratorFeatures
 
         // // Then with alternatively configured factory
 
-        JsonFactory JF2 = new JsonFactory();
-        JF2.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        JsonFactory f2 = new JsonFactory();
+        f2.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
 
-        _testFieldNameQuotingEnabled(JF2, true, true, "{\"foo\":1}");
-        _testFieldNameQuotingEnabled(JF2, false, true, "{\"foo\":1}");
+        _testFieldNameQuotingEnabled(f2, true, true, "{\"foo\":1}");
+        _testFieldNameQuotingEnabled(f2, false, true, "{\"foo\":1}");
 
         // then without quotes
-        _testFieldNameQuotingEnabled(JF2, true, false, "{foo:1}");
-        _testFieldNameQuotingEnabled(JF2, false, false, "{foo:1}");
+        _testFieldNameQuotingEnabled(f2, true, false, "{foo:1}");
+        _testFieldNameQuotingEnabled(f2, false, false, "{foo:1}");
     }
 
-    private void _testFieldNameQuotingEnabled(JsonFactory jf, boolean useBytes,
+    private void _testFieldNameQuotingEnabled(JsonFactory f, boolean useBytes,
             boolean useQuotes, String exp) throws IOException
     {
         ByteArrayOutputStream bytes = useBytes ? new ByteArrayOutputStream() : null;
         StringWriter sw = useBytes ? null : new StringWriter();
-        JsonGenerator gen = useBytes ? jf.createGenerator(bytes) : jf.createGenerator(sw);
+        JsonGenerator gen = useBytes ? f.createGenerator(bytes) : f.createGenerator(sw);
         if (useQuotes) {
             gen.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
         } else {
@@ -171,18 +191,38 @@ public class TestJsonGeneratorFeatures
         String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
         assertEquals(exp, json);
     }
-    
+
+    public void testChangeOnGenerator() throws IOException
+    {
+        StringWriter w = new StringWriter();
+
+        JsonGenerator g = JSON_F.createGenerator(w);
+        g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+        g.writeNumber(123);
+        g.close();
+        assertEquals(quote("123"), w.toString());
+
+        // but also the opposite
+        w = new StringWriter();
+        g = JSON_F.createGenerator(w);
+        g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+        g.disable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+        g.writeNumber(123);
+        g.close();
+        assertEquals("123", w.toString());
+    }
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
 
-    private void _testFieldNameQuoting(JsonFactory jf, boolean quoted)
+    private void _testFieldNameQuoting(JsonFactory f, boolean quoted)
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g = jf.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(sw);
         g.writeStartObject();
         g.writeFieldName("foo");
         g.writeNumber(1);
@@ -196,11 +236,11 @@ public class TestJsonGeneratorFeatures
             assertEquals("{foo:1}", result);
         }
     }
-    private void _testNonNumericQuoting(JsonFactory jf, boolean quoted)
+    private void _testNonNumericQuoting(JsonFactory f, boolean quoted)
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g = jf.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(sw);
         g.writeStartObject();
         g.writeFieldName("double");
         g.writeNumber(Double.NaN);

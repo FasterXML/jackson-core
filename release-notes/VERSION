@@ -27,6 +27,7 @@ JSON library.
 #265: `JsonStringEncoder` should allow passing `CharSequence`
  (contributed by Mikael S)
 #276: Add support for serializing using `java.io.DataOutput`
+#277: Add new scalar-array write methods for `int`/`long`/`double` cases
 #280: Add `JsonParser.finishToken()` to force full, non-lazy reading of current token
 #282: Fail to report error for trying to write field name outside Object (root level)
 #285: Add `JsonParser.getText(Writer)`

@@ -5,8 +5,8 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
+import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * This base class implements part of API that a JSON generator exposes
@@ -114,7 +114,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * a simple generated class, with information extracted from Maven project file
      * during build.
      */
-    @Override public Version version() { return VersionUtil.versionFor(getClass()); }
+    @Override public Version version() { return PackageVersion.VERSION; }
 
     @Override
     public Object getCurrentValue() {

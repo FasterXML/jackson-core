@@ -162,11 +162,13 @@ public class JsonWriteContext extends JsonStreamContext
      * @return Index of the field entry (0-based)
      */
     public int writeFieldName(String name) throws JsonProcessingException {
+        if (_type == TYPE_OBJECT) {
+            _currentName = name;
+        }
         if ((_type != TYPE_OBJECT) || _gotName) {
             return STATUS_EXPECT_VALUE;
         }
         _gotName = true;
-        _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
         return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
     }

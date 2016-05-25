@@ -1160,7 +1160,7 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************
-    /* Public API, write methods, other value types
+    /* Public API, write methods, numeric
     /**********************************************************
      */
 
@@ -1266,6 +1266,12 @@ public abstract class JsonGenerator
      */
     public abstract void writeNumber(String encodedValue) throws IOException;
 
+    /*
+    /**********************************************************
+    /* Public API, write methods, other value types
+    /**********************************************************
+     */
+    
     /**
      * Method for outputting literal JSON boolean value (one of
      * Strings 'true' and 'false').
@@ -1285,6 +1291,17 @@ public abstract class JsonGenerator
      */
     public abstract void writeNull() throws IOException;
 
+    /**
+     * Method that can be called on backends that support passing opaque datatypes of
+     * non-JSON formats
+     *
+     * @since 2.8
+     */
+    public void writeEmbeddedObject(Object object) throws IOException {
+        throw new JsonGenerationException("No native support for writing embedded objects",
+                this);
+    }
+    
     /*
     /**********************************************************
     /* Public API, write methods, Native Ids (type, object)
@@ -1334,16 +1351,72 @@ public abstract class JsonGenerator
         throw new JsonGenerationException("No native support for writing Type Ids", this);
     }
 
-    /**
-     * Method that can be called on backends that support passing opaque datatypes of
-     * non-JSON formats
+    // 24-May-2016, tatu: Looks like this won't quite make it in 2.8... too
+    //   many open questions on whether return value may be used and such to
+    //   really close the loop. But leaving code sample in, in case we can resolve it
+    //   it for 2.9.
+
+    /*
+     * Replacement method for {@link #writeTypeId(Object)} which is called
+     * regardless of whether format has native type ids. If it does have native
+     * type ids, those are to be used (if configuration allows this), if not,
+     * structural type id inclusion is to be used. For JSON, for example, no
+     * native type ids exist and structural inclusion is always used.
+     *<p>
+     * NOTE: from databind perspective, only "as-wrapper-array", "as-wrapper-object" and
+     * "as-property" inclusion styles call this method; the remaining "as-external-property"
+     * mechanism always uses writes type id value as simple property.
+     *
+     * @param inclStyle Kind of inclusion; {@link JsonToken#START_ARRAY} for "as-wrapper-array",
+     *     {@link JsonToken#START_OBJECT} for "as-wrapper-object" and {@link JsonToken#FIELD_NAME}
+     *     for "as-property"
+     * @param forValue Java object for which type is being written; not used by standard mechanism
+     * @param valueShape Expected shape of the value to write, as expressed by the first token (for
+     *    structural type), or any of scalar types for non-structured values (typically
+     *    just {@link JsonToken#VALUE_STRING} -- exact token not required, just the fact it's scalar)
+     * @param typeId Type id to write
+     * @param propertyName Name of property to use, in case of "as-property" inclusion style
      *
      * @since 2.8
      */
-    public void writeEmbeddedObject(Object object) throws IOException {
-        throw new JsonGenerationException("No native support for writing embedded objects",
-                this);
+    /*
+    public Object writeTypeSuffix(JsonToken inclStyle, Object forValue, JsonToken valueShape,
+            String typeId, String propertyName) throws IOException
+    {
+        if (inclStyle == JsonToken.FIELD_NAME) { // as-property
+            if (typeId == null) { // should not include `null` type id in any form with this style
+                writeStartObject();
+            } else if (valueShape == JsonToken.START_OBJECT) {
+                if (canWriteTypeId()) {
+                    writeTypeId(typeId);
+                    writeStartObject();
+                } else {
+                    writeStartObject();
+                    writeStringField(propertyName, typeId);
+                }
+            } else if (valueShape == JsonToken.START_ARRAY) {
+                if (canWriteTypeId()) {
+                    writeTypeId(typeId);
+                    writeStartArray();
+                } else {
+                    writeStartArray();
+                    writeString(typeId);
+                }
+            } else { // any scalar
+                if (canWriteTypeId()) {
+                    writeTypeId(typeId);
+                }
+            }
+            return JsonToken.END_OBJECT;
+        }
+        if (inclStyle == JsonToken.START_ARRAY) { // as-wrapper-array
+        } else if (inclStyle == JsonToken.START_OBJECT) { // as-wrapper-object
+            
+        } else {
+            throw new JsonGenerationException("Unrecognized inclusion style: "+inclStyle, this);
+        }
     }
+    */
 
     /*
     /**********************************************************

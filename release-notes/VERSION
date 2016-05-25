@@ -32,6 +32,7 @@ JSON library.
 #282: Fail to report error for trying to write field name outside Object (root level)
 #285: Add `JsonParser.getText(Writer)`
  (contributed by LokesN)
+#290: Add `JsonGenerator.canWriteFormattedNumbers()` for introspection
 - Add `JsonParser.currentToken()` and `JsonParser.currentTokenId()` as replacements
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.

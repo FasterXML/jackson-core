@@ -20,6 +20,13 @@ public class GeneratorFeaturesTest
         JsonGenerator g = JSON_F.createGenerator(new StringWriter());
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+
+        assertTrue(g.canOmitFields());
+        assertFalse(g.canWriteBinaryNatively());
+        assertTrue(g.canWriteFormattedNumbers());
+        assertFalse(g.canWriteObjectId());
+        assertFalse(g.canWriteTypeId());
+        
         g.close();
     }
 

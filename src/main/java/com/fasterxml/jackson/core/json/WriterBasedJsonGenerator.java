@@ -79,7 +79,7 @@ public final class WriterBasedJsonGenerator
     
     /*
     /**********************************************************
-    /* Overridden configuration methods
+    /* Overridden configuration, introspection methods
     /**********************************************************
      */
     
@@ -94,6 +94,10 @@ public final class WriterBasedJsonGenerator
         int len = _outputTail - _outputHead;
         return Math.max(0, len);
     }
+
+    // json does allow this so
+    @Override
+    public boolean canWriteFormattedNumbers() { return true; }
 
     /*
     /**********************************************************

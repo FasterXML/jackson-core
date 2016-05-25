@@ -698,6 +698,20 @@ public abstract class JsonGenerator
      */
     public boolean canOmitFields() { return true; }
 
+    /**
+     * Introspection method to call to check whether it is possible
+     * to write numbers using {@link #writeNumber(java.lang.String)}
+     * using possible custom format, or not. Typically textual formats
+     * allow this (and JSON specifically does), whereas binary formats
+     * do not allow this (except by writing them as Strings).
+     * Usual reason for calling this method is to check whether custom
+     * formatting of numbers may be applied by higher-level code (databinding)
+     * or not.
+     *
+     * @since 2.8
+     */
+    public boolean canWriteFormattedNumbers() { return false; }
+    
     /*
     /**********************************************************
     /* Public API, write methods, structural

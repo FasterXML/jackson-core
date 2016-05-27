@@ -758,7 +758,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
         }
@@ -952,7 +952,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
         }
@@ -1039,7 +1039,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
         }
@@ -1907,7 +1907,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\"' for name");
+                _reportInvalidEOF(": was expecting closing '\"' for name", JsonToken.FIELD_NAME);
             }
         }
         int i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -1962,7 +1962,7 @@ public class UTF8StreamJsonParser
                     ch = _decodeEscaped();
                 }
                 /* Oh crap. May need to UTF-8 (re-)encode it, if it's
-                 * beyond 7-bit ascii. Gets pretty messy.
+                 * beyond 7-bit ASCII. Gets pretty messy.
                  * If this happens often, may want to use different name
                  * canonicalization to avoid these hits.
                  */
@@ -2013,7 +2013,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name");
+                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2083,7 +2083,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name");
+                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr] & 0xFF;
@@ -2115,7 +2115,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\'' for name");
+                _reportInvalidEOF(": was expecting closing '\'' for field name", JsonToken.FIELD_NAME);
             }
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2197,7 +2197,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name");
+                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2332,7 +2332,7 @@ public class UTF8StreamJsonParser
                     needed = ch = 1; // never really gets this far
                 }
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name");
+                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
                 }
                 
                 // Ok, always need at least one more:
@@ -2673,7 +2673,7 @@ public class UTF8StreamJsonParser
         case '+': // note: '-' is taken as number
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOFInValue();
+                    _reportInvalidEOFInValue(JsonToken.VALUE_NUMBER_INT);
                 }
             }
             return _handleInvalidNumberStart(_inputBuffer[_inputPtr++] & 0xFF, false);
@@ -2789,7 +2789,7 @@ public class UTF8StreamJsonParser
         while (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOFInValue();
+                    _reportInvalidEOFInValue(JsonToken.VALUE_NUMBER_FLOAT); // possibly?
                 }
             }
             ch = _inputBuffer[_inputPtr++];
@@ -2918,7 +2918,7 @@ public class UTF8StreamJsonParser
                 }
             }
         }        
-        throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
+        throw _constructError("Unexpected end-of-input within/between "+_parsingContext.typeDesc()+" entries");
     }
     
     private final int _skipWSOrEnd() throws IOException
@@ -3093,7 +3093,9 @@ public class UTF8StreamJsonParser
                 }
             }
         }
-        throw _constructError("Unexpected end-of-input within/between "+_parsingContext.getTypeDesc()+" entries");
+        _reportInvalidEOF(" within/between "+_parsingContext.typeDesc()+" entries",
+                null);
+        return -1;
     }
 
     private final void _skipComment() throws IOException
@@ -3103,7 +3105,7 @@ public class UTF8StreamJsonParser
         }
         // First: check which comment (if either) it is:
         if (_inputPtr >= _inputEnd && !_loadMore()) {
-            _reportInvalidEOF(" in a comment");
+            _reportInvalidEOF(" in a comment", null);
         }
         int c = _inputBuffer[_inputPtr++] & 0xFF;
         if (c == '/') {
@@ -3158,7 +3160,7 @@ public class UTF8StreamJsonParser
                 }
             }
         }
-        _reportInvalidEOF(" in a comment");
+        _reportInvalidEOF(" in a comment", null);
     }
 
     private final boolean _skipYAMLComment() throws IOException
@@ -3216,7 +3218,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(" in character escape sequence");
+                _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
             }
         }
         int c = (int) _inputBuffer[_inputPtr++];
@@ -3252,7 +3254,7 @@ public class UTF8StreamJsonParser
         for (int i = 0; i < 4; ++i) {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in character escape sequence");
+                    _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
                 }
             }
             int ch = (int) _inputBuffer[_inputPtr++];

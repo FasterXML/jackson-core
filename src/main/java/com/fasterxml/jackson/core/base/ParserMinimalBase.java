@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -456,17 +457,48 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected void _reportInvalidEOF() throws JsonParseException {
-        _reportInvalidEOF(" in "+_currToken);
+        _reportInvalidEOF(" in "+_currToken, _currToken);
     }
 
-    protected void _reportInvalidEOF(String msg) throws JsonParseException {
-        _reportError("Unexpected end-of-input"+msg);
+    /**
+     * @since 2.8
+     */
+    protected void _reportInvalidEOFInValue(JsonToken type) throws JsonParseException {
+        String msg;
+        if (type == JsonToken.VALUE_STRING) {
+            msg = " in a String value";
+        } else if ((type == JsonToken.VALUE_NUMBER_INT)
+                || (type == JsonToken.VALUE_NUMBER_FLOAT)) {
+            msg = " in a Number value";
+        } else {
+            msg = " in a value";
+        }
+        _reportInvalidEOF(msg, type);
     }
 
+    /**
+     * @since 2.8
+     */
+    protected void _reportInvalidEOF(String msg, JsonToken currToken) throws JsonParseException {
+        throw new JsonEOFException(this, currToken, "Unexpected end-of-input"+msg);
+    }
+
+    /**
+     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
+     */
+    @Deprecated // since 2.8
     protected void _reportInvalidEOFInValue() throws JsonParseException {
         _reportInvalidEOF(" in a value");
     }
-
+    
+    /**
+     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
+     */
+    @Deprecated // since 2.8
+    protected void _reportInvalidEOF(String msg) throws JsonParseException {
+        throw new JsonEOFException(this, null, "Unexpected end-of-input"+msg);
+    }
+    
     protected void _reportMissingRootWS(int ch) throws JsonParseException {
         _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }

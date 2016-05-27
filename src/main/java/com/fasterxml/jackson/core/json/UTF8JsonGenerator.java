@@ -281,7 +281,7 @@ public class UTF8JsonGenerator
     public final void writeEndArray() throws IOException
     {
         if (!_writeContext.inArray()) {
-            _reportError("Current context not an ARRAY but "+_writeContext.getTypeDesc());
+            _reportError("Current context not an ARRAY but "+_writeContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeEndArray(this, _writeContext.getEntryCount());
@@ -332,7 +332,7 @@ public class UTF8JsonGenerator
     public final void writeEndObject() throws IOException
     {
         if (!_writeContext.inObject()) {
-            _reportError("Current context not an object but "+_writeContext.getTypeDesc());
+            _reportError("Current context not an object but "+_writeContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeEndObject(this, _writeContext.getEntryCount());

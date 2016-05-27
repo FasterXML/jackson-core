@@ -593,7 +593,7 @@ public class UTF8DataInputJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
         }
@@ -779,7 +779,7 @@ public class UTF8DataInputJsonParser
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.getTypeDesc()+" entries");
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
         }
@@ -1758,7 +1758,7 @@ public class UTF8DataInputJsonParser
                     needed = ch = 1; // never really gets this far
                 }
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name");
+                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
                 }
                 
                 // Ok, always need at least one more:

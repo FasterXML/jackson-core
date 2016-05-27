@@ -531,7 +531,12 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override
     protected void _handleEOF() throws JsonParseException {
         if (!_parsingContext.inRoot()) {
-            _reportInvalidEOF(": expected close marker for "+_parsingContext.getTypeDesc()+" (from "+_parsingContext.getStartLocation(_ioContext.getSourceReference())+")");
+            String marker = _parsingContext.inArray() ? "Array" : "Object";
+            _reportInvalidEOF(String.format(
+                    ": expected close marker for %s (start marker at %s)",
+                    marker,
+                    _parsingContext.getStartLocation(_ioContext.getSourceReference())),
+                    null);
         }
     }
 
@@ -551,7 +556,7 @@ public abstract class ParserBase extends ParserMinimalBase
     
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
         String startDesc = ""+_parsingContext.getStartLocation(_ioContext.getSourceReference());
-        _reportError("Unexpected close marker '"+((char) actCh)+"': expected '"+expCh+"' (for "+_parsingContext.getTypeDesc()+" starting at "+startDesc+")");
+        _reportError("Unexpected close marker '"+((char) actCh)+"': expected '"+expCh+"' (for "+_parsingContext.typeDesc()+" starting at "+startDesc+")");
     }
 
     /*

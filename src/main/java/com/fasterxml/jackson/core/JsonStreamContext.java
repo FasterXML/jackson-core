@@ -77,7 +77,10 @@ public abstract class JsonStreamContext
      * Method for accessing simple type description of current context;
      * either ROOT (for root-level values), OBJECT (for field names and
      * values of JSON Objects) or ARRAY (for values of JSON Arrays)
+     *
+     * @deprecated Since 2.8 use {@link #typeDesc} instead
      */
+    @Deprecated // since 2.8
     public final String getTypeDesc() {
         switch (_type) {
         case TYPE_ROOT: return "ROOT";
@@ -87,6 +90,18 @@ public abstract class JsonStreamContext
         return "?";
     }
 
+    /**
+     * @since 2.8
+     */
+    public String typeDesc() {
+        switch (_type) {
+        case TYPE_ROOT: return "root";
+        case TYPE_ARRAY: return "Array";
+        case TYPE_OBJECT: return "Object";
+        }
+        return "?";
+    }
+    
     /**
      * @return Number of entries that are complete and started.
      */

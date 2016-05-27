@@ -30,10 +30,12 @@ JSON library.
 #277: Add new scalar-array write methods for `int`/`long`/`double` cases
 #279: Support `DataInput` for parsing
 #280: Add `JsonParser.finishToken()` to force full, non-lazy reading of current token
+#281: Add `JsonEOFException` as sub-class of `JsonParseException`
 #282: Fail to report error for trying to write field name outside Object (root level)
 #285: Add `JsonParser.getText(Writer)`
  (contributed by LokesN)
 #290: Add `JsonGenerator.canWriteFormattedNumbers()` for introspection
+
 - Add `JsonParser.currentToken()` and `JsonParser.currentTokenId()` as replacements
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.

@@ -36,7 +36,7 @@ public class TestGeneratorArray
         gen.writeEndArray();
 
         ctxt = gen.getOutputContext();
-        assertTrue("Should be in root, was "+ctxt.getTypeDesc(), ctxt.inRoot());
+        assertTrue("Should be in root, was "+ctxt.typeDesc(), ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());
         assertEquals(1, ctxt.getEntryCount());
@@ -79,7 +79,7 @@ public class TestGeneratorArray
             gen.writeEndObject();
             fail("Expected an exception for mismatched array/object write");
         } catch (JsonGenerationException e) {
-            verifyException(e, "Current context not an object");
+            verifyException(e, "Current context not Object");
         }
         gen.close();
     }

@@ -18,6 +18,8 @@ JSON library.
 
 #86: Allow inclusion of request body for JsonParseException
  (contributed by LokeshN)
+#136: Add `JsonpCharacterEscapes` for easier handling of potential problems
+ with JSONP and rare but technically allowed \u2028 and \u2029 linefeed characters
 #117: Add `JsonParser.Feature.ALLOW_MISSING_VALUES` to support for missing values
  (contributed by LokeshN)
 #253: Add `JsonGenerator. writeEmbeddedObject()` to allow writes of opaque native types
@@ -35,7 +37,6 @@ JSON library.
 #285: Add `JsonParser.getText(Writer)`
  (contributed by LokesN)
 #290: Add `JsonGenerator.canWriteFormattedNumbers()` for introspection
-
 - Add `JsonParser.currentToken()` and `JsonParser.currentTokenId()` as replacements
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.

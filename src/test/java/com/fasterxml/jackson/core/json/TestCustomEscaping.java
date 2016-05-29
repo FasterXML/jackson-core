@@ -78,7 +78,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     }
 
     // // // Tests for [JACKSON-106]
-    
+
     public void testEscapeCustomWithReader() throws Exception
     {
         _testEscapeCustom(false); // reader
@@ -88,7 +88,40 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     {
         _testEscapeCustom(true); // stream (utf-8)
     }
-    
+
+    public void testJsonpEscapes() throws Exception {
+        _testJsonpEscapes(false);
+        _testJsonpEscapes(true);
+    }
+
+    @SuppressWarnings("resource")
+    private void _testJsonpEscapes(boolean useStream) throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        f.setCharacterEscapes(JsonpCharacterEscapes.instance());
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        JsonGenerator g;
+
+        // First: output normally; should not add escaping
+        if (useStream) {
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
+        } else {
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+        }
+        final String VALUE_TEMPLATE = "String with JS 'linefeeds': %s and %s...";
+        final String INPUT_VALUE = String.format(VALUE_TEMPLATE, "\u2028", "\u2029");
+
+        g.writeStartArray();
+        g.writeString(INPUT_VALUE);
+        g.writeEndArray();
+        g.close();
+
+        String json = bytes.toString("UTF-8");
+        assertEquals(String.format("[%s]",
+                quote(String.format(VALUE_TEMPLATE, "\\u2028", "\\u2029"))),
+                json);
+    }
+
     /*
     /********************************************************
     /* Secondary test methods

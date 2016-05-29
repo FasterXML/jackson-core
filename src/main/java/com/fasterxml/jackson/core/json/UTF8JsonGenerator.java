@@ -22,7 +22,6 @@ public class UTF8JsonGenerator
     private final static byte BYTE_BACKSLASH = (byte) '\\';
     private final static byte BYTE_COMMA = (byte) ',';
     private final static byte BYTE_COLON = (byte) ':';
-    private final static byte BYTE_QUOTE = (byte) '"';
 
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;

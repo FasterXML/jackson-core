@@ -290,6 +290,53 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************
+    /* Forward-compatibility additions in 2.7.5: placeholders
+    /* for additions that will be in 2.8.0
+    /**********************************************************
+     */
+
+    // @since 2.7.5 (as placeholder, NOT full impl)
+    public boolean canWriteFormattedNumbers() { return false; }
+
+    // @since 2.7.5: default impl that should work fine
+    public void writeStartObject(Object forValue) throws IOException
+    {
+        writeStartObject();
+        setCurrentValue(forValue);
+    }
+
+    // @since 2.7.5: default impl that should work fine
+    public void writeArray(int[] array, int offset, int length) throws IOException
+    {
+        writeStartArray();
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
+
+    // @since 2.7.5: default impl that should work fine
+    public void writeArray(long[] array, int offset, int length) throws IOException
+    {
+        writeStartArray();
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
+
+    // @since 2.7.5: default impl that should work fine
+    public void writeArray(double[] array, int offset, int length) throws IOException
+    {
+        writeStartArray();
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeNumber(array[i]);
+        }
+        writeEndArray();
+    }
+
+    /*
+    /**********************************************************
     /* Public API, Feature configuration
     /**********************************************************
      */

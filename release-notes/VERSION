@@ -41,7 +41,7 @@ JSON library.
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.
 
-2.7.5 (not yet released)
+2.7.5 (11-Jun-2016)
  
 #280: FilteringGeneratorDelegate.writeUTF8String() should delegate to writeUTF8String()
  (reported by Tanguy L)

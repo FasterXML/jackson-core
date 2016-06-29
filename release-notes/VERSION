@@ -37,6 +37,8 @@ JSON library.
 #285: Add `JsonParser.getText(Writer)`
  (contributed by LokesN)
 #290: Add `JsonGenerator.canWriteFormattedNumbers()` for introspection
+#294: Add `JsonGenerator.writeFieldId(long)` method to support binary formats
+ with non-String keys
 - Add `JsonParser.currentToken()` and `JsonParser.currentTokenId()` as replacements
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.

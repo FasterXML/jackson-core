@@ -825,6 +825,20 @@ public abstract class JsonGenerator
      */
     public abstract void writeFieldName(SerializableString name) throws IOException;
 
+    /**
+     * Alternative to {@link #writeFieldName(String)} that may be used
+     * in cases where property key is of numeric type; either where
+     * underlying format supports such notion (some binary formats do,
+     * unlike JSON), or for convenient conversion into String presentation.
+     * Default implementation will simply convert id into <code>String</code>
+     * and call {@link #writeFieldName(String)}.
+     *
+     * @since 2.8
+     */
+    public void writeFieldId(long id) throws IOException {
+        writeFieldName(Long.toString(id));
+    }
+
     /*
     /**********************************************************
     /* Public API, write methods, scalar arrays (2.8)

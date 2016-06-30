@@ -203,7 +203,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeStartObject(Object forValue) throws IOException { delegate.writeStartObject(forValue); }
-    
+
     @Override
     public void writeEndObject() throws IOException { delegate.writeEndObject(); }
 
@@ -215,6 +215,11 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public void writeFieldName(SerializableString name) throws IOException {
         delegate.writeFieldName(name);
+    }
+
+    @Override
+    public void writeFieldId(long id) throws IOException {
+        delegate.writeFieldId(id);
     }
 
     @Override

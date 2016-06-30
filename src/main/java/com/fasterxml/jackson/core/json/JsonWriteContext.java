@@ -44,7 +44,7 @@ public class JsonWriteContext extends JsonStreamContext
      */
 
     /**
-     * Name of the field of which value is to be parsed; only
+     * Name of the field of which value is to be written; only
      * used for OBJECT contexts
      */
     protected String _currentName;
@@ -55,8 +55,8 @@ public class JsonWriteContext extends JsonStreamContext
     protected Object _currentValue;
 
     /**
-     * Marker used to indicate that we just received a name, and
-     * now expect a value
+     * Marker used to indicate that we just wrote a name, and
+     * now expect a value to write
      */
     protected boolean _gotName;
 

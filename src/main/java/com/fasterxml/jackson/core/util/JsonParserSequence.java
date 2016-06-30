@@ -99,7 +99,10 @@ public class JsonParserSequence extends JsonParserDelegate
         JsonToken t = delegate.nextToken();
         if (t != null) return t;
         while (switchToNext()) {
-            t = delegate.nextToken();
+            // Avoid skipping a non-null token in the switched parser.
+            t = delegate.getCurrentToken() == null
+                    ? delegate.nextToken()
+                    : delegate.getCurrentToken();
             if (t != null) return t;
         }
         return null;

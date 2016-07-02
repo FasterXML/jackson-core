@@ -25,6 +25,14 @@ public class JsonParserSequence extends JsonParserDelegate
      * Index of the next parser in {@link #_parsers}.
      */
     protected int _nextParser;
+
+    /**
+     * Flag used to indicate that `JsonParser.nextToken()` should not be called,
+     * due to parser already pointing to a token.
+     *
+     * @since 2.8
+     */
+    protected boolean _suppressNextToken;
     
     /*
      *******************************************************
@@ -35,6 +43,7 @@ public class JsonParserSequence extends JsonParserDelegate
     protected JsonParserSequence(JsonParser[] parsers)
     {
         super(parsers[0]);
+        _suppressNextToken = delegate.hasCurrentToken();
         _parsers = parsers;
         _nextParser = 1;
     }
@@ -94,15 +103,21 @@ public class JsonParserSequence extends JsonParserDelegate
     }
 
     @Override
-    public JsonToken nextToken() throws IOException, JsonParseException
+    public JsonToken nextToken() throws IOException
     {
-        JsonToken t = delegate.nextToken();
-        if (t != null) return t;
-        while (switchToNext()) {
-            t = delegate.nextToken();
-            if (t != null) return t;
+        if (delegate == null) {
+            return null;
         }
-        return null;
+        if (_suppressNextToken) {
+            _suppressNextToken = false;
+            return delegate.currentToken();
+        }
+        JsonToken t = delegate.nextToken();
+        while ((t == null) && switchToNext()) {
+            t = delegate.hasCurrentToken()
+                    ? delegate.currentToken() : delegate.nextToken();
+        }
+        return t;
     }
 
     /*

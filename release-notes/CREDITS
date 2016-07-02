@@ -93,3 +93,7 @@ Tanguy Leroux (tlrx@github)
 Mikael Staldal (mikaelstaldal@github)
   * Contributed fix for #265: `JsonStringEncoder` should allow passing `CharSequence`
    (2.8.0)
+
+Kevin Gallardo (newkek@github)
+  * Reported #296: JsonParserSequence skips a token on a switched Parser
+   (2.8.0)

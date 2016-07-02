@@ -18,7 +18,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         JsonParser parser = JSON_F.createParser("[ 1, true, null, { } ]");
         JsonParserDelegate del = new JsonParserDelegate(parser);
         
-        assertNull(del.getCurrentToken());
+        assertNull(del.currentToken());
         assertToken(JsonToken.START_ARRAY, del.nextToken());
         assertEquals("[", del.getText());
         assertToken(JsonToken.VALUE_NUMBER_INT, del.nextToken());

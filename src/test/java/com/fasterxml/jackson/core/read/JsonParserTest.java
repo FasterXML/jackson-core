@@ -226,7 +226,7 @@ public class JsonParserTest
         // First, skipping of the whole thing
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         p.skipChildren();
-        assertEquals(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertEquals(JsonToken.END_ARRAY, p.currentToken());
         if (!isInputData) {
             JsonToken t = p.nextToken();
             if (t != null) {
@@ -242,27 +242,27 @@ public class JsonParserTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         p.skipChildren();
         // shouldn't move
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.getCurrentToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(1, p.getIntValue());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // then skip array
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         p.skipChildren();
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         p.skipChildren();
-        assertToken(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         p.skipChildren();
-        assertToken(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         p.skipChildren();
-        assertToken(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 

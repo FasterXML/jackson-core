@@ -45,7 +45,7 @@ public class TestRootValues
         // Should fail, right away
         try {
         	p.nextToken();
-        	fail("Ought to fail! Instead, got token: "+p.getCurrentToken());
+        	fail("Ought to fail! Instead, got token: "+p.currentToken());
         } catch (JsonParseException e) {
         	verifyException(e, "unexpected character");
         }

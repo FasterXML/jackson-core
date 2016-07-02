@@ -45,14 +45,14 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         JsonParser jp = useStream ?
                 jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
                 : jf.createParser(DOC);
-        assertNull(jp.getCurrentToken());
+        assertNull(jp.currentToken());
         jp.clearCurrentToken();
-        assertNull(jp.getCurrentToken());
+        assertNull(jp.currentToken());
         assertNull(jp.getEmbeddedObject());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.START_ARRAY, jp.getCurrentToken());
+        assertToken(JsonToken.START_ARRAY, jp.currentToken());
         jp.clearCurrentToken();
-        assertNull(jp.getCurrentToken());
+        assertNull(jp.currentToken());
         // Also: no codec defined by default
         try {
             jp.readValueAsTree();
@@ -69,7 +69,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         JsonParser jp = useStream ?
                 jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
                 : jf.createParser(new StringReader(DOC));
-        assertNull(jp.getCurrentToken());
+        assertNull(jp.currentToken());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("first", jp.getCurrentName());
@@ -94,9 +94,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.clearCurrentToken();
-        assertNull(jp.getCurrentToken());
+        assertNull(jp.currentToken());
         jp.close();
     }
-    
-
 }

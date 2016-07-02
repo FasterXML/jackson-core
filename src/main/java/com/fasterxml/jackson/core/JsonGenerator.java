@@ -1681,7 +1681,7 @@ public abstract class JsonGenerator
      */
     public void copyCurrentEvent(JsonParser p) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         // sanity check; what to do?
         if (t == null) {
             _reportError("No current event to copy");
@@ -1784,7 +1784,7 @@ public abstract class JsonGenerator
      */
     public void copyCurrentStructure(JsonParser p) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == null) {
             _reportError("No current event to copy");
         }

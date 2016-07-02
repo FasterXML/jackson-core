@@ -884,7 +884,7 @@ public abstract class JsonParser
     /**
      * Method that is functionally equivalent to:
      *<code>
-     *  return getCurrentTokenId() == id
+     *  return currentTokenId() == id
      *</code>
      * but may be more efficiently implemented.
      *<p>
@@ -899,7 +899,7 @@ public abstract class JsonParser
     /**
      * Method that is functionally equivalent to:
      *<code>
-     *  return getCurrentTokenId() == id
+     *  return currentToken() == t
      *</code>
      * but may be more efficiently implemented.
      *<p>
@@ -956,7 +956,7 @@ public abstract class JsonParser
      *<p>
      * Default implementation is equivalent to:
      *<pre>
-     *   getCurrentToken() == JsonToken.START_ARRAY
+     *   currentToken() == JsonToken.START_ARRAY
      *</pre>
      * but may be overridden by custom parser implementations.
      *
@@ -964,15 +964,15 @@ public abstract class JsonParser
      *   start-array marker (such {@link JsonToken#START_ARRAY});
      *   false if not.
      */
-    public boolean isExpectedStartArrayToken() { return getCurrentToken() == JsonToken.START_ARRAY; }
+    public boolean isExpectedStartArrayToken() { return currentToken() == JsonToken.START_ARRAY; }
 
     /**
      * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
      * currently points to {@link JsonToken#START_OBJECT}.
-     * 
+     *
      * @since 2.5
      */
-    public boolean isExpectedStartObjectToken() { return getCurrentToken() == JsonToken.START_OBJECT; }
+    public boolean isExpectedStartObjectToken() { return currentToken() == JsonToken.START_OBJECT; }
     
     /*
     /**********************************************************
@@ -1285,12 +1285,12 @@ public abstract class JsonParser
      * may be thrown to indicate numeric overflow/underflow.
      */
     public boolean getBooleanValue() throws IOException {
-        JsonToken t = getCurrentToken();
+        JsonToken t = currentToken();
         if (t == JsonToken.VALUE_TRUE) return true;
         if (t == JsonToken.VALUE_FALSE) return false;
         throw new JsonParseException(this,
-                String.format("Current token (%s) not of boolean type", t))
-        .withRequestPayload(_requestPayload);
+            String.format("Current token (%s) not of boolean type", t))
+                .withRequestPayload(_requestPayload);
     }
 
     /**

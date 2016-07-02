@@ -287,7 +287,7 @@ public class StringGenerationTest
             }
             offset += act.length();
         }
-        assertEquals(JsonToken.END_ARRAY, p.getCurrentToken());
+        assertEquals(JsonToken.END_ARRAY, p.currentToken());
         p.close();
     }
 }

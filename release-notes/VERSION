@@ -39,7 +39,7 @@ JSON library.
 #290: Add `JsonGenerator.canWriteFormattedNumbers()` for introspection
 #294: Add `JsonGenerator.writeFieldId(long)` method to support binary formats
  with non-String keys
-#296: JsonParserSequence skips a token on a switched Parser
+#296: `JsonParserSequence` skips a token on a switched Parser
  (reported by Kevin G)
 - Add `JsonParser.currentToken()` and `JsonParser.currentTokenId()` as replacements
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods

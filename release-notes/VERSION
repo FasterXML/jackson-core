@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.0 (not yet released)
+2.8.0 (04-Jul-2016)
 
 #86: Allow inclusion of request body for `JsonParseException`
  (contributed by LokeshN)

@@ -201,7 +201,7 @@ public final class JsonReadContext extends JsonStreamContext
     private void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new JsonParseException(((src instanceof JsonGenerator) ? ((JsonParser) src) : null),
+            throw new JsonParseException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
                     "Duplicate field '"+name+"'");
         }
     }

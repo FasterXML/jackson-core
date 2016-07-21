@@ -17,6 +17,8 @@ import com.fasterxml.jackson.core.SerializableString;
 public class SerializedString
     implements SerializableString, java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected final String _value;
 
     /* 13-Dec-2010, tatu: Whether use volatile or not is actually an important

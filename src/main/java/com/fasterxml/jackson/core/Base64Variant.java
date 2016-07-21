@@ -76,19 +76,21 @@ public final class Base64Variant
      * Symbolic name of variant; used for diagnostics/debugging.
      *<p>
      * Note that this is the only non-transient field; used when reading
-     * back from serialized state
+     * back from serialized state.
+     *<p>
+     * Also: must not be private, accessed from `BaseVariants`
      */
-    protected final String _name;
+    final String _name;
 
     /**
      * Whether this variant uses padding or not.
      */
-    protected final transient boolean _usesPadding;
+    private final transient boolean _usesPadding;
 
     /**
      * Characted used for padding, if any ({@link #PADDING_CHAR_NONE} if not).
      */
-    protected final transient char _paddingChar;
+    private final transient char _paddingChar;
     
     /**
      * Maximum number of encoded base64 characters to output during encoding
@@ -98,7 +100,7 @@ public final class Base64Variant
      * Note: for some output modes (when writing attributes) linefeeds may
      * need to be avoided, and this value ignored.
      */
-    protected final transient int _maxLineLength;
+    private final transient int _maxLineLength;
 
     /*
     /**********************************************************
@@ -219,7 +221,11 @@ public final class Base64Variant
     public int decodeBase64Byte(byte b)
     {
         int ch = (int) b;
-        return (ch <= 127) ? _asciiToBase64[ch] : BASE64_VALUE_INVALID;
+        // note: cast retains sign, so it's from -128 to +127
+        if (ch < 0) {
+            return BASE64_VALUE_INVALID;
+        }
+        return _asciiToBase64[ch];
     }
 
     /*

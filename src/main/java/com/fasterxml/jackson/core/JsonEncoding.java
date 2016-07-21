@@ -23,11 +23,11 @@ public enum JsonEncoding {
         UTF32_LE("UTF-32LE", false, 32)
         ;
     
-    protected final String _javaName;
+    private final String _javaName;
 
-    protected final boolean _bigEndian;
+    private final boolean _bigEndian;
 
-    protected final int _bits;
+    private final int _bits;
     
     JsonEncoding(String javaName, boolean bigEndian, int bits)
     {

@@ -11,7 +11,7 @@ package com.fasterxml.jackson.core;
  * within input streams.
  */
 public class JsonLocation
-    implements java.io.Serializable // as per [JACKSON-168]
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 

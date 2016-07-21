@@ -456,7 +456,7 @@ public final class ByteQuadsCanonicalizer
         int total = totalCount();
         return String.format("[%s: size=%d, hashSize=%d, %d/%d/%d/%d pri/sec/ter/spill (=%s), total:%d]",
                 getClass().getName(), _count, _hashSize,
-                pri, sec, tert, spill, total, (pri+sec+tert+spill), total);
+                pri, sec, tert, spill, (pri+sec+tert+spill), total);
     }
 
     /*
@@ -594,9 +594,6 @@ public final class ByteQuadsCanonicalizer
             if (_verifyLongName(q, qlen, hashArea[offset2+1])) {
                 return _names[offset2 >> 2];
             }
-        }
-        if (len == 0) { // empty slot? Short-circuit if no more spillovers
-            return null;
         }
         return _findSecondary(offset, hash, q, qlen);
     }

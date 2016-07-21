@@ -2093,12 +2093,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             int i = (int) c;
             if (i <= INT_BACKSLASH) {
                 if (i == INT_BACKSLASH) {
-                    /* Although chars outside of BMP are to be escaped as
-                     * an UTF-16 surrogate pair, does that affect decoding?
-                     * For now let's assume it does not.
-                     */
+                    // Although chars outside of BMP are to be escaped as an UTF-16 surrogate pair,
+                    // does that affect decoding? For now let's assume it does not.
                     _inputPtr = inPtr;
-                    c = _decodeEscaped();
+                    /*c = */ _decodeEscaped();
                     inPtr = _inputPtr;
                     inLen = _inputEnd;
                 } else if (i <= INT_QUOTE) {
@@ -2207,9 +2205,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                     return i;
                 }
                 if (i != INT_COLON) {
-                    if (i < INT_SPACE) {
-                        _throwInvalidSpace(i);
-                    }
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;

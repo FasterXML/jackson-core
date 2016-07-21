@@ -16,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class InternCache
     extends ConcurrentHashMap<String,String> // since 2.3
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Size to use is somewhat arbitrary, so let's choose something that's
      * neither too small (low hit ratio) nor too large (waste of memory).

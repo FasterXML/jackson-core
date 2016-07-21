@@ -29,7 +29,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * (first 128 character codes), used for single-byte UTF-8 characters.
      */
     protected final static int[] sOutputEscapes = CharTypes.get7BitOutputEscapes();
-    
+
     /*
     /**********************************************************
     /* Configuration, basic I/O

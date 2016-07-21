@@ -2595,17 +2595,16 @@ public class UTF8StreamJsonParser
                 _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
-                _skipUtf8_2(c);
+                _skipUtf8_2();
                 break;
             case 3: // 3-byte UTF
-                _skipUtf8_3(c);
+                _skipUtf8_3();
                 break;
             case 4: // 4-byte UTF
                 _skipUtf8_4(c);
                 break;
             default:
                 if (c < INT_SPACE) {
-                    // As per [JACKSON-208], call can now return:
                     _throwUnquotedSpace(c, "string value");
                 } else {
                     // Is this good enough error message?
@@ -2734,9 +2733,7 @@ public class UTF8StreamJsonParser
 
             switch (codes[c]) {
             case 1: // backslash
-                if (c != '\'') { // marked as special, isn't here
-                    c = _decodeEscaped();
-                }
+                c = _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -3076,9 +3073,6 @@ public class UTF8StreamJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
-                    if (i < INT_SPACE) {
-                        _throwInvalidSpace(i);
-                    }
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;
@@ -3146,10 +3140,10 @@ public class UTF8StreamJsonParser
                     _skipCR();
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2(i);
+                    _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3(i);
+                    _skipUtf8_3();
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4(i);
@@ -3195,10 +3189,10 @@ public class UTF8StreamJsonParser
                 case '*': // nop for these comments
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2(i);
+                    _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3(i);
+                    _skipUtf8_3();
                     break;
                 case 4: // 4-byte UTF
                     _skipUtf8_4(i);
@@ -3406,12 +3400,12 @@ public class UTF8StreamJsonParser
         return ((c << 6) | (d & 0x3F)) - 0x10000;
     }
 
-    private final void _skipUtf8_2(int c) throws IOException
+    private final void _skipUtf8_2() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
-        c = (int) _inputBuffer[_inputPtr++];
+        int c = (int) _inputBuffer[_inputPtr++];
         if ((c & 0xC0) != 0x080) {
             _reportInvalidOther(c & 0xFF, _inputPtr);
         }
@@ -3420,13 +3414,13 @@ public class UTF8StreamJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3(int c) throws IOException
+    private final void _skipUtf8_3() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
         }
         //c &= 0x0F;
-        c = (int) _inputBuffer[_inputPtr++];
+        int c = (int) _inputBuffer[_inputPtr++];
         if ((c & 0xC0) != 0x080) {
             _reportInvalidOther(c & 0xFF, _inputPtr);
         }

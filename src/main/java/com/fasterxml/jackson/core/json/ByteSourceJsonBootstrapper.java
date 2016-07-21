@@ -370,7 +370,7 @@ public final class ByteSourceJsonBootstrapper
         }
         return fullMatchStrength;
     }
-    
+
     private static int skipSpace(InputAccessor acc) throws IOException
     {
         if (!acc.hasMoreBytes()) {
@@ -378,7 +378,7 @@ public final class ByteSourceJsonBootstrapper
         }
         return skipSpace(acc, acc.nextByte());
     }
-    
+
     private static int skipSpace(InputAccessor acc, byte b) throws IOException
     {
         while (true) {
@@ -390,10 +390,9 @@ public final class ByteSourceJsonBootstrapper
                 return -1;
             }
             b = acc.nextByte();
-            ch = (int) b & 0xFF;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods, parsing

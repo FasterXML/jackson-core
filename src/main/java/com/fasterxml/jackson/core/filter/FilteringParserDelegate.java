@@ -286,7 +286,8 @@ public class FilteringParserDelegate extends JsonParserDelegate
         JsonToken t = delegate.nextToken();
         if (t == null) {
             // no strict need to close, since we have no state here
-            return (_currToken = t);
+            _currToken = t;
+            return t;
         }
 
         // otherwise... to include or not?
@@ -458,7 +459,8 @@ public class FilteringParserDelegate extends JsonParserDelegate
         while (true) {
             JsonToken t = delegate.nextToken();
             if (t == null) { // is this even legal?
-                return (_currToken = t);
+                _currToken = t;
+                return t;
             }
             TokenFilter f;
 

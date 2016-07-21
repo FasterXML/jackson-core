@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  */
 public final class SegmentedStringWriter extends Writer
 {
-    final protected TextBuffer _buffer;
+    final private TextBuffer _buffer;
 
     public SegmentedStringWriter(BufferRecycler br) {
         super();

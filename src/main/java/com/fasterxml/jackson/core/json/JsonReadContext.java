@@ -229,6 +229,7 @@ public final class JsonReadContext extends JsonStreamContext
             sb.append(']');
             break;
         case TYPE_OBJECT:
+        default:
             sb.append('{');
             if (_currentName != null) {
                 sb.append('"');

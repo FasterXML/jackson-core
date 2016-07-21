@@ -1327,7 +1327,7 @@ public class JsonFactory
         // 13-May-2016, tatu: Need to take care not to accidentally create JSON parser for
         //   non-JSON input. So, bit unclean but...
         String format = getFormatName();
-        if (format != FORMAT_NAME_JSON) {
+        if (format != FORMAT_NAME_JSON) { // NOTE: only ensure override; full equality NOT needed
             throw new UnsupportedOperationException(String.format(
                     "InputData source not (yet?) support for this format (%s)", format));
         }

@@ -1965,13 +1965,13 @@ public class UTF8DataInputJsonParser
                 _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
-                _skipUtf8_2(c);
+                _skipUtf8_2();
                 break;
             case 3: // 3-byte UTF
-                _skipUtf8_3(c);
+                _skipUtf8_3();
                 break;
             case 4: // 4-byte UTF
-                _skipUtf8_4(c);
+                _skipUtf8_4();
                 break;
             default:
                 if (c < INT_SPACE) {
@@ -2077,9 +2077,7 @@ public class UTF8DataInputJsonParser
             }
             switch (codes[c]) {
             case 1: // backslash
-                if (c != '\'') { // marked as special, isn't here
-                    c = _decodeEscaped();
-                }
+                c = _decodeEscaped();
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUtf8_2(c);
@@ -2300,9 +2298,6 @@ public class UTF8DataInputJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
-                    if (i < INT_SPACE) {
-                        _throwInvalidSpace(i);
-                    }
                     _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
                 }
                 gotColon = true;
@@ -2354,13 +2349,13 @@ public class UTF8DataInputJsonParser
                     ++_currInputRow;
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2(i);
+                    _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3(i);
+                    _skipUtf8_3();
                     break;
                 case 4: // 4-byte UTF
-                    _skipUtf8_4(i);
+                    _skipUtf8_4();
                     break;
                 default: // e.g. -1
                     // Is this good enough error message?
@@ -2400,13 +2395,13 @@ public class UTF8DataInputJsonParser
                 case '*': // nop for these comments
                     break;
                 case 2: // 2-byte UTF
-                    _skipUtf8_2(i);
+                    _skipUtf8_2();
                     break;
                 case 3: // 3-byte UTF
-                    _skipUtf8_3(i);
+                    _skipUtf8_3();
                     break;
                 case 4: // 4-byte UTF
-                    _skipUtf8_4(i);
+                    _skipUtf8_4();
                     break;
                 default: // e.g. -1
                     if (code < 0) {
@@ -2566,9 +2561,9 @@ public class UTF8DataInputJsonParser
         return ((c << 6) | (d & 0x3F)) - 0x10000;
     }
 
-    private final void _skipUtf8_2(int c) throws IOException
+    private final void _skipUtf8_2() throws IOException
     {
-        c = _inputData.readUnsignedByte();
+        int c = _inputData.readUnsignedByte();
         if ((c & 0xC0) != 0x080) {
             _reportInvalidOther(c & 0xFF);
         }
@@ -2577,10 +2572,10 @@ public class UTF8DataInputJsonParser
     /* Alas, can't heavily optimize skipping, since we still have to
      * do validity checks...
      */
-    private final void _skipUtf8_3(int c) throws IOException
+    private final void _skipUtf8_3() throws IOException
     {
         //c &= 0x0F;
-        c = _inputData.readUnsignedByte();
+        int c = _inputData.readUnsignedByte();
         if ((c & 0xC0) != 0x080) {
             _reportInvalidOther(c & 0xFF);
         }
@@ -2590,7 +2585,7 @@ public class UTF8DataInputJsonParser
         }
     }
 
-    private final void _skipUtf8_4(int c) throws IOException
+    private final void _skipUtf8_4() throws IOException
     {
         int d = _inputData.readUnsignedByte();
         if ((d & 0xC0) != 0x080) {

@@ -1689,6 +1689,7 @@ public abstract class JsonGenerator
         switch (t.id()) {
         case ID_NOT_AVAILABLE:
             _reportError("No current event to copy");
+            break; // never gets here
         case ID_START_OBJECT:
             writeStartObject();
             break;

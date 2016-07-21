@@ -58,21 +58,21 @@ public final class CharsToNameCanonicalizer
      * reuse factories it doesn't matter either way; but when
      * recreating factories often, initial overhead may dominate.
      */
-    protected static final int DEFAULT_T_SIZE = 64;
+    private static final int DEFAULT_T_SIZE = 64;
 
     /**
      * Let's not expand symbol tables past some maximum size;
      * this should protected against OOMEs caused by large documents
      * with unique (~= random) names.
      */
-    protected static final int MAX_T_SIZE = 0x10000; // 64k entries == 256k mem
+    private static final int MAX_T_SIZE = 0x10000; // 64k entries == 256k mem
 
     /**
      * Let's only share reasonably sized symbol tables. Max size set to 3/4 of 16k;
      * this corresponds to 64k main hash index. This should allow for enough distinct
      * names for almost any case.
      */
-    final static int MAX_ENTRIES_FOR_REUSE = 12000;
+    static final int MAX_ENTRIES_FOR_REUSE = 12000;
 
     /**
      * Also: to thwart attacks based on hash collisions (which may or may not
@@ -88,8 +88,8 @@ public final class CharsToNameCanonicalizer
      * 
      * @since 2.1
      */
-    final static int MAX_COLL_CHAIN_LENGTH = 100;
-    
+    static final int MAX_COLL_CHAIN_LENGTH = 100;
+
     final static CharsToNameCanonicalizer sBootstrapSymbolTable = new CharsToNameCanonicalizer();
 
     /*
@@ -104,7 +104,7 @@ public final class CharsToNameCanonicalizer
      * defined, and child instance is released (call to <code>release</code>),
      * parent's shared tables may be updated from the child instance.
      */
-    protected CharsToNameCanonicalizer _parent;
+    private CharsToNameCanonicalizer _parent;
 
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -117,13 +117,13 @@ public final class CharsToNameCanonicalizer
      */
     final private int _hashSeed;
 
-    final protected int _flags;
+    final private int _flags;
     
     /**
      * Whether any canonicalization should be attempted (whether using
      * intern or not)
      */
-    protected boolean _canonicalize;
+    private boolean _canonicalize;
     
     /*
     /**********************************************************
@@ -135,7 +135,7 @@ public final class CharsToNameCanonicalizer
      * Primary matching symbols; it's expected most match occur from
      * here.
      */
-    protected String[] _symbols;
+    private String[] _symbols;
 
     /**
      * Overflow buckets; if primary doesn't match, lookup is done
@@ -144,27 +144,27 @@ public final class CharsToNameCanonicalizer
      * Note: Number of buckets is half of number of symbol entries, on
      * assumption there's less need for buckets.
      */
-    protected Bucket[] _buckets;
+    private Bucket[] _buckets;
 
     /**
      * Current size (number of entries); needed to know if and when
      * rehash.
      */
-    protected int _size;
+    private int _size;
 
     /**
      * Limit that indicates maximum size this instance can hold before
      * it needs to be expanded and rehashed. Calculated using fill
      * factor passed in to constructor.
      */
-    protected int _sizeThreshold;
+    private int _sizeThreshold;
 
     /**
      * Mask used to get index from hash values; equal to
      * <code>_buckets.length - 1</code>, when _buckets.length is
      * a power of two.
      */
-    protected int _indexMask;
+    private int _indexMask;
 
     /**
      * We need to keep track of the longest collision list; this is needed
@@ -173,8 +173,8 @@ public final class CharsToNameCanonicalizer
      * 
      * @since 2.1
      */
-    protected int _longestCollisionList;
-    
+    private int _longestCollisionList;
+
     /*
     /**********************************************************
     /* State regarding shared arrays
@@ -187,7 +187,7 @@ public final class CharsToNameCanonicalizer
      * (first) change is made, and potentially if updated bucket list
      * is to be resync'ed back to master instance.
      */
-    protected boolean _dirty;
+    private boolean _dirty;
 
     /*
     /**********************************************************
@@ -203,8 +203,8 @@ public final class CharsToNameCanonicalizer
      * 
      * @since 2.4
      */
-    protected BitSet _overflows;
-    
+    private BitSet _overflows;
+
     /*
     /**********************************************************
     /* Life-cycle

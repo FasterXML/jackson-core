@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.6 (not yet released)
+2.7.6 (23-Jul-2016)
 
 - Clean up of FindBugs reported possible issues.
 

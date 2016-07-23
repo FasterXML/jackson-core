@@ -1488,24 +1488,21 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        BufferRecycler br;
-
         /* 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
          *   scheme, for cases where it is considered harmful (possibly
          *   on Android, for example)
          */
         if (isEnabled(Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)) {
             SoftReference<BufferRecycler> ref = _recyclerRef.get();
-            br = (ref == null) ? null : ref.get();
+            BufferRecycler br = (ref == null) ? null : ref.get();
     
             if (br == null) {
                 br = new BufferRecycler();
                 _recyclerRef.set(new SoftReference<BufferRecycler>(br));
             }
-        } else {
-            br = new BufferRecycler();
+            return br;
         }
-        return br;
+        return new BufferRecycler();
     }
 
     /**

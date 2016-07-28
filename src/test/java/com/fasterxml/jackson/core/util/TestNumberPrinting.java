@@ -11,8 +11,7 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 public class TestNumberPrinting
     extends com.fasterxml.jackson.core.BaseTest
 {
-    public void testIntPrinting()
-        throws Exception
+    public void testIntPrinting() throws Exception
     {
         assertIntPrint(0);
         assertIntPrint(-3);
@@ -39,8 +38,7 @@ public class TestNumberPrinting
         }
     }
 
-    public void testLongPrinting()
-        throws Exception
+    public void testLongPrinting() throws Exception
     {
         // First, let's just cover couple of edge cases
         assertLongPrint(0L, 0);
@@ -60,9 +58,9 @@ public class TestNumberPrinting
     }
 
     /*
-    ////////////////////////////////////////////////////////
-    // Internal methods
-    ////////////////////////////////////////////////////////
+    /**********************************************************
+    /* Internal methods
+    /**********************************************************
      */
 
     private void assertIntPrint(int value)
@@ -73,6 +71,10 @@ public class TestNumberPrinting
         if (!exp.equals(act)) {
             assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
         }
+        String alt = NumberOutput.toString(value);
+        if (!exp.equals(alt)) {
+            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
+        }
     }
 
     private void assertLongPrint(long value, int index)
@@ -81,6 +83,10 @@ public class TestNumberPrinting
         String act = printToString(value);
 
         if (!exp.equals(act)) {
+            assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
+        }
+        String alt = NumberOutput.toString(value);
+        if (!exp.equals(alt)) {
             assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
         }
     }
@@ -99,4 +105,3 @@ public class TestNumberPrinting
         return new String(buffer, 0, offset);
     }
 }
-

@@ -289,7 +289,12 @@ public class GeneratorBasicTest
     {
         int[] VALUES = new int[] {
             0, 1, -9, 32, -32, 57, 189, 2017, -9999, 13240, 123456,
-            1111111, 22222222, 123456789, Integer.MAX_VALUE, Integer.MAX_VALUE
+            1111111, 22222222, 123456789,
+            7300999, -7300999,
+            99300999, -99300999,
+            999300999, -999300999,
+            1000300999, 2000500126, -1000300999, -2000500126,
+            Integer.MIN_VALUE, Integer.MAX_VALUE
         };
         for (int i = 0; i < VALUES.length; ++i) {
             int VALUE = VALUES[i];
@@ -339,7 +344,13 @@ public class GeneratorBasicTest
     private void doTestLongValueWrite(boolean pad, boolean useBytes) throws Exception
     {
         long[] VALUES = new long[] {
-            0L, 1L, -1L, -12005002294L, Long.MIN_VALUE, Long.MAX_VALUE
+            0L, 1L, -1L, 2000100345, -12005002294L,
+            5111222333L, -5111222333L,
+            65111222333L, -65111222333L,
+            123456789012L, -123456789012L,
+            123456789012345L, -123456789012345L,
+            123456789012345789L, -123456789012345789L,
+            Long.MIN_VALUE, Long.MAX_VALUE
         };
         for (int i = 0; i < VALUES.length; ++i) {
             long VALUE = VALUES[i];

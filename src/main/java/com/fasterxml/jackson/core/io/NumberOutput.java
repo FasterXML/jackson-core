@@ -87,8 +87,7 @@ public final class NumberOutput
          * handling 3 triplets. This is possible since we know we
          * can have at most '2' as billion count.
          */
-        boolean hasBillions = (v >= BILLION);
-        if (hasBillions) {
+        if (v >= BILLION) {
             v -= BILLION;
             if (v >= BILLION) {
                 v -= BILLION;
@@ -96,6 +95,7 @@ public final class NumberOutput
             } else {
                 b[off++] = '1';
             }
+            return _outputFullBillion(v, b, off);
         }
         int newValue = v / 1000;
         int ones = (v - (newValue * 1000)); // == value % 1000
@@ -103,15 +103,9 @@ public final class NumberOutput
         newValue /= 1000;
         int thousands = (v - (newValue * 1000));
         
-        // value now has millions, which have 1, 2 or 3 digits
-        if (hasBillions) {
-            off = full3(newValue, b, off);
-        } else {
-            off = leading3(newValue, b, off);
-        }
+        off = leading3(newValue, b, off);
         off = full3(thousands, b, off);
-        off = full3(ones, b, off);
-        return off;
+        return full3(ones, b, off);
     }
 
     public static int outputInt(int v, byte[] b, int off)
@@ -139,8 +133,7 @@ public final class NumberOutput
             }
             return off;
         }
-        boolean hasB = (v >= BILLION);
-        if (hasB) {
+        if (v >= BILLION) {
             v -= BILLION;
             if (v >= BILLION) {
                 v -= BILLION;
@@ -148,23 +141,18 @@ public final class NumberOutput
             } else {
                 b[off++] = '1';
             }
+            return _outputFullBillion(v, b, off);
         }
         int newValue = v / 1000;
         int ones = (v - (newValue * 1000)); // == value % 1000
         v = newValue;
         newValue /= 1000;
         int thousands = (v - (newValue * 1000));
-        
-        if (hasB) {
-            off = full3(newValue, b, off);
-        } else {
-            off = leading3(newValue, b, off);
-        }
+        off = leading3(newValue, b, off);
         off = full3(thousands, b, off);
-        off = full3(ones, b, off);
-        return off;
+        return full3(ones, b, off);
     }
-    
+
     /**
      * @return Offset within buffer after outputting int
      */
@@ -186,34 +174,21 @@ public final class NumberOutput
             }
         }
 
-        /* Ok: real long print. Need to first figure out length
-         * in characters, and then print in from end to beginning
-         */
-        int origOffset = off;
-        off += calcLongStrLength(v);
-        int ptr = off;
+        // Ok, let's separate last 9 digits (3 x full sets of 3)
+        long upper = v / BILLION_L;
+        v -= (upper * BILLION_L);
 
-        // First, with long arithmetics:
-        while (v > MAX_INT_AS_LONG) { // full triplet
-            ptr -= 3;
-            long newValue = v / THOUSAND_L;
-            int triplet = (int) (v - newValue * THOUSAND_L);
-            full3(triplet, b, ptr);
-            v = newValue;
+        // two integers?
+        if (upper < BILLION_L) {
+            off = _outputUptoBillion((int) upper, b, off);
+            return _outputFullBillion((int) v, b, off);
         }
-        // Then with int arithmetics:
-        int ivalue = (int) v;
-        while (ivalue >= 1000) { // still full triplet
-            ptr -= 3;
-            int newValue = ivalue / 1000;
-            int triplet = ivalue - (newValue * 1000);
-            full3(triplet, b, ptr);
-            ivalue = newValue;
-        }
-        // And finally, if anything remains, partial triplet
-        leading3(ivalue, b, origOffset);
-
-        return off;
+        // no, two ints and bits; hi may be about 16 or so
+        long hi = upper / BILLION_L;
+        upper -= (hi * BILLION_L);
+        off = leading3((int) hi, b, off);
+        off = _outputFullBillion((int) upper, b, off);
+        return _outputFullBillion((int) v, b, off);
     }
 
     public static int outputLong(long v, byte[] b, int off)
@@ -232,66 +207,115 @@ public final class NumberOutput
                 return outputInt((int) v, b, off);
             }
         }
-        int origOff = off;
-        off += calcLongStrLength(v);
-        int ptr = off;
 
         // Ok, let's separate last 9 digits (3 x full sets of 3)
-//        long upper = 
-        
-        
-        // First, with long arithmetics:
-        while (v > MAX_INT_AS_LONG) { // full triplet
-            ptr -= 3;
-            long newV = v / THOUSAND_L;
-            int t = (int) (v - newV * THOUSAND_L);
-            full3(t, b, ptr);
-            v = newV;
+        long upper = v / BILLION_L;
+        v -= (upper * BILLION_L);
+
+        // two integers?
+        if (upper < BILLION_L) {
+            off = _outputUptoBillion((int) upper, b, off);
+            return _outputFullBillion((int) v, b, off);
         }
-        // Then with int arithmetics:
-        int ivalue = (int) v;
-        while (ivalue >= 1000) { // still full triplet
-            ptr -= 3;
-            int newV = ivalue / 1000;
-            int t = ivalue - (newV * 1000);
-            full3(t, b, ptr);
-            ivalue = newV;
+        // no, two ints and bits; hi may be about 16 or so
+        long hi = upper / BILLION_L;
+        upper -= (hi * BILLION_L);
+        off = leading3((int) hi, b, off);
+        off = _outputFullBillion((int) upper, b, off);
+        return _outputFullBillion((int) v, b, off);
+    }
+
+    // // // Secondary output
+
+    private static int _outputUptoBillion(int v, char[] b, int off)
+    {
+        if (v < MILLION) { // at most 2 triplets...
+            if (v < 1000) {
+                return leading3(v, b, off);
+            }
+            int thousands = v / 1000;
+            v -= (thousands * 1000); // == value % 1000
+            off = leading3(thousands, b, off);
+            return full3(v, b, off);
         }
-        leading3(ivalue, b, origOff);
+        int thousands = v / 1000;
+        int ones = (v - (thousands * 1000)); // == value % 1000
+        int millions = thousands / 1000;
+        thousands -= (millions * 1000);
+
+        off = leading3(millions, b, off);
+        off = full3(thousands, b, off);
+        return full3(ones, b, off);
+    }
+    
+    private static int _outputFullBillion(int v, char[] b, int off)
+    {
+        int thousands = v / 1000;
+        int ones = (v - (thousands * 1000)); // == value % 1000
+        int millions = thousands / 1000;
+        thousands -= (millions * 1000);
+
+        int enc = FULL_AND_LEAD_I3[millions];
+        b[off++] = (char) (enc >> 16);
+        b[off++] = (char) ((enc >> 8) & 0x7F);
+        b[off++] = (char) (enc & 0x7F);
+
+        enc = FULL_AND_LEAD_I3[thousands];
+        b[off++] = (char) (enc >> 16);
+        b[off++] = (char) ((enc >> 8) & 0x7F);
+        b[off++] = (char) (enc & 0x7F);
+
+        enc = FULL_AND_LEAD_I3[ones];
+        b[off++] = (char) (enc >> 16);
+        b[off++] = (char) ((enc >> 8) & 0x7F);
+        b[off++] = (char) (enc & 0x7F);
+
         return off;
     }
-
-    // // // Special cases for where we can not flip the sign bit
-
-    private static int _outputSmallestL(char[] b, int off)
+    
+    private static int _outputUptoBillion(int v, byte[] b, int off)
     {
-        int len = SMALLEST_LONG.length();
-        SMALLEST_LONG.getChars(0, len, b, off);
-        return (off + len);
-    }
-
-    private static int _outputSmallestL(byte[] b, int off)
-    {
-        int len = SMALLEST_LONG.length();
-        for (int i = 0; i < len; ++i) {
-            b[off++] = (byte) SMALLEST_LONG.charAt(i);
+        if (v < MILLION) { // at most 2 triplets...
+            if (v < 1000) {
+                return leading3(v, b, off);
+            }
+            int thousands = v / 1000;
+            v -= (thousands * 1000); // == value % 1000
+            off = leading3(thousands, b, off);
+            return full3(v, b, off);
         }
-        return off;
+        int thousands = v / 1000;
+        int ones = (v - (thousands * 1000)); // == value % 1000
+        int millions = thousands / 1000;
+        thousands -= (millions * 1000);
+
+        off = leading3(millions, b, off);
+        off = full3(thousands, b, off);
+        return full3(ones, b, off);
     }
 
-    private static int _outputSmallestI(char[] b, int off)
+    private static int _outputFullBillion(int v, byte[] b, int off)
     {
-        int len = SMALLEST_INT.length();
-        SMALLEST_INT.getChars(0, len, b, off);
-        return (off + len);
-    }
+        int thousands = v / 1000;
+        int ones = (v - (thousands * 1000)); // == value % 1000
+        int millions = thousands / 1000;
+        thousands -= (millions * 1000);
 
-    private static int _outputSmallestI(byte[] b, int off)
-    {
-        int len = SMALLEST_INT.length();
-        for (int i = 0; i < len; ++i) {
-            b[off++] = (byte) SMALLEST_INT.charAt(i);
-        }
+        int enc = FULL_AND_LEAD_I3[millions];
+        b[off++] = (byte) (enc >> 16);
+        b[off++] = (byte) (enc >> 8);
+        b[off++] = (byte) enc;
+
+        enc = FULL_AND_LEAD_I3[thousands];
+        b[off++] = (byte) (enc >> 16);
+        b[off++] = (byte) (enc >> 8);
+        b[off++] = (byte) enc;
+
+        enc = FULL_AND_LEAD_I3[ones];
+        b[off++] = (byte) (enc >> 16);
+        b[off++] = (byte) (enc >> 8);
+        b[off++] = (byte) enc;
+
         return off;
     }
 
@@ -388,24 +412,37 @@ public final class NumberOutput
         return off;
     }
 
-    /**
-     *<p>
-     * Pre-conditions: <code>c</code> is positive, and larger than
-     * Integer.MAX_VALUE (about 2 billions).
-     */
-    private static int calcLongStrLength(long v)
-    {
-        int len = 10;
-        long cmp = TEN_BILLION_L;
+    // // // Special cases for where we can not flip the sign bit
 
-        // 19 is longest, need to worry about overflow
-        while (v >= cmp) {
-            if (len == 19) {
-                break;
-            }
-            ++len;
-            cmp = (cmp << 3) + (cmp << 1); // 10x
+    private static int _outputSmallestL(char[] b, int off)
+    {
+        int len = SMALLEST_LONG.length();
+        SMALLEST_LONG.getChars(0, len, b, off);
+        return (off + len);
+    }
+
+    private static int _outputSmallestL(byte[] b, int off)
+    {
+        int len = SMALLEST_LONG.length();
+        for (int i = 0; i < len; ++i) {
+            b[off++] = (byte) SMALLEST_LONG.charAt(i);
         }
-        return len;
+        return off;
+    }
+
+    private static int _outputSmallestI(char[] b, int off)
+    {
+        int len = SMALLEST_INT.length();
+        SMALLEST_INT.getChars(0, len, b, off);
+        return (off + len);
+    }
+
+    private static int _outputSmallestI(byte[] b, int off)
+    {
+        int len = SMALLEST_INT.length();
+        for (int i = 0; i < len; ++i) {
+            b[off++] = (byte) SMALLEST_INT.charAt(i);
+        }
+        return off;
     }
 }

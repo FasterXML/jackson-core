@@ -55,14 +55,22 @@ public class GeneratorBasicTest
 
     public void testIntValueWrite() throws Exception
     {
-        doTestIntValueWrite(false);
-        doTestIntValueWrite(true);
+        // char[]
+        doTestIntValueWrite(false, false);
+        doTestIntValueWrite(true, false);
+        // byte[]
+        doTestIntValueWrite(false, true);
+        doTestIntValueWrite(true, true);
     }
 
     public void testLongValueWrite() throws Exception
     {
-        doTestLongValueWrite(false);
-        doTestLongValueWrite(true);
+        // char[]
+        doTestLongValueWrite(false, false);
+        doTestLongValueWrite(true, false);
+        // byte[]
+        doTestLongValueWrite(false, true);
+        doTestLongValueWrite(true, true);
     }
 
     public void testBooleanWrite() throws Exception
@@ -277,7 +285,7 @@ public class GeneratorBasicTest
     /**********************************************************
      */
 
-    private void doTestIntValueWrite(boolean pad) throws Exception
+    private void doTestIntValueWrite(boolean pad, boolean useBytes) throws Exception
     {
         int[] VALUES = new int[] {
             0, 1, -9, 32, -32, 57, 189, 2017, -9999, 13240, 123456,
@@ -285,65 +293,95 @@ public class GeneratorBasicTest
         };
         for (int i = 0; i < VALUES.length; ++i) {
             int VALUE = VALUES[i];
-            StringWriter sw = new StringWriter();
-            JsonGenerator gen = JSON_F.createGenerator(sw);
-            gen.writeNumber(VALUE);
-            if (pad) {
-                gen.writeRaw(" ");
+            String docStr;
+            JsonParser p;
+
+            if (useBytes) {
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                JsonGenerator gen = JSON_F.createGenerator(bytes);
+                gen.writeNumber(VALUE);
+                if (pad) {
+                    gen.writeRaw(" ");
+                }
+                gen.close();
+                docStr = bytes.toString("UTF-8");
+                p = JSON_F.createParser(bytes.toByteArray());
+            } else {
+                StringWriter sw = new StringWriter();
+                JsonGenerator gen = JSON_F.createGenerator(sw);
+                gen.writeNumber(VALUE);
+                if (pad) {
+                    gen.writeRaw(" ");
+                }
+                gen.close();
+                docStr = sw.toString();
+                p = JSON_F.createParser(docStr);
             }
-            gen.close();
-            String docStr = sw.toString();
-            JsonParser jp = createParserUsingReader(docStr);
             JsonToken t = null;
             try {
-                t = jp.nextToken();
+                t = p.nextToken();
             } catch (IOException e) {
                 fail("Problem with value "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
             // Number are always available as lexical representation too
             String exp = ""+VALUE;
-            if (!exp.equals(jp.getText())) {
-                fail("Expected '"+exp+"', got '"+jp.getText());
+            if (!exp.equals(p.getText())) {
+                fail("Expected '"+exp+"', got '"+p.getText());
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
-            assertEquals(VALUE, jp.getIntValue());
-            assertEquals(null, jp.nextToken());
-            jp.close();
+            assertEquals(VALUE, p.getIntValue());
+            assertEquals(null, p.nextToken());
+            p.close();
         }
     }
 
-    private void doTestLongValueWrite(boolean pad) throws Exception
+    private void doTestLongValueWrite(boolean pad, boolean useBytes) throws Exception
     {
         long[] VALUES = new long[] {
             0L, 1L, -1L, -12005002294L, Long.MIN_VALUE, Long.MAX_VALUE
         };
         for (int i = 0; i < VALUES.length; ++i) {
             long VALUE = VALUES[i];
-            StringWriter sw = new StringWriter();
-            JsonGenerator gen = JSON_F.createGenerator(sw);
-            gen.writeNumber(VALUE);
-            if (pad) {
-                gen.writeRaw(" ");
+            String docStr;
+            JsonParser p;
+
+            if (useBytes) {
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                JsonGenerator gen = JSON_F.createGenerator(bytes);
+                gen.writeNumber(VALUE);
+                if (pad) {
+                    gen.writeRaw(" ");
+                }
+                gen.close();
+                docStr = bytes.toString("UTF-8");
+                p = JSON_F.createParser(bytes.toByteArray());
+            } else {
+                StringWriter sw = new StringWriter();
+                JsonGenerator gen = JSON_F.createGenerator(sw);
+                gen.writeNumber(VALUE);
+                if (pad) {
+                    gen.writeRaw(" ");
+                }
+                gen.close();
+                docStr = sw.toString();
+                p = JSON_F.createParser(docStr);
             }
-            gen.close();
-            String docStr = sw.toString();
-            JsonParser jp = createParserUsingReader(docStr);
             JsonToken t = null;
             try {
-                t = jp.nextToken();
+                t = p.nextToken();
             } catch (IOException e) {
                 fail("Problem with number "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
             String exp = ""+VALUE;
-            if (!exp.equals(jp.getText())) {
-                fail("Expected '"+exp+"', got '"+jp.getText());
+            if (!exp.equals(p.getText())) {
+                fail("Expected '"+exp+"', got '"+p.getText());
             }
             assertEquals(JsonToken.VALUE_NUMBER_INT, t);
-            assertEquals(VALUE, jp.getLongValue());
-            assertEquals(null, jp.nextToken());
-            jp.close();
+            assertEquals(VALUE, p.getLongValue());
+            assertEquals(null, p.nextToken());
+            p.close();
         }
     }
 }

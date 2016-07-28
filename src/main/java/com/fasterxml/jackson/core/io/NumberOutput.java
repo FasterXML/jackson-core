@@ -6,12 +6,14 @@ public final class NumberOutput
     private static int BILLION = 1000000000;
     private static long TEN_BILLION_L = 10000000000L;
     private static long THOUSAND_L = 1000L;
+    private static long BILLION_L = 1000000000L;
 
     private static long MIN_INT_AS_LONG = (long) Integer.MIN_VALUE;
     private static long MAX_INT_AS_LONG = (long) Integer.MAX_VALUE;
 
+    final static String SMALLEST_INT = String.valueOf(Integer.MIN_VALUE);
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
-
+    
     /**
      * Encoded representations of 3-decimal-digit indexed values, where
      * 3 LSB are ascii characters
@@ -57,10 +59,9 @@ public final class NumberOutput
     {
         if (v < 0) {
             if (v == Integer.MIN_VALUE) {
-                /* Special case: no matching positive value within range;
-                 * let's then "upgrade" to long and output as such.
-                 */
-                return outputLong((long) v, b, off);
+                // Special case: no matching positive value within range;
+                // let's then "upgrade" to long and output as such.
+                return _outputSmallestI(b, off);
             }
             b[off++] = '-';
             v = -v;
@@ -117,7 +118,7 @@ public final class NumberOutput
     {
         if (v < 0) {
             if (v == Integer.MIN_VALUE) {
-                return outputLong((long) v, b, off);
+                return _outputSmallestI(b, off);
             }
             b[off++] = '-';
             v = -v;
@@ -171,17 +172,11 @@ public final class NumberOutput
     {
         // First: does it actually fit in an int?
         if (v < 0L) {
-            /* MIN_INT is actually printed as long, just because its
-             * negation is not an int but long
-             */
             if (v > MIN_INT_AS_LONG) {
                 return outputInt((int) v, b, off);
             }
             if (v == Long.MIN_VALUE) {
-                // Special case: no matching positive value within range
-                int len = SMALLEST_LONG.length();
-                SMALLEST_LONG.getChars(0, len, b, off);
-                return (off + len);
+                return _outputSmallestL(b, off);
             }
             b[off++] = '-';
             v = -v;
@@ -228,12 +223,7 @@ public final class NumberOutput
                 return outputInt((int) v, b, off);
             }
             if (v == Long.MIN_VALUE) {
-                // Special case: no matching positive value within range
-                int len = SMALLEST_LONG.length();
-                for (int i = 0; i < len; ++i) {
-                    b[off++] = (byte) SMALLEST_LONG.charAt(i);
-                }
-                return off;
+                return _outputSmallestL(b, off);
             }
             b[off++] = '-';
             v = -v;
@@ -246,6 +236,10 @@ public final class NumberOutput
         off += calcLongStrLength(v);
         int ptr = off;
 
+        // Ok, let's separate last 9 digits (3 x full sets of 3)
+//        long upper = 
+        
+        
         // First, with long arithmetics:
         while (v > MAX_INT_AS_LONG) { // full triplet
             ptr -= 3;
@@ -266,7 +260,41 @@ public final class NumberOutput
         leading3(ivalue, b, origOff);
         return off;
     }
-    
+
+    // // // Special cases for where we can not flip the sign bit
+
+    private static int _outputSmallestL(char[] b, int off)
+    {
+        int len = SMALLEST_LONG.length();
+        SMALLEST_LONG.getChars(0, len, b, off);
+        return (off + len);
+    }
+
+    private static int _outputSmallestL(byte[] b, int off)
+    {
+        int len = SMALLEST_LONG.length();
+        for (int i = 0; i < len; ++i) {
+            b[off++] = (byte) SMALLEST_LONG.charAt(i);
+        }
+        return off;
+    }
+
+    private static int _outputSmallestI(char[] b, int off)
+    {
+        int len = SMALLEST_INT.length();
+        SMALLEST_INT.getChars(0, len, b, off);
+        return (off + len);
+    }
+
+    private static int _outputSmallestI(byte[] b, int off)
+    {
+        int len = SMALLEST_INT.length();
+        for (int i = 0; i < len; ++i) {
+            b[off++] = (byte) SMALLEST_INT.charAt(i);
+        }
+        return off;
+    }
+
     /*
     /**********************************************************
     /* Secondary convenience serialization methods

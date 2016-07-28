@@ -129,14 +129,18 @@ public class GeneratorBasicTest
 
          String docStr = sw.toString();
 
-         JsonParser jp = createParserUsingReader(docStr);
-         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-         assertEquals(1, jp.getIntValue());
-         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-         assertEquals(2, jp.getIntValue());
-         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-         assertEquals(-13, jp.getIntValue());
-         jp.close();
+         try {
+             JsonParser jp = createParserUsingReader(docStr);
+             assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+             assertEquals(1, jp.getIntValue());
+             assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+             assertEquals(2, jp.getIntValue());
+             assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+             assertEquals(-13, jp.getIntValue());
+             jp.close();
+         } catch (IOException e) {
+             fail("Problem with document ["+docStr+"]: "+e.getMessage());
+         }
      }
     
     // Convenience methods
@@ -320,7 +324,12 @@ public class GeneratorBasicTest
             gen.close();
             String docStr = sw.toString();
             JsonParser jp = createParserUsingReader(docStr);
-            JsonToken t = jp.nextToken();
+            JsonToken t = null;
+            try {
+                t = jp.nextToken();
+            } catch (IOException e) {
+                fail("Problem with number "+VALUE+", document ["+docStr+"]: "+e.getMessage());
+            }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
             String exp = ""+VALUE;
             if (!exp.equals(jp.getText())) {

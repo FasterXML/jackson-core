@@ -20,25 +20,14 @@ public final class NumberOutput
      */
     private final static int[] FULL_AND_LEAD_I3 = new int[1000];
 
-    private final static char[] FULL_3 = new char[4000];
     static {
         /* Let's fill it with NULLs for ignorable leading digits,
          * and digit chars for others
          */
-        int ix = 0;
         int fullIx = 0;
         for (int i1 = 0; i1 < 10; ++i1) {
-            char f1 = (char) ('0' + i1);
             for (int i2 = 0; i2 < 10; ++i2) {
-                char f2 = (char) ('0' + i2);
                 for (int i3 = 0; i3 < 10; ++i3) {
-                    // Last is never to be empty
-                    char f3 = (char) ('0' + i3);
-                    FULL_3[ix] = f1;
-                    FULL_3[ix+1] = f2;
-                    FULL_3[ix+2] = f3;
-                    ix += 4;
-
                     int enc = ((i1 + '0') << 16)
                             | ((i2 + '0') << 8)
                             | (i3 + '0');
@@ -48,13 +37,6 @@ public final class NumberOutput
         }
     }
 
-    private final static byte[] FULL_TRIPLETS_B = new byte[4000];
-    static {
-        for (int i = 0; i < 4000; ++i) {
-            FULL_TRIPLETS_B[i] = (byte) FULL_3[i];
-        }
-    }
-    
     private final static String[] sSmallIntStrs = new String[] {
         "0","1","2","3","4","5","6","7","8","9","10"
     };
@@ -87,16 +69,15 @@ public final class NumberOutput
         if (v < MILLION) { // at most 2 triplets...
             if (v < 1000) {
                 if (v < 10) {
-                    b[off++] = (char) ('0' + v);
-                } else {
-                    off = leading3(v, b, off);
+                    b[off] = (char) ('0' + v);
+                    return off+1;
                 }
-            } else {
-                int thousands = v / 1000;
-                v -= (thousands * 1000); // == value % 1000
-                off = leading3(thousands, b, off);
-                off = full3(v, b, off);
+                return leading3(v, b, off);
             }
+            int thousands = v / 1000;
+            v -= (thousands * 1000); // == value % 1000
+            off = leading3(thousands, b, off);
+            off = full3(v, b, off);
             return off;
         }
 

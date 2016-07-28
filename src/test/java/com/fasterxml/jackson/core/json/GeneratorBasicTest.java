@@ -294,7 +294,12 @@ public class GeneratorBasicTest
             gen.close();
             String docStr = sw.toString();
             JsonParser jp = createParserUsingReader(docStr);
-            JsonToken t = jp.nextToken();
+            JsonToken t = null;
+            try {
+                t = jp.nextToken();
+            } catch (IOException e) {
+                fail("Problem with value "+VALUE+", document ["+docStr+"]: "+e.getMessage());
+            }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
             // Number are always available as lexical representation too
             String exp = ""+VALUE;

@@ -2,8 +2,6 @@ package com.fasterxml.jackson.core.io;
 
 public final class NumberOutput
 {
-    private final static char NC = (char) 0;
-
     private static int MILLION = 1000000;
     private static int BILLION = 1000000000;
     private static long TEN_BILLION_L = 10000000000L;
@@ -14,29 +12,37 @@ public final class NumberOutput
 
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
 
-    private final static char[] LEAD_3 = new char[4000];
+    /**
+     * Encoded representations of 3-decimal-digit indexed values, where
+     * 3 LSB are ascii characters
+     *
+     * @since 2.8.2
+     */
+    private final static int[] FULL_AND_LEAD_I3 = new int[1000];
+
     private final static char[] FULL_3 = new char[4000];
     static {
         /* Let's fill it with NULLs for ignorable leading digits,
          * and digit chars for others
          */
         int ix = 0;
+        int fullIx = 0;
         for (int i1 = 0; i1 < 10; ++i1) {
             char f1 = (char) ('0' + i1);
-            char l1 = (i1 == 0) ? NC : f1;
             for (int i2 = 0; i2 < 10; ++i2) {
                 char f2 = (char) ('0' + i2);
-                char l2 = (i1 == 0 && i2 == 0) ? NC : f2;
                 for (int i3 = 0; i3 < 10; ++i3) {
                     // Last is never to be empty
                     char f3 = (char) ('0' + i3);
-                    LEAD_3[ix] = l1;
-                    LEAD_3[ix+1] = l2;
-                    LEAD_3[ix+2] = f3;
                     FULL_3[ix] = f1;
                     FULL_3[ix+1] = f2;
                     FULL_3[ix+2] = f3;
                     ix += 4;
+
+                    int enc = ((i1 + '0') << 16)
+                            | ((i2 + '0') << 8)
+                            | (i3 + '0');
+                    FULL_AND_LEAD_I3[fullIx++] = enc;
                 }
             }
         }
@@ -331,54 +337,48 @@ public final class NumberOutput
 
     private static int leading3(int t, char[] b, int off)
     {
-        int digitOffset = (t << 2);
-        char c = LEAD_3[digitOffset++];
-        if (c != NC) {
-            b[off++] = c;
+        int enc = FULL_AND_LEAD_I3[t];
+        if (t > 9) {
+            if (t > 99) {
+                b[off++] = (char) (enc >> 16);
+            }
+            b[off++] = (char) ((enc >> 8) & 0x7F);
         }
-        c = LEAD_3[digitOffset++];
-        if (c != NC) {
-            b[off++] = c;
-        }
-        // Last is required to be non-empty
-        b[off++] = LEAD_3[digitOffset];
+        b[off++] = (char) (enc & 0x7F);
         return off;
     }
 
     private static int leading3(int t, byte[] b, int off)
     {
-        int digitOffset = (t << 2);
-        char c = LEAD_3[digitOffset++];
-        if (c != NC) {
-            b[off++] = (byte) c;
+        int enc = FULL_AND_LEAD_I3[t];
+        if (t > 9) {
+            if (t > 99) {
+                b[off++] = (byte) (enc >> 16);
+            }
+            b[off++] = (byte) (enc >> 8);
         }
-        c = LEAD_3[digitOffset++];
-        if (c != NC) {
-            b[off++] = (byte) c;
-        }
-        // Last is required to be non-empty
-        b[off++] = (byte) LEAD_3[digitOffset];
+        b[off++] = (byte) enc;
         return off;
     }
-    
+
     private static int full3(int t, char[] b, int off)
     {
-        int digitOffset = (t << 2);
-        b[off++] = FULL_3[digitOffset++];
-        b[off++] = FULL_3[digitOffset++];
-        b[off++] = FULL_3[digitOffset];
+        int enc = FULL_AND_LEAD_I3[t];
+        b[off++] = (char) (enc >> 16);
+        b[off++] = (char) ((enc >> 8) & 0x7F);
+        b[off++] = (char) (enc & 0x7F);
         return off;
     }
 
     private static int full3(int t, byte[] b, int off)
     {
-        int digitOffset = (t << 2);
-        b[off++] = FULL_TRIPLETS_B[digitOffset++];
-        b[off++] = FULL_TRIPLETS_B[digitOffset++];
-        b[off++] = FULL_TRIPLETS_B[digitOffset];
+        int enc = FULL_AND_LEAD_I3[t];
+        b[off++] = (byte) (enc >> 16);
+        b[off++] = (byte) (enc >> 8);
+        b[off++] = (byte) enc;
         return off;
     }
-    
+
     /**
      *<p>
      * Pre-conditions: <code>c</code> is positive, and larger than

@@ -71,12 +71,12 @@ public final class NumberOutput
                     b[off] = (char) ('0' + v);
                     return off+1;
                 }
-                return leading3(v, b, off);
+                return _leading3(v, b, off);
             }
             int thousands = v / 1000;
             v -= (thousands * 1000); // == value % 1000
-            off = leading3(thousands, b, off);
-            off = full3(v, b, off);
+            off = _leading3(thousands, b, off);
+            off = _full3(v, b, off);
             return off;
         }
 
@@ -101,9 +101,9 @@ public final class NumberOutput
         newValue /= 1000;
         int thousands = (v - (newValue * 1000));
         
-        off = leading3(newValue, b, off);
-        off = full3(thousands, b, off);
-        return full3(ones, b, off);
+        off = _leading3(newValue, b, off);
+        off = _full3(thousands, b, off);
+        return _full3(ones, b, off);
     }
 
     public static int outputInt(int v, byte[] b, int off)
@@ -121,13 +121,13 @@ public final class NumberOutput
                 if (v < 10) {
                     b[off++] = (byte) ('0' + v);
                 } else {
-                    off = leading3(v, b, off);
+                    off = _leading3(v, b, off);
                 }
             } else {
                 int thousands = v / 1000;
                 v -= (thousands * 1000); // == value % 1000
-                off = leading3(thousands, b, off);
-                off = full3(v, b, off);
+                off = _leading3(thousands, b, off);
+                off = _full3(v, b, off);
             }
             return off;
         }
@@ -146,9 +146,9 @@ public final class NumberOutput
         v = newValue;
         newValue /= 1000;
         int thousands = (v - (newValue * 1000));
-        off = leading3(newValue, b, off);
-        off = full3(thousands, b, off);
-        return full3(ones, b, off);
+        off = _leading3(newValue, b, off);
+        off = _full3(thousands, b, off);
+        return _full3(ones, b, off);
     }
 
     /**
@@ -183,7 +183,7 @@ public final class NumberOutput
             // no, two ints and bits; hi may be about 16 or so
             long hi = upper / BILLION_L;
             upper -= (hi * BILLION_L);
-            off = leading3((int) hi, b, off);
+            off = _leading3((int) hi, b, off);
             off = _outputFullBillion((int) upper, b, off);
         }
         return _outputFullBillion((int) v, b, off);
@@ -217,30 +217,76 @@ public final class NumberOutput
             // no, two ints and bits; hi may be about 16 or so
             long hi = upper / BILLION_L;
             upper -= (hi * BILLION_L);
-            off = leading3((int) hi, b, off);
+            off = _leading3((int) hi, b, off);
             off = _outputFullBillion((int) upper, b, off);
         }
         return _outputFullBillion((int) v, b, off);
     }
 
-    // // // Secondary output
+    /*
+    /**********************************************************
+    /* Convenience serialization methods
+    /**********************************************************
+     */
+
+    /* !!! 05-Aug-2008, tatus: Any ways to further optimize
+     *   these? (or need: only called by diagnostics methods?)
+     */
+    public static String toString(int v)
+    {
+        // Lookup table for small values
+        if (v < sSmallIntStrs.length) {
+            if (v >= 0) {
+                return sSmallIntStrs[v];
+            }
+            int v2 = -v - 1;
+            if (v2 < sSmallIntStrs2.length) {
+                return sSmallIntStrs2[v2];
+            }
+        }
+        return Integer.toString(v);
+    }
+
+    public static String toString(long v) {
+        if (v <= Integer.MAX_VALUE && v >= Integer.MIN_VALUE) {
+            return toString((int) v);
+        }
+        return Long.toString(v);
+    }
+
+    public static String toString(double v) {
+        return Double.toString(v);
+    }
+
+    /**
+     * @since 2.6.0
+     */
+    public static String toString(float v) {
+        return Float.toString(v);
+    }
+
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
 
     private static int _outputUptoBillion(int v, char[] b, int off)
     {
         if (v < MILLION) { // at most 2 triplets...
             if (v < 1000) {
-                return leading3(v, b, off);
+                return _leading3(v, b, off);
             }
             int thousands = v / 1000;
             int ones = v - (thousands * 1000); // == value % 1000
-            return leading6(b, off, thousands, ones);
+            return _outputUptoMillion(b, off, thousands, ones);
         }
         int thousands = v / 1000;
         int ones = (v - (thousands * 1000)); // == value % 1000
         int millions = thousands / 1000;
         thousands -= (millions * 1000);
 
-        off = leading3(millions, b, off);
+        off = _leading3(millions, b, off);
 
         int enc = FULL_AND_LEAD_I3[thousands];
         b[off++] = (char) (enc >> 16);
@@ -284,18 +330,18 @@ public final class NumberOutput
     {
         if (v < MILLION) { // at most 2 triplets...
             if (v < 1000) {
-                return leading3(v, b, off);
+                return _leading3(v, b, off);
             }
             int thousands = v / 1000;
             int ones = v - (thousands * 1000); // == value % 1000
-            return leading6(b, off, thousands, ones);
+            return _outputUptoMillion(b, off, thousands, ones);
         }
         int thousands = v / 1000;
         int ones = (v - (thousands * 1000)); // == value % 1000
         int millions = thousands / 1000;
         thousands -= (millions * 1000);
 
-        off = leading3(millions, b, off);
+        off = _leading3(millions, b, off);
 
         int enc = FULL_AND_LEAD_I3[thousands];
         b[off++] = (byte) (enc >> 16);
@@ -335,91 +381,43 @@ public final class NumberOutput
         return off;
     }
 
-    /*
-    /**********************************************************
-    /* Secondary convenience serialization methods
-    /**********************************************************
-     */
-
-    /* !!! 05-Aug-2008, tatus: Any ways to further optimize
-     *   these? (or need: only called by diagnostics methods?)
-     */
-    public static String toString(int v)
+    private static int _outputUptoMillion(char[] b, int off, int thousands, int ones)
     {
-        // Lookup table for small values
-        if (v < sSmallIntStrs.length) {
-            if (v >= 0) {
-                return sSmallIntStrs[v];
-            }
-            int v2 = -v - 1;
-            if (v2 < sSmallIntStrs2.length) {
-                return sSmallIntStrs2[v2];
-            }
-        }
-        return Integer.toString(v);
-    }
-
-    public static String toString(long v) {
-        if (v <= Integer.MAX_VALUE && v >= Integer.MIN_VALUE) {
-            return toString((int) v);
-        }
-        return Long.toString(v);
-    }
-
-    public static String toString(double v) {
-        return Double.toString(v);
-    }
-
-    /**
-     * @since 2.6.0
-     */
-    public static String toString(float v) {
-        return Float.toString(v);
-    }
-
-    /*
-    /**********************************************************
-    /* Internal methods
-    /**********************************************************
-     */
-
-    private static int leading6(char[] b, int off, int partial, int full)
-    {
-        int enc = FULL_AND_LEAD_I3[partial];
-        if (partial > 9) {
-            if (partial > 99) {
+        int enc = FULL_AND_LEAD_I3[thousands];
+        if (thousands > 9) {
+            if (thousands > 99) {
                 b[off++] = (char) (enc >> 16);
             }
             b[off++] = (char) ((enc >> 8) & 0x7F);
         }
         b[off++] = (char) (enc & 0x7F);
         // and then full
-        enc = FULL_AND_LEAD_I3[full];
+        enc = FULL_AND_LEAD_I3[ones];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
         return off;
     }
 
-    private static int leading6(byte[] b, int off, int partial, int full)
+    private static int _outputUptoMillion(byte[] b, int off, int thousands, int ones)
     {
-        int enc = FULL_AND_LEAD_I3[partial];
-        if (partial > 9) {
-            if (partial > 99) {
+        int enc = FULL_AND_LEAD_I3[thousands];
+        if (thousands > 9) {
+            if (thousands > 99) {
                 b[off++] = (byte) (enc >> 16);
             }
             b[off++] = (byte) (enc >> 8);
         }
         b[off++] = (byte) enc;
         // and then full
-        enc = FULL_AND_LEAD_I3[full];
+        enc = FULL_AND_LEAD_I3[ones];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;
         return off;
     }
     
-    private static int leading3(int t, char[] b, int off)
+    private static int _leading3(int t, char[] b, int off)
     {
         int enc = FULL_AND_LEAD_I3[t];
         if (t > 9) {
@@ -432,7 +430,7 @@ public final class NumberOutput
         return off;
     }
 
-    private static int leading3(int t, byte[] b, int off)
+    private static int _leading3(int t, byte[] b, int off)
     {
         int enc = FULL_AND_LEAD_I3[t];
         if (t > 9) {
@@ -445,7 +443,7 @@ public final class NumberOutput
         return off;
     }
 
-    private static int full3(int t, char[] b, int off)
+    private static int _full3(int t, char[] b, int off)
     {
         int enc = FULL_AND_LEAD_I3[t];
         b[off++] = (char) (enc >> 16);
@@ -454,7 +452,7 @@ public final class NumberOutput
         return off;
     }
 
-    private static int full3(int t, byte[] b, int off)
+    private static int _full3(int t, byte[] b, int off)
     {
         int enc = FULL_AND_LEAD_I3[t];
         b[off++] = (byte) (enc >> 16);

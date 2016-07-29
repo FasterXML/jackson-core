@@ -732,7 +732,7 @@ public abstract class JsonParser
      *  return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getIntValue() : defaultValue;
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
-     * expects to get a String value next from input.
+     * expects to get an int value next from input.
      */
     public int nextIntValue(int defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getIntValue() : defaultValue;
@@ -747,7 +747,7 @@ public abstract class JsonParser
      *  return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
-     * expects to get a String value next from input.
+     * expects to get a long value next from input.
      */
     public long nextLongValue(long defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
@@ -765,7 +765,7 @@ public abstract class JsonParser
      *  return null;
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
-     * expects to get a String value next from input.
+     * expects to get a Boolean value next from input.
      */
     public Boolean nextBooleanValue() throws IOException {
         JsonToken t = nextToken();

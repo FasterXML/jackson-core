@@ -111,6 +111,17 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     /*
     /**********************************************************
+    /* Versioned
+    /**********************************************************
+     */
+
+    @Override
+    public Version version() {
+        return VersionUtil.versionFor(getClass());
+    }
+
+    /*
+    /**********************************************************
     /* Overridden configuration methods
     /**********************************************************
      */
@@ -176,17 +187,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         _rootValueSeparator = sep;
         return this;
     }
-    
-    /*
-    /**********************************************************
-    /* Versioned
-    /**********************************************************
-     */
-
-    @Override
-    public Version version() {
-        return VersionUtil.versionFor(getClass());
-    }
 
     /*
     /**********************************************************
@@ -201,5 +201,47 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     {
         writeFieldName(fieldName);
         writeString(value);
+    }
+
+    /*
+    /**********************************************************
+    /* Shared helper methods
+    /**********************************************************
+     */
+
+    protected void _verifyPrettyValueWrite(String typeMsg, int status) throws IOException
+    {
+        // If we have a pretty printer, it knows what to do:
+        switch (status) {
+        case JsonWriteContext.STATUS_OK_AFTER_COMMA: // array
+            _cfgPrettyPrinter.writeArrayValueSeparator(this);
+            break;
+        case JsonWriteContext.STATUS_OK_AFTER_COLON:
+            _cfgPrettyPrinter.writeObjectFieldValueSeparator(this);
+            break;
+        case JsonWriteContext.STATUS_OK_AFTER_SPACE:
+            _cfgPrettyPrinter.writeRootValueSeparator(this);
+            break;
+        case JsonWriteContext.STATUS_OK_AS_IS:
+            // First entry, but of which context?
+            if (_writeContext.inArray()) {
+                _cfgPrettyPrinter.beforeArrayValues(this);
+            } else if (_writeContext.inObject()) {
+                _cfgPrettyPrinter.beforeObjectEntries(this);
+            }
+            break;
+        case JsonWriteContext.STATUS_EXPECT_NAME:
+            _reportCantWriteValueExpectName(typeMsg);
+            break;
+        default:
+            _throwInternal();
+            break;
+        }
+    }
+
+    protected void _reportCantWriteValueExpectName(String typeMsg) throws IOException
+    {
+        _reportError(String.format("Can not %s, expecting field name (context: %s)",
+                typeMsg, _writeContext.typeDesc()));
     }
 }

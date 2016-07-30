@@ -1937,7 +1937,7 @@ public class UTF8StreamJsonParser
      * an escape sequence is detected (or alternatively for long
      * names, one crossing input buffer boundary).
      * Needs to be able to handle more exceptional cases, gets slower,
-     * and hance is offlined to a separate method.
+     * and hence is offlined to a separate method.
      */
     protected final String parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException

@@ -792,17 +792,17 @@ public final class WriterBasedJsonGenerator
     @Override
     protected void _verifyValueWrite(String typeMsg) throws IOException
     {
+        final int status = _writeContext.writeValue();
         if (_cfgPrettyPrinter != null) {
             // Otherwise, pretty printer knows what to do...
-            _verifyPrettyValueWrite(typeMsg);
+            _verifyPrettyValueWrite(typeMsg, status);
             return;
         }
         char c;
-        final int status = _writeContext.writeValue();
-        if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
-            _reportError("Can not "+typeMsg+", expecting field name");
-        }
         switch (status) {
+        case JsonWriteContext.STATUS_OK_AS_IS:
+        default:
+            return;
         case JsonWriteContext.STATUS_OK_AFTER_COMMA:
             c = ',';
             break;
@@ -814,47 +814,14 @@ public final class WriterBasedJsonGenerator
                 writeRaw(_rootValueSeparator.getValue());
             }
             return;
-        case JsonWriteContext.STATUS_OK_AS_IS:
-        default:
+        case JsonWriteContext.STATUS_EXPECT_NAME:
+            _reportCantWriteValueExpectName(typeMsg);
             return;
         }
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
-        _outputBuffer[_outputTail] = c;
-        ++_outputTail;
-    }
-
-    protected void _verifyPrettyValueWrite(String typeMsg) throws IOException
-    {
-        final int status = _writeContext.writeValue();
-        if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
-            _reportError("Can not "+typeMsg+", expecting field name");
-        }
-
-        // If we have a pretty printer, it knows what to do:
-        switch (status) {
-        case JsonWriteContext.STATUS_OK_AFTER_COMMA: // array
-            _cfgPrettyPrinter.writeArrayValueSeparator(this);
-            break;
-        case JsonWriteContext.STATUS_OK_AFTER_COLON:
-            _cfgPrettyPrinter.writeObjectFieldValueSeparator(this);
-            break;
-        case JsonWriteContext.STATUS_OK_AFTER_SPACE:
-            _cfgPrettyPrinter.writeRootValueSeparator(this);
-            break;
-        case JsonWriteContext.STATUS_OK_AS_IS:
-            // First entry, but of which context?
-            if (_writeContext.inArray()) {
-                _cfgPrettyPrinter.beforeArrayValues(this);
-            } else if (_writeContext.inObject()) {
-                _cfgPrettyPrinter.beforeObjectEntries(this);
-            }
-            break;
-        default:
-            _throwInternal();
-            break;
-        }
+        _outputBuffer[_outputTail++] = c;
     }
 
     /*

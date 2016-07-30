@@ -952,67 +952,39 @@ public class UTF8JsonGenerator
     @Override
     protected final void _verifyValueWrite(String typeMsg) throws IOException
     {
-        int status = _writeContext.writeValue();
-        if (status == JsonWriteContext.STATUS_EXPECT_NAME) {
-            _reportError("Can not "+typeMsg+", expecting field name");
-        }
-        if (_cfgPrettyPrinter == null) {
-            byte b;
-            switch (status) {
-            case JsonWriteContext.STATUS_OK_AFTER_COMMA:
-                b = BYTE_COMMA;
-                break;
-            case JsonWriteContext.STATUS_OK_AFTER_COLON:
-                b = BYTE_COLON;
-                break;
-            case JsonWriteContext.STATUS_OK_AFTER_SPACE: // root-value separator
-                if (_rootValueSeparator != null) {
-                    byte[] raw = _rootValueSeparator.asUnquotedUTF8();
-                    if (raw.length > 0) {
-                        _writeBytes(raw);
-                    }
-                }
-                return;
-            case JsonWriteContext.STATUS_OK_AS_IS:
-            default:
-                return;
-            }
-            if (_outputTail >= _outputEnd) {
-                _flushBuffer();
-            }
-            _outputBuffer[_outputTail] = b;
-            ++_outputTail;
+        final int status = _writeContext.writeValue();
+        if (_cfgPrettyPrinter != null) {
+            // Otherwise, pretty printer knows what to do...
+            _verifyPrettyValueWrite(typeMsg, status);
             return;
         }
-        // Otherwise, pretty printer knows what to do...
-        _verifyPrettyValueWrite(typeMsg, status);
-    }
-
-    protected final void _verifyPrettyValueWrite(String typeMsg, int status) throws IOException
-    {
-        // If we have a pretty printer, it knows what to do:
+        byte b;
         switch (status) {
-        case JsonWriteContext.STATUS_OK_AFTER_COMMA: // array
-            _cfgPrettyPrinter.writeArrayValueSeparator(this);
+        case JsonWriteContext.STATUS_OK_AS_IS:
+        default:
+            return;
+        case JsonWriteContext.STATUS_OK_AFTER_COMMA:
+            b = BYTE_COMMA;
             break;
         case JsonWriteContext.STATUS_OK_AFTER_COLON:
-            _cfgPrettyPrinter.writeObjectFieldValueSeparator(this);
+            b = BYTE_COLON;
             break;
-        case JsonWriteContext.STATUS_OK_AFTER_SPACE:
-            _cfgPrettyPrinter.writeRootValueSeparator(this);
-            break;
-        case JsonWriteContext.STATUS_OK_AS_IS:
-            // First entry, but of which context?
-            if (_writeContext.inArray()) {
-                _cfgPrettyPrinter.beforeArrayValues(this);
-            } else if (_writeContext.inObject()) {
-                _cfgPrettyPrinter.beforeObjectEntries(this);
+        case JsonWriteContext.STATUS_OK_AFTER_SPACE: // root-value separator
+            if (_rootValueSeparator != null) {
+                byte[] raw = _rootValueSeparator.asUnquotedUTF8();
+                if (raw.length > 0) {
+                    _writeBytes(raw);
+                }
             }
-            break;
-        default:
-            _throwInternal();
-            break;
+            return;
+        case JsonWriteContext.STATUS_EXPECT_NAME:
+            _reportCantWriteValueExpectName(typeMsg);
+            return;
         }
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = b;
     }
 
     /*

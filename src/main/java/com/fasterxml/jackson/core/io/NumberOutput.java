@@ -11,14 +11,14 @@ public final class NumberOutput
 
     final static String SMALLEST_INT = String.valueOf(Integer.MIN_VALUE);
     final static String SMALLEST_LONG = String.valueOf(Long.MIN_VALUE);
-    
+
     /**
      * Encoded representations of 3-decimal-digit indexed values, where
      * 3 LSB are ascii characters
      *
      * @since 2.8.2
      */
-    private final static int[] FULL_AND_LEAD_I3 = new int[1000];
+    private final static int[] TRIPLET_TO_CHARS = new int[1000];
 
     static {
         /* Let's fill it with NULLs for ignorable leading digits,
@@ -31,7 +31,7 @@ public final class NumberOutput
                     int enc = ((i1 + '0') << 16)
                             | ((i2 + '0') << 8)
                             | (i3 + '0');
-                    FULL_AND_LEAD_I3[fullIx++] = enc;
+                    TRIPLET_TO_CHARS[fullIx++] = enc;
                 }
             }
         }
@@ -288,12 +288,12 @@ public final class NumberOutput
 
         off = _leading3(millions, b, off);
 
-        int enc = FULL_AND_LEAD_I3[thousands];
+        int enc = TRIPLET_TO_CHARS[thousands];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
 
-        enc = FULL_AND_LEAD_I3[ones];
+        enc = TRIPLET_TO_CHARS[ones];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
@@ -307,18 +307,18 @@ public final class NumberOutput
         int ones = (v - (thousands * 1000)); // == value % 1000
         int millions = thousands / 1000;
 
-        int enc = FULL_AND_LEAD_I3[millions];
+        int enc = TRIPLET_TO_CHARS[millions];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
 
         thousands -= (millions * 1000);
-        enc = FULL_AND_LEAD_I3[thousands];
+        enc = TRIPLET_TO_CHARS[thousands];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
 
-        enc = FULL_AND_LEAD_I3[ones];
+        enc = TRIPLET_TO_CHARS[ones];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
@@ -343,12 +343,12 @@ public final class NumberOutput
 
         off = _leading3(millions, b, off);
 
-        int enc = FULL_AND_LEAD_I3[thousands];
+        int enc = TRIPLET_TO_CHARS[thousands];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;
 
-        enc = FULL_AND_LEAD_I3[ones];
+        enc = TRIPLET_TO_CHARS[ones];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;
@@ -363,17 +363,17 @@ public final class NumberOutput
         int millions = thousands / 1000;
         thousands -= (millions * 1000);
 
-        int enc = FULL_AND_LEAD_I3[millions];
+        int enc = TRIPLET_TO_CHARS[millions];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;
 
-        enc = FULL_AND_LEAD_I3[thousands];
+        enc = TRIPLET_TO_CHARS[thousands];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;
 
-        enc = FULL_AND_LEAD_I3[ones];
+        enc = TRIPLET_TO_CHARS[ones];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;
@@ -383,7 +383,7 @@ public final class NumberOutput
 
     private static int _outputUptoMillion(char[] b, int off, int thousands, int ones)
     {
-        int enc = FULL_AND_LEAD_I3[thousands];
+        int enc = TRIPLET_TO_CHARS[thousands];
         if (thousands > 9) {
             if (thousands > 99) {
                 b[off++] = (char) (enc >> 16);
@@ -392,7 +392,7 @@ public final class NumberOutput
         }
         b[off++] = (char) (enc & 0x7F);
         // and then full
-        enc = FULL_AND_LEAD_I3[ones];
+        enc = TRIPLET_TO_CHARS[ones];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
@@ -401,7 +401,7 @@ public final class NumberOutput
 
     private static int _outputUptoMillion(byte[] b, int off, int thousands, int ones)
     {
-        int enc = FULL_AND_LEAD_I3[thousands];
+        int enc = TRIPLET_TO_CHARS[thousands];
         if (thousands > 9) {
             if (thousands > 99) {
                 b[off++] = (byte) (enc >> 16);
@@ -410,7 +410,7 @@ public final class NumberOutput
         }
         b[off++] = (byte) enc;
         // and then full
-        enc = FULL_AND_LEAD_I3[ones];
+        enc = TRIPLET_TO_CHARS[ones];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;
@@ -419,7 +419,7 @@ public final class NumberOutput
     
     private static int _leading3(int t, char[] b, int off)
     {
-        int enc = FULL_AND_LEAD_I3[t];
+        int enc = TRIPLET_TO_CHARS[t];
         if (t > 9) {
             if (t > 99) {
                 b[off++] = (char) (enc >> 16);
@@ -432,7 +432,7 @@ public final class NumberOutput
 
     private static int _leading3(int t, byte[] b, int off)
     {
-        int enc = FULL_AND_LEAD_I3[t];
+        int enc = TRIPLET_TO_CHARS[t];
         if (t > 9) {
             if (t > 99) {
                 b[off++] = (byte) (enc >> 16);
@@ -445,7 +445,7 @@ public final class NumberOutput
 
     private static int _full3(int t, char[] b, int off)
     {
-        int enc = FULL_AND_LEAD_I3[t];
+        int enc = TRIPLET_TO_CHARS[t];
         b[off++] = (char) (enc >> 16);
         b[off++] = (char) ((enc >> 8) & 0x7F);
         b[off++] = (char) (enc & 0x7F);
@@ -454,7 +454,7 @@ public final class NumberOutput
 
     private static int _full3(int t, byte[] b, int off)
     {
-        int enc = FULL_AND_LEAD_I3[t];
+        int enc = TRIPLET_TO_CHARS[t];
         b[off++] = (byte) (enc >> 16);
         b[off++] = (byte) (enc >> 8);
         b[off++] = (byte) enc;

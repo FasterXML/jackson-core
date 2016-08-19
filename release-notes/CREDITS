@@ -79,8 +79,12 @@ Lokesh Kumar N (LokeshN@github)
   * Contributed #209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`
    (2.7.4)
 
-
 Tanguy Leroux (tlrx@github)
   * Reported, contributed fix for #280: FilteringGeneratorDelegate.writeUTF8String()
     should delegate to writeUTF8String()
    (2.7.5)
+
+Mike Naseef (mtnaseef@github)
+  * Reported #307: JsonGenerationException: Split surrogate on writeRaw() input thrown for
+   input of a certain size
+   (2.7.7)

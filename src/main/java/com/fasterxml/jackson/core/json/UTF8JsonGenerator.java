@@ -515,39 +515,50 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public void writeRaw(String text)
-        throws IOException, JsonGenerationException
-    {
-        int start = 0;
-        int len = text.length();
-        while (len > 0) {
-            char[] buf = _charBuffer;
-            final int blen = buf.length;
-            final int len2 = (len < blen) ? len : blen;
-            text.getChars(start, start+len2, buf, 0);
-            writeRaw(buf, 0, len2);
-            start += len2;
-            len -= len2;
-        }
+    public void writeRaw(String text) throws IOException {
+        writeRaw(text, 0, text.length());
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len)
-        throws IOException, JsonGenerationException
+    public void writeRaw(String text, int offset, int len) throws IOException
     {
+        final char[] buf = _charBuffer;
+
+        // minor optimization: see if we can just get and copy
+        if (len <= buf.length) {
+            text.getChars(offset, offset+len, buf, 0);
+            _writeRawSegment(buf, 0, len);
+            return;
+        }
+
+        // If not, need segmented approach. For speed, let's also use input buffer
+        // size that is guaranteed to fit in output buffer; each char can expand to
+        // at most 3 bytes, so at most 1/3 of buffer size.
+        final int maxChunk = (_outputEnd >> 2) + (_outputEnd >> 4); // == (1/4 + 1/16) == 5/16
+        final int maxBytes = maxChunk * 3;
+
         while (len > 0) {
-            char[] buf = _charBuffer;
-            final int blen = buf.length;
-            final int len2 = (len < blen) ? len : blen;
+            int len2 = Math.min(maxChunk, len);
             text.getChars(offset, offset+len2, buf, 0);
-            writeRaw(buf, 0, len2);
+            if ((_outputTail + maxBytes) > _outputEnd) {
+                _flushBuffer();
+            }
+            // If this is NOT the last segment and if the last character looks like
+            // split surrogate second half, drop it
+            if (len > 0) {
+                char ch = buf[len2-1];
+                if ((ch >= SURR1_FIRST) && (ch <= SURR1_LAST)) {
+                    --len2;
+                }
+            }
+            _writeRawSegment(buf, 0, len2);
             offset += len2;
             len -= len2;
         }
     }
 
     @Override
-    public void writeRaw(SerializableString text) throws IOException, JsonGenerationException
+    public void writeRaw(SerializableString text) throws IOException
     {
         byte[] raw = text.asUnquotedUTF8();
         if (raw.length > 0) {
@@ -567,8 +578,7 @@ public class UTF8JsonGenerator
 
     // @TODO: rewrite for speed...
     @Override
-    public final void writeRaw(char[] cbuf, int offset, int len)
-        throws IOException, JsonGenerationException
+    public final void writeRaw(char[] cbuf, int offset, int len) throws IOException
     {
         // First: if we have 3 x charCount spaces, we know it'll fit just fine
         {
@@ -610,8 +620,7 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public void writeRaw(char ch)
-        throws IOException, JsonGenerationException
+    public void writeRaw(char ch) throws IOException
     {
         if ((_outputTail + 3) >= _outputEnd) {
             _flushBuffer();
@@ -631,14 +640,14 @@ public class UTF8JsonGenerator
      * Helper method called when it is possible that output of raw section
      * to output may cross buffer boundary
      */
-    private final void _writeSegmentedRaw(char[] cbuf, int offset, int len)
-        throws IOException, JsonGenerationException
+    private final void _writeSegmentedRaw(char[] cbuf, int offset, int len) throws IOException
     {
         final int end = _outputEnd;
         final byte[] bbuf = _outputBuffer;
+        final int inputEnd = offset + len;
         
         main_loop:
-        while (offset < len) {
+        while (offset < inputEnd) {
             inner_loop:
             while (true) {
                 int ch = (int) cbuf[offset];
@@ -650,7 +659,7 @@ public class UTF8JsonGenerator
                     _flushBuffer();
                 }
                 bbuf[_outputTail++] = (byte) ch;
-                if (++offset >= len) {
+                if (++offset >= inputEnd) {
                     break main_loop;
                 }
             }
@@ -662,11 +671,45 @@ public class UTF8JsonGenerator
                 bbuf[_outputTail++] = (byte) (0xc0 | (ch >> 6));
                 bbuf[_outputTail++] = (byte) (0x80 | (ch & 0x3f));
             } else {
-                offset = _outputRawMultiByteChar(ch, cbuf, offset, len);
+                offset = _outputRawMultiByteChar(ch, cbuf, offset, inputEnd);
             }
         }
     }
-    
+
+    /**
+     * Helper method that is called for segmented write of raw content
+     * when explicitly outputting a segment of longer thing.
+     * Caller has to take care of ensuring there's no split surrogate
+     * pair at the end (that is, last char can not be first part of a
+     * surrogate char pair).
+     *
+     * @since 2.8.2
+     */
+    private void _writeRawSegment(char[] cbuf, int offset, int end) throws IOException
+    {
+        main_loop:
+        while (offset < end) {
+            inner_loop:
+            while (true) {
+                int ch = (int) cbuf[offset];
+                if (ch > 0x7F) {
+                    break inner_loop;
+                }
+                _outputBuffer[_outputTail++] = (byte) ch;
+                if (++offset >= end) {
+                    break main_loop;
+                }
+            }
+            char ch = cbuf[offset++];
+            if (ch < 0x800) { // 2-byte?
+                _outputBuffer[_outputTail++] = (byte) (0xc0 | (ch >> 6));
+                _outputBuffer[_outputTail++] = (byte) (0x80 | (ch & 0x3f));
+            } else {
+                offset = _outputRawMultiByteChar(ch, cbuf, offset, end);
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Output method implementations, base64-encoded binary
@@ -1873,18 +1916,19 @@ public class UTF8JsonGenerator
      * 1- and 2-byte UTF-8 encodings, when outputting "raw" 
      * text (meaning it is not to be escaped or quoted)
      */
-    private final int _outputRawMultiByteChar(int ch, char[] cbuf, int inputOffset, int inputLen)
+    private final int _outputRawMultiByteChar(int ch, char[] cbuf, int inputOffset, int inputEnd)
         throws IOException
     {
         // Let's handle surrogates gracefully (as 4 byte output):
         if (ch >= SURR1_FIRST) {
             if (ch <= SURR2_LAST) { // yes, outside of BMP
                 // Do we have second part?
-                if (inputOffset >= inputLen || cbuf == null) { // nope... have to note down
-                    _reportError("Split surrogate on writeRaw() input (last character)");
+                if (inputOffset >= inputEnd || cbuf == null) { // nope... have to note down
+                    _reportError(String.format(
+"Split surrogate on writeRaw() input (last character): first character 0x%4x", ch));
                 }
                 _outputSurrogates(ch, cbuf[inputOffset]);
-                return (inputOffset+1);
+                return inputOffset+1;
             }
         }
         final byte[] bbuf = _outputBuffer;

@@ -90,6 +90,11 @@ Tanguy Leroux (tlrx@github)
     should delegate to writeUTF8String()
    (2.7.5)
 
+Mike Naseef (mtnaseef@github)
+  * Reported #307: JsonGenerationException: Split surrogate on writeRaw() input thrown for
+   input of a certain size
+   (2.7.7)
+
 Mikael Staldal (mikaelstaldal@github)
   * Contributed fix for #265: `JsonStringEncoder` should allow passing `CharSequence`
    (2.8.0)

@@ -516,7 +516,14 @@ public class UTF8JsonGenerator
 
     @Override
     public void writeRaw(String text) throws IOException {
-        writeRaw(text, 0, text.length());
+        final int len = text.length();
+        final char[] buf = _charBuffer;
+        if (len <= buf.length) {
+            text.getChars(0, len, buf, 0);
+            writeRaw(buf, 0, len);
+        } else {
+            writeRaw(text, 0, len);
+        }
     }
 
     @Override
@@ -527,7 +534,7 @@ public class UTF8JsonGenerator
         // minor optimization: see if we can just get and copy
         if (len <= buf.length) {
             text.getChars(offset, offset+len, buf, 0);
-            _writeRawSegment(buf, 0, len);
+            writeRaw(buf, 0, len);
             return;
         }
 

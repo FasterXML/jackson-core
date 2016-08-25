@@ -1028,9 +1028,8 @@ public abstract class ParserBase extends ParserMinimalBase
          */
     
         if ((_numTypesValid & NR_DOUBLE) != 0) {
-            /* Let's actually parse from String representation,
-             * to avoid rounding errors that non-decimal floating operations
-             * would incur
+            /* Let's actually parse from String representation, to avoid
+             * rounding errors that non-decimal floating operations could incur
              */
             _numberBigDecimal = NumberInput.parseBigDecimal(getText());
         } else if ((_numTypesValid & NR_BIGINT) != 0) {

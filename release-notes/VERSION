@@ -19,6 +19,8 @@ JSON library.
 #307: JsonGenerationException: Split surrogate on writeRaw() input thrown for
   input of a certain size
  (reported by Mike N)
+#315: `OutOfMemoryError` when writing BigDecimal
+ (reported by gmethwin@github)
 
 2.7.6 (23-Jul-2016)
 

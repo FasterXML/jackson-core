@@ -906,14 +906,10 @@ public class UTF8JsonGenerator
         _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
             _writeNull();
-        } else if (_cfgNumbersAsStrings) {
-            String raw = Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_features)
-                    ? value.toPlainString() : value.toString();
-            _writeQuotedRaw(raw);
-        } else if (Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_features)) {
-            writeRaw(value.toPlainString());
+        } else  if (_cfgNumbersAsStrings) {
+            _writeQuotedRaw(_asString(value));
         } else {
-            writeRaw(value.toString());
+            writeRaw(_asString(value));
         }
     }
 

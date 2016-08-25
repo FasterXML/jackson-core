@@ -17,10 +17,10 @@ public class TestJsonGeneratorFeatures
 
     public void testConfigDefaults() throws IOException
     {
-        JsonGenerator jg = JSON_F.createGenerator(new StringWriter());
-        assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
-        assertFalse(jg.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
-        jg.close();
+        JsonGenerator g = JSON_F.createGenerator(new StringWriter());
+        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
+        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        g.close();
     }
 
     public void testFieldNameQuoting() throws IOException
@@ -65,7 +65,7 @@ public class TestJsonGeneratorFeatures
                      _writeNumbers(jf));
     }
 
-    // [Issue#85]
+    // [core#85]
     public void testBigDecimalAsPlain() throws IOException
     {
         JsonFactory jf = new JsonFactory();
@@ -85,7 +85,7 @@ public class TestJsonGeneratorFeatures
         assertEquals("100", sw.toString());
     }
 
-    // [issue#184]
+    // [core#184]
     public void testBigDecimalAsPlainString() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -105,6 +105,61 @@ public class TestJsonGeneratorFeatures
         jg.writeNumber(ENG);
         jg.close();
         assertEquals(quote("100"), bos.toString("UTF-8"));
+    }
+
+    // [core#315]
+    public void testTooBigBigDecimal() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        f.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+
+        // 24-Aug-2016, tatu: Initial check limits scale to [-9999,+9999]
+        BigDecimal BIG = new BigDecimal("1E+9999");
+        BigDecimal TOO_BIG = new BigDecimal("1E+10000");
+        BigDecimal SMALL = new BigDecimal("1E-9999");
+        BigDecimal TOO_SMALL = new BigDecimal("1E-10000");
+
+        for (boolean useBytes : new boolean[] { false, true } ) {
+            for (boolean asString : new boolean[] { false, true } ) {
+                JsonGenerator g;
+                
+                if (useBytes) {
+                    g = f.createGenerator(new ByteArrayOutputStream());
+                } else {
+                    g = f.createGenerator(new StringWriter());
+                }
+                if (asString) {
+                    g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+                }
+
+                // first, ok cases:
+                g.writeStartArray();
+                g.writeNumber(BIG);
+                g.writeNumber(SMALL);
+                g.writeEndArray();
+                g.close();
+
+                // then invalid
+                for (BigDecimal input : new BigDecimal[] { TOO_BIG, TOO_SMALL }) {
+                    if (useBytes) {
+                        g = f.createGenerator(new ByteArrayOutputStream());
+                    } else {
+                        g = f.createGenerator(new StringWriter());
+                    }
+                    if (asString) {
+                        g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+                    }
+                    try {
+                        g.writeNumber(input);
+                        fail("Should not have written without exception: "+input);
+                    } catch (JsonGenerationException e) {
+                        verifyException(e, "Attempt to write plain `java.math.BigDecimal`");
+                        verifyException(e, "illegal scale");
+                    }
+                    g.close();
+                }
+            }
+        }
     }
     
     private String _writeNumbers(JsonFactory jf) throws IOException

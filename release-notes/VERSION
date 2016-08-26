@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.7 (not yet released)
+2.7.7 (26-Aug-2016)
 
 #307: JsonGenerationException: Split surrogate on writeRaw() input thrown for
   input of a certain size

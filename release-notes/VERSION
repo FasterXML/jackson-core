@@ -14,6 +14,12 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.8 (not yet released)
+
+#317: ArrayIndexOutOfBoundsException: 200 on floating point number with exactly
+  200-length decimal part
+ (reported by Allar H)
+
 2.7.7 (27-Aug-2016)
 
 #307: JsonGenerationException: Split surrogate on writeRaw() input thrown for

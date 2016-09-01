@@ -1541,6 +1541,10 @@ public class UTF8StreamJsonParser
 
         // And then see if we get other parts
         if (c == INT_PERIOD) { // yes, fraction
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
             outBuf[outPtr++] = (char) c;
 
             fract_loop:
@@ -1615,7 +1619,7 @@ public class UTF8StreamJsonParser
         // Ok; unless we hit end-of-input, need to push last char read back
         if (!eof) {
             --_inputPtr;
-            // As per #105, need separating space between root values; check here
+            // As per [core#105], need separating space between root values; check here
             if (_parsingContext.inRoot()) {
                 _verifyRootSpace(c);
             }

@@ -88,3 +88,8 @@ Mike Naseef (mtnaseef@github)
   * Reported #307: JsonGenerationException: Split surrogate on writeRaw() input thrown for
    input of a certain size
    (2.7.7)
+
+Allar Haav (haav@github)
+  * Reportef #317: ArrayIndexOutOfBoundsException: 200 on floating point number with exactly
+  200-length decimal part
+   (2.7.8)

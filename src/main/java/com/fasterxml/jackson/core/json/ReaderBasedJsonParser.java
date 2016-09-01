@@ -1415,6 +1415,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         int fractLen = 0;
         // And then see if we get other parts
         if (c == '.') { // yes, fraction
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
             outBuf[outPtr++] = c;
 
             fract_loop:

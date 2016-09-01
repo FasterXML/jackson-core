@@ -95,6 +95,11 @@ Mike Naseef (mtnaseef@github)
    input of a certain size
    (2.7.7)
 
+Allar Haav (haav@github)
+  * Reportef #317: ArrayIndexOutOfBoundsException: 200 on floating point number with exactly
+  200-length decimal part
+   (2.7.8)
+
 Mikael Staldal (mikaelstaldal@github)
   * Contributed fix for #265: `JsonStringEncoder` should allow passing `CharSequence`
    (2.8.0)

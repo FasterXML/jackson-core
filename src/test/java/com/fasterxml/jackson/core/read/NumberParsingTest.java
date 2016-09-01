@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core.read;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -561,7 +564,36 @@ public class NumberParsingTest
         }
         p.close();
     }
-    
+
+    // [core#317]
+    public void testLongerFloatingPoint() throws Exception
+    {
+        StringBuilder input = new StringBuilder();
+        for (int i = 1; i < 201; i++) {
+            input.append(1);
+        }
+        input.append(".0");
+        final String DOC = input.toString();
+
+        // test out with both Reader and ByteArrayInputStream
+        JsonParser p;
+
+        p = FACTORY.createParser(new StringReader(DOC));
+        _testLongerFloat(p, DOC);
+        p.close();
+        
+        p = FACTORY.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")));
+        _testLongerFloat(p, DOC);
+        p.close();
+    }
+
+    private void _testLongerFloat(JsonParser p, String text) throws IOException
+    {
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(text, p.getText());
+        assertNull(p.nextToken());
+    }
+
     /*
     /**********************************************************
     /* Helper methods

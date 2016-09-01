@@ -20,6 +20,8 @@ JSON library.
 
 2.8.3 (not yet released)
 
+#318: Add support for writing `byte[]` via `JsonGenerator.writeEmbeddedObject()`
+
 2.8.2 (30-Aug-2016)
 2.8.1 (20-Jul-2016)
 

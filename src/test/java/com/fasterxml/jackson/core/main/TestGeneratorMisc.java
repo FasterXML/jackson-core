@@ -15,6 +15,8 @@ import com.fasterxml.jackson.core.*;
 public class TestGeneratorMisc
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = new JsonFactory();
+
     /*
     /**********************************************************
     /* Tests for closing, status
@@ -23,12 +25,11 @@ public class TestGeneratorMisc
 
     public void testIsClosed() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
         for (int i = 0; i < 2; ++i) {
             boolean stream = ((i & 1) == 0);
             JsonGenerator jg = stream ?
-                jf.createGenerator(new StringWriter())
-                : jf.createGenerator(new ByteArrayOutputStream(), JsonEncoding.UTF8)
+                    JSON_F.createGenerator(new StringWriter())
+                : JSON_F.createGenerator(new ByteArrayOutputStream(), JsonEncoding.UTF8)
                 ;
             assertFalse(jg.isClosed());
             jg.writeStartArray();
@@ -46,9 +47,8 @@ public class TestGeneratorMisc
     public void testSimpleWriteObject() throws IOException
     {
         // note: NOT mapping factory, for this test
-        JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(sw);
         gen.writeStartArray();
 
         // simple wrappers first
@@ -65,7 +65,7 @@ public class TestGeneratorMisc
         
         // then other basic types
         sw = new StringWriter();
-        gen = jf.createGenerator(sw);
+        gen = JSON_F.createGenerator(sw);
         gen.writeStartArray();
         gen.writeObject(BigInteger.valueOf(1234));
         gen.writeObject(new BigDecimal(0.5));
@@ -76,7 +76,7 @@ public class TestGeneratorMisc
 
         // then Atomic types
         sw = new StringWriter();
-        gen = jf.createGenerator(sw);
+        gen = JSON_F.createGenerator(sw);
         gen.writeStartArray();
         gen.writeObject(new AtomicBoolean(false));
         gen.writeObject(new AtomicInteger(13));
@@ -95,9 +95,8 @@ public class TestGeneratorMisc
 
     public void testRaw() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(sw);
         gen.writeStartArray();
         gen.writeRaw("-123, true");
         gen.writeRaw(", \"x\"  ");
@@ -118,9 +117,8 @@ public class TestGeneratorMisc
 
     public void testRawValue() throws IOException
     {
-        JsonFactory jf = new JsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(sw);
         gen.writeStartArray();
         gen.writeRawValue("7");
         gen.writeRawValue("[ null ]");
@@ -141,93 +139,6 @@ public class TestGeneratorMisc
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         jp.close();
     }
-    
-    /*
-    /**********************************************************
-    /* Tests for binary data
-    /**********************************************************
-     */
-
-    /**
-     * This is really inadequate test, all in all, but should serve
-     * as some kind of sanity check. Reader-side should more thoroughly
-     * test things, as it does need writers to construct the data first.
-     */
-    public void testBinaryWrite() throws Exception
-    {
-        _testBinaryWrite(false);
-        _testBinaryWrite(true);
-    }
-
-    private void _testBinaryWrite(boolean useCharBased) throws Exception
-    {
-        /* The usual sample input string, from Thomas Hobbes's "Leviathan"
-         * (via Wikipedia)
-         */
-        final String INPUT = "Man is distinguished, not only by his reason, but by this singular passion from other animals, which is a lust of the mind, that by a perseverance of delight in the continued and indefatigable generation of knowledge, exceeds the short vehemence of any carnal pleasure.";
-        final byte[] INPUT_BYTES = INPUT.getBytes("US-ASCII");
-        // as per MIME variant, result minus lfs =
-        final String OUTPUT =
- "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz"
-+"IHNpbmd1bGFyIHBhc3Npb24gZnJvbSBvdGhlciBhbmltYWxzLCB3aGljaCBpcyBhIGx1c3Qgb2Yg"
-+"dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu"
-+"dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo"
-+"ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4="
-            ;
-
-        /* Let's only test the standard base64 variant; but write
-         * values in root, array and object contexts.
-         */
-        Base64Variant b64v = Base64Variants.getDefaultVariant();
-        JsonFactory jf = new JsonFactory();
-
-        for (int i = 0; i < 3; ++i) {
-            JsonGenerator gen;
-            ByteArrayOutputStream bout = new ByteArrayOutputStream(200);
-            if (useCharBased) {
-                gen = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
-            } else {
-                gen = jf.createGenerator(bout, JsonEncoding.UTF8);
-            }
-
-            switch (i) {
-            case 0: // root
-                gen.writeBinary(b64v, INPUT_BYTES, 0, INPUT_BYTES.length);
-                break;
-            case 1: // array
-                gen.writeStartArray();
-                gen.writeBinary(b64v, INPUT_BYTES, 0, INPUT_BYTES.length);
-                gen.writeEndArray();
-                break;
-            default: // object
-                gen.writeStartObject();
-                gen.writeFieldName("field");
-                gen.writeBinary(b64v, INPUT_BYTES, 0, INPUT_BYTES.length);
-                gen.writeEndObject();
-                break;
-            }
-            gen.close();
-
-            JsonParser jp = jf.createParser(new ByteArrayInputStream(bout.toByteArray()));
-            
-            // Need to skip other events before binary data:
-            switch (i) {
-            case 0:
-                break;
-            case 1:
-                assertEquals(JsonToken.START_ARRAY, jp.nextToken());
-                break;
-            default:
-                assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-                assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-                break;
-            }
-            assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-            String actualValue = jp.getText();
-            jp.close();
-            assertEquals(OUTPUT, actualValue);
-        }
-    }
 
     /*
     /**********************************************************
@@ -240,10 +151,9 @@ public class TestGeneratorMisc
      */
     public void testLongerObjects() throws Exception
     {
-        final JsonFactory jf = new JsonFactory();
-        _testLongerObjects(jf, 0);
-        _testLongerObjects(jf, 1);
-        _testLongerObjects(jf, 2);
+        _testLongerObjects(JSON_F, 0);
+        _testLongerObjects(JSON_F, 1);
+        _testLongerObjects(JSON_F, 2);
     }
 
     public void _testLongerObjects(JsonFactory jf, int mode) throws Exception
@@ -315,5 +225,41 @@ public class TestGeneratorMisc
         }
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.close();
+    }
+
+    /*
+    /**********************************************************
+    /* Tests, other
+    /**********************************************************
+     */
+
+    // NOTE: test for binary data under `base64/` tests
+    public void testAsEmbedded() throws Exception
+    {
+        JsonGenerator g;
+
+        StringWriter sw = new StringWriter();
+        g = JSON_F.createGenerator(sw);
+        g.writeEmbeddedObject(null);
+        g.close();
+        assertEquals("null", sw.toString());
+
+        ByteArrayOutputStream bytes =  new ByteArrayOutputStream(100);
+        g = JSON_F.createGenerator(bytes);
+        g.writeEmbeddedObject(null);
+        g.close();
+        assertEquals("null", bytes.toString("UTF-8"));
+
+        // also, for fun, try illegal unknown thingy
+
+        try {
+            g = JSON_F.createGenerator(bytes);
+            // try writing a Class object
+            g.writeEmbeddedObject(getClass());
+            fail("Expected an exception");
+            g.close(); // never gets here
+        } catch (JsonGenerationException e) {
+            verifyException(e, "No native support for");
+        }
     }
 }

@@ -20,6 +20,11 @@ import com.fasterxml.jackson.core.io.NumberInput;
 public class JsonPointer
 {
     /**
+     * Character used to separate segments.
+     */
+    public final static char SEPARATOR = '/';
+    
+    /**
      * Marker instance used to represent segment that matches current
      * node or position (that is, returns true for
      * {@link #matches()}).

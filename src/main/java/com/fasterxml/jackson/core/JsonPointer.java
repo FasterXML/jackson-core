@@ -21,9 +21,11 @@ public class JsonPointer
 {
     /**
      * Character used to separate segments.
+     *
+     * @since 2.9
      */
     public final static char SEPARATOR = '/';
-    
+
     /**
      * Marker instance used to represent segment that matches current
      * node or position (that is, returns true for
@@ -402,7 +404,7 @@ public class JsonPointer
         if (c == '0') {
             c = '~';
         } else if (c == '1') {
-            c = '/';
+            c = '/'g;
         } else {
             sb.append('~');
         }

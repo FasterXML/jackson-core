@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.7.8 (not yet released)
+2.7.8 (26-Sep-2016)
 
 #317: ArrayIndexOutOfBoundsException: 200 on floating point number with exactly
   200-length decimal part

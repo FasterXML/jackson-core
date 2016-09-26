@@ -404,7 +404,7 @@ public class JsonPointer
         if (c == '0') {
             c = '~';
         } else if (c == '1') {
-            c = '/'g;
+            c = '/';
         } else {
             sb.append('~');
         }

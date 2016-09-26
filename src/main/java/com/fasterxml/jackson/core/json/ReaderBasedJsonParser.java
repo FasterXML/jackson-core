@@ -931,7 +931,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
 
         JsonToken token = getToken(i);
-        
+
         _nextToken = token;
         return name;
     }

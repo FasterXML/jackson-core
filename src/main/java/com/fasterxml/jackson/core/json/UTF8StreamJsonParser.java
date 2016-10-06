@@ -3510,7 +3510,8 @@ public class UTF8StreamJsonParser
           * regular Java identifier character rules. It's just a heuristic,
           * nothing fancy here (nor fast).
           */
-         while (true) {
+         final int maxTokenLength = 256;
+         while (sb.length() < maxTokenLength) {
              if (_inputPtr >= _inputEnd && !_loadMore()) {
                  break;
              }
@@ -3520,6 +3521,9 @@ public class UTF8StreamJsonParser
                  break;
              }
              sb.append(c);
+         }
+         if (sb.length() == maxTokenLength) {
+                sb.append("...");
          }
          _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
      }

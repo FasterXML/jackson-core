@@ -2819,7 +2819,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
          * regular Java identifier character rules. It's just a heuristic,
          * nothing fancy here.
          */
-        while (true) {
+        final int maxTokenLength = 256;
+        while (sb.length() < maxTokenLength) {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
                     break;
@@ -2831,6 +2832,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             ++_inputPtr;
             sb.append(c);
+        }
+        if (sb.length() == maxTokenLength) {
+            sb.append("...");
         }
         _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
     }

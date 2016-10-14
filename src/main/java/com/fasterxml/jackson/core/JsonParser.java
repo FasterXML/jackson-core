@@ -1120,7 +1120,7 @@ public abstract class JsonParser
      *   means that it may or may not exist
      */
     public abstract boolean hasTextCharacters();
-    
+
     /*
     /**********************************************************
     /* Public API, access to token information, numeric

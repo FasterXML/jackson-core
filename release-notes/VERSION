@@ -18,7 +18,11 @@ JSON library.
 
 #304: Optimize `NumberOutput.outputLong()` method
 
-2.8.3 (17-Sep-2016d)
+2.8.4 (14-Oct-2016)
+
+No changes since 2.8.3
+
+2.8.3 (17-Sep-2016)
 
 #318: Add support for writing `byte[]` via `JsonGenerator.writeEmbeddedObject()`
 

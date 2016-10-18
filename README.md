@@ -21,6 +21,7 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-core.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-core) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
 [![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.core/jackson-core/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-core)
+[![Coverage Status](https://coveralls.io/repos/github/FasterXML/jackson-core/badge.svg?branch=master)](https://coveralls.io/github/FasterXML/jackson-core?branch=master)
 
 # Get it!
 

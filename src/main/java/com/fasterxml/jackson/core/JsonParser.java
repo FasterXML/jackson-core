@@ -227,7 +227,30 @@ public abstract class JsonParser
           * 
           * @since 2.8
           */
-         ALLOW_MISSING_VALUES(false)
+         ALLOW_MISSING_VALUES(false),
+
+         /**
+          * Feature that determines whether {@link JsonParser} will allow for a single trailing
+          * comma following the final value (in an Array) or member (in an Object). These commas
+          * will simply be ignored.
+          * <p>
+          * For example, when this feature is enabled, <code>[true,true,]</code> is equivalent to
+          * <code>[true, true]</code> and <code>{"a": true,}</code> is equivalent to
+          * <code>{"a": true}</code>.
+          * <p>
+          * When combined with <code>ALLOW_MISSING_VALUES</code>, this feature takes priority, and
+          * the final trailing comma in an array declaration does not imply a missing
+          * (<code>null</code>) value. For example, when both <code>ALLOW_MISSING_VALUES</code>
+          * and <code>ALLOW_TRAILING_COMMA</code> are enabled, <code>[true,true,]</code> is
+          * equivalent to <code>[true, true]</code>, and <code>[true,true,,]</code> is equivalent to
+          * <code>[true, true, null]</code>.
+          * <p>
+          * Since the JSON specification does not permit trailing commas, this is a non-standard
+          * feature, and as such disabled by default.
+          *
+          * @since 2.9
+          */
+         ALLOW_TRAILING_COMMA(false)
          ;
 
         /**

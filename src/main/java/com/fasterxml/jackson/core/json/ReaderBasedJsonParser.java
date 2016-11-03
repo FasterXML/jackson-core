@@ -652,26 +652,20 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         _binaryValue = null;
 
         // Closing scope?
-        if (i == INT_RBRACKET) {
-            _updateLocation();
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            return (_currToken = JsonToken.END_ARRAY);
-        }
-        if (i == INT_RCURLY) {
-            _updateLocation();
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            return (_currToken = JsonToken.END_OBJECT);
+        if (i == INT_RBRACKET || i == INT_RCURLY) {
+            _closeScope(i);
+            return _currToken;
         }
 
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
+
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
+                _closeScope(i);
+                return _currToken;
+            }
         }
 
         /* And should we now have a name? Always true for Object contexts, since
@@ -811,26 +805,20 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
         _binaryValue = null;
 
-        if (i == INT_RBRACKET) {
-            _updateLocation();
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_ARRAY;
+        // Closing scope?
+        if (i == INT_RBRACKET || i == INT_RCURLY) {
+            _closeScope(i);
             return false;
         }
-        if (i == INT_RCURLY) {
-            _updateLocation();
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_OBJECT;
-            return false;
-        }
+
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
+
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
+                _closeScope(i);
+                return false;
+            }
         }
 
         if (!_parsingContext.inObject()) {
@@ -2833,5 +2821,30 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             sb.append(c);
         }
         _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods, other
+    /**********************************************************
+     */
+
+    private void _closeScope(int i) throws JsonParseException {
+        if (i == INT_RBRACKET) {
+            _updateLocation();
+            if (!_parsingContext.inArray()) {
+                _reportMismatchedEndMarker(i, '}');
+            }
+            _parsingContext = _parsingContext.clearAndGetParent();
+            _currToken = JsonToken.END_ARRAY;
+        }
+        if (i == INT_RCURLY) {
+            _updateLocation();
+            if (!_parsingContext.inObject()) {
+                _reportMismatchedEndMarker(i, ']');
+            }
+            _parsingContext = _parsingContext.clearAndGetParent();
+            _currToken = JsonToken.END_OBJECT;
+        }
     }
 }

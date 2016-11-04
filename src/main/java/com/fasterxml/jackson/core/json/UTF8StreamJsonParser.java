@@ -28,6 +28,8 @@ public class UTF8StreamJsonParser
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
 
+    protected final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
+
     /*
     /**********************************************************
     /* Configuration
@@ -118,7 +120,7 @@ public class UTF8StreamJsonParser
      * buffer.
      */
     protected boolean _bufferRecyclable;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -152,7 +154,7 @@ public class UTF8StreamJsonParser
     public void setCodec(ObjectCodec c) {
         _objectCodec = c;
     }
-    
+
     /*
     /**********************************************************
     /* Overrides for life-cycle
@@ -176,7 +178,7 @@ public class UTF8StreamJsonParser
     public Object getInputSource() {
         return _inputStream;
     }
-    
+
     /*
     /**********************************************************
     /* Overrides, low-level reading
@@ -259,14 +261,12 @@ public class UTF8StreamJsonParser
         }
         return true;
     }
-    
+
     @Override
     protected void _closeInput() throws IOException
     {
-        /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()
-         *   on the underlying InputStream, unless we "own" it, or auto-closing
-         *   feature is enabled.
-         */
+        // We are not to call close() on the underlying InputStream
+        // unless we "own" it, or auto-closing feature is enabled.
         if (_inputStream != null) {
             if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_SOURCE)) {
                 _inputStream.close();
@@ -738,9 +738,13 @@ public class UTF8StreamJsonParser
         _binaryValue = null;
 
         // Closing scope?
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
-            _closeScope(i);
-            return _currToken;
+        if (i == INT_RBRACKET) {
+            _closeArrayScope();
+            return (_currToken = JsonToken.END_ARRAY);
+        }
+        if (i == INT_RCURLY) {
+            _closeObjectScope();
+            return (_currToken = JsonToken.END_OBJECT);
         }
 
         // Nope: do we then expect a comma?
@@ -749,17 +753,16 @@ public class UTF8StreamJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
-
             // Was that a trailing comma?
-            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
-                _closeScope(i);
-                return _currToken;
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                    return _closeScope(i);
+                }
             }
         }
 
-        /* And should we now have a name? Always true for
-         * Object contexts, since the intermediate 'expect-value'
-         * state is never retained.
+        /* And should we now have a name? Always true for Object contexts
+         * since the intermediate 'expect-value' state is never retained.
          */
         if (!_parsingContext.inObject()) {
             _updateLocation();
@@ -924,8 +927,14 @@ public class UTF8StreamJsonParser
         _binaryValue = null;
 
         // Closing scope?
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
-            _closeScope(i);
+        if (i == INT_RBRACKET) {
+            _closeArrayScope();
+            _currToken = JsonToken.END_ARRAY;
+            return false;
+        }
+        if (i == INT_RCURLY) {
+            _closeObjectScope();
+            _currToken = JsonToken.END_OBJECT;
             return false;
         }
 
@@ -937,12 +946,13 @@ public class UTF8StreamJsonParser
             i = _skipWS();
 
             // Was that a trailing comma?
-            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
-                _closeScope(i);
-                return false;
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                    _closeScope(i);
+                    return false;
+                }
             }
         }
-
         if (!_parsingContext.inObject()) {
             _updateLocation();
             _nextTokenNotInObject(i);
@@ -1003,8 +1013,14 @@ public class UTF8StreamJsonParser
         }
         _binaryValue = null;
 
-        if (i == INT_RBRACKET || i == INT_RCURLY) {
-            _closeScope(i);
+        if (i == INT_RBRACKET) {
+            _closeArrayScope();
+            _currToken = JsonToken.END_ARRAY;
+            return null;
+        }
+        if (i == INT_RCURLY) {
+            _closeObjectScope();
+            _currToken = JsonToken.END_OBJECT;
             return null;
         }
 
@@ -1014,11 +1030,12 @@ public class UTF8StreamJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
-
             // Was that a trailing comma?
-            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
-                _closeScope(i);
-                return null;
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                    _closeScope(i);
+                    return null;
+                }
             }
         }
 
@@ -3476,33 +3493,32 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    protected void _reportInvalidToken(String matchedPart) throws IOException
-     {
-         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
-     }
+    protected void _reportInvalidToken(String matchedPart) throws IOException {
+        _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
+    }
 
     protected void _reportInvalidToken(String matchedPart, String msg) throws IOException
-     {
-         StringBuilder sb = new StringBuilder(matchedPart);
+    {
+        StringBuilder sb = new StringBuilder(matchedPart);
 
-         /* Let's just try to find what appears to be the token, using
-          * regular Java identifier character rules. It's just a heuristic,
-          * nothing fancy here (nor fast).
-          */
-         while (true) {
-             if (_inputPtr >= _inputEnd && !_loadMore()) {
-                 break;
-             }
-             int i = (int) _inputBuffer[_inputPtr++];
-             char c = (char) _decodeCharForError(i);
-             if (!Character.isJavaIdentifierPart(c)) {
-                 break;
-             }
-             sb.append(c);
-         }
-         _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
-     }
-        
+        /* Let's just try to find what appears to be the token, using
+         * regular Java identifier character rules. It's just a heuristic,
+         * nothing fancy here (nor fast).
+         */
+        while (true) {
+            if (_inputPtr >= _inputEnd && !_loadMore()) {
+                break;
+            }
+            int i = (int) _inputBuffer[_inputPtr++];
+            char c = (char) _decodeCharForError(i);
+            if (!Character.isJavaIdentifierPart(c)) {
+                break;
+            }
+            sb.append(c);
+        }
+        _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
+    }
+
     protected void _reportInvalidChar(int c)
         throws JsonParseException
     {
@@ -3712,23 +3728,29 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException {
-        if (i == INT_RBRACKET) {
-            _updateLocation();
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_ARRAY;
-        }
+    private final JsonToken _closeScope(int i) throws JsonParseException {
         if (i == INT_RCURLY) {
-            _updateLocation();
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_OBJECT;
+            _closeObjectScope();
+            return (_currToken = JsonToken.END_OBJECT);
         }
+        _closeArrayScope();
+        return (_currToken = JsonToken.END_ARRAY);
+    }
+
+    private final void _closeArrayScope() throws JsonParseException {
+        _updateLocation();
+        if (!_parsingContext.inArray()) {
+            _reportMismatchedEndMarker(']', '}');
+        }
+        _parsingContext = _parsingContext.clearAndGetParent();
+    }
+
+    private final void _closeObjectScope() throws JsonParseException {
+        _updateLocation();
+        if (!_parsingContext.inObject()) {
+            _reportMismatchedEndMarker('}', ']');
+        }
+        _parsingContext = _parsingContext.clearAndGetParent();
     }
 
     /**

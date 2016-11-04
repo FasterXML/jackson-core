@@ -51,6 +51,7 @@ public class TrailingCommasTest extends BaseTest {
     return cases;
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void testArrayBasic() throws Exception {
     String json = "[\"a\", \"b\"]";
@@ -69,6 +70,7 @@ public class TrailingCommasTest extends BaseTest {
     assertEnd(p);
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void testArrayInnerComma() throws Exception {
     String json = "[\"a\",, \"b\"]";
@@ -94,6 +96,7 @@ public class TrailingCommasTest extends BaseTest {
     assertEnd(p);
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void testArrayLeadingComma() throws Exception {
     String json = "[,\"a\", \"b\"]";
@@ -117,6 +120,7 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.END_ARRAY, p.nextToken());
     assertEnd(p);
+    p.close();
   }
 
   @Test
@@ -144,6 +148,7 @@ public class TrailingCommasTest extends BaseTest {
     } else {
       assertUnexpected(p, ']');
     }
+    p.close();
   }
 
   @Test
@@ -174,6 +179,7 @@ public class TrailingCommasTest extends BaseTest {
     } else {
       assertUnexpected(p, ',');
     }
+    p.close();
   }
 
   @Test
@@ -206,6 +212,7 @@ public class TrailingCommasTest extends BaseTest {
     } else {
       assertUnexpected(p, ',');
     }
+    p.close();
   }
 
   @Test
@@ -226,6 +233,7 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.END_OBJECT, p.nextToken());
     assertEnd(p);
+    p.close();
   }
 
   @Test
@@ -241,6 +249,7 @@ public class TrailingCommasTest extends BaseTest {
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
     assertUnexpected(p, ',');
+    p.close();
   }
 
   @Test
@@ -252,6 +261,7 @@ public class TrailingCommasTest extends BaseTest {
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
     assertUnexpected(p, ',');
+    p.close();
   }
 
   @Test
@@ -276,6 +286,7 @@ public class TrailingCommasTest extends BaseTest {
     } else {
       assertUnexpected(p, '}');
     }
+    p.close();
   }
 
   @Test
@@ -295,6 +306,7 @@ public class TrailingCommasTest extends BaseTest {
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
     assertUnexpected(p, ',');
+    p.close();
   }
 
   private void assertEnd(JsonParser p) throws IOException {

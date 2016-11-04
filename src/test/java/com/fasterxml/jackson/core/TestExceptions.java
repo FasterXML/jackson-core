@@ -16,6 +16,20 @@ public class TestExceptions extends BaseTest
         String orig = exc.getOriginalMessage();
         assertEquals("Foobar", orig);
         assertTrue(msg.length() > orig.length());
+
+        // and another
+        JsonProcessingException exc2 = new JsonProcessingException("Second",
+                JsonLocation.NA, exc);
+        assertSame(exc, exc2.getCause());
+        exc2.clearLocation();
+        assertNull(exc2.getLocation());
+
+        // and yet with null
+        JsonProcessingException exc3 = new JsonProcessingException(exc);
+        assertNull(exc3.getOriginalMessage());
+        assertEquals("N/A", exc3.getMessage());
+
+        assertEquals("com.fasterxml.jackson.core.JsonProcessingException: N/A", exc3.toString());
     }
 
     // [core#198]

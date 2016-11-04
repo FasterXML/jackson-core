@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 /**
- * Tests to verify [JACKSON-278]
+ * Tests to verify functioning of {@link Version} class.
  */
 public class TestVersions extends com.fasterxml.jackson.core.BaseTest
 {
@@ -22,6 +22,18 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
         jgen.close();
     }
 
+    public void testMisc() {
+        Version unk = Version.unknownVersion();
+        assertEquals("0.0.0", unk.toString());
+        assertEquals("//0.0.0", unk.toFullString());
+        assertTrue(unk.equals(unk));
+
+        Version other = new Version(2, 8, 4, "",
+                "groupId", "artifactId");
+        assertEquals("2.8.4", other.toString());
+        assertEquals("groupId/artifactId/2.8.4", other.toFullString());
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

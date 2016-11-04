@@ -107,3 +107,8 @@ Mikael Staldal (mikaelstaldal@github)
 Kevin Gallardo (newkek@github)
   * Reported #296: JsonParserSequence skips a token on a switched Parser
    (2.8.0)
+
+Alex Yursha (AlexYursha@github)
+  * Contributed #312: Add `JsonProcessingException.clearLocation()` to allow clearing
+    possibly security-sensitive information
+   (2.9.0)

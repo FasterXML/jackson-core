@@ -54,6 +54,12 @@ public class JsonProcessingException extends java.io.IOException
     public JsonLocation getLocation() { return _location; }
     
     /**
+     * Method that allows to remove context information from this exception's message.
+     * Useful when you are parsing security-sensitive data and don't want original data excerpts to be present in Jackson parser error messages.
+     */
+    public void clearLocation() { _location = null; }
+
+    /**
      * Method that allows accessing the original "message" argument,
      * without additional decorations (like location information)
      * that overridden {@link #getMessage} adds.

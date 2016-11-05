@@ -445,13 +445,13 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
-        if (_currToken != JsonToken.VALUE_STRING &&
-                (_currToken != JsonToken.VALUE_EMBEDDED_OBJECT || _binaryValue == null)) {
+        if ((_currToken == JsonToken.VALUE_EMBEDDED_OBJECT) && (_binaryValue != null)) {
+            return _binaryValue;
+        }
+        if (_currToken != JsonToken.VALUE_STRING) {
             _reportError("Current token ("+_currToken+") not VALUE_STRING or VALUE_EMBEDDED_OBJECT, can not access as binary");
         }
-        /* To ensure that we won't see inconsistent data, better clear up
-         * state...
-         */
+        // To ensure that we won't see inconsistent data, better clear up state
         if (_tokenIncomplete) {
             try {
                 _binaryValue = _decodeBase64(b64variant);

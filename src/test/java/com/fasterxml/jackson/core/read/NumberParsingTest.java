@@ -496,6 +496,7 @@ public class NumberParsingTest
         }
     }
 
+
     /*
     /**********************************************************
     /* Tests for invalid access
@@ -592,6 +593,19 @@ public class NumberParsingTest
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(text, p.getText());
         assertNull(p.nextToken());
+    }
+
+    public void testInvalidNumber() throws Exception {
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(mode, " -foo ");
+            try {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('f'");
+            }
+            p.close();
+        }
     }
 
     /*

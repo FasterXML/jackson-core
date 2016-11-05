@@ -49,6 +49,63 @@ public class Base64BinaryParsingTest
         }
     }
 
+    public void testInvalidTokenForBase64() throws IOException
+    {
+        for (int mode : ALL_MODES) {
+
+            // First: illegal padding
+            JsonParser p = createParser(mode, "[ ]");
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            try {
+                p.getBinaryValue();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "current token");
+                verifyException(e, "can not access as binary");
+            }
+            p.close();
+        }
+    }
+
+    public void testInvalidChar() throws IOException
+    {
+        for (int mode : ALL_MODES) {
+
+            // First: illegal padding
+            JsonParser p = createParser(mode, quote("a==="));
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            try {
+                p.getBinaryValue(Base64Variants.MIME);
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "padding only legal");
+            }
+            p.close();
+
+            // second: invalid space within
+            p = createParser(mode, quote("ab de"));
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            try {
+                p.getBinaryValue(Base64Variants.MIME);
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "illegal white space");
+            }
+            p.close();
+
+            // third: something else
+            p = createParser(mode, quote("ab#?"));
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            try {
+                p.getBinaryValue(Base64Variants.MIME);
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "illegal character '#'");
+            }
+            p.close();
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test helper methods

@@ -116,3 +116,5 @@ Alex Yursha (AlexYursha@github)
 Brad Hess (bdhess@github)
   * Contributed #323: Add `JsonParser.ALLOW_TRAILING_COMMA` to work for Arrays and Objects
    (2.9.0)
+  * Reported #325: `DataInput` backed parser should handle `EOFException` at end of doc
+   (2.9.0)

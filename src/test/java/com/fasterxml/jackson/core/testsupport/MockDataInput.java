@@ -42,7 +42,7 @@ public class MockDataInput implements DataInput
     public byte readByte() throws IOException {
         int ch = _input.read();
         if (ch < 0) {
-            throw new IOException("End-of-input for readByte()");
+            throw new EOFException("End-of-input for readByte()");
         }
         return (byte) ch;
     }

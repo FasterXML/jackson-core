@@ -569,7 +569,12 @@ public class UTF8DataInputJsonParser
         if (_tokenIncomplete) {
             _skipString(); // only strings can be partial
         }
-        int i = _skipWS();
+        int i = _skipWSOrEnd();
+        if (i < 0) { // end-of-input
+            // Close/release things like input source, symbol table and recyclable buffers
+            close();
+            return (_currToken = null);
+        }
         // clear any data retained so far
         _binaryValue = null;
         _tokenInputRow = _currInputRow;
@@ -2197,6 +2202,45 @@ public class UTF8DataInputJsonParser
         }
     }
 
+    /**
+     * Alternative to {@link #_skipWS} that handles possible {@link EOFException}
+     * caused by trying to read past the end of {@link InputData}.
+     *
+     * @since 2.9
+     */
+    private final int _skipWSOrEnd() throws IOException
+    {
+        int i = _nextByte;
+        if (i < 0) {
+            try {
+                i = _inputData.readUnsignedByte();
+            } catch (EOFException e) {
+                return -1;
+            }
+        } else {
+            _nextByte = -1;
+        }
+        while (true) {
+            if (i > INT_SPACE) {
+                if (i == INT_SLASH || i == INT_HASH) {
+                    return _skipWSComment(i);
+                }
+                return i;
+            } else {
+                // 06-May-2016, tatu: Could verify validity of WS, but for now why bother.
+                //   ... but line number is useful thingy
+                if (i == INT_CR || i == INT_LF) {
+                    ++_currInputRow;
+                }
+            }
+            try {
+                i = _inputData.readUnsignedByte();
+            } catch (EOFException e) {
+                return -1;
+            }
+        }
+    }
+    
     private final int _skipWSComment(int i) throws IOException
     {
         while (true) {

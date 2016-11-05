@@ -27,33 +27,17 @@ public class VersionUtil
 {
     private final static Pattern V_SEP = Pattern.compile("[-_./;:]");
 
-    private final Version _v;
-
     /*
     /**********************************************************
     /* Instance life-cycle
     /**********************************************************
      */
-    
-    protected VersionUtil()
-    {
-        Version v = null;
-        try {
-            /* Class we pass only matters for resource-loading: can't use this Class
-             * (as it's just being loaded at this point), nor anything that depends on it.
-             */
-            v = VersionUtil.versionFor(getClass());
-        } catch (Exception e) { // not good to dump to stderr; but that's all we have at this low level
-            System.err.println("ERROR: Failed to load Version information from "+getClass());
-        }
-        if (v == null) {
-            v = Version.unknownVersion();
-        }
-        _v = v;
-    }
 
-    public Version version() { return _v; }
-    
+    protected VersionUtil() { }
+
+    @Deprecated // since 2.9
+    public Version version() { return Version.unknownVersion(); }
+
     /*
     /**********************************************************
     /* Static load methods

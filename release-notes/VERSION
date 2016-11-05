@@ -20,6 +20,8 @@ JSON library.
 #312: Add `JsonProcessingException.clearLocation()` to allow clearing
   possibly security-sensitive information
  (contributed by Alex Y)
+#323: Add `JsonParser.ALLOW_TRAILING_COMMA` to work for Arrays and Objects
+ (contributed by Brad H)
 
 2.8.4 (14-Oct-2016)
 

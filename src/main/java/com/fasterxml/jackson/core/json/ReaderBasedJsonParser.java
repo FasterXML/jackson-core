@@ -19,6 +19,8 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public class ReaderBasedJsonParser // final in 2.3, earlier
     extends ParserBase
 {
+    protected final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
+
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
@@ -662,9 +664,11 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             i = _skipComma(i);
 
             // Was that a trailing comma?
-            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
-                _closeScope(i);
-                return _currToken;
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                    _closeScope(i);
+                    return _currToken;
+                }
             }
         }
 
@@ -815,9 +819,11 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             i = _skipComma(i);
 
             // Was that a trailing comma?
-            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
-                _closeScope(i);
-                return false;
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                    _closeScope(i);
+                    return false;
+                }
             }
         }
 

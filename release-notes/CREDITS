@@ -112,3 +112,7 @@ Alex Yursha (AlexYursha@github)
   * Contributed #312: Add `JsonProcessingException.clearLocation()` to allow clearing
     possibly security-sensitive information
    (2.9.0)
+
+Brad Hess (bdhess@github)
+  * Contributed #323: Add `JsonParser.ALLOW_TRAILING_COMMA` to work for Arrays and Objects
+   (2.9.0)

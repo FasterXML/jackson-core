@@ -588,9 +588,11 @@ public class UTF8DataInputJsonParser
             i = _skipWS();
 
             // Was that a trailing comma?
-            if (isEnabled(Feature.ALLOW_TRAILING_COMMA) && (i == INT_RBRACKET || i == INT_RCURLY)) {
-                _closeScope(i);
-                return _currToken;
+            if (Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                if (i == INT_RBRACKET || i == INT_RCURLY) {
+                    _closeScope(i);
+                    return _currToken;
+                }
             }
         }
 

@@ -25,20 +25,14 @@ public class ParserScopeMatchingTest extends BaseTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(2, p.getIntValue());
 
         try {
             p.nextToken();
+            fail("Expected an exception for unclosed ARRAY (mode: "+mode+")");
         } catch (JsonParseException pe) {
             verifyException(pe, "expected close marker for ARRAY");
-            return;
-        } catch (IOException ie) {
-            // DataInput behaves bit differently
-            if (mode == MODE_DATA_INPUT) {
-                verifyException(ie, "end-of-input");
-                return;
-            }
         }
-        fail("Expected an exception for unclosed ARRAY");
     }
 
     public void testUnclosedObject() throws Exception
@@ -57,15 +51,9 @@ public class ParserScopeMatchingTest extends BaseTest
 
         try {
             p.nextToken();
-            fail("Expected an exception for unclosed OBJECT");
+            fail("Expected an exception for unclosed OBJECT (mode: "+mode+")");
         } catch (JsonParseException pe) {
             verifyException(pe, "expected close marker for OBJECT");
-        } catch (IOException ie) {
-            // DataInput behaves bit differently
-            if (mode == MODE_DATA_INPUT) {
-                verifyException(ie, "end-of-input");
-                return;
-            }
         }
     }
 

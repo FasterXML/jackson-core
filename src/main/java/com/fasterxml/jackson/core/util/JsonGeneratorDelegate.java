@@ -364,17 +364,17 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
     
     @Override
-    public void writeObject(Object pojo) throws IOException,JsonProcessingException {
+    public void writeObject(Object pojo) throws IOException {
         if (delegateCopyMethods) {
             delegate.writeObject(pojo);
             return;
         }
-        // NOTE: copied from 
         if (pojo == null) {
             writeNull();
         } else {
-            if (getCodec() != null) {
-                getCodec().writeValue(this, pojo);
+            ObjectCodec c = getCodec();
+            if (c != null) {
+                c.writeValue(this, pojo);
                 return;
             }
             _writeSimpleObject(pojo);
@@ -382,19 +382,20 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
     
     @Override
-    public void writeTree(TreeNode rootNode) throws IOException {
+    public void writeTree(TreeNode tree) throws IOException {
         if (delegateCopyMethods) {
-            delegate.writeTree(rootNode);
+            delegate.writeTree(tree);
             return;
         }
         // As with 'writeObject()', we are not check if write would work
-        if (rootNode == null) {
+        if (tree == null) {
             writeNull();
         } else {
-            if (getCodec() == null) {
+            ObjectCodec c = getCodec();
+            if (c == null) {
                 throw new IllegalStateException("No ObjectCodec defined");
             }
-            getCodec().writeValue(this, rootNode);
+            c.writeTree(this, tree);
         }
     }
 
@@ -413,15 +414,15 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public void copyCurrentEvent(JsonParser jp) throws IOException {
-        if (delegateCopyMethods) delegate.copyCurrentEvent(jp);
-        else super.copyCurrentEvent(jp);
+    public void copyCurrentEvent(JsonParser p) throws IOException {
+        if (delegateCopyMethods) delegate.copyCurrentEvent(p);
+        else super.copyCurrentEvent(p);
     }
 
     @Override
-    public void copyCurrentStructure(JsonParser jp) throws IOException {
-        if (delegateCopyMethods) delegate.copyCurrentStructure(jp);
-        else super.copyCurrentStructure(jp);
+    public void copyCurrentStructure(JsonParser p) throws IOException {
+        if (delegateCopyMethods) delegate.copyCurrentStructure(p);
+        else super.copyCurrentStructure(p);
     }
 
     /*

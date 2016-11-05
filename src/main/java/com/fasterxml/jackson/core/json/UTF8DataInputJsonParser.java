@@ -2215,7 +2215,7 @@ public class UTF8DataInputJsonParser
             try {
                 i = _inputData.readUnsignedByte();
             } catch (EOFException e) {
-                return -1;
+                return _eofAsNextChar();
             }
         } else {
             _nextByte = -1;
@@ -2236,7 +2236,7 @@ public class UTF8DataInputJsonParser
             try {
                 i = _inputData.readUnsignedByte();
             } catch (EOFException e) {
-                return -1;
+                return _eofAsNextChar();
             }
         }
     }

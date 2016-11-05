@@ -13,6 +13,9 @@ public class TestTextBuffer
         tb.append('a');
         tb.append(new char[] { 'X', 'b' }, 1, 1);
         tb.append("c", 0, 1);
+        // all fits within one buffer so it is efficient...
+        assertTrue(tb.hasTextAsCharacters());
+
         assertEquals(3, tb.contentsAsArray().length);
         assertEquals("abc", tb.toString());
 
@@ -21,7 +24,7 @@ public class TestTextBuffer
 
     public void testLonger()
     {
-        TextBuffer tb = new TextBuffer(new BufferRecycler());
+        TextBuffer tb = new TextBuffer(null);
         for (int i = 0; i < 2000; ++i) {
             tb.append("abc", 0, 3);
         }
@@ -31,51 +34,54 @@ public class TestTextBuffer
 
         tb.resetWithShared(new char[] { 'a' }, 0, 1);
         assertEquals(1, tb.toString().length());
+        assertTrue(tb.hasTextAsCharacters());
     }
 
-      public void testLongAppend()
-      {
-          final int len = TextBuffer.MAX_SEGMENT_LEN * 3 / 2;
-          StringBuilder sb = new StringBuilder(len);
-          for (int i = 0; i < len; ++i) {
-              sb.append('x');
-          }
-         final String STR = sb.toString();
-         final String EXP = "a" + STR + "c";
+    public void testLongAppend()
+    {
+        final int len = TextBuffer.MAX_SEGMENT_LEN * 3 / 2;
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; ++i) {
+            sb.append('x');
+        }
+        final String STR = sb.toString();
+        final String EXP = "a" + STR + "c";
  
-         // ok: first test with String:
-         TextBuffer tb = new TextBuffer(new BufferRecycler());
-         tb.append('a');
-         tb.append(STR, 0, len);
-         tb.append('c');
-         assertEquals(len+2, tb.size());
-         assertEquals(EXP, tb.contentsAsString());
+        // ok: first test with String:
+        TextBuffer tb = new TextBuffer(new BufferRecycler());
+        tb.append('a');
+        tb.append(STR, 0, len);
+        tb.append('c');
+        assertEquals(len+2, tb.size());
+        assertEquals(EXP, tb.contentsAsString());
  
-         // then char[]
-         tb = new TextBuffer(new BufferRecycler());
-         tb.append('a');
-         tb.append(STR.toCharArray(), 0, len);
-         tb.append('c');
-         assertEquals(len+2, tb.size());
-         assertEquals(EXP, tb.contentsAsString());
-      }
+        // then char[]
+        tb = new TextBuffer(new BufferRecycler());
+        tb.append('a');
+        tb.append(STR.toCharArray(), 0, len);
+        tb.append('c');
+        assertEquals(len+2, tb.size());
+        assertEquals(EXP, tb.contentsAsString());
+    }
 
-      // [Core#152]
-      public void testExpand()
-      {
-          TextBuffer tb = new TextBuffer(new BufferRecycler());
-          char[] buf = tb.getCurrentSegment();
+    // [core#152]
+    public void testExpand()
+    {
+        TextBuffer tb = new TextBuffer(new BufferRecycler());
+        char[] buf = tb.getCurrentSegment();
 
-          while (buf.length < 500 * 1000) {
-              char[] old = buf;
-              buf = tb.expandCurrentSegment();
-              if (old.length >= buf.length) {
-                  fail("Expected buffer of "+old.length+" to expand, did not, length now "+buf.length);
-              }
-          }
-      }
+        while (buf.length < 500 * 1000) {
+            char[] old = buf;
+            buf = tb.expandCurrentSegment();
+            if (old.length >= buf.length) {
+                fail("Expected buffer of "+old.length+" to expand, did not, length now "+buf.length);
+            }
+        }
+        tb.resetWithString("Foobar");
+        assertEquals("Foobar", tb.contentsAsString());
+    }
 
-    // [Core#182]
+    // [core#182]
     public void testEmpty() {
         TextBuffer tb = new TextBuffer(new BufferRecycler());
         tb.resetWithEmpty();

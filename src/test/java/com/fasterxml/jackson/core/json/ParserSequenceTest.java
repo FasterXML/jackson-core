@@ -46,6 +46,31 @@ public class ParserSequenceTest
         seq.close();
     }
 
+    public void testMultiLevel() throws Exception
+    {
+        JsonParser p1 = JSON_FACTORY.createParser("[ 1 ] ");
+        JsonParser p2 = JSON_FACTORY.createParser(" 5");
+        JsonParser p3 = JSON_FACTORY.createParser(" { } ");
+        JsonParserSequence seq1 = JsonParserSequence.createFlattened(true, p1, p2);
+        JsonParserSequence seq = JsonParserSequence.createFlattened(false, seq1, p3);
+        assertEquals(3, seq.containedParsersCount());
+
+        assertToken(JsonToken.START_ARRAY, seq.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, seq.nextToken());
+        assertToken(JsonToken.END_ARRAY, seq.nextToken());
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, seq.nextToken());
+        
+        assertToken(JsonToken.START_OBJECT, seq.nextToken());
+        assertToken(JsonToken.END_OBJECT, seq.nextToken());
+
+        assertNull(seq.nextToken());
+        assertTrue(p1.isClosed());
+        assertTrue(p2.isClosed());
+        assertTrue(p3.isClosed());
+        assertTrue(seq.isClosed());
+    }
+    
     // for [jackson-core#296]
     public void testInitializationDisabled() throws Exception
     {

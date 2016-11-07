@@ -422,6 +422,7 @@ public abstract class BaseTest
     {
         StringWriter sw = new StringWriter(100);
         JsonGenerator g = f.createGenerator(sw);
+        g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         try {
             while (p.nextToken() != null) {
                 g.copyCurrentEvent(p);

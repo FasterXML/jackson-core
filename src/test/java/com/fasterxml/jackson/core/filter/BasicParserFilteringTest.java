@@ -91,20 +91,6 @@ public class BasicParserFilteringTest extends BaseTest
     }
 
     @SuppressWarnings("resource")
-    public void testSingleMatchFilteringWithPath() throws Exception
-    {
-        JsonParser p0 = JSON_F.createParser(SIMPLE);
-        JsonParser p = new FilteringParserDelegate(p0,
-               new NameMatchFilter("value"),
-                   true, // includePath
-                   false // multipleMatches
-                );
-        String result = readAndWrite(JSON_F, p);
-        assertEquals(aposToQuotes("{'ob':{'value':3}}"), result);
-    }
-
-    
-    @SuppressWarnings("resource")
     public void testNotAllowMultipleMatches() throws Exception
     {
     	String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'value':4,'b':true}");

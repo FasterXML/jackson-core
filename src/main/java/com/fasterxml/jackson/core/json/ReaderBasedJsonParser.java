@@ -1892,7 +1892,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             return _handleInvalidNumberStart(_inputBuffer[_inputPtr++], false);
         }
-        // [Issue#77] Try to decode most likely token
+        // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(i)) {
             _reportInvalidToken(""+((char) i), "('true', 'false' or 'null')");
         }

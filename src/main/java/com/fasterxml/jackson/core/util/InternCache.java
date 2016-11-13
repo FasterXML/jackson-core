@@ -1,15 +1,13 @@
 package com.fasterxml.jackson.core.util;
 
-import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Singleton class that adds a simple first-level cache in front of
- * regular String.intern() functionality. This is done as a minor
- * performance optimization, to avoid calling native intern() method
+ * Singleton class that adds string deduplication functionality.
+ * This is done as a minor performance optimization, to avoid extra memory footprint
  * in cases where same String is being interned multiple times.
  *<p>
- * Note: that this class extends {@link LinkedHashMap} is an implementation
+ * Note: that this class extends {@link ConcurrentHashMap} is an implementation
  * detail -- no code should ever directly call Map methods.
  */
 @SuppressWarnings("serial")
@@ -58,7 +56,7 @@ public final class InternCache
                 }
             }
         }
-        result = input.intern();
+        result = input;
         put(result, result);
         return result;
     }

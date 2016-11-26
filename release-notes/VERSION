@@ -18,6 +18,11 @@ JSON library.
 
 #304: Optimize `NumberOutput.outputLong()` method
 
+2.8.6 (not yet released)
+
+#335: Missing exception for invalid last character of base64 string to decode
+ using `Base64Variant.decode()`
+
 2.8.5 (14-Nov-2016)
 2.8.4 (14-Oct-2016)
 

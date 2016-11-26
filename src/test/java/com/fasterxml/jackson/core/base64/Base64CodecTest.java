@@ -95,9 +95,16 @@ public class Base64CodecTest
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "length must be exactly");
         }
-
         try {
             Base64Variants.MIME.decode("!@##@%$#%&*^(&)(*");
+        } catch (IllegalArgumentException iae) {
+            verifyException(iae, "Illegal character");
+        }
+
+        // also, for [jackson-core#335]
+        final String BASE64_HELLO = "aGVsbG8=!";
+        try {
+            Base64Variants.MIME.decode(BASE64_HELLO);
             fail("Should not pass");
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "Illegal character");

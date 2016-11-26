@@ -449,7 +449,7 @@ public final class Base64Variant
      * assumption is that caller will ensure it is given in proper state, and
      * used as appropriate afterwards.
      * 
-     * @since 2.2.3
+     * @since 2.3
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */
@@ -458,16 +458,12 @@ public final class Base64Variant
         int ptr = 0;
         int len = str.length();
         
-        main_loop:
         while (ptr < len) {
             // first, we'll skip preceding white space, if any
             char ch;
             do {
                 ch = str.charAt(ptr++);
-                if (ptr >= len) {
-                    break main_loop;
-                }
-            } while (ch <= INT_SPACE);
+            } while ((ptr < len) && (ch <= INT_SPACE));
             int bits = decodeBase64Char(ch);
             if (bits < 0) {
                 _reportInvalidBase64(ch, 0, null);

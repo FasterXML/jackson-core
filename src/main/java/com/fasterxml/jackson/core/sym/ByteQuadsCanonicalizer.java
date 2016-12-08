@@ -282,7 +282,7 @@ public final class ByteQuadsCanonicalizer
      * randomized seed value.
      */
     public static ByteQuadsCanonicalizer createRoot() {
-        /* [Issue-21]: Need to use a variable seed, to thwart hash-collision
+        /* [jackson-core#21]: Need to use a variable seed, to thwart hash-collision
          * based attacks.
          */
         long now = System.currentTimeMillis();
@@ -298,7 +298,7 @@ public final class ByteQuadsCanonicalizer
     protected static ByteQuadsCanonicalizer createRoot(int seed) {
         return new ByteQuadsCanonicalizer(DEFAULT_T_SIZE, true, seed, true);
     }
-    
+
     /**
      * Factory method used to create actual symbol table instance to
      * use for parsing.

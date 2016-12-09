@@ -111,6 +111,8 @@ public class JsonFactory
          * {@link ThreadLocal} (see
          * <a href="https://github.com/FasterXML/jackson-core/issues/189">Issue #189</a>
          * for a possible case)
+         *<p>
+         * This setting is enabled by default.
          *
          * @since 2.6
          */

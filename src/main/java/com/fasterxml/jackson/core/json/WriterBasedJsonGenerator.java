@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.io.*;
  * {@link JsonGenerator} that outputs JSON content using a {@link java.io.Writer}
  * which handles character encoding.
  */
-public final class WriterBasedJsonGenerator
+public class WriterBasedJsonGenerator
     extends JsonGeneratorImpl
 {
     final protected static int SHORT_WRITE = 32;

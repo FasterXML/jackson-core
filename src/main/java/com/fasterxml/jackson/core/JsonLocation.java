@@ -96,6 +96,10 @@ public class JsonLocation
         sb.append("[Source: ");
         if (_sourceRef == null) {
             sb.append("UNKNOWN");
+        } else if (_sourceRef instanceof byte[]) {
+            sb.append(new String((byte[]) _sourceRef));
+        } else if (_sourceRef instanceof char[]) {
+            sb.append((char[]) _sourceRef);
         } else {
             sb.append(_sourceRef.toString());
         }

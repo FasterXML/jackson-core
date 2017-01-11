@@ -24,6 +24,8 @@ JSON library.
  (contributed by Brad H)
 #325: `DataInput` backed parser should handle `EOFException` at end of doc
  (reported by Brad H)
+#340: Making `WriterBasedJsonGenerator` non-final
+ (requested by rfoltyns@github)
 
 2.8.6 (not yet released)
 

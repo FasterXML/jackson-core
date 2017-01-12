@@ -107,3 +107,7 @@ Mikael Staldal (mikaelstaldal@github)
 Kevin Gallardo (newkek@github)
   * Reported #296: JsonParserSequence skips a token on a switched Parser
    (2.8.0)
+
+Alessio Soldano (asoldano@github)
+  * Contributed #322: Trim tokens in error messages to 256 byte to prevent attacks
+   (2.8.6)

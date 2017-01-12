@@ -20,6 +20,8 @@ JSON library.
 
 2.8.6 (not yet released)
 
+#322: Trim tokens in error messages to 256 byte to prevent attacks
+ (contributed by Alessio S)
 #335: Missing exception for invalid last character of base64 string to decode
  using `Base64Variant.decode()`
 

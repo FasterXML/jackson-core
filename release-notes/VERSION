@@ -27,7 +27,7 @@ JSON library.
 #340: Making `WriterBasedJsonGenerator` non-final
  (requested by rfoltyns@github)
 
-2.8.6 (not yet released)
+2.8.6 (12-Jan-2016)
 
 #322: Trim tokens in error messages to 256 byte to prevent attacks
  (contributed by Alessio S)

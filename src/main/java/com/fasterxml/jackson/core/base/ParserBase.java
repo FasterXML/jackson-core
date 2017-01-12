@@ -20,6 +20,14 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  */
 public abstract class ParserBase extends ParserMinimalBase
 {
+    /**
+     * Maximum number of characters to include in token reported
+     * as part of error messages.
+     *
+     * @since 2.9
+     */
+    protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
+
     /*
     /**********************************************************
     /* Generic I/O state

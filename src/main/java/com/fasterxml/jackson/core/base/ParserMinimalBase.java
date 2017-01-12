@@ -558,6 +558,16 @@ public abstract class ParserMinimalBase extends JsonParser
         throw _constructError(msg);
     }
 
+    // @since 2.9
+    protected final void _reportError(String msg, Object arg) throws JsonParseException {
+        throw _constructError(String.format(msg, arg));
+    }
+
+    // @since 2.9
+    protected final void _reportError(String msg, Object arg1, Object arg2) throws JsonParseException {
+        throw _constructError(String.format(msg, arg1, arg2));
+    }
+
     protected final void _wrapError(String msg, Throwable t) throws JsonParseException {
         throw _constructError(msg, t);
     }

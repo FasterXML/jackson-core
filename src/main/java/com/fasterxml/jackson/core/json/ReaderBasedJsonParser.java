@@ -2808,25 +2808,24 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     protected void _reportInvalidToken(String matchedPart, String msg) throws IOException
     {
-        StringBuilder sb = new StringBuilder(matchedPart);
         /* Let's just try to find what appears to be the token, using
          * regular Java identifier character rules. It's just a heuristic,
          * nothing fancy here.
          */
-        while (true) {
-            if (_inputPtr >= _inputEnd) {
-                if (!_loadMore()) {
-                    break;
-                }
-            }
+        StringBuilder sb = new StringBuilder(matchedPart);
+        while ((_inputPtr < _inputEnd) || _loadMore()) {
             char c = _inputBuffer[_inputPtr];
             if (!Character.isJavaIdentifierPart(c)) {
                 break;
             }
             ++_inputPtr;
             sb.append(c);
+            if (sb.length() >= MAX_ERROR_TOKEN_LENGTH) {
+                sb.append("...");
+                break;
+            }
         }
-        _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
+        _reportError("Unrecognized token '%s': was expecting %s", sb, msg);
     }
 
     /*

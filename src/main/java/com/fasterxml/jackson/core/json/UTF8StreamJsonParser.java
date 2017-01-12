@@ -3499,28 +3499,29 @@ public class UTF8StreamJsonParser
 
     protected void _reportInvalidToken(String matchedPart, String msg) throws IOException
     {
-        StringBuilder sb = new StringBuilder(matchedPart);
-
         /* Let's just try to find what appears to be the token, using
          * regular Java identifier character rules. It's just a heuristic,
          * nothing fancy here (nor fast).
          */
-        while (true) {
-            if (_inputPtr >= _inputEnd && !_loadMore()) {
-                break;
-            }
+        StringBuilder sb = new StringBuilder(matchedPart);
+        while ((_inputPtr < _inputEnd) || _loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
             char c = (char) _decodeCharForError(i);
             if (!Character.isJavaIdentifierPart(c)) {
+                // 11-Jan-2016, tatu: note: we will fully consume the character,
+                // included or not, so if recovery was possible, it'd be off-by-one...
                 break;
             }
             sb.append(c);
+            if (sb.length() >= MAX_ERROR_TOKEN_LENGTH) {
+                sb.append("...");
+                break;
+            }
         }
-        _reportError("Unrecognized token '"+sb.toString()+"': was expecting "+msg);
+        _reportError("Unrecognized token '%s': was expecting %s", sb, msg);
     }
 
-    protected void _reportInvalidChar(int c)
-        throws JsonParseException
+    protected void _reportInvalidChar(int c) throws JsonParseException
     {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
@@ -3529,15 +3530,11 @@ public class UTF8StreamJsonParser
         _reportInvalidInitial(c);
     }
 
-    protected void _reportInvalidInitial(int mask)
-        throws JsonParseException
-    {
+    protected void _reportInvalidInitial(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 
-    protected void _reportInvalidOther(int mask)
-        throws JsonParseException
-    {
+    protected void _reportInvalidOther(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
 
@@ -3754,7 +3751,7 @@ public class UTF8StreamJsonParser
     }
 
     /**
-     * Helper method needed to fix [Issue#148], masking of 0x00 character
+     * Helper method needed to fix [jackson-core#148], masking of 0x00 character
      */
     private final static int pad(int q, int bytes) {
         return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));

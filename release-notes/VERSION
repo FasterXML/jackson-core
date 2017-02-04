@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.9 (04-Feb-2017)
+
+No changes since 2.7.8
+
 2.7.8 (26-Sep-2016)
 
 #317: ArrayIndexOutOfBoundsException: 200 on floating point number with exactly

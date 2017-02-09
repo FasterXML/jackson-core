@@ -105,7 +105,7 @@ public class WriterBasedJsonGenerator
         _writer = w;
         _outputBuffer = ctxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
-        _charBuffer = ctxt.allocConcatBuffer();
+        _charBuffer = new char[_outputBuffer.length];
         _charBufferLength = _charBuffer.length;
     }
     
@@ -954,11 +954,7 @@ public class WriterBasedJsonGenerator
             _outputBuffer = null;
             _ioContext.releaseConcatBuffer(buf);
         }
-        char[] cbuf = _charBuffer;
-        if (cbuf != null) {
-            _charBuffer = null;
-            _ioContext.releaseConcatBuffer(cbuf);
-        }
+        _charBuffer = null;
     }
 
     /*

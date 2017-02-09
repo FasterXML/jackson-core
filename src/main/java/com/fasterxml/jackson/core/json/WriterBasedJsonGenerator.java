@@ -1,11 +1,17 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.*;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.CharTypes;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.NumberOutput;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.*;
 
 /**
  * {@link JsonGenerator} that outputs JSON content using a {@link java.io.Writer}
@@ -70,6 +76,17 @@ public class WriterBasedJsonGenerator
     protected char[] _entityBuffer;
 
     /**
+     * Intermediate buffer in which characters of a String are copied
+     * before being encoded.
+     */
+    protected char[] _charBuffer;
+
+    /**
+     * Length of <code>_charBuffer</code>
+     */
+    protected final int _charBufferLength;
+
+    /**
      * When custom escapes are used, this member variable is used
      * internally to hold a reference to currently used escape
      */
@@ -88,6 +105,8 @@ public class WriterBasedJsonGenerator
         _writer = w;
         _outputBuffer = ctxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
+        _charBuffer = ctxt.allocConcatBuffer();
+        _charBufferLength = _charBuffer.length;
     }
     
     /*
@@ -366,6 +385,51 @@ public class WriterBasedJsonGenerator
         _writeString(text);
         // And finally, closing quotes
         if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+    }
+
+    @Override
+    public void writeString(Reader reader, int len) throws IOException {
+        _verifyValueWrite(WRITE_STRING);
+        if (reader == null) {
+            _writeNull();
+            return;
+        }
+        //Adjust length for calculations
+        if(len < 0){
+            len = Integer.MAX_VALUE;
+        }
+
+        //TODO: Check that this use is OK
+        final char[] buf = _charBuffer;
+
+        //Add leading quote
+        if ((_outputTail + len) >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+
+        //read
+        while(len > 0){
+            int toRead = Math.min(len, buf.length);
+            if(toRead <= 0){
+                break;
+            }
+            int numRead = reader.read(buf, 0, toRead);
+            if(numRead <= 0){
+                break;
+            }
+
+            _writeString(buf, 0, numRead);
+
+            //decrease tracker
+            len -= numRead;
+        }
+
+        //Add trailing quote
+        if ((_outputTail + len) >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
@@ -889,6 +953,11 @@ public class WriterBasedJsonGenerator
         if (buf != null) {
             _outputBuffer = null;
             _ioContext.releaseConcatBuffer(buf);
+        }
+        char[] cbuf = _charBuffer;
+        if (cbuf != null) {
+            _charBuffer = null;
+            _ioContext.releaseConcatBuffer(cbuf);
         }
     }
 

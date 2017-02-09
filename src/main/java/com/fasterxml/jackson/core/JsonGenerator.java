@@ -4,7 +4,9 @@
  */
 package com.fasterxml.jackson.core;
 
-import static com.fasterxml.jackson.core.JsonTokenId.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -13,9 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.util.VersionUtil;
+import static com.fasterxml.jackson.core.JsonTokenId.*;
 
 /**
  * Base class that defines public API for writing JSON content.
@@ -931,6 +931,18 @@ public abstract class JsonGenerator
      * escaped as required by JSON specification.
      */
     public abstract void writeString(String text) throws IOException;
+
+    /**
+     * Method for outputting a String value. Depending on context
+     * this means either array element, (object) field value or
+     * a stand alone String; but in all cases, String will be
+     * surrounded in double quotes, and contents will be properly
+     * escaped as required by JSON specification.
+     * If the reader is null, then write a null.
+     * If len is < 0, then write all contents of the reader.
+     * Otherwise, write only len characters.
+     */
+    public abstract void writeString(Reader reader, int len) throws IOException;
 
     /**
      * Method for outputting a String value. Depending on context

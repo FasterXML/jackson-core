@@ -1,11 +1,17 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.*;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.CharTypes;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.NumberOutput;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.*;
 
 public class UTF8JsonGenerator
     extends JsonGeneratorImpl
@@ -456,6 +462,50 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         _writeStringSegment(text, 0, len); // we checked space already above
         if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+    }
+
+    @Override
+    public void writeString(Reader reader, int len) throws IOException {
+        _verifyValueWrite(WRITE_STRING);
+        if (reader == null) {
+            _writeNull();
+            return;
+        }
+        //Adjust length for calculations
+        if(len < 0){
+            len = Integer.MAX_VALUE;
+        }
+
+        //TODO: Check that this use is OK
+        final char[] buf = _charBuffer;
+
+        //Add leading quote
+        if ((_outputTail + len) >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+
+        //read
+        while(len > 0){
+            int toRead = Math.min(len, buf.length);
+            if(toRead <= 0){
+                break;
+            }
+            int numRead = reader.read(buf, 0, toRead);
+            if(numRead <= 0){
+                break;
+            }
+            _writeStringSegments(buf, 0, numRead);
+
+            //decrease tracker
+            len -= numRead;
+        }
+
+        //Add trailing quote
+        if ((_outputTail + len) >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;

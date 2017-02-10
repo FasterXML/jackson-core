@@ -11,7 +11,7 @@ import java.util.Random;
  * Set of basic unit tests for verifying that the string
  * generation, including character escaping, works as expected.
  */
-public class StringGenerationFromWriterTest
+public class StringGenerationFromReaderTest
     extends BaseTest
 {
     final static String[] SAMPLES = new String[] {

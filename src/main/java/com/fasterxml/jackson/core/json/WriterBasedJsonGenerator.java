@@ -394,45 +394,48 @@ public class WriterBasedJsonGenerator
     public void writeString(Reader reader, int len) throws IOException {
         _verifyValueWrite(WRITE_STRING);
         if (reader == null) {
-            _writeNull();
-            return;
-        }
-        //Adjust length for calculations
-        if(len < 0){
-            len = Integer.MAX_VALUE;
-        }
+            _reportError("null reader");
+        } else {
+            int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
 
-        //TODO: Check that this use is OK
-        final char[] buf = _charBuffer;
+            //TODO: Check that this use is OK
+            final char[] buf = _charBuffer;
 
-        //Add leading quote
-        if ((_outputTail + len) >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = _quoteChar;
-
-        //read
-        while(len > 0){
-            int toRead = Math.min(len, buf.length);
-            if(toRead <= 0){
-                break;
+            //Add leading quote
+            if ((_outputTail + len) >= _outputEnd) {
+                _flushBuffer();
             }
-            int numRead = reader.read(buf, 0, toRead);
-            if(numRead <= 0){
-                break;
+            _outputBuffer[_outputTail++] = _quoteChar;
+
+            //read
+            while (toRead > 0) {
+                int toReadNow = Math.min(toRead, buf.length);
+                if (toRead <= 0) {
+                    break;
+                }
+                int numRead = reader.read(buf, 0, toReadNow);
+                if (numRead <= 0) {
+                    break;
+                }
+                if ((_outputTail + len) >= _outputEnd) {
+                    _flushBuffer();
+                }
+                _writeString(buf, 0, numRead);
+
+                //decrease tracker
+                toRead -= numRead;
             }
 
-            _writeString(buf, 0, numRead);
+            //Add trailing quote
+            if ((_outputTail + len) >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = _quoteChar;
 
-            //decrease tracker
-            len -= numRead;
+            if (toRead > 0 && len >= 0) {
+                _reportError("Didn't read enough from reader");
+            }
         }
-
-        //Add trailing quote
-        if ((_outputTail + len) >= _outputEnd) {
-            _flushBuffer();
-        }
-        _outputBuffer[_outputTail++] = _quoteChar;
     }
 
     @Override

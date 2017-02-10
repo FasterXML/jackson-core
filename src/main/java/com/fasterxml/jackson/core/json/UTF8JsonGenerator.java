@@ -471,13 +471,10 @@ public class UTF8JsonGenerator
     public void writeString(Reader reader, int len) throws IOException {
         _verifyValueWrite(WRITE_STRING);
         if (reader == null) {
-            _writeNull();
-            return;
+            _reportError("null reader");
         }
-        //Adjust length for calculations
-        if(len < 0){
-            len = Integer.MAX_VALUE;
-        }
+
+        int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
 
         //TODO: Check that this use is OK
         final char[] buf = _charBuffer;
@@ -489,19 +486,22 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
 
         //read
-        while(len > 0){
-            int toRead = Math.min(len, buf.length);
+        while(toRead > 0){
+            int toReadNow = Math.min(toRead, buf.length);
             if(toRead <= 0){
                 break;
             }
-            int numRead = reader.read(buf, 0, toRead);
+            int numRead = reader.read(buf, 0, toReadNow);
             if(numRead <= 0){
                 break;
+            }
+            if ((_outputTail + len) >= _outputEnd) {
+                _flushBuffer();
             }
             _writeStringSegments(buf, 0, numRead);
 
             //decrease tracker
-            len -= numRead;
+            toRead -= numRead;
         }
 
         //Add trailing quote
@@ -509,6 +509,10 @@ public class UTF8JsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+
+        if(toRead > 0 && len >= 0){
+            _reportError("Didn't read enough from reader");
+        }
     }
 
     @Override

@@ -562,9 +562,10 @@ public class UTF8JsonGenerator
     public void writeRaw(String text, int offset, int len) throws IOException
     {
         final char[] buf = _charBuffer;
+        final int cbufLen = buf.length;
 
         // minor optimization: see if we can just get and copy
-        if (len <= buf.length) {
+        if (len <= cbufLen) {
             text.getChars(offset, offset+len, buf, 0);
             writeRaw(buf, 0, len);
             return;
@@ -573,7 +574,8 @@ public class UTF8JsonGenerator
         // If not, need segmented approach. For speed, let's also use input buffer
         // size that is guaranteed to fit in output buffer; each char can expand to
         // at most 3 bytes, so at most 1/3 of buffer size.
-        final int maxChunk = (_outputEnd >> 2) + (_outputEnd >> 4); // == (1/4 + 1/16) == 5/16
+        final int maxChunk = Math.min(cbufLen,
+                (_outputEnd >> 2) + (_outputEnd >> 4)); // == (1/4 + 1/16) == 5/16
         final int maxBytes = maxChunk * 3;
 
         while (len > 0) {

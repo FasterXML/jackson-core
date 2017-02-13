@@ -27,6 +27,11 @@ JSON library.
 #340: Making `WriterBasedJsonGenerator` non-final
  (requested by rfoltyns@github)
 
+2.8.7 (not yet released)
+
+#354: Buffer size dependency in UTF8JsonGenerator writeRaw
+ (reported by Chistopher C)
+
 2.8.6 (12-Jan-2017)
 
 #322: Trim tokens in error messages to 256 byte to prevent attacks
@@ -79,7 +84,13 @@ No changes since 2.8.0
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.
 
-2.7.8 (not yet released)
+2.7.10 (not yet released)
+
+2.7.9 (04-Feb-2017)
+
+No changes since 2.7.8
+
+2.7.8 (26-Sep-2016)
 
 #317: ArrayIndexOutOfBoundsException: 200 on floating point number with exactly
   200-length decimal part

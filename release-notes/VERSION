@@ -29,6 +29,8 @@ JSON library.
 
 2.8.7 (not yet released)
 
+#349: CharsToNameCanonicalizer performance bottleneck 
+ (reported by Nuno D, nmldiegues@github)
 #351: `java.lang.NegativeArraySizeException` at `ByteArrayBuilder.toByteArray()`
 #354: Buffer size dependency in UTF8JsonGenerator writeRaw
  (reported by Chistopher C)

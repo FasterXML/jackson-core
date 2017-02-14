@@ -60,7 +60,7 @@ public final class ByteQuadsCanonicalizer
 
     /**
      * Member that is only used by the root table instance: root
-     * passes immutable state into child instances, and children
+     * passes immutable state info child instances, and children
      * may return new state if they add entries to the table.
      * Child tables do NOT use the reference.
      */
@@ -282,19 +282,16 @@ public final class ByteQuadsCanonicalizer
      * randomized seed value.
      */
     public static ByteQuadsCanonicalizer createRoot() {
-        /* [jackson-core#21]: Need to use a variable seed, to thwart hash-collision
-         * based attacks.
-         */
+        // Need to use a variable seed, to thwart hash-collision based attacks.
+        // 14-Feb-2017, tatu: Does this actually help?
         long now = System.currentTimeMillis();
         // ensure it's not 0; and might as well require to be odd so:
         int seed = (((int) now) + ((int) (now >>> 32))) | 1;
         return createRoot(seed);
     }
 
-    /**
-     * Factory method that should only be called from unit tests, where seed
-     * value should remain the same.
-     */
+    // Factory method that should only be called from unit tests, where seed
+    // value should remain the same.
     protected static ByteQuadsCanonicalizer createRoot(int seed) {
         return new ByteQuadsCanonicalizer(DEFAULT_T_SIZE, true, seed, true);
     }
@@ -312,20 +309,18 @@ public final class ByteQuadsCanonicalizer
     }
 
     /**
-     * Method called by the using code to indicate it is done
-     * with this instance. This lets instance merge accumulated
-     * changes into parent (if need be), safely and efficiently,
-     * and without calling code having to know about parent
-     * information
+     * Method called by the using code to indicate it is done with this instance.
+     * This lets instance merge accumulated changes into parent (if need be),
+     * safely and efficiently, and without calling code having to know about parent
+     * information.
      */
     public void release()
     {
         // we will try to merge if child table has new entries
         if (_parent != null && maybeDirty()) {
             _parent.mergeChild(new TableInfo(this));
-            /* Let's also mark this instance as dirty, so that just in
-             * case release was too early, there's no corruption of possibly shared data.
-             */
+            // Let's also mark this instance as dirty, so that just in
+            // case release was too early, there's no corruption of possibly shared data.
             _hashShared = true;
         }
     }

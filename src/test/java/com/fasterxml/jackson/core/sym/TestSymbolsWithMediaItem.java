@@ -67,7 +67,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
     {
         final int SEED = 33333;
 
-        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(SEED);
+        CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(SEED).makeChild(-1);
         JsonFactory f = new JsonFactory();
         JsonParser p = f.createParser(JSON);
 

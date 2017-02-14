@@ -20,6 +20,11 @@ import java.util.*;
  * efficient aggregation of output content as a byte array, similar
  * to how {@link java.io.ByteArrayOutputStream} works, but somewhat more
  * efficiently for many use cases.
+ *<p>
+ * NOTE: maximum size limited to Java Array maximum, 2 gigabytes: this
+ * because usage pattern is to collect content for a `byte[]` and so although
+ * theoretically this builder can aggregate more content it will not be usable
+ * as things are. Behavior may be improved if we solve the access problem.
  */
 public final class ByteArrayBuilder extends OutputStream
 {
@@ -222,7 +227,16 @@ public final class ByteArrayBuilder extends OutputStream
     
     private void _allocMore()
     {
-        _pastLen += _currBlock.length;
+        final int newPastLen = _pastLen + _currBlock.length;
+
+        // 13-Feb-2016, tatu: As per [core#351] let's try to catch problem earlier;
+        //     for now we are strongly limited by 2GB limit of Java arrays
+        
+        if (newPastLen < 0) {
+            throw new IllegalStateException("Maximum Java array size (2GB) exceeded by `ByteArrayBuilder`");
+        }
+
+        _pastLen = newPastLen;
 
         /* Let's allocate block that's half the total size, except
          * never smaller than twice the initial block size.

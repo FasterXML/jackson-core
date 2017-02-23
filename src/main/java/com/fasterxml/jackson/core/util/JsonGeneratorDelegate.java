@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class JsonGeneratorDelegate extends JsonGenerator
 {
@@ -245,6 +246,11 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeString(String text) throws IOException { delegate.writeString(text); }
+
+    @Override
+    public void writeString(Reader reader, int len) throws IOException {
+        delegate.writeString(reader, len);
+    }
 
     @Override
     public void writeString(char[] text, int offset, int len) throws IOException { delegate.writeString(text, offset, len); }

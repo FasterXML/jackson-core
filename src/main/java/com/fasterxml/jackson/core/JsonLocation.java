@@ -79,17 +79,6 @@ public class JsonLocation
     public Object getSourceRef() { return _sourceRef; }
 
     /**
-     * Accessor for getting a textual description of source reference
-     * (Object returned by {@link #getSourceRef()}), as included in
-     * description returned by {@link #toString()}.
-     *
-     * @since 2.9
-     */
-    public String getSourceDescription() {
-        return _appendSourceDesc(new StringBuilder(100)).toString();
-    }
-
-    /**
      * @return Line number of the location (1-based)
      */
     public int getLineNr() { return _lineNr; }
@@ -112,6 +101,55 @@ public class JsonLocation
     public long getByteOffset()
     {
         return _totalBytes;
+    }
+
+    /**
+     * Accessor for getting a textual description of source reference
+     * (Object returned by {@link #getSourceRef()}), as included in
+     * description returned by {@link #toString()}.
+     *<p>
+     * NOTE: not added as a "getter" to prevent it from getting serialized.
+     *
+     * @since 2.9
+     */
+    public String sourceDescription() {
+        return _appendSourceDesc(new StringBuilder(100)).toString();
+    }
+
+    /*
+    /**********************************************************
+    /* Std method overrides
+    /**********************************************************
+     */
+
+    @Override
+    public int hashCode()
+    {
+        int hash = (_sourceRef == null) ? 1 : _sourceRef.hashCode();
+        hash ^= _lineNr;
+        hash += _columnNr;
+        hash ^= (int) _totalChars;
+        hash += (int) _totalBytes;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (other == this) return true;
+        if (other == null) return false;
+        if (!(other instanceof JsonLocation)) return false;
+        JsonLocation otherLoc = (JsonLocation) other;
+
+        if (_sourceRef == null) {
+            if (otherLoc._sourceRef != null) return false;
+        } else if (!_sourceRef.equals(otherLoc._sourceRef)) return false;
+
+        return (_lineNr == otherLoc._lineNr)
+            && (_columnNr == otherLoc._columnNr)
+            && (_totalChars == otherLoc._totalChars)
+            && (getByteOffset() == otherLoc.getByteOffset())
+            ;
     }
 
     @Override
@@ -179,35 +217,5 @@ public class JsonLocation
     private int _append(StringBuilder sb, String content) {
         sb.append('"').append(content).append('"');
         return content.length();
-    }
-
-    @Override
-    public int hashCode()
-    {
-        int hash = (_sourceRef == null) ? 1 : _sourceRef.hashCode();
-        hash ^= _lineNr;
-        hash += _columnNr;
-        hash ^= (int) _totalChars;
-        hash += (int) _totalBytes;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object other)
-    {
-        if (other == this) return true;
-        if (other == null) return false;
-        if (!(other instanceof JsonLocation)) return false;
-        JsonLocation otherLoc = (JsonLocation) other;
-
-        if (_sourceRef == null) {
-            if (otherLoc._sourceRef != null) return false;
-        } else if (!_sourceRef.equals(otherLoc._sourceRef)) return false;
-
-        return (_lineNr == otherLoc._lineNr)
-            && (_columnNr == otherLoc._columnNr)
-            && (_totalChars == otherLoc._totalChars)
-            && (getByteOffset() == otherLoc.getByteOffset())
-            ;
     }
 }

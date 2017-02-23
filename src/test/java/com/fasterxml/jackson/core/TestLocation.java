@@ -62,12 +62,12 @@ public class TestLocation extends BaseTest
         String main = sb.toString();
         String json = main + "yyy";
         JsonLocation loc = new JsonLocation(json, 0L, 0L, 1, 1);
-        String desc = loc.getSourceDescription();
+        String desc = loc.sourceDescription();
         assertEquals(String.format("(String)\"%s\"[truncated 3 chars]", main), desc);
 
         // and same with bytes
         loc = new JsonLocation(json.getBytes("UTF-8"), 0L, 0L, 1, 1);
-        desc = loc.getSourceDescription();
+        desc = loc.sourceDescription();
         assertEquals(String.format("(byte[])\"%s\"[truncated 3 bytes]", main), desc);
     }
 
@@ -86,7 +86,7 @@ public class TestLocation extends BaseTest
             verifyException(e, "unrecognized token");
             JsonLocation loc = e.getLocation();
             assertNull(loc.getSourceRef());
-            assertEquals("UNKNOWN", loc.getSourceDescription());            
+            assertEquals("UNKNOWN", loc.sourceDescription());
         }
         p.close();
 
@@ -100,7 +100,7 @@ public class TestLocation extends BaseTest
             verifyException(e, "unrecognized token");
             JsonLocation loc = e.getLocation();
             assertNull(loc.getSourceRef());
-            assertEquals("UNKNOWN", loc.getSourceDescription());            
+            assertEquals("UNKNOWN", loc.sourceDescription());
         }
         p.close();
     }

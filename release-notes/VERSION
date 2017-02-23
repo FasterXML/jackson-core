@@ -28,6 +28,7 @@ JSON library.
  (reported by Brad H)
 #340: Making `WriterBasedJsonGenerator` non-final
  (requested by rfoltyns@github)
+#356: Improve indication of "source reference" in `JsonLocation` wrt `byte[]`,`char[]`
 
 2.8.7 (not yet released)
 

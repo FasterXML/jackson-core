@@ -3681,13 +3681,12 @@ public class UTF8StreamJsonParser
     @Override
     public JsonLocation getTokenLocation()
     {
-        final Object src = _ioContext.getSourceReference();
         if (_currToken == JsonToken.FIELD_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
-            return new JsonLocation(src,
+            return new JsonLocation(_getSourceReference(),
                     total, -1L, _nameStartRow, _nameStartCol);
         }
-        return new JsonLocation(src,
+        return new JsonLocation(_getSourceReference(),
                 _tokenInputTotal-1, -1L, _tokenInputRow, _tokenInputCol);
     }
 
@@ -3696,7 +3695,7 @@ public class UTF8StreamJsonParser
     public JsonLocation getCurrentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_ioContext.getSourceReference(),
+        return new JsonLocation(_getSourceReference(),
                 _currInputProcessed + _inputPtr, -1L, // bytes, chars
                 _currInputRow, col);
     }

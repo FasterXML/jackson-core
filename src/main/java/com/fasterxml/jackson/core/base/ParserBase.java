@@ -442,7 +442,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     @Override
     public JsonLocation getTokenLocation() {
-        return new JsonLocation(_ioContext.getSourceReference(),
+        return new JsonLocation(_getSourceReference(),
                 -1L, getTokenCharacterOffset(), // bytes, chars
                 getTokenLineNr(),
                 getTokenColumnNr());
@@ -455,7 +455,7 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override
     public JsonLocation getCurrentLocation() {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_ioContext.getSourceReference(),
+        return new JsonLocation(_getSourceReference(),
                 -1L, _currInputProcessed + _inputPtr, // bytes, chars
                 _currInputRow, col);
     }
@@ -504,7 +504,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /*
     /**********************************************************
-    /* Abstract methods needed from sub-classes
+    /* Abstract methods for sub-classes to implement
     /**********************************************************
      */
 
@@ -543,7 +543,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _reportInvalidEOF(String.format(
                     ": expected close marker for %s (start marker at %s)",
                     marker,
-                    _parsingContext.getStartLocation(_ioContext.getSourceReference())),
+                    _parsingContext.getStartLocation(_getSourceReference())),
                     null);
         }
     }
@@ -554,17 +554,6 @@ public abstract class ParserBase extends ParserMinimalBase
     protected final int _eofAsNextChar() throws JsonParseException {
         _handleEOF();
         return -1;
-    }
-    
-    /*
-    /**********************************************************
-    /* Internal/package methods: Error reporting
-    /**********************************************************
-     */
-    
-    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
-        String startDesc = ""+_parsingContext.getStartLocation(_ioContext.getSourceReference());
-        _reportError("Unexpected close marker '"+((char) actCh)+"': expected '"+expCh+"' (for "+_parsingContext.typeDesc()+" starting at "+startDesc+")");
     }
 
     /*
@@ -1051,13 +1040,18 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numTypesValid |= NR_BIGDECIMAL;
     }
-    
+
     /*
     /**********************************************************
-    /* Number handling exceptions
+    /* Internal/package methods: Error reporting
     /**********************************************************
-     */    
+     */
     
+    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
+        String startDesc = ""+_parsingContext.getStartLocation(_getSourceReference());
+        _reportError("Unexpected close marker '"+((char) actCh)+"': expected '"+expCh+"' (for "+_parsingContext.typeDesc()+" starting at "+startDesc+")");
+    }
+
     protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
         String msg = "Unexpected character ("+_getCharDesc(ch)+") in numeric value";
         if (comment != null) {
@@ -1162,6 +1156,25 @@ public abstract class ParserBase extends ParserMinimalBase
         return new IllegalArgumentException(base);
     }
 
+    /*
+    /**********************************************************
+    /* Internal/package methods: other
+    /**********************************************************
+     */
+
+    /**
+     * Helper method used to encapsulate logic of including (or not) of
+     * "source reference" when constructing {@link JsonLocation} instances.
+     *
+     * @since 2.9
+     */
+    protected Object _getSourceReference() {
+        if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
+            return _ioContext.getSourceReference();
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Stuff that was abstract and required before 2.8, but that

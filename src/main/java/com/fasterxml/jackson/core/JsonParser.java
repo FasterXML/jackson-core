@@ -58,7 +58,7 @@ public abstract class JsonParser
          * Feature is enabled by default.
          */
         AUTO_CLOSE_SOURCE(true),
-            
+
         // // // Support for non-standard data format constructs
 
         /**
@@ -170,6 +170,49 @@ public abstract class JsonParser
          ALLOW_NON_NUMERIC_NUMBERS(false),
 
          /**
+          * Feature allows the support for "missing" values in a JSON array: missing
+          * value meaning sequence of two commas, without value in-between but only
+          * optional white space.
+          * Enabling this feature will expose "missing" values as {@link JsonToken#VALUE_NULL}
+          * tokens, which typically become Java nulls in arrays and {@link java.util.Collection}
+          * in data-binding.
+          * <p>
+          * For example, enabling this feature will represent a JSON array <code>["value1",,"value3",]</code>
+          * as <code>["value1", null, "value3", null]</code> 
+          * <p>
+          * Since the JSON specification does not allow missing values this is a non-compliant JSON
+          * feature and is disabled by default.
+          * 
+          * @since 2.8
+          */
+         ALLOW_MISSING_VALUES(false),
+
+         /**
+          * Feature that determines whether {@link JsonParser} will allow for a single trailing
+          * comma following the final value (in an Array) or member (in an Object). These commas
+          * will simply be ignored.
+          * <p>
+          * For example, when this feature is enabled, <code>[true,true,]</code> is equivalent to
+          * <code>[true, true]</code> and <code>{"a": true,}</code> is equivalent to
+          * <code>{"a": true}</code>.
+          * <p>
+          * When combined with <code>ALLOW_MISSING_VALUES</code>, this feature takes priority, and
+          * the final trailing comma in an array declaration does not imply a missing
+          * (<code>null</code>) value. For example, when both <code>ALLOW_MISSING_VALUES</code>
+          * and <code>ALLOW_TRAILING_COMMA</code> are enabled, <code>[true,true,]</code> is
+          * equivalent to <code>[true, true]</code>, and <code>[true,true,,]</code> is equivalent to
+          * <code>[true, true, null]</code>.
+          * <p>
+          * Since the JSON specification does not permit trailing commas, this is a non-standard
+          * feature, and as such disabled by default.
+          *
+          * @since 2.9
+          */
+         ALLOW_TRAILING_COMMA(false),
+
+         // // // Validity checks
+         
+         /**
           * Feature that determines whether {@link JsonParser} will explicitly
           * check that no duplicate JSON Object field names are encountered.
           * If enabled, parser will check all names within context and report
@@ -211,46 +254,29 @@ public abstract class JsonParser
           */
          IGNORE_UNDEFINED(false),
 
-         /**
-          * Feature allows the support for "missing" values in a JSON array: missing
-          * value meaning sequence of two commas, without value in-between but only
-          * optional white space.
-          * Enabling this feature will expose "missing" values as {@link JsonToken#VALUE_NULL}
-          * tokens, which typically become Java nulls in arrays and {@link java.util.Collection}
-          * in data-binding.
-          * <p>
-          * For example, enabling this feature will represent a JSON array <code>["value1",,"value3",]</code>
-          * as <code>["value1", null, "value3", null]</code> 
-          * <p>
-          * Since the JSON specification does not allow missing values this is a non-compliant JSON
-          * feature and is disabled by default.
-          * 
-          * @since 2.8
-          */
-         ALLOW_MISSING_VALUES(false),
+         // // // Other
 
          /**
-          * Feature that determines whether {@link JsonParser} will allow for a single trailing
-          * comma following the final value (in an Array) or member (in an Object). These commas
-          * will simply be ignored.
-          * <p>
-          * For example, when this feature is enabled, <code>[true,true,]</code> is equivalent to
-          * <code>[true, true]</code> and <code>{"a": true,}</code> is equivalent to
-          * <code>{"a": true}</code>.
-          * <p>
-          * When combined with <code>ALLOW_MISSING_VALUES</code>, this feature takes priority, and
-          * the final trailing comma in an array declaration does not imply a missing
-          * (<code>null</code>) value. For example, when both <code>ALLOW_MISSING_VALUES</code>
-          * and <code>ALLOW_TRAILING_COMMA</code> are enabled, <code>[true,true,]</code> is
-          * equivalent to <code>[true, true]</code>, and <code>[true,true,,]</code> is equivalent to
-          * <code>[true, true, null]</code>.
-          * <p>
-          * Since the JSON specification does not permit trailing commas, this is a non-standard
-          * feature, and as such disabled by default.
+          * Feature that determines whether {@link JsonLocation} instances should be constructed
+          * with reference to source or not. If source reference is included, its type and contents
+          * are included when `toString()` method is called (most notably when printing out parse
+          * exception with that location information). If feature is disabled, no source reference
+          * is passed and source is only indicated as "UNKNOWN".
+          *<p>
+          * Most common reason for disabling this feature is to avoid leaking information about
+          * internal information; this may be done for security reasons.
+          * Note that even if source reference is included, only parts of contents are usually
+          * printed, and not the whole contents. Further, many source reference types can not
+          * necessarily access contents (like streams), so only type is indicated, not contents.
+          *<p>
+          * Feature is enabled by default, meaning that "source reference" information is passed
+          * and some or all of the source content may be included in {@link JsonLocation} information
+          * constructed either when requested explicitly, or when needed for an exception.
           *
           * @since 2.9
           */
-         ALLOW_TRAILING_COMMA(false)
+         INCLUDE_SOURCE_IN_LOCATION(true),
+         
          ;
 
         /**

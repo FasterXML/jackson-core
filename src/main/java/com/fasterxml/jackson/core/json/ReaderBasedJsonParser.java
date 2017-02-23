@@ -2760,20 +2760,19 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     @Override
     public JsonLocation getTokenLocation()
     {
-        final Object src = _ioContext.getSourceReference();
         if (_currToken == JsonToken.FIELD_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
-            return new JsonLocation(src,
+            return new JsonLocation(_getSourceReference(),
                     -1L, total, _nameStartRow, _nameStartCol);
         }
-        return new JsonLocation(src,
+        return new JsonLocation(_getSourceReference(),
                 -1L, _tokenInputTotal-1, _tokenInputRow, _tokenInputCol);
     }
 
     @Override
     public JsonLocation getCurrentLocation() {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_ioContext.getSourceReference(),
+        return new JsonLocation(_getSourceReference(),
                 -1L, _currInputProcessed + _inputPtr,
                 _currInputRow, col);
     }

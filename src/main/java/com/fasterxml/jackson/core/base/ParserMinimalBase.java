@@ -127,10 +127,8 @@ public abstract class ParserMinimalBase extends JsonParser
     
     @Override
     public JsonToken nextValue() throws IOException {
-        /* Implementation should be as trivial as follows; only
-         * needs to change if we are to skip other tokens (for
-         * example, if comments were exposed as tokens)
-         */
+        // Implementation should be as trivial as follows; only needs to change if
+        // we are to skip other tokens (for example, if comments were exposed as tokens)
         JsonToken t = nextToken();
         if (t == JsonToken.FIELD_NAME) {
             t = nextToken();
@@ -147,9 +145,8 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         int open = 1;
 
-        /* Since proper matching of start/end markers is handled
-         * by nextToken(), we'll just count nesting levels here
-         */
+        // Since proper matching of start/end markers is handled
+        // by nextToken(), we'll just count nesting levels here
         while (true) {
             JsonToken t = nextToken();
             if (t == null) {

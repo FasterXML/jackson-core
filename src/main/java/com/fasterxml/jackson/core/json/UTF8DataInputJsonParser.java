@@ -2812,16 +2812,12 @@ public class UTF8DataInputJsonParser
 
     @Override
     public JsonLocation getTokenLocation() {
-        final Object src = _ioContext.getSourceReference();
-        return new JsonLocation(src,
-                -1L, -1L, _tokenInputRow, -1);
+        return new JsonLocation(_getSourceReference(), -1L, -1L, _tokenInputRow, -1);
     }
 
     @Override
     public JsonLocation getCurrentLocation() {
-        final Object src = _ioContext.getSourceReference();
-        return new JsonLocation(src,
-                -1L, -1L, _currInputRow, -1);
+        return new JsonLocation(_getSourceReference(), -1L, -1L, _currInputRow, -1);
     }
 
     /*

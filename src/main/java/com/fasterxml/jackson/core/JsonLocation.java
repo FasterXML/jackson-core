@@ -5,6 +5,8 @@
 
 package com.fasterxml.jackson.core;
 
+import java.nio.charset.Charset;
+
 /**
  * Object that encapsulates Location information used for reporting
  * parsing (or potentially generation) errors, as well as current location
@@ -16,16 +18,28 @@ public class JsonLocation
     private static final long serialVersionUID = 1L;
 
     /**
-     * Shared immutable "N/A location" that can be returned to indicate
-     * that no location information is available
+     * Include at most first 500 characters/bytes from contents; should be enough
+     * to give context, but not cause unfortunate side effects in things like
+     * logs.
+     *
+     * @since 2.9
      */
-    public final static JsonLocation NA = new JsonLocation("N/A", -1L, -1L, -1, -1);
+    public static final int MAX_CONTENT_SNIPPET = 500;
+    
+    /**
+     * Shared immutable "N/A location" that can be returned to indicate
+     * that no location information is available.
+     *<p>
+     * NOTE: before 2.9, Location was given as String "N/A"; with 2.9 it was
+     * removed so that source should be indicated as "UNKNOWN".
+     */
+    public final static JsonLocation NA = new JsonLocation(null, -1L, -1L, -1, -1);
 
-    final long _totalBytes;
-    final long _totalChars;
+    protected final long _totalBytes;
+    protected final long _totalChars;
 
-    final int _lineNr;
-    final int _columnNr;
+    protected final int _lineNr;
+    protected final int _columnNr;
 
     /**
      * Displayable description for input source: file path, URL.
@@ -65,6 +79,17 @@ public class JsonLocation
     public Object getSourceRef() { return _sourceRef; }
 
     /**
+     * Accessor for getting a textual description of source reference
+     * (Object returned by {@link #getSourceRef()}), as included in
+     * description returned by {@link #toString()}.
+     *
+     * @since 2.9
+     */
+    public String getSourceDescription() {
+        return _appendSourceDesc(new StringBuilder(100)).toString();
+    }
+
+    /**
      * @return Line number of the location (1-based)
      */
     public int getLineNr() { return _lineNr; }
@@ -94,17 +119,66 @@ public class JsonLocation
     {
         StringBuilder sb = new StringBuilder(80);
         sb.append("[Source: ");
-        if (_sourceRef == null) {
-            sb.append("UNKNOWN");
-        } else {
-            sb.append(_sourceRef.toString());
-        }
+        _appendSourceDesc(sb);
         sb.append("; line: ");
         sb.append(_lineNr);
         sb.append(", column: ");
         sb.append(_columnNr);
         sb.append(']');
         return sb.toString();
+    }
+
+    protected StringBuilder _appendSourceDesc(StringBuilder sb)
+    {
+        final Object srcRef = _sourceRef;
+
+        if (srcRef == null) {
+            sb.append("UNKNOWN");
+            return sb;
+        }
+        // First, figure out what name to use as source type
+        Class<?> srcType = (srcRef instanceof Class<?>) ?
+                ((Class<?>) srcRef) : srcRef.getClass();
+        String tn = srcType.getName();
+        // standard JDK types without package
+        if (tn.startsWith("java.")) {
+            tn = srcType.getSimpleName();
+        } else if (srcRef instanceof byte[]) { // then some other special cases
+            tn = "byte[]";
+        } else if (srcRef instanceof char[]) {
+            tn = "char[]";
+        }
+        sb.append('(').append(tn).append(')');
+        // and then, include (part of) contents for selected types:
+        int len;
+        String charStr = " chars";
+
+        if (srcRef instanceof CharSequence) {
+            CharSequence cs = (CharSequence) srcRef;
+            len = cs.length();
+            len -= _append(sb, cs.subSequence(0, Math.min(len, MAX_CONTENT_SNIPPET)).toString());
+        } else if (srcRef instanceof char[]) {
+            char[] ch = (char[]) srcRef;
+            len = ch.length;
+            len -= _append(sb, new String(ch, 0, Math.min(len, MAX_CONTENT_SNIPPET)));
+        } else if (srcRef instanceof byte[]) {
+            byte[] b = (byte[]) srcRef;
+            int maxLen = Math.min(b.length, MAX_CONTENT_SNIPPET);
+            _append(sb, new String(b, 0, maxLen, Charset.forName("UTF-8")));
+            len = b.length - maxLen;
+            charStr = " bytes";
+        } else {
+            len = 0;
+        }
+        if (len > 0) {
+            sb.append("[truncated ").append(len).append(charStr).append(']');
+        }
+        return sb;
+    }
+
+    private int _append(StringBuilder sb, String content) {
+        sb.append('"').append(content).append('"');
+        return content.length();
     }
 
     @Override

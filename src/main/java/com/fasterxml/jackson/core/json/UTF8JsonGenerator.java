@@ -1,17 +1,14 @@
 package com.fasterxml.jackson.core.json;
 
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberOutput;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public class UTF8JsonGenerator
     extends JsonGeneratorImpl
@@ -476,7 +473,6 @@ public class UTF8JsonGenerator
 
         int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
 
-        //TODO: Check that this use is OK
         final char[] buf = _charBuffer;
 
         //Add leading quote
@@ -486,11 +482,8 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
 
         //read
-        while(toRead > 0){
+        while (toRead > 0){
             int toReadNow = Math.min(toRead, buf.length);
-            if(toRead <= 0){
-                break;
-            }
             int numRead = reader.read(buf, 0, toReadNow);
             if(numRead <= 0){
                 break;
@@ -499,7 +492,6 @@ public class UTF8JsonGenerator
                 _flushBuffer();
             }
             _writeStringSegments(buf, 0, numRead);
-
             //decrease tracker
             toRead -= numRead;
         }
@@ -510,7 +502,7 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = _quoteChar;
 
-        if(toRead > 0 && len >= 0){
+        if (toRead > 0 && len >= 0){
             _reportError("Didn't read enough from reader");
         }
     }

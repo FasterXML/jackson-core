@@ -122,3 +122,7 @@ Brad Hess (bdhess@github)
    (2.9.0)
   * Reported #325: `DataInput` backed parser should handle `EOFException` at end of doc
    (2.9.0)
+
+Logan Widick (uhhhh2@github)
+  * Contributed #17: Add 'JsonGenerator.writeString(Reader r, int charLength)'
+   (2.9.0)

@@ -16,6 +16,8 @@ JSON library.
 
 2.9.0 (not yet released)
 
+#17: Add 'JsonGenerator.writeString(Reader r, int charLength)'
+ (constributed by Logan W)
 #304: Optimize `NumberOutput.outputLong()` method
 #312: Add `JsonProcessingException.clearLocation()` to allow clearing
   possibly security-sensitive information

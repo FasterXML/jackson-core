@@ -4,16 +4,16 @@
  */
 package com.fasterxml.jackson.core;
 
-import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.util.VersionUtil;
-
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
 
@@ -941,6 +941,8 @@ public abstract class JsonGenerator
      * If the reader is null, then write a null.
      * If len is < 0, then write all contents of the reader.
      * Otherwise, write only len characters.
+     *
+     * @since 2.9
      */
     public abstract void writeString(Reader reader, int len) throws IOException;
 

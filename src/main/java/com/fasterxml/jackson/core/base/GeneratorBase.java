@@ -341,7 +341,7 @@ public abstract class GeneratorBase extends JsonGenerator
         return 0;
     }
 
-    @Override
+    @Override // since 2.9
     public void writeString(Reader reader, int len) throws IOException {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
         _reportUnsupportedOperation();

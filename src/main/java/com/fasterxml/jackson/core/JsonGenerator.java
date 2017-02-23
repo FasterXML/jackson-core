@@ -944,7 +944,10 @@ public abstract class JsonGenerator
      *
      * @since 2.9
      */
-    public abstract void writeString(Reader reader, int len) throws IOException;
+    public void writeString(Reader reader, int len) throws IOException {
+        // Let's implement this as "unsupported" to make it easier to add new parser impls
+        _reportUnsupportedOperation();
+    }
 
     /**
      * Method for outputting a String value. Depending on context

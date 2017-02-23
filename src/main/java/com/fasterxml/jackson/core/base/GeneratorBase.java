@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.math.BigDecimal;
 
 /**
@@ -300,10 +299,12 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public void writeFieldName(SerializableString name) throws IOException {
         writeFieldName(name.getValue());
     }
-    
+
     //public abstract void writeString(String text) throws IOException;
 
     //public abstract void writeString(char[] text, int offset, int len) throws IOException;
+
+    //public abstract void writeString(Reader reader, int len) throws IOException;
 
     //public abstract void writeRaw(String text) throws IOException,;
 
@@ -341,17 +342,11 @@ public abstract class GeneratorBase extends JsonGenerator
         return 0;
     }
 
-    @Override // since 2.9
-    public void writeString(Reader reader, int len) throws IOException {
-        // Let's implement this as "unsupported" to make it easier to add new parser impls
-        _reportUnsupportedOperation();
-    }
-
     /*
-   /**********************************************************
-   /* Public API, write methods, primitive
-   /**********************************************************
-    */
+    /**********************************************************
+    /* Public API, write methods, primitive
+    /**********************************************************
+     */
 
     // Not implemented at this level, added as placeholders
 

@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion> 
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-parent</artifactId>
-    <version>2.9-rc1-SNAPSHOT</version>
+    <version>2.9-#1536-SNAPSHOT</version>
   </parent>
 
    <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
   <name>Jackson-core</name>
-  <version>2.9.0-SNAPSHOT</version>
+  <version>2.9-#1536-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <description>Core Jackson abstractions, basic JSON streaming API implementation</description>
   <inceptionYear>2008</inceptionYear>
@@ -24,14 +24,14 @@
 
   <properties>
     <!-- 16-Sep-2016, tatu: Retain Java6/JDK1.6 compatibility for streaming for Jackson 2.x -->
-    <javac.src.version>1.6</javac.src.version>
-    <javac.target.version>1.6</javac.target.version>
+      <maven.compiler.source>1.9</maven.compiler.source>
+      <maven.compiler.target>1.9</maven.compiler.target>
+      <maven.compiler.release>9</maven.compiler.release>
 
     <!-- 04-May-2016, tatu: Bundle-plugin 3.x seems to require Java 7, so to
            build for Java 6 need to downgrade here to last working 2.x version
           (2.5.4 had some issues wrt shading)
       -->
-    <version.plugin.bundle>2.5.3</version.plugin.bundle>
 
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
@@ -40,6 +40,10 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
+
+    <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+    <maven-bundle-plugin.version>3.2.0</maven-bundle-plugin.version>
+    <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
   </properties>
 
   <dependencies>
@@ -53,9 +57,27 @@ com.fasterxml.jackson.core.*;version=${project.version}
   <build>
     <plugins>
       <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+      </plugin>
+      <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <extensions>true</extensions>
+          <version>${maven-bundle-plugin.version}</version>
+          <configuration>
+              <instructions>
+                  <_noee>true</_noee>
+                  <_failok>true</_failok>
+                  <Include-Resource>module-info.class=target/classes/module-info.class</Include-Resource>
+              </instructions>
+          </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.8.1</version>
+          <version>${maven-javadoc-plugin.version}</version>
           <configuration>
             <source>${javac.src.version}</source>
             <target>${javac.target.version}</target>
@@ -64,6 +86,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
             <links>
               <link>http://docs.oracle.com/javase/7/docs/api/</link>
             </links>
+            <additionalparam>-Xdoclint:none</additionalparam>
           </configuration>
           <executions>
             <execution>
@@ -109,7 +132,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.8.1</version>
+          <version>${maven-javadoc-plugin.version}</version>
           <configuration>
               <aggregate>true</aggregate>
               <source>1.6</source>
@@ -131,6 +154,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
               <additionalparam>
                   -hdf project.name "${project.name} ${project.version}"
                   -d ${project.reporting.outputDirectory}/apidocs
+                  -Xdoclint:none
               </additionalparam>
           </configuration>
           <reportSets>

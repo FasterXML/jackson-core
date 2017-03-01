@@ -1494,7 +1494,7 @@ public class JsonFactory
          *   scheme, for cases where it is considered harmful (possibly
          *   on Android, for example)
          */
-        if (isEnabled(Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)) {
+        if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
             SoftReference<BufferRecycler> ref = _recyclerRef.get();
             BufferRecycler br = (ref == null) ? null : ref.get();
     

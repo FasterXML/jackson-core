@@ -1,4 +1,4 @@
-module jackson_core {
+module jackson.core {
     exports com.fasterxml.jackson.core;
     exports com.fasterxml.jackson.core.base;
     exports com.fasterxml.jackson.core.filter;

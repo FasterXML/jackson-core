@@ -461,8 +461,16 @@ public class NumberParsingTest
      */
     public void testParsingOfLongerSequencesWithNonNumeric() throws Exception
     {
-        JsonFactory factory = new JsonFactory();
-        factory.enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+        JsonFactory f = new JsonFactory();
+        f.enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM);
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM_THROTTLED);
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_READER);
+        _testParsingOfLongerSequencesWithNonNumeric(f, MODE_DATA_INPUT);
+    }
+
+    private void _testParsingOfLongerSequencesWithNonNumeric(JsonFactory f, int mode) throws Exception
+    {
         double[] values = new double[] {
                 0.01, -10.5, 2.1e9, 4.0e-8,
                 Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY
@@ -479,23 +487,26 @@ public class NumberParsingTest
             sb.append(arrayJson);
             String DOC = sb.toString();
             for (int input = 0; input < 2; ++input) {
-                JsonParser p;
-                if (input == 0) {
-                    p = createParserUsingStream(factory, DOC, "UTF-8");
-                } else {
-                    p = factory.createParser(DOC);
-                }
+                JsonParser p = createParser(f, mode, DOC);
                 assertToken(JsonToken.START_ARRAY, p.nextToken());
                 for (int j = 0; j < VCOUNT; ++j) {
                     assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                    assertEquals(values[i], p.getDoubleValue());
+                    double exp = values[i];
+                    double act = p.getDoubleValue();
+                    if (Double.compare(exp, act) != 0) {
+                        fail("Expected at #"+j+" value "+exp+", instead got "+act);
+                    }
+                    if (Double.isNaN(exp)) {
+                        assertTrue(p.isNaN());
+                    } else {
+                        assertFalse(p.isNaN());
+                    }
                 }
                 assertToken(JsonToken.END_ARRAY, p.nextToken());
                 p.close();
             }
         }
     }
-
 
     /*
     /**********************************************************

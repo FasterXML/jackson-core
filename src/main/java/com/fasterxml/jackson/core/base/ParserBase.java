@@ -615,7 +615,17 @@ public abstract class ParserBase extends ParserMinimalBase
         _numTypesValid = NR_DOUBLE;
         return JsonToken.VALUE_NUMBER_FLOAT;
     }
-    
+
+    @Override
+    public boolean isNaN() {
+        if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
+            if ((_numTypesValid & NR_DOUBLE) != 0) {
+                return Double.isNaN(_numberDouble);
+            }
+        }
+        return false;
+    }
+
     /*
     /**********************************************************
     /* Numeric accessors of public API
@@ -1046,33 +1056,13 @@ public abstract class ParserBase extends ParserMinimalBase
     /* Internal/package methods: Error reporting
     /**********************************************************
      */
-    
+
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
-        String startDesc = ""+_parsingContext.getStartLocation(_getSourceReference());
-        _reportError("Unexpected close marker '"+((char) actCh)+"': expected '"+expCh+"' (for "+_parsingContext.typeDesc()+" starting at "+startDesc+")");
+        JsonReadContext ctxt = getParsingContext();
+        _reportError(String.format(
+                "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
+                (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));
     }
-
-    protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
-        String msg = "Unexpected character ("+_getCharDesc(ch)+") in numeric value";
-        if (comment != null) {
-            msg += ": "+comment;
-        }
-        _reportError(msg);
-    }
-    
-    protected void reportInvalidNumber(String msg) throws JsonParseException {
-        _reportError("Invalid numeric value: "+msg);
-    }
-
-    protected void reportOverflowInt() throws IOException {
-        _reportError(String.format("Numeric value (%s) out of range of int (%d - %s)",
-                getText(), Integer.MIN_VALUE, Integer.MAX_VALUE));
-    }
-    
-    protected void reportOverflowLong() throws IOException {
-        _reportError(String.format("Numeric value (%s) out of range of long (%d - %s)",
-                getText(), Long.MIN_VALUE, Long.MAX_VALUE));
-    }    
 
     /*
     /**********************************************************
@@ -1141,7 +1131,8 @@ public abstract class ParserBase extends ParserMinimalBase
     protected IllegalArgumentException reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex, String msg) throws IllegalArgumentException {
         String base;
         if (ch <= INT_SPACE) {
-            base = "Illegal white space character (code 0x"+Integer.toHexString(ch)+") as character #"+(bindex+1)+" of 4-char base64 unit: can only used between units";
+            base = String.format("Illegal white space character (code 0x%s) as character #%d of 4-char base64 unit: can only used between units",
+                    Integer.toHexString(ch), (bindex+1));
         } else if (b64variant.usesPaddingChar(ch)) {
             base = "Unexpected padding character ('"+b64variant.getPaddingChar()+"') as character #"+(bindex+1)+" of 4-char base64 unit: padding only legal as 3rd or 4th character";
         } else if (!Character.isDefined(ch) || Character.isISOControl(ch)) {

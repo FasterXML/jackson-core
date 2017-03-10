@@ -537,6 +537,47 @@ public abstract class JsonParser
     @Override
     public abstract void close() throws IOException;
 
+    /**
+     * Method that can be called to determine whether this parser
+     * is closed or not. If it is closed, no new tokens can be
+     * retrieved by calling {@link #nextToken} (and the underlying
+     * stream may be closed). Closing may be due to an explicit
+     * call to {@link #close} or because parser has encountered
+     * end of input.
+     */
+    public abstract boolean isClosed();
+
+    /*
+    /**********************************************************
+    /* Public API, simple location, context accessors
+    /**********************************************************
+     */
+
+    /**
+     * Method that can be used to access current parsing context reader
+     * is in. There are 3 different types: root, array and object contexts,
+     * with slightly different available information. Contexts are
+     * hierarchically nested, and can be used for example for figuring
+     * out part of the input document that correspond to specific
+     * array or object (for highlighting purposes, or error reporting).
+     * Contexts can also be used for simple xpath-like matching of
+     * input, if so desired.
+     */
+    public abstract JsonStreamContext getParsingContext();
+
+    /**
+     * Method that return the <b>starting</b> location of the current
+     * token; that is, position of the first character from input
+     * that starts the current token.
+     */
+    public abstract JsonLocation getTokenLocation();
+
+    /**
+     * Method that returns location of the last processed character;
+     * usually for error reporting purposes.
+     */
+    public abstract JsonLocation getCurrentLocation();
+
     /*
     /**********************************************************
     /* Buffer handling
@@ -857,19 +898,9 @@ public abstract class JsonParser
         ; // nothing
     }
 
-    /**
-     * Method that can be called to determine whether this parser
-     * is closed or not. If it is closed, no new tokens can be
-     * retrieved by calling {@link #nextToken} (and the underlying
-     * stream may be closed). Closing may be due to an explicit
-     * call to {@link #close} or because parser has encountered
-     * end of input.
-     */
-    public abstract boolean isClosed();
-    
     /*
     /**********************************************************
-    /* Public API, token accessors
+    /* Public API, simple token id/type access
     /**********************************************************
      */
 
@@ -959,40 +990,6 @@ public abstract class JsonParser
      * @since 2.6
      */
     public abstract boolean hasToken(JsonToken t);
-    
-    /**
-     * Method that can be called to get the name associated with
-     * the current token: for {@link JsonToken#FIELD_NAME}s it will
-     * be the same as what {@link #getText} returns;
-     * for field values it will be preceding field name;
-     * and for others (array values, root-level values) null.
-     */
-    public abstract String getCurrentName() throws IOException;
-
-    /**
-     * Method that can be used to access current parsing context reader
-     * is in. There are 3 different types: root, array and object contexts,
-     * with slightly different available information. Contexts are
-     * hierarchically nested, and can be used for example for figuring
-     * out part of the input document that correspond to specific
-     * array or object (for highlighting purposes, or error reporting).
-     * Contexts can also be used for simple xpath-like matching of
-     * input, if so desired.
-     */
-    public abstract JsonStreamContext getParsingContext();
-
-    /**
-     * Method that return the <b>starting</b> location of the current
-     * token; that is, position of the first character from input
-     * that starts the current token.
-     */
-    public abstract JsonLocation getTokenLocation();
-
-    /**
-     * Method that returns location of the last processed character;
-     * usually for error reporting purposes.
-     */
-    public abstract JsonLocation getCurrentLocation();
 
     /**
      * Specialized accessor that can be used to verify that the current
@@ -1022,7 +1019,18 @@ public abstract class JsonParser
      * @since 2.5
      */
     public boolean isExpectedStartObjectToken() { return currentToken() == JsonToken.START_OBJECT; }
-    
+
+    /**
+     * Access for checking whether current token is a numeric value token, but
+     * one that is of "not-a-number" (NaN) variety: not supported by all formats,
+     * but often supported for {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     *
+     * @since 2.9
+     */
+    public boolean isNaN() {
+        return false;
+    }
+
     /*
     /**********************************************************
     /* Public API, token state overrides
@@ -1071,6 +1079,15 @@ public abstract class JsonParser
     /**********************************************************
      */
 
+    /**
+     * Method that can be called to get the name associated with
+     * the current token: for {@link JsonToken#FIELD_NAME}s it will
+     * be the same as what {@link #getText} returns;
+     * for field values it will be preceding field name;
+     * and for others (array values, root-level values) null.
+     */
+    public abstract String getCurrentName() throws IOException;
+    
     /**
      * Method for accessing textual representation of the current token;
      * if no current token (before first call to {@link #nextToken}, or

@@ -425,7 +425,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /* Coercion helper methods (overridable)
     /**********************************************************
      */
-    
+
     /**
      * Helper method used to determine whether we are currently pointing to
      * a String value of "null" (NOT a null token); and, if so, that parser
@@ -434,19 +434,41 @@ public abstract class ParserMinimalBase extends JsonParser
      * @since 2.3
      */
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
-    
+
     /*
     /**********************************************************
     /* Error reporting
     /**********************************************************
      */
+
+    protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
+        String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
+        if (comment != null) {
+            msg += ": "+comment;
+        }
+        _reportError(msg);
+    }
+
+    protected void reportInvalidNumber(String msg) throws JsonParseException {
+        _reportError("Invalid numeric value: "+msg);
+    }
+
+    protected void reportOverflowInt() throws IOException {
+        _reportError(String.format("Numeric value (%s) out of range of int (%d - %s)",
+                getText(), Integer.MIN_VALUE, Integer.MAX_VALUE));
+    }
     
+    protected void reportOverflowLong() throws IOException {
+        _reportError(String.format("Numeric value (%s) out of range of long (%d - %s)",
+                getText(), Long.MIN_VALUE, Long.MAX_VALUE));
+    }
+
     protected void _reportUnexpectedChar(int ch, String comment) throws JsonParseException
     {
         if (ch < 0) { // sanity check
             _reportInvalidEOF();
         }
-        String msg = "Unexpected character ("+_getCharDesc(ch)+")";
+        String msg = String.format("Unexpected character (%s)", _getCharDesc(ch));
         if (comment != null) {
             msg += ": "+comment;
         }
@@ -532,7 +554,7 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportError("Unrecognized character escape "+_getCharDesc(ch));
         return ch;
     }
-    
+
     /*
     /**********************************************************
     /* Error reporting, generic

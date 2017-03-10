@@ -939,7 +939,7 @@ public abstract class JsonGenerator
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
      * If the reader is null, then write a null.
-     * If len is < 0, then write all contents of the reader.
+     * If len is &lt; 0, then write all contents of the reader.
      * Otherwise, write only len characters.
      *
      * @since 2.9

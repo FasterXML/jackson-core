@@ -22,6 +22,7 @@ JSON library.
 #312: Add `JsonProcessingException.clearLocation()` to allow clearing
   possibly security-sensitive information
  (contributed by Alex Y)
+#314: Add a method in `JsonParser` to allow checking for "NaN" values
 #323: Add `JsonParser.ALLOW_TRAILING_COMMA` to work for Arrays and Objects
  (contributed by Brad H)
 #325: `DataInput` backed parser should handle `EOFException` at end of doc

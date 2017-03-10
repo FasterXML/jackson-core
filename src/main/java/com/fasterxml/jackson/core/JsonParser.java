@@ -1022,8 +1022,11 @@ public abstract class JsonParser
 
     /**
      * Access for checking whether current token is a numeric value token, but
-     * one that is of "not-a-number" (NaN) variety: not supported by all formats,
+     * one that is of "not-a-number" (NaN) variety (including both "NaN" AND
+     * positive/negative infinity!): not supported by all formats,
      * but often supported for {@link JsonToken#VALUE_NUMBER_FLOAT}.
+     * NOTE: roughly equivalent to calling <code>!Double.isFinite()</code>
+     * on value you would get from calling {@link #getDoubleValue()}.
      *
      * @since 2.9
      */

@@ -496,7 +496,7 @@ public class NumberParsingTest
                     if (Double.compare(exp, act) != 0) {
                         fail("Expected at #"+j+" value "+exp+", instead got "+act);
                     }
-                    if (Double.isNaN(exp)) {
+                    if (Double.isNaN(exp) || Double.isInfinite(exp)) {
                         assertTrue(p.isNaN());
                     } else {
                         assertFalse(p.isNaN());

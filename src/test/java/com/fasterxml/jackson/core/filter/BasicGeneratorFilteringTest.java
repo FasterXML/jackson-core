@@ -305,4 +305,29 @@ public class BasicGeneratorFilteringTest extends BaseTest
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'array':[1,2]}"), w.toString());
     }
+
+    public void testWriteStartObjectWithObject() throws Exception
+    {
+        StringWriter w = new StringWriter();
+
+        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                TokenFilter.INCLUDE_ALL,
+                true, true);
+
+        String value = "val";
+
+        gen.writeStartObject(new Object());
+        gen.writeFieldName("field1");
+        {
+            gen.writeStartObject(value);
+            gen.writeEndObject();
+        }
+
+        gen.writeFieldName("field2");
+        gen.writeString("val2");
+
+        gen.writeEndObject();
+        gen.close();
+        assertEquals(aposToQuotes("{'field1':{},'field2':'val2'}"), w.toString());
+    }
 }

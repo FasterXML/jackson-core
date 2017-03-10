@@ -18,6 +18,11 @@ JSON library.
 
 #304: Optimize `NumberOutput.outputLong()` method
 
+2.8.8 (not yet released)
+
+#359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
+ (contributed by Arnaud R)
+
 2.8.7 (21-Feb-2017)
 
 #349: CharsToNameCanonicalizer performance bottleneck 

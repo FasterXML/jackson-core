@@ -244,6 +244,36 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
     
     @Override
+    public void writeStartObject(Object forValue) throws IOException
+    {
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, false);
+            return;
+        }
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, true);
+            delegate.writeStartObject(forValue);
+            return;
+        }
+
+        TokenFilter f = _filterContext.checkValue(_itemFilter);
+        if (f == null) {
+            return;
+        }
+
+        if (f != TokenFilter.INCLUDE_ALL) {
+            f = f.filterStartObject();
+        }
+        if (f == TokenFilter.INCLUDE_ALL) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildObjectContext(f, true);
+            delegate.writeStartObject(forValue);
+        } else { // filter out
+            _filterContext = _filterContext.createChildObjectContext(f, false);
+        }
+    }
+
+    @Override
     public void writeEndObject() throws IOException
     {
         _filterContext = _filterContext.closeObject(delegate);

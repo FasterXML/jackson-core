@@ -30,7 +30,12 @@ JSON library.
  (requested by rfoltyns@github)
 #356: Improve indication of "source reference" in `JsonLocation` wrt `byte[]`,`char[]`
 
-2.8.7 (not yet released)
+2.8.8 (not yet released)
+
+#359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
+ (contributed by Arnaud R)
+
+2.8.7 (21-Feb-2017)
 
 #349: CharsToNameCanonicalizer performance bottleneck 
  (reported by Nuno D, nmldiegues@github)

@@ -135,6 +135,8 @@ public class JsonWriteContext extends JsonStreamContext
 
     @Override public final JsonWriteContext getParent() { return _parent; }
     @Override public final String getCurrentName() { return _currentName; }
+    // @since 2.9
+    @Override public boolean hasCurrentName() { return _currentName != null; }
 
     /**
      * Method that can be used to both clear the accumulated references

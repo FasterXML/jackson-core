@@ -275,6 +275,8 @@ public class TokenFilterContext extends JsonStreamContext
 
     @Override public final TokenFilterContext getParent() { return _parent; }
     @Override public final String getCurrentName() { return _currentName; }
+    // @since 2.9
+    @Override public boolean hasCurrentName() { return _currentName != null; }
 
     public TokenFilter getFilter() { return _filter; }
     public boolean isStartHandled() { return _startHandled; }

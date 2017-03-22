@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core;
 
-
 public class TestJsonPointer extends BaseTest
 {
     public void testSimplePath() throws Exception
@@ -150,7 +149,7 @@ public class TestJsonPointer extends BaseTest
         assertNull(ptr.tail());
     }
 
-    // [Issue#133]
+    // [core#133]
     public void testLongNumbers() throws Exception
     {
         final long LONG_ID = ((long) Integer.MAX_VALUE) + 1L;

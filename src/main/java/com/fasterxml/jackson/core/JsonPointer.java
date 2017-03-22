@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * It may be used in future for filtering of streaming JSON content
  * as well (not implemented yet for 2.3).
  *<p>
- * Instances are fully immutable and can be shared, cached.
+ * Instances are fully immutable and can be cached, shared between threads.
  * 
  * @author Tatu Saloranta
  *
@@ -137,6 +137,86 @@ public class JsonPointer
      */
     public static JsonPointer valueOf(String input) { return compile(input); }
 
+    /**
+     * Factory method that will construct a pointer instance that describes
+     * path to location given {@link JsonStreamContext} points to.
+     *
+     * @param context Context to build pointer expression fot
+     * @param includeRoot Whether to include number offset for virtual "root context"
+     *    or not.
+     *
+     * @since 2.9
+     */
+    public static JsonPointer forPath(JsonStreamContext context,
+            boolean includeRoot)
+    {
+        // First things first: last segment may be for START_ARRAY/START_OBJECT,
+        // in which case it does not yet point to anything, and should be skipped
+        if (context == null) {
+            return EMPTY;
+        }
+        if (!context.hasPathSegment()) {
+            // one special case; do not prune root if we need it
+            if (!(includeRoot && context.inRoot() && context.hasCurrentIndex())) {
+                context = context.getParent();
+            }
+        }
+        JsonPointer tail = null;
+
+        for (; context != null; context = context.getParent()) {
+            if (context.inObject()) {
+                String seg = context.getCurrentName();
+                if (seg == null) { // is this legal?
+                    seg = "";
+                }
+                tail = new JsonPointer(_fullPath(tail, seg), seg, tail);
+            } else if (context.inArray() || includeRoot) {
+                int ix = context.getCurrentIndex();
+                String ixStr = String.valueOf(ix);
+                tail = new JsonPointer(_fullPath(tail, ixStr), ixStr, ix, tail);
+            }
+            // NOTE: this effectively drops ROOT node(s); should have 1 such node,
+            // as the last one, but we don't have to care (probably some paths have
+            // no root, for example)
+        }
+        if (tail == null) {
+            return EMPTY;
+        }
+        return tail;
+    }
+
+    private static String _fullPath(JsonPointer tail, String segment)
+    {
+        if (tail == null) {
+            StringBuilder sb = new StringBuilder(segment.length()+1);
+            sb.append('/');
+            _appendEscaped(sb, segment);
+            return sb.toString();
+        }
+        String tailDesc = tail._asString;
+        StringBuilder sb = new StringBuilder(segment.length() + 1 + tailDesc.length());
+        sb.append('/');
+        _appendEscaped(sb, segment);
+        sb.append(tailDesc);
+        return sb.toString();
+    }
+
+    private static void _appendEscaped(StringBuilder sb, String segment)
+    {
+        for (int i = 0, end = segment.length(); i < end; ++i) {
+            char c = segment.charAt(i);
+           if (c == '/') {
+               sb.append("~1");
+               continue;
+           }
+           if (c == '~') {
+               sb.append("~0");
+               continue;
+           }
+           sb.append(c);
+        }
+    }
+    
     /* Factory method that composes a pointer instance, given a set
      * of 'raw' segments: raw meaning that no processing will be done,
      * no escaping may is present.
@@ -189,6 +269,22 @@ public class JsonPointer
         return current;
     }
 
+    /**
+     * Mutant factory method that will return
+     *<ul>
+     * <li>`tail` if `this` instance is "empty" pointer, OR
+     *  </li>
+     * <li>`this` instance if `tail` is "empty" pointer, OR
+     *  </li>
+     * <li>Newly constructed {@link JsonPointer} instance that starts with all segments
+     *    of `this`, followed by all segments of `tail`.
+     *  </li>
+     *</ul>
+     * 
+     * @param tail {@link JsonPointer} instance to append to this one, to create a new pointer instance
+     *
+     * @return Either `this` instance, `tail`, or a newly created combination, as per description above.
+     */
     public JsonPointer append(JsonPointer tail) {
         if (this == EMPTY) {
             return tail;
@@ -196,6 +292,9 @@ public class JsonPointer
         if (tail == EMPTY) {
             return this;
         }
+        // 21-Mar-2017, tatu: Not superbly efficient; could probably improve by not concatenating,
+        //    re-decoding -- by stitching together segments -- but for now should be fine.
+
         String currentJsonPointer = _asString;
         if (currentJsonPointer.endsWith("/")) {
             //removes final slash

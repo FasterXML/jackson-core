@@ -77,8 +77,8 @@ public final class JsonReadContext extends JsonStreamContext
     }
 
     /*
-    public void trackDups(JsonParser jp) {
-        _dups = DupDetector.rootDetector(jp);
+    public void trackDups(JsonParser p) {
+        _dups = DupDetector.rootDetector(p);
     }
     */
 
@@ -140,6 +140,10 @@ public final class JsonReadContext extends JsonStreamContext
      */
 
     @Override public String getCurrentName() { return _currentName; }
+
+    // @since 2.9
+    @Override public boolean hasCurrentName() { return _currentName != null; }
+
     @Override public JsonReadContext getParent() { return _parent; }
 
     /**

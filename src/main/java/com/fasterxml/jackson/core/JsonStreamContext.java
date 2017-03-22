@@ -101,7 +101,7 @@ public abstract class JsonStreamContext
         }
         return "?";
     }
-    
+
     /**
      * @return Number of entries that are complete and started.
      */
@@ -113,11 +113,51 @@ public abstract class JsonStreamContext
     public final int getCurrentIndex() { return (_index < 0) ? 0 : _index; }
 
     /**
+     * Method that may be called to verify whether this context has valid index:
+     * will return `false` before the first entry of Object context or before
+     * first element of Array context; otherwise returns `true`.
+     *
+     * @since 2.9
+     */
+    public boolean hasCurrentIndex() { return _index >= 0; }
+
+    /**
+     * Method that may be called to check if this context is either:
+     *<ul>
+     * <li>Object, with at least one entry written (partially or completely)
+     *  </li>
+     * <li>Array, with at least one entry written (partially or completely)
+     *  </li>
+     *</ul>
+     * and if so, return `true`; otherwise return `false`. Latter case includes
+     * Root context (always), and Object/Array contexts before any entries/elements
+     * have been read or written.
+     *<p>
+     * Method is mostly used to determine whether this context should be used for
+     * constructing {@link JsonPointer}
+     *
+     * @since 2.9
+     */
+    public boolean hasPathSegment() {
+        if (_type == TYPE_OBJECT) {
+            return hasCurrentName();
+        } else if (_type == TYPE_ARRAY) {
+            return hasCurrentIndex();
+        }
+        return false;
+    }
+    
+    /**
      * Method for accessing name associated with the current location.
      * Non-null for <code>FIELD_NAME</code> and value events that directly
      * follow field names; null for root level and array values.
      */
     public abstract String getCurrentName();
+
+    /**
+     * @since 2.9
+     */
+    public boolean hasCurrentName() { return getCurrentName() != null; }
 
     /**
      * Method for accessing currently active value being used by data-binding
@@ -145,4 +185,29 @@ public abstract class JsonStreamContext
      * @since 2.5
      */
     public void setCurrentValue(Object v) { }
+
+    /**
+     * Factory method for constructing a {@link JsonPointer} that points to the current
+     * location within the stream that this context is for, excluding information about
+     * "root context" (only relevant for multi-root-value cases)
+     *
+     * @since 2.9
+     */
+    public JsonPointer pathAsPointer() {
+        return JsonPointer.forPath(this, false);
+    }
+
+    /**
+     * Factory method for constructing a {@link JsonPointer} that points to the current
+     * location within the stream that this context is for, optionally including
+     * "root value index"
+     *
+     * @param includeRoot Whether root-value offset is included as the first segment or not;
+     *    
+     *
+     * @since 2.9
+     */
+    public JsonPointer pathAsPointer(boolean includeRoot) {
+        return JsonPointer.forPath(this, includeRoot);
+    }
 }

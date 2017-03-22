@@ -22,6 +22,7 @@ JSON library.
 
 #359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
  (contributed by Arnaud R)
+#362: Use correct length variable for UTF-8 surrogate writing
 
 2.8.7 (21-Feb-2017)
 

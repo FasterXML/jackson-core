@@ -586,7 +586,11 @@ public class UTF8JsonGenerator
             }
             // If this is NOT the last segment and if the last character looks like
             // split surrogate second half, drop it
-            if (len > 0) {
+            // 21-Mar-2017, tatu: Note that we could check for either `len` or `len2`;
+            //    point here is really that we only "punt" surrogate if it is NOT the
+            //    only character left; otherwise we'd end up with a poison pill if the
+            //    very last character was unpaired first-surrogate
+            if (len2 > 1) {
                 char ch = buf[len2-1];
                 if ((ch >= SURR1_FIRST) && (ch <= SURR1_LAST)) {
                     --len2;

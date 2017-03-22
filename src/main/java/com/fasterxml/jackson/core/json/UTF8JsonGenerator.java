@@ -632,7 +632,7 @@ public class UTF8JsonGenerator
             }
             // If this is NOT the last segment and if the last character looks like
             // split surrogate second half, drop it
-            if (len > 0) {
+            if (len2 > 0) {
                 char ch = buf[len2-1];
                 if ((ch >= SURR1_FIRST) && (ch <= SURR1_LAST)) {
                     --len2;

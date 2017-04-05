@@ -206,28 +206,28 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // Also, we need some numeric constants
 
-    final static BigInteger BI_MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
-    final static BigInteger BI_MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
+    final protected static BigInteger BI_MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
+    final protected static BigInteger BI_MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
 
-    final static BigInteger BI_MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
-    final static BigInteger BI_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+    final protected static BigInteger BI_MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+    final protected static BigInteger BI_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
 
-    final static BigDecimal BD_MIN_LONG = new BigDecimal(BI_MIN_LONG);
-    final static BigDecimal BD_MAX_LONG = new BigDecimal(BI_MAX_LONG);
+    final protected static BigDecimal BD_MIN_LONG = new BigDecimal(BI_MIN_LONG);
+    final protected static BigDecimal BD_MAX_LONG = new BigDecimal(BI_MAX_LONG);
 
-    final static BigDecimal BD_MIN_INT = new BigDecimal(BI_MIN_INT);
-    final static BigDecimal BD_MAX_INT = new BigDecimal(BI_MAX_INT);
+    final protected static BigDecimal BD_MIN_INT = new BigDecimal(BI_MIN_INT);
+    final protected static BigDecimal BD_MAX_INT = new BigDecimal(BI_MAX_INT);
 
-    final static long MIN_INT_L = (long) Integer.MIN_VALUE;
-    final static long MAX_INT_L = (long) Integer.MAX_VALUE;
+    final protected static long MIN_INT_L = (long) Integer.MIN_VALUE;
+    final protected static long MAX_INT_L = (long) Integer.MAX_VALUE;
 
     // These are not very accurate, but have to do... (for bounds checks)
 
-    final static double MIN_LONG_D = (double) Long.MIN_VALUE;
-    final static double MAX_LONG_D = (double) Long.MAX_VALUE;
+    final protected static double MIN_LONG_D = (double) Long.MIN_VALUE;
+    final protected static double MAX_LONG_D = (double) Long.MAX_VALUE;
 
-    final static double MIN_INT_D = (double) Integer.MIN_VALUE;
-    final static double MAX_INT_D = (double) Integer.MAX_VALUE;
+    final protected static double MIN_INT_D = (double) Integer.MIN_VALUE;
+    final protected static double MAX_INT_D = (double) Integer.MAX_VALUE;
 
     // Digits, numeric
     final protected static int INT_0 = '0';

@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Note: that this class extends {@link LinkedHashMap} is an implementation
  * detail -- no code should ever directly call Map methods.
  */
-@SuppressWarnings("serial")
 public final class InternCache
     extends ConcurrentHashMap<String,String> // since 2.3
 {

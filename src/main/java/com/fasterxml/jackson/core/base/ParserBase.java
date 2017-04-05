@@ -197,6 +197,13 @@ public abstract class ParserBase extends ParserMinimalBase
     final protected static int NR_DOUBLE = 0x008;
     final protected static int NR_BIGDECIMAL = 0x0010;
 
+    /**
+     * NOTE! Not used by this implementation; meant for implementations that do.
+     *
+     * @since 2.9
+     */
+    final protected static int NR_FLOAT = 0x020;
+
     // Also, we need some numeric constants
 
     final static BigInteger BI_MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
@@ -204,7 +211,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     final static BigInteger BI_MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
     final static BigInteger BI_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
-    
+
     final static BigDecimal BD_MIN_LONG = new BigDecimal(BI_MIN_LONG);
     final static BigDecimal BD_MAX_LONG = new BigDecimal(BI_MAX_LONG);
 

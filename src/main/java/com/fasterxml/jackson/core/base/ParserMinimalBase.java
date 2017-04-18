@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core.base;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
@@ -40,11 +42,83 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_COMMA = ',';
     protected final static int INT_HASH = '#';
 
-    // fp numbers
+    // Number chars
+    protected final static int INT_0 = '0';
+    protected final static int INT_9 = '9';
+    protected final static int INT_MINUS = '-';
+    protected final static int INT_PLUS = '+';
+
     protected final static int INT_PERIOD = '.';
     protected final static int INT_e = 'e';
     protected final static int INT_E = 'E';
 
+    protected final static char CHAR_NULL = '\0';
+
+    /*
+    /**********************************************************
+    /* Constants and fields of former 'JsonNumericParserBase'
+    /**********************************************************
+     */
+
+    protected final static int NR_UNKNOWN = 0;
+
+    // First, integer types
+
+    protected final static int NR_INT = 0x0001;
+    protected final static int NR_LONG = 0x0002;
+    protected final static int NR_BIGINT = 0x0004;
+
+    // And then floating point types
+
+    protected final static int NR_DOUBLE = 0x008;
+    protected final static int NR_BIGDECIMAL = 0x0010;
+
+    /**
+     * NOTE! Not used by JSON implementation but used by many of binary codecs
+     *
+     * @since 2.9
+     */
+    protected final static int NR_FLOAT = 0x020;
+
+    // Also, we need some numeric constants
+
+    protected final static BigInteger BI_MIN_INT = BigInteger.valueOf(Integer.MIN_VALUE);
+    protected final static BigInteger BI_MAX_INT = BigInteger.valueOf(Integer.MAX_VALUE);
+
+    protected final static BigInteger BI_MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+    protected final static BigInteger BI_MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+
+    protected final static BigDecimal BD_MIN_LONG = new BigDecimal(BI_MIN_LONG);
+    protected final static BigDecimal BD_MAX_LONG = new BigDecimal(BI_MAX_LONG);
+
+    protected final static BigDecimal BD_MIN_INT = new BigDecimal(BI_MIN_INT);
+    protected final static BigDecimal BD_MAX_INT = new BigDecimal(BI_MAX_INT);
+
+    protected final static long MIN_INT_L = (long) Integer.MIN_VALUE;
+    protected final static long MAX_INT_L = (long) Integer.MAX_VALUE;
+
+    // These are not very accurate, but have to do... (for bounds checks)
+
+    protected final static double MIN_LONG_D = (double) Long.MIN_VALUE;
+    protected final static double MAX_LONG_D = (double) Long.MAX_VALUE;
+
+    protected final static double MIN_INT_D = (double) Integer.MIN_VALUE;
+    protected final static double MAX_INT_D = (double) Integer.MAX_VALUE;
+
+    /*
+    /**********************************************************
+    /* Misc other constants
+    /**********************************************************
+     */
+
+    /**
+     * Maximum number of characters to include in token reported
+     * as part of error messages.
+     *
+     * @since 2.9
+     */
+    protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
+    
     /*
     /**********************************************************
     /* Minimal generally useful state

@@ -117,14 +117,14 @@ public class JsonFactory
          * @since 2.6
          */
         USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true)
-        
+
         ;
 
         /**
          * Whether feature is enabled or disabled by default.
          */
         private final boolean _defaultState;
-        
+
         /**
          * Method that calculates bit set (flags) of all features that
          * are enabled by default.

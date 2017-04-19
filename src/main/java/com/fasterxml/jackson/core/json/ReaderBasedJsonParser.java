@@ -884,26 +884,18 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return null;
         }
         _binaryValue = null;
-        if (i == INT_RBRACKET) {
-            _updateLocation();
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_ARRAY;
-            return null;
-        }
-        if (i == INT_RCURLY) {
-            _updateLocation();
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_OBJECT;
+        if (i == INT_RBRACKET || i == INT_RCURLY) {
+            _closeScope(i);
             return null;
         }
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                    _closeScope(i);
+                    return null;
+                }
+            }
         }
         if (!_parsingContext.inObject()) {
             _updateLocation();

@@ -762,20 +762,8 @@ public class UTF8DataInputJsonParser
         _binaryValue = null;
         _tokenInputRow = _currInputRow;
 
-        if (i == INT_RBRACKET) {
-            if (!_parsingContext.inArray()) {
-                _reportMismatchedEndMarker(i, '}');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_ARRAY;
-            return null;
-        }
-        if (i == INT_RCURLY) {
-            if (!_parsingContext.inObject()) {
-                _reportMismatchedEndMarker(i, ']');
-            }
-            _parsingContext = _parsingContext.clearAndGetParent();
-            _currToken = JsonToken.END_OBJECT;
+        if (i == INT_RBRACKET || i == INT_RCURLY) {
+            _closeScope(i);
             return null;
         }
 
@@ -785,6 +773,15 @@ public class UTF8DataInputJsonParser
                 _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
             i = _skipWS();
+
+            // Was that a trailing comma?
+            if (Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                if (i == INT_RBRACKET || i == INT_RCURLY) {
+                    _closeScope(i);
+                    return null;
+                }
+            }
+
         }
         if (!_parsingContext.inObject()) {
             _nextTokenNotInObject(i);

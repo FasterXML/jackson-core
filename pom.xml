@@ -12,7 +12,7 @@
   <name>Jackson-core</name>
   <version>2.9.0.pr3-SNAPSHOT</version>
   <packaging>bundle</packaging>
-  <description>Core Jackson abstractions, basic JSON streaming API implementation</description>
+  <description>Core Jackson processing abstractions (aka Streaming API), implementation for JSON</description>
   <inceptionYear>2008</inceptionYear>
 
   <url>https://github.com/FasterXML/jackson-core</url>

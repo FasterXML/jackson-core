@@ -32,7 +32,7 @@ JSON library.
  (requested by rfoltyns@github)
 #356: Improve indication of "source reference" in `JsonLocation` wrt `byte[]`,`char[]`
 
-2.8.8 (not yet released)
+2.8.8 (05-Apr-2017)
 
 #359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
  (contributed by Arnaud R)

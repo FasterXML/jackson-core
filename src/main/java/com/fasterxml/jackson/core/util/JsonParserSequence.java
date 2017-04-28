@@ -154,6 +154,37 @@ public class JsonParserSequence extends JsonParserDelegate
         return t;
     }
 
+    /**
+     * Need to override, re-implement similar to how method defined in
+     * {@link com.fasterxml.jackson.core.base.ParserMinimalBase}, to keep
+     * state correct here.
+     */
+    @Override
+    public JsonParser skipChildren() throws IOException
+    {
+        if ((delegate.currentToken() != JsonToken.START_OBJECT)
+            && (delegate.currentToken() != JsonToken.START_ARRAY)) {
+            return this;
+        }
+        int open = 1;
+
+        // Since proper matching of start/end markers is handled
+        // by nextToken(), we'll just count nesting levels here
+        while (true) {
+            JsonToken t = nextToken();
+            if (t == null) { // not ideal but for now, just return
+                return this;
+            }
+            if (t.isStructStart()) {
+                ++open;
+            } else if (t.isStructEnd()) {
+                if (--open == 0) {
+                    return this;
+                }
+            }
+        }
+    }
+
     /*
     /*******************************************************
     /* Additional extended API

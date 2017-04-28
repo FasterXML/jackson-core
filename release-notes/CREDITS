@@ -130,3 +130,8 @@ Brad Hess (bdhess@github)
 Logan Widick (uhhhh2@github)
   * Contributed #17: Add 'JsonGenerator.writeString(Reader r, int charLength)'
    (2.9.0)
+
+Michael Sims (MichaelSims@github)
+  * Reported, contributed fix for #372: JsonParserSequence#skipChildren() throws exception
+   when current delegate is TokenBuffer.Parser with "incomplete" JSON
+   (2.9.0)

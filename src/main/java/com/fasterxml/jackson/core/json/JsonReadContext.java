@@ -96,7 +96,7 @@ public final class JsonReadContext extends JsonStreamContext
     public void setCurrentValue(Object v) {
         _currentValue = v;
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods
@@ -110,7 +110,7 @@ public final class JsonReadContext extends JsonStreamContext
     public static JsonReadContext createRootContext(DupDetector dups) {
         return new JsonReadContext(null, dups, TYPE_ROOT, 1, 0);
     }
-    
+
     public JsonReadContext createChildArrayContext(int lineNr, int colNr) {
         JsonReadContext ctxt = _child;
         if (ctxt == null) {

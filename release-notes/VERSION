@@ -31,6 +31,9 @@ JSON library.
 #340: Making `WriterBasedJsonGenerator` non-final
  (requested by rfoltyns@github)
 #356: Improve indication of "source reference" in `JsonLocation` wrt `byte[]`,`char[]`
+#372: JsonParserSequence#skipChildren() throws exception when current delegate is
+  TokenBuffer.Parser with "incomplete" JSON
+ (contributed by Michael S)
 
 2.8.8 (05-Apr-2017)
 

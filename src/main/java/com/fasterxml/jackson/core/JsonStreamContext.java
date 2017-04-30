@@ -42,6 +42,17 @@ public abstract class JsonStreamContext
 
     protected JsonStreamContext() { }
 
+    /**
+     * Copy constructor used by sub-classes for creating copies for
+     * buffering.
+     *
+     * @since 2.9
+     */
+    protected JsonStreamContext(JsonStreamContext base) {
+        _type = base._type;
+        _index = base._index;
+    }
+
     /*
     /**********************************************************
     /* Public API, accessors
@@ -203,11 +214,29 @@ public abstract class JsonStreamContext
      * "root value index"
      *
      * @param includeRoot Whether root-value offset is included as the first segment or not;
-     *    
      *
      * @since 2.9
      */
     public JsonPointer pathAsPointer(boolean includeRoot) {
         return JsonPointer.forPath(this, includeRoot);
+    }
+
+    /**
+     * Optional method that may be used to access starting location of this context:
+     * for example, in case of JSON `Object` context, offset at which `[` token was
+     * read or written. Often used for error reporting purposes.
+     * Implementations that do not keep track of such location are expected to return
+     * {@link JsonLocation#NA}; this is what the default implementation does.
+     *
+     * @return Location pointing to the point where the context
+     *   start marker was found (or written); never `null`.
+     *<p>
+     * NOTE: demoted from <code>JsonReadContext</code> in 2.9, to allow use for
+     * "non-standard" read contexts.
+     *
+     * @since 2.9
+     */
+    public JsonLocation getStartLocation(Object srcRef) {
+        return JsonLocation.NA;
     }
 }

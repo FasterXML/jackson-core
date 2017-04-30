@@ -135,7 +135,7 @@ public final class JsonReadContext extends JsonStreamContext
 
     /*
     /**********************************************************
-    /* Abstract method implementation
+    /* Abstract method implementations, overrides
     /**********************************************************
      */
 
@@ -145,6 +145,19 @@ public final class JsonReadContext extends JsonStreamContext
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
     @Override public JsonReadContext getParent() { return _parent; }
+
+    @Override
+    public JsonLocation getStartLocation(Object srcRef) {
+        // We don't keep track of offsets at this level (only reader does)
+        long totalChars = -1L;
+        return new JsonLocation(srcRef, totalChars, _lineNr, _columnNr);
+    }
+
+    /*
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
 
     /**
      * Method that can be used to both clear the accumulated references
@@ -160,22 +173,6 @@ public final class JsonReadContext extends JsonStreamContext
         _currentValue = null;
         // could also clear the current name, but seems cheap enough to leave?
         return _parent;
-    }
-
-    /*
-    /**********************************************************
-    /* Extended API
-    /**********************************************************
-     */
-
-    /**
-     * @return Location pointing to the point where the context
-     *   start marker was found
-     */
-    public JsonLocation getStartLocation(Object srcRef) {
-        // We don't keep track of offsets at this level (only reader does)
-        long totalChars = -1L;
-        return new JsonLocation(srcRef, totalChars, _lineNr, _columnNr);
     }
 
     public DupDetector getDupDetector() {

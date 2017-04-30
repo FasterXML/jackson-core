@@ -237,7 +237,7 @@ public class DefaultPrettyPrinter
     public DefaultPrettyPrinter createInstance() {
         return new DefaultPrettyPrinter(this);
     }
-    
+
     /*
     /**********************************************************
     /* PrettyPrinter impl

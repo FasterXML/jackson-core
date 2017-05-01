@@ -53,6 +53,14 @@ public abstract class JsonStreamContext
         _index = base._index;
     }
 
+    /**
+     * @since 2.9
+     */
+    protected JsonStreamContext(int type, int index) {
+        _type = type;
+        _index = index;
+    }
+
     /*
     /**********************************************************
     /* Public API, accessors

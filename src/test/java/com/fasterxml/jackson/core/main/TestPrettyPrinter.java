@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.main;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
@@ -153,7 +154,56 @@ public class TestPrettyPrinter
         gen.close();
         assertEquals("13##false##null", sw.toString());
     }
-    
+
+    public void testCustomSeparatorsWithMinimal() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        gen.setPrettyPrinter(new MinimalPrettyPrinter().withCustomSeparators(Separators.createDefaultInstance()
+                .withObjectFieldValueSeparator('=')
+                .withObjectEntrySeparator(';')
+                .withArrayValueSeparator('|')));
+
+        _writeTestDocument(gen);
+
+        assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", sw.toString());
+    }
+
+    public void testCustomSeparatorsWithPP() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        gen.setPrettyPrinter(new DefaultPrettyPrinter().withCustomSeparators(Separators.createDefaultInstance()
+                .withObjectFieldValueSeparator('=')
+                .withObjectEntrySeparator(';')
+                .withArrayValueSeparator('|')));
+
+        _writeTestDocument(gen);
+
+        assertEquals("[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
+                "  \"f\" = null;" + DefaultIndenter.SYS_LF +
+                "  \"f2\" = null" + DefaultIndenter.SYS_LF +
+                "} ]", sw.toString());
+    }
+
+    public void testCustomSeparatorsWithPPWithoutSpaces() throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        gen.setPrettyPrinter(new DefaultPrettyPrinter().withCustomSeparators(Separators.createDefaultInstance()
+                .withObjectFieldValueSeparator('=')
+                .withObjectEntrySeparator(';')
+                .withArrayValueSeparator('|'))
+            .withoutSpacesInObjectEntries());
+
+        _writeTestDocument(gen);
+
+        assertEquals("[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
+                "  \"f\"=null;" + DefaultIndenter.SYS_LF +
+                "  \"f2\"=null" + DefaultIndenter.SYS_LF +
+                "} ]", sw.toString());
+    }
+
     /*
     /**********************************************************
     /* Helper methods
@@ -161,24 +211,8 @@ public class TestPrettyPrinter
      */
 
     private String _verifyPrettyPrinter(JsonGenerator gen, StringWriter sw) throws Exception
-    {    
-        gen.writeStartArray();
-        gen.writeNumber(3);
-        gen.writeString("abc");
-
-        gen.writeStartArray();
-        gen.writeBoolean(true);
-        gen.writeEndArray();
-
-        gen.writeStartObject();
-        gen.writeFieldName("f");
-        gen.writeNull();
-        gen.writeFieldName("f2");
-        gen.writeNull();
-        gen.writeEndObject();
-
-        gen.writeEndArray();
-        gen.close();
+    {
+        _writeTestDocument(gen);
 
         String docStr = sw.toString();
         JsonParser jp = createParserUsingReader(docStr);
@@ -208,6 +242,26 @@ public class TestPrettyPrinter
         jp.close();
 
         return docStr;
+    }
+
+    private void _writeTestDocument(JsonGenerator gen) throws IOException {
+        gen.writeStartArray();
+        gen.writeNumber(3);
+        gen.writeString("abc");
+
+        gen.writeStartArray();
+        gen.writeBoolean(true);
+        gen.writeEndArray();
+
+        gen.writeStartObject();
+        gen.writeFieldName("f");
+        gen.writeNull();
+        gen.writeFieldName("f2");
+        gen.writeNull();
+        gen.writeEndObject();
+
+        gen.writeEndArray();
+        gen.close();
     }
 
     protected String _generateRoot(JsonFactory jf, PrettyPrinter pp) throws IOException

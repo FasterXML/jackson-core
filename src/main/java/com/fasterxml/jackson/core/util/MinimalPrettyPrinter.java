@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.Separators;
 
 /**
  * {@link PrettyPrinter} implementation that adds no indentation,
@@ -34,6 +35,8 @@ public class MinimalPrettyPrinter
 
     protected String _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
 
+    protected Separators _separators = Separators.createDefaultInstance();
+
     /*
     /**********************************************************
     /* Life-cycle, construction, configuration
@@ -47,7 +50,10 @@ public class MinimalPrettyPrinter
     public MinimalPrettyPrinter(String rootValueSeparator) {
         _rootValueSeparator = rootValueSeparator;
     }
-
+    public MinimalPrettyPrinter withCustomSeparators(Separators separators) {
+        this._separators = separators;
+        return this;
+    }
     public void setRootValueSeparator(String sep) {
         _rootValueSeparator = sep;
     }
@@ -62,7 +68,7 @@ public class MinimalPrettyPrinter
     public void writeRootValueSeparator(JsonGenerator g) throws IOException
     {
         if (_rootValueSeparator != null) {
-            g.writeRaw(_rootValueSeparator);    
+            g.writeRaw(_rootValueSeparator);
         }
     }
 
@@ -88,7 +94,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeObjectFieldValueSeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(':');
+        g.writeRaw(_separators.getObjectFieldValueSeparator());
     }
     
     /**
@@ -101,7 +107,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeObjectEntrySeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(',');
+        g.writeRaw(_separators.getObjectEntrySeparator());
     }
 
     @Override
@@ -132,7 +138,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeArrayValueSeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(',');
+        g.writeRaw(_separators.getArrayValueSeparator());
     }
     
     @Override

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharTypes;
 
 /**
  * Extension of {@link JsonStreamContext}, which implements
@@ -205,43 +204,5 @@ public final class JsonReadContext extends JsonStreamContext
             throw new JsonParseException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
                     "Duplicate field '"+name+"'");
         }
-    }
-
-    /*
-    /**********************************************************
-    /* Overridden standard methods
-    /**********************************************************
-     */
-
-    /**
-     * Overridden to provide developer readable "JsonPath" representation
-     * of the context.
-     */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(64);
-        switch (_type) {
-        case TYPE_ROOT:
-            sb.append("/");
-            break;
-        case TYPE_ARRAY:
-            sb.append('[');
-            sb.append(getCurrentIndex());
-            sb.append(']');
-            break;
-        case TYPE_OBJECT:
-        default:
-            sb.append('{');
-            if (_currentName != null) {
-                sb.append('"');
-                CharTypes.appendQuoted(sb, _currentName);
-                sb.append('"');
-            } else {
-                sb.append('?');
-            }
-            sb.append('}');
-            break;
-        }
-        return sb.toString();
     }
 }

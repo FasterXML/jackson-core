@@ -5,6 +5,8 @@
 
 package com.fasterxml.jackson.core;
 
+import com.fasterxml.jackson.core.io.CharTypes;
+
 /**
  * Shared base class for streaming processing contexts used during
  * reading and writing of Json content using Streaming API.
@@ -246,5 +248,40 @@ public abstract class JsonStreamContext
      */
     public JsonLocation getStartLocation(Object srcRef) {
         return JsonLocation.NA;
+    }
+
+    /**
+     * Overridden to provide developer readable "JsonPath" representation
+     * of the context.
+     * 
+     * @since 2.9
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(64);
+        switch (_type) {
+        case TYPE_ROOT:
+            sb.append("/");
+            break;
+        case TYPE_ARRAY:
+            sb.append('[');
+            sb.append(getCurrentIndex());
+            sb.append(']');
+            break;
+        case TYPE_OBJECT:
+        default:
+            sb.append('{');
+            String currentName = getCurrentName();
+            if (currentName != null) {
+                sb.append('"');
+                CharTypes.appendQuoted(sb, currentName);
+                sb.append('"');
+            } else {
+                sb.append('?');
+            }
+            sb.append('}');
+            break;
+        }
+        return sb.toString();
     }
 }

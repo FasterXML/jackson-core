@@ -224,7 +224,14 @@ public final class TextBuffer
         _currentSize = 0;
         
     }
-    
+
+    /**
+     * @since 2.9
+     */
+    public char[] getBufferWithoutReset() {
+        return _currentSegment;
+    }
+
     /**
      * Helper method used to find a buffer to use, ideally one
      * recycled earlier.

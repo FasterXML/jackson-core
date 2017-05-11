@@ -499,7 +499,12 @@ public abstract class JsonParser
      * @since 2.1
      */
     public boolean requiresCustomCodec() { return false;}
-    
+
+    /**
+     * @since 2.9
+     */
+    public boolean canParseAsync() { return false; }
+
     /*
     /**********************************************************
     /* Versioned

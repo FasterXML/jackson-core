@@ -407,6 +407,16 @@ public class JsonFactory
     public boolean canUseCharArrays() { return true; }
 
     /**
+     * Introspection method that can be used to check whether this
+     * factory can create non-blocking parsers: parsers that do not
+     * use blocking I/O abstractions but instead use a
+     * {@link com.fasterxml.jackson.core.async.NonBlockingInputFeeder}.
+     *
+     * @since 2.9
+     */
+    public boolean canParseAsync() { return false; }
+
+    /**
      * Method for accessing kind of {@link FormatFeature} that a parser
      * {@link JsonParser} produced by this factory would accept, if any;
      * <code>null</code> returned if none.

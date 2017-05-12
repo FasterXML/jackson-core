@@ -67,6 +67,13 @@ public final class ByteArrayBuilder extends OutputStream
     }
 
     /**
+     * @since 2.9
+     */
+    public int size() {
+        return _pastLen + _currBlockPtr;
+    }
+
+    /**
      * Clean up method to call to release all buffers this object may be
      * using. After calling the method, no other accessors can be used (and
      * attempt to do so may result in an exception)
@@ -136,7 +143,6 @@ public final class ByteArrayBuilder extends OutputStream
         if (totalLen == 0) { // quick check: nothing aggregated?
             return NO_BYTES;
         }
-        
         byte[] result = new byte[totalLen];
         int offset = 0;
 
@@ -159,7 +165,7 @@ public final class ByteArrayBuilder extends OutputStream
 
     /*
     /**********************************************************
-    /* Non-stream API (similar to TextBuffer), since 1.6
+    /* Non-stream API (similar to TextBuffer)
     /**********************************************************
      */
 
@@ -199,13 +205,13 @@ public final class ByteArrayBuilder extends OutputStream
     public byte[] getCurrentSegment() { return _currBlock; }
     public void setCurrentSegmentLength(int len) { _currBlockPtr = len; }
     public int getCurrentSegmentLength() { return _currBlockPtr; }
-    
+
     /*
     /**********************************************************
     /* OutputStream implementation
     /**********************************************************
      */
-    
+
     @Override
     public void write(byte[] b) {
         write(b, 0, b.length);
@@ -241,14 +247,13 @@ public final class ByteArrayBuilder extends OutputStream
     /* Internal methods
     /**********************************************************
      */
-    
+
     private void _allocMore()
     {
         final int newPastLen = _pastLen + _currBlock.length;
 
         // 13-Feb-2016, tatu: As per [core#351] let's try to catch problem earlier;
-        //     for now we are strongly limited by 2GB limit of Java arrays
-        
+        //     for now we are strongly limited by 2GB limit of Java arrays        
         if (newPastLen < 0) {
             throw new IllegalStateException("Maximum Java array size (2GB) exceeded by `ByteArrayBuilder`");
         }
@@ -270,6 +275,4 @@ public final class ByteArrayBuilder extends OutputStream
         _currBlock = new byte[newSize];
         _currBlockPtr = 0;
     }
-
 }
-

@@ -109,6 +109,23 @@ public final class ByteArrayBuilder extends OutputStream
     }
 
     /**
+     * @since 2.9
+     */
+    public void appendFourBytes(int b32) {
+        if ((_currBlockPtr + 3) < _currBlock.length) {
+            _currBlock[_currBlockPtr++] = (byte) (b32 >> 24);
+            _currBlock[_currBlockPtr++] = (byte) (b32 >> 16);
+            _currBlock[_currBlockPtr++] = (byte) (b32 >> 8);
+            _currBlock[_currBlockPtr++] = (byte) b32;
+        } else {
+            append(b32 >> 24);
+            append(b32 >> 16);
+            append(b32 >> 8);
+            append(b32);
+        }
+    }
+    
+    /**
      * Method called when results are finalized and we can get the
      * full aggregated result buffer to return to the caller
      */

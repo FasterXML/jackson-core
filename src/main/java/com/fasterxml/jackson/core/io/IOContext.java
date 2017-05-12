@@ -167,13 +167,21 @@ public class IOContext
         _verifyAlloc(_writeEncodingBuffer);
         return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER, minSize));
     }
-    
+
     /**
      * @since 2.1
      */
     public byte[] allocBase64Buffer() {
         _verifyAlloc(_base64Buffer);
         return (_base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_BASE64_CODEC_BUFFER));
+    }
+
+    /**
+     * @since 2.9
+     */
+    public byte[] allocBase64Buffer(int minSize) {
+        _verifyAlloc(_base64Buffer);
+        return (_base64Buffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_BASE64_CODEC_BUFFER, minSize));
     }
     
     public char[] allocTokenBuffer() {

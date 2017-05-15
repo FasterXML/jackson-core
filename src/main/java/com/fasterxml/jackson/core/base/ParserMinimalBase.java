@@ -54,6 +54,16 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final static char CHAR_NULL = '\0';
 
+    /**
+     * @since 2.9
+     */
+    protected final static byte[] NO_BYTES = new byte[0];
+
+    /**
+     * @since 2.9
+     */
+    protected final static int[] NO_INTS = new int[0];
+    
     /*
     /**********************************************************
     /* Constants and fields of former 'JsonNumericParserBase'

@@ -290,11 +290,9 @@ public class UTF8StreamJsonParser
         if (_bufferRecyclable) {
             byte[] buf = _inputBuffer;
             if (buf != null) {
-                /* 21-Nov-2014, tatu: Let's not set it to null; this way should
-                 *   get slightly more meaningful error messages in case someone
-                 *   closes parser indirectly, without realizing.
-                 */
-                _inputBuffer = ByteArrayBuilder.NO_BYTES;
+                // Let's not set it to null; this way should get slightly more meaningful
+                // error messages in case someone closes parser indirectly, without realizing.
+                _inputBuffer = NO_BYTES;
                 _ioContext.releaseReadIOBuffer(buf);
             }
         }

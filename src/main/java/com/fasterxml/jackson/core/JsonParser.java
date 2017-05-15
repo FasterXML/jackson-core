@@ -1057,7 +1057,7 @@ public abstract class JsonParser
      *
      * @since 2.9
      */
-    public boolean isNaN() {
+    public boolean isNaN() throws IOException {
         return false;
     }
 

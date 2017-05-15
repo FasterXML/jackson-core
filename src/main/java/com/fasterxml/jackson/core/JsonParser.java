@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
 
+import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.RequestPayload;
 
@@ -501,9 +502,30 @@ public abstract class JsonParser
     public boolean requiresCustomCodec() { return false;}
 
     /**
+     * Method that can be called to determine if this parser instance
+     * uses non-blocking ("asynchronous") input access for decoding or not.
+     * Access mode is determined by earlier calls via {@link JsonFactory};
+     * it may not be changed after construction.
+     *<p>
+     * If non-blocking decoding is u (returns <code>true</code), it is possible to call
+     * {@link #getNonBlockingInputFeeder()} to obtain object to use
+     * for feeding input; otherwise (<code>false</code> returned)
+     * input is read by blocking 
+     *
      * @since 2.9
      */
     public boolean canParseAsync() { return false; }
+
+    /**
+     * Method that will either return a feeder instance (if parser uses
+     * non-blocking, aka asynchronous access); or <code>null</code> for
+     * parsers that use blocking I/O.
+     *
+     * @since 2.9
+     */
+    public NonBlockingInputFeeder getNonBlockingInputFeeder() {
+        return null;
+    }
 
     /*
     /**********************************************************

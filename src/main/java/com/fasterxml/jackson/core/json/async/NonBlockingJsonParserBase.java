@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -12,7 +11,7 @@ import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 /**
  * Intermediate base class for non-blocking JSON parsers.
  */
-public abstract class NonBlockingParserBase<F extends NonBlockingInputFeeder>
+public abstract class NonBlockingJsonParserBase
     extends ParserBase
 {
     /*
@@ -139,7 +138,7 @@ public abstract class NonBlockingParserBase<F extends NonBlockingInputFeeder>
     /**********************************************************************
      */
 
-    public NonBlockingParserBase(IOContext ctxt, int parserFeatures,
+    public NonBlockingJsonParserBase(IOContext ctxt, int parserFeatures,
             ByteQuadsCanonicalizer sym)
     {
         super(ctxt, parserFeatures);
@@ -166,6 +165,16 @@ public abstract class NonBlockingParserBase<F extends NonBlockingInputFeeder>
      */
     @Override
     public boolean canParseAsync() { return true; }
+
+    /*
+    /**********************************************************
+    /* Test support
+    /**********************************************************
+     */
+
+    protected ByteQuadsCanonicalizer symbolTableForTests() {
+        return _symbols;
+    }
 
     /*
     /**********************************************************
@@ -290,13 +299,23 @@ public abstract class NonBlockingParserBase<F extends NonBlockingInputFeeder>
     }
 
     @Override
-    public int getTextOffset() throws IOException
-    {
+    public int getTextOffset() throws IOException {
         return 0;
     }
 
-//    public abstract int getText(Writer w) throws IOException;
-
+    @Override
+    public int getText(Writer w) throws IOException
+    {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            return _textBuffer.contentsToWriter(w);
+        }
+        if (_currToken == JsonToken.NOT_AVAILABLE) {
+            _reportError("Current token not available: can not call this method");
+        }
+        // otherwise default handling works fine
+        return super.getText(w);
+    }
+    
     /*
     /**********************************************************************
     /* Public API, access to token information, binary
@@ -420,7 +439,7 @@ public abstract class NonBlockingParserBase<F extends NonBlockingInputFeeder>
     protected final String _addDecodedToSymbols(int len, String name)
     {
         if (len < 5) {
-            return _symbols.addName(name, _quad1, 0);
+            return _symbols.addName(name, _quad1);
         }
         if (len < 9) {
             return _symbols.addName(name, _quad1, _quad2);

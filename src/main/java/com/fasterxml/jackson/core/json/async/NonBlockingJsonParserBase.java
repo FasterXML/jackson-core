@@ -6,6 +6,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 
 /**
@@ -42,12 +43,29 @@ public abstract class NonBlockingJsonParserBase
      * is forthcoming AND we have exhausted all the input
      */
     protected final static int MAJOR_CLOSED = 5;
+
+    /*
+    /**********************************************************************
+    /* Minor state constants
+    /**********************************************************************
+     */
+
+    /**
+     * State between root-level value, waiting for at least one white-space
+     * character as separator
+     */
+    protected final static int MINOR_FIELD_ROOT_NEED_SEPARATOR = 1;
+
+    /**
+     * State between root-level value, having processed at least one white-space
+     * character, and expecting either more, start of a value, or end of input
+     * stream.
+     */
+    protected final static int MINOR_FIELD_ROOT_GOT_SEPARATOR = 2;
     
-    // // // "Sub-states"
+    protected final static int MINOR_FIELD_NAME = 10;
 
-    protected final static int MINOR_FIELD_NAME = 1;
-
-    protected final static int MINOR_VALUE_NUMBER = 6;
+    protected final static int MINOR_VALUE_NUMBER = 11;
 
     protected final static int MINOR_VALUE_STRING = 15;
 
@@ -148,6 +166,7 @@ public abstract class NonBlockingJsonParserBase
 
         _currToken = null;
         _majorState = MAJOR_INITIAL;
+        _majorStateAfterValue = MAJOR_ROOT;
     }
 
     @Override
@@ -348,6 +367,68 @@ public abstract class NonBlockingJsonParserBase
         }
         out.write(_binaryValue);
         return _binaryValue.length;
+    }
+
+    /*
+    /**********************************************************************
+    /* Handling of nested scope, state
+    /**********************************************************************
+     */
+
+    protected final JsonToken _startArrayScope() throws IOException
+    {
+        _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
+        _majorState = MAJOR_ARRAY_ELEMENT;
+        _majorStateAfterValue = MAJOR_ARRAY_ELEMENT;
+        return (_currToken = JsonToken.START_ARRAY);
+    }
+
+    protected final JsonToken _startObjectScope() throws IOException
+    {
+        _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
+        _majorState = MAJOR_OBJECT_FIELD;
+        _majorStateAfterValue = MAJOR_OBJECT_FIELD;
+        return (_currToken = JsonToken.START_OBJECT);
+    }
+
+    protected final JsonToken _closeArrayScope() throws IOException
+    {
+        if (!_parsingContext.inArray()) {
+            _reportMismatchedEndMarker(']', '}');
+        }
+        JsonReadContext ctxt = _parsingContext.getParent();
+        _parsingContext = ctxt;
+        int st;
+        if (ctxt.inObject()) {
+            st = MAJOR_OBJECT_FIELD;
+        } else if (ctxt.inArray()) {
+            st = MAJOR_ARRAY_ELEMENT;
+        } else {
+            st = MAJOR_ROOT;
+        }
+        _majorState = st;
+        _majorStateAfterValue = st;
+        return (_currToken = JsonToken.END_ARRAY);
+    }
+
+    protected final JsonToken _closeObjectScope() throws IOException
+    {
+        if (!_parsingContext.inObject()) {
+            _reportMismatchedEndMarker('}', ']');
+        }
+        JsonReadContext ctxt = _parsingContext.getParent();
+        _parsingContext = ctxt;
+        int st;
+        if (ctxt.inObject()) {
+            st = MAJOR_OBJECT_FIELD;
+        } else if (ctxt.inArray()) {
+            st = MAJOR_ARRAY_ELEMENT;
+        } else {
+            st = MAJOR_ROOT;
+        }
+        _majorState = st;
+        _majorStateAfterValue = st;
+        return (_currToken = JsonToken.END_OBJECT);
     }
 
     /*

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
@@ -36,6 +37,29 @@ public class NonBlockingJsonParser
     // And from ParserBase:
 //  protected int _inputPtr;
 //  protected int _inputEnd;
+
+    /*
+    /**********************************************************************
+    /* Location tracking, additional
+    /**********************************************************************
+     */
+
+    /**
+     * Alternate row tracker, used to keep track of position by `\r` marker
+     * (whereas <code>_currInputRow</code> tracks `\n`). Used to simplify
+     * tracking of linefeeds, assuming that input typically uses various
+     * linefeed combinations (`\r`, `\n` or `\r\n`) consistently, in which
+     * case we can simply choose max of two row candidates.
+     */
+    protected int _currInputRowAlt = 1;
+
+    /*
+    /**********************************************************************
+    /* Other state
+    /**********************************************************************
+     */
+
+    protected int _currentQuote;
 
     /*
     /**********************************************************************
@@ -148,14 +172,14 @@ public class NonBlockingJsonParser
 
         // No: fresh new token; may or may not have existing one
         _numTypesValid = NR_UNKNOWN;
-//            _tokenInputTotal = _currInputProcessed + _inputPtr;
+        _tokenInputTotal = _currInputProcessed + _inputPtr;
         // also: clear any data retained so far
         _binaryValue = null;
         int ch = _inputBuffer[_inputPtr++];
 
         switch (_majorState) {
         case MAJOR_INITIAL:
-            // TODO: Bootstrapping? BOM?
+            return _startDocument(ch);
 
         case MAJOR_ROOT:
             return _startValue(ch);
@@ -193,12 +217,171 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
+    private final JsonToken _startDocument(int ch) throws IOException
+    {
+        ch &= 0xFF;
+
+        // Very first byte: could be BOM
+        if (ch == ByteSourceJsonBootstrapper.UTF8_BOM_1) {
+            // !!! TODO
+        }
+
+        // If not BOM (or we got past it), could be whitespace or comment to skip
+        while (ch <= 0x020) {
+            if (ch != INT_SPACE) {
+                if (ch == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (ch == INT_CR) {
+                    ++_currInputRowAlt;
+                    _currInputRowStart = _inputPtr;
+                } else if (ch != INT_TAB) {
+                    _throwInvalidSpace(ch);
+                }
+            }
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_FIELD_ROOT_GOT_SEPARATOR;
+                if (_closed) {
+                    return null;
+                }
+                // note: if so, do not even bother changing state
+                if (_endOfInput) { // except for this special case
+                    return _eofAsNextToken();
+                }
+                return JsonToken.NOT_AVAILABLE;
+            }
+            ch = _inputBuffer[_inputPtr++] & 0xFF;
+        }
+        return _startValue(ch);
+    }
+
+    /*
+    /**********************************************************************
+    /* Second-level decoding, value parsing
+    /**********************************************************************
+     */
+    
     /**
      * Helper method called to detect type of a value token (at any level), and possibly
      * decode it if contained in input buffer.
      * Note that possible header has been ruled out by caller and is not checked here.
      */
     private final JsonToken _startValue(int ch) throws IOException
+    {
+        if (ch == INT_QUOTE) {
+            return _startString(ch);
+        }
+        switch (ch) {
+        case '-':
+            return _startNegativeNumber();
+
+        // Should we have separate handling for plus? Although
+        // it is not allowed per se, it may be erroneously used,
+        // and could be indicate by a more specific error message.
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return _startPositiveNumber(ch);
+        case 'f':
+            return _startFalseToken();
+        case 'n':
+            return _startNullToken();
+        case 't':
+            return _startTrueToken();
+        case '[':
+            return _startArrayScope();
+        case ']':
+            return _closeArrayScope();
+        case '{':
+            return _startObjectScope();
+        case '}':
+            return _closeObjectScope();
+        default:
+        }
+        return _startUnexpectedValue(ch);
+    }
+
+    protected JsonToken _startUnexpectedValue(int ch) throws IOException
+    {
+        // TODO: Maybe support non-standard tokens that streaming parser does:
+        //
+        // * NaN
+        // * Infinity
+        // * Plus-prefix for numbers
+        // * Apostrophe for Strings
+
+        switch (ch) {
+        case '\'':
+            return _startString(ch);
+            
+        case ',':
+            // If Feature.ALLOW_MISSING_VALUES is enabled we may allow "missing values",
+            // that is, encountering a trailing comma or closing marker where value would be expected
+            if (!_parsingContext.inObject() && isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+                // Important to "push back" separator, to be consumed before next value;
+                // does not lead to infinite loop
+               --_inputPtr;
+               return _valueComplete(JsonToken.VALUE_NULL);
+            }
+            break;
+        }
+        // !!! TODO: maybe try to collect more information for better diagnostics
+        _reportUnexpectedChar(ch, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
+        return null;
+    }
+
+    /*
+    /**********************************************************************
+    /* Second-level decoding, simple tokens
+    /**********************************************************************
+     */
+
+    protected JsonToken _startFalseToken() throws IOException
+    {
+        return null;
+    }
+
+    protected JsonToken _startTrueToken() throws IOException
+    {
+        return null;
+    }
+
+    protected JsonToken _startNullToken() throws IOException
+    {
+        return null;
+    }
+
+    /*
+    /**********************************************************************
+    /* Second-level decoding, String decoding
+    /**********************************************************************
+     */
+
+    protected JsonToken _startString(int q) throws IOException
+    {
+        _currentQuote = q;
+        return null;
+    }
+
+    /*
+    /**********************************************************************
+    /* Second-level decoding, String decoding
+    /**********************************************************************
+     */
+
+    protected JsonToken _startPositiveNumber(int ch) throws IOException
+    {
+        return null;
+    }
+    
+    protected JsonToken _startNegativeNumber() throws IOException
     {
         return null;
     }

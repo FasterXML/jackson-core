@@ -18,9 +18,9 @@ import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
  */
 public final class ByteSourceJsonBootstrapper
 {
-    final static byte UTF8_BOM_1 = (byte) 0xEF;
-    final static byte UTF8_BOM_2 = (byte) 0xBB;
-    final static byte UTF8_BOM_3 = (byte) 0xBF;
+    public final static byte UTF8_BOM_1 = (byte) 0xEF;
+    public final static byte UTF8_BOM_2 = (byte) 0xBB;
+    public final static byte UTF8_BOM_3 = (byte) 0xBF;
     
     /*
     /**********************************************************

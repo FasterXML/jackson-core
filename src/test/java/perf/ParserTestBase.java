@@ -83,4 +83,9 @@ abstract class ParserTestBase
     protected abstract void testRead1(int reps) throws Exception;
 
     protected abstract void testRead2(int reps) throws Exception;
+
+    protected static String aposToQuotes(String json) {
+        return json.replace("'", "\"");
+    }
 }
+

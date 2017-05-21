@@ -112,7 +112,7 @@ public class ManualCharAccessTest
     private final long readClassic(int REPS, char[] input, char[] output) throws Exception
     {
         long start = System.currentTimeMillis();
-        final byte[] codes = BYTE_CODES;
+        final byte[] codes = SMALL_BYTE_CODES;
         final int MAX = 256;
 
         while (--REPS >= 0) {

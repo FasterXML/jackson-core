@@ -168,7 +168,7 @@ public class ManualCharAccessTest
     
             for (int i = 0, end = input.length; i < end; ++i) {
                 char ch = input[i];
-                if (codes[ch] != 0) {
+                if (codes[ch] == 0) {
                     output[outPtr++] = ch;
                     continue;
                 }

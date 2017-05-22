@@ -29,13 +29,13 @@ public class TestRootValues
         jp.close();
     }
 
-    public void testBrokeanNumber() throws Exception
+    public void testBrokenNumber() throws Exception
     {
-    	_testBrokeanNumber(false);
-    	_testBrokeanNumber(true);
+        _testBrokenNumber(false);
+        _testBrokenNumber(true);
     }
 
-    private void _testBrokeanNumber(boolean useStream) throws Exception
+    private void _testBrokenNumber(boolean useStream) throws Exception
     {
     	JsonFactory f = new JsonFactory();
         final String DOC = "14:89:FD:D3:E7:8C";

@@ -2594,34 +2594,50 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     protected final void _matchToken(String matchStr, int i) throws IOException
     {
         final int len = matchStr.length();
+        if ((_inputPtr + len) >= _inputEnd) {
+            _matchToken2(matchStr, i);
+            return;
+        }
 
         do {
-            if (_inputPtr >= _inputEnd) {
-                if (!_loadMore()) {
-                    _reportInvalidToken(matchStr.substring(0, i));
-                }
-            }
             if (_inputBuffer[_inputPtr] != matchStr.charAt(i)) {
                 _reportInvalidToken(matchStr.substring(0, i));
             }
             ++_inputPtr;
         } while (++i < len);
-
-        // but let's also ensure we either get EOF, or non-alphanum char...
-        if (_inputPtr >= _inputEnd) {
-            if (!_loadMore()) {
-                return;
-            }
+        int ch = _inputBuffer[_inputPtr];
+        if (ch >= '0' && ch != ']' && ch != '}') { // expected/allowed chars
+            _checkMatchEnd(matchStr, i, ch);
         }
-        char c = _inputBuffer[_inputPtr];
-        if (c < '0' || c == ']' || c == '}') { // expected/allowed chars
+    }
+
+    private final void _matchToken2(String matchStr, int i) throws IOException
+    {
+        final int len = matchStr.length();
+        do {
+            if (((_inputPtr >= _inputEnd) && !_loadMore())
+                ||  (_inputBuffer[_inputPtr] != matchStr.charAt(i))) {
+                _reportInvalidToken(matchStr.substring(0, i));
+            }
+            ++_inputPtr;
+        } while (++i < len);
+    
+        // but let's also ensure we either get EOF, or non-alphanum char...
+        if (_inputPtr >= _inputEnd && !_loadMore()) {
             return;
         }
-        // if Java letter, it's a problem tho
-        if (Character.isJavaIdentifierPart(c)) {
+        int ch = _inputBuffer[_inputPtr];
+        if (ch >= '0' && ch != ']' && ch != '}') { // expected/allowed chars
+            _checkMatchEnd(matchStr, i, ch);
+        }
+    }
+
+    private final void _checkMatchEnd(String matchStr, int i, int c) throws IOException {
+        // but actually only alphanums are problematic
+        char ch = (char) c;
+        if (Character.isJavaIdentifierPart(ch)) {
             _reportInvalidToken(matchStr.substring(0, i));
         }
-        return;
     }
 
     /*

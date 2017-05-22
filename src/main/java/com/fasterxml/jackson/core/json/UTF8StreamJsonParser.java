@@ -805,15 +805,15 @@ public class UTF8StreamJsonParser
             t = _parsePosNumber(i);
             break;
         case 'f':
-            _matchToken("false", 1);
+            _matchFalse();
              t = JsonToken.VALUE_FALSE;
             break;
         case 'n':
-            _matchToken("null", 1);
+            _matchNull();
             t = JsonToken.VALUE_NULL;
             break;
         case 't':
-            _matchToken("true", 1);
+            _matchTrue();
             t = JsonToken.VALUE_TRUE;
             break;
         case '[':
@@ -844,13 +844,13 @@ public class UTF8StreamJsonParser
             _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_OBJECT);
         case 't':
-            _matchToken("true", 1);
+            _matchTrue();
             return (_currToken = JsonToken.VALUE_TRUE);
         case 'f':
-            _matchToken("false", 1);
+            _matchFalse();
             return (_currToken = JsonToken.VALUE_FALSE);
         case 'n':
-            _matchToken("null", 1);
+            _matchNull();
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
             return (_currToken = _parseNegNumber());
@@ -1073,15 +1073,15 @@ public class UTF8StreamJsonParser
             t = _parsePosNumber(i);
             break;
         case 'f':
-            _matchToken("false", 1);
+            _matchFalse();
              t = JsonToken.VALUE_FALSE;
             break;
         case 'n':
-            _matchToken("null", 1);
+            _matchNull();
             t = JsonToken.VALUE_NULL;
             break;
         case 't':
-            _matchToken("true", 1);
+            _matchTrue();
             t = JsonToken.VALUE_TRUE;
             break;
         case '[':
@@ -1164,15 +1164,15 @@ public class UTF8StreamJsonParser
             _nextToken = JsonToken.START_OBJECT;
             return;
         case 't':
-            _matchToken("true", 1);
+            _matchTrue();
             _nextToken = JsonToken.VALUE_TRUE;
             return;
         case 'f':
-            _matchToken("false", 1);
+            _matchFalse();
             _nextToken = JsonToken.VALUE_FALSE;
             return;
         case 'n':
-            _matchToken("null", 1);
+            _matchNull();
             _nextToken = JsonToken.VALUE_NULL;
             return;
         case '-':
@@ -1221,15 +1221,15 @@ public class UTF8StreamJsonParser
             t = JsonToken.START_OBJECT;
             break;
         case 't':
-            _matchToken("true", 1);
+            _matchTrue();
             t = JsonToken.VALUE_TRUE;
             break;
         case 'f':
-            _matchToken("false", 1);
+            _matchFalse();
              t = JsonToken.VALUE_FALSE;
             break;
         case 'n':
-            _matchToken("null", 1);
+            _matchNull();
             t = JsonToken.VALUE_NULL;
             break;
         case '-':
@@ -2616,17 +2616,15 @@ public class UTF8StreamJsonParser
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
      */
-    protected JsonToken _handleUnexpectedValue(int c)
-        throws IOException
+    protected JsonToken _handleUnexpectedValue(int c) throws IOException
     {
         // Most likely an error, unless we are to allow single-quote-strings
         switch (c) {
-        /*
-         * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
-         * The Check is for missing values. Incase of missing values in an array, the next token will be either ',' or ']'.
-         * This case, decrements the already incremented _inputPtr in the buffer in case of comma(,) 
-         * so that the existing flow goes back to checking the next token which will be comma again and
-         * it continues the parsing.
+        /* This check proceeds only if `Feature.ALLOW_MISSING_VALUES` is enabled;
+         * it is for missing values. In case of missing values in an array the next token
+         * will be either ',' or ']'. This case, decrements the already incremented _inputPtr
+         * in the buffer in case of comma (`,`) so that the existing flow goes back to checking
+         * the next token which will be comma again and  it parsing continues.
          * Also the case returns NULL as current token in case of ',' or ']'.    
          */
         case ']':
@@ -2635,13 +2633,12 @@ public class UTF8StreamJsonParser
             }
             // fall through
         case ',':
-            /* 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
-             *   we may allow "missing values", that is, encountering a trailing
-             *   comma or closing marker where value would be expected
-             */
+            // 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
+            //   we may allow "missing values", that is, encountering a trailing
+            //   comma or closing marker where value would be expected
             if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
-               _inputPtr--;
-               return JsonToken.VALUE_NULL;
+                --_inputPtr;
+                return JsonToken.VALUE_NULL;
             }
             // fall through
         case '}':
@@ -2684,8 +2681,7 @@ public class UTF8StreamJsonParser
         return null;
     }
 
-    protected JsonToken _handleApos()
-        throws IOException
+    protected JsonToken _handleApos() throws IOException
     {
         int c = 0;
         // Otherwise almost verbatim copy of _finishString()
@@ -2773,13 +2769,18 @@ public class UTF8StreamJsonParser
 
         return JsonToken.VALUE_STRING;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Internal methods, well-known token decoding
+    /**********************************************************
+     */
+
     /**
      * Method called if expected numeric value (due to leading sign) does not
      * look like a number
      */
-    protected JsonToken _handleInvalidNumberStart(int ch, boolean neg)
-        throws IOException
+    protected JsonToken _handleInvalidNumberStart(int ch, boolean neg) throws IOException
     {
         while (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
@@ -2800,12 +2801,72 @@ public class UTF8StreamJsonParser
             if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN(match, neg ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
             }
-            _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token '%s': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow",
+                    match);
         }
         reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;
     }
 
+    // NOTE: first character already decoded
+    protected final void _matchTrue() throws IOException
+    {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) {
+            byte[] buf = _inputBuffer;
+            if ((buf[ptr++] == 'r') 
+                   && (buf[ptr++] == 'u')
+                   && (buf[ptr++] == 'e')) {
+                int ch = buf[ptr] & 0xFF;
+                _inputPtr = ptr;
+                if (ch >= INT_0 && ch != INT_RBRACKET && ch != INT_RCURLY) { // expected/allowed chars
+                    _checkMatchEnd("true", 4, ch);
+                }
+                return;
+            }
+        }
+        _matchToken2("true", 1);
+    }
+
+    protected final void _matchFalse() throws IOException
+    {
+        int ptr = _inputPtr;
+        if ((ptr + 4) < _inputEnd) {
+            byte[] buf = _inputBuffer;
+            if ((buf[ptr++] == 'a') 
+                   && (buf[ptr++] == 'l')
+                   && (buf[ptr++] == 's')
+                   && (buf[ptr++] == 'e')) {
+                int ch = buf[ptr] & 0xFF;
+                _inputPtr = ptr;
+                if (ch >= INT_0 && ch != INT_RBRACKET && ch != INT_RCURLY) { // expected/allowed chars
+                    _checkMatchEnd("false", 5, ch);
+                }
+                return;
+            }
+        }
+        _matchToken2("false", 1);
+    }
+
+    protected final void _matchNull() throws IOException
+    {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) {
+            byte[] buf = _inputBuffer;
+            if ((buf[ptr++] == 'u') 
+                   && (buf[ptr++] == 'l')
+                   && (buf[ptr++] == 'l')) {
+                int ch = buf[ptr] & 0xFF;
+                _inputPtr = ptr;
+                if (ch >= INT_0 && ch != INT_RBRACKET && ch != INT_RCURLY) { // expected/allowed chars
+                    _checkMatchEnd("null", 4, ch);
+                }
+                return;
+            }
+        }
+        _matchToken2("null", 1);
+    }
+    
     protected final void _matchToken(String matchStr, int i) throws IOException
     {
         final int len = matchStr.length();
@@ -3490,6 +3551,11 @@ public class UTF8StreamJsonParser
     /* Internal methods, error reporting
     /**********************************************************
      */
+
+    protected void _reportInvalidToken(String matchedPart, int ptr) throws IOException {
+        _inputPtr = ptr;
+        _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
+    }
 
     protected void _reportInvalidToken(String matchedPart) throws IOException {
         _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");

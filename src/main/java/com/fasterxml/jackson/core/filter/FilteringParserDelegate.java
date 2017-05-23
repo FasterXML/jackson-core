@@ -226,21 +226,29 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override
     public JsonToken nextToken() throws IOException
     {
-    	//Check for _allowMultipleMatches - false and atleast there is one token - which is _currToken
-    	// check for no buffered context _exposedContext - null
-    	//If all the conditions matches then check for scalar / non-scalar property
-    	if(!_allowMultipleMatches && _currToken != null && _exposedContext == null){
-    		//if not scalar and ended successfully, then return null
-    		if((_currToken.isStructEnd()  && _headContext.isStartHandled()) ){
-    			return (_currToken = null);
-    		}
-    		//else if scalar, and scalar not present in obj/array and !includePath and INCLUDE_ALL matched once
-    		// then return null 
-    		else if(_currToken.isScalarValue() && !_headContext.isStartHandled() && !_includePath 
-    				&& _itemFilter == TokenFilter.INCLUDE_ALL) {
-    			return (_currToken = null);
-    		}
-    	}
+        // 23-May-2017, tatu: To be honest, code here is rather hairy and I don't like all
+        //    conditionals; and it seems odd to return `null` but NOT considering input
+        //    as closed... would love a rewrite to simplify/clear up logic here.
+        
+        // Check for _allowMultipleMatches - false and at least there is one token - which is _currToken
+        // check for no buffered context _exposedContext - null
+        // If all the conditions matches then check for scalar / non-scalar property
+        if (!_allowMultipleMatches && (_currToken != null) && (_exposedContext == null)) {
+            //if not scalar and ended successfully, and !includePath, then return null
+            if (!_includePath) {
+                if (_currToken.isStructEnd()) {
+                    if (_headContext.isStartHandled()) {
+                        return (_currToken = null);
+                    }
+                } else if (_currToken.isScalarValue()) {
+                    //else if scalar, and scalar not present in obj/array and !includePath and INCLUDE_ALL matched once
+                    // then return null 
+                    if (!_headContext.isStartHandled() && (_itemFilter == TokenFilter.INCLUDE_ALL)) {
+                        return (_currToken = null);
+                    }
+                }
+            }
+        }
         // Anything buffered?
         TokenFilterContext ctxt = _exposedContext;
 

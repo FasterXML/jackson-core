@@ -34,7 +34,7 @@ public abstract class TypeReference<T> implements Comparable<TypeReference<T>>
         if (superClass instanceof Class<?>) { // sanity check, should never happen
             throw new IllegalArgumentException("Internal error: TypeReference constructed without actual type information");
         }
-        /* 22-Dec-2008, tatu: Not sure if this case is safe -- I suspect
+        /* 22-Dec-2008, tatu: Not sure if this cast is safe -- I suspect
          *   it is possible to make it fail?
          *   But let's deal with specific
          *   case when we know an actual use case, and thereby suitable

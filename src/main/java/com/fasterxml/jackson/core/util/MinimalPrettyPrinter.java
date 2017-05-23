@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.PrettyPrinter;
-import com.fasterxml.jackson.core.Separators;
 
 /**
  * {@link PrettyPrinter} implementation that adds no indentation,
@@ -28,14 +27,12 @@ public class MinimalPrettyPrinter
 {
     private static final long serialVersionUID = 1L;
 
+    protected String _rootValueSeparator;
+
     /**
-     * Default String used for separating root values is single space.
+     * @since 2.9
      */
-    public final static String DEFAULT_ROOT_VALUE_SEPARATOR = " ";
-
-    protected String _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
-
-    protected Separators _separators = Separators.createDefaultInstance();
+    protected Separators _separators;
 
     /*
     /**********************************************************
@@ -44,18 +41,24 @@ public class MinimalPrettyPrinter
      */
 
     public MinimalPrettyPrinter() {
-        this(DEFAULT_ROOT_VALUE_SEPARATOR);
+        this(DEFAULT_ROOT_VALUE_SEPARATOR.toString());
     }
 
     public MinimalPrettyPrinter(String rootValueSeparator) {
         _rootValueSeparator = rootValueSeparator;
+        _separators = DEFAULT_SEPARATORS;
     }
-    public MinimalPrettyPrinter withCustomSeparators(Separators separators) {
-        this._separators = separators;
-        return this;
-    }
+
     public void setRootValueSeparator(String sep) {
         _rootValueSeparator = sep;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public MinimalPrettyPrinter setSeparators(Separators separators) {
+        _separators = separators;
+        return this;
     }
 
     /*

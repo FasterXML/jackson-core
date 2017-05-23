@@ -81,9 +81,15 @@ public class DefaultPrettyPrinter
      */
     protected transient int _nesting;
 
-    protected Separators _separators = Separators.createDefaultInstance();
+    /**
+     * @since 2.9
+     */
+    protected Separators _separators;
 
-    private String _objectFieldValueSeparatorWithSpaces = " " + _separators.getObjectFieldValueSeparator() + " ";
+    /**
+     * @since 2.9
+     */
+    protected String _objectFieldValueSeparatorWithSpaces;
 
     /*
     /**********************************************************
@@ -120,6 +126,7 @@ public class DefaultPrettyPrinter
      */
     public DefaultPrettyPrinter(SerializableString rootSeparator) {
         _rootSeparator = rootSeparator;
+        withSeparators(DEFAULT_SEPARATORS);
     }
     
     public DefaultPrettyPrinter(DefaultPrettyPrinter base) {
@@ -133,8 +140,9 @@ public class DefaultPrettyPrinter
         _objectIndenter = base._objectIndenter;
         _spacesInObjectEntries = base._spacesInObjectEntries;
         _nesting = base._nesting;
+
         _separators = base._separators;
-        _objectFieldValueSeparatorWithSpaces = " " + base._separators.getObjectFieldValueSeparator() + " ";
+        _objectFieldValueSeparatorWithSpaces = base._objectFieldValueSeparatorWithSpaces;
 
         _rootSeparator = rootSeparator;
     }
@@ -162,12 +170,6 @@ public class DefaultPrettyPrinter
     public void indentObjectsWith(Indenter i) {
         _objectIndenter = (i == null) ? NopIndenter.instance : i;
     }
-
-    /**
-     * @deprecated Since 2.3 use {@link #withSpacesInObjectEntries} and {@link #withoutSpacesInObjectEntries()}
-     */
-    @Deprecated
-    public void spacesInObjectEntries(boolean b) { _spacesInObjectEntries = b; }
 
     /**
      * @since 2.3
@@ -233,9 +235,12 @@ public class DefaultPrettyPrinter
         return pp;
     }
 
-    public DefaultPrettyPrinter withCustomSeparators(Separators separators) {
-        this._separators = separators;
-        this._objectFieldValueSeparatorWithSpaces = " " + separators.getObjectFieldValueSeparator() + " ";
+    /**
+     * @since 2.9
+     */
+    public DefaultPrettyPrinter withSeparators(Separators separators) {
+        _separators = separators;
+        _objectFieldValueSeparatorWithSpaces = " " + separators.getObjectFieldValueSeparator() + " ";
         return this;
     }
 
@@ -400,7 +405,6 @@ public class DefaultPrettyPrinter
      */
     public static class FixedSpaceIndenter extends NopIndenter
     {
-        @SuppressWarnings("hiding")
         public static final FixedSpaceIndenter instance = new FixedSpaceIndenter();
 
         @Override

@@ -135,3 +135,7 @@ Michael Sims (MichaelSims@github)
   * Reported, contributed fix for #372: JsonParserSequence#skipChildren() throws exception
    when current delegate is TokenBuffer.Parser with "incomplete" JSON
    (2.9.0)
+
+Rafal Foltynski (rfoltyns@github)
+  * Contributed #374: Minimal and DefaultPrettyPrinter with configurable separators
+   (2.9.0)

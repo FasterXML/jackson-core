@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators;
 
 import java.io.*;
 
@@ -159,7 +160,7 @@ public class TestPrettyPrinter
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
-        gen.setPrettyPrinter(new MinimalPrettyPrinter().withCustomSeparators(Separators.createDefaultInstance()
+        gen.setPrettyPrinter(new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
                 .withArrayValueSeparator('|')));
@@ -173,7 +174,7 @@ public class TestPrettyPrinter
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
-        gen.setPrettyPrinter(new DefaultPrettyPrinter().withCustomSeparators(Separators.createDefaultInstance()
+        gen.setPrettyPrinter(new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
                 .withArrayValueSeparator('|')));
@@ -190,7 +191,7 @@ public class TestPrettyPrinter
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
-        gen.setPrettyPrinter(new DefaultPrettyPrinter().withCustomSeparators(Separators.createDefaultInstance()
+        gen.setPrettyPrinter(new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
                 .withArrayValueSeparator('|'))

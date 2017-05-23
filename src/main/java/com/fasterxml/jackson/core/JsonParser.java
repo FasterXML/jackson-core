@@ -778,65 +778,6 @@ public abstract class JsonParser
     public abstract JsonToken nextToken() throws IOException;
 
     /**
-     * Optional method that allows "peeking" type of the following
-     * token, but without necessarily fully decoding it; and specifically
-     * without making it the current token: instead, if token is
-     * returned (that is, unless {@link JsonToken#NOT_AVAILABLE} is returned),
-     * it will be same one that will be returned for any number of
-     * {@link #peekToken()} calls, or for the next {@link #nextToken()} call.
-     * Note that current state is NOT guaranteed to be preserved, even if
-     * next token may not be peeked; parser is allowed (and expected) to
-     * drop current state information.
-     *<p>
-     * Note that implementations are allowed to throw {@link UnsupportedOperationException}
-     * to indicate this as unsupported
-     * operation; as well as to return {@link JsonToken#NOT_AVAILABLE} if type
-     * can not be determined with input available (for non-blocking parsers; blocking
-     * parsers may choose either to read with possible blocking, or to return
-     * {@link JsonToken#NOT_AVAILABLE}).
-     *<p>
-     * This method is most commonly useful with (optionally supported) non-blocking
-     * parsing, along with {@link #skipToken}; it may or may not be supported
-     * for regular blocking parsing.
-     *
-     * @since 2.9
-     */
-    public JsonToken peekToken() throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Method similar to {@link #nextToken()} with respect to advancing stream,
-     * returning type of token encountered; but instead of collecting information
-     * to be accessed will drop all information (like textual content of String value).
-     * Non-blocking implementation is allowed to return {@link JsonToken#NOT_AVAILABLE}
-     * if unable to advance enough to skip token; other implementations may choose to
-     * throw {@link JsonParseException} if they do not support skipping.
-     *<p>
-     * Since content is expected to be skipped, no access should be attempted (and parsers
-     * are encouraged not to expose it even if internally method works similar to
-     * <code>nextToken</code>). This includes {@link #getCurrentToken()} (and similar)
-     * method which should NOT expose token that was skipped: only return value of
-     * this method should be used (if anything).
-     *<p>
-     * This method is most commonly useful with (optionally supported) non-blocking
-     * parsing, along with {@link #skipToken}: since it can avoid aggregating content
-     * it can result in efficiency improvements that could not be achieved by just
-     * using {@link #nextToken()} (which has to aggregate all content for possible
-     * access by user).
-     *<p>
-     * Default implementation will simply call {@link #nextToken}, which is correct
-     * but does not give performance benefits.
-     *
-     * @since 2.9
-     */
-    public JsonToken skipToken() throws IOException {
-        JsonToken t = nextToken();
-        clearCurrentToken();
-        return t;
-    }
-
-    /**
      * Iteration method that will advance stream enough
      * to determine type of the next token that is a value type
      * (including JSON Array and Object start/end markers).

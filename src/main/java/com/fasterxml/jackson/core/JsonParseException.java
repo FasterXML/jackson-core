@@ -57,7 +57,7 @@ public class JsonParseException extends JsonProcessingException {
         super(msg, (p == null) ? null : p.getCurrentLocation(), root);
         _processor = p;
     }
-    
+
     /**
      * @since 2.7
      */

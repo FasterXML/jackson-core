@@ -181,6 +181,13 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override public abstract JsonToken nextToken() throws IOException;
 
+    @Override
+    public JsonToken skipToken() throws IOException {
+        JsonToken t = nextToken();
+        _currToken = null;
+        return t;
+    }
+    
     @Override public JsonToken currentToken() { return _currToken; }
     @Override public int currentTokenId() {
         final JsonToken t = _currToken;

@@ -213,7 +213,11 @@ public class JsonParserDelegate extends JsonParser
     @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException { return delegate.getBinaryValue(b64variant); }
     @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException { return delegate.readBinaryValue(b64variant, out); }
     @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+
     @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
+    @Override public JsonToken peekToken() throws IOException { return delegate.peekToken(); }
+    @Override public JsonToken skipToken() throws IOException { return delegate.skipToken(); }
+
     @Override public JsonToken nextValue() throws IOException { return delegate.nextValue(); }
 
     @Override public void finishToken() throws IOException { delegate.finishToken(); }

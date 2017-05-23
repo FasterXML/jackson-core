@@ -26,7 +26,7 @@ public class DefaultPrettyPrinter
      * @since 2.1
      */
     public final static SerializedString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(" ");
-    
+
     /**
      * Interface that defines objects that can produce indentation used
      * to separate object entries and array values. Indentation in this
@@ -43,7 +43,7 @@ public class DefaultPrettyPrinter
          */
         boolean isInline();
     }
-    
+
     // // // Config, indentation
 
     /**
@@ -63,7 +63,7 @@ public class DefaultPrettyPrinter
      * String printed between root-level values, if any.
      */
     protected final SerializableString _rootSeparator;
-    
+
     // // // Config, other white space configuration
 
     /**
@@ -80,6 +80,10 @@ public class DefaultPrettyPrinter
      * indentation to use.
      */
     protected transient int _nesting;
+
+    protected Separators _separators = Separators.createDefaultInstance();
+
+    private String _objectFieldValueSeparatorWithSpaces = " " + _separators.getObjectFieldValueSeparator() + " ";
 
     /*
     /**********************************************************
@@ -129,6 +133,8 @@ public class DefaultPrettyPrinter
         _objectIndenter = base._objectIndenter;
         _spacesInObjectEntries = base._spacesInObjectEntries;
         _nesting = base._nesting;
+        _separators = base._separators;
+        _objectFieldValueSeparatorWithSpaces = " " + base._separators.getObjectFieldValueSeparator() + " ";
 
         _rootSeparator = rootSeparator;
     }
@@ -148,7 +154,7 @@ public class DefaultPrettyPrinter
     public DefaultPrettyPrinter withRootSeparator(String rootSeparator) {
         return withRootSeparator((rootSeparator == null) ? null : new SerializedString(rootSeparator));
     }
-    
+
     public void indentArraysWith(Indenter i) {
         _arrayIndenter = (i == null) ? NopIndenter.instance : i;
     }
@@ -210,7 +216,7 @@ public class DefaultPrettyPrinter
      * that does not use spaces inside object entries; if 'this' instance already
      * does this, it is returned; if not, a new instance will be constructed
      * and returned.
-     * 
+     *
      * @since 2.3
      */
     public DefaultPrettyPrinter withoutSpacesInObjectEntries() {
@@ -226,13 +232,19 @@ public class DefaultPrettyPrinter
         pp._spacesInObjectEntries = state;
         return pp;
     }
-    
+
+    public DefaultPrettyPrinter withCustomSeparators(Separators separators) {
+        this._separators = separators;
+        this._objectFieldValueSeparatorWithSpaces = " " + separators.getObjectFieldValueSeparator() + " ";
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Instantiatable impl
     /**********************************************************
      */
-    
+
     @Override
     public DefaultPrettyPrinter createInstance() {
         return new DefaultPrettyPrinter(this);
@@ -280,9 +292,9 @@ public class DefaultPrettyPrinter
     public void writeObjectFieldValueSeparator(JsonGenerator g) throws IOException
     {
         if (_spacesInObjectEntries) {
-            g.writeRaw(" : ");
+            g.writeRaw(_objectFieldValueSeparatorWithSpaces);
         } else {
-            g.writeRaw(':');
+            g.writeRaw(_separators.getObjectFieldValueSeparator());
         }
     }
 
@@ -298,7 +310,7 @@ public class DefaultPrettyPrinter
     @Override
     public void writeObjectEntrySeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(',');
+        g.writeRaw(_separators.getObjectEntrySeparator());
         _objectIndenter.writeIndentation(g, _nesting);
     }
 
@@ -340,24 +352,24 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeArrayValueSeparator(JsonGenerator gen) throws IOException
+    public void writeArrayValueSeparator(JsonGenerator g) throws IOException
     {
-        gen.writeRaw(',');
-        _arrayIndenter.writeIndentation(gen, _nesting);
+        g.writeRaw(_separators.getArrayValueSeparator());
+        _arrayIndenter.writeIndentation(g, _nesting);
     }
 
     @Override
-    public void writeEndArray(JsonGenerator gen, int nrOfValues) throws IOException
+    public void writeEndArray(JsonGenerator g, int nrOfValues) throws IOException
     {
         if (!_arrayIndenter.isInline()) {
             --_nesting;
         }
         if (nrOfValues > 0) {
-            _arrayIndenter.writeIndentation(gen, _nesting);
+            _arrayIndenter.writeIndentation(g, _nesting);
         } else {
-            gen.writeRaw(' ');
+            g.writeRaw(' ');
         }
-        gen.writeRaw(']');
+        g.writeRaw(']');
     }
 
     /*

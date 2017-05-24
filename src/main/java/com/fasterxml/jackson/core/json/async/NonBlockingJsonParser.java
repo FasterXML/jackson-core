@@ -169,13 +169,12 @@ public class NonBlockingJsonParser
         if (_currToken == JsonToken.NOT_AVAILABLE) {
             return _finishToken();
         }
-
         // No: fresh new token; may or may not have existing one
         _numTypesValid = NR_UNKNOWN;
         _tokenInputTotal = _currInputProcessed + _inputPtr;
         // also: clear any data retained so far
         _binaryValue = null;
-        int ch = _inputBuffer[_inputPtr++];
+        int ch = _inputBuffer[_inputPtr++] & 0xFF;
 
         switch (_majorState) {
         case MAJOR_INITIAL:
@@ -184,13 +183,20 @@ public class NonBlockingJsonParser
         case MAJOR_ROOT:
             return _startValue(ch);
 
-        case MAJOR_OBJECT_FIELD: // field or end-object
+        case MAJOR_OBJECT_FIELD_FIRST: // field or end-object
             // expect name
             return _startFieldName(ch);
-            
-        case MAJOR_OBJECT_VALUE:
-        case MAJOR_ARRAY_ELEMENT: // element or end-array
+        case MAJOR_OBJECT_FIELD_NEXT: // comma
+            return _startFieldNameAfterComma(ch);
+
+        case MAJOR_OBJECT_VALUE: // require semicolon first
+            return _startValueAfterColon(ch);
+
+        case MAJOR_ARRAY_ELEMENT_FIRST: // value without leading comma
             return _startValue(ch);
+
+        case MAJOR_ARRAY_ELEMENT_NEXT: // require leading comma
+            return _startValueAfterComma(ch);
 
         default:
         }
@@ -207,12 +213,19 @@ public class NonBlockingJsonParser
         // NOTE: caller ensures availability of at least one byte
 
         switch (_minorState) {
+        case MINOR_VALUE_LEADING_WS:
+            return _startValue(_inputBuffer[_inputPtr++] & 0xFF);
+        case MINOR_VALUE_LEADING_COMMA:
+            return _startValueAfterComma(_inputBuffer[_inputPtr++] & 0xFF);
+        case MINOR_VALUE_LEADING_COLON:
+            return _startValueAfterColon(_inputBuffer[_inputPtr++] & 0xFF);
+
         case MINOR_VALUE_TOKEN_NULL:
             return _finishKeywordToken("null", _pending32, JsonToken.VALUE_NULL);
         case MINOR_VALUE_TOKEN_TRUE:
-            return _finishKeywordToken("null", _pending32, JsonToken.VALUE_TRUE);
+            return _finishKeywordToken("true", _pending32, JsonToken.VALUE_TRUE);
         case MINOR_VALUE_TOKEN_FALSE:
-            return _finishKeywordToken("null", _pending32, JsonToken.VALUE_FALSE);
+            return _finishKeywordToken("false", _pending32, JsonToken.VALUE_FALSE);
         case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
             return _finishErrorToken();
         }
@@ -248,7 +261,7 @@ public class NonBlockingJsonParser
                 }
             }
             if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_FIELD_ROOT_GOT_SEPARATOR;
+                _minorState = MINOR_ROOT_GOT_SEPARATOR;
                 if (_closed) {
                     return null;
                 }
@@ -272,10 +285,19 @@ public class NonBlockingJsonParser
     /**
      * Helper method called to detect type of a value token (at any level), and possibly
      * decode it if contained in input buffer.
-     * Note that possible header has been ruled out by caller and is not checked here.
+     * Value may be preceded by leading white-space, but no separator (comma).
      */
     private final JsonToken _startValue(int ch) throws IOException
     {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_VALUE_LEADING_WS;
+                return _currToken;
+            }
+        }
+
         if (ch == INT_QUOTE) {
             return _startString(ch);
         }
@@ -316,6 +338,143 @@ public class NonBlockingJsonParser
         return _startUnexpectedValue(ch);
     }
 
+    /**
+     * Helper method called to parse token that is either a value token in array
+     * or end-array marker
+     */
+    private final JsonToken _startValueAfterComma(int ch) throws IOException
+    {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_VALUE_LEADING_COMMA;
+                return _currToken;
+            }
+        }
+        if (ch != INT_COMMA) {
+            if (ch == INT_RBRACKET) {
+                return _closeArrayScope();
+            }
+            _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+        }
+        int ptr = _inputPtr;
+        if (ptr >= _inputEnd) {
+            _minorState = MINOR_VALUE_LEADING_WS;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[ptr];
+        _inputPtr = ptr+1;
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_VALUE_LEADING_WS;
+                return _currToken;
+            }
+        }
+        if (ch == INT_QUOTE) {
+            return _startString(ch);
+        }
+        switch (ch) {
+        case '-':
+            return _startNegativeNumber();
+
+        // Should we have separate handling for plus? Although
+        // it is not allowed per se, it may be erroneously used,
+        // and could be indicate by a more specific error message.
+        case '0': case '1':
+        case '2': case '3':
+        case '4': case '5':
+        case '6': case '7':
+        case '8': case '9':
+            return _startPositiveNumber(ch);
+        case 'f':
+            return _startFalseToken();
+        case 'n':
+            return _startNullToken();
+        case 't':
+            return _startTrueToken();
+        case '[':
+            return _startArrayScope();
+        case ']':
+            return _closeArrayScope();
+        case '{':
+            return _startObjectScope();
+        case '}':
+            return _closeObjectScope();
+        default:
+        }
+        return _startUnexpectedValue(ch);
+    }
+
+    /**
+     * Helper method called to detect type of a value token (at any level), and possibly
+     * decode it if contained in input buffer.
+     * Value MUST be preceded by a semi-colon (which may be surrounded by white-space)
+     */
+    private final JsonToken _startValueAfterColon(int ch) throws IOException
+    {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_VALUE_LEADING_COLON;
+                return _currToken;
+            }
+        }
+        if (ch != INT_COLON) {
+            _reportUnexpectedChar(ch, "was expecting a colon to separate field name and value");
+        }
+        int ptr = _inputPtr;
+        if (ptr >= _inputEnd) {
+            _minorState = MINOR_VALUE_LEADING_WS;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[ptr];
+        _inputPtr = ptr+1;
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_VALUE_LEADING_WS;
+                return _currToken;
+            }
+        }
+        if (ch == INT_QUOTE) {
+            return _startString(ch);
+        }
+        switch (ch) {
+        case '-':
+            return _startNegativeNumber();
+
+        // Should we have separate handling for plus? Although
+        // it is not allowed per se, it may be erroneously used,
+        // and could be indicate by a more specific error message.
+        case '0': case '1':
+        case '2': case '3':
+        case '4': case '5':
+        case '6': case '7':
+        case '8': case '9':
+            return _startPositiveNumber(ch);
+        case 'f':
+            return _startFalseToken();
+        case 'n':
+            return _startNullToken();
+        case 't':
+            return _startTrueToken();
+        case '[':
+            return _startArrayScope();
+        case ']':
+            return _closeArrayScope();
+        case '{':
+            return _startObjectScope();
+        case '}':
+            return _closeObjectScope();
+        default:
+        }
+        return _startUnexpectedValue(ch);
+    }
+
+    
     protected JsonToken _startUnexpectedValue(int ch) throws IOException
     {
         // TODO: Maybe support non-standard tokens that streaming parser does:
@@ -343,6 +502,33 @@ public class NonBlockingJsonParser
         // !!! TODO: maybe try to collect more information for better diagnostics
         _reportUnexpectedChar(ch, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
         return null;
+    }
+
+    private final int _skipWS(int ch) throws IOException
+    {
+        do {
+            if (ch != INT_SPACE) {
+                if (ch == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (ch == INT_CR) {
+                    ++_currInputRowAlt;
+                    _currInputRowStart = _inputPtr;
+                } else if (ch != INT_TAB) {
+                    _throwInvalidSpace(ch);
+                }
+            }
+            if (_inputPtr >= _inputEnd) {
+                if (_endOfInput) { // except for this special case
+                    _eofAsNextToken();
+                } else {
+                    _currToken = JsonToken.NOT_AVAILABLE;
+                }
+                return 0;
+            }
+            ch = _inputBuffer[_inputPtr++] & 0xFF;
+        } while (ch <= 0x0020);
+        return ch;
     }
 
     /*
@@ -405,7 +591,7 @@ public class NonBlockingJsonParser
                 }
             }
         }
-        _minorState = MINOR_VALUE_TOKEN_TRUE;
+        _minorState = MINOR_VALUE_TOKEN_NULL;
         return _finishKeywordToken("null", 1, JsonToken.VALUE_NULL);
     }
 
@@ -422,16 +608,18 @@ public class NonBlockingJsonParser
             int ch = _inputBuffer[_inputPtr] & 0xFF;
             if (matched == end) { // need to verify trailing separator
                 if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
-                    return _valueComplete(JsonToken.VALUE_NULL);
+                    return _valueComplete(result);
                 }
+                break;
             }
             if (ch != expToken.charAt(matched)) {
                 break;
             }
+            ++matched;
             ++_inputPtr;
         }
         _minorState = MINOR_VALUE_TOKEN_ERROR;
-        _textBuffer.resetWithString(expToken.substring(0, matched));
+        _textBuffer.resetWithCopy(expToken, 0, matched);
         return _finishErrorToken();
     }
 
@@ -497,6 +685,11 @@ public class NonBlockingJsonParser
      * that has to be either FIELD_NAME or END_OBJECT.
      */
     protected final JsonToken _startFieldName(int ch) throws IOException
+    {
+        return null;
+    }
+
+    protected final JsonToken _startFieldNameAfterComma(int ch) throws IOException
     {
         return null;
     }

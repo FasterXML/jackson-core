@@ -66,7 +66,8 @@ public class SimpleScalarArrayTest extends AsyncTestBase
     /* Int / long tests
     /**********************************************************************
      */
-    
+
+    /*
     public void testInts() throws IOException
     {
         final int[] input = new int[] { 1, -1, 16, -17, 131, -155, 1000, -3000, 0xFFFF, -99999,
@@ -151,14 +152,14 @@ public class SimpleScalarArrayTest extends AsyncTestBase
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-
+*/
     /*
     /**********************************************************************
     /* Floating point
     /**********************************************************************
      */
-    
-    public void testFloats() throws IOException
+
+/*    public void testFloats() throws IOException
     {
         final float[] input = new float[] { 0.0f, 0.25f, -0.5f, 10000.125f, - 99999.075f };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
@@ -238,13 +239,13 @@ public class SimpleScalarArrayTest extends AsyncTestBase
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-
+*/
     /*
     /**********************************************************************
     /* BigInteger, BigDecimal
     /**********************************************************************
      */
-
+/*
     public void testBigIntegers() throws IOException
     {
         BigInteger bigBase = BigInteger.valueOf(1234567890344656736L);
@@ -287,17 +288,7 @@ public class SimpleScalarArrayTest extends AsyncTestBase
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         for (int i = 0; i < values.length; ++i) {
             BigInteger expValue = values[i];
-/*
-System.err.println("*** EXPECT: "+expValue+" (length: "+expValue.toByteArray().length+" bytes)");
-byte[] expB = expValue.toByteArray();
-for (int x = 0; x < expB.length; ++x) {
-    System.err.printf(" %02x", expB[x] & 0xFF);
-}
-System.err.println();
-*/
             assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
-//System.err.println("*** -> got EXPECTed? "+r.getBigIntegerValue());
-
             assertEquals(expValue, r.getBigIntegerValue());
             assertEquals(NumberType.BIG_INTEGER, r.getNumberType());
         }
@@ -357,5 +348,5 @@ System.err.println();
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-
+*/
 }

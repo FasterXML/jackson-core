@@ -33,16 +33,19 @@ public abstract class NonBlockingJsonParserBase
      */
     protected final static int MAJOR_ROOT = 1;
 
-    protected final static int MAJOR_OBJECT_FIELD = 2;
-    protected final static int MAJOR_OBJECT_VALUE = 3;
+    protected final static int MAJOR_OBJECT_FIELD_FIRST = 2;
+    protected final static int MAJOR_OBJECT_FIELD_NEXT = 3;
 
-    protected final static int MAJOR_ARRAY_ELEMENT = 4;
+    protected final static int MAJOR_OBJECT_VALUE = 4;
+
+    protected final static int MAJOR_ARRAY_ELEMENT_FIRST = 5;
+    protected final static int MAJOR_ARRAY_ELEMENT_NEXT = 6;
 
     /**
      * State after non-blocking input source has indicated that no more input
      * is forthcoming AND we have exhausted all the input
      */
-    protected final static int MAJOR_CLOSED = 5;
+    protected final static int MAJOR_CLOSED = 7;
 
     /*
     /**********************************************************************
@@ -54,24 +57,28 @@ public abstract class NonBlockingJsonParserBase
      * State between root-level value, waiting for at least one white-space
      * character as separator
      */
-    protected final static int MINOR_FIELD_ROOT_NEED_SEPARATOR = 1;
+    protected final static int MINOR_ROOT_NEED_SEPARATOR = 1;
 
     /**
      * State between root-level value, having processed at least one white-space
      * character, and expecting either more, start of a value, or end of input
      * stream.
      */
-    protected final static int MINOR_FIELD_ROOT_GOT_SEPARATOR = 2;
-    
+    protected final static int MINOR_ROOT_GOT_SEPARATOR = 2;
+
     protected final static int MINOR_FIELD_NAME = 10;
 
-    protected final static int MINOR_VALUE_NUMBER = 11;
+    protected final static int MINOR_VALUE_LEADING_WS = 15;
+    protected final static int MINOR_VALUE_LEADING_COMMA = 16;
+    protected final static int MINOR_VALUE_LEADING_COLON = 17;
+    
+    protected final static int MINOR_VALUE_NUMBER = 20;
 
-    protected final static int MINOR_VALUE_STRING = 15;
+    protected final static int MINOR_VALUE_STRING = 25;
 
-    protected final static int MINOR_VALUE_TOKEN_NULL = 16;
-    protected final static int MINOR_VALUE_TOKEN_TRUE = 17;
-    protected final static int MINOR_VALUE_TOKEN_FALSE = 18;
+    protected final static int MINOR_VALUE_TOKEN_NULL = 30;
+    protected final static int MINOR_VALUE_TOKEN_TRUE = 31;
+    protected final static int MINOR_VALUE_TOKEN_FALSE = 32;
 
     /**
      * Special state at which point decoding of a non-quoted token has encountered
@@ -387,16 +394,16 @@ public abstract class NonBlockingJsonParserBase
     protected final JsonToken _startArrayScope() throws IOException
     {
         _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
-        _majorState = MAJOR_ARRAY_ELEMENT;
-        _majorStateAfterValue = MAJOR_ARRAY_ELEMENT;
+        _majorState = MAJOR_ARRAY_ELEMENT_FIRST;
+        _majorStateAfterValue = MAJOR_ARRAY_ELEMENT_NEXT;
         return (_currToken = JsonToken.START_ARRAY);
     }
 
     protected final JsonToken _startObjectScope() throws IOException
     {
         _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
-        _majorState = MAJOR_OBJECT_FIELD;
-        _majorStateAfterValue = MAJOR_OBJECT_FIELD;
+        _majorState = MAJOR_OBJECT_FIELD_FIRST;
+        _majorStateAfterValue = MAJOR_OBJECT_FIELD_NEXT;
         return (_currToken = JsonToken.START_OBJECT);
     }
 
@@ -409,9 +416,9 @@ public abstract class NonBlockingJsonParserBase
         _parsingContext = ctxt;
         int st;
         if (ctxt.inObject()) {
-            st = MAJOR_OBJECT_FIELD;
+            st = MAJOR_OBJECT_FIELD_NEXT;
         } else if (ctxt.inArray()) {
-            st = MAJOR_ARRAY_ELEMENT;
+            st = MAJOR_ARRAY_ELEMENT_NEXT;
         } else {
             st = MAJOR_ROOT;
         }
@@ -429,9 +436,9 @@ public abstract class NonBlockingJsonParserBase
         _parsingContext = ctxt;
         int st;
         if (ctxt.inObject()) {
-            st = MAJOR_OBJECT_FIELD;
+            st = MAJOR_OBJECT_FIELD_NEXT;
         } else if (ctxt.inArray()) {
-            st = MAJOR_ARRAY_ELEMENT;
+            st = MAJOR_ARRAY_ELEMENT_NEXT;
         } else {
             st = MAJOR_ROOT;
         }

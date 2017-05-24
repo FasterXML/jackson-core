@@ -209,6 +209,27 @@ public final class TextBuffer
         append(buf, start, len);
     }
 
+    /**
+     * @since 2.9
+     */
+    public void resetWithCopy(String text, int start, int len)
+    {
+        _inputBuffer = null;
+        _inputStart = -1;
+        _inputLen = 0;
+
+        _resultString = null;
+        _resultArray = null;
+
+        if (_hasSegments) {
+            clearSegments();
+        } else if (_currentSegment == null) {
+            _currentSegment = buf(len);
+        }
+        _currentSize = _segmentSize = 0;
+        append(text, start, len);
+    }
+
     public void resetWithString(String value)
     {
         _inputBuffer = null;
@@ -501,10 +522,8 @@ public final class TextBuffer
             start += max;
             len -= max;
         }
-        /* And then allocate new segment; we are guaranteed to now
-         * have enough room in segment.
-         */
-        // Except, as per [Issue-24], not for HUGE appends... so:
+        // And then allocate new segment; we are guaranteed to now
+        // have enough room in segment.
         do {
             expand(len);
             int amount = Math.min(_currentSegment.length, len);
@@ -538,10 +557,8 @@ public final class TextBuffer
             len -= max;
             offset += max;
         }
-        /* And then allocate new segment; we are guaranteed to now
-         * have enough room in segment.
-         */
-        // Except, as per [Issue-24], not for HUGE appends... so:
+        // And then allocate new segment; we are guaranteed to now
+        // have enough room in segment.
         do {
             expand(len);
             int amount = Math.min(_currentSegment.length, len);

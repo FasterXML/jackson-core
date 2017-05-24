@@ -2818,11 +2818,10 @@ public class UTF8StreamJsonParser
                    && (buf[ptr++] == 'u')
                    && (buf[ptr++] == 'e')) {
                 int ch = buf[ptr] & 0xFF;
-                _inputPtr = ptr;
-                if (ch >= INT_0 && ch != INT_RBRACKET && ch != INT_RCURLY) { // expected/allowed chars
-                    _checkMatchEnd("true", 4, ch);
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
                 }
-                return;
             }
         }
         _matchToken2("true", 1);
@@ -2838,11 +2837,10 @@ public class UTF8StreamJsonParser
                    && (buf[ptr++] == 's')
                    && (buf[ptr++] == 'e')) {
                 int ch = buf[ptr] & 0xFF;
-                _inputPtr = ptr;
-                if (ch >= INT_0 && ch != INT_RBRACKET && ch != INT_RCURLY) { // expected/allowed chars
-                    _checkMatchEnd("false", 5, ch);
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
                 }
-                return;
             }
         }
         _matchToken2("false", 1);
@@ -2857,11 +2855,10 @@ public class UTF8StreamJsonParser
                    && (buf[ptr++] == 'l')
                    && (buf[ptr++] == 'l')) {
                 int ch = buf[ptr] & 0xFF;
-                _inputPtr = ptr;
-                if (ch >= INT_0 && ch != INT_RBRACKET && ch != INT_RCURLY) { // expected/allowed chars
-                    _checkMatchEnd("null", 4, ch);
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return;
                 }
-                return;
             }
         }
         _matchToken2("null", 1);

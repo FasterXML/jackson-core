@@ -207,6 +207,14 @@ public class NonBlockingJsonParser
         // NOTE: caller ensures availability of at least one byte
 
         switch (_minorState) {
+        case MINOR_VALUE_TOKEN_NULL:
+            return _finishKeywordToken("null", _pending32, JsonToken.VALUE_NULL);
+        case MINOR_VALUE_TOKEN_TRUE:
+            return _finishKeywordToken("null", _pending32, JsonToken.VALUE_TRUE);
+        case MINOR_VALUE_TOKEN_FALSE:
+            return _finishKeywordToken("null", _pending32, JsonToken.VALUE_FALSE);
+        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
+            return _finishErrorToken();
         }
         return null;
     }
@@ -345,17 +353,109 @@ public class NonBlockingJsonParser
 
     protected JsonToken _startFalseToken() throws IOException
     {
-        return null;
+        int ptr = _inputPtr;
+        if ((ptr + 4) < _inputEnd) { // yes, can determine efficiently
+            byte[] buf = _inputBuffer;
+            if ((buf[ptr++] == 'a') 
+                   && (buf[ptr++] == 'l')
+                   && (buf[ptr++] == 's')
+                   && (buf[ptr++] == 'e')) {
+                int ch = buf[ptr] & 0xFF;
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return _valueComplete(JsonToken.VALUE_FALSE);
+                }
+            }
+        }
+        _minorState = MINOR_VALUE_TOKEN_FALSE;
+        return _finishKeywordToken("false", 1, JsonToken.VALUE_FALSE);
     }
 
     protected JsonToken _startTrueToken() throws IOException
     {
-        return null;
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
+            byte[] buf = _inputBuffer;
+            if ((buf[ptr++] == 'r') 
+                   && (buf[ptr++] == 'u')
+                   && (buf[ptr++] == 'e')) {
+                int ch = buf[ptr] & 0xFF;
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return _valueComplete(JsonToken.VALUE_TRUE);
+                }
+            }
+        }
+        _minorState = MINOR_VALUE_TOKEN_TRUE;
+        return _finishKeywordToken("true", 1, JsonToken.VALUE_TRUE);
     }
 
     protected JsonToken _startNullToken() throws IOException
     {
-        return null;
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
+            byte[] buf = _inputBuffer;
+            if ((buf[ptr++] == 'u') 
+                   && (buf[ptr++] == 'l')
+                   && (buf[ptr++] == 'l')) {
+                int ch = buf[ptr] & 0xFF;
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return _valueComplete(JsonToken.VALUE_NULL);
+                }
+            }
+        }
+        _minorState = MINOR_VALUE_TOKEN_TRUE;
+        return _finishKeywordToken("null", 1, JsonToken.VALUE_NULL);
+    }
+
+    protected JsonToken _finishKeywordToken(String expToken, int matched,
+            JsonToken result) throws IOException
+    {
+        final int end = expToken.length();
+
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _pending32 = matched;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            int ch = _inputBuffer[_inputPtr] & 0xFF;
+            if (matched == end) { // need to verify trailing separator
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    return _valueComplete(JsonToken.VALUE_NULL);
+                }
+            }
+            if (ch != expToken.charAt(matched)) {
+                break;
+            }
+            ++_inputPtr;
+        }
+        _minorState = MINOR_VALUE_TOKEN_ERROR;
+        _textBuffer.resetWithString(expToken.substring(0, matched));
+        return _finishErrorToken();
+    }
+
+    protected JsonToken _finishErrorToken() throws IOException
+    {
+        while (_inputPtr < _inputEnd) {
+            int i = (int) _inputBuffer[_inputPtr++];
+
+// !!! TODO: Decode UTF-8 characters properly...
+//            char c = (char) _decodeCharForError(i);
+
+            char ch = (char) i;
+            if (Character.isJavaIdentifierPart(ch)) {
+                // 11-Jan-2016, tatu: note: we will fully consume the character,
+                // included or not, so if recovery was possible, it'd be off-by-one...
+                _textBuffer.append(ch);
+                if (_textBuffer.size() < MAX_ERROR_TOKEN_LENGTH) {
+                    continue;
+                }
+            }
+            _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
+                    "'null', 'true' or 'false'");
+        }
+        return (_currToken = JsonToken.NOT_AVAILABLE);
     }
 
     /*

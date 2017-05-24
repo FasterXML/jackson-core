@@ -69,10 +69,19 @@ public abstract class NonBlockingJsonParserBase
 
     protected final static int MINOR_VALUE_STRING = 15;
 
-    protected final static int MINOR_VALUE_TOKEN_NULL = 15;
-    protected final static int MINOR_VALUE_TOKEN_TRUE = 15;
-    protected final static int MINOR_VALUE_TOKEN_FALSE = 15;
+    protected final static int MINOR_VALUE_TOKEN_NULL = 16;
+    protected final static int MINOR_VALUE_TOKEN_TRUE = 17;
+    protected final static int MINOR_VALUE_TOKEN_FALSE = 18;
 
+    /**
+     * Special state at which point decoding of a non-quoted token has encountered
+     * a problem; that is, either not matching fully (like "truf" instead of "true",
+     * at "tru"), or not having trailing separator (or end of input), like "trueful".
+     * Attempt is made, then, to decode likely full input token to report suitable
+     * error.
+     */
+    protected final static int MINOR_VALUE_TOKEN_ERROR = 19;
+    
     /*
     /**********************************************************************
     /* Helper objects, symbols (field names)

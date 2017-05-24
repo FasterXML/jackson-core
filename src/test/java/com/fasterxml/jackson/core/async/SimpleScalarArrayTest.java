@@ -1,12 +1,8 @@
 package com.fasterxml.jackson.core.async;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
 
 public class SimpleScalarArrayTest extends AsyncTestBase
 {
@@ -20,7 +16,7 @@ public class SimpleScalarArrayTest extends AsyncTestBase
 
     public void testTokens() throws IOException
     {
-        byte[] data = _jsonDoc("[true, false,true, null,false , null]");
+        byte[] data = _jsonDoc("  [ true, false, true, null,false , null]");
         JsonFactory f = JSON_F;
 
         // first: no offsets

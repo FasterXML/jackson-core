@@ -7,6 +7,9 @@ package com.fasterxml.jackson.core;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.util.Separators;
+
 /**
  * Interface for objects that implement pretty printer functionality, such
  * as indentation.
@@ -17,11 +20,23 @@ import java.io.IOException;
  * Note: since Jackson 2.1, stateful implementations MUST implement
  * {@link com.fasterxml.jackson.core.util.Instantiatable} interface,
  * to allow for constructing  per-generation instances and avoid
- * state corruption (see [JACKSON-851] for details).
+ * state corruption.
  * Stateless implementations need not do this; but those are less common.
  */
 public interface PrettyPrinter
 {
+    /**
+     * @since 2.9
+     */
+    public final static Separators DEFAULT_SEPARATORS = Separators.createDefaultInstance();
+
+    /**
+     * Default String used for separating root values is single space.
+     * 
+     * @since 2.9
+     */
+    public final static SerializedString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(" ");
+
     /*
     /**********************************************************
     /* First methods that act both as events, and expect
@@ -42,8 +57,7 @@ public interface PrettyPrinter
      * to output some other suitable and nice-looking separator
      * (tab(s), space(s), linefeed(s) or any combination thereof).
      */
-    void writeRootValueSeparator(JsonGenerator jg)
-        throws IOException, JsonGenerationException;
+    void writeRootValueSeparator(JsonGenerator gen) throws IOException;
 
     // // Object handling
 
@@ -57,8 +71,7 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      */
-    void writeStartObject(JsonGenerator gen)
-        throws IOException, JsonGenerationException;
+    void writeStartObject(JsonGenerator gen) throws IOException;
 
     /**
      * Method called after an Object value has been completely output
@@ -73,8 +86,7 @@ public interface PrettyPrinter
      * @param nrOfEntries Number of direct members of the array that
      *   have been output
      */
-    void writeEndObject(JsonGenerator gen, int nrOfEntries)
-        throws IOException, JsonGenerationException;
+    void writeEndObject(JsonGenerator gen, int nrOfEntries) throws IOException;
 
     /**
      * Method called after an object entry (field:value) has been completely
@@ -85,8 +97,7 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      */
-    void writeObjectEntrySeparator(JsonGenerator gen)
-        throws IOException, JsonGenerationException;
+    void writeObjectEntrySeparator(JsonGenerator gen) throws IOException;
 
     /**
      * Method called after an object field has been output, but
@@ -97,8 +108,7 @@ public interface PrettyPrinter
      * to output a colon as well, but can surround that with other
      * (white-space) decoration.
      */
-    void writeObjectFieldValueSeparator(JsonGenerator gen)
-        throws IOException, JsonGenerationException;
+    void writeObjectFieldValueSeparator(JsonGenerator gen) throws IOException;
 
     // // // Array handling
 
@@ -112,8 +122,7 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      */
-    void writeStartArray(JsonGenerator gen)
-        throws IOException, JsonGenerationException;
+    void writeStartArray(JsonGenerator gen) throws IOException;
 
     /**
      * Method called after an Array value has been completely output
@@ -128,8 +137,7 @@ public interface PrettyPrinter
      * @param nrOfValues Number of direct members of the array that
      *   have been output
      */
-    void writeEndArray(JsonGenerator gen, int nrOfValues)
-        throws IOException, JsonGenerationException;
+    void writeEndArray(JsonGenerator gen, int nrOfValues) throws IOException;
 
     /**
      * Method called after an array value has been completely
@@ -140,8 +148,7 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      */
-    void writeArrayValueSeparator(JsonGenerator gen)
-        throws IOException, JsonGenerationException;
+    void writeArrayValueSeparator(JsonGenerator gen) throws IOException;
 
     /*
     /**********************************************************
@@ -159,8 +166,7 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      */
-    void beforeArrayValues(JsonGenerator gen)
-        throws IOException, JsonGenerationException;
+    void beforeArrayValues(JsonGenerator gen) throws IOException;
 
     /**
      * Method called after object start marker has been output,
@@ -171,7 +177,6 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      */
-    void beforeObjectEntries(JsonGenerator gen)
-        throws IOException, JsonGenerationException;
+    void beforeObjectEntries(JsonGenerator gen) throws IOException;
 }
 

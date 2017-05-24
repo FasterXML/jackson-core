@@ -788,10 +788,8 @@ public class UTF8StreamJsonParser
             t = _parseNegNumber();
             break;
 
-            /* Should we have separate handling for plus? Although
-             * it is not allowed per se, it may be erroneously used,
-             * and could be indicate by a more specific error message.
-             */
+            // Should we have separate handling for plus? Although it is not allowed per se,
+            // it may be erroneously used, and could be indicate by a more specific error message.
         case '0':
         case '1':
         case '2':

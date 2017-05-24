@@ -27,12 +27,12 @@ public class MinimalPrettyPrinter
 {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Default String used for separating root values is single space.
-     */
-    public final static String DEFAULT_ROOT_VALUE_SEPARATOR = " ";
+    protected String _rootValueSeparator;
 
-    protected String _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
+    /**
+     * @since 2.9
+     */
+    protected Separators _separators;
 
     /*
     /**********************************************************
@@ -41,15 +41,24 @@ public class MinimalPrettyPrinter
      */
 
     public MinimalPrettyPrinter() {
-        this(DEFAULT_ROOT_VALUE_SEPARATOR);
+        this(DEFAULT_ROOT_VALUE_SEPARATOR.toString());
     }
 
     public MinimalPrettyPrinter(String rootValueSeparator) {
         _rootValueSeparator = rootValueSeparator;
+        _separators = DEFAULT_SEPARATORS;
     }
 
     public void setRootValueSeparator(String sep) {
         _rootValueSeparator = sep;
+    }
+
+    /**
+     * @since 2.9
+     */
+    public MinimalPrettyPrinter setSeparators(Separators separators) {
+        _separators = separators;
+        return this;
     }
 
     /*
@@ -62,7 +71,7 @@ public class MinimalPrettyPrinter
     public void writeRootValueSeparator(JsonGenerator g) throws IOException
     {
         if (_rootValueSeparator != null) {
-            g.writeRaw(_rootValueSeparator);    
+            g.writeRaw(_rootValueSeparator);
         }
     }
 
@@ -88,7 +97,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeObjectFieldValueSeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(':');
+        g.writeRaw(_separators.getObjectFieldValueSeparator());
     }
     
     /**
@@ -101,7 +110,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeObjectEntrySeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(',');
+        g.writeRaw(_separators.getObjectEntrySeparator());
     }
 
     @Override
@@ -132,7 +141,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeArrayValueSeparator(JsonGenerator g) throws IOException
     {
-        g.writeRaw(',');
+        g.writeRaw(_separators.getArrayValueSeparator());
     }
     
     @Override

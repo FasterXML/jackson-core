@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -228,6 +229,15 @@ public class NonBlockingJsonParser
             return _finishKeywordToken("false", _pending32, JsonToken.VALUE_FALSE);
         case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
             return _finishErrorToken();
+
+        case MINOR_NUMBER_LEADING_MINUS:
+        case MINOR_NUMBER_LEADING_ZERO:
+        case MINOR_NUMBER_INTEGER_DIGITS:
+        case MINOR_NUMBER_DECIMAL_POINT:
+        case MINOR_NUMBER_FRACTION_DIGITS:
+        case MINOR_NUMBER_EXPONENT_MARKER:
+        case MINOR_NUMBER_EXPONENT_SIGN:
+        case MINOR_NUMBER_EXPONENT_DIGITS:
         }
         return null;
     }
@@ -660,17 +670,56 @@ public class NonBlockingJsonParser
 
     /*
     /**********************************************************************
-    /* Second-level decoding, String decoding
+    /* Second-level decoding, Number decoding
     /**********************************************************************
      */
 
     protected JsonToken _startPositiveNumber(int ch) throws IOException
     {
+        _numberNegative = false;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        boolean leadingZero = (ch == INT_0);
+        outBuf[0] = (char) ch;
+
+        // in unlikely event of not having more input, denote location
+        if (_inputPtr >= _inputEnd) {
+            _minorState = leadingZero ? MINOR_NUMBER_LEADING_ZERO : MINOR_NUMBER_INTEGER_DIGITS;
+            _textBuffer.setCurrentLength(1);
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[_inputPtr];
+
+        // one early check: leading zeroes may or may not be allowed
+        if (leadingZero) {
+            if (ch == INT_0) {
+                if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
+                    reportInvalidNumber("Leading zeroes not allowed");
+                }
+            }
+        }
+        outBuf[1] = (char) ch;
+        int outPtr = 2;
+        
+        // !!! TBI
+        // One special case: if first char is 0, must not be followed by a digit
+        ch = _inputBuffer[_inputPtr];
         return null;
     }
     
     protected JsonToken _startNegativeNumber() throws IOException
     {
+        _numberNegative = true;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = '-';
+        if (_inputPtr >= _inputEnd) {
+            _minorState = MINOR_NUMBER_LEADING_MINUS;
+            _textBuffer.setCurrentLength(1);
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+
+        // Need to get 
+        
+        // !!! TBI
         return null;
     }
 

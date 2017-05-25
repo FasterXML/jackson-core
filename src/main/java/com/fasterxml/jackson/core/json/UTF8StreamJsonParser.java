@@ -1404,7 +1404,7 @@ public class UTF8StreamJsonParser
             ++intLen;
             outBuf[outPtr++] = (char) c;
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == INT_PERIOD || c == INT_e || c == INT_E) {
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         --_inputPtr; // to push back trailing char (comma etc)
@@ -1430,13 +1430,14 @@ public class UTF8StreamJsonParser
         }
         int c = (int) _inputBuffer[_inputPtr++] & 0xFF;
         // Note: must be followed by a digit
-        if (c < INT_0 || c > INT_9) {
-            return _handleInvalidNumberStart(c, true);
-        }
-
-        // One special case: if first char is 0, must not be followed by a digit
-        if (c == INT_0) {
+        if (c <= INT_0) {
+            // One special case: if first char is 0, must not be followed by a digit
+            if (c != INT_0) {
+                return _handleInvalidNumberStart(c, true);
+            }
             c = _verifyNoLeadingZeroes();
+        } else if (c > INT_9) {
+            return _handleInvalidNumberStart(c, true);
         }
         
         // Ok: we can first just add digit we saw first:
@@ -1459,7 +1460,7 @@ public class UTF8StreamJsonParser
             ++intLen;
             outBuf[outPtr++] = (char) c;
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == INT_PERIOD || c == INT_e || c == INT_E) {
             return _parseFloat(outBuf, outPtr, c, true, intLen);
         }
         
@@ -1613,7 +1614,7 @@ public class UTF8StreamJsonParser
             }
 
             exp_loop:
-            while (c <= INT_9 && c >= INT_0) {
+            while (c >= INT_0 && c <= INT_9) {
                 ++expLen;
                 if (outPtr >= outBuf.length) {
                     outBuf = _textBuffer.finishCurrentSegment();

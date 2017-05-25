@@ -71,14 +71,21 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_VALUE_LEADING_WS = 15;
     protected final static int MINOR_VALUE_LEADING_COMMA = 16;
     protected final static int MINOR_VALUE_LEADING_COLON = 17;
-    
-    protected final static int MINOR_VALUE_NUMBER = 20;
 
-    protected final static int MINOR_VALUE_STRING = 25;
+    protected final static int MINOR_NUMBER_LEADING_MINUS = 20;
+    protected final static int MINOR_NUMBER_LEADING_ZERO = 21;
+    protected final static int MINOR_NUMBER_INTEGER_DIGITS = 22;
+    protected final static int MINOR_NUMBER_DECIMAL_POINT = 23;
+    protected final static int MINOR_NUMBER_FRACTION_DIGITS = 24;
+    protected final static int MINOR_NUMBER_EXPONENT_MARKER = 25;
+    protected final static int MINOR_NUMBER_EXPONENT_SIGN = 26;
+    protected final static int MINOR_NUMBER_EXPONENT_DIGITS = 27;
 
-    protected final static int MINOR_VALUE_TOKEN_NULL = 30;
-    protected final static int MINOR_VALUE_TOKEN_TRUE = 31;
-    protected final static int MINOR_VALUE_TOKEN_FALSE = 32;
+    protected final static int MINOR_VALUE_STRING = 45;
+
+    protected final static int MINOR_VALUE_TOKEN_NULL = 60;
+    protected final static int MINOR_VALUE_TOKEN_TRUE = 61;
+    protected final static int MINOR_VALUE_TOKEN_FALSE = 62;
 
     /**
      * Special state at which point decoding of a non-quoted token has encountered

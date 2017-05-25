@@ -852,10 +852,9 @@ public class UTF8StreamJsonParser
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
             return (_currToken = _parseNegNumber());
-            /* Should we have separate handling for plus? Although
-             * it is not allowed per se, it may be erroneously used,
-             * and could be indicated by a more specific error message.
-             */
+
+            // Should we have separate handling for plus? Although it is not allowed per se,
+            // it may be erroneously used, and could be indicate by a more specific error message.
         case '0':
         case '1':
         case '2':
@@ -1392,10 +1391,7 @@ public class UTF8StreamJsonParser
         int outPtr = 1;
         // And then figure out how far we can read without further checks
         // for either input or output
-        int end = _inputPtr + outBuf.length - 1; // 1 == outPtr
-        if (end > _inputEnd) {
-            end = _inputEnd;
-        }
+        final int end = Math.min(_inputEnd, _inputPtr + outBuf.length - 1); // 1 == outPtr
         // With this, we have a nice and tight loop:
         while (true) {
             if (_inputPtr >= end) { // split across boundary, offline
@@ -1449,11 +1445,7 @@ public class UTF8StreamJsonParser
 
         // And then figure out how far we can read without further checks
         // for either input or output
-        int end = _inputPtr + outBuf.length - outPtr;
-        if (end > _inputEnd) {
-            end = _inputEnd;
-        }
-
+        final int end = Math.min(_inputEnd, _inputPtr + outBuf.length - outPtr);
         // With this, we have a nice and tight loop:
         while (true) {
             if (_inputPtr >= end) {

@@ -738,24 +738,17 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         // Int or float?
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-            char[] buf = _textBuffer.getTextBuffer();
-            int offset = _textBuffer.getTextOffset();
             int len = _intLength;
-            if (_numberNegative) {
-                ++offset;
-            }
-            if (len <= 9) { // definitely fits in int
-                int i = NumberInput.parseInt(buf, offset, len);
-                _numberInt = _numberNegative ? -i : i;
+            // First: optimization for simple int
+            if (len <= 9) { 
+                int i = _textBuffer.contentsAsInt(_numberNegative);
+                _numberInt = i;
                 _numTypesValid = NR_INT;
                 return;
             }
             if (len <= 18) { // definitely fits AND is easy to parse using 2 int parse calls
-                long l = NumberInput.parseLong(buf, offset, len);
-                if (_numberNegative) {
-                    l = -l;
-                }
-                // [JACKSON-230] Could still fit in int, need to check
+                long l = _textBuffer.contentsAsLong(_numberNegative);
+                // Might still fit in int, need to check
                 if (len == 10) {
                     if (_numberNegative) {
                         if (l >= MIN_INT_L) {
@@ -775,14 +768,14 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numTypesValid = NR_LONG;
                 return;
             }
-            _parseSlowInt(expType, buf, offset, len);
+            _parseSlowInt(expType);
             return;
         }
         if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
             _parseSlowFloat(expType);
             return;
         }
-        _reportError("Current token ("+_currToken+") not numeric, can not use numeric value accessors");
+        _reportError("Current token (%s) not numeric, can not use numeric value accessors", _currToken);
     }
 
     /**
@@ -791,24 +784,15 @@ public abstract class ParserBase extends ParserMinimalBase
     protected int _parseIntValue() throws IOException
     {
         // Inlined variant of: _parseNumericValue(NR_INT)
-
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-            char[] buf = _textBuffer.getTextBuffer();
-            int offset = _textBuffer.getTextOffset();
-            int len = _intLength;
-            if (_numberNegative) {
-                ++offset;
-            }
-            if (len <= 9) {
-                int i = NumberInput.parseInt(buf, offset, len);
-                if (_numberNegative) {
-                    i = -i;
-                }
+            if (_intLength <= 9) {
+                int i = _textBuffer.contentsAsInt(_numberNegative);
                 _numberInt = i;
                 _numTypesValid = NR_INT;
                 return i;
             }
         }
+        // if not optimizable, use more generic
         _parseNumericValue(NR_INT);
         if ((_numTypesValid & NR_INT) == 0) {
             convertNumberToInt();
@@ -840,11 +824,17 @@ public abstract class ParserBase extends ParserMinimalBase
         }
     }
     
-    private void _parseSlowInt(int expType, char[] buf, int offset, int len) throws IOException
+    private void _parseSlowInt(int expType) throws IOException
     {
         String numStr = _textBuffer.contentsAsString();
         try {
-            // [JACKSON-230] Some long cases still...
+            int len = _intLength;
+            char[] buf = _textBuffer.getTextBuffer();
+            int offset = _textBuffer.getTextOffset();
+            if (_numberNegative) {
+                ++offset;
+            }
+            // Some long cases still...
             if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
                 // Probably faster to construct a String, call parse, than to use BigInteger
                 _numberLong = Long.parseLong(numStr);

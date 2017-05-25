@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
-public class RootValuesTest extends AsyncTestBase
+public class AsyncRootValuesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -45,8 +45,7 @@ public class RootValuesTest extends AsyncTestBase
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-    
-    /*
+/*
     public void testSimpleRootSequence() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);

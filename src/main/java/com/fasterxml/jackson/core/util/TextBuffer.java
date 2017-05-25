@@ -428,6 +428,48 @@ public final class TextBuffer
     }
 
     /**
+     * Specialized convenience method that will decode a 32-bit int,
+     * of at most 9 digits (and possible leading minus sign).
+     *
+     * @param neg Whether contents start with a minus sign
+     *
+     * @since 2.9
+     */
+    public int contentsAsInt(boolean neg) {
+        if ((_inputStart >= 0) && (_inputBuffer != null)) {
+            if (neg) {
+                return -NumberInput.parseInt(_inputBuffer, _inputStart+1, _inputLen-1);
+            }
+            return NumberInput.parseInt(_inputBuffer, _inputStart, _inputLen);
+        }
+        if (neg) {
+            return -NumberInput.parseInt(_currentSegment, 1, _currentSize-1);
+        }
+        return NumberInput.parseInt(_currentSegment, 0, _currentSize);
+    }
+
+    /**
+     * Specialized convenience method that will decode a 64-bit int,
+     * of at most 18 digits (and possible leading minus sign).
+     *
+     * @param neg Whether contents start with a minus sign
+     *
+     * @since 2.9
+     */
+    public long contentsAsLong(boolean neg) {
+        if ((_inputStart >= 0) && (_inputBuffer != null)) {
+            if (neg) {
+                return -NumberInput.parseLong(_inputBuffer, _inputStart+1, _inputLen-1);
+            }
+            return NumberInput.parseLong(_inputBuffer, _inputStart, _inputLen);
+        }
+        if (neg) {
+            return -NumberInput.parseLong(_currentSegment, 1, _currentSize-1);
+        }
+        return NumberInput.parseLong(_currentSegment, 0, _currentSize);
+    }
+
+    /**
      * @since 2.8
      */
     public int contentsToWriter(Writer w) throws IOException

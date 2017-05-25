@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 
-public class SimpleScalarArrayTest extends AsyncTestBase
+public class AsyncScalarArrayTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

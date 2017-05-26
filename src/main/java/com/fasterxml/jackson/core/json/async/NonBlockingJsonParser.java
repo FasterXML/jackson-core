@@ -728,7 +728,7 @@ public class NonBlockingJsonParser
             _textBuffer.setCurrentLength(1);
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
-        ch = _inputBuffer[_inputPtr];
+        ch = _inputBuffer[_inputPtr++];
 
         // one early check: leading zeroes may or may not be allowed
         if (leadingZero) {
@@ -737,9 +737,22 @@ public class NonBlockingJsonParser
                     reportInvalidNumber("Leading zeroes not allowed");
                 }
             }
+            // !!! TODO: skip leading zeroes....
         }
-        outBuf[1] = (char) ch;
         int outPtr = 2;
+        ch &= 0xFF;
+        while (true) {
+            if (ch < INT_0 || ch > INT_9) {
+                break;
+            }
+            
+            outBuf[1] = (char) ch;
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
+                _textBuffer.setCurrentLength(outPtr);
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+        }
         
         // !!! TBI
         // One special case: if first char is 0, must not be followed by a digit

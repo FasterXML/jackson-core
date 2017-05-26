@@ -9,13 +9,44 @@ public class AsyncRootValuesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
+    public void testTokenRootTokens() throws Exception {
+        _testTokenRootTokens(JsonToken.VALUE_TRUE, "true");
+        _testTokenRootTokens(JsonToken.VALUE_FALSE, "false");
+        _testTokenRootTokens(JsonToken.VALUE_NULL, "null");
+
+        _testTokenRootTokens(JsonToken.VALUE_TRUE, "true  ");
+        _testTokenRootTokens(JsonToken.VALUE_FALSE, "false  ");
+        _testTokenRootTokens(JsonToken.VALUE_NULL, "null  ");
+    }
+
+    private void _testTokenRootTokens(JsonToken expToken, String doc) throws Exception
+    {
+        byte[] input = _jsonDoc(doc);
+        JsonFactory f = JSON_F;
+        _testTokenRootTokens(expToken, f, input, 0, 90);
+        _testTokenRootTokens(expToken, f, input, 0, 3);
+        _testTokenRootTokens(expToken, f, input, 0, 2);
+        _testTokenRootTokens(expToken, f, input, 0, 1);
+
+        _testTokenRootTokens(expToken, f, input, 1, 90);
+        _testTokenRootTokens(expToken, f, input, 1, 3);
+        _testTokenRootTokens(expToken, f, input, 1, 1);
+    }
+
+    private void _testTokenRootTokens(JsonToken expToken, JsonFactory f,
+            byte[] data, int offset, int readSize) throws IOException
+    {
+        AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
+        assertNull(r.currentToken());
+
+        assertToken(expToken, r.nextToken());
+        assertNull(r.nextToken());
+        assertTrue(r.isClosed());
+    }
+
     public void testTokenRootSequence() throws Exception
     {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
-
-        // Let's simply concatenate documents...
-        bytes.write(_jsonDoc("\n[ true, false,\nnull  ,null\n,true,false]"));
-        byte[] input = bytes.toByteArray();
+        byte[] input = _jsonDoc("\n[ true, false,\nnull  ,null\n,true,false]");
 
         JsonFactory f = JSON_F;
         _testTokenRootSequence(f, input, 0, 900);

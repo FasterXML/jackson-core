@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -162,6 +161,11 @@ public class NonBlockingJsonParser
             }
             // note: if so, do not even bother changing state
             if (_endOfInput) { // except for this special case
+                // End-of-input within (possibly...) started token is bit complicated,
+                // so offline
+                if (_currToken == JsonToken.NOT_AVAILABLE) {
+                    return _finishTokenWithEOF();
+                }
                 return _eofAsNextToken();
             }
             return JsonToken.NOT_AVAILABLE;
@@ -170,6 +174,7 @@ public class NonBlockingJsonParser
         if (_currToken == JsonToken.NOT_AVAILABLE) {
             return _finishToken();
         }
+
         // No: fresh new token; may or may not have existing one
         _numTypesValid = NR_UNKNOWN;
         _tokenInputTotal = _currInputProcessed + _inputPtr;
@@ -206,13 +211,13 @@ public class NonBlockingJsonParser
     }
 
     /**
-     * Method called when a (scalar) value type has been detected, but not all of
-     * contents have been decoded due to incomplete input available.
+     * Method called when decoding of a token has been started, but not yet completed due
+     * to missing input; method is to continue decoding due to at least one more byte
+     * being made available to decode.
      */
     protected final JsonToken _finishToken() throws IOException
     {
-        // NOTE: caller ensures availability of at least one byte
-
+        // NOTE: caller ensures there's input available...
         switch (_minorState) {
         case MINOR_VALUE_LEADING_WS:
             return _startValue(_inputBuffer[_inputPtr++] & 0xFF);
@@ -240,6 +245,37 @@ public class NonBlockingJsonParser
         case MINOR_NUMBER_EXPONENT_DIGITS:
         }
         return null;
+    }
+
+    /**
+     * Method similar to {@link #_finishToken}, but called when no more input is
+     * available, and end-of-input has been detected. This is usually problem
+     * case, but not always: root-level values may be properly terminated by
+     * this, and similarly trailing white-space may have been skipped.
+     */
+    protected final JsonToken _finishTokenWithEOF() throws IOException
+    {
+        // NOTE: caller ensures there's input available...
+        JsonToken t = _currToken;
+        switch (_minorState) {
+        case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
+        case MINOR_VALUE_LEADING_COMMA: // not fine
+        case MINOR_VALUE_LEADING_COLON: // not fine
+            return _eofAsNextToken();
+        case MINOR_VALUE_TOKEN_NULL:
+            return _finishKeywordTokenWithEOF("null", _pending32, JsonToken.VALUE_NULL);
+        case MINOR_VALUE_TOKEN_TRUE:
+            return _finishKeywordTokenWithEOF("true", _pending32, JsonToken.VALUE_TRUE);
+        case MINOR_VALUE_TOKEN_FALSE:
+            return _finishKeywordTokenWithEOF("false", _pending32, JsonToken.VALUE_FALSE);
+        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
+            return _finishErrorTokenWithEOF();
+
+        // !!! TODO: rest...
+        default:
+        }
+        _reportInvalidEOF(": was expecting closing '\"' for name", t);
+        return t; // never gets here
     }
 
     /*
@@ -633,6 +669,16 @@ public class NonBlockingJsonParser
         return _finishErrorToken();
     }
 
+    protected JsonToken _finishKeywordTokenWithEOF(String expToken, int matched,
+            JsonToken result) throws IOException
+    {
+        if (matched == expToken.length()) {
+            return (_currToken = result);
+        }
+        _textBuffer.resetWithCopy(expToken, 0, matched);
+        return _finishErrorTokenWithEOF();
+    }
+
     protected JsonToken _finishErrorToken() throws IOException
     {
         while (_inputPtr < _inputEnd) {
@@ -656,16 +702,11 @@ public class NonBlockingJsonParser
         return (_currToken = JsonToken.NOT_AVAILABLE);
     }
 
-    /*
-    /**********************************************************************
-    /* Second-level decoding, String decoding
-    /**********************************************************************
-     */
-
-    protected JsonToken _startString(int q) throws IOException
+    protected JsonToken _finishErrorTokenWithEOF() throws IOException
     {
-        _currentQuote = q;
-        return null;
+        _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
+                "'null', 'true' or 'false'");
+        return JsonToken.NOT_AVAILABLE; // never gets here
     }
 
     /*
@@ -740,6 +781,18 @@ public class NonBlockingJsonParser
 
     protected final JsonToken _startFieldNameAfterComma(int ch) throws IOException
     {
+        return null;
+    }
+
+    /*
+    /**********************************************************************
+    /* Second-level decoding, String decoding
+    /**********************************************************************
+     */
+
+    protected JsonToken _startString(int q) throws IOException
+    {
+        _currentQuote = q;
         return null;
     }
 }

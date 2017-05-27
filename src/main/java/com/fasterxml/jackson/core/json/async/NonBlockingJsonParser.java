@@ -728,7 +728,7 @@ public class NonBlockingJsonParser
             _textBuffer.setCurrentLength(1);
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
-        ch = _inputBuffer[_inputPtr++];
+        ch = _inputBuffer[_inputPtr];
 
         // one early check: leading zeroes may or may not be allowed
         if (leadingZero) {
@@ -739,25 +739,42 @@ public class NonBlockingJsonParser
             }
             // !!! TODO: skip leading zeroes....
         }
-        int outPtr = 2;
+        int outPtr = 1;
+
         ch &= 0xFF;
         while (true) {
-            if (ch < INT_0 || ch > INT_9) {
+            if (ch < INT_0) {
+                if (ch == INT_PERIOD) {
+                    _intLength = outPtr;
+                    ++_inputPtr;
+                    return _startFloat(outBuf, outPtr, ch);
+                }
                 break;
             }
-            
-            outBuf[1] = (char) ch;
-            if (_inputPtr >= _inputEnd) {
+            if (ch > INT_9) {
+                if (ch == INT_e || ch == INT_E) {
+                    _intLength = outPtr;
+                    ++_inputPtr;
+                    return _startFloat(outBuf, outPtr, ch);
+                }
+                break;
+            }
+            if (outPtr >= outBuf.length) {
+                // NOTE: must expand to ensure contents all in a single buffer (to keep
+                // other parts of parsing simpler)
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            if (++_inputPtr >= _inputEnd) {
                 _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
+            ch = _inputBuffer[_inputPtr] & 0xFF;
         }
-        
-        // !!! TBI
-        // One special case: if first char is 0, must not be followed by a digit
-        ch = _inputBuffer[_inputPtr];
-        return null;
+        _intLength = outPtr;
+        _textBuffer.setCurrentLength(outPtr);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
     
     protected JsonToken _startNegativeNumber() throws IOException
@@ -770,13 +787,67 @@ public class NonBlockingJsonParser
             _textBuffer.setCurrentLength(1);
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
+        int ch = _inputBuffer[_inputPtr++] & 0xFF;
 
-        // Need to get 
-        
-        // !!! TBI
-        return null;
+        boolean leadingZero = (ch == INT_0);
+        outBuf[1] = (char) ch;
+        if (leadingZero) {
+            if (ch == INT_0) {
+                if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
+                    reportInvalidNumber("Leading zeroes not allowed");
+                }
+            }
+            // !!! TODO: skip leading zeroes....
+        }
+        if (_inputPtr >= _inputEnd) {
+            _minorState = leadingZero ? MINOR_NUMBER_LEADING_ZERO : MINOR_NUMBER_INTEGER_DIGITS;
+            _textBuffer.setCurrentLength(2);
+            _intLength = 1;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[_inputPtr];
+        int outPtr = 2;
+
+        while (true) {
+            if (ch < INT_0) {
+                if (ch == INT_PERIOD) {
+                    _intLength = outPtr-1;
+                    ++_inputPtr;
+                    return _startFloat(outBuf, outPtr, ch);
+                }
+                break;
+            }
+            if (ch > INT_9) {
+                if (ch == INT_e || ch == INT_E) {
+                    _intLength = outPtr-1;
+                    ++_inputPtr;
+                    return _startFloat(outBuf, outPtr, ch);
+                }
+                break;
+            }
+            if (outPtr >= outBuf.length) {
+                // NOTE: must expand, to ensure contiguous buffer, outPtr is the length
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            if (++_inputPtr >= _inputEnd) {
+                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
+                _textBuffer.setCurrentLength(outPtr);
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            ch = _inputBuffer[_inputPtr] & 0xFF;
+        }
+        _intLength = outPtr-1;
+        _textBuffer.setCurrentLength(outPtr);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
+    protected JsonToken _startFloat(char[] outBuf, int outPtr, int ch) throws IOException
+    {
+        VersionUtil.throwInternal();
+        return null;
+    }
+    
     /*
     /**********************************************************************
     /* Second-level decoding, Name decoding

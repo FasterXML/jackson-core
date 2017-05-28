@@ -76,13 +76,14 @@ public class AsyncRootValuesTest extends AsyncTestBase
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-/*
+
+    /*
     public void testSimpleRootSequence() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
 
         // Let's simply concatenate documents...
-        bytes.write(_jsonDoc("[ true, false ]"));
+        bytes.write(_jsonDoc("[ 12, -987,false ]"));
         bytes.write(_jsonDoc("{ \"a\" : 4 }"));
         bytes.write(_jsonDoc(" 12356"));
         bytes.write(_jsonDoc(" true"));
@@ -105,7 +106,10 @@ public class AsyncRootValuesTest extends AsyncTestBase
         assertNull(r.currentToken());
 
         assertToken(JsonToken.START_ARRAY, r.nextToken());
-        assertToken(JsonToken.VALUE_TRUE, r.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
+        assertEquals(12, r.getIntValue());
+        assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
+        assertEquals(-987, r.getIntValue());
         assertToken(JsonToken.VALUE_FALSE, r.nextToken());
         assertToken(JsonToken.END_ARRAY, r.nextToken());
 

@@ -578,6 +578,18 @@ public abstract class NonBlockingJsonParserBase
         return t;
     }
 
+    protected final JsonToken _valueCompleteInt(int value, String asText) throws IOException
+    {
+        _textBuffer.resetWithString(asText);
+        _intLength = asText.length();
+        _numTypesValid = NR_INT; // to force parsing
+        _numberInt = value;
+        _majorState = _majorStateAfterValue;
+        JsonToken t = JsonToken.VALUE_NUMBER_INT;
+        _currToken = t;
+        return t;
+    }
+
     /*
     /**********************************************************************
     /* Internal methods, error reporting

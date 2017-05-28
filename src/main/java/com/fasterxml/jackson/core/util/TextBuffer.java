@@ -168,6 +168,26 @@ public final class TextBuffer
     }
 
     /**
+     * @since 2.9
+     */
+    public void resetWith(char ch)
+    {
+        _inputStart = -1;
+        _inputLen = 0;
+
+        _resultString = null;
+        _resultArray = null;
+
+        if (_hasSegments) {
+            clearSegments();
+        } else if (_currentSegment == null) {
+            _currentSegment = buf(1);
+        }
+        _currentSegment[0] = ch;
+        _currentSize = _segmentSize = 1;
+    }
+    
+    /**
      * Method called to initialize the buffer with a shared copy of data;
      * this means that buffer will just have pointers to actual data. It
      * also means that if anything is to be appended to the buffer, it

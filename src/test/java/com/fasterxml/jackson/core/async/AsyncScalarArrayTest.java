@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.core.async;
 
-import java.io.IOException;
+import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
 
 public class AsyncScalarArrayTest extends AsyncTestBase
 {
@@ -63,11 +64,10 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    /*
     public void testInts() throws IOException
     {
-        final int[] input = new int[] { 1, -1, 16, -17, 131, -155, 1000, -3000, 0xFFFF, -99999,
-                Integer.MIN_VALUE, 0, Integer.MAX_VALUE };
+        final int[] input = new int[] { 1, -1, 16, -17, 0, 131, -0, -155, 1000, -3000, 0xFFFF, -99999,
+                Integer.MAX_VALUE, 0, Integer.MIN_VALUE };
         StringBuilder sb = new StringBuilder().append("[");
         for (int i = 0; i < input.length; ++i) {
             if (i > 0) sb.append(',');
@@ -148,7 +148,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-*/
+
     /*
     /**********************************************************************
     /* Floating point

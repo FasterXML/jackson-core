@@ -468,7 +468,7 @@ public class NonStandardParserFeaturesTest
 
     private void _testAllowInf(int mode) throws Exception
     {
-        final String JSON = "[ -INF, +INF, +Infinity, Infinity, -Infinity ]";
+        final String JSON = "[ -INF, +INF, INF, +Infinity, Infinity, -Infinity ]";
         JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
 
@@ -501,6 +501,12 @@ public class NonStandardParserFeaturesTest
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         d = p.getDoubleValue();
+        assertEquals("INF", p.getText());
+        assertTrue(Double.isInfinite(d));
+        assertTrue(d == Double.POSITIVE_INFINITY);
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        d = p.getDoubleValue();
         assertEquals("+Infinity", p.getText());
         assertTrue(Double.isInfinite(d));
         assertTrue(d == Double.POSITIVE_INFINITY);
@@ -525,6 +531,7 @@ public class NonStandardParserFeaturesTest
         p = createParser(f, mode, JSON);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());

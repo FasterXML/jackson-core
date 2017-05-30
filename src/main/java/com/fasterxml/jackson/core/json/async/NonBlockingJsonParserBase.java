@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.json.async;
 
 import java.io.*;
-import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
@@ -114,7 +113,7 @@ public abstract class NonBlockingJsonParserBase
     /**
      * Temporary buffer used for name parsing.
      */
-    protected int[] _quadBuffer = NO_INTS;
+    protected int[] _quadBuffer = new int[8];
 
     /**
      * Quads used for hash calculation
@@ -459,11 +458,187 @@ public abstract class NonBlockingJsonParserBase
     }
 
     /*
-    /**********************************************************************
-    /* Internal methods, field name parsing
-    /**********************************************************************
+    /**********************************************************
+    /* Internal methods, symbol (name) handling
+    /**********************************************************
      */
 
+    protected final String _findName(int q1, int lastQuadBytes) throws JsonParseException
+    {
+        q1 = _padLastQuad(q1, lastQuadBytes);
+        // Usually we'll find it from the canonical symbol table already
+        String name = _symbols.findName(q1);
+        if (name != null) {
+            return name;
+        }
+        // If not, more work. We'll need add stuff to buffer
+        _quadBuffer[0] = q1;
+        return _addName(_quadBuffer, 1, lastQuadBytes);
+    }
+
+    protected final String _findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
+    {
+        q2 = _padLastQuad(q2, lastQuadBytes);
+        // Usually we'll find it from the canonical symbol table already
+        String name = _symbols.findName(q1, q2);
+        if (name != null) {
+            return name;
+        }
+        // If not, more work. We'll need add stuff to buffer
+        _quadBuffer[0] = q1;
+        _quadBuffer[1] = q2;
+        return _addName(_quadBuffer, 2, lastQuadBytes);
+    }
+
+    protected final String _findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
+    {
+        q3 = _padLastQuad(q3, lastQuadBytes);
+        String name = _symbols.findName(q1, q2, q3);
+        if (name != null) {
+            return name;
+        }
+        int[] quads = _quadBuffer;
+        quads[0] = q1;
+        quads[1] = q2;
+        quads[2] = _padLastQuad(q3, lastQuadBytes);
+        return _addName(quads, 3, lastQuadBytes);
+    }
+    
+    protected final String _findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
+    {
+        if (qlen >= quads.length) {
+            _quadBuffer = quads = growArrayBy(quads, quads.length);
+        }
+        quads[qlen++] = _padLastQuad(lastQuad, lastQuadBytes);
+        String name = _symbols.findName(quads, qlen);
+        if (name == null) {
+            return _addName(quads, qlen, lastQuadBytes);
+        }
+        return name;
+    }
+
+    /**
+     * This is the main workhorse method used when we take a symbol
+     * table miss. It needs to demultiplex individual bytes, decode
+     * multi-byte chars (if any), and then construct Name instance
+     * and add it to the symbol table.
+     */
+    protected final String _addName(int[] quads, int qlen, int lastQuadBytes) throws JsonParseException
+    {
+        /* Ok: must decode UTF-8 chars. No other validation is
+         * needed, since unescaping has been done earlier as necessary
+         * (as well as error reporting for unescaped control chars)
+         */
+        // 4 bytes per quad, except last one maybe less
+        int byteLen = (qlen << 2) - 4 + lastQuadBytes;
+
+        /* And last one is not correctly aligned (leading zero bytes instead
+         * need to shift a bit, instead of trailing). Only need to shift it
+         * for UTF-8 decoding; need revert for storage (since key will not
+         * be aligned, to optimize lookup speed)
+         */
+        int lastQuad;
+
+        if (lastQuadBytes < 4) {
+            lastQuad = quads[qlen-1];
+            // 8/16/24 bit left shift
+            quads[qlen-1] = (lastQuad << ((4 - lastQuadBytes) << 3));
+        } else {
+            lastQuad = 0;
+        }
+
+        // Need some working space, TextBuffer works well:
+        char[] cbuf = _textBuffer.emptyAndGetCurrentSegment();
+        int cix = 0;
+
+        for (int ix = 0; ix < byteLen; ) {
+            int ch = quads[ix >> 2]; // current quad, need to shift+mask
+            int byteIx = (ix & 3);
+            ch = (ch >> ((3 - byteIx) << 3)) & 0xFF;
+            ++ix;
+
+            if (ch > 127) { // multi-byte
+                int needed;
+                if ((ch & 0xE0) == 0xC0) { // 2 bytes (0x0080 - 0x07FF)
+                    ch &= 0x1F;
+                    needed = 1;
+                } else if ((ch & 0xF0) == 0xE0) { // 3 bytes (0x0800 - 0xFFFF)
+                    ch &= 0x0F;
+                    needed = 2;
+                } else if ((ch & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
+                    ch &= 0x07;
+                    needed = 3;
+                } else { // 5- and 6-byte chars not valid xml chars
+                    _reportInvalidInitial(ch);
+                    needed = ch = 1; // never really gets this far
+                }
+                if ((ix + needed) > byteLen) {
+                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                }
+                
+                // Ok, always need at least one more:
+                int ch2 = quads[ix >> 2]; // current quad, need to shift+mask
+                byteIx = (ix & 3);
+                ch2 = (ch2 >> ((3 - byteIx) << 3));
+                ++ix;
+                
+                if ((ch2 & 0xC0) != 0x080) {
+                    _reportInvalidOther(ch2);
+                }
+                ch = (ch << 6) | (ch2 & 0x3F);
+                if (needed > 1) {
+                    ch2 = quads[ix >> 2];
+                    byteIx = (ix & 3);
+                    ch2 = (ch2 >> ((3 - byteIx) << 3));
+                    ++ix;
+                    
+                    if ((ch2 & 0xC0) != 0x080) {
+                        _reportInvalidOther(ch2);
+                    }
+                    ch = (ch << 6) | (ch2 & 0x3F);
+                    if (needed > 2) { // 4 bytes? (need surrogates on output)
+                        ch2 = quads[ix >> 2];
+                        byteIx = (ix & 3);
+                        ch2 = (ch2 >> ((3 - byteIx) << 3));
+                        ++ix;
+                        if ((ch2 & 0xC0) != 0x080) {
+                            _reportInvalidOther(ch2 & 0xFF);
+                        }
+                        ch = (ch << 6) | (ch2 & 0x3F);
+                    }
+                }
+                if (needed > 2) { // surrogate pair? once again, let's output one here, one later on
+                    ch -= 0x10000; // to normalize it starting with 0x0
+                    if (cix >= cbuf.length) {
+                        cbuf = _textBuffer.expandCurrentSegment();
+                    }
+                    cbuf[cix++] = (char) (0xD800 + (ch >> 10));
+                    ch = 0xDC00 | (ch & 0x03FF);
+                }
+            }
+            if (cix >= cbuf.length) {
+                cbuf = _textBuffer.expandCurrentSegment();
+            }
+            cbuf[cix++] = (char) ch;
+        }
+
+        // Ok. Now we have the character array, and can construct the String
+        String baseName = new String(cbuf, 0, cix);
+        // And finally, un-align if necessary
+        if (lastQuadBytes < 4) {
+            quads[qlen-1] = lastQuad;
+        }
+        return _symbols.addName(baseName, quads, qlen);
+    }
+
+    /**
+     * Helper method needed to fix [jackson-core#148], masking of 0x00 character
+     */
+    protected final static int _padLastQuad(int q, int bytes) {
+        return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
+    }
+
+    /*
     // Helper method for trying to find specified encoded UTF-8 byte sequence
     // from symbol table; if successful avoids actual decoding to String
     protected final String _findDecodedFromSymbols(byte[] inBuf, int inPtr, int len) throws IOException
@@ -555,7 +730,7 @@ public abstract class NonBlockingJsonParserBase
         int qlen = (len + 3) >> 2;
         return _symbols.addName(name, _quadBuffer, qlen);
     }
-
+*/
     /*
     /**********************************************************************
     /* Internal methods, state changes
@@ -614,6 +789,10 @@ public abstract class NonBlockingJsonParserBase
 	
     protected void _reportInvalidOther(int mask, int ptr) throws JsonParseException {
         _inputPtr = ptr;
+        _reportInvalidOther(mask);
+    }
+
+    protected void _reportInvalidOther(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
 }

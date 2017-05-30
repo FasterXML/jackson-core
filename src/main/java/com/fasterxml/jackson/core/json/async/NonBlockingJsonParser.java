@@ -261,6 +261,9 @@ public class NonBlockingJsonParser
         // NOTE: caller ensures there's input available...
         JsonToken t = _currToken;
         switch (_minorState) {
+        case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
+            return _eofAsNextToken();
+
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
         case MINOR_VALUE_LEADING_COMMA: // not fine
         case MINOR_VALUE_LEADING_COLON: // not fine
@@ -274,14 +277,24 @@ public class NonBlockingJsonParser
         case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
             return _finishErrorTokenWithEOF();
 
-        // Number-parsing states
+        // Number-parsing states; first, valid:
         case MINOR_NUMBER_LEADING_ZERO:
             return _valueCompleteInt(0, "0");
+        case MINOR_NUMBER_INTEGER_DIGITS:
+            // Fine: just need to ensure we have value fully defined
+            {
+                int len = _textBuffer.getCurrentSegmentSize();
+                if (_numberNegative) {
+                    --len;
+                }
+                _intLength = len;
+            }
+            return _valueComplete(JsonToken.VALUE_NUMBER_INT);
 
         // !!! TODO: rest...
         default:
         }
-        _reportInvalidEOF(": was expecting closing '\"' for name", t);
+        _reportInvalidEOF(": was expecting rest of token (internal state: "+_minorState+")", _currToken);
         return t; // never gets here
     }
 
@@ -982,7 +995,6 @@ public class NonBlockingJsonParser
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
-//                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }

@@ -28,7 +28,6 @@ JSON library.
  (contributed by Brad H)
 #325: `DataInput` backed parser should handle `EOFException` at end of doc
  (reported by Brad H)
-#330: `FilteringParserDelegate` seems to miss last closing `END_OBJECT`
 #340: Making `WriterBasedJsonGenerator` non-final
  (requested by rfoltyns@github)
 #356: Improve indication of "source reference" in `JsonLocation` wrt `byte[]`,`char[]`

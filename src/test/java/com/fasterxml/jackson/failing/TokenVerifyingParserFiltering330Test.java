@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.filter;
+package com.fasterxml.jackson.failing;
 
 import java.util.Arrays;
 import java.util.HashSet;

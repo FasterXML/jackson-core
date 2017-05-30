@@ -66,12 +66,19 @@ public abstract class NonBlockingJsonParserBase
      */
     protected final static int MINOR_ROOT_GOT_SEPARATOR = 2;
 
-    protected final static int MINOR_FIELD_NAME = 10;
+    // state before field name itself, waiting for quote (or unquoted name)
+    protected final static int MINOR_FIELD_LEADING_WS = 10;
+    // state before field name, expecting comma (or closing curly), then field name
+    protected final static int MINOR_FIELD_LEADING_COMMA = 11;
+    
+    protected final static int MINOR_VALUE_LEADING_WS = 14;
+    protected final static int MINOR_VALUE_LEADING_COMMA = 15;
+    protected final static int MINOR_VALUE_LEADING_COLON = 16;
 
-    protected final static int MINOR_VALUE_LEADING_WS = 15;
-    protected final static int MINOR_VALUE_LEADING_COMMA = 16;
-    protected final static int MINOR_VALUE_LEADING_COLON = 17;
-
+    protected final static int MINOR_VALUE_TOKEN_NULL = 17;
+    protected final static int MINOR_VALUE_TOKEN_TRUE = 18;
+    protected final static int MINOR_VALUE_TOKEN_FALSE = 19;
+    
     protected final static int MINOR_NUMBER_LEADING_MINUS = 20;
     protected final static int MINOR_NUMBER_LEADING_ZERO = 21;
     protected final static int MINOR_NUMBER_INTEGER_DIGITS = 22;
@@ -83,9 +90,6 @@ public abstract class NonBlockingJsonParserBase
 
     protected final static int MINOR_VALUE_STRING = 45;
 
-    protected final static int MINOR_VALUE_TOKEN_NULL = 60;
-    protected final static int MINOR_VALUE_TOKEN_TRUE = 61;
-    protected final static int MINOR_VALUE_TOKEN_FALSE = 62;
 
     /**
      * Special state at which point decoding of a non-quoted token has encountered
@@ -94,7 +98,7 @@ public abstract class NonBlockingJsonParserBase
      * Attempt is made, then, to decode likely full input token to report suitable
      * error.
      */
-    protected final static int MINOR_VALUE_TOKEN_ERROR = 19;
+    protected final static int MINOR_VALUE_TOKEN_ERROR = 60;
     
     /*
     /**********************************************************************
@@ -592,9 +596,17 @@ public abstract class NonBlockingJsonParserBase
 
     /*
     /**********************************************************************
-    /* Internal methods, error reporting
+    /* Internal methods, error reporting, related
     /**********************************************************************
      */
+
+    protected final void _updateLocation()
+    {
+        _tokenInputRow = _currInputRow;
+        final int ptr = _inputPtr;
+        _tokenInputTotal = _currInputProcessed + ptr;
+        _tokenInputCol = ptr - _currInputRowStart;
+    }
 
     protected void _reportInvalidInitial(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
@@ -219,6 +220,11 @@ public class NonBlockingJsonParser
     {
         // NOTE: caller ensures there's input available...
         switch (_minorState) {
+        case MINOR_FIELD_LEADING_WS:
+            return _startFieldName(_inputBuffer[_inputPtr++] & 0xFF);
+        case MINOR_FIELD_LEADING_COMMA:
+            return _startFieldNameAfterComma(_inputBuffer[_inputPtr++] & 0xFF);
+
         case MINOR_VALUE_LEADING_WS:
             return _startValue(_inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_VALUE_LEADING_COMMA:
@@ -247,6 +253,7 @@ public class NonBlockingJsonParser
         case MINOR_NUMBER_EXPONENT_SIGN:
         case MINOR_NUMBER_EXPONENT_DIGITS:
         }
+        VersionUtil.throwInternal();
         return null;
     }
 
@@ -413,7 +420,7 @@ public class NonBlockingJsonParser
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
-            ch = _skipWS(ch);
+            ch = _skipWS(ch); // will skip through all available ws (and comments)
             if (ch <= 0) {
                 _minorState = MINOR_VALUE_LEADING_COMMA;
                 return _currToken;
@@ -422,6 +429,9 @@ public class NonBlockingJsonParser
         if (ch != INT_COMMA) {
             if (ch == INT_RBRACKET) {
                 return _closeArrayScope();
+            }
+            if (ch == INT_RCURLY){
+                return _closeObjectScope();
             }
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
@@ -467,11 +477,17 @@ public class NonBlockingJsonParser
         case '[':
             return _startArrayScope();
         case ']':
-            return _closeArrayScope();
+            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                return _closeArrayScope();
+            }
+            break;
         case '{':
             return _startObjectScope();
         case '}':
-            return _closeObjectScope();
+            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                return _closeObjectScope();
+            }
+            break;
         default:
         }
         return _startUnexpectedValue(ch);
@@ -486,13 +502,14 @@ public class NonBlockingJsonParser
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
-            ch = _skipWS(ch);
+            ch = _skipWS(ch); // will skip through all available ws (and comments)
             if (ch <= 0) {
                 _minorState = MINOR_VALUE_LEADING_COLON;
                 return _currToken;
             }
         }
         if (ch != INT_COLON) {
+            // can not omit colon here
             _reportUnexpectedChar(ch, "was expecting a colon to separate field name and value");
         }
         int ptr = _inputPtr;
@@ -503,7 +520,7 @@ public class NonBlockingJsonParser
         ch = _inputBuffer[ptr];
         _inputPtr = ptr+1;
         if (ch <= 0x0020) {
-            ch = _skipWS(ch);
+            ch = _skipWS(ch); // will skip through all available ws (and comments)
             if (ch <= 0) {
                 _minorState = MINOR_VALUE_LEADING_WS;
                 return _currToken;
@@ -1046,11 +1063,57 @@ public class NonBlockingJsonParser
      */
     protected final JsonToken _startFieldName(int ch) throws IOException
     {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_FIELD_LEADING_WS;
+                return _currToken;
+            }
+        }
+
+        _updateLocation();
+        
+        VersionUtil.throwInternal();
         return null;
     }
 
     protected final JsonToken _startFieldNameAfterComma(int ch) throws IOException
     {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch); // will skip through all available ws (and comments)
+            if (ch <= 0) {
+                _minorState = MINOR_FIELD_LEADING_COMMA;
+                return _currToken;
+            }
+        }
+        if (ch != INT_COMMA) { // either comma, separating entries, or closing right curly
+            if (ch == INT_RCURLY) {
+                return _closeArrayScope();
+            }
+            _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+        }
+        int ptr = _inputPtr;
+        if (ptr >= _inputEnd) {
+            _minorState = MINOR_FIELD_LEADING_WS;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[ptr];
+        _inputPtr = ptr+1;
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_FIELD_LEADING_WS;
+                return _currToken;
+            }
+        }
+
+        _updateLocation();
+        
+        // !!! TODO: name parsing
+        
+        VersionUtil.throwInternal();
         return null;
     }
 

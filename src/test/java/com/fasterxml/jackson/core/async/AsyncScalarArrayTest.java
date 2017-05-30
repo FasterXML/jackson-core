@@ -17,7 +17,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
 
     public void testTokens() throws IOException
     {
-        byte[] data = _jsonDoc("  [ true, false, true, null,false , null]");
+        byte[] data = _jsonDoc("  [ true, false  ,true   , null,false , null]");
         JsonFactory f = JSON_F;
 
         // first: no offsets

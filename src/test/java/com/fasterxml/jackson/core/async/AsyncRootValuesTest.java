@@ -142,14 +142,12 @@ public class AsyncRootValuesTest extends AsyncTestBase
 
         JsonFactory f = JSON_F;
         _testMixedRootSequence(f, input, 0, 100);
-/* !!! TODO
         _testMixedRootSequence(f, input, 0, 3);
         _testMixedRootSequence(f, input, 0, 1);
 
         _testMixedRootSequence(f, input, 1, 100);
         _testMixedRootSequence(f, input, 1, 3);
         _testMixedRootSequence(f, input, 1, 1);
-        */
     }
 
     private void _testMixedRootSequence(JsonFactory f,

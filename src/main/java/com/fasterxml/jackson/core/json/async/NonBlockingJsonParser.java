@@ -234,9 +234,9 @@ public class NonBlockingJsonParser
 
         // Field name states
         case MINOR_FIELD_NAME:
-            _finishFieldName(_inputBuffer[_inputPtr++] & 0xFF);
+            return _parseEscapedName(_quadLength,  _pending32, _pendingBytes);
         case MINOR_FIELD_NAME_ESCAPE:
-            _finishFieldWithEscape(_inputBuffer[_inputPtr++] & 0xFF);
+            return _finishFieldWithEscape(_inputBuffer[_inputPtr++] & 0xFF);
             
         // Value states
             
@@ -1076,7 +1076,7 @@ public class NonBlockingJsonParser
      * Method that handles initial token type recognition for token
      * that has to be either FIELD_NAME or END_OBJECT.
      */
-    protected final JsonToken _startFieldName(int ch) throws IOException
+    private final JsonToken _startFieldName(int ch) throws IOException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -1091,43 +1091,19 @@ public class NonBlockingJsonParser
             if (ch == INT_RCURLY) {
                 return _closeObjectScope();
             }
-VersionUtil.throwInternal();
-//            return _handleOddName(ch);
+            return _handleOddName(ch);
         }
-        if (_inputPtr >= _inputEnd) {
-            _minorState = MINOR_FIELD_NAME;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
-        }
-        ch = _inputBuffer[_inputPtr++];
-        if (ch == INT_QUOTE) { // special case, ""
-            _majorState = MAJOR_OBJECT_VALUE;
-            _parsingContext.setCurrentName("");
-            return (_currToken = JsonToken.FIELD_NAME);
-        }
-        ch &= 0xFF;
-
         // First: can we optimize out bounds checks?
-        String n;
         if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
-            n = _fastParseName(ch);
-            if (n == null) {
-                n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
+            String n = _fastParseName();
+            if (n != null) {
+                return _fieldComplete(n);
             }
-        } else {
-            n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
         }
-        if (n == null) {
-// !!! TODO: name parsing
-            // note: called method should have set minor state
-VersionUtil.throwInternal();
-            return (_currToken = JsonToken.NOT_AVAILABLE);
-        }
-        _majorState = MAJOR_OBJECT_VALUE;
-        _parsingContext.setCurrentName(n);
-        return (_currToken = JsonToken.FIELD_NAME);
+        return _parseEscapedName(0, 0, 0);
     }
 
-    protected final JsonToken _startFieldNameAfterComma(int ch) throws IOException
+    private final JsonToken _startFieldNameAfterComma(int ch) throws IOException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -1164,46 +1140,16 @@ VersionUtil.throwInternal();
                     return _closeObjectScope();
                 }
             }
-VersionUtil.throwInternal();
-//            return _handleOddName(ch);
+            return _handleOddName(ch);
         }
-        if (_inputPtr >= _inputEnd) {
-            _minorState = MINOR_FIELD_NAME;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
-        }
-        ch = _inputBuffer[_inputPtr++];
-        if (ch == INT_QUOTE) { // special case, ""
-            _majorState = MAJOR_OBJECT_VALUE;
-            _parsingContext.setCurrentName("");
-            return (_currToken = JsonToken.FIELD_NAME);
-        }
-        ch &= 0xFF;
-
         // First: can we optimize out bounds checks?
-        String n;
         if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
-            n = _fastParseName(ch);
-            if (n == null) {
-                n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
+            String n = _fastParseName();
+            if (n != null) {
+                return _fieldComplete(n);
             }
-        } else {
-            n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
         }
-        if (n == null) {
-// !!! TODO: name parsing
-            // note: called method should have set minor state
-VersionUtil.throwInternal();
-            return (_currToken = JsonToken.NOT_AVAILABLE);
-        }
-        _majorState = MAJOR_OBJECT_VALUE;
-        _parsingContext.setCurrentName(n);
-        return (_currToken = JsonToken.FIELD_NAME);
-    }
-
-    protected final JsonToken _finishFieldName(int ch) throws IOException
-    {
-        VersionUtil.throwInternal();
-        return _currToken;
+        return _parseEscapedName(0, 0, 0);
     }
 
     protected final JsonToken _finishFieldWithEscape(int ch) throws IOException
@@ -1218,7 +1164,7 @@ VersionUtil.throwInternal();
     /**********************************************************************
      */
 
-    private final String _fastParseName(int q0) throws IOException
+    private final String _fastParseName() throws IOException
     {
         // If so, can also unroll loops nicely
         // This may seem weird, but here we do NOT want to worry about UTF-8
@@ -1229,6 +1175,7 @@ VersionUtil.throwInternal();
         final int[] codes = _icLatin1;
         int ptr = _inputPtr;
 
+        int q0 = input[ptr++] & 0xFF;
         if (codes[q0] == 0) {
             int i = input[ptr++] & 0xFF;
             if (codes[i] == 0) {
@@ -1267,6 +1214,10 @@ VersionUtil.throwInternal();
                 return _findName(q0, 1);
             }
             return null;
+        }
+        if (q0 == INT_QUOTE) {
+            _inputPtr = ptr;
+            return "";
         }
         return null;
     }
@@ -1357,22 +1308,6 @@ VersionUtil.throwInternal();
         return null;
     }
 
-    /*
-    private String _slowParseName() throws IOException
-    {
-        if (_inputPtr >= _inputEnd) {
-            if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\"' for name", JsonToken.FIELD_NAME);
-            }
-        }
-        int i = _inputBuffer[_inputPtr++] & 0xFF;
-        if (i == INT_QUOTE) { // special case, ""
-            return "";
-        }
-        return _parseEscapedName(_quadBuffer, 0, 0, i, 0);
-    }
-    */
-
     /**
      * Slower parsing method which is generally branched to when
      * an escape sequence is detected (or alternatively for long
@@ -1380,22 +1315,31 @@ VersionUtil.throwInternal();
      * Needs to be able to handle more exceptional cases, gets slower,
      * and hence is offlined to a separate method.
      */
-    private final String _parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
-            int currQuadBytes) throws IOException
+    private final JsonToken _parseEscapedName(int qlen, int currQuad, int currQuadBytes)
+            throws IOException
     {
-        // 25-Nov-2008, tatu: This may seem weird, but here we do not want to worry about
-        //   UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
-        //   caught later on), and just handle quotes and backslashes here.
+        // This may seem weird, but here we do not want to worry about
+        // UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
+        // caught later on), and just handle quotes and backslashes here.
+        int[] quads = _quadBuffer;
         final int[] codes = _icLatin1;
 
         while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _quadLength = qlen;
+                _pending32 = currQuad;
+                _pendingBytes = currQuadBytes;
+                _minorState = MINOR_FIELD_NAME;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
             if (codes[ch] != 0) {
                 if (ch == INT_QUOTE) { // we are done
                     break;
                 }
                 // Unquoted white space?
                 if (ch != INT_BACKSLASH) {
-                    // As per [JACKSON-208], call can now return:
+                    // Call can actually now return (if unquoted linefeeds allowed)
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
@@ -1449,12 +1393,6 @@ VersionUtil.throwInternal();
                 currQuad = ch;
                 currQuadBytes = 1;
             }
-            if (_inputPtr >= _inputEnd) {
-                if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
-                }
-            }
-            ch = _inputBuffer[_inputPtr++] & 0xFF;
         }
 
         if (currQuadBytes > 0) {
@@ -1462,12 +1400,16 @@ VersionUtil.throwInternal();
                 _quadBuffer = quads = growArrayBy(quads, quads.length);
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
+        } else {
+            if (qlen == 0) { // rare, but may happen
+                return _fieldComplete("");
+            }
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
         }
-        return name;
+        return _fieldComplete(name);
     }
 
     /**
@@ -1476,33 +1418,29 @@ VersionUtil.throwInternal();
      * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
      */
-    private String _handleOddName(int ch) throws IOException
+    private JsonToken _handleOddName(int ch) throws IOException
     {
         // First: may allow single quotes
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
             return _parseAposName();
         }
-        // [JACKSON-69]: allow unquoted names if feature enabled:
+        // allow unquoted names if feature enabled:
         if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
          // !!! TODO: Decode UTF-8 characters properly...
 //            char c = (char) _decodeCharForError(ch);
             char c = (char) ch;
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
-        /* Also: note that although we use a different table here,
-         * it does NOT handle UTF-8 decoding. It'll just pass those
-         * high-bit codes as acceptable for later decoding.
-         */
+        // Also: note that although we use a different table here, it does NOT handle UTF-8
+        // decoding. It'll just pass those high-bit codes as acceptable for later decoding.
         final int[] codes = CharTypes.getInputCodeUtf8JsNames();
         // Also: must start with a valid character...
         if (codes[ch] != 0) {
             _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
         }
 
-        /* Ok, now; instead of ultra-optimizing parsing here (as with
-         * regular JSON names), let's just use the generic "slow"
-         * variant. Can measure its impact later on if need be
-         */
+        // Ok, now; instead of ultra-optimizing parsing here (as with regular JSON names),
+        // let's just use the generic "slow" variant. Can measure its impact later on if need be.
         int[] quads = _quadBuffer;
         int qlen = 0;
         int currQuad = 0;
@@ -1543,7 +1481,7 @@ VersionUtil.throwInternal();
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
         }
-        return name;
+        return _fieldComplete(name);
     }
 
     /* Parsing to support [JACKSON-173]. Plenty of duplicated code;
@@ -1551,7 +1489,7 @@ VersionUtil.throwInternal();
      * for valid JSON -- more alternatives, more code, generally
      * bit slower execution.
      */
-    private String _parseAposName() throws IOException
+    private JsonToken _parseAposName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -1560,7 +1498,7 @@ VersionUtil.throwInternal();
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
         if (ch == '\'') { // special case, ''
-            return "";
+            return _fieldComplete("");
         }
         int[] quads = _quadBuffer;
         int qlen = 0;
@@ -1647,7 +1585,7 @@ VersionUtil.throwInternal();
         if (name == null) {
             name = _addName(quads, qlen, currQuadBytes);
         }
-        return name;
+        return _fieldComplete(name);
     }
 
     /*

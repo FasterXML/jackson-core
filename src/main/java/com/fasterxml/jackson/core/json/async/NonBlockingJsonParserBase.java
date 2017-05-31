@@ -121,11 +121,14 @@ public abstract class NonBlockingJsonParserBase
      */
     protected int[] _quadBuffer = new int[8];
 
-    /**
-     * Quads used for hash calculation
-     */
-    protected int _quad1, _quad2;
+    protected int _quadLength;
 
+    protected int _quad1;
+
+    protected int _pending32;
+
+    protected int _pendingBytes;
+    
     /*
     /**********************************************************************
     /* Additional parsing state
@@ -163,18 +166,12 @@ public abstract class NonBlockingJsonParserBase
      * Temporary buffer for holding content if input not contiguous (but can
      * fit in buffer)
      */
-    protected byte[] _inputCopy;
+//    protected byte[] _inputCopy;
 
     /**
      * Number of bytes buffered in <code>_inputCopy</code>
      */
-    protected int _inputCopyLen;
-
-    /**
-     * Temporary storage for 32-bit values (int, float), as well as length markers
-     * for length-prefixed values.
-     */
-    protected int _pending32;
+//    protected int _inputCopyLen;
 
     /*
     /**********************************************************************
@@ -188,7 +185,7 @@ public abstract class NonBlockingJsonParserBase
         super(ctxt, parserFeatures);
         _symbols = sym;
         // We don't need a lot; for most things maximum known a-priori length below 70 bytes
-        _inputCopy = ctxt.allocReadIOBuffer(500);
+//        _inputCopy = ctxt.allocReadIOBuffer(500);
 
         _currToken = null;
         _majorState = MAJOR_INITIAL;
@@ -643,99 +640,6 @@ public abstract class NonBlockingJsonParserBase
     }
 
     /*
-    // Helper method for trying to find specified encoded UTF-8 byte sequence
-    // from symbol table; if successful avoids actual decoding to String
-    protected final String _findDecodedFromSymbols(byte[] inBuf, int inPtr, int len) throws IOException
-    {
-        // First: maybe we already have this name decoded?
-        if (len < 5) {
-            int q = inBuf[inPtr] & 0xFF;
-            if (--len > 0) {
-                q = (q << 8) + (inBuf[++inPtr] & 0xFF);
-                if (--len > 0) {
-                    q = (q << 8) + (inBuf[++inPtr] & 0xFF);
-                    if (--len > 0) {
-                        q = (q << 8) + (inBuf[++inPtr] & 0xFF);
-                    }
-                }
-            }
-            _quad1 = q;
-            return _symbols.findName(q);
-        }
-        if (len < 9) {
-            // First quadbyte is easy
-            int q1 = (inBuf[inPtr] & 0xFF) << 8;
-            q1 += (inBuf[++inPtr] & 0xFF);
-            q1 <<= 8;
-            q1 += (inBuf[++inPtr] & 0xFF);
-            q1 <<= 8;
-            q1 += (inBuf[++inPtr] & 0xFF);
-            int q2 = (inBuf[++inPtr] & 0xFF);
-            len -= 5;
-            if (len > 0) {
-                q2 = (q2 << 8) + (inBuf[++inPtr] & 0xFF);
-                if (--len > 0) {
-                    q2 = (q2 << 8) + (inBuf[++inPtr] & 0xFF);
-                    if (--len > 0) {
-                        q2 = (q2 << 8) + (inBuf[++inPtr] & 0xFF);
-                    }
-                }
-            }
-            _quad1 = q1;
-            _quad2 = q2;
-            return _symbols.findName(q1, q2);
-        }
-        return _findDecodedLonger(inBuf, inPtr, len);
-    }
-    
-    // Method for locating names longer than 8 bytes (in UTF-8)
-    private final String _findDecodedLonger(byte[] inBuf, int inPtr, int len) throws IOException
-    {
-        // first, need enough buffer to store bytes as ints:
-        {
-            int bufLen = (len + 3) >> 2;
-            if (bufLen > _quadBuffer.length) {
-                _quadBuffer = Arrays.copyOf(_quadBuffer, bufLen+4);
-            }
-        }
-        // then decode, full quads first
-        int offset = 0;
-        do {
-            int q = (inBuf[inPtr++] & 0xFF) << 8;
-            q |= inBuf[inPtr++] & 0xFF;
-            q <<= 8;
-            q |= inBuf[inPtr++] & 0xFF;
-            q <<= 8;
-            q |= inBuf[inPtr++] & 0xFF;
-            _quadBuffer[offset++] = q;
-        } while ((len -= 4) > 3);
-        // and then leftovers
-        if (len > 0) {
-            int q = inBuf[inPtr] & 0xFF;
-            if (--len > 0) {
-                q = (q << 8) + (inBuf[++inPtr] & 0xFF);
-                if (--len > 0) {
-                    q = (q << 8) + (inBuf[++inPtr] & 0xFF);
-                }
-            }
-            _quadBuffer[offset++] = q;
-        }
-        return _symbols.findName(_quadBuffer, offset);
-    }
-
-    protected final String _addDecodedToSymbols(int len, String name)
-    {
-        if (len < 5) {
-            return _symbols.addName(name, _quad1);
-        }
-        if (len < 9) {
-            return _symbols.addName(name, _quad1, _quad2);
-        }
-        int qlen = (len + 3) >> 2;
-        return _symbols.addName(name, _quadBuffer, qlen);
-    }
-*/
-    /*
     /**********************************************************************
     /* Internal methods, state changes
     /**********************************************************************
@@ -752,6 +656,13 @@ public abstract class NonBlockingJsonParserBase
         }
         close();
         return (_currToken = null);
+    }
+
+    protected final JsonToken _fieldComplete(String name) throws IOException
+    {
+        _majorState = MAJOR_OBJECT_VALUE;
+        _parsingContext.setCurrentName(name);
+        return (_currToken = JsonToken.FIELD_NAME);
     }
 
     protected final JsonToken _valueComplete(JsonToken t) throws IOException

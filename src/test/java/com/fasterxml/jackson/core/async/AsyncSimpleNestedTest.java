@@ -21,15 +21,12 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
         JsonFactory f = JSON_F;
         _testStuffInObject(f, data, 0, 100);
-/* !!! TODO        
-        
         _testStuffInObject(f, data, 0, 3);
         _testStuffInObject(f, data, 0, 1);
 
         _testStuffInObject(f, data, 1, 100);
         _testStuffInObject(f, data, 1, 3);
         _testStuffInObject(f, data, 1, 1);
-        */
     }
 
     private void _testStuffInObject(JsonFactory f,
@@ -84,17 +81,15 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     public void testStuffInArray() throws Exception
     {
         byte[] data = _jsonDoc(aposToQuotes("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
-
         JsonFactory f = JSON_F;
+
         _testStuffInArray(f, data, 0, 100);
-/* !!! TODO        
         _testStuffInArray(f, data, 0, 3);
         _testStuffInArray(f, data, 0, 1);
 
-        _testStuffInArray(f, data, 1, 100);
-        _testStuffInArray(f, data, 1, 3);
-        _testStuffInArray(f, data, 1, 1);
-        */
+        _testStuffInArray(f, data, 3, 100);
+        _testStuffInArray(f, data, 3, 3);
+        _testStuffInArray(f, data, 3, 1);
     }
 
     private void _testStuffInArray(JsonFactory f,

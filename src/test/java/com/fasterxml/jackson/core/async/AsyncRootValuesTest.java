@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncRootValuesTest extends AsyncTestBase
 {

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncSimpleNestedTest extends AsyncTestBase
 {

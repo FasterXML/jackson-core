@@ -3,8 +3,10 @@ package com.fasterxml.jackson.core.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapperForByteArray;
 
-abstract class AsyncTestBase extends BaseTest
+public abstract class AsyncTestBase extends BaseTest
 {
     final static String SPACES = "                ";
 

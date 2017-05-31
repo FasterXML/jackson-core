@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.async;
+package com.fasterxml.jackson.core.testsupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;

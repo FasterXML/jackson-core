@@ -208,6 +208,15 @@ public abstract class NonBlockingJsonParserBase
     public abstract int releaseBuffered(OutputStream out) throws IOException;
 
     @Override
+    protected void _releaseBuffers() throws IOException
+    {
+        super._releaseBuffers();
+        // Merge found symbols, if any:
+        _symbols.release();
+        // any other temp buffers?
+    }
+
+    @Override
     public Object getInputSource() {
         // since input is "pushed", to traditional source...
         return null;

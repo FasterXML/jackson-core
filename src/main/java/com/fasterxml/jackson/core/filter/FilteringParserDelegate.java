@@ -414,8 +414,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    if (_verifyAllowedMatches() && _includePath) {
-                        return (_currToken = t);
+                    if (_verifyAllowedMatches()) {
+                        if (_includePath) {
+                            return (_currToken = t);
+                        }
+                    } else {
+                        delegate.nextToken();
+                        delegate.skipChildren();
                     }
                 }
                 if (_includePath) {
@@ -691,10 +696,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     if (returnEnd) {
                         return t;
                     }
-                    // Hmmh. Do we need both checks, or should above suffice?
-                    if (gotEnd || (_headContext == buffRoot)) {
-                        return null;
-                    }
                 }
                 continue main_loop;
 
@@ -718,8 +719,14 @@ public class FilteringParserDelegate extends JsonParserDelegate
                         continue main_loop;
                     }
                     _itemFilter = f;
-                    if (f == TokenFilter.INCLUDE_ALL && _verifyAllowedMatches()) {
-                        return _nextBuffered(buffRoot);
+                    if (f == TokenFilter.INCLUDE_ALL) {
+                        if (_verifyAllowedMatches()) {
+                            return _nextBuffered(buffRoot);
+                        } else {
+                            // edge case: if no more matches allowed, reset filter
+                            // to initial state to prevent missing a token in next iteration
+                            _itemFilter = _headContext.setFieldName(name);
+                        }
                     }
                 }
                 continue main_loop;

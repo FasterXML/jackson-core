@@ -66,10 +66,16 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_ROOT_GOT_SEPARATOR = 2;
 
     // state before field name itself, waiting for quote (or unquoted name)
-    protected final static int MINOR_FIELD_LEADING_WS = 10;
+    protected final static int MINOR_FIELD_LEADING_WS = 3;
     // state before field name, expecting comma (or closing curly), then field name
-    protected final static int MINOR_FIELD_LEADING_COMMA = 11;
-    
+    protected final static int MINOR_FIELD_LEADING_COMMA = 4;
+
+    // State within regular (double-quoted) field name
+    protected final static int MINOR_FIELD_NAME = 10;
+    // State within regular (double-quoted) field name, within escape (having
+    // encountered either just backslash, or backslash and 'u' and 0 - 3 hex digits,
+    protected final static int MINOR_FIELD_NAME_ESCAPE = 11;
+
     protected final static int MINOR_VALUE_LEADING_WS = 14;
     protected final static int MINOR_VALUE_LEADING_COMMA = 15;
     protected final static int MINOR_VALUE_LEADING_COLON = 16;
@@ -170,12 +176,6 @@ public abstract class NonBlockingJsonParserBase
      */
     protected int _pending32;
 
-    /**
-     * Temporary storage for 64-bit values (long, double), secondary storage
-     * for some other things (scale of BigDecimal values)
-     */
-    protected long _pending64;
-
     /*
     /**********************************************************************
     /* Life-cycle
@@ -238,7 +238,11 @@ public abstract class NonBlockingJsonParserBase
 
     @Override
     protected void _closeInput() throws IOException {
-        // nothing to do here
+        // 30-May-2017, tatu: Seems like this is the most certain way to prevent
+        //    further decoding... not the optimal place, but due to inheritance
+        //    hierarchy most convenient.
+        _inputPtr = 0;
+        _inputEnd = 0;
     }
 
     /*

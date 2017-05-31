@@ -232,6 +232,14 @@ public class NonBlockingJsonParser
         case MINOR_FIELD_LEADING_COMMA:
             return _startFieldNameAfterComma(_inputBuffer[_inputPtr++] & 0xFF);
 
+        // Field name states
+        case MINOR_FIELD_NAME:
+            _finishFieldName(_inputBuffer[_inputPtr++] & 0xFF);
+        case MINOR_FIELD_NAME_ESCAPE:
+            _finishFieldWithEscape(_inputBuffer[_inputPtr++] & 0xFF);
+            
+        // Value states
+            
         case MINOR_VALUE_LEADING_WS:
             return _startValue(_inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_VALUE_LEADING_COMMA:
@@ -1057,10 +1065,10 @@ public class NonBlockingJsonParser
         VersionUtil.throwInternal();
         return null;
     }
-    
+
     /*
     /**********************************************************************
-    /* Second-level decoding, Name decoding
+    /* Second-level decoding, Primary name decoding
     /**********************************************************************
      */
 
@@ -1078,14 +1086,40 @@ public class NonBlockingJsonParser
                 return _currToken;
             }
         }
-        if (ch == INT_RCURLY) {
-            return _closeObjectScope();
+        _updateLocation();
+        if (ch != INT_QUOTE) {
+            if (ch == INT_RCURLY) {
+                return _closeObjectScope();
+            }
+VersionUtil.throwInternal();
+//            return _handleOddName(ch);
         }
-        String n = _parseName(ch);
+        if (_inputPtr >= _inputEnd) {
+            _minorState = MINOR_FIELD_NAME;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[_inputPtr++];
+        if (ch == INT_QUOTE) { // special case, ""
+            _majorState = MAJOR_OBJECT_VALUE;
+            _parsingContext.setCurrentName("");
+            return (_currToken = JsonToken.FIELD_NAME);
+        }
+        ch &= 0xFF;
+
+        // First: can we optimize out bounds checks?
+        String n;
+        if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
+            n = _fastParseName(ch);
+            if (n == null) {
+                n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
+            }
+        } else {
+            n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
+        }
         if (n == null) {
 // !!! TODO: name parsing
             // note: called method should have set minor state
-if (true) VersionUtil.throwInternal();
+VersionUtil.throwInternal();
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
         _majorState = MAJOR_OBJECT_VALUE;
@@ -1123,13 +1157,42 @@ if (true) VersionUtil.throwInternal();
                 return _currToken;
             }
         }
-
         _updateLocation();
-        String n = _parseName(ch);
+        if (ch != INT_QUOTE) {
+            if (ch == INT_RCURLY) {
+                if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                    return _closeObjectScope();
+                }
+            }
+VersionUtil.throwInternal();
+//            return _handleOddName(ch);
+        }
+        if (_inputPtr >= _inputEnd) {
+            _minorState = MINOR_FIELD_NAME;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[_inputPtr++];
+        if (ch == INT_QUOTE) { // special case, ""
+            _majorState = MAJOR_OBJECT_VALUE;
+            _parsingContext.setCurrentName("");
+            return (_currToken = JsonToken.FIELD_NAME);
+        }
+        ch &= 0xFF;
+
+        // First: can we optimize out bounds checks?
+        String n;
+        if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
+            n = _fastParseName(ch);
+            if (n == null) {
+                n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
+            }
+        } else {
+            n = _parseEscapedName(_quadBuffer, 0, 0, ch, 0);
+        }
         if (n == null) {
 // !!! TODO: name parsing
             // note: called method should have set minor state
-if (true) VersionUtil.throwInternal();
+VersionUtil.throwInternal();
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
         _majorState = MAJOR_OBJECT_VALUE;
@@ -1137,219 +1200,165 @@ if (true) VersionUtil.throwInternal();
         return (_currToken = JsonToken.FIELD_NAME);
     }
 
-    protected final String _parseName(int i) throws IOException
+    protected final JsonToken _finishFieldName(int ch) throws IOException
     {
-        if (i != INT_QUOTE) {
-            return _handleOddName(i);
-        }
-        // First: can we optimize out bounds checks?
-        if ((_inputPtr + 13) > _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
-            return slowParseName();
-        }
-
-        // If so, can also unroll loops nicely
-        /* 25-Nov-2008, tatu: This may seem weird, but here we do
-         *   NOT want to worry about UTF-8 decoding. Rather, we'll
-         *   assume that part is ok (if not it will get caught
-         *   later on), and just handle quotes and backslashes here.
-         */
-        final byte[] input = _inputBuffer;
-        final int[] codes = _icLatin1;
-
-        int q = input[_inputPtr++] & 0xFF;
-
-        if (codes[q] == 0) {
-            i = input[_inputPtr++] & 0xFF;
-            if (codes[i] == 0) {
-                q = (q << 8) | i;
-                i = input[_inputPtr++] & 0xFF;
-                if (codes[i] == 0) {
-                    q = (q << 8) | i;
-                    i = input[_inputPtr++] & 0xFF;
-                    if (codes[i] == 0) {
-                        q = (q << 8) | i;
-                        i = input[_inputPtr++] & 0xFF;
-                        if (codes[i] == 0) {
-                            _quad1 = q;
-                            return parseMediumName(i);
-                        }
-                        if (i == INT_QUOTE) { // 4 byte/char case or broken
-                            return _findName(q, 4);
-                        }
-                        return parseName(q, i, 4);
-                    }
-                    if (i == INT_QUOTE) { // 3 byte/char case or broken
-                        return _findName(q, 3);
-                    }
-                    return parseName(q, i, 3);
-                }                
-                if (i == INT_QUOTE) { // 2 byte/char case or broken
-                    return _findName(q, 2);
-                }
-                return parseName(q, i, 2);
-            }
-            if (i == INT_QUOTE) { // one byte/char case or broken
-                return _findName(q, 1);
-            }
-            return parseName(q, i, 1);
-        }     
-        if (q == INT_QUOTE) { // special case, ""
-            return "";
-        }
-        return parseName(0, q, 0); // quoting or invalid char
+        VersionUtil.throwInternal();
+        return _currToken;
     }
 
-    protected final String parseMediumName(int q2) throws IOException
+    protected final JsonToken _finishFieldWithEscape(int ch) throws IOException
+    {
+        VersionUtil.throwInternal();
+        return _currToken;
+    }
+
+    /*
+    /**********************************************************************
+    /* Name-decoding, tertiary decoding
+    /**********************************************************************
+     */
+
+    private final String _fastParseName(int q0) throws IOException
+    {
+        // If so, can also unroll loops nicely
+        // This may seem weird, but here we do NOT want to worry about UTF-8
+        // decoding. Rather, we'll assume that part is ok (if not it will be
+        // caught later on), and just handle quotes and backslashes here.
+
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
+        int ptr = _inputPtr;
+
+        if (codes[q0] == 0) {
+            int i = input[ptr++] & 0xFF;
+            if (codes[i] == 0) {
+                int q = (q0 << 8) | i;
+                i = input[ptr++] & 0xFF;
+                if (codes[i] == 0) {
+                    q = (q << 8) | i;
+                    i = input[ptr++] & 0xFF;
+                    if (codes[i] == 0) {
+                        q = (q << 8) | i;
+                        i = input[ptr++] & 0xFF;
+                        if (codes[i] == 0) {
+                            _quad1 = q;
+                            return _parseMediumName(ptr, i);
+                        }
+                        if (i == INT_QUOTE) { // 4 byte/char case or broken
+                            _inputPtr = ptr;
+                            return _findName(q, 4);
+                        }
+                        return null;
+                    }
+                    if (i == INT_QUOTE) { // 3 byte/char case or broken
+                        _inputPtr = ptr;
+                        return _findName(q, 3);
+                    }
+                    return null;
+                }
+                if (i == INT_QUOTE) { // 2 byte/char case or broken
+                    _inputPtr = ptr;
+                    return _findName(q, 2);
+                }
+                return null;
+            }
+            if (i == INT_QUOTE) { // one byte/char case or broken
+                _inputPtr = ptr;
+                return _findName(q0, 1);
+            }
+            return null;
+        }
+        return null;
+    }
+
+    private final String _parseMediumName(int ptr, int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
 
         // Ok, got 5 name bytes so far
-        int i = input[_inputPtr++] & 0xFF;
-        if (codes[i] != 0) {
-            if (i == INT_QUOTE) { // 5 bytes
-                return _findName(_quad1, q2, 1);
+        int i = input[ptr++] & 0xFF;
+        if (codes[i] == 0) {
+            q2 = (q2 << 8) | i;
+            i = input[ptr++] & 0xFF;
+            if (codes[i] == 0) {
+                q2 = (q2 << 8) | i;
+                i = input[ptr++] & 0xFF;
+                if (codes[i] == 0) {
+                    q2 = (q2 << 8) | i;
+                    i = input[ptr++] & 0xFF;
+                    if (codes[i] == 0) {
+                        return _parseMediumName2(ptr, i, q2);
+                    }
+                    if (i == INT_QUOTE) { // 8 bytes
+                        _inputPtr = ptr;
+                        return _findName(_quad1, q2, 4);
+                    }
+                    return null;
+                }
+                if (i == INT_QUOTE) { // 7 bytes
+                    _inputPtr = ptr;
+                    return _findName(_quad1, q2, 3);
+                }
+                return null;
             }
-            return parseName(_quad1, q2, i, 1); // quoting or invalid char
-        }
-        q2 = (q2 << 8) | i;
-        i = input[_inputPtr++] & 0xFF;
-        if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 6 bytes
+                _inputPtr = ptr;
                 return _findName(_quad1, q2, 2);
             }
-            return parseName(_quad1, q2, i, 2);
+            return null;
         }
-        q2 = (q2 << 8) | i;
-        i = input[_inputPtr++] & 0xFF;
-        if (codes[i] != 0) {
-            if (i == INT_QUOTE) { // 7 bytes
-                return _findName(_quad1, q2, 3);
-            }
-            return parseName(_quad1, q2, i, 3);
+        if (i == INT_QUOTE) { // 5 bytes
+            _inputPtr = ptr;
+            return _findName(_quad1, q2, 1);
         }
-        q2 = (q2 << 8) | i;
-        i = input[_inputPtr++] & 0xFF;
-        if (codes[i] != 0) {
-            if (i == INT_QUOTE) { // 8 bytes
-                return _findName(_quad1, q2, 4);
-            }
-            return parseName(_quad1, q2, i, 4);
-        }
-        return parseMediumName2(i, q2);
+        return null;
     }
 
-    /**
-     * @since 2.6
-     */
-    protected final String parseMediumName2(int q3, final int q2) throws IOException
+    private final String _parseMediumName2(int ptr, int q3, final int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
 
         // Got 9 name bytes so far
-        int i = input[_inputPtr++] & 0xFF;
+        int i = input[ptr++] & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 9 bytes
+                _inputPtr = ptr;
                 return _findName(_quad1, q2, q3, 1);
             }
-            return parseName(_quad1, q2, q3, i, 1);
+            return null;
         }
         q3 = (q3 << 8) | i;
-        i = input[_inputPtr++] & 0xFF;
+        i = input[ptr++] & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 10 bytes
+                _inputPtr = ptr;
                 return _findName(_quad1, q2, q3, 2);
             }
-            return parseName(_quad1, q2, q3, i, 2);
+            return null;
         }
         q3 = (q3 << 8) | i;
-        i = input[_inputPtr++] & 0xFF;
+        i = input[ptr++] & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 11 bytes
+                _inputPtr = ptr;
                 return _findName(_quad1, q2, q3, 3);
             }
-            return parseName(_quad1, q2, q3, i, 3);
+            return null;
         }
         q3 = (q3 << 8) | i;
-        i = input[_inputPtr++] & 0xFF;
-        if (codes[i] != 0) {
-            if (i == INT_QUOTE) { // 12 bytes
-                return _findName(_quad1, q2, q3, 4);
-            }
-            return parseName(_quad1, q2, q3, i, 4);
+        i = input[ptr++] & 0xFF;
+        if (i == INT_QUOTE) { // 12 bytes
+            _inputPtr = ptr;
+            return _findName(_quad1, q2, q3, 4);
         }
-        return parseLongName(i, q2, q3);
-    }
-    
-    protected final String parseLongName(int q, final int q2, int q3) throws IOException
-    {
-        _quadBuffer[0] = _quad1;
-        _quadBuffer[1] = q2;
-        _quadBuffer[2] = q3;
-
-        // As explained above, will ignore UTF-8 encoding at this point
-        final byte[] input = _inputBuffer;
-        final int[] codes = _icLatin1;
-        int qlen = 3;
-
-        while ((_inputPtr + 4) <= _inputEnd) {
-            int i = input[_inputPtr++] & 0xFF;
-            if (codes[i] != 0) {
-                if (i == INT_QUOTE) {
-                    return _findName(_quadBuffer, qlen, q, 1);
-                }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 1);
-            }
-
-            q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
-            if (codes[i] != 0) {
-                if (i == INT_QUOTE) {
-                    return _findName(_quadBuffer, qlen, q, 2);
-                }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 2);
-            }
-
-            q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
-            if (codes[i] != 0) {
-                if (i == INT_QUOTE) {
-                    return _findName(_quadBuffer, qlen, q, 3);
-                }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 3);
-            }
-
-            q = (q << 8) | i;
-            i = input[_inputPtr++] & 0xFF;
-            if (codes[i] != 0) {
-                if (i == INT_QUOTE) {
-                    return _findName(_quadBuffer, qlen, q, 4);
-                }
-                return parseEscapedName(_quadBuffer, qlen, q, i, 4);
-            }
-
-            // Nope, no end in sight. Need to grow quad array etc
-            if (qlen >= _quadBuffer.length) {
-                _quadBuffer = growArrayBy(_quadBuffer, qlen);
-            }
-            _quadBuffer[qlen++] = q;
-            q = i;
-        }
-
-        /* Let's offline if we hit buffer boundary (otherwise would
-         * need to [try to] align input, which is bit complicated
-         * and may not always be possible)
-         */
-        return parseEscapedName(_quadBuffer, qlen, 0, q, 0);
+        // Could continue
+        return null;
     }
 
-    /**
-     * Method called when not even first 8 bytes are guaranteed
-     * to come consecutively. Happens rarely, so this is offlined;
-     * plus we'll also do full checks for escaping etc.
-     */
-    protected String slowParseName() throws IOException
+    /*
+    private String _slowParseName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -1360,24 +1369,10 @@ if (true) VersionUtil.throwInternal();
         if (i == INT_QUOTE) { // special case, ""
             return "";
         }
-        return parseEscapedName(_quadBuffer, 0, 0, i, 0);
+        return _parseEscapedName(_quadBuffer, 0, 0, i, 0);
     }
+    */
 
-    private final String parseName(int q1, int ch, int lastQuadBytes) throws IOException {
-        return parseEscapedName(_quadBuffer, 0, q1, ch, lastQuadBytes);
-    }
-
-    private final String parseName(int q1, int q2, int ch, int lastQuadBytes) throws IOException {
-        _quadBuffer[0] = q1;
-        return parseEscapedName(_quadBuffer, 1, q2, ch, lastQuadBytes);
-    }
-
-    private final String parseName(int q1, int q2, int q3, int ch, int lastQuadBytes) throws IOException {
-        _quadBuffer[0] = q1;
-        _quadBuffer[1] = q2;
-        return parseEscapedName(_quadBuffer, 2, q3, ch, lastQuadBytes);
-    }
-    
     /**
      * Slower parsing method which is generally branched to when
      * an escape sequence is detected (or alternatively for long
@@ -1385,7 +1380,7 @@ if (true) VersionUtil.throwInternal();
      * Needs to be able to handle more exceptional cases, gets slower,
      * and hence is offlined to a separate method.
      */
-    protected final String parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
+    private final String _parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
     {
         // 25-Nov-2008, tatu: This may seem weird, but here we do not want to worry about
@@ -1481,7 +1476,7 @@ if (true) VersionUtil.throwInternal();
      * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
      */
-    protected String _handleOddName(int ch) throws IOException
+    private String _handleOddName(int ch) throws IOException
     {
         // First: may allow single quotes
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
@@ -1556,7 +1551,7 @@ if (true) VersionUtil.throwInternal();
      * for valid JSON -- more alternatives, more code, generally
      * bit slower execution.
      */
-    protected String _parseAposName() throws IOException
+    private String _parseAposName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {

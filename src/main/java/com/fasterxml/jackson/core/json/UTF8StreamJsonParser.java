@@ -1919,13 +1919,12 @@ public class UTF8StreamJsonParser
         _quadBuffer[1] = q2;
         return parseEscapedName(_quadBuffer, 2, q3, ch, lastQuadBytes);
     }
-    
+
     /**
-     * Slower parsing method which is generally branched to when
-     * an escape sequence is detected (or alternatively for long
-     * names, one crossing input buffer boundary).
-     * Needs to be able to handle more exceptional cases, gets slower,
-     * and hence is offlined to a separate method.
+     * Slower parsing method which is generally branched to when an escape
+     * sequence is detected (or alternatively for long names, one crossing
+     * input buffer boundary). Needs to be able to handle more exceptional
+     * cases, gets slower, and hence is offlined to a separate method.
      */
     protected final String parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
@@ -2029,7 +2028,7 @@ public class UTF8StreamJsonParser
         if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
             return _parseAposName();
         }
-        // [JACKSON-69]: allow unquoted names if feature enabled:
+        // Allow unquoted names if feature enabled:
         if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
             char c = (char) _decodeCharForError(ch);
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
@@ -2044,10 +2043,9 @@ public class UTF8StreamJsonParser
             _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
         }
 
-        /* Ok, now; instead of ultra-optimizing parsing here (as with
-         * regular JSON names), let's just use the generic "slow"
-         * variant. Can measure its impact later on if need be
-         */
+        // Ok, now; instead of ultra-optimizing parsing here (as with regular
+        // JSON names), let's just use the generic "slow" variant.
+        // Can measure its impact later on if need be.
         int[] quads = _quadBuffer;
         int qlen = 0;
         int currQuad = 0;
@@ -2121,7 +2119,7 @@ public class UTF8StreamJsonParser
                 break;
             }
             // additional check to skip handling of double-quotes
-            if (ch != '"' && codes[ch] != 0) {
+            if ((codes[ch] != 0) && (ch != '"')) {
                 if (ch != '\\') {
                     // Unquoted white space?
                     // As per [JACKSON-208], call can now return:

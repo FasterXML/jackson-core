@@ -20,8 +20,8 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
                 "{'foobar':[1,2,-999],'emptyObject':{},'emptyArray':[], 'other':{'':null} }"));
 
         JsonFactory f = JSON_F;
-/* !!! TODO        
         _testStuffInObject(f, data, 0, 100);
+/* !!! TODO        
         
         _testStuffInObject(f, data, 0, 3);
         _testStuffInObject(f, data, 0, 1);
@@ -83,7 +83,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
     public void testStuffInArray() throws Exception
     {
-        byte[] data = _jsonDoc(aposToQuotes("[true,{'extraOrdinary':0},[null],{'extraOrdinary':23}]"));
+        byte[] data = _jsonDoc(aposToQuotes("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
 
         JsonFactory f = JSON_F;
         _testStuffInArray(f, data, 0, 100);
@@ -108,7 +108,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         assertEquals("{", r.currentText());
         assertToken(JsonToken.FIELD_NAME, r.nextToken());
-        assertEquals("extraOrdinary", r.currentName());
+        assertEquals("moreStuff", r.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
         assertEquals(0L, r.getLongValue());
         assertToken(JsonToken.END_OBJECT, r.nextToken());

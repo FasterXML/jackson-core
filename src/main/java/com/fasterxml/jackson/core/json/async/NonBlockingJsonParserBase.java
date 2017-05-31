@@ -158,23 +158,6 @@ public abstract class NonBlockingJsonParserBase
 
     /*
     /**********************************************************************
-    /* Other buffering
-    /**********************************************************************
-     */
-    
-    /**
-     * Temporary buffer for holding content if input not contiguous (but can
-     * fit in buffer)
-     */
-//    protected byte[] _inputCopy;
-
-    /**
-     * Number of bytes buffered in <code>_inputCopy</code>
-     */
-//    protected int _inputCopyLen;
-
-    /*
-    /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
@@ -184,9 +167,6 @@ public abstract class NonBlockingJsonParserBase
     {
         super(ctxt, parserFeatures);
         _symbols = sym;
-        // We don't need a lot; for most things maximum known a-priori length below 70 bytes
-//        _inputCopy = ctxt.allocReadIOBuffer(500);
-
         _currToken = null;
         _majorState = MAJOR_INITIAL;
         _majorStateAfterValue = MAJOR_ROOT;

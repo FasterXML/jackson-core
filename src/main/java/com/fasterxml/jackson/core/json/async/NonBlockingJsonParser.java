@@ -1588,6 +1588,69 @@ public class NonBlockingJsonParser
         return _fieldComplete(name);
     }
 
+    @Override
+    protected char _decodeEscaped() throws IOException
+    {
+// !!! TODO
+VersionUtil.throwInternal();
+        
+        
+        if (_inputPtr >= _inputEnd) {
+            if (!_loadMore()) {
+                _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
+            }
+        }
+        int c = (int) _inputBuffer[_inputPtr++];
+
+        switch (c) {
+            // First, ones that are mapped
+        case 'b':
+            return '\b';
+        case 't':
+            return '\t';
+        case 'n':
+            return '\n';
+        case 'f':
+            return '\f';
+        case 'r':
+            return '\r';
+
+            // And these are to be returned as they are
+        case '"':
+        case '/':
+        case '\\':
+            return (char) c;
+
+        case 'u': // and finally hex-escaped
+            break;
+
+        default:
+            {
+             // !!! TODO: Decode UTF-8 characters properly...
+//              char ch = (char) _decodeCharForError(c);
+                char ch = (char) c;
+                return _handleUnrecognizedCharacterEscape(ch);
+            }
+        }
+
+        // Ok, a hex escape. Need 4 characters
+        int value = 0;
+        for (int i = 0; i < 4; ++i) {
+            if (_inputPtr >= _inputEnd) {
+                if (!_loadMore()) {
+                    _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
+                }
+            }
+            int ch = (int) _inputBuffer[_inputPtr++];
+            int digit = CharTypes.charToHex(ch);
+            if (digit < 0) {
+                _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
+            }
+            value = (value << 4) | digit;
+        }
+        return (char) value;
+    }
+    
     /*
     /**********************************************************************
     /* Second-level decoding, String decoding

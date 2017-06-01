@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.testsupport;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -29,7 +30,19 @@ public abstract class AsyncReaderWrapper
         int start = _streamReader.getTextOffset();
         int len = _streamReader.getTextLength();
         return new String(ch, start, len);
+    }
 
+    public String currentTextViaWriter() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        int len = _streamReader.getText(sw);
+        String str = sw.toString();
+        if (len != str.length()) {
+            throw new IllegalStateException(String.format(
+                    "Reader.getText(Writer) returned %d, but wrote %d chars",
+                    len, str.length()));
+        }
+        return str;
     }
 
     public String currentName() throws IOException {

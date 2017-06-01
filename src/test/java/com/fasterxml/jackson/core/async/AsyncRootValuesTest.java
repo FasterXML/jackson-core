@@ -90,7 +90,47 @@ public class AsyncRootValuesTest extends AsyncTestBase
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-    
+
+    public void testRootFloats() throws Exception {
+        _testRootFloats("10.0", 10.0);
+        _testRootFloats(" 10.0", 10.0);
+        _testRootFloats("10.0   ", 10.0);
+
+        _testRootFloats("-1234.25", -1234.25);
+        _testRootFloats("  -1234.25", -1234.25);
+        _testRootFloats(" -1234.25  ", -1234.25);
+
+        _testRootFloats("-12.5e3", -12500.);
+        _testRootFloats("  -12.5e3", -12500.);
+        _testRootFloats(" -12.5e3  ", -12500.);
+    }
+
+    private void _testRootFloats(String doc, double value) throws Exception
+    {
+        byte[] input = _jsonDoc(doc);
+        JsonFactory f = JSON_F;
+        _testRootFloats(value, f, input, 0, 90);
+        _testRootFloats(value, f, input, 0, 3);
+        _testRootFloats(value, f, input, 0, 2);
+        _testRootFloats(value, f, input, 0, 1);
+
+        _testRootFloats(value, f, input, 1, 90);
+        _testRootFloats(value, f, input, 1, 3);
+        _testRootFloats(value, f, input, 1, 1);
+    }
+
+    private void _testRootFloats(double value, JsonFactory f,
+            byte[] data, int offset, int readSize) throws IOException
+    {
+        AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
+        assertNull(r.currentToken());
+
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
+        assertEquals(value, r.getDoubleValue());
+        assertNull(r.nextToken());
+        assertTrue(r.isClosed());
+    }
+
     /*
     /**********************************************************************
     /* Root-level sequences

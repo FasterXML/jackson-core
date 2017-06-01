@@ -418,7 +418,7 @@ public class UTF8StreamJsonParser
         }
         return super.getValueAsInt(defValue);
     }
-    
+
     protected final String _getText2(JsonToken t)
     {
         if (t == null) {

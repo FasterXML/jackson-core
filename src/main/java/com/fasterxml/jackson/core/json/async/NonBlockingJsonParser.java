@@ -262,11 +262,12 @@ public class NonBlockingJsonParser
             return _finishNumberLeadingZeroes();
         case MINOR_NUMBER_INTEGER_DIGITS:
             return _finishNumberIntegralPart();
-        case MINOR_NUMBER_DECIMAL_POINT:
         case MINOR_NUMBER_FRACTION_DIGITS:
+            return _finishFloatFraction();
         case MINOR_NUMBER_EXPONENT_MARKER:
-        case MINOR_NUMBER_EXPONENT_SIGN:
+            return _finishFloatExponent(true, _inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_NUMBER_EXPONENT_DIGITS:
+            return _finishFloatExponent(false, _inputBuffer[_inputPtr++] & 0xFF);
         }
         VersionUtil.throwInternal();
         return null;
@@ -299,7 +300,7 @@ public class NonBlockingJsonParser
         case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
             return _finishErrorTokenWithEOF();
 
-        // Number-parsing states; first, valid:
+        // Number-parsing states; valid stopping points, more explicit errors
         case MINOR_NUMBER_LEADING_ZERO:
             return _valueCompleteInt(0, "0");
         case MINOR_NUMBER_INTEGER_DIGITS:
@@ -313,6 +314,15 @@ public class NonBlockingJsonParser
             }
             return _valueComplete(JsonToken.VALUE_NUMBER_INT);
 
+        case MINOR_NUMBER_FRACTION_DIGITS:
+            _expLength = 0;
+            // fall through
+        case MINOR_NUMBER_EXPONENT_DIGITS:
+            return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+
+        case MINOR_NUMBER_EXPONENT_MARKER:
+            _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
+            
         // !!! TODO: rest...
         default:
         }
@@ -1023,7 +1033,7 @@ public class NonBlockingJsonParser
     {
         char[] outBuf = _textBuffer.getBufferWithoutReset();
         int outPtr = _textBuffer.getCurrentSegmentSize();
-        int neg = _numberNegative ? 1 : 0;
+        int negMod = _numberNegative ? -1 : 0;
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1033,7 +1043,7 @@ public class NonBlockingJsonParser
             int ch = _inputBuffer[_inputPtr] & 0xFF;
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
-                    _intLength = outPtr+neg;
+                    _intLength = outPtr+negMod;
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
                 }
@@ -1041,7 +1051,7 @@ public class NonBlockingJsonParser
             }
             if (ch > INT_9) {
                 if (ch == INT_e || ch == INT_E) {
-                    _intLength = outPtr+neg;
+                    _intLength = outPtr+negMod;
                     ++_inputPtr;
                     return _startFloat(outBuf, outPtr, ch);
                 }
@@ -1055,17 +1065,187 @@ public class NonBlockingJsonParser
             }
             outBuf[outPtr++] = (char) ch;
         }
-        _intLength = outPtr+neg;
+        _intLength = outPtr+negMod;
         _textBuffer.setCurrentLength(outPtr);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
     protected JsonToken _startFloat(char[] outBuf, int outPtr, int ch) throws IOException
     {
-        VersionUtil.throwInternal();
-        return null;
+        int fractLen = 0;
+        if (ch == INT_PERIOD) {
+            while (true) {
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.expandCurrentSegment();
+                }
+                outBuf[outPtr++] = (char) ch;
+                if (_inputPtr >= _inputEnd) {
+                    _textBuffer.setCurrentLength(outPtr);
+                    _minorState = MINOR_NUMBER_FRACTION_DIGITS;
+                    _fractLength = fractLen;
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                ch = _inputBuffer[_inputPtr++]; // ok to have sign extension for now
+                if (ch < INT_0 || ch > INT_9) {
+                    ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
+                    // must be followed by sequence of ints, one minimum
+                    if (fractLen == 0) {
+                        reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                    }
+                    break;
+                }
+                ++fractLen;
+            }
+        }
+        _fractLength = fractLen;
+        int expLen = 0;
+        if (ch == INT_e || ch == INT_E) { // exponent?
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            if (_inputPtr >= _inputEnd) {
+                _textBuffer.setCurrentLength(outPtr);
+                _minorState = MINOR_NUMBER_EXPONENT_MARKER;
+                _expLength = 0;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            ch = _inputBuffer[_inputPtr++]; // ok to have sign extension for now
+            if (ch == INT_MINUS || ch == INT_PLUS) {
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.expandCurrentSegment();
+                }
+                outBuf[outPtr++] = (char) ch;
+                if (_inputPtr >= _inputEnd) {
+                    _textBuffer.setCurrentLength(outPtr);
+                    _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
+                    _expLength = 0;
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                ch = _inputBuffer[_inputPtr];
+            }
+            while (ch >= INT_0 && ch <= INT_9) {
+                ++expLen;
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.expandCurrentSegment();
+                }
+                outBuf[outPtr++] = (char) ch;
+                if (_inputPtr >= _inputEnd) {
+                    _textBuffer.setCurrentLength(outPtr);
+                    _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
+                    _expLength = expLen;
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                ch = _inputBuffer[_inputPtr++];
+            }
+            // must be followed by sequence of ints, one minimum
+            ch &= 0xFF;
+            if (expLen == 0) {
+                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+            }
+        }
+        // push back the last char
+        --_inputPtr;
+        _textBuffer.setCurrentLength(outPtr);
+        // negative, int-length, fract-length already set, so...
+        _expLength = expLen;
+        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
+    protected JsonToken _finishFloatFraction() throws IOException
+    {
+        int fractLen = _fractLength;
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+
+        // caller guarantees at least one char; also, sign-extension not needed here
+        int ch;
+        while (((ch = _inputBuffer[_inputPtr++]) >= INT_0) && (ch <= INT_9)) {
+            ++fractLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            if (_inputPtr >= _inputEnd) {
+                _textBuffer.setCurrentLength(outPtr);
+                _fractLength = fractLen;
+                return JsonToken.NOT_AVAILABLE;
+            }
+        }
+        
+        // Ok, fraction done; what have we got next?
+        // must be followed by sequence of ints, one minimum
+        if (fractLen == 0) {
+            reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+        }
+        _fractLength = fractLen;
+        _textBuffer.setCurrentLength(outPtr);
+
+        // Ok: end of floating point number or exponent?
+        if (ch == INT_e || ch == INT_E) { // exponent?
+            _textBuffer.append((char) ch);
+            _expLength = 0;
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_NUMBER_EXPONENT_MARKER;
+                return JsonToken.NOT_AVAILABLE;
+            }
+            _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
+            return _finishFloatExponent(true, _inputBuffer[_inputPtr++] & 0xFF);
+        }
+
+        // push back the last char
+        --_inputPtr;
+        _textBuffer.setCurrentLength(outPtr);
+        // negative, int-length, fract-length already set, so...
+        _expLength = 0;
+        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+    }
+
+    protected JsonToken _finishFloatExponent(boolean checkSign, int ch) throws IOException
+    {
+        if (checkSign) {
+            _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
+            if (ch == INT_MINUS || ch == INT_PLUS) {
+                _textBuffer.append((char) ch);
+                if (_inputPtr >= _inputEnd) {
+                    _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
+                    _expLength = 0;
+                    return JsonToken.NOT_AVAILABLE;
+                }
+                ch = _inputBuffer[_inputPtr];
+            }
+        }
+
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        int expLen = _expLength;
+
+        while (ch >= INT_0 && ch <= INT_9) {
+            ++expLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            if (_inputPtr >= _inputEnd) {
+                _textBuffer.setCurrentLength(outPtr);
+                _expLength = expLen;
+                return JsonToken.NOT_AVAILABLE;
+            }
+            ch = _inputBuffer[_inputPtr++];
+        }
+        // must be followed by sequence of ints, one minimum
+        ch &= 0xFF;
+        if (expLen == 0) {
+            reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+        }
+        // push back the last char
+        --_inputPtr;
+        _textBuffer.setCurrentLength(outPtr);
+        // negative, int-length, fract-length already set, so...
+        _expLength = expLen;
+        return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
+    }
+ 
     /*
     /**********************************************************************
     /* Second-level decoding, Primary name decoding

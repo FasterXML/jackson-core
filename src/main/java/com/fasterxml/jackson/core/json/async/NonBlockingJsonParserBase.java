@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 
+import static com.fasterxml.jackson.core.JsonTokenId.*;
+
 /**
  * Intermediate base class for non-blocking JSON parsers.
  */
@@ -87,10 +89,9 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_NUMBER_LEADING_MINUS = 20;
     protected final static int MINOR_NUMBER_LEADING_ZERO = 21;
     protected final static int MINOR_NUMBER_INTEGER_DIGITS = 22;
-    protected final static int MINOR_NUMBER_DECIMAL_POINT = 23;
+
     protected final static int MINOR_NUMBER_FRACTION_DIGITS = 24;
     protected final static int MINOR_NUMBER_EXPONENT_MARKER = 25;
-    protected final static int MINOR_NUMBER_EXPONENT_SIGN = 26;
     protected final static int MINOR_NUMBER_EXPONENT_DIGITS = 27;
 
     protected final static int MINOR_VALUE_STRING = 45;
@@ -270,87 +271,156 @@ public abstract class NonBlockingJsonParserBase
         if (_currToken == JsonToken.VALUE_STRING) {
             return _textBuffer.contentsAsString();
         }
-        JsonToken t = _currToken;
-        if (t == null || _currToken == JsonToken.NOT_AVAILABLE) { // null only before/after document
+        return _getText2(_currToken);
+    }
+
+    protected final String _getText2(JsonToken t)
+    {
+        if (t == null) {
             return null;
         }
-        if (t == JsonToken.FIELD_NAME) {
+        switch (t.id()) {
+        case ID_NOT_AVAILABLE:
+            return null;
+        case ID_FIELD_NAME:
             return _parsingContext.getCurrentName();
+        case ID_STRING:
+            // fall through
+        case ID_NUMBER_INT:
+        case ID_NUMBER_FLOAT:
+            return _textBuffer.contentsAsString();
+        default:
+          return t.asString();
         }
-        if (t.isNumeric()) {
-            // TODO: optimize?
-            return getNumberValue().toString();
+    }
+
+    @Override // since 2.8
+    public int getText(Writer writer) throws IOException
+    {
+        JsonToken t = _currToken;
+        if (t == JsonToken.VALUE_STRING) {
+            return _textBuffer.contentsToWriter(writer);
         }
-        return _currToken.asString();
+        if (t == JsonToken.FIELD_NAME) {
+            String n = _parsingContext.getCurrentName();
+            writer.write(n);
+            return n.length();
+        }
+        if (t != null) {
+            if (t.isNumeric()) {
+                return _textBuffer.contentsToWriter(writer);
+            }
+            if (t == JsonToken.NOT_AVAILABLE) {
+                _reportError("Current token not available: can not call this method");
+            }
+            char[] ch = t.asCharArray();
+            writer.write(ch);
+            return ch.length;
+        }
+        return 0;
+    }
+
+    // // // Let's override default impls for improved performance
+    
+    // @since 2.1
+    @Override
+    public String getValueAsString() throws IOException
+    {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            return _textBuffer.contentsAsString();
+        }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
+        }
+        return super.getValueAsString(null);
+    }
+    
+    // @since 2.1
+    @Override
+    public String getValueAsString(String defValue) throws IOException
+    {
+        if (_currToken == JsonToken.VALUE_STRING) {
+            return _textBuffer.contentsAsString();
+        }
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return getCurrentName();
+        }
+        return super.getValueAsString(defValue);
     }
 
     @Override
     public char[] getTextCharacters() throws IOException
     {
-        switch (currentTokenId()) {
-        case JsonTokenId.ID_STRING:
-            return _textBuffer.getTextBuffer();
-        case JsonTokenId.ID_FIELD_NAME:
-            if (!_nameCopied) {
-                String name = _parsingContext.getCurrentName();
-                int nameLen = name.length();
-                if (_nameCopyBuffer == null) {
-                    _nameCopyBuffer = _ioContext.allocNameCopyBuffer(nameLen);
-                } else if (_nameCopyBuffer.length < nameLen) {
-                    _nameCopyBuffer = new char[nameLen];
+        if (_currToken != null) { // null only before/after document
+            switch (_currToken.id()) {
+                
+            case ID_FIELD_NAME:
+                if (!_nameCopied) {
+                    String name = _parsingContext.getCurrentName();
+                    int nameLen = name.length();
+                    if (_nameCopyBuffer == null) {
+                        _nameCopyBuffer = _ioContext.allocNameCopyBuffer(nameLen);
+                    } else if (_nameCopyBuffer.length < nameLen) {
+                        _nameCopyBuffer = new char[nameLen];
+                    }
+                    name.getChars(0, nameLen, _nameCopyBuffer, 0);
+                    _nameCopied = true;
                 }
-                name.getChars(0, nameLen, _nameCopyBuffer, 0);
-                _nameCopied = true;
+                return _nameCopyBuffer;
+    
+            case ID_STRING:
+                // fall through
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
+                return _textBuffer.getTextBuffer();
+                
+            default:
+                return _currToken.asCharArray();
             }
-            return _nameCopyBuffer;
-        case JsonTokenId.ID_NUMBER_INT:
-        case JsonTokenId.ID_NUMBER_FLOAT:
-            return getNumberValue().toString().toCharArray();
-        case JsonTokenId.ID_NO_TOKEN:
-        case JsonTokenId.ID_NOT_AVAILABLE:
-            return null;
-        default:
-            return _currToken.asCharArray();
         }
-    }
-
-    @Override    
-    public int getTextLength() throws IOException
-    {
-        switch (currentTokenId()) {
-        case JsonTokenId.ID_STRING:
-            return _textBuffer.size();
-        case JsonTokenId.ID_FIELD_NAME:
-            return _parsingContext.getCurrentName().length();
-        case JsonTokenId.ID_NUMBER_INT:
-        case JsonTokenId.ID_NUMBER_FLOAT:
-            return getNumberValue().toString().length();
-        case JsonTokenId.ID_NO_TOKEN:
-        case JsonTokenId.ID_NOT_AVAILABLE:
-            return 0; // or throw exception?
-        default:
-            return _currToken.asCharArray().length;
-        }
+        return null;
     }
 
     @Override
-    public int getTextOffset() throws IOException {
+    public int getTextLength() throws IOException
+    {
+        if (_currToken != null) { // null only before/after document
+            switch (_currToken.id()) {
+                
+            case ID_FIELD_NAME:
+                return _parsingContext.getCurrentName().length();
+            case ID_STRING:
+                // fall through
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
+                return _textBuffer.size();
+                
+            default:
+                return _currToken.asCharArray().length;
+            }
+        }
         return 0;
     }
 
     @Override
-    public int getText(Writer w) throws IOException
+    public int getTextOffset() throws IOException
     {
-        if (_currToken == JsonToken.VALUE_STRING) {
-            return _textBuffer.contentsToWriter(w);
+        // Most have offset of 0, only some may have other values:
+        if (_currToken != null) {
+            switch (_currToken.id()) {
+            case ID_FIELD_NAME:
+                return 0;
+            case ID_STRING:
+                // fall through
+            case ID_NUMBER_INT:
+            case ID_NUMBER_FLOAT:
+                return _textBuffer.getTextOffset();
+            default:
+            }
         }
-        if (_currToken == JsonToken.NOT_AVAILABLE) {
-            _reportError("Current token not available: can not call this method");
-        }
-        // otherwise default handling works fine
-        return super.getText(w);
+        return 0;
     }
-    
+
     /*
     /**********************************************************************
     /* Public API, access to token information, binary

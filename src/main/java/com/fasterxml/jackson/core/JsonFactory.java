@@ -415,7 +415,11 @@ public class JsonFactory
      *
      * @since 2.9
      */
-    public boolean canParseAsync() { return false; }
+    public boolean canParseAsync() {
+        // 31-May-2017, tatu: Jackson 2.9 does support async parsing for JSON,
+        //   but not all other formats, so need to do this:
+        return _isJSONFactory();
+    }
 
     /**
      * Method for accessing kind of {@link FormatFeature} that a parser
@@ -1611,11 +1615,14 @@ public class JsonFactory
      * @since 2.9
      */
     private final void _requireJSONFactory(String msg) {
+        if (!_isJSONFactory()) {
+            throw new UnsupportedOperationException(String.format(msg, getFormatName()));
+        }
+    }
+
+    private final boolean _isJSONFactory() {
         // NOTE: since we only really care about whether this is standard JSON-backed factory,
         // or its sub-class / delegated to one, no need to check for equality, identity is enough
-        String format = getFormatName();
-        if (format != FORMAT_NAME_JSON) {
-            throw new UnsupportedOperationException(String.format(msg, format));
-        }
+        return getFormatName() == FORMAT_NAME_JSON;
     }
 }

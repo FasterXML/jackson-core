@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.*;
 public class TestParserWithObjects
     extends com.fasterxml.jackson.core.BaseTest
 {
-
     /*
     /**********************************************************
     /* Test for simple traversal with data mapping

@@ -17,7 +17,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         _testEscapedFieldNames("Something \\'longer\\'?", "Something 'longer'?");
         _testEscapedFieldNames("\\u00A7", "\u00A7");
         _testEscapedFieldNames("\\u4567", "\u4567");
-        _testEscapedFieldNames("Unicode: \\u00A7 and \\u4567", "Unicode: \u00A7 and \u4567");
+        _testEscapedFieldNames("Unicode: \\u00A7 and \\u4567?", "Unicode: \u00A7 and \u4567?");
     }
 
     private void _testEscapedFieldNames(String nameEncoded, String nameExp) throws IOException

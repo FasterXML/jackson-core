@@ -218,49 +218,6 @@ public class UTF8StreamJsonParser
         return false;
     }
 
-    /**
-     * Helper method that will try to load at least specified number bytes in
-     * input buffer, possible moving existing data around if necessary
-     */
-    protected final boolean _loadToHaveAtLeast(int minAvailable) throws IOException
-    {
-        // No input stream, no leading (either we are closed, or have non-stream input source)
-        if (_inputStream == null) {
-            return false;
-        }
-        // Need to move remaining data in front?
-        int amount = _inputEnd - _inputPtr;
-        if (amount > 0 && _inputPtr > 0) {
-            final int ptr = _inputPtr;
-
-            _currInputProcessed += ptr;
-            _currInputRowStart -= ptr;
-            // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
-            //  (note: probably has little effect here but just in case)
-            _nameStartOffset -= ptr;
-
-            System.arraycopy(_inputBuffer, ptr, _inputBuffer, 0, amount);
-            _inputEnd = amount;
-        } else {
-            _inputEnd = 0;
-        }
-        _inputPtr = 0;
-        while (_inputEnd < minAvailable) {
-            int count = _inputStream.read(_inputBuffer, _inputEnd, _inputBuffer.length - _inputEnd);
-            if (count < 1) {
-                // End of input
-                _closeInput();
-                // Should never return 0, so let's fail
-                if (count == 0) {
-                    throw new IOException("InputStream.read() returned 0 characters when trying to read "+amount+" bytes");
-                }
-                return false;
-            }
-            _inputEnd += count;
-        }
-        return true;
-    }
-
     @Override
     protected void _closeInput() throws IOException
     {
@@ -1929,9 +1886,9 @@ public class UTF8StreamJsonParser
     protected final String parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
     {
-        // 25-Nov-2008, tatu: This may seem weird, but here we do not want to worry about
-        //   UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
-        //   caught later on), and just handle quotes and backslashes here.
+        // This may seem weird, but here we do not want to worry about
+        // UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
+        // caught later on), and just handle quotes and backslashes here.
         final int[] codes = _icLatin1;
 
         while (true) {

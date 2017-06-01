@@ -58,9 +58,10 @@ public abstract class AsyncReaderWrapper
     public float getFloatValue() throws IOException { return _streamReader.getFloatValue(); }
     public double getDoubleValue() throws IOException { return _streamReader.getDoubleValue(); }
     public BigInteger getBigIntegerValue() throws IOException { return _streamReader.getBigIntegerValue(); }
-    public BigDecimal getBigDecimalValue() throws IOException { return _streamReader.getDecimalValue(); }
+    public BigDecimal getDecimalValue() throws IOException { return _streamReader.getDecimalValue(); }
     public byte[] getBinaryValue() throws IOException { return _streamReader.getBinaryValue(); }
 
+    public Number getNumberValue() throws IOException { return _streamReader.getNumberValue(); }
     public NumberType getNumberType() throws IOException { return _streamReader.getNumberType(); }
 
     public void close() throws IOException { _streamReader.close(); }

@@ -11,7 +11,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
     /*
     /**********************************************************************
-    /* Test methods
+    /* Test methods, success
     /**********************************************************************
      */
 
@@ -120,5 +120,117 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertEquals(23, r.getIntValue());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
         assertToken(JsonToken.END_ARRAY, r.nextToken());
+    }
+
+    final static String SHORT_NAME = String.format("u-%s", UNICODE_SEGMENT);
+    final static String LONG_NAME = String.format("Unicode-with-some-longer-name-%s", UNICODE_SEGMENT);
+    
+    public void testStuffInArray2() throws Exception
+    {
+        byte[] data = _jsonDoc(aposToQuotes(String.format(
+                "[{'%s':true},{'%s':false},{'%s':true},{'%s':false}]",
+                SHORT_NAME, LONG_NAME, LONG_NAME, SHORT_NAME)));
+        JsonFactory f = JSON_F;
+
+        _testStuffInArray2(f, data, 0, 100);
+        _testStuffInArray2(f, data, 0, 3);
+        _testStuffInArray2(f, data, 0, 1);
+
+        _testStuffInArray2(f, data, 3, 100);
+        _testStuffInArray2(f, data, 3, 3);
+        _testStuffInArray2(f, data, 3, 1);
+    }
+
+    private void _testStuffInArray2(JsonFactory f,
+            byte[] data, int offset, int readSize) throws IOException
+    {
+        AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
+        assertToken(JsonToken.START_ARRAY, r.nextToken());
+
+        assertToken(JsonToken.START_OBJECT, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertEquals(SHORT_NAME, r.currentName());
+        assertToken(JsonToken.VALUE_TRUE, r.nextToken());
+        assertToken(JsonToken.END_OBJECT, r.nextToken());
+
+        assertToken(JsonToken.START_OBJECT, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertEquals(LONG_NAME, r.currentName());
+        assertToken(JsonToken.VALUE_FALSE, r.nextToken());
+        assertToken(JsonToken.END_OBJECT, r.nextToken());
+
+        assertToken(JsonToken.START_OBJECT, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertEquals(LONG_NAME, r.currentName());
+        assertToken(JsonToken.VALUE_TRUE, r.nextToken());
+        assertToken(JsonToken.END_OBJECT, r.nextToken());
+
+        assertToken(JsonToken.START_OBJECT, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertEquals(SHORT_NAME, r.currentName());
+        assertToken(JsonToken.VALUE_FALSE, r.nextToken());
+        assertToken(JsonToken.END_OBJECT, r.nextToken());
+
+        assertToken(JsonToken.END_ARRAY, r.nextToken());
+    }
+    
+    /*
+    /**********************************************************************
+    /* Test methods, fail checking
+    /**********************************************************************
+     */
+
+    public void testMismatchedArray() throws Exception
+    {
+        byte[] data = _jsonDoc(aposToQuotes("[  }"));
+
+        JsonFactory f = JSON_F;
+        _testMismatchedArray(f, data, 0, 99);
+        _testMismatchedArray(f, data, 0, 3);
+        _testMismatchedArray(f, data, 0, 2);
+        _testMismatchedArray(f, data, 0, 1);
+
+        _testMismatchedArray(f, data, 1, 3);
+        _testMismatchedArray(f, data, 1, 1);
+    }
+
+    private void _testMismatchedArray(JsonFactory f,
+            byte[] data, int offset, int readSize) throws IOException
+    {
+        AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
+        assertToken(JsonToken.START_ARRAY, r.nextToken());
+        try {
+            r.nextToken();
+            fail("Should not pass");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected close marker '}': expected ']'");
+        }
+    }
+
+    public void testMismatchedObject() throws Exception
+    {
+        byte[] data = _jsonDoc(aposToQuotes("{ ]"));
+
+        JsonFactory f = JSON_F;
+        _testMismatchedObject(f, data, 0, 99);
+        _testMismatchedObject(f, data, 0, 3);
+        _testMismatchedObject(f, data, 0, 2);
+        _testMismatchedObject(f, data, 0, 1);
+
+        _testMismatchedObject(f, data, 1, 3);
+        _testMismatchedObject(f, data, 1, 1);
+    }
+
+    private void _testMismatchedObject(JsonFactory f,
+            byte[] data, int offset, int readSize) throws IOException
+    {
+        AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
+        assertToken(JsonToken.START_OBJECT, r.nextToken());
+        try {
+            r.nextToken();
+            fail("Should not pass");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected close marker ']': expected '}'");
+        }
     }
 }

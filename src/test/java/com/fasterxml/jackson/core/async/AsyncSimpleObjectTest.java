@@ -21,11 +21,14 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
 
     private final static String UNICODE_SHORT_NAME = "Unicode"+UNICODE_3BYTES+"RlzOk";
 
+    private final static String UNICODE_LONG_NAME = "Unicode-with-"+UNICODE_3BYTES+"-much-longer";
+    
     public void testBooleans() throws IOException
     {
         final JsonFactory f = JSON_F;
         byte[] data = _jsonDoc(aposToQuotes(
-"{ 'a':true, 'b':false, 'acdc':true, '"+UNICODE_SHORT_NAME+"':true, 'a1234567':false }"));
+"{ 'a':true, 'b':false, 'acdc':true, '"+UNICODE_SHORT_NAME+"':true, 'a1234567':false,"
++"'"+UNICODE_LONG_NAME+"':   true }"));
         // first, no offsets
         _testBooleans(f, data, 0, 100);
         _testBooleans(f, data, 0, 3);
@@ -74,18 +77,22 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         assertEquals("a1234567", r.currentText());
         assertToken(JsonToken.VALUE_FALSE, r.nextToken());
 
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertEquals(UNICODE_LONG_NAME, r.currentText());
+        assertToken(JsonToken.VALUE_TRUE, r.nextToken());
+        
         // and for fun let's verify can't access this as number or binary
         try {
             r.getDoubleValue();
             fail("Should not pass");
         } catch (JsonProcessingException e) {
-            verifyException(e, "Current token (VALUE_FALSE) not numeric");
+            verifyException(e, "Current token (VALUE_TRUE) not numeric");
         }
         try {
             r.parser().getBinaryValue();
             fail("Should not pass");
         } catch (JsonProcessingException e) {
-            verifyException(e, "Current token (VALUE_FALSE) not");
+            verifyException(e, "Current token (VALUE_TRUE) not");
             verifyException(e, "can not access as binary");
         }
 
@@ -154,7 +161,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
         // can't really tell double/BigDecimal apart in plain json
         assertEquals(NumberType.DOUBLE, r.getNumberType());
-        assertEquals(NUMBER_EXP_BD, r.getBigDecimalValue());
+        assertEquals(NUMBER_EXP_BD, r.getDecimalValue());
         assertEquals(""+NUMBER_EXP_BD, r.currentText());
 
         assertToken(JsonToken.END_OBJECT, r.nextToken());

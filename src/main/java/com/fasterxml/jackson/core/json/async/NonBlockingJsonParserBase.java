@@ -567,19 +567,6 @@ public abstract class NonBlockingJsonParserBase
         quads[2] = _padLastQuad(q3, lastQuadBytes);
         return _addName(quads, 3, lastQuadBytes);
     }
-    
-    protected final String _findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
-    {
-        if (qlen >= quads.length) {
-            _quadBuffer = quads = growArrayBy(quads, quads.length);
-        }
-        quads[qlen++] = _padLastQuad(lastQuad, lastQuadBytes);
-        String name = _symbols.findName(quads, qlen);
-        if (name == null) {
-            return _addName(quads, qlen, lastQuadBytes);
-        }
-        return name;
-    }
 
     /**
      * This is the main workhorse method used when we take a symbol

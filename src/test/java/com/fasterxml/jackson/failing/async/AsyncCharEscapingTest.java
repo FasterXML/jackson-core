@@ -55,8 +55,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
         _testSimpleEscaping(1, 1);
     }
     
-    private void _testSimpleEscaping(int offset, int readSize)
-        throws Exception
+    private void _testSimpleEscaping(int offset, int readSize) throws Exception
     {
         byte[] doc = _jsonDoc(aposToQuotes("['LF=\\n']"));
 
@@ -95,11 +94,11 @@ public class AsyncCharEscapingTest extends AsyncTestBase
     public void test8DigitSequence() throws Exception
     {
         String DOC = "[\"\\u00411234\"]";
-        JsonParser jp = createParserUsingReader(DOC);
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("A1234", jp.getText());
-        jp.close();
+        AsyncReaderWrapper r = asyncForBytes(JSON_F, 1, _jsonDoc(DOC), 1);
+        assertToken(JsonToken.START_ARRAY, r.nextToken());
+        assertToken(JsonToken.VALUE_STRING, r.nextToken());
+        assertEquals("A1234", r.currentText());
+        r.close();
     }
 }
 

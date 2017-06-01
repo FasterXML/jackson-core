@@ -1608,8 +1608,12 @@ public class NonBlockingJsonParser
     private JsonToken _handleOddName(int ch) throws IOException
     {
         // First: may allow single quotes
-        if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
-            return _parseAposName();
+        if (ch == '\'') {
+            if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+                return _parseAposName();
+            }
+        } else if (ch == ']') { // for better error reporting...
+            return _closeArrayScope();
         }
         // allow unquoted names if feature enabled:
         if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {

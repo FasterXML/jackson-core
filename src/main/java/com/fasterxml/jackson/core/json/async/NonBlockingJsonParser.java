@@ -236,10 +236,10 @@ public class NonBlockingJsonParser
         case MINOR_FIELD_NAME:
             return _parseEscapedName(_quadLength,  _pending32, _pendingBytes);
         case MINOR_FIELD_NAME_ESCAPE:
-            return _finishFieldWithEscape(_inputBuffer[_inputPtr++] & 0xFF);
-            
+            return _finishFieldWithEscape();
+
         // Value states
-            
+
         case MINOR_VALUE_LEADING_WS:
             return _startValue(_inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_VALUE_LEADING_COMMA:
@@ -1332,12 +1332,6 @@ public class NonBlockingJsonParser
         return _parseEscapedName(0, 0, 0);
     }
 
-    protected final JsonToken _finishFieldWithEscape(int ch) throws IOException
-    {
-        VersionUtil.throwInternal();
-        return _currToken;
-    }
-
     /*
     /**********************************************************************
     /* Name-decoding, tertiary decoding
@@ -1513,66 +1507,81 @@ public class NonBlockingJsonParser
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
             int ch = _inputBuffer[_inputPtr++] & 0xFF;
-            if (codes[ch] != 0) {
-                if (ch == INT_QUOTE) { // we are done
-                    break;
+            if (codes[ch] == 0) {
+                if (currQuadBytes < 4) {
+                    ++currQuadBytes;
+                    currQuad = (currQuad << 8) | ch;
+                    continue;
                 }
-                // Unquoted white space?
-                if (ch != INT_BACKSLASH) {
-                    // Call can actually now return (if unquoted linefeeds allowed)
-                    _throwUnquotedSpace(ch, "name");
-                } else {
-                    // Nope, escape sequence
-                    ch = _decodeEscaped();
-                }
-                // Oh crap. May need to UTF-8 (re-)encode it, if it's beyond
-                // 7-bit ASCII. Gets pretty messy. If this happens often, may
-                // want to use different name canonicalization to avoid these hits.
-                if (ch > 127) {
-                    // Ok, we'll need room for first byte right away
-                    if (currQuadBytes >= 4) {
-                        if (qlen >= quads.length) {
-                            _quadBuffer = quads = growArrayBy(quads, quads.length);
-                        }
-                        quads[qlen++] = currQuad;
-                        currQuad = 0;
-                        currQuadBytes = 0;
-                    }
-                    if (ch < 0x800) { // 2-byte
-                        currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
-                        ++currQuadBytes;
-                        // Second byte gets output below:
-                    } else { // 3 bytes; no need to worry about surrogates here
-                        currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                        ++currQuadBytes;
-                        // need room for middle byte?
-                        if (currQuadBytes >= 4) {
-                            if (qlen >= quads.length) {
-                                _quadBuffer = quads = growArrayBy(quads, quads.length);
-                            }
-                            quads[qlen++] = currQuad;
-                            currQuad = 0;
-                            currQuadBytes = 0;
-                        }
-                        currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
-                        ++currQuadBytes;
-                    }
-                    // And same last byte in both cases, gets output below:
-                    ch = 0x80 | (ch & 0x3f);
-                }
-            }
-            // Ok, we have one more byte to add at any rate:
-            if (currQuadBytes < 4) {
-                ++currQuadBytes;
-                currQuad = (currQuad << 8) | ch;
-            } else {
                 if (qlen >= quads.length) {
                     _quadBuffer = quads = growArrayBy(quads, quads.length);
                 }
                 quads[qlen++] = currQuad;
                 currQuad = ch;
                 currQuadBytes = 1;
+                continue;
             }
+
+            // Otherwise bit longer handling
+            if (ch == INT_QUOTE) { // we are done
+                break;
+            }
+            // Unquoted white space?
+            if (ch != INT_BACKSLASH) {
+                // Call can actually now return (if unquoted linefeeds allowed)
+                _throwUnquotedSpace(ch, "name");
+            } else {
+                // Nope, escape sequence
+                ch = _decodeCharEscape();
+                if (ch < 0) { // method has set up state about escape sequence
+                    _minorState = MINOR_FIELD_NAME_ESCAPE;
+                    _quadLength = qlen;
+                    _pending32 = currQuad;
+                    _pendingBytes = currQuadBytes;
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+            }
+
+            // May need to UTF-8 (re-)encode it, if it's beyond
+            // 7-bit ASCII. Gets pretty messy. If this happens often, may
+            // want to use different name canonicalization to avoid these hits.
+            if (qlen >= quads.length) {
+                _quadBuffer = quads = growArrayBy(quads, quads.length);
+            }
+            if (ch > 127) {
+                // Ok, we'll need room for first byte right away
+                if (currQuadBytes >= 4) {
+                    quads[qlen++] = currQuad;
+                    currQuad = 0;
+                    currQuadBytes = 0;
+                }
+                if (ch < 0x800) { // 2-byte
+                    currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
+                    ++currQuadBytes;
+                    // Second byte gets output below:
+                } else { // 3 bytes; no need to worry about surrogates here
+                    currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
+                    ++currQuadBytes;
+                    // need room for middle byte?
+                    if (currQuadBytes >= 4) {
+                        quads[qlen++] = currQuad;
+                        currQuad = 0;
+                        currQuadBytes = 0;
+                    }
+                    currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                    ++currQuadBytes;
+                }
+                // And same last byte in both cases, gets output below:
+                ch = 0x80 | (ch & 0x3f);
+            }
+            if (currQuadBytes < 4) {
+                ++currQuadBytes;
+                currQuad = (currQuad << 8) | ch;
+                continue;
+            }
+            quads[qlen++] = currQuad;
+            currQuad = ch;
+            currQuadBytes = 1;
         }
 
         if (currQuadBytes > 0) {
@@ -1580,10 +1589,8 @@ public class NonBlockingJsonParser
                 _quadBuffer = quads = growArrayBy(quads, quads.length);
             }
             quads[qlen++] = _padLastQuad(currQuad, currQuadBytes);
-        } else {
-            if (qlen == 0) { // rare, but may happen
-                return _fieldComplete("");
-            }
+        } else if (qlen == 0) { // rare, but may happen
+            return _fieldComplete("");
         }
         String name = _symbols.findName(quads, qlen);
         if (name == null) {
@@ -1700,7 +1707,7 @@ public class NonBlockingJsonParser
                     _throwUnquotedSpace(ch, "name");
                 } else {
                     // Nope, escape sequence
-                    ch = _decodeEscaped();
+                    ch = _decodeCharEscape();
                 }
                 if (ch > 127) {
                     // Ok, we'll need room for first byte right away
@@ -1769,19 +1776,69 @@ public class NonBlockingJsonParser
     }
 
     @Override
-    protected char _decodeEscaped() throws IOException
+    protected char _decodeEscaped() throws IOException {
+        VersionUtil.throwInternal();
+        return ' ';
+    }
+
+    protected final JsonToken _finishFieldWithEscape() throws IOException
     {
-// !!! TODO
-VersionUtil.throwInternal();
-        
-        
-        if (_inputPtr >= _inputEnd) {
-            if (!_loadMore()) {
-                _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
+        // First: try finishing what wasn't yet:
+        int ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
+        if (ch < 0) { // ... if possible
+            _minorState = MINOR_FIELD_NAME_ESCAPE;
+            return JsonToken.NOT_AVAILABLE;
+        }
+        if (_quadLength >= _quadBuffer.length) {
+            _quadBuffer = growArrayBy(_quadBuffer, 32);
+        }
+        int currQuad = _pending32;
+        int currQuadBytes = _pendingBytes;
+        if (ch > 127) {
+            // Ok, we'll need room for first byte right away
+            if (currQuadBytes >= 4) {
+                _quadBuffer[_quadLength++] = currQuad;
+                currQuad = 0;
+                currQuadBytes = 0;
             }
+            if (ch < 0x800) { // 2-byte
+                currQuad = (currQuad << 8) | (0xc0 | (ch >> 6));
+                ++currQuadBytes;
+                // Second byte gets output below:
+            } else { // 3 bytes; no need to worry about surrogates here
+                currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
+                ++currQuadBytes;
+                // need room for middle byte?
+                if (currQuadBytes >= 4) {
+                    _quadBuffer[_quadLength++] = currQuad;
+                    currQuad = 0;
+                    currQuadBytes = 0;
+                }
+                currQuad = (currQuad << 8) | (0x80 | ((ch >> 6) & 0x3f));
+                ++currQuadBytes;
+            }
+            // And same last byte in both cases, gets output below:
+            ch = 0x80 | (ch & 0x3f);
+        }
+        if (currQuadBytes < 4) {
+            ++currQuadBytes;
+            currQuad = (currQuad << 8) | ch;
+        } else {
+            _quadBuffer[_quadLength++] = currQuad;
+            currQuad = ch;
+            currQuadBytes = 1;
+        }
+        return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
+    }
+    
+    protected int _decodeCharEscape() throws IOException
+    {
+        int left = _inputEnd - _inputPtr;
+
+        if (left < 5) { // offline boundary-checking case:
+            return _decodeSplitEscaped(0, -1);
         }
         int c = (int) _inputBuffer[_inputPtr++];
-
         switch (c) {
             // First, ones that are mapped
         case 'b':
@@ -1813,24 +1870,98 @@ VersionUtil.throwInternal();
             }
         }
 
-        // Ok, a hex escape. Need 4 characters
-        int value = 0;
-        for (int i = 0; i < 4; ++i) {
-            if (_inputPtr >= _inputEnd) {
-                if (!_loadMore()) {
-                    _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
+        int ch = (int) _inputBuffer[_inputPtr++];
+        int digit = CharTypes.charToHex(ch);
+        int result = digit;
+
+        if (digit >= 0) {
+            ch = (int) _inputBuffer[_inputPtr++];
+            digit = CharTypes.charToHex(ch);
+            if (digit >= 0) {
+                result = (result << 4) | digit;
+                ch = (int) _inputBuffer[_inputPtr++];
+                digit = CharTypes.charToHex(ch);
+                if (digit >= 0) {
+                    result = (result << 4) | digit;
+                    ch = (int) _inputBuffer[_inputPtr++];
+                    digit = CharTypes.charToHex(ch);
+                    if (digit >= 0) {
+                        return (result << 4) | digit;
+                    }
                 }
             }
-            int ch = (int) _inputBuffer[_inputPtr++];
-            int digit = CharTypes.charToHex(ch);
+        }
+        _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
+        return -1;
+    }
+
+    private int _decodeSplitEscaped(int value, int bytesRead) throws IOException
+    {
+        if (_inputPtr >= _inputEnd) {
+            _quoted32 = value;
+            _quotedDigits = bytesRead;
+            return -1;
+        }
+
+        int c = _inputBuffer[_inputPtr++];
+        if (bytesRead == -1) { // expecting first char after backslash
+            switch (c) {
+                // First, ones that are mapped
+            case 'b':
+                return '\b';
+            case 't':
+                return '\t';
+            case 'n':
+                return '\n';
+            case 'f':
+                return '\f';
+            case 'r':
+                return '\r';
+    
+                // And these are to be returned as they are
+            case '"':
+            case '/':
+            case '\\':
+                return (char) c;
+    
+            case 'u': // and finally hex-escaped
+                break;
+    
+            default:
+                {
+                 // !!! TODO: Decode UTF-8 characters properly...
+    //              char ch = (char) _decodeCharForError(c);
+                    char ch = (char) c;
+                    return _handleUnrecognizedCharacterEscape(ch);
+                }
+            }
+            if (_inputPtr >= _inputEnd) {
+                _quotedDigits = 0;
+                _quoted32 = 0;
+                return -1;
+            }
+            c = _inputBuffer[_inputPtr++];
+            bytesRead = 0;
+        }
+        c &= 0xFF;
+        while (true) {
+            int digit = CharTypes.charToHex(c);
             if (digit < 0) {
-                _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(c, "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
+            if (++bytesRead == 4) {
+                return value;
+            }
+            if (_inputPtr >= _inputEnd) {
+                _quotedDigits = bytesRead;
+                _quoted32 = value;
+                return -1;
+            }
+            c = _inputBuffer[_inputPtr++] & 0xFF;
         }
-        return (char) value;
     }
-    
+
     /*
     /**********************************************************************
     /* Second-level decoding, String decoding
@@ -1842,7 +1973,6 @@ VersionUtil.throwInternal();
         _currentQuote = q;
         return null;
     }
-
 
     // !!! TODO: only temporarily here
 

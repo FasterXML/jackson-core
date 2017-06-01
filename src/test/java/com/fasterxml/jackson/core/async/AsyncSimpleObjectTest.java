@@ -19,13 +19,6 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    /*
-    @JsonPropertyOrder(alphabetic=true)
-    static class BooleanBean {
-        public boolean a, b, ac, abcde, e;
-    }
-     */
-
     private final static String UNICODE_SHORT_NAME = "Unicode"+UNICODE_3BYTES+"RlzOk";
 
     public void testBooleans() throws IOException

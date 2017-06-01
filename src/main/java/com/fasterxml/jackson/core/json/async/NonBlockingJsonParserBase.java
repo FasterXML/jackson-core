@@ -129,6 +129,10 @@ public abstract class NonBlockingJsonParserBase
     protected int _pending32;
 
     protected int _pendingBytes;
+
+    protected int _quoted32;
+
+    protected int _quotedDigits;
     
     /*
     /**********************************************************************

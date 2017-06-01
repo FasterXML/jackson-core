@@ -87,7 +87,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
         <configuration>
           <redirectTestOutputToFile>${surefire.redirectTestOutputToFile}</redirectTestOutputToFile>
           <excludes>
-            <exclude>**/failing/*.java</exclude>
+            <exclude>**/failing/**/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>

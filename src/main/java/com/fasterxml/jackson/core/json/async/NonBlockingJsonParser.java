@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -273,7 +272,7 @@ public class NonBlockingJsonParser
             }
             return _finishRegularString();
         case MINOR_VALUE_STRING_UTF8_4:
-            if (!_decodeSplitUTF8_3(_pending32, _pendingBytes, _inputBuffer[_inputPtr++])) {
+            if (!_decodeSplitUTF8_4(_pending32, _pendingBytes, _inputBuffer[_inputPtr++])) {
                 return JsonToken.NOT_AVAILABLE;
             }
             return _finishRegularString();
@@ -1855,74 +1854,6 @@ public class NonBlockingJsonParser
         }
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
     }
-    
-    private final int _decodeCharEscape() throws IOException
-    {
-        int left = _inputEnd - _inputPtr;
-        if (left < 5) { // offline boundary-checking case:
-            return _decodeSplitEscaped(0, -1);
-        }
-        return _decodeFastCharEscape();
-    }
-    
-    private final int _decodeFastCharEscape() throws IOException
-    {
-        int c = (int) _inputBuffer[_inputPtr++];
-        switch (c) {
-            // First, ones that are mapped
-        case 'b':
-            return '\b';
-        case 't':
-            return '\t';
-        case 'n':
-            return '\n';
-        case 'f':
-            return '\f';
-        case 'r':
-            return '\r';
-
-            // And these are to be returned as they are
-        case '"':
-        case '/':
-        case '\\':
-            return (char) c;
-
-        case 'u': // and finally hex-escaped
-            break;
-
-        default:
-            {
-             // !!! TODO: Decode UTF-8 characters properly...
-//              char ch = (char) _decodeCharForError(c);
-                char ch = (char) c;
-                return _handleUnrecognizedCharacterEscape(ch);
-            }
-        }
-
-        int ch = (int) _inputBuffer[_inputPtr++];
-        int digit = CharTypes.charToHex(ch);
-        int result = digit;
-
-        if (digit >= 0) {
-            ch = (int) _inputBuffer[_inputPtr++];
-            digit = CharTypes.charToHex(ch);
-            if (digit >= 0) {
-                result = (result << 4) | digit;
-                ch = (int) _inputBuffer[_inputPtr++];
-                digit = CharTypes.charToHex(ch);
-                if (digit >= 0) {
-                    result = (result << 4) | digit;
-                    ch = (int) _inputBuffer[_inputPtr++];
-                    digit = CharTypes.charToHex(ch);
-                    if (digit >= 0) {
-                        return (result << 4) | digit;
-                    }
-                }
-            }
-        }
-        _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
-        return -1;
-    }
 
     private int _decodeSplitEscaped(int value, int bytesRead) throws IOException
     {
@@ -2087,7 +2018,9 @@ public class NonBlockingJsonParser
             // otherwise use inlined
             switch (codes[c]) {
             case 1: // backslash
+                _inputPtr = ptr;
                 c = _decodeFastCharEscape(); // since we know it's not split
+                ptr = _inputPtr;
                 break;
             case 2: // 2-byte UTF
                 c = _decodeUTF8_2(c, _inputBuffer[ptr++]);
@@ -2225,6 +2158,7 @@ public class NonBlockingJsonParser
             if ((next & 0xC0) != 0x080) {
                 _reportInvalidOther(next & 0xFF, _inputPtr);
             }
+            prev = (prev << 6) | (next & 0x3F);
             if (_inputPtr >= _inputEnd) {
                 _minorState = MINOR_VALUE_STRING_UTF8_4;
                 _pending32 = prev;
@@ -2237,7 +2171,6 @@ public class NonBlockingJsonParser
             _reportInvalidOther(next & 0xFF, _inputPtr);
         }
         int c = ((prev << 6) | (next & 0x3F)) - 0x10000;
-
         // Let's add first part right away:
         _textBuffer.append((char) (0xD800 | (c >> 10)));
         c = 0xDC00 | (c & 0x3FF);
@@ -2246,11 +2179,78 @@ public class NonBlockingJsonParser
         return true;
     }
 
-    // !!! TODO: only temporarily here
+    /*
+    /**********************************************************************
+    /* Internal methods, UTF8 decoding
+    /**********************************************************************
+     */
 
-    private final boolean _loadMore() {
-        VersionUtil.throwInternal();
-        return false;
+    private final int _decodeCharEscape() throws IOException
+    {
+        int left = _inputEnd - _inputPtr;
+        if (left < 5) { // offline boundary-checking case:
+            return _decodeSplitEscaped(0, -1);
+        }
+        return _decodeFastCharEscape();
+    }
+
+    private final int _decodeFastCharEscape() throws IOException
+    {
+        int c = (int) _inputBuffer[_inputPtr++];
+        switch (c) {
+            // First, ones that are mapped
+        case 'b':
+            return '\b';
+        case 't':
+            return '\t';
+        case 'n':
+            return '\n';
+        case 'f':
+            return '\f';
+        case 'r':
+            return '\r';
+
+            // And these are to be returned as they are
+        case '"':
+        case '/':
+        case '\\':
+            return (char) c;
+
+        case 'u': // and finally hex-escaped
+            break;
+
+        default:
+            {
+             // !!! TODO: Decode UTF-8 characters properly...
+//              char ch = (char) _decodeCharForError(c);
+                char ch = (char) c;
+                return _handleUnrecognizedCharacterEscape(ch);
+            }
+        }
+
+        int ch = (int) _inputBuffer[_inputPtr++];
+        int digit = CharTypes.charToHex(ch);
+        int result = digit;
+
+        if (digit >= 0) {
+            ch = (int) _inputBuffer[_inputPtr++];
+            digit = CharTypes.charToHex(ch);
+            if (digit >= 0) {
+                result = (result << 4) | digit;
+                ch = (int) _inputBuffer[_inputPtr++];
+                digit = CharTypes.charToHex(ch);
+                if (digit >= 0) {
+                    result = (result << 4) | digit;
+                    ch = (int) _inputBuffer[_inputPtr++];
+                    digit = CharTypes.charToHex(ch);
+                    if (digit >= 0) {
+                        return (result << 4) | digit;
+                    }
+                }
+            }
+        }
+        _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
+        return -1;
     }
 
     /*
@@ -2296,5 +2296,17 @@ public class NonBlockingJsonParser
             _reportInvalidOther(f & 0xFF, _inputPtr);
         }
         return ((c << 6) | (f & 0x3F)) - 0x10000;
+    }
+
+    /*
+    /**********************************************************************
+    /* Internal methods, other
+    /**********************************************************************
+     */
+    // !!! TODO: only temporarily here
+
+    private final boolean _loadMore() {
+        VersionUtil.throwInternal();
+        return false;
     }
 }

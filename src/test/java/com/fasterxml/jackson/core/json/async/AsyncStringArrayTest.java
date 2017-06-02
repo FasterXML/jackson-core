@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.async;
+package com.fasterxml.jackson.core.json.async;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

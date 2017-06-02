@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.async;
+package com.fasterxml.jackson.core.json.async;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;

@@ -90,9 +90,9 @@ public class AsyncStringArrayTest extends AsyncTestBase
         byte[] data = _stringDoc(f, input);
 
         // first: require headers, no offsets
+        _testStrings(f, input, data, 0, 9000);
         _testStrings(f, input, data, 0, 1);
         _testStrings(f, input, data, 0, 3);
-        _testStrings(f, input, data, 0, 9000);
 
         // then with some offsets:
         _testStrings(f, input, data, 1, 9000);

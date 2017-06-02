@@ -94,8 +94,11 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_NUMBER_EXPONENT_MARKER = 25;
     protected final static int MINOR_NUMBER_EXPONENT_DIGITS = 27;
 
-    protected final static int MINOR_VALUE_STRING = 45;
-
+    protected final static int MINOR_VALUE_STRING = 30;
+    protected final static int MINOR_VALUE_STRING_ESCAPE = 31;
+    protected final static int MINOR_VALUE_STRING_UTF8_2 = 32;
+    protected final static int MINOR_VALUE_STRING_UTF8_3 = 33;
+    protected final static int MINOR_VALUE_STRING_UTF8_4 = 34;
 
     /**
      * Special state at which point decoding of a non-quoted token has encountered
@@ -748,6 +751,14 @@ public abstract class NonBlockingJsonParserBase
         _tokenInputCol = ptr - _currInputRowStart;
     }
 
+    protected void _reportInvalidChar(int c) throws JsonParseException {
+        // Either invalid WS or illegal UTF-8 start char
+        if (c < INT_SPACE) {
+            _throwInvalidSpace(c);
+        }
+        _reportInvalidInitial(c);
+    }
+    
     protected void _reportInvalidInitial(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -17,7 +18,7 @@ public class NonBlockingJsonParser
     implements ByteArrayFeeder
 {
     // This is the main input-code lookup table, fetched eagerly
-//    private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
+    private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
@@ -60,14 +61,6 @@ public class NonBlockingJsonParser
      * case we can simply choose max of two row candidates.
      */
     protected int _currInputRowAlt = 1;
-
-    /*
-    /**********************************************************************
-    /* Other state
-    /**********************************************************************
-     */
-
-    protected int _currentQuote;
 
     /*
     /**********************************************************************
@@ -268,6 +261,32 @@ public class NonBlockingJsonParser
             return _finishFloatExponent(true, _inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_NUMBER_EXPONENT_DIGITS:
             return _finishFloatExponent(false, _inputBuffer[_inputPtr++] & 0xFF);
+
+        case MINOR_VALUE_STRING:
+            return _finishRegularString();
+        case MINOR_VALUE_STRING_UTF8_2:
+            _textBuffer.append((char) _decodeUTF8_2(_pending32, _inputBuffer[_inputPtr++]));
+            return _finishRegularString();
+        case MINOR_VALUE_STRING_UTF8_3:
+            if (!_decodeSplitUTF8_3(_pending32, _pendingBytes, _inputBuffer[_inputPtr++])) {
+                return JsonToken.NOT_AVAILABLE;
+            }
+            return _finishRegularString();
+        case MINOR_VALUE_STRING_UTF8_4:
+            if (!_decodeSplitUTF8_3(_pending32, _pendingBytes, _inputBuffer[_inputPtr++])) {
+                return JsonToken.NOT_AVAILABLE;
+            }
+            return _finishRegularString();
+
+        case MINOR_VALUE_STRING_ESCAPE:
+            {
+                int c = _decodeSplitEscaped(_quoted32, _quotedDigits);
+                if (c < 0) {
+                    return JsonToken.NOT_AVAILABLE;
+                }
+                _textBuffer.append((char) c);
+            }
+            return _finishRegularString();
         }
         VersionUtil.throwInternal();
         return null;
@@ -397,7 +416,7 @@ public class NonBlockingJsonParser
         }
 
         if (ch == INT_QUOTE) {
-            return _startString(ch);
+            return _startString();
         }
         switch (ch) {
         case '-':
@@ -475,7 +494,7 @@ public class NonBlockingJsonParser
             }
         }
         if (ch == INT_QUOTE) {
-            return _startString(ch);
+            return _startString();
         }
         switch (ch) {
         case '-':
@@ -552,7 +571,7 @@ public class NonBlockingJsonParser
             }
         }
         if (ch == INT_QUOTE) {
-            return _startString(ch);
+            return _startString();
         }
         switch (ch) {
         case '-':
@@ -601,8 +620,10 @@ public class NonBlockingJsonParser
 
         switch (ch) {
         case '\'':
-            return _startString(ch);
-            
+            if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+                return _startAposString();
+            }
+            break;
         case ',':
             // If Feature.ALLOW_MISSING_VALUES is enabled we may allow "missing values",
             // that is, encountering a trailing comma or closing marker where value would be expected
@@ -1835,13 +1856,17 @@ public class NonBlockingJsonParser
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
     }
     
-    protected int _decodeCharEscape() throws IOException
+    private final int _decodeCharEscape() throws IOException
     {
         int left = _inputEnd - _inputPtr;
-
         if (left < 5) { // offline boundary-checking case:
             return _decodeSplitEscaped(0, -1);
         }
+        return _decodeFastCharEscape();
+    }
+    
+    private final int _decodeFastCharEscape() throws IOException
+    {
         int c = (int) _inputBuffer[_inputPtr++];
         switch (c) {
             // First, ones that are mapped
@@ -1906,7 +1931,6 @@ public class NonBlockingJsonParser
             _quotedDigits = bytesRead;
             return -1;
         }
-
         int c = _inputBuffer[_inputPtr++];
         if (bytesRead == -1) { // expecting first char after backslash
             switch (c) {
@@ -1926,7 +1950,7 @@ public class NonBlockingJsonParser
             case '"':
             case '/':
             case '\\':
-                return (char) c;
+                return c;
     
             case 'u': // and finally hex-escaped
                 break;
@@ -1972,10 +1996,254 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    protected JsonToken _startString(int q) throws IOException
+    protected JsonToken _startAposString() throws IOException
     {
-        _currentQuote = q;
+        VersionUtil.throwInternal();
         return null;
+    }
+
+    protected JsonToken _startString() throws IOException
+    {
+        int ptr = _inputPtr;
+        int outPtr = 0;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        final int[] codes = _icUTF8;
+
+        final int max = Math.min(_inputEnd, (ptr + outBuf.length));
+        final byte[] inputBuffer = _inputBuffer;
+        while (ptr < max) {
+            int c = (int) inputBuffer[ptr] & 0xFF;
+            if (codes[c] != 0) {
+                if (c == INT_QUOTE) {
+                    _inputPtr = ptr+1;
+                    _textBuffer.setCurrentLength(outPtr);
+                    return _valueComplete(JsonToken.VALUE_STRING);
+                }
+                break;
+            }
+            ++ptr;
+            outBuf[outPtr++] = (char) c;
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        _inputPtr = ptr;
+        return _finishRegularString();
+    }
+
+    private final JsonToken _finishRegularString() throws IOException
+    {
+        int c;
+
+        // Here we do want to do full decoding, hence:
+        final int[] codes = _icUTF8;
+        final byte[] inputBuffer = _inputBuffer;
+
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        int ptr = _inputPtr;
+        final int safeEnd = _inputEnd - 5; // longest escape is 6 chars
+        
+        main_loop:
+        while (true) {
+            // Then the tight ASCII non-funny-char loop:
+            ascii_loop:
+            while (true) {
+                if (ptr >= _inputEnd) {
+                    _inputPtr = ptr;
+                    _minorState = MINOR_VALUE_STRING;
+                    _textBuffer.setCurrentLength(outPtr);
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.finishCurrentSegment();
+                    outPtr = 0;
+                }
+                final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
+                while (ptr < max) {
+                    c = inputBuffer[ptr++] & 0xFF;
+                    if (codes[c] != 0) {
+                        break ascii_loop;
+                    }
+                    outBuf[outPtr++] = (char) c;
+                }
+            }
+            // Ok: end marker, escape or multi-byte?
+            if (c == INT_QUOTE) {
+                _inputPtr = ptr;
+                _textBuffer.setCurrentLength(outPtr);
+                return _valueComplete(JsonToken.VALUE_STRING);
+            }
+            // If possibly split, use off-lined longer version
+            if (ptr >= safeEnd) {
+                _inputPtr = ptr;
+                _textBuffer.setCurrentLength(outPtr);
+                if (!_decodeSplitMultiByte(c, codes[c], ptr < _inputEnd)) {
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                outBuf = _textBuffer.getBufferWithoutReset();
+                outPtr = _textBuffer.getCurrentSegmentSize();
+                ptr = _inputPtr;
+                continue main_loop;
+            }
+            // otherwise use inlined
+            switch (codes[c]) {
+            case 1: // backslash
+                c = _decodeFastCharEscape(); // since we know it's not split
+                break;
+            case 2: // 2-byte UTF
+                c = _decodeUTF8_2(c, _inputBuffer[ptr++]);
+                break;
+            case 3: // 3-byte UTF
+                c = _decodeUTF8_3(c, _inputBuffer[ptr++], _inputBuffer[ptr++]);
+                break;
+            case 4: // 4-byte UTF
+                c = _decodeUTF8_4(c, _inputBuffer[ptr++], _inputBuffer[ptr++],
+                        _inputBuffer[ptr++]);
+                // Let's add first part right away:
+                outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.finishCurrentSegment();
+                    outPtr = 0;
+                }
+                c = 0xDC00 | (c & 0x3FF);
+                // And let the other char output down below
+                break;
+            default:
+                if (c < INT_SPACE) {
+                    // Note: call can now actually return (to allow unquoted linefeeds)
+                    _throwUnquotedSpace(c, "string value");
+                } else {
+                    // Is this good enough error message?
+                    _reportInvalidChar(c);
+                }
+            }
+            // Need more room?
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
+            // Ok, let's add char to output:
+            outBuf[outPtr++] = (char) c;
+        }
+    }
+
+    private final boolean _decodeSplitMultiByte(int c, int type, boolean gotNext)
+            throws IOException
+    {
+        switch (type) {
+        case 1:
+            c = _decodeSplitEscaped(0, -1);
+            if (c < 0) {
+                _minorState = MINOR_VALUE_STRING_ESCAPE;
+                return false;
+            }
+            _textBuffer.append((char) c);
+            return true;
+        case 2: // 2-byte UTF; easy, either got both, or just miss one
+            if (gotNext) {
+                // NOTE: always succeeds, no need to check
+                c = _decodeUTF8_2(c, _inputBuffer[_inputPtr++]);
+                _textBuffer.append((char) c);
+                return true;
+            }
+            _minorState = MINOR_VALUE_STRING_UTF8_2;
+            _pending32 = c;
+            return false;
+        case 3: // 3-byte UTF
+            c &= 0x0F;
+            if (gotNext) {
+                return _decodeSplitUTF8_3(c, 1, _inputBuffer[_inputPtr++]);
+            }
+            _minorState = MINOR_VALUE_STRING_UTF8_3;
+            _pending32 = c;
+            _pendingBytes = 1;
+            return false;
+        case 4: // 4-byte UTF
+            c &= 0x07;
+            if (gotNext) {
+                return _decodeSplitUTF8_4(c, 1, _inputBuffer[_inputPtr++]);
+            }
+            _pending32 = c;
+            _pendingBytes = 1;
+            _minorState = MINOR_VALUE_STRING_UTF8_4;
+            return false;
+        default:
+            if (c < INT_SPACE) {
+                // Note: call can now actually return (to allow unquoted linefeeds)
+                _throwUnquotedSpace(c, "string value");
+            } else {
+                // Is this good enough error message?
+                _reportInvalidChar(c);
+            }
+            _textBuffer.append((char) c);
+            return true;
+        }
+    }
+
+    private final boolean _decodeSplitUTF8_3(int prev, int prevCount, int next)
+        throws IOException
+    {
+        if (prevCount == 1) {
+            if ((next & 0xC0) != 0x080) {
+                _reportInvalidOther(next & 0xFF, _inputPtr);
+            }
+            prev = (prev << 6) | (next & 0x3F);
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_VALUE_STRING_UTF8_3;
+                _pending32 = prev;
+                _pendingBytes = 2;
+                return false;
+            }
+            next = _inputBuffer[_inputPtr++];
+        }
+        if ((next & 0xC0) != 0x080) {
+            _reportInvalidOther(next & 0xFF, _inputPtr);
+        }
+        _textBuffer.append((char) ((prev << 6) | (next & 0x3F)));
+        return true;
+    }
+
+    // @return Character value <b>minus 0x10000</c>; this so that caller
+    //    can readily expand it to actual surrogates
+    private final boolean _decodeSplitUTF8_4(int prev, int prevCount, int next)
+        throws IOException
+    {
+        if (prevCount == 1) {
+            if ((next & 0xC0) != 0x080) {
+                _reportInvalidOther(next & 0xFF, _inputPtr);
+            }
+            prev = (prev << 6) | (next & 0x3F);
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_VALUE_STRING_UTF8_4;
+                _pending32 = prev;
+                _pendingBytes = 2;
+                return false;
+            }
+            prevCount = 2;
+            next = _inputBuffer[_inputPtr++];
+        }
+        if (prevCount == 2) {
+            if ((next & 0xC0) != 0x080) {
+                _reportInvalidOther(next & 0xFF, _inputPtr);
+            }
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_VALUE_STRING_UTF8_4;
+                _pending32 = prev;
+                _pendingBytes = 3;
+                return false;
+            }
+            next = _inputBuffer[_inputPtr++];
+        }
+        if ((next & 0xC0) != 0x080) {
+            _reportInvalidOther(next & 0xFF, _inputPtr);
+        }
+        int c = ((prev << 6) | (next & 0x3F)) - 0x10000;
+
+        // Let's add first part right away:
+        _textBuffer.append((char) (0xD800 | (c >> 10)));
+        c = 0xDC00 | (c & 0x3FF);
+        // And let the other char output down below
+        _textBuffer.append((char) c);
+        return true;
     }
 
     // !!! TODO: only temporarily here
@@ -1983,5 +2251,50 @@ public class NonBlockingJsonParser
     private final boolean _loadMore() {
         VersionUtil.throwInternal();
         return false;
+    }
+
+    /*
+    /**********************************************************************
+    /* Internal methods, UTF8 decoding
+    /**********************************************************************
+     */
+
+    private final int _decodeUTF8_2(int c, int d) throws IOException
+    {
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
+        }
+        return ((c & 0x1F) << 6) | (d & 0x3F);
+    }
+
+    private final int _decodeUTF8_3(int c, int d, int e) throws IOException
+    {
+        c &= 0x0F;
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
+        }
+        c = (c << 6) | (d & 0x3F);
+        if ((e & 0xC0) != 0x080) {
+            _reportInvalidOther(e & 0xFF, _inputPtr);
+        }
+        return (c << 6) | (e & 0x3F);
+    }
+
+    // @return Character value <b>minus 0x10000</c>; this so that caller
+    //    can readily expand it to actual surrogates
+    private final int _decodeUTF8_4(int c, int d, int e, int f) throws IOException
+    {
+        if ((d & 0xC0) != 0x080) {
+            _reportInvalidOther(d & 0xFF, _inputPtr);
+        }
+        c = ((c & 0x07) << 6) | (d & 0x3F);
+        if ((e & 0xC0) != 0x080) {
+            _reportInvalidOther(e & 0xFF, _inputPtr);
+        }
+        c = (c << 6) | (e & 0x3F);
+        if ((f & 0xC0) != 0x080) {
+            _reportInvalidOther(f & 0xFF, _inputPtr);
+        }
+        return ((c << 6) | (f & 0x3F)) - 0x10000;
     }
 }

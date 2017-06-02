@@ -1,9 +1,10 @@
-package com.fasterxml.jackson.core.async;
+package com.fasterxml.jackson.core.json.async;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncRootValuesTest extends AsyncTestBase

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.async;
+package com.fasterxml.jackson.core.json.async;
 
 import java.io.IOException;
 
@@ -17,15 +17,7 @@ public class AsyncStringObjectTest extends AsyncTestBase
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testBasicFieldsNamesSharedNames() throws IOException {
-        _testBasicFieldsNames(true);
-    }
-
-    public void testBasicFieldsNamesNonShared() throws IOException {
-        _testBasicFieldsNames(false);
-    }
-
-    private void _testBasicFieldsNames(boolean sharedNames) throws IOException
+    public void testBasicFieldsNames() throws IOException
     {
         final String json = aposToQuotes(String.format("{'%s':'%s','%s':'%s','%s':'%s'}",
             UNICODE_SHORT_NAME, UNICODE_LONG_NAME,

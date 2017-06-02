@@ -3,16 +3,13 @@ package com.fasterxml.jackson.core.io;
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-import org.junit.Test;
 
 import java.io.CharConversionException;
 import java.io.IOException;
 
-/**
- * Test experiment
- */
 public class TestUTF32Reader extends BaseTest {
 
+    // Make sure that invalid input is handled reasonably.
     public void testInvalidInput() throws IOException {
         byte[] data = {
                 0x00,
@@ -26,12 +23,12 @@ public class TestUTF32Reader extends BaseTest {
                 (byte) 0xFB
         };
 
-        JsonFactory FACTORY = new JsonFactory();
-        JsonParser parser = FACTORY.createParser(data);
+        JsonFactory factory = new JsonFactory();
+        JsonParser parser = factory.createParser(data);
         try {
             parser.nextToken();
         } catch (CharConversionException e) {
-            return; //
+            return;
         }
         fail("Should have thrown a CharConversionException");
     }

@@ -109,8 +109,8 @@ public class UTF32Reader extends Reader
             reportBounds(cbuf, start, len);
         }
 
-        len += start;
         int outPtr = start;
+        final int outEnd = len+start;
 
         // Ok, first; do we have a surrogate from last round?
         if (_surrogate != NC) {
@@ -118,57 +118,63 @@ public class UTF32Reader extends Reader
             _surrogate = NC;
             // No need to load more, already got one char
         } else {
-            /* Note: we'll try to avoid blocking as much as possible. As a
-             * result, we only need to get 4 bytes for a full char.
-             */
+            // Note: we'll try to avoid blocking as much as possible. As a
+            // result, we only need to get 4 bytes for a full char.
             int left = (_length - _ptr);
             if (left < 4) {
                 if (!loadMore(left)) { // (legal) EOF?
-                    return -1;
+                    // Ok if (but only if!) was at boundary
+                    if (left == 0) {
+                        return -1;
+                    }
+                    reportUnexpectedEOF(_length - _ptr, 4);
                 }
             }
         }
 
+        // 02-Jun-2017, tatu: Must ensure we don't try to read past buffer end:
+        final int _lastValidInputStart = (_length - 3);
+        
         main_loop:
-        while (outPtr < len) {
+        while (outPtr < outEnd) {
             int ptr = _ptr;
-            int ch;
+            int hi, lo;
 
             if (_bigEndian) {
-                ch = (_buffer[ptr] << 24) | ((_buffer[ptr+1] & 0xFF) << 16)
-                    | ((_buffer[ptr+2] & 0xFF) << 8) | (_buffer[ptr+3] & 0xFF);
+                hi = (_buffer[ptr] << 8) | (_buffer[ptr+1] & 0xFF);
+                lo = ((_buffer[ptr+2] & 0xFF) << 8) | (_buffer[ptr+3] & 0xFF);
             } else {
-                ch = (_buffer[ptr] & 0xFF) | ((_buffer[ptr+1] & 0xFF) << 8)
-                    | ((_buffer[ptr+2] & 0xFF) << 16) | (_buffer[ptr+3] << 24);
+                lo = (_buffer[ptr] & 0xFF) | ((_buffer[ptr+1] & 0xFF) << 8);
+                hi = (_buffer[ptr+2] & 0xFF)| (_buffer[ptr+3] << 8);
             }
             _ptr += 4;
 
             // Does it need to be split to surrogates?
             // (also, we can and need to verify illegal chars)
-            if (ch > 0xFFFF) { // need to split into surrogates?
-                if (ch > LAST_VALID_UNICODE_CHAR) {
+            if (hi != 0) { // need to split into surrogates?
+                hi &= 0xFFFF; // since it may be sign extended
+                int ch = ((hi - 1) << 16) | lo; // ch -= 0x10000; to normalize starting with 0x0
+                if (hi > 0x10) { // last valid is 0x10FFFF
                     reportInvalid(ch, outPtr-start,
-                                  "(above "+Integer.toHexString(LAST_VALID_UNICODE_CHAR)+") ");
+                            String.format(" (above 0x%08x)", LAST_VALID_UNICODE_CHAR));
                 }
-                ch -= 0x10000; // to normalize it starting with 0x0
                 cbuf[outPtr++] = (char) (0xD800 + (ch >> 10));
                 // hmmh. can this ever be 0? (not legal, at least?)
-                ch = (0xDC00 | (ch & 0x03FF));
+                lo = (0xDC00 | (ch & 0x03FF));
                 // Room for second part?
-                if (outPtr >= len) { // nope
+                if (outPtr >= outEnd) { // nope
                     _surrogate = (char) ch;
                     break main_loop;
                 }
             }
-            cbuf[outPtr++] = (char) ch;
-            if (_ptr >= _length) {
+            cbuf[outPtr++] = (char) lo;
+            if (_ptr > _lastValidInputStart) {
                 break main_loop;
             }
         }
-
-        len = outPtr - start;
-        _charCount += len;
-        return len;
+        int actualLen = (outPtr - start);
+        _charCount += actualLen;
+        return actualLen;
     }
 
     /*

@@ -115,3 +115,7 @@ Alessio Soldano (asoldano@github)
 Arnaud Roger (arnaudroger@github)
   * Contributed #359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
    (2.8.8)
+
+Wil Selwood (wselwood@github)
+  * Reported #382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
+   (2.8.9)

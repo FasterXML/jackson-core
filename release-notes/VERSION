@@ -18,6 +18,11 @@ JSON library.
 
 #304: Optimize `NumberOutput.outputLong()` method
 
+2.8.9 (not yet released)
+
+#382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
+ (reported by Wil S)
+
 2.8.8 (05-Apr-2017)
 
 #359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)

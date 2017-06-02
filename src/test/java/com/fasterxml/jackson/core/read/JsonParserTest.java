@@ -13,8 +13,7 @@ import java.util.*;
  * functionality works as expected.
  */
 @SuppressWarnings("resource")
-public class JsonParserTest
-    extends com.fasterxml.jackson.core.BaseTest
+public class JsonParserTest extends BaseTest
 {
     public void testConfig() throws Exception
     {

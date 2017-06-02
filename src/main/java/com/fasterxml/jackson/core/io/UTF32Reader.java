@@ -134,6 +134,10 @@ public class UTF32Reader extends Reader
             int ptr = _ptr;
             int ch;
 
+            if (_buffer.length < ptr + 4) {
+                reportUnexpectedEOF(_buffer.length - ptr, 4);
+            }
+
             if (_bigEndian) {
                 ch = (_buffer[ptr] << 24) | ((_buffer[ptr+1] & 0xFF) << 16)
                     | ((_buffer[ptr+2] & 0xFF) << 8) | (_buffer[ptr+3] & 0xFF);

@@ -479,7 +479,7 @@ public class UTF8StreamJsonParser
         }
         return 0;
     }
-    
+
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
@@ -3566,7 +3566,6 @@ public class UTF8StreamJsonParser
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
 
-        //main_loop:
         while (true) {
             // first, we'll skip preceding white space, if any
             int ch;

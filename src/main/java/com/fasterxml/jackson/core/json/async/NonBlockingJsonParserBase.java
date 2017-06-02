@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
 
@@ -437,10 +438,25 @@ public abstract class NonBlockingJsonParserBase
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
-        if (_currToken != JsonToken.VALUE_EMBEDDED_OBJECT ) {
-            _reportError("Current token (%s) not VALUE_EMBEDDED_OBJECT, can not access as binary", _currToken);
+        if (_currToken != JsonToken.VALUE_STRING) {
+            _reportError("Current token (%s) not VALUE_STRING or VALUE_EMBEDDED_OBJECT, can not access as binary",
+                    _currToken);
+        }
+        if (_binaryValue == null) {
+            @SuppressWarnings("resource")
+            ByteArrayBuilder builder = _getByteArrayBuilder();
+            _decodeBase64(getText(), builder, b64variant);
+            _binaryValue = builder.toByteArray();
         }
         return _binaryValue;
+    }
+
+    @Override
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException
+    {
+        byte[] b = getBinaryValue(b64variant);
+        out.write(b);
+        return b.length;
     }
 
     @Override
@@ -450,16 +466,6 @@ public abstract class NonBlockingJsonParserBase
             return _binaryValue;
         }
         return null;
-    }
-
-    @Override
-    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
-            throws IOException {
-        if (_currToken != JsonToken.VALUE_EMBEDDED_OBJECT ) {
-            _reportError("Current token (%s) not VALUE_EMBEDDED_OBJECT, can not access as binary", _currToken);
-        }
-        out.write(_binaryValue);
-        return _binaryValue.length;
     }
 
     /*

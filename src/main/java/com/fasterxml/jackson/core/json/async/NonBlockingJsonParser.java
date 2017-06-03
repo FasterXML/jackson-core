@@ -253,7 +253,8 @@ public class NonBlockingJsonParser
         case MINOR_NUMBER_LEADING_ZERO:
             return _finishNumberLeadingZeroes();
         case MINOR_NUMBER_INTEGER_DIGITS:
-            return _finishNumberIntegralPart();
+            return _finishNumberIntegralPart(_textBuffer.getBufferWithoutReset(),
+                    _textBuffer.getCurrentSegmentSize());
         case MINOR_NUMBER_FRACTION_DIGITS:
             return _finishFloatFraction();
         case MINOR_NUMBER_EXPONENT_MARKER:
@@ -980,7 +981,7 @@ public class NonBlockingJsonParser
             if (_inputPtr >= _inputEnd) {
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            int ch = _inputBuffer[_inputPtr] & 0xFF;
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
             if (ch <= INT_0) {
                 if (ch == INT_PERIOD) {
                     _intLength = 1;
@@ -995,8 +996,7 @@ public class NonBlockingJsonParser
                     if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
                         reportInvalidNumber("Leading zeroes not allowed");
                     }
-                } else {
-                    break;
+                    continue;
                 }
             } else if (ch > INT_9) {
                 if (ch == INT_e || ch == INT_E) {
@@ -1013,18 +1013,14 @@ public class NonBlockingJsonParser
                     reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
-                break;
             } else { // Number between 1 and 9; go integral
-                return _finishNumberIntegralPart();
+                --_inputPtr;
+                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
+                return _finishNumberIntegralPart(_textBuffer.emptyAndGetCurrentSegment(), 0);
             }
-
-            // If we stay here, it means we are skipping zeroes...
-            if (_inputPtr >= _inputEnd) {
-                // already got appropriate state set up so...
-                return JsonToken.NOT_AVAILABLE;
-            }
+            --_inputPtr;
+            return _valueCompleteInt(0, "0");
         }
-        return _valueCompleteInt(0, "0");
     }
 
     protected JsonToken _finishNumberLeadingMinus(int ch) throws IOException
@@ -1044,15 +1040,12 @@ public class NonBlockingJsonParser
         outBuf[0] = '-';
         outBuf[1] = (char) ch;
         _intLength = 1;
-        _textBuffer.setCurrentLength(2);
         _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-        return _finishNumberIntegralPart();
+        return _finishNumberIntegralPart(outBuf, 2);
     }
 
-    protected JsonToken _finishNumberIntegralPart() throws IOException
+    protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException
     {
-        char[] outBuf = _textBuffer.getBufferWithoutReset();
-        int outPtr = _textBuffer.getCurrentSegmentSize();
         int negMod = _numberNegative ? -1 : 0;
 
         while (true) {

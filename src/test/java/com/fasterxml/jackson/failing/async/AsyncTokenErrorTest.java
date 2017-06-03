@@ -112,7 +112,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
         p.close();
     }
-    
+
     private AsyncReaderWrapper _createParser(String doc) throws IOException
     {
         return asyncForBytes(JSON_F, 1, _jsonDoc(doc), 1);

@@ -9,27 +9,31 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 public class AsyncTokenErrorTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
-    
-    public void testInvalidKeywords() throws Exception
+
+    public void testInvalidKeywordsStartOk() throws Exception
     {
-        doTestInvalidKeyword1("nul");
-        doTestInvalidKeyword1("Null");
-        doTestInvalidKeyword1("nulla");
-        doTestInvalidKeyword1("fal");
-        doTestInvalidKeyword1("False");
-        doTestInvalidKeyword1("fals0");
-        doTestInvalidKeyword1("falsett0");
-        doTestInvalidKeyword1("tr");
-        doTestInvalidKeyword1("truE");
-        doTestInvalidKeyword1("treu");
-        doTestInvalidKeyword1("trueenough");
-        doTestInvalidKeyword1("C");
+        _doTestInvalidKeyword("nul");
+        _doTestInvalidKeyword("nulla");
+        _doTestInvalidKeyword("fal");
+        _doTestInvalidKeyword("fals0");
+        _doTestInvalidKeyword("falsett0");
+        _doTestInvalidKeyword("tr");
+        _doTestInvalidKeyword("truE");
+        _doTestInvalidKeyword("treu");
+        _doTestInvalidKeyword("trueenough");
     }
 
-    private void doTestInvalidKeyword1(String value) throws IOException
+    public void testInvalidKeywordsStartFail() throws Exception
+    {
+        _doTestInvalidKeyword("Null");
+        _doTestInvalidKeyword("False");
+        _doTestInvalidKeyword("C");
+    }
+
+    private void _doTestInvalidKeyword(String value) throws IOException
     {
         String doc = "{ \"key1\" : "+value+" }";
-        AsyncReaderWrapper p = createParser(doc);
+        AsyncReaderWrapper p = _createParser(doc);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         // Note that depending on parser impl, we may
         // get the exception early or late...
@@ -46,7 +50,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
 
         // Try as root-level value as well:
         doc = value + " "; // may need space after for DataInput
-        p = createParser(doc);
+        p = _createParser(doc);
         try {
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
@@ -58,21 +62,35 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
-    public void testMangledNumbers() throws Exception
+    public void testMangledRootInts() throws Exception
     {
-        String doc = "123true";
-        AsyncReaderWrapper p = createParser(doc);
+        AsyncReaderWrapper p = _createParser("123true");
         try {
             JsonToken t = p.nextToken();
-            fail("Should have gotten an exception; instead got token: "+t);
+            fail("Should have gotten an exception; instead got token: "+t+"; number: "+p.getNumberValue());
         } catch (JsonParseException e) {
             verifyException(e, "expected space");
         }
         p.close();
+    }
 
+    public void testMangledRootFloats() throws Exception
+    {
         // Also test with floats
-        doc = "1.5false";
-        p = createParser(doc);
+        AsyncReaderWrapper p = _createParser("1.5false");
+        try {
+            JsonToken t = p.nextToken();
+            fail("Should have gotten an exception; instead got token: "+t+"; number: "+p.getNumberValue());
+        } catch (JsonParseException e) {
+            verifyException(e, "expected space");
+        }
+        p.close();
+    }
+
+    public void testMangledNonRootInts() throws Exception
+    {
+        AsyncReaderWrapper p = _createParser("[ 123true ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
@@ -82,7 +100,20 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         p.close();
     }
 
-    private AsyncReaderWrapper createParser(String doc) throws IOException
+    public void testMangledNonRootFloats() throws Exception
+    {
+        AsyncReaderWrapper p = _createParser("[ 1.5false ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            JsonToken t = p.nextToken();
+            fail("Should have gotten an exception; instead got token: "+t);
+        } catch (JsonParseException e) {
+            verifyException(e, "expected space");
+        }
+        p.close();
+    }
+    
+    private AsyncReaderWrapper _createParser(String doc) throws IOException
     {
         return asyncForBytes(JSON_F, 1, _jsonDoc(doc), 1);
     }

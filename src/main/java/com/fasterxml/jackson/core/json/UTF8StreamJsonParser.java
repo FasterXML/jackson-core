@@ -1982,7 +1982,7 @@ public class UTF8StreamJsonParser
     protected String _handleOddName(int ch) throws IOException
     {
         // First: may allow single quotes
-        if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+        if (ch == INT_APOS && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
             return _parseAposName();
         }
         // Allow unquoted names if feature enabled:
@@ -2059,7 +2059,7 @@ public class UTF8StreamJsonParser
             }
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
-        if (ch == '\'') { // special case, ''
+        if (ch == INT_APOS) { // special case, ''
             return "";
         }
         int[] quads = _quadBuffer;
@@ -2072,7 +2072,7 @@ public class UTF8StreamJsonParser
         final int[] codes = _icLatin1;
 
         while (true) {
-            if (ch == '\'') {
+            if (ch == INT_APOS) {
                 break;
             }
             // additional check to skip handling of double-quotes
@@ -2658,7 +2658,7 @@ public class UTF8StreamJsonParser
                 }
                 while (_inputPtr < max) {
                     c = (int) inputBuffer[_inputPtr++] & 0xFF;
-                    if (c == '\'' || codes[c] != 0) {
+                    if (c == INT_APOS || codes[c] != 0) {
                         break ascii_loop;
                     }
                     outBuf[outPtr++] = (char) c;
@@ -2666,7 +2666,7 @@ public class UTF8StreamJsonParser
             }
 
             // Ok: end marker, escape or multi-byte?
-            if (c == '\'') {
+            if (c == INT_APOS) {
                 break main_loop;
             }
 

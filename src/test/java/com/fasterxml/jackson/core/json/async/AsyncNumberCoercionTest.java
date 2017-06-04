@@ -46,6 +46,12 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
         assertEquals(2, p.getIntValue());
         p.close();
 
+        p = createParser("0.1");
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(0.1, p.getDoubleValue());
+        assertEquals(0, p.getIntValue());
+        p.close();
+        
         // BigDecimal->int
         p = createParser("10");
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

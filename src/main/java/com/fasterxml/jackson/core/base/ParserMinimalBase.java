@@ -36,6 +36,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_LCURLY = '{';
     protected final static int INT_RCURLY = '}';
     protected final static int INT_QUOTE = '"';
+    protected final static int INT_APOS = '\'';
     protected final static int INT_BACKSLASH = '\\';
     protected final static int INT_SLASH = '/';
     protected final static int INT_COLON = ':';

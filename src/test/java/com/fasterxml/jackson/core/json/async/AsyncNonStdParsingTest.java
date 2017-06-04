@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.async;
+package com.fasterxml.jackson.core.json.async;
 
 import java.io.IOException;
 
@@ -8,11 +8,13 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNonStdParsingTest extends AsyncTestBase
 {
-    public void testLargeUnquoted() throws Exception
+    public void testLargeUnquotedNames() throws Exception
     {
+        JsonFactory f = new JsonFactory();
+        f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+
         StringBuilder sb = new StringBuilder(5000);
         sb.append("[\n");
-        //final int REPS = 2000;
         final int REPS = 1050;
         for (int i = 0; i < REPS; ++i) {
             if (i > 0) {
@@ -27,12 +29,24 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
             sb.append("}\n");
         }
         sb.append("]");
-        String JSON = sb.toString();
-        JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        AsyncReaderWrapper p = createParser(f, JSON);
+        String doc = sb.toString();
+
+        _testLargeUnquoted(f, REPS, doc, 0, 99);
+        _testLargeUnquoted(f, REPS, doc, 0, 5);
+        _testLargeUnquoted(f, REPS, doc, 0, 3);
+        _testLargeUnquoted(f, REPS, doc, 0, 2);
+        _testLargeUnquoted(f, REPS, doc, 0, 1);
+
+        _testLargeUnquoted(f, REPS, doc, 1, 99);
+        _testLargeUnquoted(f, REPS, doc, 1, 1);
+    }
+
+    private void _testLargeUnquoted(JsonFactory f, int reps, String doc,
+            int offset, int readSize) throws Exception
+    {
+        AsyncReaderWrapper p = createParser(f, doc);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        for (int i = 0; i < REPS; ++i) {
+        for (int i = 0; i < reps; ++i) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
             assertEquals("abc"+(i&127), p.currentName());
@@ -43,13 +57,27 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testSimpleUnquoted() throws Exception
+    public void testSimpleUnquotedNames() throws Exception
     {
         final JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-        String JSON = "{ a : 1, _foo:true, $:\"money!\", \" \":null }";
-        AsyncReaderWrapper p = createParser(f, JSON);
+        _testSimpleUnquoted(f, 0, 99);
+        _testSimpleUnquoted(f, 0, 5);
+        _testSimpleUnquoted(f, 0, 3);
+        _testSimpleUnquoted(f, 0, 2);
+        _testSimpleUnquoted(f, 0, 1);
+
+        _testSimpleUnquoted(f, 1, 99);
+        _testSimpleUnquoted(f, 1, 3);
+        _testSimpleUnquoted(f, 1, 1);
+    }
+    
+    private void _testSimpleUnquoted(JsonFactory f,
+            int offset, int readSize) throws Exception
+    {
+        String doc = "{ a : 1, _foo:true, $:\"money!\", \" \":null }";
+        AsyncReaderWrapper p = createParser(f, doc);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
@@ -72,10 +100,9 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
 
-        // Another thing, as per [Issue#102]: numbers
+        // Another thing, as per [jackson-cre#102]: numbers
 
-        JSON = "{ 123:true,4:false }";
-        p = createParser(f, JSON);
+        p = createParser(f, "{ 123:true,4:false }");
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
@@ -98,6 +125,18 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     public void testSingleQuotesDefault() throws Exception
     {
         JsonFactory f = new JsonFactory();
+        _testSingleQuotesDefault(f, 0, 99);
+        _testSingleQuotesDefault(f, 0, 5);
+        _testSingleQuotesDefault(f, 0, 3);
+        _testSingleQuotesDefault(f, 0, 1);
+
+        _testSingleQuotesDefault(f, 1, 99);
+        _testSingleQuotesDefault(f, 1, 1);
+    }
+
+    private void _testSingleQuotesDefault(JsonFactory f,
+            int offset, int readSize) throws Exception
+    {
         // First, let's see that by default they are not allowed
         String JSON = "[ 'text' ]";
         AsyncReaderWrapper p = createParser(f, JSON);
@@ -129,11 +168,23 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
      * single quotes, to allow handling invalid (but, alas, common)
      * JSON.
      */
-    public void testSingleQuotesEnabled() throws Exception
+    public void testAposQuotingEnabled() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 
+        _testAposQuotingEnabled(f, 0, 99);
+        _testAposQuotingEnabled(f, 0, 5);
+        _testAposQuotingEnabled(f, 0, 3);
+        _testAposQuotingEnabled(f, 0, 1);
+
+        _testAposQuotingEnabled(f, 1, 99);
+        _testAposQuotingEnabled(f, 1, 1);
+    }
+
+    private void _testAposQuotingEnabled(JsonFactory f,
+            int offset, int readSize) throws Exception
+    {
         String JSON = "{ 'a' : 1, \"foobar\": 'b', '_abcde1234':'d', '\"' : '\"\"', '':'' }";
         AsyncReaderWrapper p = createParser(f, JSON);
 
@@ -154,7 +205,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("\"", p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        //assertEquals("\"\"", p.currentText());
+        assertEquals("\"\"", p.currentText());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("", p.currentText());
@@ -211,6 +262,18 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 
+        _testSingleQuotesEscaped(f, 0, 99);
+        _testSingleQuotesEscaped(f, 0, 5);
+        _testSingleQuotesEscaped(f, 0, 3);
+        _testSingleQuotesEscaped(f, 0, 1);
+
+        _testSingleQuotesEscaped(f, 1, 99);
+        _testSingleQuotesEscaped(f, 1, 1);
+    }
+        
+    private void _testSingleQuotesEscaped(JsonFactory f,
+            int offset, int readSize) throws Exception
+    {
         String JSON = "[ '16\\'' ]";
         AsyncReaderWrapper p = createParser(f, JSON);
 
@@ -220,11 +283,24 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
-    
+
     public void testNonStandardNameChars() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+
+        _testNonStandardNameChars(f, 0, 99);
+        _testNonStandardNameChars(f, 0, 6);
+        _testNonStandardNameChars(f, 0, 3);
+        _testNonStandardNameChars(f, 0, 1);
+
+        _testNonStandardNameChars(f, 1, 99);
+        _testNonStandardNameChars(f, 2, 1);
+    }
+
+    private void _testNonStandardNameChars(JsonFactory f,
+            int offset, int readSize) throws Exception
+    {
         String JSON = "{ @type : \"mytype\", #color : 123, *error* : true, "
             +" hyphen-ated : \"yes\", me+my : null"
             +"}";
@@ -259,7 +335,19 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testNonStandarBackslashQuoting(int mode) throws Exception
+    public void testNonStandarBackslashQuotingForValues(int mode) throws Exception
+    {
+        _testNonStandarBackslashQuoting(0, 99);
+        _testNonStandarBackslashQuoting(0, 6);
+        _testNonStandarBackslashQuoting(0, 3);
+        _testNonStandarBackslashQuoting(0, 1);
+
+        _testNonStandarBackslashQuoting(2, 99);
+        _testNonStandarBackslashQuoting(1, 1);
+    }
+
+    private void _testNonStandarBackslashQuoting(
+            int offset, int readSize) throws Exception
     {
         // first: verify that we get an exception
         JsonFactory f = new JsonFactory();

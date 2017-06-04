@@ -557,13 +557,16 @@ public final class ByteQuadsCanonicalizer
          * that contains actual quads.
          */
         if (qlen < 4) { // another sanity check
-            if (qlen == 3) {
+            switch (qlen) {
+            case 3:
                 return findName(q[0], q[1], q[2]);
-            }
-            if (qlen == 2) {
+            case 2:
                 return findName(q[0], q[1]);
+            case 1:
+                return findName(q[0]);
+            default: // if 0 ever passed
+                return "";
             }
-            return findName(q[0]);
         }
         final int hash = calcHash(q, qlen);
         int offset = _calcOffset(hash);

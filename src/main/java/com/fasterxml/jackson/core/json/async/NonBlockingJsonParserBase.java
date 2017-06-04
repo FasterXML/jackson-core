@@ -79,6 +79,9 @@ public abstract class NonBlockingJsonParserBase
     // encountered either just backslash, or backslash and 'u' and 0 - 3 hex digits,
     protected final static int MINOR_FIELD_NAME_ESCAPE = 11;
 
+    protected final static int MINOR_FIELD_APOS_NAME = 12;
+    protected final static int MINOR_FIELD_UNQUOTED_NAME = 13;
+    
     protected final static int MINOR_VALUE_LEADING_WS = 14;
     protected final static int MINOR_VALUE_LEADING_COMMA = 15;
     protected final static int MINOR_VALUE_LEADING_COLON = 16;
@@ -100,6 +103,7 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_VALUE_STRING_UTF8_2 = 32;
     protected final static int MINOR_VALUE_STRING_UTF8_3 = 33;
     protected final static int MINOR_VALUE_STRING_UTF8_4 = 34;
+    protected final static int MINOR_VALUE_APOS_STRING = 35;
 
     /**
      * Special state at which point decoding of a non-quoted token has encountered
@@ -145,19 +149,25 @@ public abstract class NonBlockingJsonParserBase
      */
 
     /**
-     * Current main decoding state
+     * Current main decoding state within logical tree
      */
     protected int _majorState;
-
-    /**
-     * Addition indicator within state; contextually relevant for just that state
-     */
-    protected int _minorState;
 
     /**
      * Value of {@link #_majorState} after completing a scalar value
      */
     protected int _majorStateAfterValue;
+
+    /**
+     * Additional indicator within state; contextually relevant for just that state
+     */
+    protected int _minorState;
+
+    /**
+     * Secondary minor state indicator used during decoding of escapes and/or
+     * multi-byte Unicode characters
+     */
+    protected int _minorStateAfterSplit;
 
     /**
      * Flag that is sent when calling application indicates that there will

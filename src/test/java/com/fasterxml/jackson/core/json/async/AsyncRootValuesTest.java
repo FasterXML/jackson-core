@@ -101,6 +101,10 @@ public class AsyncRootValuesTest extends AsyncTestBase
         _testRootFloats("  -1234.25", -1234.25);
         _testRootFloats(" -1234.25  ", -1234.25);
 
+        _testRootFloats("0.25", 0.25);
+        _testRootFloats(" 0.25", 0.25);
+        _testRootFloats("0.25   ", 0.25);
+        
         _testRootFloats("-12.5e3", -12500.);
         _testRootFloats("  -12.5e3", -12500.);
         _testRootFloats(" -12.5e3  ", -12500.);

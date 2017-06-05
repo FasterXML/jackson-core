@@ -832,20 +832,18 @@ public class NonBlockingJsonParser
     protected JsonToken _startPositiveNumber(int ch) throws IOException
     {
         _numberNegative = false;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = (char) ch;
         // in unlikely event of not having more input, denote location
         if (_inputPtr >= _inputEnd) {
             _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-            _textBuffer.emptyAndGetCurrentSegment();
-            _textBuffer.append((char) ch);
+            _textBuffer.setCurrentLength(1);
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
-        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = (char) ch;
-        ch = _inputBuffer[_inputPtr];
 
         int outPtr = 1;
 
-        ch &= 0xFF;
+        ch = _inputBuffer[_inputPtr] & 0xFF;
         while (true) {
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
@@ -1106,7 +1104,7 @@ public class NonBlockingJsonParser
                 outBuf[0] = '-';
                 outBuf[1] = (char) ch;
                 _intLength = 1;
-                return _finishNumberIntegralPart(outBuf, 1);
+                return _finishNumberIntegralPart(outBuf, 2);
             }
             --_inputPtr;
             return _valueCompleteInt(0, "0");

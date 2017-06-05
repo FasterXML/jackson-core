@@ -8,54 +8,6 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNonStdNumbersTest extends AsyncTestBase
 {
-    public void testLeadingZeroes() throws Exception {
-        _testLeadingZeroes(false);
-        _testLeadingZeroes(true);
-    }
-
-    public void _testLeadingZeroes(boolean appendSpace) throws Exception
-    {
-        // first: verify that we get an exception
-        JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
-        String JSON = "00003";
-        if (appendSpace) {
-            JSON += " ";
-        }
-        AsyncReaderWrapper p = createParser(f, JSON);
-        try {      
-            p.nextToken();
-            p.currentText();
-            fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (JsonParseException e) {
-            verifyException(e, "invalid numeric value");
-        } finally {
-            p.close();
-        }
-        
-        // and then verify it's ok when enabled
-        f.configure(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS, true);
-        assertTrue(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
-        p = createParser(f, JSON);
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("3", p.currentText());
-        assertEquals(3, p.getIntValue());
-        p.close();
-    
-        // Plus, also: verify that leading zero magnitude is ok:
-        JSON = "0"+Integer.MAX_VALUE;
-        if (appendSpace) {
-            JSON += " ";
-        }
-        p = createParser(f, JSON);
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(String.valueOf(Integer.MAX_VALUE), p.currentText());
-        assertEquals(Integer.MAX_VALUE, p.getIntValue());
-        Number nr = p.getNumberValue();
-        assertSame(Integer.class, nr.getClass());
-        p.close();
-    }
-
     public void testAllowNaN() throws Exception
     {
         final String JSON = "[ NaN]";

@@ -308,9 +308,10 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     {
         BigDecimal bigBase = new BigDecimal("1234567890344656736.125");
         final BigDecimal[] input = new BigDecimal[] {
-                BigDecimal.ZERO,
-                BigDecimal.ONE,
-                BigDecimal.TEN,
+                // 04-Jun-2017, tatu: these look like integral numbers in JSON so can't use:
+//                BigDecimal.ZERO,
+//                BigDecimal.ONE,
+//                BigDecimal.TEN,
                 BigDecimal.valueOf(-999.25),
                 bigBase,
                 bigBase.divide(new BigDecimal("5")),
@@ -339,9 +340,9 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     }
 
     private void _testBigDecimals(JsonFactory f, BigDecimal[] values,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] doc, int offset, int readSize) throws IOException
     {
-        AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
+        AsyncReaderWrapper r = asyncForBytes(f, readSize, doc, offset);
         // start with "no token"
         assertNull(r.currentToken());
         assertToken(JsonToken.START_ARRAY, r.nextToken());

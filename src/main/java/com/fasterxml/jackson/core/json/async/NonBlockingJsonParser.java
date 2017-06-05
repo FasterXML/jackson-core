@@ -252,10 +252,12 @@ public class NonBlockingJsonParser
         case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
             return _finishErrorToken();
 
-        case MINOR_NUMBER_LEADING_MINUS:
-            return _finishNumberLeadingMinus(_inputBuffer[_inputPtr++] & 0xFF);
-        case MINOR_NUMBER_LEADING_ZERO:
+        case MINOR_NUMBER_MINUS:
+            return _finishNumberMinus(_inputBuffer[_inputPtr++] & 0xFF);
+        case MINOR_NUMBER_ZERO:
             return _finishNumberLeadingZeroes();
+        case MINOR_NUMBER_MINUSZERO:
+            return _finishNumberLeadingNegZeroes();
         case MINOR_NUMBER_INTEGER_DIGITS:
             return _finishNumberIntegralPart(_textBuffer.getBufferWithoutReset(),
                     _textBuffer.getCurrentSegmentSize());
@@ -339,7 +341,10 @@ public class NonBlockingJsonParser
             return _finishErrorTokenWithEOF();
 
         // Number-parsing states; valid stopping points, more explicit errors
-        case MINOR_NUMBER_LEADING_ZERO:
+        case MINOR_NUMBER_ZERO:
+        case MINOR_NUMBER_MINUSZERO:
+            // NOTE: does NOT retain possible leading minus-sign (can change if
+            // absolutely needs be)
             return _valueCompleteInt(0, "0");
         case MINOR_NUMBER_INTEGER_DIGITS:
             // Fine: just need to ensure we have value fully defined
@@ -445,7 +450,7 @@ public class NonBlockingJsonParser
         // it is not allowed per se, it may be erroneously used,
         // and could be indicate by a more specific error message.
         case '0':
-            return _startLeadingZero();
+            return _startNumberLeadingZero();
         case '1':
         case '2':
         case '3':
@@ -523,7 +528,7 @@ public class NonBlockingJsonParser
         // it is not allowed per se, it may be erroneously used,
         // and could be indicate by a more specific error message.
         case '0':
-            return _startLeadingZero();
+            return _startNumberLeadingZero();
 
         case '1':
         case '2': case '3':
@@ -600,7 +605,7 @@ public class NonBlockingJsonParser
         // it is not allowed per se, it may be erroneously used,
         // and could be indicate by a more specific error message.
         case '0':
-            return _startLeadingZero();
+            return _startNumberLeadingZero();
 
         case '1':
         case '2': case '3':
@@ -875,17 +880,18 @@ public class NonBlockingJsonParser
         _textBuffer.setCurrentLength(outPtr);
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
-    
+
     protected JsonToken _startNegativeNumber() throws IOException
     {
+        _numberNegative = true;
         if (_inputPtr >= _inputEnd) {
-            _minorState = MINOR_NUMBER_LEADING_MINUS;
+            _minorState = MINOR_NUMBER_MINUS;
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
         if (ch <= INT_0) {
             if (ch == INT_0) {
-                return _startLeadingZero();
+                return _finishNumberLeadingNegZeroes();
             }
             // One special case: if first char is 0, must not be followed by a digit
             reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
@@ -894,7 +900,6 @@ public class NonBlockingJsonParser
             reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        _numberNegative = true;
         outBuf[0] = '-';
         outBuf[1] = (char) ch;
         if (_inputPtr >= _inputEnd) {
@@ -940,11 +945,11 @@ public class NonBlockingJsonParser
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
-    protected JsonToken _startLeadingZero() throws IOException
+    protected JsonToken _startNumberLeadingZero() throws IOException
     {
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
-            _minorState = MINOR_NUMBER_LEADING_ZERO;
+            _minorState = MINOR_NUMBER_ZERO;
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
 
@@ -954,20 +959,13 @@ public class NonBlockingJsonParser
 
         int ch = _inputBuffer[ptr++] & 0xFF;
         // one early check: leading zeroes may or may not be allowed
-        if (ch <= INT_0) {
+        if (ch < INT_0) {
             if (ch == INT_PERIOD) {
                 _inputPtr = ptr;
                 _intLength = 1;
                 char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                 outBuf[0] = '0';
                 return _startFloat(outBuf, 1, ch);
-            }
-            // although not guaranteed, seems likely valid separator (white space,
-            // comma, end bracket/curly); next time token needed will verify
-            if (ch == INT_0) {
-                _inputPtr = ptr;
-                _minorState = MINOR_NUMBER_LEADING_ZERO;
-                return _finishNumberLeadingZeroes();
             }
         } else if (ch > INT_9) {
             if (ch == INT_e || ch == INT_E) {
@@ -984,41 +982,54 @@ public class NonBlockingJsonParser
                 reportUnexpectedNumberChar(ch,
                         "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
             }
+        } else { // leading zero case (zero followed by a digit)
+            // leave inputPtr as is (i.e. "push back" digit)
+            return _finishNumberLeadingZeroes();
         }
         // leave _inputPtr as-is, to push back byte we checked
         return _valueCompleteInt(0, "0");
+    }
+
+    protected JsonToken _finishNumberMinus(int ch) throws IOException
+    {
+        if (ch <= INT_0) {
+            if (ch == INT_0) {
+                return _finishNumberLeadingNegZeroes();
+            }
+            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+        } else if (ch > INT_9) {
+            // !!! TODO: -Infinite etc
+            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+        }
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = '-';
+        outBuf[1] = (char) ch;
+        _intLength = 1;
+        return _finishNumberIntegralPart(outBuf, 2);
     }
 
     protected JsonToken _finishNumberLeadingZeroes() throws IOException
     {
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
-
         while (true) {
             if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_NUMBER_ZERO;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
             int ch = _inputBuffer[_inputPtr++] & 0xFF;
-            if (ch <= INT_0) {
+            if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
-                    _intLength = 1;
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                     outBuf[0] = '0';
+                    _intLength = 1;
                     return _startFloat(outBuf, 1, ch);
-                }
-                // although not guaranteed, seems likely valid separator (white space,
-                // comma, end bracket/curly); next time token needed will verify
-                if (ch == INT_0) {
-                    if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
-                        reportInvalidNumber("Leading zeroes not allowed");
-                    }
-                    continue;
                 }
             } else if (ch > INT_9) {
                 if (ch == INT_e || ch == INT_E) {
-                    _intLength = 1;
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                     outBuf[0] = '0';
+                    _intLength = 1;
                     return _startFloat(outBuf, 1, ch);
                 }
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
@@ -1028,35 +1039,78 @@ public class NonBlockingJsonParser
                     reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
-            } else { // Number between 1 and 9; go integral
-                --_inputPtr;
-                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-                return _finishNumberIntegralPart(_textBuffer.emptyAndGetCurrentSegment(), 0);
+            } else { // Number between 0 and 9
+                // although not guaranteed, seems likely valid separator (white space,
+                // comma, end bracket/curly); next time token needed will verify
+                if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
+                    reportInvalidNumber("Leading zeroes not allowed");
+                }
+                if (ch == INT_0) { // coalesce multiple leading zeroes into just one
+                    continue;
+                }
+                char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+                // trim out leading zero
+                outBuf[0] = (char) ch;
+                _intLength = 1;
+                return _finishNumberIntegralPart(outBuf, 1);
             }
             --_inputPtr;
             return _valueCompleteInt(0, "0");
         }
     }
 
-    protected JsonToken _finishNumberLeadingMinus(int ch) throws IOException
+    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException
     {
-        if (ch <= INT_0) {
-            if (ch == INT_0) {
-                return _startLeadingZero();
+        // In general, skip further zeroes (if allowed), look for legal follow-up
+        // numeric characters; likely legal separators, or, known illegal (letters).
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_NUMBER_MINUSZERO;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            // One special case: if first char is 0, must not be followed by a digit
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
-        } else if (ch > INT_9) {
-            // !!! TODO: -Infinite etc
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            if (ch < INT_0) {
+                if (ch == INT_PERIOD) {
+                    char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+                    outBuf[0] = '-';
+                    outBuf[1] = '0';
+                    _intLength = 1;
+                    return _startFloat(outBuf, 2, ch);
+                }
+            } else if (ch > INT_9) {
+                if (ch == INT_e || ch == INT_E) {
+                    char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+                    outBuf[0] = '-';
+                    outBuf[1] = '0';
+                    _intLength = 1;
+                    return _startFloat(outBuf, 2, ch);
+                }
+                // Ok; unfortunately we have closing bracket/curly that are valid so need
+                // (colon not possible since this is within value, not after key)
+                // 
+                if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
+                    reportUnexpectedNumberChar(ch,
+                            "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
+                }
+            } else { // Number between 1 and 9; go integral
+                // although not guaranteed, seems likely valid separator (white space,
+                // comma, end bracket/curly); next time token needed will verify
+                if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
+                    reportInvalidNumber("Leading zeroes not allowed");
+                }
+                if (ch == INT_0) { // coalesce multiple leading zeroes into just one
+                    continue;
+                }
+                char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+                // trim out leading zero
+                outBuf[0] = '-';
+                outBuf[1] = (char) ch;
+                _intLength = 1;
+                return _finishNumberIntegralPart(outBuf, 1);
+            }
+            --_inputPtr;
+            return _valueCompleteInt(0, "0");
         }
-        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        _numberNegative = true;
-        outBuf[0] = '-';
-        outBuf[1] = (char) ch;
-        _intLength = 1;
-        _minorState = MINOR_NUMBER_INTEGER_DIGITS;
-        return _finishNumberIntegralPart(outBuf, 2);
     }
 
     protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException
@@ -1065,6 +1119,7 @@ public class NonBlockingJsonParser
 
         while (true) {
             if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
                 _textBuffer.setCurrentLength(outPtr);
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }

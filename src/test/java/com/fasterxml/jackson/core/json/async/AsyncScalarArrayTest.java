@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core.json.async;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
@@ -157,7 +159,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     /**********************************************************************
      */
 
-/*    public void testFloats() throws IOException
+    public void testFloats() throws IOException
     {
         final float[] input = new float[] { 0.0f, 0.25f, -0.5f, 10000.125f, - 99999.075f };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
@@ -189,7 +191,8 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         for (int i = 0; i < values.length; ++i) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
             assertEquals(values[i], r.getFloatValue());
-            assertEquals(NumberType.FLOAT, r.getNumberType());
+            // json can't distinguish floats from doubles so
+            assertEquals(NumberType.DOUBLE, r.getNumberType());
         }
         assertToken(JsonToken.END_ARRAY, r.nextToken());
         // and end up with "no token" as well
@@ -210,7 +213,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         g.writeEndArray();
         g.close();
         byte[] data = bytes.toByteArray();
-        _testDoubles(f, input, data, 0, 100);
+//        _testDoubles(f, input, data, 0, 100);
         _testDoubles(f, input, data, 0, 3);
         _testDoubles(f, input, data, 0, 1);
 
@@ -228,7 +231,9 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         for (int i = 0; i < values.length; ++i) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
-            assertEquals(values[i], r.getDoubleValue());
+            assertEquals(String.format("Entry #%d: %s (textual '%s')",
+                    i, values[i], r.currentText()),
+                    values[i], r.getDoubleValue());
             assertEquals(NumberType.DOUBLE, r.getNumberType());
         }
         assertToken(JsonToken.END_ARRAY, r.nextToken());
@@ -237,26 +242,30 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-*/
+
     /*
     /**********************************************************************
     /* BigInteger, BigDecimal
     /**********************************************************************
      */
-/*
+
     public void testBigIntegers() throws IOException
     {
-        BigInteger bigBase = BigInteger.valueOf(1234567890344656736L);
+        BigInteger bigBase = BigInteger.valueOf(Long.MAX_VALUE);
         final BigInteger[] input = new BigInteger[] {
+                // Since JSON doesn't denote "real" type, just deduces from magnitude,
+                // let's not test any values within int/long range
+                /*
                 BigInteger.ZERO,
                 BigInteger.ONE,
                 BigInteger.TEN,
                 BigInteger.valueOf(-999L),
                 bigBase,
+                */
                 bigBase.shiftLeft(100).add(BigInteger.valueOf(123456789L)),
                 bigBase.add(bigBase),
                 bigBase.multiply(BigInteger.valueOf(17)),
-                bigBase.negate()
+                bigBase.negate().subtract(BigInteger.TEN)
         };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
@@ -339,12 +348,11 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         for (int i = 0; i < values.length; ++i) {
             BigDecimal expValue = values[i];
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
-            assertEquals(expValue, r.getBigDecimalValue());
+            assertEquals(expValue, r.getDecimalValue());
             assertEquals(NumberType.BIG_DECIMAL, r.getNumberType());
         }
         assertToken(JsonToken.END_ARRAY, r.nextToken());
         assertNull(r.nextToken());
         assertTrue(r.isClosed());
     }
-*/
 }

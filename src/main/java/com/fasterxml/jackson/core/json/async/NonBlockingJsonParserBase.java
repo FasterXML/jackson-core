@@ -90,9 +90,10 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_VALUE_TOKEN_TRUE = 18;
     protected final static int MINOR_VALUE_TOKEN_FALSE = 19;
     
-    protected final static int MINOR_NUMBER_LEADING_MINUS = 20;
-    protected final static int MINOR_NUMBER_LEADING_ZERO = 21;
-    protected final static int MINOR_NUMBER_INTEGER_DIGITS = 22;
+    protected final static int MINOR_NUMBER_MINUS = 20;
+    protected final static int MINOR_NUMBER_ZERO = 21; // zero as first, possibly trimming multiple
+    protected final static int MINOR_NUMBER_MINUSZERO = 22; // "-0" (and possibly more zeroes) receive
+    protected final static int MINOR_NUMBER_INTEGER_DIGITS = 23;
 
     protected final static int MINOR_NUMBER_FRACTION_DIGITS = 24;
     protected final static int MINOR_NUMBER_EXPONENT_MARKER = 25;

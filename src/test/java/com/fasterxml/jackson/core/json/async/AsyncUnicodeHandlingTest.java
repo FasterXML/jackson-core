@@ -13,11 +13,10 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
     public void testShortUnicodeWithSurrogates() throws IOException
     {
         JsonFactory f = JSON_F;
+
         // first, no buffer boundaries
-        /*
         _testUnicodeWithSurrogates(f, 28, 99);
         _testUnicodeWithSurrogates(f, 53, 99);
-        */
 
         // then small chunks
         _testUnicodeWithSurrogates(f, 28, 3);
@@ -32,11 +31,9 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
     {
         JsonFactory f = JSON_F;
 
-        /*
         _testUnicodeWithSurrogates(f, 230, Integer.MAX_VALUE);
         _testUnicodeWithSurrogates(f, 700, Integer.MAX_VALUE);
         _testUnicodeWithSurrogates(f, 9600, Integer.MAX_VALUE);
-        */
 
         _testUnicodeWithSurrogates(f, 230, 3);
         _testUnicodeWithSurrogates(f, 700, 3);

@@ -14,7 +14,37 @@ public class AsyncFieldNamesTest extends AsyncTestBase
     {
         JSON_APOS_F.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
     }
-    
+
+    // Mainly to test "fast" parse for shortish names
+    public void testSimpleFieldNames() throws IOException
+    {
+        for (String name : new String[] { "", "a", "ab", "abc", "abcd",
+                "abcd1", "abcd12", "abcd123", "abcd1234",
+                "abcd1234a",  "abcd1234ab",  "abcd1234abc",  "abcd1234abcd",
+                "abcd1234abcd1"
+            }) {
+            _testSimpleFieldName(name);
+        }
+    }
+
+    private void _testSimpleFieldName(String fieldName) throws IOException
+    {
+        // use long buffer to ensure fast decoding may be used
+        AsyncReaderWrapper r = asyncForBytes(JSON_F, 99,
+                _jsonDoc(String.format("{\"%s\":true}                     \r", fieldName)),
+                0);
+        assertNull(r.currentToken());
+        assertToken(JsonToken.START_OBJECT, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertEquals(fieldName, r.currentName());
+        assertToken(JsonToken.VALUE_TRUE, r.nextToken());
+        assertToken(JsonToken.END_OBJECT, r.nextToken());
+        assertNull(r.nextToken());
+        JsonLocation loc = r.parser().getCurrentLocation();
+        assertEquals(2, loc.getLineNr());
+        assertEquals(1, loc.getColumnNr());
+    }
+
     public void testEscapedFieldNames() throws IOException
     {
         _testEscapedFieldNames("\\'foo\\'", "'foo'");

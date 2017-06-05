@@ -48,21 +48,6 @@ public class NonBlockingJsonParser
 
     /*
     /**********************************************************************
-    /* Location tracking, additional
-    /**********************************************************************
-     */
-
-    /**
-     * Alternate row tracker, used to keep track of position by `\r` marker
-     * (whereas <code>_currInputRow</code> tracks `\n`). Used to simplify
-     * tracking of linefeeds, assuming that input typically uses various
-     * linefeed combinations (`\r`, `\n` or `\r\n`) consistently, in which
-     * case we can simply choose max of two row candidates.
-     */
-    protected int _currInputRowAlt = 1;
-
-    /*
-    /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
@@ -105,6 +90,9 @@ public class NonBlockingJsonParser
         }
         // Time to update pointers first
         _currInputProcessed += _origBufferLen;
+
+        // Also need to adjust row start, to work as if it extended into the past wrt new buffer
+        _currInputRowStart = start - (_inputEnd - _currInputRowStart);
 
         // And then update buffer settings
         _inputBuffer = buf;
@@ -1903,9 +1891,8 @@ public class NonBlockingJsonParser
                 // Second byte gets output below:
             } else { // 3 bytes; no need to worry about surrogates here
                 currQuad = (currQuad << 8) | (0xe0 | (ch >> 12));
-                ++currQuadBytes;
                 // need room for middle byte?
-                if (currQuadBytes >= 4) {
+                if (++currQuadBytes >= 4) {
                     _quadBuffer[_quadLength++] = currQuad;
                     currQuad = 0;
                     currQuadBytes = 0;

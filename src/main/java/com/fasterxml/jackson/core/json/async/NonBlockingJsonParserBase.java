@@ -178,6 +178,21 @@ public abstract class NonBlockingJsonParserBase
 
     /*
     /**********************************************************************
+    /* Location tracking, additional
+    /**********************************************************************
+     */
+
+    /**
+     * Alternate row tracker, used to keep track of position by `\r` marker
+     * (whereas <code>_currInputRow</code> tracks `\n`). Used to simplify
+     * tracking of linefeeds, assuming that input typically uses various
+     * linefeed combinations (`\r`, `\n` or `\r\n`) consistently, in which
+     * case we can simply choose max of two row candidates.
+     */
+    protected int _currInputRowAlt = 1;
+    
+    /*
+    /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
@@ -247,7 +262,6 @@ public abstract class NonBlockingJsonParserBase
         // 30-May-2017, tatu: Seems like this is the most certain way to prevent
         //    further decoding... not the optimal place, but due to inheritance
         //    hierarchy most convenient.
-        _inputPtr = 0;
         _inputEnd = 0;
     }
 
@@ -272,6 +286,17 @@ public abstract class NonBlockingJsonParserBase
         return false;
     }
 
+    @Override
+    public JsonLocation getCurrentLocation()
+    {
+        int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        // Since we track CR and LF separately, max should gives us right answer
+        int row = Math.max(_currInputRow, _currInputRowAlt);
+        return new JsonLocation(_getSourceReference(),
+                _currInputProcessed + _inputPtr, -1L, // bytes, chars
+                row, col);
+    }
+    
     /*
     /**********************************************************************
     /* Public API, access to token information, text
@@ -762,7 +787,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final void _updateLocation()
     {
-        _tokenInputRow = _currInputRow;
+        _tokenInputRow = Math.max(_currInputRow, _currInputRowAlt);
         final int ptr = _inputPtr;
         _tokenInputTotal = _currInputProcessed + ptr;
         _tokenInputCol = ptr - _currInputRowStart;

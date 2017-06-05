@@ -99,6 +99,13 @@ public class AsyncScalarArrayTest extends AsyncTestBase
             assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
             assertEquals(values[i], r.getIntValue());
             assertEquals(NumberType.INT, r.getNumberType());
+
+            // and then couple of special modes, just to get better test coverage
+            String asStr = String.valueOf(values[i]);
+            assertEquals(asStr, r.currentText());
+            StringWriter sw = new StringWriter();
+            assertEquals(asStr.length(), r.parser().getText(sw));
+            assertEquals(asStr, sw.toString());
         }
         assertToken(JsonToken.END_ARRAY, r.nextToken());
 

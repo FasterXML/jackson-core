@@ -101,4 +101,3 @@ public class AsyncCharEscapingTest extends AsyncTestBase
         r.close();
     }
 }
-

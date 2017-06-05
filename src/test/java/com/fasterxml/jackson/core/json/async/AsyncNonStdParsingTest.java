@@ -215,8 +215,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
 
-
-        JSON = "{'b':1,'array':[{'b':3}],'ob':{'b':4,'x':0,'y':3,'a':false }}";
+        JSON = "{'b':1,'array':[{'b':3}],'ob':{'b':4,'x':0,'y':'"+UNICODE_SEGMENT+"','a':false }}";
         p = createParser(f, JSON);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
@@ -245,8 +244,8 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertEquals(0, p.getIntValue());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("y", p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(3, p.getIntValue());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(UNICODE_SEGMENT, p.currentText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());

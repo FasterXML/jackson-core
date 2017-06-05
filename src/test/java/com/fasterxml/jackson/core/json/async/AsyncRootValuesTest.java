@@ -92,39 +92,58 @@ public class AsyncRootValuesTest extends AsyncTestBase
         assertTrue(r.isClosed());
     }
 
-    public void testRootFloats() throws Exception {
-        _testRootFloats("10.0", 10.0);
-        _testRootFloats(" 10.0", 10.0);
-        _testRootFloats("10.0   ", 10.0);
+    public void testRootDoublesSimple() throws Exception {
+        _testRootDoubles("10.0", 10.0);
+        _testRootDoubles(" 10.0", 10.0);
+        _testRootDoubles("10.0   ", 10.0);
 
-        _testRootFloats("-1234.25", -1234.25);
-        _testRootFloats("  -1234.25", -1234.25);
-        _testRootFloats(" -1234.25  ", -1234.25);
+        _testRootDoubles("-1234.25", -1234.25);
+        _testRootDoubles("  -1234.25", -1234.25);
+        _testRootDoubles(" -1234.25  ", -1234.25);
 
-        _testRootFloats("0.25", 0.25);
-        _testRootFloats(" 0.25", 0.25);
-        _testRootFloats("0.25   ", 0.25);
-        
-        _testRootFloats("-12.5e3", -12500.);
-        _testRootFloats("  -12.5e3", -12500.);
-        _testRootFloats(" -12.5e3  ", -12500.);
+        _testRootDoubles("0.25", 0.25);
+        _testRootDoubles(" 0.25", 0.25);
+        _testRootDoubles("0.25   ", 0.25);
     }
 
-    private void _testRootFloats(String doc, double value) throws Exception
+    public void testRootDoublesScientific() throws Exception
+    {
+        _testRootDoubles("9e3", 9e3);
+        _testRootDoubles("  9e3", 9e3);
+        _testRootDoubles("9e3  ", 9e3);
+
+        _testRootDoubles("9e-2", 9e-2);
+        _testRootDoubles("  9e-2", 9e-2);
+        _testRootDoubles("9e-2  ", 9e-2);
+        
+        _testRootDoubles("-12.5e3", -12.5e3);
+        _testRootDoubles("  -12.5e3", -12.5e3);
+        _testRootDoubles(" -12.5e3  ", -12.5e3);
+
+        _testRootDoubles("-12.5E3", -12.5e3);
+        _testRootDoubles("  -12.5E3", -12.5e3);
+        _testRootDoubles(" -12.5E3  ", -12.5e3);
+
+        _testRootDoubles("-12.5E-2", -12.5e-2);
+        _testRootDoubles("  -12.5E-2", -12.5e-2);
+        _testRootDoubles(" -12.5E-2  ", -12.5e-2);
+    }
+
+    private void _testRootDoubles(String doc, double value) throws Exception
     {
         byte[] input = _jsonDoc(doc);
         JsonFactory f = JSON_F;
-        _testRootFloats(value, f, input, 0, 90);
-        _testRootFloats(value, f, input, 0, 3);
-        _testRootFloats(value, f, input, 0, 2);
-        _testRootFloats(value, f, input, 0, 1);
+        _testRootDoubles(value, f, input, 0, 90);
+        _testRootDoubles(value, f, input, 0, 3);
+        _testRootDoubles(value, f, input, 0, 2);
+        _testRootDoubles(value, f, input, 0, 1);
 
-        _testRootFloats(value, f, input, 1, 90);
-        _testRootFloats(value, f, input, 1, 3);
-        _testRootFloats(value, f, input, 1, 1);
+        _testRootDoubles(value, f, input, 1, 90);
+        _testRootDoubles(value, f, input, 1, 3);
+        _testRootDoubles(value, f, input, 1, 1);
     }
 
-    private void _testRootFloats(double value, JsonFactory f,
+    private void _testRootDoubles(double value, JsonFactory f,
             byte[] data, int offset, int readSize) throws IOException
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);

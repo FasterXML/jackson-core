@@ -10,6 +10,11 @@ public class AsyncFieldNamesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
+    private final JsonFactory JSON_APOS_F = new JsonFactory();
+    {
+        JSON_APOS_F.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
+    }
+    
     public void testEscapedFieldNames() throws IOException
     {
         _testEscapedFieldNames("\\'foo\\'", "'foo'");
@@ -23,13 +28,17 @@ public class AsyncFieldNamesTest extends AsyncTestBase
 
     private void _testEscapedFieldNames(String nameEncoded, String nameExp) throws IOException
     {
+        byte[] doc;
+        StringWriter w;
+
         nameEncoded = aposToQuotes(nameEncoded);
         nameExp = aposToQuotes(nameExp);
-        StringWriter w = new StringWriter();
+
+        w = new StringWriter();
         w.append("{\"");
         w.append(nameEncoded);
         w.append("\":true}");
-        byte[] doc = w.toString().getBytes("UTF-8");
+        doc = w.toString().getBytes("UTF-8");
 
         _testEscapedFieldNames(doc, nameExp, 0, 99);
         _testEscapedFieldNames(doc, nameExp, 0, 5);
@@ -40,12 +49,42 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         _testEscapedFieldNames(doc, nameExp, 1, 99);
         _testEscapedFieldNames(doc, nameExp, 1, 3);
         _testEscapedFieldNames(doc, nameExp, 1, 1);
+
+        w = new StringWriter();
+        w.append("{'");
+        w.append(nameEncoded);
+        w.append("':true}");
+        doc = w.toString().getBytes("UTF-8");
+
+        _testEscapedAposFieldNames(doc, nameExp, 0, 99);
+        _testEscapedAposFieldNames(doc, nameExp, 0, 5);
+        _testEscapedAposFieldNames(doc, nameExp, 0, 3);
+        _testEscapedAposFieldNames(doc, nameExp, 0, 2);
+        _testEscapedAposFieldNames(doc, nameExp, 0, 1);
+
+        _testEscapedAposFieldNames(doc, nameExp, 1, 99);
+        _testEscapedAposFieldNames(doc, nameExp, 1, 3);
+        _testEscapedAposFieldNames(doc, nameExp, 1, 1);
     }
 
     private void _testEscapedFieldNames(byte[] doc, String expName,
             int offset, int readSize) throws IOException
     {
         AsyncReaderWrapper r = asyncForBytes(JSON_F, readSize, doc, offset);
+        assertNull(r.currentToken());
+        assertToken(JsonToken.START_OBJECT, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertEquals(expName, r.currentName());
+        assertToken(JsonToken.VALUE_TRUE, r.nextToken());
+        
+        r.close();
+        assertNull(r.nextToken());
+    }
+
+    private void _testEscapedAposFieldNames(byte[] doc, String expName,
+            int offset, int readSize) throws IOException
+    {
+        AsyncReaderWrapper r = asyncForBytes(JSON_APOS_F, readSize, doc, offset);
         assertNull(r.currentToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         assertToken(JsonToken.FIELD_NAME, r.nextToken());

@@ -143,7 +143,15 @@ public class NonBlockingJsonParser
         }
         return avail;
     }
-    
+
+    // Should never be called: can not be implemented quite as expected
+    // due to non-blocking behavior
+    @Override
+    protected char _decodeEscaped() throws IOException {
+        VersionUtil.throwInternal();
+        return ' ';
+    }
+
     /*
     /**********************************************************************
     /* Main-level decoding
@@ -1207,7 +1215,7 @@ public class NonBlockingJsonParser
                     _expLength = 0;
                     return (_currToken = JsonToken.NOT_AVAILABLE);
                 }
-                ch = _inputBuffer[_inputPtr];
+                ch = _inputBuffer[_inputPtr++];
             }
             while (ch >= INT_0 && ch <= INT_9) {
                 ++expLen;
@@ -1297,7 +1305,7 @@ public class NonBlockingJsonParser
                     _expLength = 0;
                     return JsonToken.NOT_AVAILABLE;
                 }
-                ch = _inputBuffer[_inputPtr];
+                ch = _inputBuffer[_inputPtr++];
             }
         }
 
@@ -1620,6 +1628,7 @@ public class NonBlockingJsonParser
                 ch = _decodeCharEscape();
                 if (ch < 0) { // method has set up state about escape sequence
                     _minorState = MINOR_FIELD_NAME_ESCAPE;
+                    _minorStateAfterSplit = MINOR_FIELD_NAME;
                     _quadLength = qlen;
                     _pending32 = currQuad;
                     _pendingBytes = currQuadBytes;
@@ -1797,6 +1806,14 @@ public class NonBlockingJsonParser
                 } else {
                     // Nope, escape sequence
                     ch = _decodeCharEscape();
+                    if (ch < 0) { // method has set up state about escape sequence
+                        _minorState = MINOR_FIELD_NAME_ESCAPE;
+                        _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
+                        _quadLength = qlen;
+                        _pending32 = currQuad;
+                        _pendingBytes = currQuadBytes;
+                        return (_currToken = JsonToken.NOT_AVAILABLE);
+                    }
                 }
                 if (ch > 127) {
                     // Ok, we'll need room for first byte right away
@@ -1843,7 +1860,6 @@ public class NonBlockingJsonParser
                 currQuad = ch;
                 currQuadBytes = 1;
             }
-            ch = _inputBuffer[_inputPtr++] & 0xFF;
         }
 
         if (currQuadBytes > 0) {
@@ -1859,12 +1875,6 @@ public class NonBlockingJsonParser
             name = _addName(quads, qlen, currQuadBytes);
         }
         return _fieldComplete(name);
-    }
-
-    @Override
-    protected char _decodeEscaped() throws IOException {
-        VersionUtil.throwInternal();
-        return ' ';
     }
 
     protected final JsonToken _finishFieldWithEscape() throws IOException
@@ -1913,6 +1923,9 @@ public class NonBlockingJsonParser
             _quadBuffer[_quadLength++] = currQuad;
             currQuad = ch;
             currQuadBytes = 1;
+        }
+        if (_minorStateAfterSplit == MINOR_FIELD_APOS_NAME) {
+            return _finishAposName(_quadLength, currQuad, currQuadBytes);
         }
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
     }

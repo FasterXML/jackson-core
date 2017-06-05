@@ -117,7 +117,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
     public void testLong() throws IOException
     {
         final long[] input = new long[] {
-                // SmileGenerator will try to minimize so....
+                // JsonParser will determine minimum size needed, so can't do these
 //                1, -1, 16, -17, 131, -155, 1000, -3000, 0xFFFF, -99999,
                 -1L + Integer.MIN_VALUE, 1L + Integer.MAX_VALUE,
                 19L * Integer.MIN_VALUE, 27L * Integer.MAX_VALUE,
@@ -209,7 +209,8 @@ public class AsyncScalarArrayTest extends AsyncTestBase
 
     public void testDoubles() throws IOException
     {
-        final double[] input = new double[] { 0.0, 0.25, -0.5, 10000.125, -99999.075 };
+        final double[] input = new double[] { 0.0, 0.25, -0.5, 10000.125,
+                -99999.075 };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
         JsonGenerator g = f.createGenerator(bytes);
@@ -220,11 +221,11 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         g.writeEndArray();
         g.close();
         byte[] data = bytes.toByteArray();
-//        _testDoubles(f, input, data, 0, 100);
+        _testDoubles(f, input, data, 0, 99);
         _testDoubles(f, input, data, 0, 3);
         _testDoubles(f, input, data, 0, 1);
 
-        _testDoubles(f, input, data, 1, 100);
+        _testDoubles(f, input, data, 1, 99);
         _testDoubles(f, input, data, 1, 3);
         _testDoubles(f, input, data, 1, 1);
     }

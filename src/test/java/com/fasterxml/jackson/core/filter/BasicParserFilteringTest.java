@@ -81,52 +81,118 @@ public class BasicParserFilteringTest extends BaseTest
     public void testSingleMatchFilteringWithoutPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
-        JsonParser p = new FilteringParserDelegate(p0,
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
                new NameMatchFilter("value"),
                    false, // includePath
                    false // multipleMatches
                 );
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("3"), result);
+        assertEquals(1, p.getMatchCount());
+    }
+
+    public void testSingleMatchFilteringWithPath() throws Exception
+    {
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                new NameMatchFilter("a"),
+                true, // includePath
+                false // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("{'a':123}"), result);
+        assertEquals(1, p.getMatchCount());
     }
 
     @SuppressWarnings("resource")
-    public void testNotAllowMultipleMatches() throws Exception
+    public void testNotAllowMultipleMatchesWithoutPath1() throws Exception
     {
-    	String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'value':4,'b':true}");
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
-        JsonParser p = new FilteringParserDelegate(p0,
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
                new NameMatchFilter("value"),
                    false, // includePath
                    false // multipleMatches -false
                 );
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("3"), result);
+        assertEquals(1, p.getMatchCount());
     }
-    
+
     @SuppressWarnings("resource")
-    public void testAllowMultipleMatches() throws Exception
+    public void testNotAllowMultipleMatchesWithoutPath2() throws Exception
     {
-    	String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'value':4,'b':true}");
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'array':[3,4],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
         JsonParser p0 = JSON_F.createParser(jsonString);
-        JsonParser p = new FilteringParserDelegate(p0,
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                new IndexMatchFilter(1),
+                false, // includePath
+                false // multipleMatches -false
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("2"), result);
+        assertEquals(1, p.getMatchCount());
+    }
+
+    @SuppressWarnings("resource")
+    public void testAllowMultipleMatchesWithoutPath() throws Exception
+    {
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
                new NameMatchFilter("value"),
                    false, // includePath
                    true // multipleMatches - true
                 );
         String result = readAndWrite(JSON_F, p);
-        assertEquals(aposToQuotes("3 4"), result);
+        assertEquals(aposToQuotes("3 {\"value0\":2} \"val\""), result);
+        assertEquals(3, p.getMatchCount());
+    }
+
+
+    @SuppressWarnings("resource")
+    public void testAllowMultipleMatchesWithPath1() throws Exception
+    {
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                new NameMatchFilter("value"),
+                true, // includePath
+                true // multipleMatches - true
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("{\"ob\":{\"value\":3,\"value\":{\"value0\":2}},\"value\":\"val\"}"), result);
+        assertEquals(3, p.getMatchCount());
+    }
+
+
+    @SuppressWarnings("resource")
+    public void testAllowMultipleMatchesWithPath2() throws Exception
+    {
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'array':[3,4],'value':{'value0':2}},'value':\"val\",'b':true}");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+                new IndexMatchFilter(1),
+                true, // includePath
+                true // multipleMatches - true
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("{\"array\":[2],\"ob\":{\"array\":[4]}}"), result);
+        assertEquals(2, p.getMatchCount());
     }
 
     @SuppressWarnings("resource")
     public void testMultipleMatchFilteringWithPath1() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
-        JsonParser p = new FilteringParserDelegate(p0,
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value0", "value2"),
                 true, /* includePath */ true /* multipleMatches */ );
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':4}}"), result);
+        assertEquals(2, p.getMatchCount());
+
     }
 
     @SuppressWarnings("resource")
@@ -134,51 +200,57 @@ public class BasicParserFilteringTest extends BaseTest
     {
         String INPUT = aposToQuotes("{'a':123,'ob':{'value0':2,'value':3,'value2':4},'b':true}");
         JsonParser p0 = JSON_F.createParser(INPUT);
-        JsonParser p = new FilteringParserDelegate(p0,
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("b", "value"),
                 true, true);
 
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'ob':{'value':3},'b':true}"), result);
+        assertEquals(2, p.getMatchCount());
     }
 
     @SuppressWarnings("resource")
     public void testMultipleMatchFilteringWithPath3() throws Exception
     {
-        final String JSON = aposToQuotes("{'root':{'a0':true,'a':{'value':3},'b':{'value':4}},'b0':false}");
+        final String JSON = aposToQuotes("{'root':{'a0':true,'a':{'value':3},'b':{'value':\"foo\"}},'b0':false}");
         JsonParser p0 = JSON_F.createParser(JSON);
-        JsonParser p = new FilteringParserDelegate(p0,
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
                 true, true);
         String result = readAndWrite(JSON_F, p);
-        assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':4}}}"), result);
+        assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':\"foo\"}}}"), result);
+        assertEquals(2, p.getMatchCount());
     }
 
     @SuppressWarnings("resource")
     public void testIndexMatchWithPath1() throws Exception
     {
-        JsonParser p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
+        FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
                 new IndexMatchFilter(1), true, true);
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'array':[2]}"), result);
+        assertEquals(1, p.getMatchCount());
 
         p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
                 new IndexMatchFilter(0), true, true);
         result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'array':[1]}"), result);
+        assertEquals(1, p.getMatchCount());
     }
 
     @SuppressWarnings("resource")
     public void testIndexMatchWithPath2() throws Exception
     {
-        JsonParser p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
+        FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
                 new IndexMatchFilter(0, 1), true, true);
         assertEquals(aposToQuotes("{'array':[1,2]}"), readAndWrite(JSON_F, p));
+        assertEquals(2, p.getMatchCount());
     
         String JSON = aposToQuotes("{'a':123,'array':[1,2,3,4,5],'b':[1,2,3]}");
         p = new FilteringParserDelegate(JSON_F.createParser(JSON),
                 new IndexMatchFilter(1, 3), true, true);
         assertEquals(aposToQuotes("{'array':[2,4],'b':[2]}"), readAndWrite(JSON_F, p));
+        assertEquals(3, p.getMatchCount());
     }
 
     @SuppressWarnings("resource")

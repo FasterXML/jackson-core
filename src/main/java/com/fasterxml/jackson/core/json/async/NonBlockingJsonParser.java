@@ -192,13 +192,13 @@ public class NonBlockingJsonParser
             return _startFieldNameAfterComma(ch);
 
         case MAJOR_OBJECT_VALUE: // require semicolon first
-            return _startValueAfterColon(ch);
+            return _startValueExpectColon(ch);
 
         case MAJOR_ARRAY_ELEMENT_FIRST: // value without leading comma
             return _startValue(ch);
 
         case MAJOR_ARRAY_ELEMENT_NEXT: // require leading comma
-            return _startValueAfterComma(ch);
+            return _startValueExpectComma(ch);
 
         default:
         }
@@ -234,10 +234,12 @@ public class NonBlockingJsonParser
 
         case MINOR_VALUE_LEADING_WS:
             return _startValue(_inputBuffer[_inputPtr++] & 0xFF);
-        case MINOR_VALUE_LEADING_COMMA:
+        case MINOR_VALUE_WS_AFTER_COMMA:
             return _startValueAfterComma(_inputBuffer[_inputPtr++] & 0xFF);
-        case MINOR_VALUE_LEADING_COLON:
-            return _startValueAfterColon(_inputBuffer[_inputPtr++] & 0xFF);
+        case MINOR_VALUE_EXPECTING_COMMA:
+            return _startValueExpectComma(_inputBuffer[_inputPtr++] & 0xFF);
+        case MINOR_VALUE_EXPECTING_COLON:
+            return _startValueExpectColon(_inputBuffer[_inputPtr++] & 0xFF);
 
         case MINOR_VALUE_TOKEN_NULL:
             return _finishKeywordToken("null", _pending32, JsonToken.VALUE_NULL);
@@ -322,11 +324,10 @@ public class NonBlockingJsonParser
         switch (_minorState) {
         case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
             return _eofAsNextToken();
-
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
-        case MINOR_VALUE_LEADING_COMMA: // not fine
-        case MINOR_VALUE_LEADING_COLON: // not fine
             return _eofAsNextToken();
+//        case MINOR_VALUE_EXPECTING_COMMA: // not fine
+//        case MINOR_VALUE_EXPECTING_COLON: // not fine
         case MINOR_VALUE_TOKEN_NULL:
             return _finishKeywordTokenWithEOF("null", _pending32, JsonToken.VALUE_NULL);
         case MINOR_VALUE_TOKEN_TRUE:
@@ -473,20 +474,20 @@ public class NonBlockingJsonParser
             return _closeObjectScope();
         default:
         }
-        return _startUnexpectedValue(ch);
+        return _startUnexpectedValue(false, ch);
     }
 
     /**
      * Helper method called to parse token that is either a value token in array
      * or end-array marker
      */
-    private final JsonToken _startValueAfterComma(int ch) throws IOException
+    private final JsonToken _startValueExpectComma(int ch) throws IOException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
             ch = _skipWS(ch); // will skip through all available ws (and comments)
             if (ch <= 0) {
-                _minorState = MINOR_VALUE_LEADING_COMMA;
+                _minorState = MINOR_VALUE_EXPECTING_COMMA;
                 return _currToken;
             }
         }
@@ -501,7 +502,7 @@ public class NonBlockingJsonParser
         }
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
-            _minorState = MINOR_VALUE_LEADING_WS;
+            _minorState = MINOR_VALUE_WS_AFTER_COMMA;
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
         ch = _inputBuffer[ptr];
@@ -509,7 +510,7 @@ public class NonBlockingJsonParser
         if (ch <= 0x0020) {
             ch = _skipWS(ch);
             if (ch <= 0) {
-                _minorState = MINOR_VALUE_LEADING_WS;
+                _minorState = MINOR_VALUE_WS_AFTER_COMMA;
                 return _currToken;
             }
         }
@@ -541,20 +542,22 @@ public class NonBlockingJsonParser
         case '[':
             return _startArrayScope();
         case ']':
-            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMA)) {
                 return _closeArrayScope();
             }
             break;
         case '{':
             return _startObjectScope();
         case '}':
-            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMA)) {
                 return _closeObjectScope();
             }
             break;
         default:
         }
-        return _startUnexpectedValue(ch);
+        return _startUnexpectedValue(true, ch);
     }
 
     /**
@@ -562,13 +565,13 @@ public class NonBlockingJsonParser
      * decode it if contained in input buffer.
      * Value MUST be preceded by a semi-colon (which may be surrounded by white-space)
      */
-    private final JsonToken _startValueAfterColon(int ch) throws IOException
+    private final JsonToken _startValueExpectColon(int ch) throws IOException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
             ch = _skipWS(ch); // will skip through all available ws (and comments)
             if (ch <= 0) {
-                _minorState = MINOR_VALUE_LEADING_COLON;
+                _minorState = MINOR_VALUE_EXPECTING_COLON;
                 return _currToken;
             }
         }
@@ -617,19 +620,76 @@ public class NonBlockingJsonParser
             return _startTrueToken();
         case '[':
             return _startArrayScope();
+        case '{':
+            return _startObjectScope();
+        default:
+        }
+        return _startUnexpectedValue(false, ch);
+    }
+
+    /* Method called when we have already gotten a comma (i.e. not the first value)
+     */
+    private final JsonToken _startValueAfterComma(int ch) throws IOException
+    {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_VALUE_WS_AFTER_COMMA;
+                return _currToken;
+            }
+        }
+
+        if (ch == INT_QUOTE) {
+            return _startString();
+        }
+        switch (ch) {
+        case '-':
+            return _startNegativeNumber();
+
+        // Should we have separate handling for plus? Although
+        // it is not allowed per se, it may be erroneously used,
+        // and could be indicate by a more specific error message.
+        case '0':
+            return _startNumberLeadingZero();
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return _startPositiveNumber(ch);
+        case 'f':
+            return _startFalseToken();
+        case 'n':
+            return _startNullToken();
+        case 't':
+            return _startTrueToken();
+        case '[':
+            return _startArrayScope();
         case ']':
-            return _closeArrayScope();
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMA)) {
+                return _closeArrayScope();
+            }
+            break;
         case '{':
             return _startObjectScope();
         case '}':
-            return _closeObjectScope();
+            // Was that a trailing comma?
+            if (isEnabled(Feature.ALLOW_TRAILING_COMMA)) {
+                return _closeObjectScope();
+            }
+            break;
         default:
         }
-        return _startUnexpectedValue(ch);
+        return _startUnexpectedValue(true, ch);
     }
 
-    
-    protected JsonToken _startUnexpectedValue(int ch) throws IOException
+    protected JsonToken _startUnexpectedValue(boolean leadingComma, int ch) throws IOException
     {
         // TODO: Maybe support non-standard tokens that streaming parser does:
         //
@@ -639,11 +699,30 @@ public class NonBlockingJsonParser
         // * Apostrophe for Strings
 
         switch (ch) {
+        case ']':
+            if (!_parsingContext.inArray()) {
+                break;
+            }
+            // fall through
+        case ',':
+            // 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
+            //   we may allow "missing values", that is, encountering a trailing
+            //   comma or closing marker where value would be expected
+            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+                --_inputPtr;
+                return _valueComplete(JsonToken.VALUE_NULL);
+            }
+            // fall through
+        case '}':
+            // Error: neither is valid at this point; valid closers have
+            // been handled earlier
+            break;
         case '\'':
             if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
                 return _startAposString();
             }
             break;
+            /*
         case ',':
             // If Feature.ALLOW_MISSING_VALUES is enabled we may allow "missing values",
             // that is, encountering a trailing comma or closing marker where value would be expected
@@ -654,6 +733,17 @@ public class NonBlockingJsonParser
                return _valueComplete(JsonToken.VALUE_NULL);
             }
             break;
+        case ']':
+            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                return _closeArrayScope();
+            }
+            break;
+        case '}':
+            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                return _closeObjectScope();
+            }
+            break;
+            */
         }
         // !!! TODO: maybe try to collect more information for better diagnostics
         _reportUnexpectedChar(ch, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");

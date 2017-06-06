@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
+import java.io.IOException;
+import java.util.*;
+
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.UTF8DataInputJsonParser;
 
@@ -12,19 +12,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
 @RunWith(Parameterized.class)
 public class TrailingCommasTest extends BaseTest {
 
   private final JsonFactory factory;
-  private final HashSet<JsonParser.Feature> features;
+  private final Set<JsonParser.Feature> features;
   private final int mode;
 
   public TrailingCommasTest(int mode, List<Feature> features) {

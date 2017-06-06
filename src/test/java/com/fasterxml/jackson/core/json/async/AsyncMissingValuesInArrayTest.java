@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.async;
+package com.fasterxml.jackson.core.json.async;
 
 import java.io.IOException;
 import java.util.*;
@@ -13,12 +13,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class AsyncTrailingCommasTest extends AsyncTestBase
+public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 {
     private final JsonFactory factory;
     private final HashSet<JsonParser.Feature> features;
 
-    public AsyncTrailingCommasTest(List<Feature> features) {
+    public AsyncMissingValuesInArrayTest(Collection<JsonParser.Feature> features) {
         this.factory = new JsonFactory();
         this.features = new HashSet<JsonParser.Feature>(features);
 
@@ -28,16 +28,18 @@ public class AsyncTrailingCommasTest extends AsyncTestBase
     }
 
     @Parameterized.Parameters(name = "Features {0}")
-    public static Collection<Object[]> getTestCases()
+    public static Collection<EnumSet<JsonParser.Feature>> getTestCases()
     {
-        ArrayList<Object[]> cases = new ArrayList<Object[]>();
-        cases.add(new Object[]{Collections.emptyList()});
-        cases.add(new Object[]{Arrays.asList(Feature.ALLOW_MISSING_VALUES)});
-        cases.add(new Object[]{Arrays.asList(Feature.ALLOW_TRAILING_COMMA)});
-        cases.add(new Object[]{Arrays.asList(Feature.ALLOW_MISSING_VALUES, Feature.ALLOW_TRAILING_COMMA)});
+        List<EnumSet<JsonParser.Feature>> cases = new ArrayList<EnumSet<JsonParser.Feature>>();
+        cases.add(EnumSet.noneOf(JsonParser.Feature.class));
+        cases.add(EnumSet.of(Feature.ALLOW_MISSING_VALUES));
+        cases.add(EnumSet.of(Feature.ALLOW_TRAILING_COMMA));
+        cases.add(EnumSet.of(Feature.ALLOW_MISSING_VALUES, Feature.ALLOW_TRAILING_COMMA));
         return cases;
     }
 
+    // Could test, but this case is covered by other tests anyway
+    /*
     @Test
     public void testArrayBasic() throws Exception {
         String json = "[\"a\", \"b\"]";
@@ -55,9 +57,10 @@ public class AsyncTrailingCommasTest extends AsyncTestBase
     assertEquals(JsonToken.END_ARRAY, p.nextToken());
     assertEnd(p);
   }
+  */
 
     @Test
-  public void testArrayInnerComma() throws Exception {
+    public void testArrayInnerComma() throws Exception {
     String json = "[\"a\",, \"b\"]";
 
     AsyncReaderWrapper p = createParser(factory, json);
@@ -196,100 +199,6 @@ public class AsyncTrailingCommasTest extends AsyncTestBase
     } else {
       assertUnexpected(p, ',');
     }
-    p.close();
-  }
-
-  @Test
-  public void testObjectBasic() throws Exception {
-    String json = "{\"a\": true, \"b\": false}";
-
-    AsyncReaderWrapper p = createParser(factory, json);
-
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
-
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("b", p.currentText());
-    assertToken(JsonToken.VALUE_FALSE, p.nextToken());
-
-    assertEquals(JsonToken.END_OBJECT, p.nextToken());
-    assertEnd(p);
-    p.close();
-  }
-
-  @Test
-  public void testObjectInnerComma() throws Exception {
-    String json = "{\"a\": true,, \"b\": false}";
-
-    AsyncReaderWrapper p = createParser(factory, json);
-
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
-
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-
-    assertUnexpected(p, ',');
-    p.close();
-  }
-
-  @Test
-  public void testObjectLeadingComma() throws Exception {
-    String json = "{,\"a\": true, \"b\": false}";
-
-    AsyncReaderWrapper p = createParser(factory, json);
-
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
-
-    assertUnexpected(p, ',');
-    p.close();
-  }
-
-  @Test
-  public void testObjectTrailingComma() throws Exception {
-    String json = "{\"a\": true, \"b\": false,}";
-
-    AsyncReaderWrapper p = createParser(factory, json);
-
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
-
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("b", p.currentText());
-    assertToken(JsonToken.VALUE_FALSE, p.nextToken());
-
-    if (features.contains(Feature.ALLOW_TRAILING_COMMA)) {
-      assertToken(JsonToken.END_OBJECT, p.nextToken());
-      assertEnd(p);
-    } else {
-      assertUnexpected(p, '}');
-    }
-    p.close();
-  }
-
-  @Test
-  public void testObjectTrailingCommas() throws Exception {
-    String json = "{\"a\": true, \"b\": false,,}";
-
-    AsyncReaderWrapper p = createParser(factory, json);
-
-    assertEquals(JsonToken.START_OBJECT, p.nextToken());
-
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("a", p.currentText());
-    assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
-    assertEquals("b", p.currentText());
-    assertToken(JsonToken.VALUE_FALSE, p.nextToken());
-
-    assertUnexpected(p, ',');
     p.close();
   }
 

@@ -74,17 +74,18 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_FIELD_LEADING_COMMA = 4;
 
     // State within regular (double-quoted) field name
-    protected final static int MINOR_FIELD_NAME = 10;
+    protected final static int MINOR_FIELD_NAME = 7;
     // State within regular (double-quoted) field name, within escape (having
     // encountered either just backslash, or backslash and 'u' and 0 - 3 hex digits,
-    protected final static int MINOR_FIELD_NAME_ESCAPE = 11;
+    protected final static int MINOR_FIELD_NAME_ESCAPE = 8;
 
-    protected final static int MINOR_FIELD_APOS_NAME = 12;
-    protected final static int MINOR_FIELD_UNQUOTED_NAME = 13;
-    
-    protected final static int MINOR_VALUE_LEADING_WS = 14;
-    protected final static int MINOR_VALUE_LEADING_COMMA = 15;
-    protected final static int MINOR_VALUE_LEADING_COLON = 16;
+    protected final static int MINOR_FIELD_APOS_NAME = 9;
+    protected final static int MINOR_FIELD_UNQUOTED_NAME = 10;
+
+    protected final static int MINOR_VALUE_LEADING_WS = 12;
+    protected final static int MINOR_VALUE_WS_AFTER_COMMA = 13;
+    protected final static int MINOR_VALUE_EXPECTING_COMMA = 14;
+    protected final static int MINOR_VALUE_EXPECTING_COLON = 15;
 
     protected final static int MINOR_VALUE_TOKEN_NULL = 17;
     protected final static int MINOR_VALUE_TOKEN_TRUE = 18;

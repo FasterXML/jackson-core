@@ -249,6 +249,8 @@ public class NonBlockingJsonParser
             return _finishKeywordToken("false", _pending32, JsonToken.VALUE_FALSE);
         case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
             return _finishErrorToken();
+        case MINOR_VALUE_TOKEN_NON_STD:
+            return _finishNonStdToken(_nonStdTokenType, _pending32);
 
         case MINOR_NUMBER_MINUS:
             return _finishNumberMinus(_inputBuffer[_inputPtr++] & 0xFF);
@@ -334,6 +336,8 @@ public class NonBlockingJsonParser
             return _finishKeywordTokenWithEOF("true", _pending32, JsonToken.VALUE_TRUE);
         case MINOR_VALUE_TOKEN_FALSE:
             return _finishKeywordTokenWithEOF("false", _pending32, JsonToken.VALUE_FALSE);
+        case MINOR_VALUE_TOKEN_NON_STD:
+            return _finishNonStdTokenWithEOF(_nonStdTokenType, _pending32);
         case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
             return _finishErrorTokenWithEOF();
 
@@ -696,7 +700,6 @@ public class NonBlockingJsonParser
         // * NaN
         // * Infinity
         // * Plus-prefix for numbers
-        // * Apostrophe for Strings
 
         switch (ch) {
         case ']':
@@ -722,28 +725,12 @@ public class NonBlockingJsonParser
                 return _startAposString();
             }
             break;
-            /*
-        case ',':
-            // If Feature.ALLOW_MISSING_VALUES is enabled we may allow "missing values",
-            // that is, encountering a trailing comma or closing marker where value would be expected
-            if (!_parsingContext.inObject() && isEnabled(Feature.ALLOW_MISSING_VALUES)) {
-                // Important to "push back" separator, to be consumed before next value;
-                // does not lead to infinite loop
-               --_inputPtr;
-               return _valueComplete(JsonToken.VALUE_NULL);
-            }
-            break;
-        case ']':
-            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
-                return _closeArrayScope();
-            }
-            break;
-        case '}':
-            if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
-                return _closeObjectScope();
-            }
-            break;
-            */
+        case '+':
+            return _finishNonStdToken(NON_STD_TOKEN_PLUS_INFINITY, 1);
+        case 'N':
+            return _finishNonStdToken(NON_STD_TOKEN_NAN, 1);            
+        case 'I':
+            return _finishNonStdToken(NON_STD_TOKEN_INFINITY, 1);
         }
         // !!! TODO: maybe try to collect more information for better diagnostics
         _reportUnexpectedChar(ch, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
@@ -851,7 +838,7 @@ public class NonBlockingJsonParser
                 _pending32 = matched;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            int ch = _inputBuffer[_inputPtr] & 0xFF;
+            int ch = _inputBuffer[_inputPtr];
             if (matched == end) { // need to verify trailing separator
                 if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
                     return _valueComplete(result);
@@ -879,6 +866,46 @@ public class NonBlockingJsonParser
         return _finishErrorTokenWithEOF();
     }
 
+    protected JsonToken _finishNonStdToken(int type, int matched) throws IOException
+    {
+        final String expToken = _nonStdToken(type);
+        final int end = expToken.length();
+
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _nonStdTokenType = type;
+                _pending32 = matched;
+                _minorState = MINOR_VALUE_TOKEN_NON_STD;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            int ch = _inputBuffer[_inputPtr];
+            if (matched == end) { // need to verify trailing separator
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    return _valueNonStdNumberComplete(type);
+                }
+                break;
+            }
+            if (ch != expToken.charAt(matched)) {
+                break;
+            }
+            ++matched;
+            ++_inputPtr;
+        }
+        _minorState = MINOR_VALUE_TOKEN_ERROR;
+        _textBuffer.resetWithCopy(expToken, 0, matched);
+        return _finishErrorToken();
+    }
+
+    protected JsonToken _finishNonStdTokenWithEOF(int type, int matched) throws IOException
+    {
+        final String expToken = _nonStdToken(type);
+        if (matched == expToken.length()) {
+            return _valueNonStdNumberComplete(type);
+        }
+        _textBuffer.resetWithCopy(expToken, 0, matched);
+        return _finishErrorTokenWithEOF();
+    }
+
     protected JsonToken _finishErrorToken() throws IOException
     {
         while (_inputPtr < _inputEnd) {
@@ -896,19 +923,24 @@ public class NonBlockingJsonParser
                     continue;
                 }
             }
-            _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
-                    "'null', 'true' or 'false'");
+            return _reportErrorToken(_textBuffer.contentsAsString());
         }
         return (_currToken = JsonToken.NOT_AVAILABLE);
     }
 
     protected JsonToken _finishErrorTokenWithEOF() throws IOException
     {
+        return _reportErrorToken(_textBuffer.contentsAsString());
+    }
+
+    protected JsonToken _reportErrorToken(String actualToken) throws IOException
+    {
+        // !!! TODO: Include non-standard ones if enabled
         _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
                 "'null', 'true' or 'false'");
         return JsonToken.NOT_AVAILABLE; // never gets here
     }
-
+    
     /*
     /**********************************************************************
     /* Second-level decoding, Number decoding
@@ -980,7 +1012,9 @@ public class NonBlockingJsonParser
             // One special case: if first char is 0, must not be followed by a digit
             reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         } else if (ch > INT_9) {
-            // !!! TODO: -Infinite etc
+            if (ch == 'I') {
+                return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
+            }
             reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1082,7 +1116,9 @@ public class NonBlockingJsonParser
             }
             reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         } else if (ch > INT_9) {
-            // !!! TODO: -Infinite etc
+            if (ch == 'I') {
+                return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
+            }
             reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();

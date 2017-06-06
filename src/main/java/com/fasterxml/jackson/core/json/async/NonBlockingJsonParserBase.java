@@ -87,25 +87,11 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_VALUE_EXPECTING_COMMA = 14;
     protected final static int MINOR_VALUE_EXPECTING_COLON = 15;
 
-    protected final static int MINOR_VALUE_TOKEN_NULL = 17;
-    protected final static int MINOR_VALUE_TOKEN_TRUE = 18;
-    protected final static int MINOR_VALUE_TOKEN_FALSE = 19;
-    
-    protected final static int MINOR_NUMBER_MINUS = 20;
-    protected final static int MINOR_NUMBER_ZERO = 21; // zero as first, possibly trimming multiple
-    protected final static int MINOR_NUMBER_MINUSZERO = 22; // "-0" (and possibly more zeroes) receive
-    protected final static int MINOR_NUMBER_INTEGER_DIGITS = 23;
+    protected final static int MINOR_VALUE_TOKEN_NULL = 16;
+    protected final static int MINOR_VALUE_TOKEN_TRUE = 17;
+    protected final static int MINOR_VALUE_TOKEN_FALSE = 18;
 
-    protected final static int MINOR_NUMBER_FRACTION_DIGITS = 24;
-    protected final static int MINOR_NUMBER_EXPONENT_MARKER = 25;
-    protected final static int MINOR_NUMBER_EXPONENT_DIGITS = 27;
-
-    protected final static int MINOR_VALUE_STRING = 30;
-    protected final static int MINOR_VALUE_STRING_ESCAPE = 31;
-    protected final static int MINOR_VALUE_STRING_UTF8_2 = 32;
-    protected final static int MINOR_VALUE_STRING_UTF8_3 = 33;
-    protected final static int MINOR_VALUE_STRING_UTF8_4 = 34;
-    protected final static int MINOR_VALUE_APOS_STRING = 35;
+    protected final static int MINOR_VALUE_TOKEN_NON_STD = 19;
 
     /**
      * Special state at which point decoding of a non-quoted token has encountered
@@ -114,7 +100,23 @@ public abstract class NonBlockingJsonParserBase
      * Attempt is made, then, to decode likely full input token to report suitable
      * error.
      */
-    protected final static int MINOR_VALUE_TOKEN_ERROR = 60;
+    protected final static int MINOR_VALUE_TOKEN_ERROR = 20;
+    
+    protected final static int MINOR_NUMBER_MINUS = 23;
+    protected final static int MINOR_NUMBER_ZERO = 24; // zero as first, possibly trimming multiple
+    protected final static int MINOR_NUMBER_MINUSZERO = 25; // "-0" (and possibly more zeroes) receive
+    protected final static int MINOR_NUMBER_INTEGER_DIGITS = 26;
+
+    protected final static int MINOR_NUMBER_FRACTION_DIGITS = 30;
+    protected final static int MINOR_NUMBER_EXPONENT_MARKER = 31;
+    protected final static int MINOR_NUMBER_EXPONENT_DIGITS = 32;
+
+    protected final static int MINOR_VALUE_STRING = 40;
+    protected final static int MINOR_VALUE_STRING_ESCAPE = 41;
+    protected final static int MINOR_VALUE_STRING_UTF8_2 = 42;
+    protected final static int MINOR_VALUE_STRING_UTF8_3 = 43;
+    protected final static int MINOR_VALUE_STRING_UTF8_4 = 44;
+    protected final static int MINOR_VALUE_APOS_STRING = 45;
     
     /*
     /**********************************************************************
@@ -143,7 +145,7 @@ public abstract class NonBlockingJsonParserBase
     protected int _quoted32;
 
     protected int _quotedDigits;
-    
+
     /*
     /**********************************************************************
     /* Additional parsing state
@@ -176,6 +178,34 @@ public abstract class NonBlockingJsonParserBase
      * be no more input to parse.
      */
     protected boolean _endOfInput = false;
+
+    /*
+    /**********************************************************************
+    /* Additional parsing state: non-standard tokens
+    /**********************************************************************
+     */
+
+    protected final static int NON_STD_TOKEN_NAN = 0;
+
+    protected final static int NON_STD_TOKEN_INFINITY = 1;
+    protected final static int NON_STD_TOKEN_PLUS_INFINITY = 2;
+    protected final static int NON_STD_TOKEN_MINUS_INFINITY = 3;
+
+    protected final static String[] NON_STD_TOKENS = new String[] {
+            "NaN",
+            "Infinity", "+Infinity", "-Infinity",
+    };
+
+    protected final static double[] NON_STD_TOKEN_VALUES = new double[] {
+            Double.NaN,
+            Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+    };
+    
+    /**
+     * When tokenizing non-standard ("odd") tokens, this is the type to consider;
+     * also works as index to actual textual representation.
+     */
+    protected int _nonStdTokenType;
 
     /*
     /**********************************************************************
@@ -778,6 +808,25 @@ public abstract class NonBlockingJsonParserBase
         JsonToken t = JsonToken.VALUE_NUMBER_INT;
         _currToken = t;
         return t;
+    }
+
+    protected final JsonToken _valueNonStdNumberComplete(int type) throws IOException
+    {
+        String tokenStr = NON_STD_TOKENS[type];
+        _textBuffer.resetWithString(tokenStr);
+        if (!isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+            _reportError("Non-standard token '%s': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow",
+                    tokenStr);
+        }
+        _intLength = 0;
+        _numTypesValid = NR_DOUBLE;
+        _numberDouble = NON_STD_TOKEN_VALUES[type];
+        _majorState = _majorStateAfterValue;
+        return (_currToken = JsonToken.VALUE_NUMBER_FLOAT);
+    }
+
+    protected final String _nonStdToken(int type) {
+        return NON_STD_TOKENS[type];
     }
 
     /*

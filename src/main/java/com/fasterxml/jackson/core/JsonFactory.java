@@ -7,6 +7,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.net.URLConnection;
 
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
@@ -1592,6 +1593,10 @@ public class JsonFactory
                 }
                 // otherwise, let's fall through and let URL decoder do its magic
             }
+        } else if (url.getProtocol().startsWith("http")) {
+            final URLConnection connection = url.openConnection();
+            connection.setRequestProperty("Accept", "application/json");
+            return connection.getInputStream();
         }
         return url.openStream();
     }

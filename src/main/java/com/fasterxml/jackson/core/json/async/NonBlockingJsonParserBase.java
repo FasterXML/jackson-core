@@ -83,9 +83,9 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_FIELD_UNQUOTED_NAME = 10;
 
     protected final static int MINOR_VALUE_LEADING_WS = 12;
-    protected final static int MINOR_VALUE_WS_AFTER_COMMA = 13;
-    protected final static int MINOR_VALUE_EXPECTING_COMMA = 14;
-    protected final static int MINOR_VALUE_EXPECTING_COLON = 15;
+    protected final static int MINOR_VALUE_EXPECTING_COMMA = 13;
+    protected final static int MINOR_VALUE_EXPECTING_COLON = 14;
+    protected final static int MINOR_VALUE_WS_AFTER_COMMA = 15;
 
     protected final static int MINOR_VALUE_TOKEN_NULL = 16;
     protected final static int MINOR_VALUE_TOKEN_TRUE = 17;

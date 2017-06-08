@@ -32,7 +32,7 @@ public abstract class JsonGenerator
      */
     public enum Feature {
         // // Low-level I/O / content features
-        
+
         /**
          * Feature that determines whether generator will automatically
          * close underlying output target that is NOT owned by the
@@ -74,7 +74,7 @@ public abstract class JsonGenerator
         FLUSH_PASSED_TO_STREAM(true),
 
         // // Quoting-related features
-        
+
         /**
          * Feature that determines whether JSON Object field names are
          * quoted using double-quotes, as specified by JSON specification
@@ -90,7 +90,7 @@ public abstract class JsonGenerator
          * Feature that determines whether "exceptional" (not real number)
          * float/double values are output as quoted strings.
          * The values checked are Double.Nan,
-         * Double.POSITIVE_INFINITY and Double.NEGATIVE_INIFINTY (and 
+         * Double.POSITIVE_INFINITY and Double.NEGATIVE_INIFINTY (and
          * associated Float values).
          * If feature is disabled, these numbers are still output using
          * associated literal values, resulting in non-conformant
@@ -124,11 +124,11 @@ public abstract class JsonGenerator
          *<p>
          * Feature is disabled by default, so default output mode is used; this generally
          * depends on how {@link BigDecimal} has been created.
-         * 
+         *
          * @since 2.3
          */
         WRITE_BIGDECIMAL_AS_PLAIN(false),
-        
+
         /**
          * Feature that specifies that all characters beyond 7-bit ASCII
          * range (i.e. code points of 128 and above) need to be output
@@ -169,7 +169,7 @@ public abstract class JsonGenerator
          * @since Xxx
          */
 //        ESCAPE_UTF8_SURROGATES(false),
-        
+
         // // Schema/Validity support features
 
         /**
@@ -184,11 +184,11 @@ public abstract class JsonGenerator
          * due to having to store and check additional information.
          *<p>
          * Feature is disabled by default.
-         * 
+         *
          * @since 2.3
          */
         STRICT_DUPLICATE_DETECTION(false),
-        
+
         /**
          * Feature that determines what to do if the underlying data format requires knowledge
          * of all properties to output, and if no definition is found for a property that
@@ -214,7 +214,7 @@ public abstract class JsonGenerator
 
         private final boolean _defaultState;
         private final int _mask;
-        
+
         /**
          * Method that calculates bit set (flags) of all features that
          * are enabled by default.
@@ -229,7 +229,7 @@ public abstract class JsonGenerator
             }
             return flags;
         }
-        
+
         private Feature(boolean defaultState) {
             _defaultState = defaultState;
             _mask = (1 << ordinal());
@@ -263,7 +263,7 @@ public abstract class JsonGenerator
     /* Construction, initialization
     /**********************************************************
      */
-    
+
     protected JsonGenerator() { }
 
     /**
@@ -330,18 +330,18 @@ public abstract class JsonGenerator
     /**
      * Bulk access method for getting state of all standard (non-dataformat-specific)
      * {@link JsonGenerator.Feature}s.
-     * 
+     *
      * @return Bit mask that defines current states of all standard {@link JsonGenerator.Feature}s.
-     * 
+     *
      * @since 2.3
      */
     public abstract int getFeatureMask();
 
     /**
      * Bulk set method for (re)setting states of all standard {@link Feature}s
-     * 
+     *
      * @since 2.3
-     * 
+     *
      * @param values Bitmask that defines which {@link Feature}s are enabled
      *    and which disabled
      *
@@ -361,10 +361,10 @@ public abstract class JsonGenerator
      *    setFeatureMask(newState);
      *</code>
      * but preferred as this lets caller more efficiently specify actual changes made.
-     * 
+     *
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
-     * 
+     *
      * @since 2.6
      */
     public JsonGenerator overrideStdFeatures(int values, int mask) {
@@ -376,15 +376,15 @@ public abstract class JsonGenerator
     /**
      * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
      * on/off configuration settings.
-     * 
+     *
      * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
-     * 
+     *
      * @since 2.6
      */
     public int getFormatFeatures() {
         return 0;
     }
-    
+
     /**
      * Bulk set method for (re)setting states of {@link FormatFeature}s,
      * by specifying values (set / clear) along with a mask, to determine
@@ -392,10 +392,10 @@ public abstract class JsonGenerator
      *<p>
      * Default implementation will simply throw an exception to indicate that
      * the generator implementation does not support any {@link FormatFeature}s.
-     * 
+     *
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
-     * 
+     *
      * @since 2.6
      */
     public JsonGenerator overrideFormatFeatures(int values, int mask) {
@@ -406,7 +406,7 @@ public abstract class JsonGenerator
         return setFeatureMask(newState);
         */
     }
-    
+
     /*
     /**********************************************************
     /* Public API, Schema configuration
@@ -423,9 +423,9 @@ public abstract class JsonGenerator
      *<p>
      * If generator does not support specified schema, {@link UnsupportedOperationException}
      * is thrown.
-     * 
+     *
      * @param schema Schema to use
-     * 
+     *
      * @throws UnsupportedOperationException if generator does not support schema
      */
     public void setSchema(FormatSchema schema) {
@@ -466,13 +466,13 @@ public abstract class JsonGenerator
     /**
      * Accessor for checking whether this generator has a configured
      * {@link PrettyPrinter}; returns it if so, null if none configured.
-     * 
+     *
      * @since 2.1
      */
     public PrettyPrinter getPrettyPrinter() {
         return _cfgPrettyPrinter;
     }
-    
+
     /**
      * Convenience method for enabling pretty-printing using
      * the default pretty printer
@@ -498,7 +498,7 @@ public abstract class JsonGenerator
      *<p>
      * Default implementation does nothing; sub-classes need to redefine
      * it according to rules of supported data format.
-     * 
+     *
      * @param charCode Either -1 to indicate that no additional escaping
      *   is to be done; or highest code point not to escape (meaning higher
      *   ones will be), if positive value.
@@ -513,7 +513,7 @@ public abstract class JsonGenerator
      * Some generators may not support additional escaping: for example,
      * generators for binary formats that do not use escaping should
      * simply return 0.
-     * 
+     *
      * @return Currently active limitation for highest non-escaped character,
      *   if defined; or -1 to indicate no additional escaping is performed.
      */
@@ -538,10 +538,10 @@ public abstract class JsonGenerator
      * JSON values (default is single space character)
      *<p>
      * Default implementation throws {@link UnsupportedOperationException}.
-     * 
+     *
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
-     * 
+     *
      * @since 2.1
      */
     public JsonGenerator setRootValueSeparator(SerializableString sep) {
@@ -553,7 +553,7 @@ public abstract class JsonGenerator
     /* Public API, output state access
     /**********************************************************
      */
-    
+
     /**
      * Method that can be used to get access to object that is used
      * as target for generated output; this is usually either
@@ -605,7 +605,7 @@ public abstract class JsonGenerator
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
-     * 
+     *
      * @since 2.5
      */
     public Object getCurrentValue() {
@@ -618,7 +618,7 @@ public abstract class JsonGenerator
      *<code>
      *   getOutputContext().setCurrentValue(v);
      *</code>
-     * 
+     *
      * @since 2.5
      */
     public void setCurrentValue(Object v) {
@@ -627,7 +627,7 @@ public abstract class JsonGenerator
             ctxt.setCurrentValue(v);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Public API, capability introspection methods
@@ -637,13 +637,13 @@ public abstract class JsonGenerator
     /**
      * Method that can be used to verify that given schema can be used with
      * this generator (using {@link #setSchema}).
-     * 
+     *
      * @param schema Schema to check
-     * 
+     *
      * @return True if this generator can use given schema; false if not
      */
     public boolean canUseSchema(FormatSchema schema) { return false; }
-    
+
     /**
      * Introspection method that may be called to see if the underlying
      * data format supports some kind of Object Ids natively (many do not;
@@ -655,7 +655,7 @@ public abstract class JsonGenerator
      * that do support native Object Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native object ids.
-     * 
+     *
      * @since 2.3
      */
     public boolean canWriteObjectId() { return false; }
@@ -671,7 +671,7 @@ public abstract class JsonGenerator
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native type ids.
-     * 
+     *
      * @since 2.3
      */
     public boolean canWriteTypeId() { return false; }
@@ -683,17 +683,17 @@ public abstract class JsonGenerator
      *<p>
      * Default implementation returns false; overridden by data formats
      * that do support native binary content.
-     * 
+     *
      * @since 2.3
      */
     public boolean canWriteBinaryNatively() { return false; }
-    
+
     /**
      * Introspection method to call to check whether it is ok to omit
      * writing of Object fields or not. Most formats do allow omission,
      * but certain positional formats (such as CSV) require output of
      * placeholders, even if no real values are to be emitted.
-     * 
+     *
      * @since 2.3
      */
     public boolean canOmitFields() { return true; }
@@ -711,7 +711,7 @@ public abstract class JsonGenerator
      * @since 2.8
      */
     public boolean canWriteFormattedNumbers() { return false; }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, structural
@@ -736,18 +736,18 @@ public abstract class JsonGenerator
      * {@link #writeEndArray()}.
      *<p>
      * Default implementation simply calls {@link #writeStartArray()}.
-     * 
+     *
      * @param size Number of elements this array will have: actual
      *   number of values written (before matching call to
      *   {@link #writeEndArray()} MUST match; generator MAY verify
      *   this is the case.
-     *   
+     *
      * @since 2.4
      */
     public void writeStartArray(int size) throws IOException {
         writeStartArray();
     }
-    
+
     /**
      * Method for writing closing marker of a JSON Array value
      * (character ']'; plus possible white space decoration
@@ -933,6 +933,34 @@ public abstract class JsonGenerator
     public abstract void writeString(String text) throws IOException;
 
     /**
+     * Current {@link #writeString(String)} method requires text value to be passed in its entirety.
+     * This may not work well with larger payloads; so we should an alternative
+     * method where one can define source for text, used for incremental/streaming read+write.
+     * @param reader
+     * @param charLength if this parameter is -1 that means we have a unknown
+     *                   size of char array. But all generators are required to support it.
+     *                   If length is indicated, it is an error for Reader to provide less data
+     *                   (more is ok; generator just will not read anything beyond indicated amount).
+     * @throws IOException
+     */
+    public void writeString(Reader reader, int charLength) throws IOException {
+        if (reader == null) {
+            return;
+        }
+
+        if (charLength == -1) {
+            while (reader.read() != -1) ;
+        } else {
+            int readChars = reader.read(new char[charLength]);
+
+            if (readChars < charLength) {
+                throw new IOException("Reader read less chars than needed.");
+            }
+        }
+
+    }
+
+    /**
      * Method for outputting a String value. Depending on context
      * this means either array element, (object) field value or
      * a stand alone String; but in all cases, String will be
@@ -1086,7 +1114,7 @@ public abstract class JsonGenerator
      * other backends that support raw inclusion of text are encouraged
      * to implement it in more efficient manner (especially if they
      * use UTF-8 encoding).
-     * 
+     *
      * @since 2.1
      */
     public void writeRaw(SerializableString raw) throws IOException {
@@ -1111,7 +1139,7 @@ public abstract class JsonGenerator
      * Method similar to {@link #writeRawValue(String)}, but potentially more
      * efficient as it may be able to use pre-encoded content (similar to
      * {@link #writeRaw(SerializableString)}.
-     * 
+     *
      * @since 2.5
      */
     public void writeRawValue(SerializableString raw) throws IOException {
@@ -1144,7 +1172,7 @@ public abstract class JsonGenerator
 
     /**
      * Similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
-     * but default to using the Jackson default Base64 variant 
+     * but default to using the Jackson default Base64 variant
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
      */
     public void writeBinary(byte[] data, int offset, int len) throws IOException {
@@ -1153,7 +1181,7 @@ public abstract class JsonGenerator
 
     /**
      * Similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
-     * but assumes default to using the Jackson default Base64 variant 
+     * but assumes default to using the Jackson default Base64 variant
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}). Also
      * assumes that whole byte array is to be output.
      */
@@ -1163,9 +1191,9 @@ public abstract class JsonGenerator
 
     /**
      * Similar to {@link #writeBinary(Base64Variant,InputStream,int)},
-     * but assumes default to using the Jackson default Base64 variant 
+     * but assumes default to using the Jackson default Base64 variant
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
-     * 
+     *
      * @param data InputStream to use for reading binary data to write.
      *    Will not be closed after successful write operation
      * @param dataLength (optional) number of bytes that will be available;
@@ -1178,12 +1206,12 @@ public abstract class JsonGenerator
         throws IOException {
         return writeBinary(Base64Variants.getDefaultVariant(), data, dataLength);
     }
-    
+
     /**
      * Method similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
      * but where input is provided through a stream, allowing for incremental
      * writes without holding the whole input in memory.
-     * 
+     *
      * @param bv Base64 variant to use
      * @param data InputStream to use for reading binary data to write.
      *    Will not be closed after successful write operation
@@ -1195,9 +1223,9 @@ public abstract class JsonGenerator
      *    need not support cases where length is not known in advance; this
      *    depends on underlying data format: JSON output does NOT require length,
      *    other formats may.
-     * 
+     *
      * @return Number of bytes read from <code>data</code> and written as binary payload
-     * 
+     *
      * @since 2.1
      */
     public abstract int writeBinary(Base64Variant bv,
@@ -1303,7 +1331,7 @@ public abstract class JsonGenerator
      * for generator-wrappers around Java objects or JSON nodes.
      * If implementation does not implement this method,
      * it needs to throw {@link UnsupportedOperationException}.
-     * 
+     *
      * @throws UnsupportedOperationException If underlying data format does not
      *   support numbers serialized textually AND if generator is not allowed
      *   to just output a String instead (Schema-based formats may require actual
@@ -1316,7 +1344,7 @@ public abstract class JsonGenerator
     /* Public API, write methods, other value types
     /**********************************************************
      */
-    
+
     /**
      * Method for outputting literal JSON boolean value (one of
      * Strings 'true' and 'false').
@@ -1356,7 +1384,7 @@ public abstract class JsonGenerator
                 +object.getClass().getName(),
                 this);
     }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, Native Ids (type, object)
@@ -1371,7 +1399,7 @@ public abstract class JsonGenerator
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
      * a {@link JsonGenerationException} will be thrown.
-     * 
+     *
      * @since 2.3
      */
     public void writeObjectId(Object id) throws IOException {
@@ -1390,7 +1418,7 @@ public abstract class JsonGenerator
     public void writeObjectRef(Object id) throws IOException {
         throw new JsonGenerationException("No native support for writing Object Ids", this);
     }
-    
+
     /**
      * Method that can be called to output so-called native Type Id.
      * Note that it may only be called after ensuring this is legal
@@ -1399,7 +1427,7 @@ public abstract class JsonGenerator
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
      * a {@link JsonGenerationException} will be thrown.
-     * 
+     *
      * @since 2.3
      */
     public void writeTypeId(Object id) throws IOException {
@@ -1466,7 +1494,7 @@ public abstract class JsonGenerator
         }
         if (inclStyle == JsonToken.START_ARRAY) { // as-wrapper-array
         } else if (inclStyle == JsonToken.START_OBJECT) { // as-wrapper-object
-            
+
         } else {
             throw new JsonGenerationException("Unrecognized inclusion style: "+inclStyle, this);
         }
@@ -1685,11 +1713,11 @@ public abstract class JsonGenerator
      * <code>false</code> from {@link #canOmitFields()}.
      *<p>
      * Default implementation does nothing.
-     * 
+     *
      * @since 2.3
      */
     public void writeOmittedField(String fieldName) throws IOException { }
-    
+
     /*
     /**********************************************************
     /* Public API, copy-through methods
@@ -2000,5 +2028,5 @@ public abstract class JsonGenerator
         }
         throw new IllegalStateException("No ObjectCodec defined for the generator, can only serialize simple wrapper types (type passed "
                 +value.getClass().getName()+")");
-    }    
+    }
 }

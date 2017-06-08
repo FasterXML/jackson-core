@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
@@ -215,6 +214,8 @@ public class NonBlockingJsonParser
     {
         // NOTE: caller ensures there's input available...
         switch (_minorState) {
+        case MINOR_ROOT_BOM:
+            return _finishBOM(_pending32);
         case MINOR_FIELD_LEADING_WS:
             return _startFieldName(_inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_FIELD_LEADING_COMMA:
@@ -385,8 +386,8 @@ public class NonBlockingJsonParser
         ch &= 0xFF;
 
         // Very first byte: could be BOM
-        if (ch == ByteSourceJsonBootstrapper.UTF8_BOM_1) {
-            // !!! TODO
+        if ((ch == 0xEF) && (_minorState != MINOR_ROOT_BOM)) {
+            return _finishBOM(1);
         }
 
         // If not BOM (or we got past it), could be whitespace or comment to skip
@@ -418,6 +419,38 @@ public class NonBlockingJsonParser
         return _startValue(ch);
     }
 
+    private final JsonToken _finishBOM(int bytesHandled) throws IOException
+    {
+        // public final static byte UTF8_BOM_1 = (byte) 0xEF;
+        // public final static byte UTF8_BOM_2 = (byte) 0xBB;
+        // public final static byte UTF8_BOM_3 = (byte) 0xBF;
+
+        while (_inputPtr < _inputEnd) {
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            switch (bytesHandled) {
+            case 3:
+                // got it all; go back to "start document" handling, without changing
+                // minor state (to let it know we've done BOM)
+                _currInputProcessed -= 3;
+                return _startDocument(ch);
+            case 2:
+                if (ch != 0xBF) {
+                    _reportError("Unexpected byte 0x%02x following 0xEF 0xBB; should get 0xBF as third byte of UTF-8 BOM", ch);
+                }
+                break;
+            case 1:
+                if (ch != 0xBB) {
+                    _reportError("Unexpected byte 0x%02x following 0xEF; should get 0xBB as second byte UTF-8 BOM", ch);
+                }
+                break;
+            }
+            ++bytesHandled;
+        }
+        _pending32 = bytesHandled;
+        _minorState = MINOR_ROOT_BOM;
+        return (_currToken = JsonToken.NOT_AVAILABLE);
+    }
+
     /*
     /**********************************************************************
     /* Second-level decoding, value parsing
@@ -439,7 +472,7 @@ public class NonBlockingJsonParser
                 return _currToken;
             }
         }
-
+        _updateTokenLocation();
         if (ch == INT_QUOTE) {
             return _startString();
         }
@@ -518,6 +551,7 @@ public class NonBlockingJsonParser
                 return _currToken;
             }
         }
+        _updateTokenLocation();
         if (ch == INT_QUOTE) {
             return _startString();
         }
@@ -597,6 +631,7 @@ public class NonBlockingJsonParser
                 return _currToken;
             }
         }
+        _updateTokenLocation();
         if (ch == INT_QUOTE) {
             return _startString();
         }
@@ -643,7 +678,7 @@ public class NonBlockingJsonParser
                 return _currToken;
             }
         }
-
+        _updateTokenLocation();
         if (ch == INT_QUOTE) {
             return _startString();
         }
@@ -1473,7 +1508,7 @@ public class NonBlockingJsonParser
                 return _currToken;
             }
         }
-        _updateLocation();
+        _updateTokenLocation();
         if (ch != INT_QUOTE) {
             if (ch == INT_RCURLY) {
                 return _closeObjectScope();
@@ -1520,7 +1555,7 @@ public class NonBlockingJsonParser
                 return _currToken;
             }
         }
-        _updateLocation();
+        _updateTokenLocation();
         if (ch != INT_QUOTE) {
             if (ch == INT_RCURLY) {
                 if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {

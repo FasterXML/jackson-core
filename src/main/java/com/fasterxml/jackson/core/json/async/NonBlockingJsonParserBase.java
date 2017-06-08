@@ -25,7 +25,7 @@ public abstract class NonBlockingJsonParserBase
 
     /**
      * State right after parser has been constructed, before seeing the first byte
-     * to know if there's header.
+     * to handle possible (but optional) BOM.
      */
     protected final static int MAJOR_INITIAL = 0;
 
@@ -56,22 +56,27 @@ public abstract class NonBlockingJsonParserBase
      */
 
     /**
+     * State in which part of (UTF-8) BOM has been detected, but not yet completely.
+     */
+    protected final static int MINOR_ROOT_BOM = 1;
+
+    /**
      * State between root-level value, waiting for at least one white-space
      * character as separator
      */
-    protected final static int MINOR_ROOT_NEED_SEPARATOR = 1;
+    protected final static int MINOR_ROOT_NEED_SEPARATOR = 2;
 
     /**
      * State between root-level value, having processed at least one white-space
      * character, and expecting either more, start of a value, or end of input
      * stream.
      */
-    protected final static int MINOR_ROOT_GOT_SEPARATOR = 2;
+    protected final static int MINOR_ROOT_GOT_SEPARATOR = 3;
 
     // state before field name itself, waiting for quote (or unquoted name)
-    protected final static int MINOR_FIELD_LEADING_WS = 3;
+    protected final static int MINOR_FIELD_LEADING_WS = 4;
     // state before field name, expecting comma (or closing curly), then field name
-    protected final static int MINOR_FIELD_LEADING_COMMA = 4;
+    protected final static int MINOR_FIELD_LEADING_COMMA = 5;
 
     // State within regular (double-quoted) field name
     protected final static int MINOR_FIELD_NAME = 7;
@@ -214,6 +219,13 @@ public abstract class NonBlockingJsonParserBase
      */
 
     /**
+     * Since we are fed content that may or may not start at zero offset, we need
+     * to keep track of the first byte within that buffer, to be able to calculate
+     * logical offset within input "stream"
+     */
+    protected int _currBufferStart = 0;
+    
+    /**
      * Alternate row tracker, used to keep track of position by `\r` marker
      * (whereas <code>_currInputRow</code> tracks `\n`). Used to simplify
      * tracking of linefeeds, assuming that input typically uses various
@@ -293,6 +305,7 @@ public abstract class NonBlockingJsonParserBase
         // 30-May-2017, tatu: Seems like this is the most certain way to prevent
         //    further decoding... not the optimal place, but due to inheritance
         //    hierarchy most convenient.
+        _currBufferStart = 0;
         _inputEnd = 0;
     }
 
@@ -324,10 +337,17 @@ public abstract class NonBlockingJsonParserBase
         // Since we track CR and LF separately, max should gives us right answer
         int row = Math.max(_currInputRow, _currInputRowAlt);
         return new JsonLocation(_getSourceReference(),
-                _currInputProcessed + _inputPtr, -1L, // bytes, chars
+                _currInputProcessed + (_inputPtr - _currBufferStart), -1L, // bytes, chars
                 row, col);
     }
-    
+
+    @Override
+    public JsonLocation getTokenLocation()
+    {
+        return new JsonLocation(_getSourceReference(),
+                _tokenInputTotal, -1L, _tokenInputRow, _tokenInputCol);
+    }
+
     /*
     /**********************************************************************
     /* Public API, access to token information, text
@@ -835,12 +855,12 @@ public abstract class NonBlockingJsonParserBase
     /**********************************************************************
      */
 
-    protected final void _updateLocation()
+    protected final void _updateTokenLocation()
     {
         _tokenInputRow = Math.max(_currInputRow, _currInputRowAlt);
         final int ptr = _inputPtr;
-        _tokenInputTotal = _currInputProcessed + ptr;
         _tokenInputCol = ptr - _currInputRowStart;
+        _tokenInputTotal = _currInputProcessed + (ptr - _currBufferStart);
     }
 
     protected void _reportInvalidChar(int c) throws JsonParseException {
@@ -850,11 +870,11 @@ public abstract class NonBlockingJsonParserBase
         }
         _reportInvalidInitial(c);
     }
-    
+
     protected void _reportInvalidInitial(int mask) throws JsonParseException {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
-	
+
     protected void _reportInvalidOther(int mask, int ptr) throws JsonParseException {
         _inputPtr = ptr;
         _reportInvalidOther(mask);

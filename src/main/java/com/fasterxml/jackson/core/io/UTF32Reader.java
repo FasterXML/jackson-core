@@ -140,6 +140,10 @@ public class UTF32Reader extends Reader
             int ptr = _ptr;
             int hi, lo;
 
+            if (_buffer.length < ptr + 4) {
+                reportUnexpectedEOF(_buffer.length - ptr, 4);
+            }
+
             if (_bigEndian) {
                 hi = (_buffer[ptr] << 8) | (_buffer[ptr+1] & 0xFF);
                 lo = ((_buffer[ptr+2] & 0xFF) << 8) | (_buffer[ptr+3] & 0xFF);

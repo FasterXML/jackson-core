@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
+import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import java.io.*;
@@ -56,6 +57,7 @@ public class JsonParserTest extends BaseTest
         // needs to be same of cours
         String actName = p.getCurrentName();
         assertEquals(expName, actName);
+        expName = InternCache.instance.intern(expName);
         if (enableIntern) {
             assertSame(expName, actName);
         } else {

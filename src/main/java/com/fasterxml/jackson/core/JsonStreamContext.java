@@ -35,6 +35,8 @@ public abstract class JsonStreamContext
      * (the case for root context).
      */
     protected int _index;
+    
+    protected Object _value;
 
     /*
     /**********************************************************
@@ -195,7 +197,7 @@ public abstract class JsonStreamContext
      * @since 2.5
      */
     public Object getCurrentValue() {
-        return null;
+        return _value;
     }
 
     /**
@@ -205,7 +207,7 @@ public abstract class JsonStreamContext
      * 
      * @since 2.5
      */
-    public void setCurrentValue(Object v) { }
+    public void setCurrentValue(Object v) { _value = v; }
 
     /**
      * Factory method for constructing a {@link JsonPointer} that points to the current

@@ -184,19 +184,18 @@ public class NonBlockingJsonParser
         case MAJOR_ROOT:
             return _startValue(ch);
 
-        case MAJOR_OBJECT_FIELD_FIRST: // field or end-object
-            // expect name
+        case MAJOR_OBJECT_FIELD_FIRST: // expect field-name or end-object
             return _startFieldName(ch);
-        case MAJOR_OBJECT_FIELD_NEXT: // comma
+        case MAJOR_OBJECT_FIELD_NEXT: // expect comma + field-name or end-object
             return _startFieldNameAfterComma(ch);
 
-        case MAJOR_OBJECT_VALUE: // require semicolon first
+        case MAJOR_OBJECT_VALUE: // expect colon, followed by value
             return _startValueExpectColon(ch);
 
-        case MAJOR_ARRAY_ELEMENT_FIRST: // value without leading comma
+        case MAJOR_ARRAY_ELEMENT_FIRST: // expect value or end-array
             return _startValue(ch);
 
-        case MAJOR_ARRAY_ELEMENT_NEXT: // require leading comma
+        case MAJOR_ARRAY_ELEMENT_NEXT: // expect leading comma + value or end-array
             return _startValueExpectComma(ch);
 
         default:
@@ -367,8 +366,7 @@ public class NonBlockingJsonParser
 
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
-            
-        // !!! TODO: rest...
+
         default:
         }
         _reportInvalidEOF(": was expecting rest of token (internal state: "+_minorState+")", _currToken);
@@ -453,7 +451,93 @@ public class NonBlockingJsonParser
 
     /*
     /**********************************************************************
-    /* Second-level decoding, value parsing
+    /* Second-level decoding, primary field name decoding
+    /**********************************************************************
+     */
+
+    /**
+     * Method that handles initial token type recognition for token
+     * that has to be either FIELD_NAME or END_OBJECT.
+     */
+    private final JsonToken _startFieldName(int ch) throws IOException
+    {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_FIELD_LEADING_WS;
+                return _currToken;
+            }
+        }
+        _updateTokenLocation();
+        if (ch != INT_QUOTE) {
+            if (ch == INT_RCURLY) {
+                return _closeObjectScope();
+            }
+            return _handleOddName(ch);
+        }
+        // First: can we optimize out bounds checks?
+        if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
+            String n = _fastParseName();
+            if (n != null) {
+                return _fieldComplete(n);
+            }
+        }
+        return _parseEscapedName(0, 0, 0);
+    }
+
+    private final JsonToken _startFieldNameAfterComma(int ch) throws IOException
+    {
+        // First: any leading white space?
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch); // will skip through all available ws (and comments)
+            if (ch <= 0) {
+                _minorState = MINOR_FIELD_LEADING_COMMA;
+                return _currToken;
+            }
+        }
+        if (ch != INT_COMMA) { // either comma, separating entries, or closing right curly
+            if (ch == INT_RCURLY) {
+                return _closeObjectScope();
+            }
+            _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+        }
+        int ptr = _inputPtr;
+        if (ptr >= _inputEnd) {
+            _minorState = MINOR_FIELD_LEADING_WS;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[ptr];
+        _inputPtr = ptr+1;
+        if (ch <= 0x0020) {
+            ch = _skipWS(ch);
+            if (ch <= 0) {
+                _minorState = MINOR_FIELD_LEADING_WS;
+                return _currToken;
+            }
+        }
+        _updateTokenLocation();
+        if (ch != INT_QUOTE) {
+            if (ch == INT_RCURLY) {
+                if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                    return _closeObjectScope();
+                }
+            }
+            return _handleOddName(ch);
+        }
+        // First: can we optimize out bounds checks?
+        if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
+            String n = _fastParseName();
+            if (n != null) {
+                return _fieldComplete(n);
+            }
+        }
+        return _parseEscapedName(0, 0, 0);
+    }
+
+    /*
+    /**********************************************************************
+    /* Second-level decoding, value decoding
     /**********************************************************************
      */
     
@@ -477,9 +561,13 @@ public class NonBlockingJsonParser
             return _startString();
         }
         switch (ch) {
+        case '#':
+            return _handleHashComment(MINOR_VALUE_LEADING_WS);
         case '-':
             return _startNegativeNumber();
-
+        case '/': // c/c++ comments
+            return _handleSlashComment(MINOR_VALUE_LEADING_WS);
+            
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
         // and could be indicate by a more specific error message.
@@ -535,6 +623,12 @@ public class NonBlockingJsonParser
             if (ch == INT_RCURLY){
                 return _closeObjectScope();
             }
+            if (ch == INT_SLASH) {
+                return _handleSlashComment(MINOR_VALUE_EXPECTING_COMMA);
+            }
+            if (ch == INT_HASH) {
+                return _handleHashComment(MINOR_VALUE_EXPECTING_COMMA);
+            }
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
         int ptr = _inputPtr;
@@ -556,8 +650,12 @@ public class NonBlockingJsonParser
             return _startString();
         }
         switch (ch) {
+        case '#':
+            return _handleHashComment(MINOR_VALUE_WS_AFTER_COMMA);
         case '-':
             return _startNegativeNumber();
+        case '/':
+            return _handleSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -614,6 +712,12 @@ public class NonBlockingJsonParser
             }
         }
         if (ch != INT_COLON) {
+            if (ch == INT_SLASH) {
+                return _handleSlashComment(MINOR_VALUE_EXPECTING_COLON);
+            }
+            if (ch == INT_HASH) {
+                return _handleHashComment(MINOR_VALUE_EXPECTING_COLON);
+            }
             // can not omit colon here
             _reportUnexpectedChar(ch, "was expecting a colon to separate field name and value");
         }
@@ -636,8 +740,12 @@ public class NonBlockingJsonParser
             return _startString();
         }
         switch (ch) {
+        case '#':
+            return _handleHashComment(MINOR_VALUE_LEADING_WS);
         case '-':
             return _startNegativeNumber();
+        case '/':
+            return _handleSlashComment(MINOR_VALUE_LEADING_WS);
 
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -683,8 +791,12 @@ public class NonBlockingJsonParser
             return _startString();
         }
         switch (ch) {
+        case '#':
+            return _handleHashComment(MINOR_VALUE_WS_AFTER_COMMA);
         case '-':
             return _startNegativeNumber();
+        case '/':
+            return _handleSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -730,12 +842,6 @@ public class NonBlockingJsonParser
 
     protected JsonToken _startUnexpectedValue(boolean leadingComma, int ch) throws IOException
     {
-        // TODO: Maybe support non-standard tokens that streaming parser does:
-        //
-        // * NaN
-        // * Infinity
-        // * Plus-prefix for numbers
-
         switch (ch) {
         case ']':
             if (!_parsingContext.inArray()) {
@@ -772,6 +878,12 @@ public class NonBlockingJsonParser
         return null;
     }
 
+    /*
+    /**********************************************************************
+    /* Second-level decoding, skipping white-space, comments
+    /**********************************************************************
+     */
+    
     private final int _skipWS(int ch) throws IOException
     {
         do {
@@ -799,9 +911,27 @@ public class NonBlockingJsonParser
         return ch;
     }
 
+    private final JsonToken _handleSlashComment(int fromMinorState) throws IOException
+    {
+        if (!JsonParser.Feature.ALLOW_COMMENTS.enabledIn(_features)) {
+            _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
+        }
+        _reportError("Support for C/C++ comments not yet added");
+        return null;
+    }
+
+    private final JsonToken _handleHashComment(int fromMinorState) throws IOException
+    {
+        if (!JsonParser.Feature.ALLOW_YAML_COMMENTS.enabledIn(_features)) {
+            _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
+        }
+        _reportError("Support for YAML comments not yet added");
+        return null;
+    }
+    
     /*
     /**********************************************************************
-    /* Second-level decoding, simple tokens
+    /* Tertiary decoding, simple tokens
     /**********************************************************************
      */
 
@@ -1486,92 +1616,6 @@ public class NonBlockingJsonParser
         // negative, int-length, fract-length already set, so...
         _expLength = expLen;
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
-    }
- 
-    /*
-    /**********************************************************************
-    /* Second-level decoding, Primary name decoding
-    /**********************************************************************
-     */
-
-    /**
-     * Method that handles initial token type recognition for token
-     * that has to be either FIELD_NAME or END_OBJECT.
-     */
-    private final JsonToken _startFieldName(int ch) throws IOException
-    {
-        // First: any leading white space?
-        if (ch <= 0x0020) {
-            ch = _skipWS(ch);
-            if (ch <= 0) {
-                _minorState = MINOR_FIELD_LEADING_WS;
-                return _currToken;
-            }
-        }
-        _updateTokenLocation();
-        if (ch != INT_QUOTE) {
-            if (ch == INT_RCURLY) {
-                return _closeObjectScope();
-            }
-            return _handleOddName(ch);
-        }
-        // First: can we optimize out bounds checks?
-        if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
-            String n = _fastParseName();
-            if (n != null) {
-                return _fieldComplete(n);
-            }
-        }
-        return _parseEscapedName(0, 0, 0);
-    }
-
-    private final JsonToken _startFieldNameAfterComma(int ch) throws IOException
-    {
-        // First: any leading white space?
-        if (ch <= 0x0020) {
-            ch = _skipWS(ch); // will skip through all available ws (and comments)
-            if (ch <= 0) {
-                _minorState = MINOR_FIELD_LEADING_COMMA;
-                return _currToken;
-            }
-        }
-        if (ch != INT_COMMA) { // either comma, separating entries, or closing right curly
-            if (ch == INT_RCURLY) {
-                return _closeObjectScope();
-            }
-            _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
-        }
-        int ptr = _inputPtr;
-        if (ptr >= _inputEnd) {
-            _minorState = MINOR_FIELD_LEADING_WS;
-            return (_currToken = JsonToken.NOT_AVAILABLE);
-        }
-        ch = _inputBuffer[ptr];
-        _inputPtr = ptr+1;
-        if (ch <= 0x0020) {
-            ch = _skipWS(ch);
-            if (ch <= 0) {
-                _minorState = MINOR_FIELD_LEADING_WS;
-                return _currToken;
-            }
-        }
-        _updateTokenLocation();
-        if (ch != INT_QUOTE) {
-            if (ch == INT_RCURLY) {
-                if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
-                    return _closeObjectScope();
-                }
-            }
-            return _handleOddName(ch);
-        }
-        // First: can we optimize out bounds checks?
-        if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
-            String n = _fastParseName();
-            if (n != null) {
-                return _fieldComplete(n);
-            }
-        }
-        return _parseEscapedName(0, 0, 0);
     }
 
     /*

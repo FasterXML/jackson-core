@@ -47,7 +47,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     public void testYAMLComments() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
+        f.enable(JsonParser.Feature.ALLOW_YAML_COMMENTS);
 
         _testYAMLComments(f);
         _testCommentsBeforePropValue(f, "# foo\n");
@@ -55,16 +55,16 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         _testCommentsBetweenArrayValues(f, "# foo\n");
     }
 
-    public void testCCommentsBytes() throws Exception {
+    public void testCComments() throws Exception {
         JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        f.enable(JsonParser.Feature.ALLOW_COMMENTS);
         final String COMMENT = "/* foo */\n";
         _testCommentsBeforePropValue(f, COMMENT);
     }
 
-    public void testCppCommentsBytes() throws Exception {
+    public void testCppComments() throws Exception {
         JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        f.enable(JsonParser.Feature.ALLOW_COMMENTS);
         final String COMMENT = "// foo\n";
         _testCommentsBeforePropValue(f, COMMENT);
     }
@@ -102,7 +102,6 @@ public class AsyncCommentParsingTest extends AsyncTestBase
             assertEquals(JsonToken.END_OBJECT, p.nextToken());
             p.close();
         }
-        
     }
 
     private void _testCommentsBetweenArrayValues(JsonFactory f,
@@ -185,7 +184,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     private void _testWithUTF8Chars(String doc) throws IOException
     {
         // should basically just stream through
-        AsyncReaderWrapper p = _createParser(doc, false, 3);
+        AsyncReaderWrapper p = _createParser(doc, true, 3);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
@@ -207,7 +206,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
 
     private void _testEnabled(String doc) throws IOException
     {
-        AsyncReaderWrapper p = _createParser(doc, false, 3);
+        AsyncReaderWrapper p = _createParser(doc, true, 3);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
@@ -219,7 +218,6 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         throws IOException
     {
         JsonFactory f = new JsonFactory();
-
         f.configure(JsonParser.Feature.ALLOW_COMMENTS, enabled);
         AsyncReaderWrapper p = asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
         assertToken(JsonToken.START_ARRAY, p.nextToken());

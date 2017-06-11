@@ -3103,9 +3103,9 @@ public class UTF8StreamJsonParser
             _reportInvalidEOF(" in a comment", null);
         }
         int c = _inputBuffer[_inputPtr++] & 0xFF;
-        if (c == '/') {
+        if (c == INT_SLASH) {
             _skipLine();
-        } else if (c == '*') {
+        } else if (c == INT_ASTERISK) {
             _skipCComment();
         } else {
             _reportUnexpectedChar(c, "was expecting either '*' or '/' for a comment");

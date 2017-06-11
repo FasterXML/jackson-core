@@ -247,8 +247,6 @@ public class NonBlockingJsonParser
             return _finishKeywordToken("true", _pending32, JsonToken.VALUE_TRUE);
         case MINOR_VALUE_TOKEN_FALSE:
             return _finishKeywordToken("false", _pending32, JsonToken.VALUE_FALSE);
-        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
-            return _finishErrorToken();
         case MINOR_VALUE_TOKEN_NON_STD:
             return _finishNonStdToken(_nonStdTokenType, _pending32);
 
@@ -308,6 +306,22 @@ public class NonBlockingJsonParser
 
         case MINOR_VALUE_APOS_STRING:
             return _finishAposString();
+
+        case MINOR_VALUE_TOKEN_ERROR: // case of "almost token", just need tokenize for error
+            return _finishErrorToken();
+
+        // Comments
+            
+        case MINOR_COMMENT_LEADING_SLASH:
+            return _startSlashComment(_pending32);
+        case MINOR_COMMENT_CLOSING_ASTERISK:
+            return _finishCComment(_pending32, true);
+        case MINOR_COMMENT_C:
+            return _finishCComment(_pending32, false);
+        case MINOR_COMMENT_CPP:
+            return _finishCppComment(_pending32);
+        case MINOR_COMMENT_YAML:
+            return _finishHashComment(_pending32);
         }
         VersionUtil.throwInternal();
         return null;
@@ -367,6 +381,19 @@ public class NonBlockingJsonParser
         case MINOR_NUMBER_EXPONENT_MARKER:
             _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
 
+            // How about comments? 
+            // Inside C-comments; not legal
+
+//        case MINOR_COMMENT_LEADING_SLASH: // not legal, but use default error
+        case MINOR_COMMENT_CLOSING_ASTERISK:
+        case MINOR_COMMENT_C:
+            _reportInvalidEOF(": was expecting closing '*/' for comment", JsonToken.NOT_AVAILABLE);
+
+        case MINOR_COMMENT_CPP:
+        case MINOR_COMMENT_YAML:
+            // within C++/YAML comments, ok, as long as major state agrees...
+            return _eofAsNextToken();
+            
         default:
         }
         _reportInvalidEOF(": was expecting rest of token (internal state: "+_minorState+")", _currToken);
@@ -500,6 +527,12 @@ public class NonBlockingJsonParser
             if (ch == INT_RCURLY) {
                 return _closeObjectScope();
             }
+            if (ch == INT_HASH) {
+                return _finishHashComment(MINOR_FIELD_LEADING_COMMA);
+            }
+            if (ch == INT_SLASH) {
+                return _startSlashComment(MINOR_FIELD_LEADING_COMMA);
+            }
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
         int ptr = _inputPtr;
@@ -562,11 +595,11 @@ public class NonBlockingJsonParser
         }
         switch (ch) {
         case '#':
-            return _handleHashComment(MINOR_VALUE_LEADING_WS);
+            return _finishHashComment(MINOR_VALUE_LEADING_WS);
         case '-':
             return _startNegativeNumber();
         case '/': // c/c++ comments
-            return _handleSlashComment(MINOR_VALUE_LEADING_WS);
+            return _startSlashComment(MINOR_VALUE_LEADING_WS);
             
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -624,10 +657,10 @@ public class NonBlockingJsonParser
                 return _closeObjectScope();
             }
             if (ch == INT_SLASH) {
-                return _handleSlashComment(MINOR_VALUE_EXPECTING_COMMA);
+                return _startSlashComment(MINOR_VALUE_EXPECTING_COMMA);
             }
             if (ch == INT_HASH) {
-                return _handleHashComment(MINOR_VALUE_EXPECTING_COMMA);
+                return _finishHashComment(MINOR_VALUE_EXPECTING_COMMA);
             }
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
@@ -651,11 +684,11 @@ public class NonBlockingJsonParser
         }
         switch (ch) {
         case '#':
-            return _handleHashComment(MINOR_VALUE_WS_AFTER_COMMA);
+            return _finishHashComment(MINOR_VALUE_WS_AFTER_COMMA);
         case '-':
             return _startNegativeNumber();
         case '/':
-            return _handleSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
+            return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -713,10 +746,10 @@ public class NonBlockingJsonParser
         }
         if (ch != INT_COLON) {
             if (ch == INT_SLASH) {
-                return _handleSlashComment(MINOR_VALUE_EXPECTING_COLON);
+                return _startSlashComment(MINOR_VALUE_EXPECTING_COLON);
             }
             if (ch == INT_HASH) {
-                return _handleHashComment(MINOR_VALUE_EXPECTING_COLON);
+                return _finishHashComment(MINOR_VALUE_EXPECTING_COLON);
             }
             // can not omit colon here
             _reportUnexpectedChar(ch, "was expecting a colon to separate field name and value");
@@ -741,11 +774,11 @@ public class NonBlockingJsonParser
         }
         switch (ch) {
         case '#':
-            return _handleHashComment(MINOR_VALUE_LEADING_WS);
+            return _finishHashComment(MINOR_VALUE_LEADING_WS);
         case '-':
             return _startNegativeNumber();
         case '/':
-            return _handleSlashComment(MINOR_VALUE_LEADING_WS);
+            return _startSlashComment(MINOR_VALUE_LEADING_WS);
 
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -792,11 +825,11 @@ public class NonBlockingJsonParser
         }
         switch (ch) {
         case '#':
-            return _handleHashComment(MINOR_VALUE_WS_AFTER_COMMA);
+            return _finishHashComment(MINOR_VALUE_WS_AFTER_COMMA);
         case '-':
             return _startNegativeNumber();
         case '/':
-            return _handleSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
+            return _startSlashComment(MINOR_VALUE_WS_AFTER_COMMA);
 
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -899,11 +932,7 @@ public class NonBlockingJsonParser
                 }
             }
             if (_inputPtr >= _inputEnd) {
-                if (_endOfInput) { // except for this special case
-                    _eofAsNextToken();
-                } else {
-                    _currToken = JsonToken.NOT_AVAILABLE;
-                }
+                _currToken = JsonToken.NOT_AVAILABLE;
                 return 0;
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -911,24 +940,144 @@ public class NonBlockingJsonParser
         return ch;
     }
 
-    private final JsonToken _handleSlashComment(int fromMinorState) throws IOException
+    private final JsonToken _startSlashComment(int fromMinorState) throws IOException
     {
         if (!JsonParser.Feature.ALLOW_COMMENTS.enabledIn(_features)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
-        _reportError("Support for C/C++ comments not yet added");
+
+        // After that, need to verify if we have c/c++ comment
+        if (_inputPtr >= _inputEnd) {
+            _pending32 = fromMinorState;
+            _minorState = MINOR_COMMENT_LEADING_SLASH;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        int ch = _inputBuffer[_inputPtr++];
+        if (ch == INT_ASTERISK) { // c-style
+            return _finishCComment(fromMinorState, false);
+        }
+        if (ch == INT_SLASH) { // c++-style
+            return _finishCppComment(fromMinorState);
+        }
+        _reportUnexpectedChar(ch & 0xFF, "was expecting either '*' or '/' for a comment");
         return null;
     }
 
-    private final JsonToken _handleHashComment(int fromMinorState) throws IOException
+    private final JsonToken _finishHashComment(int fromMinorState) throws IOException
     {
+        // Could by-pass this check by refactoring, but for now simplest way...
         if (!JsonParser.Feature.ALLOW_YAML_COMMENTS.enabledIn(_features)) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
-        _reportError("Support for YAML comments not yet added");
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_COMMENT_YAML;
+                _pending32 = fromMinorState;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            if (ch < 0x020) {
+                if (ch == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                    break;
+                } else if (ch == INT_CR) {
+                    ++_currInputRowAlt;
+                    _currInputRowStart = _inputPtr;
+                    break;
+                } else if (ch != INT_TAB) {
+                    _throwInvalidSpace(ch);
+                }
+            }
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishCppComment(int fromMinorState) throws IOException
+    {
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _minorState = MINOR_COMMENT_CPP;
+                _pending32 = fromMinorState;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            if (ch < 0x020) {
+                if (ch == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                    break;
+                } else if (ch == INT_CR) {
+                    ++_currInputRowAlt;
+                    _currInputRowStart = _inputPtr;
+                    break;
+                } else if (ch != INT_TAB) {
+                    _throwInvalidSpace(ch);
+                }
+            }
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws IOException
+    {
+        while (true) {
+            if (_inputPtr >= _inputEnd) {
+                _minorState = gotStar ? MINOR_COMMENT_CLOSING_ASTERISK : MINOR_COMMENT_C;
+                _pending32 = fromMinorState;
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            if (ch < 0x020) {
+                if (ch == INT_LF) {
+                    ++_currInputRow;
+                    _currInputRowStart = _inputPtr;
+                } else if (ch == INT_CR) {
+                    ++_currInputRowAlt;
+                    _currInputRowStart = _inputPtr;
+                } else if (ch != INT_TAB) {
+                    _throwInvalidSpace(ch);
+                }
+            } else if (ch == INT_ASTERISK) {
+                gotStar = true;
+                continue;
+            } else if (ch == INT_SLASH) {
+                if (gotStar) {
+                    break;
+                }
+            }
+            gotStar = false;
+        }
+        return _startAfterComment(fromMinorState);
+    }
+
+    private final JsonToken _startAfterComment(int fromMinorState) throws IOException
+    {
+        // Ok, then, need one more character...
+        if (_inputPtr >= _inputEnd) {
+            _minorState = fromMinorState;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        int ch = _inputBuffer[_inputPtr++] & 0xFF;
+        switch (fromMinorState) {
+        case MINOR_FIELD_LEADING_WS:
+            return _startFieldName(ch);
+        case MINOR_FIELD_LEADING_COMMA:
+            return _startFieldNameAfterComma(ch);
+        case MINOR_VALUE_LEADING_WS:
+            return _startValue(ch);
+        case MINOR_VALUE_EXPECTING_COMMA:
+            return _startValueExpectComma(ch);
+        case MINOR_VALUE_EXPECTING_COLON:
+            return _startValueExpectColon(ch);
+        case MINOR_VALUE_WS_AFTER_COMMA:
+            return _startValueAfterComma(ch);
+        default:
+        }
+        VersionUtil.throwInternal();
         return null;
     }
-    
+
     /*
     /**********************************************************************
     /* Tertiary decoding, simple tokens
@@ -1895,11 +2044,17 @@ public class NonBlockingJsonParser
     private JsonToken _handleOddName(int ch) throws IOException
     {
         // First: may allow single quotes
-        if (ch == '\'') {
+        switch (ch) {
+        case '#':
+            return _finishHashComment(MINOR_FIELD_LEADING_WS);
+        case '/':
+            return _startSlashComment(MINOR_FIELD_LEADING_WS);
+        case '\'':
             if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
                 return _finishAposName(0, 0, 0);
             }
-        } else if (ch == ']') { // for better error reporting...
+            break;
+        case ']': // for better error reporting...
             return _closeArrayScope();
         }
         // allow unquoted names if feature enabled:

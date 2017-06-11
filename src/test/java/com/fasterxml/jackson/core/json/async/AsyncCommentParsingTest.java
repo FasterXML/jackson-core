@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing.async;
+package com.fasterxml.jackson.core.json.async;
 
 import java.io.*;
 
@@ -34,43 +34,64 @@ public class AsyncCommentParsingTest extends AsyncTestBase
 
     public void testCommentsEnabled() throws Exception
     {
-        _testEnabled(DOC_WITH_SLASHSTAR_COMMENT);
-        _testEnabled(DOC_WITH_SLASHSLASH_COMMENT);
+        _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, 99);
+        _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, 3);
+        _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, 1);
+
+        _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, 99);
+        _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, 3);
+        _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, 1);
     }
 
-    public void testCommentsWithUTF8() throws Exception
+    public void testCCommentsWithUTF8() throws Exception
     {
         final String JSON = "/* \u00a9 2099 Yoyodyne Inc. */\n [ \"bar? \u00a9\" ]\n";
-        _testWithUTF8Chars(JSON);
+
+        _testWithUTF8Chars(JSON, 99);
+        _testWithUTF8Chars(JSON, 5);
+        _testWithUTF8Chars(JSON, 3);
+        _testWithUTF8Chars(JSON, 2);
+        _testWithUTF8Chars(JSON, 1);
     }
 
-    public void testYAMLComments() throws Exception
+    public void testYAMLCommentsEnabled() throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.enable(JsonParser.Feature.ALLOW_YAML_COMMENTS);
 
-        _testYAMLComments(f);
-        _testCommentsBeforePropValue(f, "# foo\n");
+        _testYAMLComments(f, 99);
+        _testYAMLComments(f, 3);
+        _testYAMLComments(f, 1);
 
-        _testCommentsBetweenArrayValues(f, "# foo\n");
+        _testCommentsBeforePropValue(f, "# foo\n", 99);
+        _testCommentsBeforePropValue(f, "# foo\n", 3);
+        _testCommentsBeforePropValue(f, "# foo\n", 1);
+
+        _testCommentsBetweenArrayValues(f, "# foo\n", 99);
+        _testCommentsBetweenArrayValues(f, "# foo\n", 3);
+        _testCommentsBetweenArrayValues(f, "# foo\n", 1);
     }
 
-    public void testCComments() throws Exception {
+    public void testCCommentsEnabled() throws Exception {
         JsonFactory f = new JsonFactory();
         f.enable(JsonParser.Feature.ALLOW_COMMENTS);
         final String COMMENT = "/* foo */\n";
-        _testCommentsBeforePropValue(f, COMMENT);
+        _testCommentsBeforePropValue(f, COMMENT, 99);
+        _testCommentsBeforePropValue(f, COMMENT, 3);
+        _testCommentsBeforePropValue(f, COMMENT, 1);
     }
 
-    public void testCppComments() throws Exception {
+    public void testCppCommentsEnabled() throws Exception {
         JsonFactory f = new JsonFactory();
         f.enable(JsonParser.Feature.ALLOW_COMMENTS);
         final String COMMENT = "// foo\n";
-        _testCommentsBeforePropValue(f, COMMENT);
+        _testCommentsBeforePropValue(f, COMMENT, 99);
+        _testCommentsBeforePropValue(f, COMMENT, 3);
+        _testCommentsBeforePropValue(f, COMMENT, 1);
     }
 
     private void _testCommentsBeforePropValue(JsonFactory f,
-            String comment) throws Exception
+            String comment, int bytesPerRead) throws Exception
     {
         for (String arg : new String[] {
                 ":%s123",
@@ -82,7 +103,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
             String commented = String.format(arg, comment);
             
             final String DOC = "{\"abc\"" + commented + "}";
-            AsyncReaderWrapper p = _createParser(f, DOC, 3);
+            AsyncReaderWrapper p = _createParser(f, DOC, bytesPerRead);
             assertEquals(JsonToken.START_OBJECT, p.nextToken());
             JsonToken t = null;
             try {
@@ -105,7 +126,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     }
 
     private void _testCommentsBetweenArrayValues(JsonFactory f,
-            String comment) throws Exception
+            String comment, int bytesPerRead) throws Exception
     {
         for (String tmpl : new String[] {
                 "%s,",
@@ -121,7 +142,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
             String commented = String.format(tmpl, comment);
             
             final String DOC = "[1"+commented+"2]";
-            AsyncReaderWrapper p = _createParser(f, DOC, 3);
+            AsyncReaderWrapper p = _createParser(f, DOC, bytesPerRead);
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
             JsonToken t = null;
             try {
@@ -145,7 +166,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         
     }
     
-    private void _testYAMLComments(JsonFactory f) throws Exception
+    private void _testYAMLComments(JsonFactory f, int bytesPerRead) throws Exception
     {
         final String DOC = "# foo\n"
                 +" {\"a\" # xyz\n"
@@ -157,7 +178,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
                 +"] # foobar\n"
                 +"} # x"
                 ;
-        AsyncReaderWrapper p = _createParser(f, DOC, 3);
+        AsyncReaderWrapper p = _createParser(f, DOC, bytesPerRead);
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
         assertEquals(JsonToken.FIELD_NAME, p.nextToken());
@@ -181,10 +202,11 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     /**********************************************************
      */
 
-    private void _testWithUTF8Chars(String doc) throws IOException
+    private void _testWithUTF8Chars(String doc, int bytesPerRead) throws IOException
     {
         // should basically just stream through
-        AsyncReaderWrapper p = _createParser(doc, true, 3);
+        AsyncReaderWrapper p = _createParser(doc, true, bytesPerRead);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
@@ -194,6 +216,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     private void _testDisabled(String doc) throws IOException
     {
         AsyncReaderWrapper p = _createParser(doc, false, 3);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             p.nextToken();
             fail("Expected exception for unrecognized comment");
@@ -204,9 +227,10 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         p.close();
     }
 
-    private void _testEnabled(String doc) throws IOException
+    private void _testEnabled(String doc, int bytesPerRead) throws IOException
     {
-        AsyncReaderWrapper p = _createParser(doc, true, 3);
+        AsyncReaderWrapper p = _createParser(doc, true, bytesPerRead);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
@@ -219,16 +243,12 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     {
         JsonFactory f = new JsonFactory();
         f.configure(JsonParser.Feature.ALLOW_COMMENTS, enabled);
-        AsyncReaderWrapper p = asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        return p;
+        return asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
     }
 
     private AsyncReaderWrapper _createParser(JsonFactory f, String doc, int bytesPerRead)
         throws IOException
     {
-        AsyncReaderWrapper p = asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        return p;
+        return asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
     }
 }

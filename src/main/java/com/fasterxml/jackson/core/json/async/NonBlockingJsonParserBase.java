@@ -98,15 +98,6 @@ public abstract class NonBlockingJsonParserBase
 
     protected final static int MINOR_VALUE_TOKEN_NON_STD = 19;
 
-    /**
-     * Special state at which point decoding of a non-quoted token has encountered
-     * a problem; that is, either not matching fully (like "truf" instead of "true",
-     * at "tru"), or not having trailing separator (or end of input), like "trueful".
-     * Attempt is made, then, to decode likely full input token to report suitable
-     * error.
-     */
-    protected final static int MINOR_VALUE_TOKEN_ERROR = 20;
-    
     protected final static int MINOR_NUMBER_MINUS = 23;
     protected final static int MINOR_NUMBER_ZERO = 24; // zero as first, possibly trimming multiple
     protected final static int MINOR_NUMBER_MINUSZERO = 25; // "-0" (and possibly more zeroes) receive
@@ -122,6 +113,21 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_VALUE_STRING_UTF8_3 = 43;
     protected final static int MINOR_VALUE_STRING_UTF8_4 = 44;
     protected final static int MINOR_VALUE_APOS_STRING = 45;
+
+    /**
+     * Special state at which point decoding of a non-quoted token has encountered
+     * a problem; that is, either not matching fully (like "truf" instead of "true",
+     * at "tru"), or not having trailing separator (or end of input), like "trueful".
+     * Attempt is made, then, to decode likely full input token to report suitable
+     * error.
+     */
+    protected final static int MINOR_VALUE_TOKEN_ERROR = 50;
+
+    protected final static int MINOR_COMMENT_LEADING_SLASH = 51;
+    protected final static int MINOR_COMMENT_CLOSING_ASTERISK = 52;
+    protected final static int MINOR_COMMENT_C = 53;
+    protected final static int MINOR_COMMENT_CPP = 54;
+    protected final static int MINOR_COMMENT_YAML = 55;
     
     /*
     /**********************************************************************

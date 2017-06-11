@@ -39,6 +39,7 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int INT_APOS = '\'';
     protected final static int INT_BACKSLASH = '\\';
     protected final static int INT_SLASH = '/';
+    protected final static int INT_ASTERISK = '*';
     protected final static int INT_COLON = ':';
     protected final static int INT_COMMA = ',';
     protected final static int INT_HASH = '#';

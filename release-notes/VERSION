@@ -42,7 +42,7 @@ JSON library.
 #374: Minimal and DefaultPrettyPrinter with configurable separators 
  (contributed by Rafal F)
 
-2.8.9 (not yet released)
+2.8.9 (12-Jun-2017)
 
 #382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
  (reported by Wil S)

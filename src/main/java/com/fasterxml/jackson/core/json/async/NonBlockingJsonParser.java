@@ -2046,7 +2046,12 @@ public class NonBlockingJsonParser
         // First: may allow single quotes
         switch (ch) {
         case '#':
-            return _finishHashComment(MINOR_FIELD_LEADING_WS);
+            // Careful, since this may alternatively be leading char of
+            // unquoted name...
+            if (JsonParser.Feature.ALLOW_YAML_COMMENTS.enabledIn(_features)) {
+                return _finishHashComment(MINOR_FIELD_LEADING_WS);
+            }
+            break;
         case '/':
             return _startSlashComment(MINOR_FIELD_LEADING_WS);
         case '\'':

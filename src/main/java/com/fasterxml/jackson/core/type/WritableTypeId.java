@@ -26,6 +26,14 @@ public class WritableTypeId
     public Object forValue;
 
     /**
+     * (optional) Super-type of {@link #forValue} to use for type id generation (if no
+     * explicit id passed): used instead of actual class of {@link #forValue} in cases
+     * where we do not want to use the "real" type but something more generic, usually
+     * to work around specific problem with implementation type, or its deserializer.
+     */
+    public Class<?> forValueType;
+
+    /**
      * Actual type id to use: usually {link java.lang.String}.
      */
     public Object id;
@@ -69,13 +77,33 @@ public class WritableTypeId
     
     public WritableTypeId() { }
 
-    public WritableTypeId(Object value0, Object id0,
-            String prop0, JsonToken wrapStyle0, JsonToken valueShape0)
+    /**
+     * Constructor used when calling a method for generating and writing Type Id;
+     * caller only knows value object and its intended shape.
+     */
+    public WritableTypeId(Object value, JsonToken valueShape0) {
+        this(value, valueShape0, null);
+    }
+
+    /**
+     * Constructor used when calling a method for generating and writing Type Id,
+     * but where actual type to use for generating id is NOT the type of value
+     * (but its supertype).
+     */
+    public WritableTypeId(Object value, Class<?> valueType0, JsonToken valueShape0) {
+        this(value, valueShape0, null);
+        forValueType = valueType0;
+    }
+
+    /**
+     * Constructor used when calling a method for writing Type Id;
+     * caller knows value object, its intended shape as well as id to
+     * use; but not details of wrapping (if any).
+     */
+    public WritableTypeId(Object value, JsonToken valueShape0, Object id0)
     {
-        forValue = value0;
+        forValue = value;
         id = id0;
-        asProperty = prop0;
-        wrapStyle = wrapStyle0;
         valueShape = valueShape0;
     }
 }

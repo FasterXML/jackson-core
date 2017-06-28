@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
+@SuppressWarnings("resource")
 public class BasicParserFilteringTest extends BaseTest
 {
     static class NameMatchFilter extends TokenFilter
@@ -69,7 +70,6 @@ public class BasicParserFilteringTest extends BaseTest
 
     private final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
 
-    @SuppressWarnings("resource")
     public void testNonFiltering() throws Exception
     {
         JsonParser p = JSON_F.createParser(SIMPLE);
@@ -77,7 +77,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(SIMPLE, result);
     }
 
-    @SuppressWarnings("resource")
     public void testSingleMatchFilteringWithoutPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
@@ -133,8 +132,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(1, p.getMatchCount());
     }
 
-
-    @SuppressWarnings("resource")
     public void testNotAllowMultipleMatchesWithoutPath1() throws Exception
     {
         String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'b':true}");
@@ -149,7 +146,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(1, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testNotAllowMultipleMatchesWithoutPath2() throws Exception
     {
         String jsonString = aposToQuotes("{'a':123,'array':[1,2],'array':[3,4],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
@@ -207,7 +203,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(1, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testNotAllowMultipleMatchesWithPath4() throws Exception
     {
         String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value1':1},'ob2':{'ob':{'value2':2}},'value':\"val\",'b':true}");
@@ -222,7 +217,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(1, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testAllowMultipleMatchesWithoutPath() throws Exception
     {
         String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
@@ -237,8 +231,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(3, p.getMatchCount());
     }
 
-
-    @SuppressWarnings("resource")
     public void testAllowMultipleMatchesWithPath1() throws Exception
     {
         String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4,'value':{'value0':2}},'value':\"val\",'b':true}");
@@ -253,8 +245,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(3, p.getMatchCount());
     }
 
-
-    @SuppressWarnings("resource")
     public void testAllowMultipleMatchesWithPath2() throws Exception
     {
         String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'array':[3,4],'value':{'value0':2}},'value':\"val\",'b':true}");
@@ -269,7 +259,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(2, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testMultipleMatchFilteringWithPath1() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
@@ -282,7 +271,6 @@ public class BasicParserFilteringTest extends BaseTest
 
     }
 
-    @SuppressWarnings("resource")
     public void testMultipleMatchFilteringWithPath2() throws Exception
     {
         String INPUT = aposToQuotes("{'a':123,'ob':{'value0':2,'value':3,'value2':4},'b':true}");
@@ -296,7 +284,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(2, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testMultipleMatchFilteringWithPath3() throws Exception
     {
         final String JSON = aposToQuotes("{'root':{'a0':true,'a':{'value':3},'b':{'value':\"foo\"}},'b0':false}");
@@ -309,7 +296,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(2, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testIndexMatchWithPath1() throws Exception
     {
         FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
@@ -325,7 +311,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(1, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testIndexMatchWithPath2() throws Exception
     {
         FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
@@ -340,7 +325,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(3, p.getMatchCount());
     }
 
-    @SuppressWarnings("resource")
     public void testBasicSingleMatchFilteringWithPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
@@ -355,7 +339,6 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(aposToQuotes("{'ob':{'value':3}}"), result);
     }
 
-    @SuppressWarnings("resource")
     public void testTokensSingleMatchWithPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);
@@ -410,7 +393,6 @@ public class BasicParserFilteringTest extends BaseTest
         p.close();
     }
 
-    @SuppressWarnings("resource")
     public void testSkippingForSingleWithPath() throws Exception
     {
         JsonParser p0 = JSON_F.createParser(SIMPLE);

@@ -20,6 +20,78 @@ import com.fasterxml.jackson.core.JsonToken;
 public class WritableTypeId
 {
     /**
+     * Enumeration of values that matches enum `As` from annotation
+     * `JsonTypeInfo`: separate definition to avoid dependency between
+     * streaming core and annotations packages; also allows more flexibility
+     * in case new values needed at this level of internal API.
+     *<p>
+     * NOTE: in most cases this only matters with formats that do NOT have native
+     * type id capabilities, and require type id to be included within regular
+     * data (whether exposed as Java properties or not). Formats with native
+     * types usually use native type id functionality regardless, unless
+     * overridden by a feature to use "non-native" type inclusion.
+     */
+    public enum Inclusion {
+        /**
+         * Inclusion as wrapper Array (1st element type id, 2nd element value).
+         *<p>
+         * Corresponds to <code>JsonTypeInfo.As.WRAPPER_ARRAY</code>.
+         */
+        WRAPPER_ARRAY,
+
+        /**
+         * Inclusion as wrapper Object that has one key/value pair where type id
+         * is the key for typed value.
+         *<p>
+         * Corresponds to <code>JsonTypeInfo.As.WRAPPER_OBJECT</code>.
+         */
+        WRAPPER_OBJECT,
+
+        /**
+         * Inclusion as a property within Object to write (in case value is output
+         * as Object); but if format has distinction between data, metadata, will
+         * use latter (for example: attributes in XML) instead of data (XML elements).
+         *<p>
+         * NOTE: if shape of typed value to write is NOT Object, will instead use
+         * {@link #WRAPPER_ARRAY} inclusion.
+         *<p>
+         * Corresponds to <code>JsonTypeInfo.As.PROPERTY</code>.
+         */
+        METADATA_PROPERTY,
+
+        /**
+         * Inclusion as a property within Object to write (in case value is output
+         * as Object); but if format has distinction between data, metadata, will
+         * use formetr (for example: Element in XML) instead of metadata (XML attribute).
+         * In addition, it is possible that in some cases databinding may omit calling
+         * type id writes for this case, and write them: if so, it will have to use
+         * regular property write methods.
+         *<p>
+         * NOTE: if shape of typed value to write is NOT Object, will instead use
+         * {@link #WRAPPER_ARRAY} inclusion.
+         *<p>
+         * Corresponds to <code>JsonTypeInfo.As.EXISTING_PROPERTY</code>.
+         */
+        PAYLOAD_PROPERTY,
+
+        /**
+         * Inclusion as a property within "parent" Object of value Object to write.
+         * This typically requires slightly convoluted processing in which property
+         * that contains type id is actually written <b>after</b> typed value object
+         * itself is written.
+         *<br />
+         * Note that it is illegal to call write method if the current (parent) write context
+         * is not Object: no coercion is done for other inclusion types (unlike with
+         * other <code>xxx_PROPERTY</code> choices.
+         * This also means that root values MAY NOT use this type id inclusion mechanism
+         * (as they have no parent context).
+         *<p>
+         * Corresponds to <code>JsonTypeInfo.As.EXTERNAL_PROPERTY</code>.
+         */
+        PARENT_PROPERTY,
+    }
+    
+    /**
      * Java object for which type id is being written. Not needed by default handling,
      * but may be useful for customized format handling.
      */
@@ -48,16 +120,11 @@ public class WritableTypeId
     public String asProperty;
 
     /**
-     * If caller expects wrapping style to be used -- either "as Object" or "as Array" --
-     * identifier of wrapping style; `null` if no wrapping is to be used.
-     * Wrapping means use of additional wrapping structure (Array, Object) to contain
-     * type id (as first array element, or as property name), and value for which type id
-     * applies to be contained (as second array element, or as value for the property with
-     * type id as name).
-     *<p>
-     * Valid values are `null`, {@link JsonToken#START_ARRAY}, {@link JsonToken#START_OBJECT}.
+     * Property used to indicate style of inclusion for this type id, in cases where
+     * no native type id may be used (either because format has none, like JSON; or
+     * because use of native type ids is disabled [with YAML]).
      */
-    public JsonToken wrapStyle;
+    public Inclusion include;
 
     /**
      * Information about intended shape of the value being written (that is, {@link #forValue});

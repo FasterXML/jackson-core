@@ -1456,24 +1456,26 @@ public abstract class JsonGenerator
                 // must have Object context by now, so simply write as field name
                 // Note, too, that it's bit tricky, since we must print START_OBJECT that is part
                 // of value first -- and then NOT output it later on: hence return "early"
-                writeStartObject();
+                writeStartObject(typeIdDef.forValue);
                 writeStringField(typeIdDef.asProperty, idStr);
                 return typeIdDef;
 
             case WRAPPER_OBJECT:
+                // NOTE: this is wrapper, not directly related to value to output, so don't pass
                 writeStartObject();
                 writeFieldName(idStr);
                 break;
             case WRAPPER_ARRAY:
             default: // should never occur but translate as "as-array"
-                writeStartArray();
+                writeStartArray(); // wrapper, not actual array object to write
                 writeString(idStr);
             }
         }
         // and finally possible start marker for value itself:
         if (valueShape == JsonToken.START_OBJECT) {
-            writeStartObject();
+            writeStartObject(typeIdDef.forValue);
         } else if (valueShape == JsonToken.START_ARRAY) {
+            // should we now set the current object?
             writeStartArray();
         }
         return typeIdDef;

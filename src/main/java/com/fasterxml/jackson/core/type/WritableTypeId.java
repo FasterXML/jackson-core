@@ -79,7 +79,7 @@ public class WritableTypeId
          * This typically requires slightly convoluted processing in which property
          * that contains type id is actually written <b>after</b> typed value object
          * itself is written.
-         *<br />
+         *<br>
          * Note that it is illegal to call write method if the current (parent) write context
          * is not Object: no coercion is done for other inclusion types (unlike with
          * other <code>xxx_PROPERTY</code> choices.

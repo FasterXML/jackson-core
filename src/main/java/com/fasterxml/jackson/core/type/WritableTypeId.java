@@ -48,9 +48,9 @@ public class WritableTypeId
         WRAPPER_OBJECT,
 
         /**
-         * Inclusion as a property within Object to write (in case value is output
-         * as Object); but if format has distinction between data, metadata, will
-         * use latter (for example: attributes in XML) instead of data (XML elements).
+         * Inclusion as a property within Object to write, but logically as separate
+         * metadata that is not exposed as payload to caller: that is, does not match
+         * any of visible properties value object has.
          *<p>
          * NOTE: if shape of typed value to write is NOT Object, will instead use
          * {@link #WRAPPER_ARRAY} inclusion.
@@ -60,12 +60,13 @@ public class WritableTypeId
         METADATA_PROPERTY,
 
         /**
-         * Inclusion as a property within Object to write (in case value is output
-         * as Object); but if format has distinction between data, metadata, will
-         * use formetr (for example: Element in XML) instead of metadata (XML attribute).
-         * In addition, it is possible that in some cases databinding may omit calling
-         * type id writes for this case, and write them: if so, it will have to use
-         * regular property write methods.
+         * Inclusion as a "regular" property within Object to write; this implies that
+         * its value should come from regular POJO property on serialization, and
+         * be deserialized into such property. This handling, however, is up to databinding.
+         *<p>
+         * Regarding handling, type id is ONLY written as native type id; if no native
+         * type ids available, caller is assumed to handle output some other way.
+         * This is different from {@link #METADATA_PROPERTY}.
          *<p>
          * NOTE: if shape of typed value to write is NOT Object, will instead use
          * {@link #WRAPPER_ARRAY} inclusion.
@@ -88,7 +89,11 @@ public class WritableTypeId
          *<p>
          * Corresponds to <code>JsonTypeInfo.As.EXTERNAL_PROPERTY</code>.
          */
-        PARENT_PROPERTY,
+        PARENT_PROPERTY;
+
+        public boolean requiresObjectContext() {
+            return (this == METADATA_PROPERTY) || (this == PAYLOAD_PROPERTY);
+        }
     }
     
     /**
@@ -135,6 +140,12 @@ public class WritableTypeId
      * important for processing.
      */
     public JsonToken valueShape;
+
+    /**
+     * Flag that can be set to indicate that wrapper structure was written (during
+     * prefix-writing); used to determine if suffix requires matching close markers.
+     */
+    public boolean wrapperWritten;
 
     /**
      * Optional additional information that generator may add during "prefix write",

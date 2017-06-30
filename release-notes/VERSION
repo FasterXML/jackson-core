@@ -21,6 +21,7 @@ JSON library.
 #57: Add support for non-blocking ("async") JSON parsing
 #208: Make use of `_matchCount` in `FilteringParserDelegate`
  (contributed by Rafal F)
+#242: Add new write methods in `JsonGenerator` for writing type id containers
 #304: Optimize `NumberOutput.outputLong()` method
 #306: Add new method in `JsonStreamContext` to construct `JsonPointer`
 #312: Add `JsonProcessingException.clearLocation()` to allow clearing

@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -1406,11 +1408,6 @@ public abstract class JsonGenerator
         throw new JsonGenerationException("No native support for writing Type Ids", this);
     }
 
-    // 24-May-2016, tatu: Looks like this won't quite make it in 2.8... too
-    //   many open questions on whether return value may be used and such to
-    //   really close the loop. But leaving code sample in, in case we can resolve it
-    //   it for 2.9.
-
     /*
      * Replacement method for {@link #writeTypeId(Object)} which is called
      * regardless of whether format has native type ids. If it does have native
@@ -1418,60 +1415,105 @@ public abstract class JsonGenerator
      * structural type id inclusion is to be used. For JSON, for example, no
      * native type ids exist and structural inclusion is always used.
      *<p>
-     * NOTE: from databind perspective, only "as-wrapper-array", "as-wrapper-object" and
-     * "as-property" inclusion styles call this method; the remaining "as-external-property"
-     * mechanism always uses writes type id value as simple property.
-     *
-     * @param inclStyle Kind of inclusion; {@link JsonToken#START_ARRAY} for "as-wrapper-array",
-     *     {@link JsonToken#START_OBJECT} for "as-wrapper-object" and {@link JsonToken#FIELD_NAME}
-     *     for "as-property"
-     * @param forValue Java object for which type is being written; not used by standard mechanism
-     * @param valueShape Expected shape of the value to write, as expressed by the first token (for
-     *    structural type), or any of scalar types for non-structured values (typically
-     *    just {@link JsonToken#VALUE_STRING} -- exact token not required, just the fact it's scalar)
-     * @param typeId Type id to write
-     * @param propertyName Name of property to use, in case of "as-property" inclusion style
+     * NOTE: databind may choose to skip calling this method for some special cases
+     * (and instead included type id via regular write methods and/or {@link #writeTypeId}
+     * -- this is discouraged, but not illegal, and may be necessary as a work-around
+     * in some cases.
      *
      * @since 2.8
      */
-    /*
-    public Object writeTypeSuffix(JsonToken inclStyle, Object forValue, JsonToken valueShape,
-            String typeId, String propertyName) throws IOException
+    public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws IOException
     {
-        if (inclStyle == JsonToken.FIELD_NAME) { // as-property
-            if (typeId == null) { // should not include `null` type id in any form with this style
-                writeStartObject();
-            } else if (valueShape == JsonToken.START_OBJECT) {
-                if (canWriteTypeId()) {
-                    writeTypeId(typeId);
-                    writeStartObject();
-                } else {
-                    writeStartObject();
-                    writeStringField(propertyName, typeId);
-                }
-            } else if (valueShape == JsonToken.START_ARRAY) {
-                if (canWriteTypeId()) {
-                    writeTypeId(typeId);
-                    writeStartArray();
-                } else {
-                    writeStartArray();
-                    writeString(typeId);
-                }
-            } else { // any scalar
-                if (canWriteTypeId()) {
-                    writeTypeId(typeId);
-                }
-            }
-            return JsonToken.END_OBJECT;
-        }
-        if (inclStyle == JsonToken.START_ARRAY) { // as-wrapper-array
-        } else if (inclStyle == JsonToken.START_OBJECT) { // as-wrapper-object
-            
+        Object id = typeIdDef.id;
+
+        final JsonToken valueShape = typeIdDef.valueShape;
+        if (canWriteTypeId()) {
+            typeIdDef.wrapperWritten = false;
+            // just rely on native type output method (sub-classes likely to override)
+            writeTypeId(id);
         } else {
-            throw new JsonGenerationException("Unrecognized inclusion style: "+inclStyle, this);
+            // No native type id; write wrappers
+            // Normally we only support String type ids (non-String reserved for native type ids)
+            String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
+            typeIdDef.wrapperWritten = true;
+
+            Inclusion incl = typeIdDef.include;
+            // first: can not output "as property" if value not Object; if so, must do "as array"
+            if ((valueShape != JsonToken.START_OBJECT)
+                    && incl.requiresObjectContext()) {
+                typeIdDef.include = incl = WritableTypeId.Inclusion.WRAPPER_ARRAY;
+            }
+            
+            switch (incl) {
+            case PARENT_PROPERTY:
+                // nothing to do here, as it has to be written in suffix...
+                break;
+            case PAYLOAD_PROPERTY:
+                // only output as native type id; otherwise caller must handle using some
+                // other mechanism, so...
+                break;
+            case METADATA_PROPERTY:
+                // must have Object context by now, so simply write as field name
+                // Note, too, that it's bit tricky, since we must print START_OBJECT that is part
+                // of value first -- and then NOT output it later on: hence return "early"
+                writeStartObject();
+                writeStringField(typeIdDef.asProperty, idStr);
+                return typeIdDef;
+
+            case WRAPPER_OBJECT:
+                writeStartObject();
+                writeFieldName(idStr);
+                break;
+            case WRAPPER_ARRAY:
+            default: // should never occur but translate as "as-array"
+                writeStartArray();
+                writeString(idStr);
+            }
         }
+        // and finally possible start marker for value itself:
+        if (valueShape == JsonToken.START_OBJECT) {
+            writeStartObject();
+        } else if (valueShape == JsonToken.START_ARRAY) {
+            writeStartArray();
+        }
+        return typeIdDef;
     }
-    */
+
+    public WritableTypeId writeTypeSuffix(WritableTypeId typeIdDef) throws IOException
+    {
+        final JsonToken valueShape = typeIdDef.valueShape;
+        // First: does value need closing?
+        if (valueShape == JsonToken.START_OBJECT) {
+            writeEndObject();
+        } else if (valueShape == JsonToken.START_ARRAY) {
+            writeEndArray();
+        }
+
+        if (typeIdDef.wrapperWritten) {
+            switch (typeIdDef.include) {
+            case WRAPPER_ARRAY:
+                writeEndArray();
+                break;
+            case PARENT_PROPERTY:
+                // unusually, need to output AFTER value. And no real wrapper...
+                {
+                    Object id = typeIdDef.id;
+                    String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
+                    writeStringField(typeIdDef.asProperty, idStr);
+                }
+                break;
+            case METADATA_PROPERTY:
+            case PAYLOAD_PROPERTY:
+                // no actual wrapper; included within Object itself
+                break;
+            case WRAPPER_OBJECT:
+            default: // should never occur but...
+                writeEndObject();
+                break;
+            }
+        }
+        return typeIdDef;
+    }
 
     /*
     /**********************************************************

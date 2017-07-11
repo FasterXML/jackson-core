@@ -713,7 +713,7 @@ public abstract class JsonGenerator
      * @since 2.8
      */
     public boolean canWriteFormattedNumbers() { return false; }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, structural
@@ -1420,7 +1420,7 @@ public abstract class JsonGenerator
      * -- this is discouraged, but not illegal, and may be necessary as a work-around
      * in some cases.
      *
-     * @since 2.8
+     * @since 2.9
      */
     public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws IOException
     {
@@ -1481,6 +1481,9 @@ public abstract class JsonGenerator
         return typeIdDef;
     }
 
+    /*
+     * @since 2.9
+     */
     public WritableTypeId writeTypeSuffix(WritableTypeId typeIdDef) throws IOException
     {
         final JsonToken valueShape = typeIdDef.valueShape;

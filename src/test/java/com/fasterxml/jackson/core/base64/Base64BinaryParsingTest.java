@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.core.base64;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import org.junit.Test;
 
 public class Base64BinaryParsingTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -324,5 +327,16 @@ public class Base64BinaryParsingTest
             assertNull(p.nextToken());
         }
         p.close();
+    }
+
+    public void testBase64VariantsValueOfWithNullThrowsIllegalArgumentException() {
+
+        try {
+            Base64Variants.valueOf(null);
+            fail("Expecting exception: IllegalArgumentException");
+        } catch(IllegalArgumentException e) {
+            assertEquals(Base64Variants.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+
     }
 }

@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.io.NumberInput;
+import org.junit.Test;
+
 public class TestTextBuffer
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -90,4 +93,116 @@ public class TestTextBuffer
         tb.contentsAsString();
         assertTrue(tb.getTextBuffer().length == 0);
     }
+
+    public void testResetWithAndSetCurrentAndReturn() {
+        TextBuffer textBuffer = new TextBuffer(null);
+        textBuffer.resetWith('l');
+        textBuffer.setCurrentAndReturn(349);
+    }
+
+    public void testGetCurrentSegment() {
+        TextBuffer textBuffer = new TextBuffer(null);
+        textBuffer.emptyAndGetCurrentSegment();
+        textBuffer.setCurrentAndReturn(1000);
+        textBuffer.getCurrentSegment();
+
+        assertEquals(1000, textBuffer.size());
+    }
+
+    public void testAppendTakingTwoAndThreeInts() {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+        textBuffer.ensureNotShared();
+        char[] charArray = textBuffer.getTextBuffer();
+        textBuffer.append(charArray, 0, 200);
+        textBuffer.append("5rmk0rx(C@aVYGN@Q", 2, 3);
+
+        assertEquals(3, textBuffer.getCurrentSegmentSize());
+    }
+
+    public void testEnsureNotSharedAndResetWithString() {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+        textBuffer.resetWithString("");
+
+        assertFalse(textBuffer.hasTextAsCharacters());
+
+        textBuffer.ensureNotShared();
+
+        assertEquals(0, textBuffer.getCurrentSegmentSize());
+    }
+
+    public void testContentsAsDecimalThrowsNumberFormatException() {
+        TextBuffer textBuffer = new TextBuffer( null);
+
+        try {
+            textBuffer.contentsAsDecimal();
+            fail("Expecting exception: NumberFormatException");
+        } catch(NumberFormatException e) {
+            assertEquals(NumberInput.class.getName(), e.getStackTrace()[0].getClassName());
+        }
+    }
+
+    public void testGetTextBufferAndEmptyAndGetCurrentSegmentAndFinishCurrentSegment() {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+        textBuffer.emptyAndGetCurrentSegment();
+        textBuffer.finishCurrentSegment();
+        textBuffer.getTextBuffer();
+
+        assertEquals(200, textBuffer.size());
+    }
+
+    public void testGetTextBufferAndAppendTakingCharAndContentsAsArray() {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+        textBuffer.append('(');
+        textBuffer.contentsAsArray();
+        textBuffer.getTextBuffer();
+
+        assertEquals(1, textBuffer.getCurrentSegmentSize());
+    }
+
+    public void testGetTextBufferAndResetWithString() {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+        textBuffer.resetWithString("");
+
+        assertFalse(textBuffer.hasTextAsCharacters());
+
+        textBuffer.getTextBuffer();
+
+        assertTrue(textBuffer.hasTextAsCharacters());
+    }
+
+    public void testResetWithString() {
+        BufferRecycler bufferRecycler = new BufferRecycler();
+        TextBuffer textBuffer = new TextBuffer(bufferRecycler);
+        textBuffer.ensureNotShared();
+        textBuffer.finishCurrentSegment();
+
+        assertEquals(200, textBuffer.size());
+
+        textBuffer.resetWithString("asdf");
+
+        assertEquals(0, textBuffer.getTextOffset());
+    }
+
+    public void testGetCurrentSegmentSizeResetWith() {
+        TextBuffer textBuffer = new TextBuffer(null);
+        textBuffer.resetWith('.');
+        textBuffer.resetWith('q');
+
+        assertEquals(1, textBuffer.getCurrentSegmentSize());
+    }
+
+    public void testGetSizeFinishCurrentSegmentAndResetWith() {
+        TextBuffer textBuffer = new TextBuffer(null);
+        textBuffer.resetWith('.');
+        textBuffer.finishCurrentSegment();
+        textBuffer.resetWith('q');
+
+        assertEquals(2, textBuffer.size());
+    }
+
 }

@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.0 (not yet released)
+2.9.0 (30-Jul-2017))
 
 #17: Add 'JsonGenerator.writeString(Reader r, int charLength)'
  (constributed by Logan W)

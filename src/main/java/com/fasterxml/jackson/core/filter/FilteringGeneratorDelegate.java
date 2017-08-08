@@ -22,7 +22,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /* Configuration
     /**********************************************************
      */
-    
+
     /**
      * Object consulted to determine whether to write parts of content generator
      * is asked to write or not.
@@ -45,17 +45,6 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * path from main level down to match is also included as necessary.
      */
     protected boolean _includePath;
-
-    /* NOTE: this feature is included in the first version (2.6), but
-     * there is no public API to enable it, yet, since there isn't an
-     * actual use case. But it seemed possible need could arise, which
-     * is feature has not yet been removed. If no use is found within
-     * first version or two, just remove.
-     * 
-     * Marked as deprecated since its status is uncertain.
-     */
-    @Deprecated
-    protected boolean _includeImmediateParent;
 
     /*
     /**********************************************************
@@ -853,12 +842,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         ++_matchCount;
         if (_includePath) {
             _filterContext.writePath(delegate);
-        } else if (_includeImmediateParent) {
-            // 21-Apr-2015, tatu: Note that there is no API to enable this currently...
-            //    retained for speculative future use
-            _filterContext.writeImmediatePath(delegate);
         }
-
         // also: if no multiple matches desired, short-cut checks
         if (!_allowMultipleMatches) {
             // Mark parents as "skip" so that further check calls are not made

@@ -56,14 +56,8 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final static char CHAR_NULL = '\0';
 
-    /**
-     * @since 2.9
-     */
     protected final static byte[] NO_BYTES = new byte[0];
 
-    /**
-     * @since 2.9
-     */
     protected final static int[] NO_INTS = new int[0];
     
     /*
@@ -87,8 +81,6 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /**
      * NOTE! Not used by JSON implementation but used by many of binary codecs
-     *
-     * @since 2.9
      */
     protected final static int NR_FLOAT = 0x020;
 
@@ -126,8 +118,6 @@ public abstract class ParserMinimalBase extends JsonParser
     /**
      * Maximum number of characters to include in token reported
      * as part of error messages.
-     *
-     * @since 2.9
      */
     protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
     
@@ -185,12 +175,6 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override public JsonToken currentToken() { return _currToken; }
     @Override public int currentTokenId() {
-        final JsonToken t = _currToken;
-        return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
-    }
-    
-    @Override public JsonToken getCurrentToken() { return _currToken; }
-    @Override public int getCurrentTokenId() {
         final JsonToken t = _currToken;
         return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
     }
@@ -516,8 +500,6 @@ public abstract class ParserMinimalBase extends JsonParser
      * Helper method used to determine whether we are currently pointing to
      * a String value of "null" (NOT a null token); and, if so, that parser
      * is to recognize and return it similar to if it was real null token.
-     * 
-     * @since 2.3
      */
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
 
@@ -565,9 +547,6 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportInvalidEOF(" in "+_currToken, _currToken);
     }
 
-    /**
-     * @since 2.8
-     */
     protected void _reportInvalidEOFInValue(JsonToken type) throws JsonParseException {
         String msg;
         if (type == JsonToken.VALUE_STRING) {
@@ -581,29 +560,10 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportInvalidEOF(msg, type);
     }
 
-    /**
-     * @since 2.8
-     */
     protected void _reportInvalidEOF(String msg, JsonToken currToken) throws JsonParseException {
         throw new JsonEOFException(this, currToken, "Unexpected end-of-input"+msg);
     }
 
-    /**
-     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
-     */
-    @Deprecated // since 2.8
-    protected void _reportInvalidEOFInValue() throws JsonParseException {
-        _reportInvalidEOF(" in a value");
-    }
-    
-    /**
-     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
-     */
-    @Deprecated // since 2.8
-    protected void _reportInvalidEOF(String msg) throws JsonParseException {
-        throw new JsonEOFException(this, null, "Unexpected end-of-input"+msg);
-    }
-    
     protected void _reportMissingRootWS(int ch) throws JsonParseException {
         _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
@@ -663,12 +623,10 @@ public abstract class ParserMinimalBase extends JsonParser
         throw _constructError(msg);
     }
 
-    // @since 2.9
     protected final void _reportError(String msg, Object arg) throws JsonParseException {
         throw _constructError(String.format(msg, arg));
     }
 
-    // @since 2.9
     protected final void _reportError(String msg, Object arg1, Object arg2) throws JsonParseException {
         throw _constructError(String.format(msg, arg1, arg2));
     }

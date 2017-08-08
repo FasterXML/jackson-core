@@ -21,15 +21,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * defined in the "jackson-databind".
  */
 public abstract class ObjectCodec
-    extends TreeCodec // since 2.3
-    implements Versioned // since 2.3
+    extends TreeCodec
+    implements Versioned
 {
     protected ObjectCodec() { }
 
-    // Since 2.3
     @Override
     public abstract Version version();
-    
+
     /*
     /**********************************************************
     /* API for de-serialization (JSON-to-Object)
@@ -157,7 +156,7 @@ public abstract class ObjectCodec
      * iterate over contents of the tree, and using that parser for data binding.
      */
     public abstract <T> T treeToValue(TreeNode n, Class<T> valueType)
-        throws JsonProcessingException;
+        throws IOException;
 
     /*
     /**********************************************************
@@ -166,16 +165,8 @@ public abstract class ObjectCodec
      */
 
     /**
-     * @deprecated Since 2.1: Use {@link #getFactory} instead.
-     */
-    @Deprecated
-    public JsonFactory getJsonFactory() { return getFactory(); }
-
-    /**
      * Accessor for finding underlying data format factory
      * ({@link JsonFactory}) codec will use for data binding.
-     * 
-     * @since 2.1
      */
-    public JsonFactory getFactory() { return getJsonFactory(); }
+    public abstract JsonFactory getFactory();
 }

@@ -80,6 +80,11 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         @Override
         public <T> T treeToValue(TreeNode n, Class<T> valueType) {
             return null;
+        }
+
+        @Override
+        public JsonFactory getFactory() {
+            return null;
         } 
     }
 

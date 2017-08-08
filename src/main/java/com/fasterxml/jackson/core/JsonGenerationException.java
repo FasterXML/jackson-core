@@ -15,43 +15,18 @@ public class JsonGenerationException
 {
     private final static long serialVersionUID = 123; // Stupid eclipse...
 
-    // transient since 2.7.4
     protected transient JsonGenerator _processor;
 
-    @Deprecated // since 2.7
-    public JsonGenerationException(Throwable rootCause) {
-        super(rootCause);
-    }
-
-    @Deprecated // since 2.7
-    public JsonGenerationException(String msg) {
-        super(msg, (JsonLocation)null);
-    }
-
-    @Deprecated // since 2.7
-    public JsonGenerationException(String msg, Throwable rootCause) {
-        super(msg, null, rootCause);
-    }
-
-    /**
-     * @since 2.7
-     */
     public JsonGenerationException(Throwable rootCause, JsonGenerator g) {
         super(rootCause);
         _processor = g;
     }
 
-    /**
-     * @since 2.7
-     */
     public JsonGenerationException(String msg, JsonGenerator g) {
         super(msg, (JsonLocation) null);
         _processor = g;
     }
-    
-    /**
-     * @since 2.7
-     */
+
     public JsonGenerationException(String msg, Throwable rootCause, JsonGenerator g) {
         super(msg, null, rootCause);
         _processor = g;
@@ -60,8 +35,6 @@ public class JsonGenerationException
     /**
      * Fluent method that may be used to assign originating {@link JsonGenerator},
      * to be accessed using {@link #getProcessor()}.
-     *
-     * @since 2.7
      */
     public JsonGenerationException withGenerator(JsonGenerator g) {
         _processor = g;

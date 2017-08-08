@@ -334,15 +334,11 @@ public abstract class JsonGenerator
      * {@link JsonGenerator.Feature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link JsonGenerator.Feature}s.
-     * 
-     * @since 2.3
      */
     public abstract int getFeatureMask();
 
     /**
      * Bulk set method for (re)setting states of all standard {@link Feature}s
-     * 
-     * @since 2.3
      * 
      * @param values Bitmask that defines which {@link Feature}s are enabled
      *    and which disabled
@@ -366,8 +362,6 @@ public abstract class JsonGenerator
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
-     * 
-     * @since 2.6
      */
     public JsonGenerator overrideStdFeatures(int values, int mask) {
         int oldState = getFeatureMask();

@@ -14,8 +14,6 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * Specialized {@link JsonParserDelegate} that allows use of
  * {@link TokenFilter} for outputting a subset of content that
  * is visible to caller
- * 
- * @since 2.6
  */
 public class FilteringParserDelegate extends JsonParserDelegate
 {
@@ -48,17 +46,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
      */
     protected boolean _includePath;
 
-    /* NOTE: this feature is included in the first version (2.6), but
-     * there is no public API to enable it, yet, since there isn't an
-     * actual use case. But it seemed possible need could arise, which
-     * is feature has not yet been removed. If no use is found within
-     * first version or two, just remove.
-     * 
-     * Marked as deprecated since its status is uncertain.
-     */
-    @Deprecated
-    protected boolean _includeImmediateParent;
-    
     /*
     /**********************************************************
     /* State
@@ -145,13 +132,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**********************************************************
      */
 
-    @Override public JsonToken getCurrentToken() { return _currToken; }
     @Override public JsonToken currentToken() { return _currToken; }
-
-    @Override public final int getCurrentTokenId() {
-        final JsonToken t = _currToken;
-        return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
-    }
     @Override public final int currentTokenId() {
         final JsonToken t = _currToken;
         return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
@@ -256,7 +237,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (ctxt == _headContext) {
                     _exposedContext = null;
                     if (ctxt.inArray()) {
-                        t = delegate.getCurrentToken();
+                        t = delegate.currentToken();
 // Is this guaranteed to work without further checks?
 //                        if (t != JsonToken.START_ARRAY) {
                         _currToken = t;
@@ -391,14 +372,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 f = _headContext.setFieldName(name);
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _itemFilter = f;
-                    if (!_includePath) {
-                        // Minor twist here: if parent NOT included, may need to induce output of
-                        // surrounding START_OBJECT/END_OBJECT
-                        if (_includeImmediateParent && !_headContext.isStartHandled()) {
-                            t = _headContext.nextTokenToRead(); // returns START_OBJECT but also marks it handled
-                            _exposedContext = _headContext;
-                        }
-                    }
                     return (_currToken = t);
                 }
                 if (f == null) {
@@ -582,7 +555,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
                         if (_verifyAllowedMatches() && _includePath) {
                             return (_currToken = t);
                         }
-//                        if (_includeImmediateParent) { ...
                         continue main_loop;
                     }
                     if (_includePath) {

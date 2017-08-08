@@ -49,9 +49,6 @@ public class JsonWriteContext extends JsonStreamContext
      */
     protected String _currentName;
 
-    /**
-     * @since 2.5
-     */
     protected Object _currentValue;
 
     /**
@@ -105,12 +102,6 @@ public class JsonWriteContext extends JsonStreamContext
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.3; use method that takes argument
-     */
-    @Deprecated
-    public static JsonWriteContext createRootContext() { return createRootContext(null); }
-
     public static JsonWriteContext createRootContext(DupDetector dd) {
         return new JsonWriteContext(TYPE_ROOT, null, dd);
     }
@@ -135,7 +126,6 @@ public class JsonWriteContext extends JsonStreamContext
 
     @Override public final JsonWriteContext getParent() { return _parent; }
     @Override public final String getCurrentName() { return _currentName; }
-    // @since 2.9
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
     /**
@@ -145,8 +135,6 @@ public class JsonWriteContext extends JsonStreamContext
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
-     *
-     * @since 2.7
      */
     public JsonWriteContext clearAndGetParent() {
         _currentValue = null;

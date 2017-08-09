@@ -7,19 +7,18 @@ import static org.junit.Assert.*;
 /**
  * Unit tests for class {@link RequestPayload}.
  *
- * @date 2017-07-31
  * @see RequestPayload
- **/
+ */
+@SuppressWarnings("unused")
 public class RequestPayloadTest {
-
   @Test(expected = IllegalArgumentException.class)
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
-    new RequestPayload(null);
+      new RequestPayload(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
-    new RequestPayload(null, "UTF-8");
+      new RequestPayload(null, "UTF-8");
   }
 
   @Test

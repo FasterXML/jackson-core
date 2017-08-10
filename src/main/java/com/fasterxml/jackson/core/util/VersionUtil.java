@@ -74,7 +74,7 @@ public class VersionUtil
             Class<?> vClass = Class.forName(versionInfoClassName, true, cls.getClassLoader());
             // However, if class exists, it better work correctly, no swallowing exceptions
             try {
-                v = ((Versioned) vClass.newInstance()).version();
+                v = ((Versioned) vClass.getDeclaredConstructor().newInstance()).version();
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to get Versioned out of "+vClass);
             }

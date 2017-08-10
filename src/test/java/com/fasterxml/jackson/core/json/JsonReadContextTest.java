@@ -48,14 +48,14 @@ public class JsonReadContextTest{
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);
 
       assertTrue(jsonReadContext.inRoot());
-      assertEquals("ROOT", jsonReadContext.getTypeDesc());
+      assertEquals("root", jsonReadContext.typeDesc());
       assertEquals(1, jsonReadContext.getStartLocation(jsonReadContext).getLineNr());
       assertEquals(0, jsonReadContext.getStartLocation(jsonReadContext).getColumnNr());
 
       jsonReadContext.reset(200, 500, 200);
 
       assertFalse(jsonReadContext.inRoot());
-      assertEquals("?", jsonReadContext.getTypeDesc());
+      assertEquals("?", jsonReadContext.typeDesc());
       assertEquals(500, jsonReadContext.getStartLocation(jsonReadContext).getLineNr());
       assertEquals(200, jsonReadContext.getStartLocation(jsonReadContext).getColumnNr());
   }

@@ -18,6 +18,10 @@ JSON library.
 
 #304: Optimize `NumberOutput.outputLong()` method
 
+2.8.10 (24-Aug-2017)
+
+No changes since 2.8.9
+
 2.8.9 (12-Jun-2017)
 
 #382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input

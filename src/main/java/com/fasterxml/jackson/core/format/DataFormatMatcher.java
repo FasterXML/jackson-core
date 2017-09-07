@@ -49,6 +49,13 @@ public class DataFormatMatcher
         _bufferedLength = bufferedLength;
         _match = match;
         _matchStrength = strength;
+
+        // can't have negative offset or length
+        if ((bufferedStart | bufferedLength) < 0
+                || (bufferedStart + bufferedLength) > buffered.length) {
+            throw new IllegalArgumentException(String.format("Illegal start/length (%d/%d) wrt input array of %d bytes",
+                    bufferedStart, bufferedLength, buffered.length));
+        }
     }
 
     /*

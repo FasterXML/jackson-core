@@ -24,8 +24,11 @@ public class ParserErrorHandlingTest
         _testMangledNonRootFloats(MODE_DATA_INPUT);
     }
 
-    public void testMangledNumbersChars() throws Exception {
+    public void testMangledIntsChars() throws Exception {
         _testMangledNonRootInts(MODE_READER);
+    }
+
+    public void testMangledFloatsChars() throws Exception {
         _testMangledNonRootFloats(MODE_READER);
     }
 

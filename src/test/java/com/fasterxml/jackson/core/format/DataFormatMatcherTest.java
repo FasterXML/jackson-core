@@ -1,46 +1,38 @@
 package com.fasterxml.jackson.core.format;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.core.JsonFactory;
 
 /**
  * Unit tests for class {@link DataFormatMatcher}.
- *
- * @date 2017-07-31
- * @see DataFormatMatcher
- **/
-public class DataFormatMatcherTest {
-
-  @Test
+ */
+public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
+{
   public void testGetDataStream() throws IOException {
     byte[] byteArray = new byte[2];
     MatchStrength matchStrength = MatchStrength.WEAK_MATCH;
     DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
             byteArray,
+            1,
             0,
-            (-2),
             null,
             matchStrength);
     InputStream inputStream = dataFormatMatcher.getDataStream();
-
-    assertEquals((-2), inputStream.available());
+    assertEquals(0, inputStream.available());
+    inputStream.close();
   }
 
-  @Test(expected = ArrayIndexOutOfBoundsException.class)
   public void testCreatesDataFormatMatcherTwo() throws IOException {
-    byte[] byteArray = new byte[0];
     JsonFactory jsonFactory = new JsonFactory();
-    DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
-            byteArray, 2,
-            2,
-            jsonFactory,
-            MatchStrength.NO_MATCH);
-    dataFormatMatcher.createParserWithMatch();
+    try {
+        @SuppressWarnings("unused")
+        DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
+                new byte[0], 2, 1,
+                jsonFactory, MatchStrength.NO_MATCH);
+    } catch (IllegalArgumentException e) {
+        verifyException(e, "Illegal start/length");
+    }
   }
-
 }

@@ -103,6 +103,17 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </execution>
         </executions>
       </plugin>
+      <!-- 06-Sep-2017, tatu: Try to generate "automatic module name" -->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <!-- note: usually would use `packageVersion.package`, but need slight variation here -->
+          <instructions combine.children="merge">
+            <Automatic-Module-Name>com.fasterxml.jackson.core</Automatic-Module-Name>
+          </instructions>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

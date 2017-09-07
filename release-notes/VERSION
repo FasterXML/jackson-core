@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.9.1 (not yet released)
+
+- Add `Automatic-Module-Name` for JDK 9 module system
+
 2.9.0 (30-Jul-2017))
 
 #17: Add 'JsonGenerator.writeString(Reader r, int charLength)'

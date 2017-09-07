@@ -16,7 +16,7 @@ JSON library.
 
 2.9.1 (not yet released)
 
-- Add `Automatic-Module-Name` for JDK 9 module system
+#397: Add `Automatic-Module-Name` ("com.fasterxml.jackson.core") for JDK 9 module system
 
 2.9.0 (30-Jul-2017))
 

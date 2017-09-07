@@ -16,6 +16,12 @@ branches:
     - master
     - "2.8"
 
+# to make jdk6 work, as per: https://github.com/travis-ci/travis-ci/issues/8199
+addons:
+  apt:
+    packages:
+      - openjdk-6-jdk
+
 env:
   global:
     - secure: "YW0hrdsHvH41pb5uPJ2DGzXrBgOVT7nEyag/bAQoDcSlOQ/g55tnY6rIGkqE/aYD47IroTEhW4yLyM3tZpbrqwagX4dUX90ukjcUwUvFE1ePTSEfdBtuHVwl8f6HmLIIw2yK0dQ1gOJ21T+3g+wddvK+6sWBJJ+s3O1FePDh6X0="

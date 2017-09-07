@@ -2,8 +2,8 @@ language: java
 # core streaming still builds on jdk6 and above:
 jdk:
   - openjdk6
-  - oraclejdk7
-  - oraclejdk8
+  - openjdk7
+  - openjdk8
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
 # http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html
@@ -15,7 +15,6 @@ branches:
   only:
     - master
     - "2.8"
-    - "2.7"
 
 env:
   global:

@@ -52,93 +52,90 @@ public class RequestPayloadOnExceptionTest extends BaseTest
         testNullCharsetOnParseExceptionInternal(false, "nul");
     }
 
-    /*
-     * *******************Private Methods*************************
-     */
     private void testRequestPayloadAsBytesOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
-        JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        jp.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
+        p.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            jp.nextToken();
+            p.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
             assertEquals("Request payload data should match", doc, ex.getRequestPayloadAsString());
-            assertTrue("Message contains request body", ex.getMessage().contains("Request payload : " + doc));
+            assertTrue("Message contains request body", ex.getMessage().contains("Request payload:"));
         }
-        jp.close();
+        p.close();
     }
 
     private void testRequestPayloadAsStringOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
-        JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        jp.setRequestPayloadOnError(doc);
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
+        p.setRequestPayloadOnError(doc);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            jp.nextToken();
+            p.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
             assertEquals("Request payload data should match", doc, ex.getRequestPayloadAsString());
-            assertTrue("Message contains request body", ex.getMessage().contains("Request payload : " + doc));
+            assertTrue("Message contains request body", ex.getMessage().contains("Request payload:"));
         }
-        jp.close();
+        p.close();
     }
 
     private void testRawRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
-        JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        jp.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
+        p.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            jp.nextToken();
+            p.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
             assertTrue(((byte[]) ex.getRequestPayload().getRawPayload()).length > 0);
-            assertTrue("Message contains request body", ex.getMessage().contains("Request payload : " + doc));
+            assertTrue("Message contains request body", ex.getMessage().contains("Request payload:"));
         }
-        jp.close();
+        p.close();
     }
 
     private void testNoRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
-        JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            jp.nextToken();
+            p.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
             assertEquals("Request payload data should be null", null, ex.getRequestPayload());
         }
-        jp.close();
+        p.close();
     }
 
     private void testNullRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
-        JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        jp.setRequestPayloadOnError(null, "UTF-8");
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
+        p.setRequestPayloadOnError(null, "UTF-8");
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            jp.nextToken();
+            p.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
             assertEquals("Request payload data should be null", null, ex.getRequestPayload());
         }
-        jp.close();
+        p.close();
     }
 
     private void testNullCharsetOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
-        JsonParser jp = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        jp.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
+        p.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            jp.nextToken();
+            p.nextToken();
             fail("Expecting parsing exception");
         } catch (JsonParseException ex) {
             assertEquals("Request payload data should match", doc, ex.getRequestPayloadAsString());
-            assertTrue("Message contains request body", ex.getMessage().contains("Request payload : " + doc));
+            assertTrue("Message contains request body", ex.getMessage().contains("Request payload:"));
         }
-        jp.close();
+        p.close();
     }
 }

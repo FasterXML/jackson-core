@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * based on a {@link java.io.Reader} to handle low-level character
  * conversion tasks.
  */
-public class ReaderBasedJsonParser // final in 2.3, earlier
+public class ReaderBasedJsonParser
     extends ParserBase
 {
     protected final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
@@ -107,8 +107,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /**
      * Method called when caller wants to provide input buffer directly,
      * and it may or may not be recyclable use standard recycle context.
-     *
-     * @since 2.4
      */
     public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
             ObjectCodec codec, CharsToNameCanonicalizer st,
@@ -165,11 +163,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     @Override public Object getInputSource() { return _reader; }
 
-    @Deprecated // since 2.8
-    protected char getNextChar(String eofMsg) throws IOException {
-        return getNextChar(eofMsg, null);
-    }
-    
     protected char getNextChar(String eofMsg, JsonToken forToken) throws IOException {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -1503,7 +1496,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             outBuf[outPtr++] = c;
             // Not optional, can require that we get one more char
             c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                : getNextChar("expected a digit for number exponent");
+                : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             // Sign indicator?
             if (c == '-' || c == '+') {
                 if (outPtr >= outBuf.length) {
@@ -1513,7 +1506,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 outBuf[outPtr++] = c;
                 // Likewise, non optional:
                 c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                    : getNextChar("expected a digit for number exponent");
+                    : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             }
 
             exp_loop:
@@ -1979,7 +1972,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         }
     }
 
-    @Override
     protected final void _finishString() throws IOException
     {
         /* First: let's try to see if we have simple String value: one

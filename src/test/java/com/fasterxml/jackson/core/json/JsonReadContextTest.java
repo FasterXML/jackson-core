@@ -5,25 +5,15 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-import java.io.FileDescriptor;
-import java.io.IOException;
-import java.io.PipedReader;
 
 /**
  * Unit tests for class {@link JsonReadContext}.
- *
- * @date 2017-08-01
- * @see JsonReadContext
- *
- **/
-public class JsonReadContextTest{
-
+ */
+public class JsonReadContextTest // extends BaseMapTest
+{
   @Test(expected = JsonParseException.class)
-  public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws JsonProcessingException {
+  public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws JsonProcessingException
+  {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, dupDetector, 2441, 2441, 2441);
       jsonReadContext.setCurrentName("4'Du>icate field'");

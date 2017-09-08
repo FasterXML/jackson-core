@@ -1088,8 +1088,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Helper method used to encapsulate logic of including (or not) of
      * "source reference" when constructing {@link JsonLocation} instances.
-     *
-     * @since 2.9
      */
     protected Object _getSourceReference() {
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
@@ -1105,22 +1103,4 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return Arrays.copyOf(arr, arr.length + more);
     }
-    
-    /*
-    /**********************************************************
-    /* Stuff that was abstract and required before 2.8, but that
-    /* is not mandatory in 2.8 or above.
-    /**********************************************************
-     */
-
-    @Deprecated // since 2.8
-    protected void loadMoreGuaranteed() throws IOException {
-        if (!loadMore()) { _reportInvalidEOF(); }
-    }
-
-    @Deprecated // since 2.8
-    protected boolean loadMore() throws IOException { return false; }
-
-    // Can't declare as deprecated, for now, but shouldn't be needed
-    protected void _finishString() throws IOException { }
 }

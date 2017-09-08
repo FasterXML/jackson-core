@@ -25,7 +25,7 @@ public abstract class JsonParser
     implements Closeable, Versioned
 {
     private final static int MIN_BYTE_I = (int) Byte.MIN_VALUE;
-    // as per [JACKSON-804], allow range up to and including 255
+    // Allow range up to and including 255, to support signed AND unsigned bytes
     private final static int MAX_BYTE_I = (int) 255;
 
     private final static int MIN_SHORT_I = (int) Short.MIN_VALUE;
@@ -37,7 +37,7 @@ public abstract class JsonParser
      */
     public enum NumberType {
         INT, LONG, BIG_INTEGER, FLOAT, DOUBLE, BIG_DECIMAL
-    };
+    }
 
     /**
      * Enumeration that defines all on/off features for parsers.
@@ -688,8 +688,6 @@ public abstract class JsonParser
      * Bulk access method for getting state of all standard {@link Feature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link Feature}s.
-     * 
-     * @since 2.3
      */
     public int getFeatureMask() { return _features; }
 
@@ -697,9 +695,7 @@ public abstract class JsonParser
      * Bulk set method for (re)setting states of all standard {@link Feature}s
      * 
      * @return This parser object, to allow chaining of calls
-     * 
-     * @since 2.3
-     * 
+
      * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead
      */
     @Deprecated
@@ -720,8 +716,6 @@ public abstract class JsonParser
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
-     * 
-     * @since 2.6
      */
     public JsonParser overrideStdFeatures(int values, int mask) {
         int newState = (_features & ~mask) | (values & mask);
@@ -733,8 +727,6 @@ public abstract class JsonParser
      * on/off configuration settings.
      * 
      * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
-     * 
-     * @since 2.6
      */
     public int getFormatFeatures() {
         return 0;
@@ -944,12 +936,10 @@ public abstract class JsonParser
      *
      * @since 2.8
      */
-    public JsonToken currentToken() {
-        return getCurrentToken();
-    }
+    public abstract JsonToken currentToken();
 
     /**
-     * Method similar to {@link #getCurrentToken()} but that returns an
+     * Method similar to {@link #currentToken()} but that returns an
      * <code>int</code> instead of {@link JsonToken} (enum value).
      *<p>
      * Use of int directly is typically more efficient on switch statements,
@@ -957,24 +947,10 @@ public abstract class JsonParser
      * Note, however, that effect may not be big enough to matter: make sure
      * to profile performance before deciding to use this method.
      * 
-     * @since 2.8
-     * 
      * @return <code>int</code> matching one of constants from {@link JsonTokenId}.
      */
-    public int currentTokenId() {
-        return getCurrentTokenId();
-    }
+    public abstract int currentTokenId();
 
-    /**
-     * Alias for {@link #currentToken()}, will be deprecated in Jackson 2.9
-     */
-    public abstract JsonToken getCurrentToken();
-
-    /**
-     * Alias for {@link #currentTokenId()}, will be deprecated in Jackson 2.9
-     */
-    public abstract int getCurrentTokenId();
-    
     /**
      * Method for checking whether parser currently points to
      * a token (and data for that token is available).
@@ -998,8 +974,6 @@ public abstract class JsonParser
      * Note that no traversal or conversion is performed; so in some
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
-     *
-     * @since 2.5
      */
     public abstract boolean hasTokenId(int id);
 
@@ -1070,7 +1044,7 @@ public abstract class JsonParser
     /**
      * Method called to "consume" the current token by effectively
      * removing it so that {@link #hasCurrentToken} returns false, and
-     * {@link #getCurrentToken} null).
+     * {@link #currentToken} null).
      * Cleared token value can still be accessed by calling
      * {@link #getLastClearedToken} (if absolutely needed), but
      * usually isn't.

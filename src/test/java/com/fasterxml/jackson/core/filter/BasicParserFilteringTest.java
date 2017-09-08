@@ -349,8 +349,8 @@ public class BasicParserFilteringTest extends BaseTest
         );
 
         assertFalse(p.hasCurrentToken());
-        assertNull(p.getCurrentToken());
-        assertEquals(JsonTokenId.ID_NO_TOKEN, p.getCurrentTokenId());
+        assertNull(p.currentToken());
+        assertEquals(JsonTokenId.ID_NO_TOKEN, p.currentTokenId());
         assertFalse(p.isExpectedStartObjectToken());
         assertFalse(p.isExpectedStartArrayToken());
 
@@ -359,12 +359,12 @@ public class BasicParserFilteringTest extends BaseTest
 //      assertEquals(aposToQuotes("{'ob':{'value':3}}"), result);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.START_OBJECT, p.getCurrentToken());
+        assertEquals(JsonToken.START_OBJECT, p.currentToken());
         assertTrue(p.isExpectedStartObjectToken());
         assertFalse(p.isExpectedStartArrayToken());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertEquals(JsonToken.FIELD_NAME, p.currentToken());
         assertEquals("ob", p.getCurrentName());
 //        assertEquals("ob", p.getText());
 
@@ -376,19 +376,19 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals("value", p.getText());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(JsonToken.VALUE_NUMBER_INT, p.getCurrentToken());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
         assertEquals(3, p.getIntValue());
         assertEquals("value", p.getCurrentName());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertEquals(JsonToken.END_OBJECT, p.currentToken());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertEquals(JsonToken.END_OBJECT, p.currentToken());
 
         p.clearCurrentToken();
-        assertNull(p.getCurrentToken());
+        assertNull(p.currentToken());
 
         p.close();
     }
@@ -404,7 +404,7 @@ public class BasicParserFilteringTest extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         p.skipChildren();
-        assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertEquals(JsonToken.END_OBJECT, p.currentToken());
         assertNull(p.nextToken());
     }
 }

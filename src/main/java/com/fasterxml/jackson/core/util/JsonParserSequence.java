@@ -31,8 +31,6 @@ public class JsonParserSequence extends JsonParserDelegate
      *<p>
      * Default setting is <code>false</code> (for backwards-compatibility)
      * so that possible existing token is not considered for parsers.
-     * 
-     * @since 2.8
      */
     protected final boolean _checkForExistingToken;
 
@@ -44,8 +42,6 @@ public class JsonParserSequence extends JsonParserDelegate
     /**
      * Flag used to indicate that `JsonParser.nextToken()` should not be called,
      * due to parser already pointing to a token.
-     *
-     * @since 2.8
      */
     protected boolean _hasToken;
 
@@ -55,14 +51,6 @@ public class JsonParserSequence extends JsonParserDelegate
      *******************************************************
      */
 
-    @Deprecated // since 2.8
-    protected JsonParserSequence(JsonParser[] parsers) {
-        this(false, parsers);
-    }
-
-    /**
-     * @since 2.8
-     */
     protected JsonParserSequence(boolean checkForExistingToken, JsonParser[] parsers)
     {
         super(parsers[0]);
@@ -103,15 +91,6 @@ public class JsonParserSequence extends JsonParserDelegate
                 p.toArray(new JsonParser[p.size()]));
     }
 
-    /**
-     * @deprecated Since 2.8 use {@link #createFlattened(boolean, JsonParser, JsonParser)}
-     *    instead
-     */
-    @Deprecated // since 2.8
-    public static JsonParserSequence createFlattened(JsonParser first, JsonParser second) {
-        return createFlattened(false, first, second);
-    }
-    
     @SuppressWarnings("resource")
     protected void addFlattenedActiveParsers(List<JsonParser> listToAddIn)
     {
@@ -212,8 +191,6 @@ public class JsonParserSequence extends JsonParserDelegate
      * if so, the next parser will become the active delegate parser.
      * 
      * @return True if switch succeeded; false otherwise
-     *
-     * @since 2.8
      */
     protected boolean switchToNext()
     {
@@ -229,7 +206,7 @@ public class JsonParserSequence extends JsonParserDelegate
         while (_nextParserIndex < _parsers.length) {
             delegate = _parsers[_nextParserIndex++];
             if (_checkForExistingToken && delegate.hasCurrentToken()) {
-                return delegate.getCurrentToken();
+                return delegate.currentToken();
             }
             JsonToken t = delegate.nextToken();
             if (t != null) {

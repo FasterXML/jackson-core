@@ -75,19 +75,11 @@ public class UTF8StreamJsonParser
      * name token was read. Used for calculating token location when requested;
      * combined with {@link #_currInputProcessed}, may be updated appropriately
      * as needed.
-     *
-     * @since 2.7
      */
     protected int _nameStartOffset; 
 
-    /**
-     * @since 2.7
-     */
     protected int _nameStartRow;
 
-    /**
-     * @since 2.7
-     */
     protected int _nameStartCol;
 
     /*
@@ -301,8 +293,7 @@ public class UTF8StreamJsonParser
     }
 
     // // // Let's override default impls for improved performance
-    
-    // @since 2.1
+
     @Override
     public String getValueAsString() throws IOException
     {
@@ -318,8 +309,7 @@ public class UTF8StreamJsonParser
         }
         return super.getValueAsString(null);
     }
-    
-    // @since 2.1
+
     @Override
     public String getValueAsString(String defValue) throws IOException
     {
@@ -1738,9 +1728,6 @@ public class UTF8StreamJsonParser
         return parseMediumName2(i, q2);
     }
 
-    /**
-     * @since 2.6
-     */
     protected final String parseMediumName2(int q3, final int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
@@ -2342,8 +2329,7 @@ public class UTF8StreamJsonParser
     protected void _loadMoreGuaranteed() throws IOException {
         if (!_loadMore()) { _reportInvalidEOF(); }
     }
-    
-    @Override
+
     protected void _finishString() throws IOException
     {
         // First, single tight loop for ASCII content, not split across input buffer boundary:        
@@ -2375,9 +2361,6 @@ public class UTF8StreamJsonParser
         _finishString2(outBuf, outPtr);
     }
 
-    /**
-     * @since 2.6
-     */
     protected String _finishAndReturnString() throws IOException
     {
         // First, single tight loop for ASCII content, not split across input buffer boundary:        
@@ -3697,7 +3680,6 @@ public class UTF8StreamJsonParser
                 _currInputRow, col);
     }
 
-    // @since 2.7
     private final void _updateLocation()
     {
         _tokenInputRow = _currInputRow;
@@ -3706,7 +3688,6 @@ public class UTF8StreamJsonParser
         _tokenInputCol = ptr - _currInputRowStart;
     }
 
-    // @since 2.7
     private final void _updateNameLocation()
     {
         _nameStartRow = _currInputRow;

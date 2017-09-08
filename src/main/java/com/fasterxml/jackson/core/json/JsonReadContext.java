@@ -39,9 +39,6 @@ public final class JsonReadContext extends JsonStreamContext
 
     protected String _currentName;
 
-    /**
-     * @since 2.5
-     */
     protected Object _currentValue;
     
     protected int _lineNr;
@@ -140,7 +137,6 @@ public final class JsonReadContext extends JsonStreamContext
 
     @Override public String getCurrentName() { return _currentName; }
 
-    // @since 2.9
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
     @Override public JsonReadContext getParent() { return _parent; }
@@ -165,8 +161,6 @@ public final class JsonReadContext extends JsonStreamContext
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
-     *
-     * @since 2.7
      */
     public JsonReadContext clearAndGetParent() {
         _currentValue = null;

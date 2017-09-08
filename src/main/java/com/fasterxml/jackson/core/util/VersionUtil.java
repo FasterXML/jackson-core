@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.*;
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.Version;
@@ -34,9 +32,6 @@ public class VersionUtil
      */
 
     protected VersionUtil() { }
-
-    @Deprecated // since 2.9
-    public Version version() { return Version.unknownVersion(); }
 
     /*
     /**********************************************************
@@ -85,43 +80,6 @@ public class VersionUtil
     }
 
     /**
-     * Will attempt to load the maven version for the given groupId and
-     * artifactId.  Maven puts a pom.properties file in
-     * META-INF/maven/groupId/artifactId, containing the groupId,
-     * artifactId and version of the library.
-     *
-     * @param cl the ClassLoader to load the pom.properties file from
-     * @param groupId the groupId of the library
-     * @param artifactId the artifactId of the library
-     * @return The version
-     * 
-     * @deprecated Since 2.6: functionality not used by any official Jackson component, should be
-     *   moved out if anyone needs it
-     */
-    @SuppressWarnings("resource")
-    @Deprecated // since 2.6
-    public static Version mavenVersionFor(ClassLoader cl, String groupId, String artifactId)
-    {
-        InputStream pomProperties = cl.getResourceAsStream("META-INF/maven/"
-                + groupId.replaceAll("\\.", "/")+ "/" + artifactId + "/pom.properties");
-        if (pomProperties != null) {
-            try {
-                Properties props = new Properties();
-                props.load(pomProperties);
-                String versionStr = props.getProperty("version");
-                String pomPropertiesArtifactId = props.getProperty("artifactId");
-                String pomPropertiesGroupId = props.getProperty("groupId");
-                return parseVersion(versionStr, pomPropertiesGroupId, pomPropertiesArtifactId);
-            } catch (IOException e) {
-                // Ignore
-            } finally {
-                _close(pomProperties);
-            }
-        }
-        return Version.unknownVersion();
-    }
-
-    /**
      * Method used by <code>PackageVersion</code> classes to decode version injected by Maven build.
      */
     public static Version parseVersion(String s, String groupId, String artifactId)
@@ -147,12 +105,6 @@ public class VersionUtil
         return number;
     }
 
-    private final static void _close(Closeable c) {
-        try {
-            c.close();
-        } catch (IOException e) { }
-    }
-    
     /*
     /**********************************************************
     /* Orphan utility methods

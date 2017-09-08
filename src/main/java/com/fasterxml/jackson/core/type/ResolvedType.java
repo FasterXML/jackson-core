@@ -8,8 +8,6 @@ package com.fasterxml.jackson.core.type;
  * MUST be of type <code>JavaType</code> from "databind" bundle -- this
  * abstraction is only needed so that types can be passed through
  * {@link com.fasterxml.jackson.core.JsonParser#readValueAs} methods.
- * 
- * @since 2.0
  */
 public abstract class ResolvedType
 {
@@ -74,30 +72,6 @@ public abstract class ResolvedType
     public abstract boolean hasGenericTypes();
 
     /**
-     * Accessor that can be used to find out type for which parameterization
-     * is applied: this is often NOT same as what {@link #getRawClass} returns,
-     * but rather one of it supertype.
-     *<p>
-     * For example: for type like {@link java.util.HashMap}, raw type is
-     * {@link java.util.HashMap}; but this method would return
-     * {@link java.util.Map}, because relevant type parameters that are
-     * resolved (and accessible using {@link #containedType(int)} and
-     * {@link #getKeyType()}) are parameter for {@link java.util.Map}
-     * (which may or may not be same as type parameters for subtype;
-     * in case of {@link java.util.HashMap} they are, but for further
-     * subtypes they may be different parameters or possibly none at all).
-     * 
-     * @since 2.5
-     *
-     * @deprecated Since 2.7: does not have meaning as parameters depend on type
-     *    resolved.
-     */
-    @Deprecated // since 2.7
-    public Class<?> getParameterSource() {
-        return null;
-    }
-
-    /**
      * Method for accessing key type for this type, assuming type
      * has such a concept (only Map types do)
      */
@@ -115,8 +89,6 @@ public abstract class ResolvedType
      * type references, if any.
      * 
      * @return Referenced type, if any; null if not.
-     * 
-     * @since 2.6
      */
     public abstract ResolvedType getReferencedType();
     
@@ -137,19 +109,6 @@ public abstract class ResolvedType
      *    exists (no exception thrown)
      */
     public abstract ResolvedType containedType(int index);
-    
-    /**
-     * Method for accessing name of type variable in indicated
-     * position. If no name is bound, will use placeholders (derived
-     * from 0-based index); if no type variable or argument exists
-     * with given index, null is returned.
-     * 
-     * @param index Index of contained type to return
-     * 
-     * @return Contained type at index, or null if no such type
-     *    exists (no exception thrown)
-     */
-    public abstract String containedTypeName(int index);
 
     /*
     /**********************************************************

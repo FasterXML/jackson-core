@@ -61,13 +61,6 @@ public class JsonParserDelegate extends JsonParser
     @Override public int getFeatureMask() { return delegate.getFeatureMask(); }
 
     @Override
-    @Deprecated // since 2.7
-    public JsonParser setFeatureMask(int mask) {
-        delegate.setFeatureMask(mask);
-        return this;
-    }
-
-    @Override
     public JsonParser overrideStdFeatures(int values, int mask) {
         delegate.overrideStdFeatures(values, mask);
         return this;
@@ -110,9 +103,7 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public JsonToken currentToken() { return delegate.currentToken(); }
     @Override public int currentTokenId() { return delegate.currentTokenId(); }
-    
-    @Override public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
-    @Override public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
+
     @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }
     @Override public boolean hasTokenId(int id) { return delegate.hasTokenId(id); }
     @Override public boolean hasToken(JsonToken t) { return delegate.hasToken(t); }

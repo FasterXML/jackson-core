@@ -25,8 +25,6 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Set of feature masks related to features that need updates of other
      * local configuration or state.
-     * 
-     * @since 2.5
      */
     protected final static int DERIVED_FEATURES_MASK =
             Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
@@ -48,8 +46,6 @@ public abstract class GeneratorBase extends JsonGenerator
      * in "plain" (non-engineering) notation; intent is to prevent asymmetric
      * attack whereupon simple eng-notation with big scale is used to generate
      * huge "plain" serialization. See [core#315] for details.
-     * 
-     * @since 2.7.7
      */
     protected final static int MAX_BIG_DECIMAL_SCALE = 9999;
     

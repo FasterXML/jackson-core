@@ -133,7 +133,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public JsonGenerator setFeatureMask(int mask) {
         delegate.setFeatureMask(mask);
         return this;
-    }
+    }    
 
     @Override
     public JsonGenerator overrideStdFeatures(int values, int mask) {

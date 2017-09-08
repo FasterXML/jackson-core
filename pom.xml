@@ -4,8 +4,8 @@
     <groupId>com.fasterxml.jackson</groupId>
     <!-- One of few Jackson modules that depend on parent and not jackson-bom -->
     <artifactId>jackson-parent</artifactId>
-    <!-- need 2.9.1 to compile on Java 9; no other diffs from 2.9.0 -->
-    <version>2.9.1-SNAPSHOT</version>
+    <!-- need 2.9.1 to compile on Java 9 -->
+    <version>2.9.1</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>

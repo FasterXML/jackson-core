@@ -2,9 +2,8 @@
   <modelVersion>4.0.0</modelVersion> 
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
-    <!-- One of few Jackson modules that depend on parent and not jackson-bom -->
-    <artifactId>jackson-parent</artifactId>
-    <version>2.9.1</version>
+    <artifactId>jackson-base</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -24,12 +23,11 @@
   </scm>
 
   <properties>
-    <!-- 08-Sep-2017: could retain JDK6 compat even for 3.x, but let's not
-      -->
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>
 
+    <jdk.module.name>com.fasterxml.jackson.core</jdk.module.name>
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
@@ -101,7 +99,7 @@ com.fasterxml.jackson.core.*;version=${project.version}
         <configuration>
           <!-- note: usually would use `packageVersion.package`, but need slight variation here -->
           <instructions combine.children="merge">
-            <Automatic-Module-Name>com.fasterxml.jackson.core</Automatic-Module-Name>
+            <Automatic-Module-Name>${jdk.module.name}</Automatic-Module-Name>
           </instructions>
         </configuration>
       </plugin>

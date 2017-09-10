@@ -81,27 +81,9 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </excludes>
         </configuration>
       </plugin>
-      <plugin>
-        <!-- Inherited from oss-base. Generate PackageVersion.java.-->
+      <plugin> <!-- default settings are fine, just need to enable here -->
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
-        <executions>
-          <execution>
-            <id>process-packageVersion</id>
-            <phase>generate-sources</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- 06-Sep-2017, tatu: Try to generate "automatic module name" -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <!-- note: usually would use `packageVersion.package`, but need slight variation here -->
-          <instructions combine.children="merge">
-            <Automatic-Module-Name>${jdk.module.name}</Automatic-Module-Name>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>

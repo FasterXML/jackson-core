@@ -8,8 +8,6 @@ import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 
-import com.fasterxml.jackson.core.format.InputAccessor;
-import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
@@ -453,19 +451,6 @@ public class JsonFactory
     }
 
     /**
-     * Convenience method for trying to determine whether input via given accessor
-     * is of format type supported by this factory.
-     */
-    public MatchStrength hasFormat(InputAccessor acc) throws IOException
-    {
-        // since we can't keep this abstract, only implement for "vanilla" instance
-        if (getClass() == JsonFactory.class) {
-            return hasJSONFormat(acc);
-        }
-        return null;
-    }
-
-    /**
      * Method that can be called to determine if a custom
      * {@link ObjectCodec} is needed for binding data parsed
      * using {@link JsonParser} constructed by this factory
@@ -478,15 +463,6 @@ public class JsonFactory
      */
     public boolean requiresCustomCodec() {
         return false;
-    }
-    
-    /**
-     * Helper method that can be called to determine if content accessed
-     * using given accessor seems to be JSON content.
-     */
-    protected MatchStrength hasJSONFormat(InputAccessor acc) throws IOException
-    {
-        return ByteSourceJsonBootstrapper.hasJSONFormat(acc);
     }
 
     /*

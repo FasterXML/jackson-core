@@ -1,0 +1,520 @@
+Project: jackson-core
+
+Contains core streaming reader (`JsonParser`) and writer (`JsonGenerator`) abstractions,
+factory for constructing readers/writers (JsonFactory), as well as a minimal set
+of interfaces needed for streaming level to make callbacks and call-throughs,
+via `ObjectCodec` and `TreeNode`.
+
+Also includes implementation of this API for JSON.
+Forms the base for other data formats as well, despite naming that suggests
+JSON-specificity: naming is due to history, as Jackson started out as pure
+JSON library.
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.9.1 (07-Sep-2017)
+
+#397: Add `Automatic-Module-Name` ("com.fasterxml.jackson.core") for JDK 9 module system
+
+2.9.0 (30-Jul-2017))
+
+#17: Add 'JsonGenerator.writeString(Reader r, int charLength)'
+ (constributed by Logan W)
+#57: Add support for non-blocking ("async") JSON parsing
+#208: Make use of `_matchCount` in `FilteringParserDelegate`
+ (contributed by Rafal F)
+#242: Add new write methods in `JsonGenerator` for writing type id containers
+#304: Optimize `NumberOutput.outputLong()` method
+#306: Add new method in `JsonStreamContext` to construct `JsonPointer`
+#312: Add `JsonProcessingException.clearLocation()` to allow clearing
+  possibly security-sensitive information
+ (contributed by Alex Y)
+#314: Add a method in `JsonParser` to allow checking for "NaN" values
+#323: Add `JsonParser.ALLOW_TRAILING_COMMA` to work for Arrays and Objects
+ (contributed by Brad H)
+#325: `DataInput` backed parser should handle `EOFException` at end of doc
+ (reported by Brad H)
+#330: `FilteringParserDelegate` seems to miss last closing `END_OBJECT`
+ (contributed by Rafal F)
+#340: Making `WriterBasedJsonGenerator` non-final
+ (requested by rfoltyns@github)
+#356: Improve indication of "source reference" in `JsonLocation` wrt `byte[]`,`char[]`
+#372: JsonParserSequence#skipChildren() throws exception when current delegate is
+  TokenBuffer.Parser with "incomplete" JSON
+ (contributed by Michael S)
+#374: Minimal and DefaultPrettyPrinter with configurable separators 
+ (contributed by Rafal F)
+
+2.8.9 (12-Jun-2017)
+
+#382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
+ (reported by Wil S)
+
+2.8.8 (05-Apr-2017)
+
+#359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
+ (contributed by Arnaud R)
+#362: Use correct length variable for UTF-8 surrogate writing
+
+2.8.7 (21-Feb-2017)
+
+#349: CharsToNameCanonicalizer performance bottleneck 
+ (reported by Nuno D, nmldiegues@github)
+#351: `java.lang.NegativeArraySizeException` at `ByteArrayBuilder.toByteArray()`
+#354: Buffer size dependency in UTF8JsonGenerator writeRaw
+ (reported by Chistopher C)
+
+2.8.6 (12-Jan-2017)
+
+#322: Trim tokens in error messages to 256 byte to prevent attacks
+ (contributed by Alessio S)
+#335: Missing exception for invalid last character of base64 string to decode
+ using `Base64Variant.decode()`
+
+2.8.5 (14-Nov-2016)
+2.8.4 (14-Oct-2016)
+
+No changes since 2.8.3
+
+2.8.3 (17-Sep-2016)
+
+#318: Add support for writing `byte[]` via `JsonGenerator.writeEmbeddedObject()`
+
+2.8.2 (30-Aug-2016)
+2.8.1 (20-Jul-2016)
+
+No changes since 2.8.0
+
+2.8.0 (04-Jul-2016)
+
+#86: Allow inclusion of request body for `JsonParseException`
+ (contributed by LokeshN)
+#117: Add `JsonParser.Feature.ALLOW_MISSING_VALUES` to support for missing values
+ (contributed by LokeshN)
+#136: Add `JsonpCharacterEscapes` for easier handling of potential problems
+ with JSONP and rare but technically allowed \u2028 and \u2029 linefeed characters
+#253: Add `JsonGenerator. writeEmbeddedObject()` to allow writes of opaque native types
+ (suggested by Gregoire C)
+#255: Relax ownership checks for buffers not to require increase in size
+#257: Add `writeStartObject(Object pojo)` to streamline assignment of current value
+#265: `JsonStringEncoder` should allow passing `CharSequence`
+ (contributed by Mikael S)
+#276: Add support for serializing using `java.io.DataOutput`
+#277: Add new scalar-array write methods for `int`/`long`/`double` cases
+#279: Support `DataInput` for parsing
+#280: Add `JsonParser.finishToken()` to force full, non-lazy reading of current token
+#281: Add `JsonEOFException` as sub-class of `JsonParseException`
+#282: Fail to report error for trying to write field name outside Object (root level)
+#285: Add `JsonParser.getText(Writer)`
+ (contributed by LokesN)
+#290: Add `JsonGenerator.canWriteFormattedNumbers()` for introspection
+#294: Add `JsonGenerator.writeFieldId(long)` method to support binary formats
+ with non-String keys
+#296: `JsonParserSequence` skips a token on a switched Parser
+ (reported by Kevin G)
+- Add `JsonParser.currentToken()` and `JsonParser.currentTokenId()` as replacements
+  for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
+  will likely be deprecated in 2.9.
+
+2.7.10 (not yet released)
+
+2.7.9 (04-Feb-2017)
+
+No changes since 2.7.8
+
+2.7.8 (26-Sep-2016)
+
+#317: ArrayIndexOutOfBoundsException: 200 on floating point number with exactly
+  200-length decimal part
+ (reported by Allar H)
+
+2.7.7 (27-Aug-2016)
+
+#307: JsonGenerationException: Split surrogate on writeRaw() input thrown for
+  input of a certain size
+ (reported by Mike N)
+#315: `OutOfMemoryError` when writing BigDecimal
+ (reported by gmethwin@github)
+
+2.7.6 (23-Jul-2016)
+
+- Clean up of FindBugs reported possible issues.
+
+2.7.5 (11-Jun-2016)
+ 
+#280: FilteringGeneratorDelegate.writeUTF8String() should delegate to writeUTF8String()
+ (reported by Tanguy L)
+
+2.7.4 (29-Apr-2016)
+
+#209: Make use of `_allowMultipleMatches` in `FilteringParserDelegate`
+ (contributed by Lokesh N)
+- Make `processor` transient in `JsonParseException`, `JsonGenerationException`
+  to keep both Serializable
+
+2.7.3 (16-Mar-2016)
+
+No changes since 2.7.2.
+
+2.7.2 (26-Feb-2016)
+
+#246: Fix UTF8JsonGenerator to allow QUOTE_FIELD_NAMES to be toggled
+ (suggested by philipa@github)
+
+2.7.1 (02-Feb-2016)
+
+No changes since 2.7.0.
+
+2.7.0 (10-Jun-2016)
+
+#37: JsonParser.getTokenLocation() doesn't update after field names
+ (reported by Michael L)
+#198: Add back-references to `JsonParser` / `JsonGenerator` for low-level parsing issues
+ (via `JsonParseException`, `JsonGenerationException`)
+#211: Typo of function name com.fasterxml.jackson.core.Version.isUknownVersion()
+ (reported by timray@github)
+#229: Array element and field token spans include previous comma.
+- Implemented `ReaderBasedJsonParser.nextFieldName(SerializableString)`
+  (to improved Afterburner performance over String/char[] sources)
+
+2.6.6 (05-Apr-2016)
+
+#248: VersionUtil.versionFor() unexpectedly return null instead of Version.unknownVersion()
+ (reported by sammyhk@github)
+
+2.6.5 (19-Jan-2016)
+2.6.4 (07-Dec-2015)
+
+No changes since 2.6.3.
+
+2.6.3 (12-Oct-2015)
+
+#220: Problem with `JsonParser.nextFieldName(SerializableString)` for byte-backed parser
+
+2.6.2 (14-Sep-2015)
+
+#213: Parser is sometimes wrong when using CANONICALIZE_FIELD_NAMES
+ (reported by ichernev@github)
+#216: ArrayIndexOutOfBoundsException: 128 when repeatedly serializing to a byte array
+ (reported by geekbeast@github)
+
+2.6.1 (09-Aug-2015)
+
+#207: `ArrayIndexOutOfBoundsException` in `ByteQuadsCanonicalizer`
+ (reported by Florian S, fschopp@github)
+
+2.6.0 (17-Jul-2015)
+
+#137: Allow filtering content read via `JsonParser` by specifying `JsonPointer`;
+  uses new class `com.fasterxml.jackson.core.filter.FilteringParserDelegate`
+  (and related, `TokenFilter`)
+#177: Add a check so `JsonGenerator.writeString()` won't work if `writeFieldName()` expected.
+#182: Inconsistent TextBuffer#getTextBuffer behavior
+ (contributed by Masaru H)
+#185: Allow filtering content written via `JsonGenerator` by specifying `JsonPointer`;
+  uses new class `com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate`
+  (and related, `TokenFilter`)
+#188: `JsonParser.getValueAsString()` should return field name for `JsonToken.FIELD_NAME`, not `null`
+#189: Add `JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING` (default: true), which may
+  be disabled to prevent use of ThreadLocal-based buffer recyling.
+ (suggested by soldierkam@github)
+#195: Add `JsonGenerator.getOutputBuffered()` to find out amount of content buffered,
+  not yet flushed.
+ (requested by Ruediger M)
+#196: Add support for `FormatFeature` extension, for format-specifc Enum-backed
+  parser/generator options
+- Minor improvement to construction of "default PrettyPrinter": now overridable by data format
+  modules
+- Implement a new yet more optimized symbol table for byte-backed parsers
+- Add `JsonParser.Feature.IGNORE_UNDEFINED`, useful for data formats like protobuf
+- Optimize writing of String names (remove intermediate copy; with JDK7 no speed benefit)
+
+2.5.5 (07-Dec-2015)
+
+#220: Problem with `JsonParser.nextFieldName(SerializableString)` for byte-backed parser
+#221: Fixed ArrayIndexOutOfBounds exception for character-based `JsonGenerator`
+ (reported by a-lerion@github)
+
+2.5.4 (09-Jun-2015)
+
+No changes.
+
+2.5.3 (24-Apr-2015)
+
+#191: Longest collision chain in symbol table now exceeds maximum -- suspect a DoS attack
+ (reported by Paul D)
+
+2.5.2 (29-Mar-2015)
+
+#181: Failure parsing -Infinity on buffer boundary
+ (reported by brharrington@github)
+#187: Longest collision chain in symbol table exceeds maximum length routinely
+  in non-malicious code
+ (reported by mazzaferri@github)
+
+2.5.1 (06-Feb-2015)
+
+#178: Add `Lf2SpacesIndenter.withLinefeed` back to keep binary-compatibility with 2.4.x
+ (reported by ansell@github)
+- Minor fix to alignment of null bytes in the last 4 bytes of name, in case where name
+  may cross the input boundary
+
+2.5.0 (01-Jan-2015)
+
+#148: BytesToNameCanonicalizer can mishandle leading null byte(s).
+ (reported by rjmac@github)
+#164: Add `JsonGenerator.Feature.IGNORE_UNKNOWN` (but support via individual
+  data format modules)
+#166: Allow to configure line endings and indentation
+ (contributed by Aaron D)
+#167: `JsonGenerator` not catching problem of writing field name twice in a row
+#168: Add methods in `JsonStreamContext` for keeping track of "current value"
+#169: Add `JsonPointer.head()`
+ (contributed by Alex S, lordofthejars@github)
+- Added `ResolvedType.getParameterSource()` to support better resolution
+ of generic types.
+- Added `JsonGenerator.writeRawValue(SerializableString)`
+- Added `JsonParser.hasExpectedStartObjectToken()` convenience method
+- Added `JsonParser.hasTokenId(id)` convenience method
+- Added `JsonParser.nextFieldName()` (no args)
+
+2.4.6 (23-Apr-2015)
+
+#184: WRITE_NUMBERS_AS_STRINGS disables WRITE_BIGDECIMAL_AS_PLAIN
+ (reported by Derek C)
+
+2.4.5 (13-Jan-2015)
+
+No changes since 2.4.4.
+
+2.4.4 (24-Nov-2014)
+
+#157: ArrayIndexOutOfBoundsException: 200 on numbers with more than 200 digits.
+ (reported by Lars P, larsp@github)
+#173: An exception is thrown for a valid JsonPointer expression
+ (reported by Alex S)
+#176: `JsonPointer` should not consider "00" to be valid index
+ (reported by fge@gitub)
+- Fix `JsonGenerator.setFeatureMask()` to better handle dynamic changes.
+
+2.4.3 (02-Oct-2014)
+
+#152: Exception for property names longer than 256k
+ (reported by CrendKing@github)
+
+2.4.2 (13-Aug-2014)
+
+#145: NPE at BytesToNameCanonicalizer
+ (reported by Shay B)
+#146: Error while parsing negative floats at the end of the input buffer
+ (reported by rjmac@github)
+
+2.4.1 (16-Jun-2014)
+
+#143: Flaw in `BufferRecycler.allocByteBuffer(int,int)` that results in
+ performance regression
+
+2.4.0 (29-May-2014)
+
+#121: Increase size of low-level byte[]/char[] input/output buffers
+ (from 4k->8k for bytes, 2k->4k for chars)
+#127: Add `JsonGenerator.writeStartArray(int size)` for binary formats
+#138: Add support for using `char[]` as input source; optimize handling
+  of `String` input as well.
+- Refactor `BufferRecycler` to eliminate helper enums
+
+2.3.5 (13-Jan-2015)
+
+#152: Exception for property names longer than 256k
+#173: An exception is thrown for a valid JsonPointer expression
+#176: `JsonPointer` should not consider "00" to be valid index
+
+2.3.4 (17-Jul-2014)
+2.3.3 (10-Apr-2014)
+
+No changes since 2.3.2.
+
+2.3.2 (01-Mar-2014)
+
+#126: Revert some 1.6 back to make core lib work with Android 2.2 (FroYo)
+ (contributed by Goncalo S)
+#129: Missing delegation method, `JsonParserDelegate.isExpectedStartArrayToken()`
+ (Pascal G)
+#133: Prevent error on JsonPointer expressions for properties that have numeric
+  ids above 32-bit range
+ (reported by mrstlee@github)
+
+2.3.1 (28-Dec-2013)
+
+No functional changes.
+
+2.3.0 (13-Nov-2013)
+
+#8: Add methods in `JsonParser`/`JsonGenerator` for reading/writing Object Ids
+#47: Support YAML-style comments with `JsonParser.Feature.ALLOW_YAML_COMMENTS`
+#60: Add a feature (`JsonParser.Feature.STRICT_DUPLICATE_DETECTION`) to verify
+  that input does not contain duplicate filed names
+#77: Improve error reporting for unrecognized tokens
+ (requested by cowwoc@github)
+#85: Add `JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN`
+#91: Add methods in `JsonGenerator` for writing native Type Ids
+#92: Add methods in `JsonParser` for reading native Type Ids
+#93: Add `getFeatureMask()`, `setFeatureMask()` in `JsonGenerator`/`JsonParser`
+#94: Allow coercion of String value "null" (similar to handling of null token)
+#96: Add `JsonFactory.requiresPropertyOrdering()` introspection method
+#97: JsonGenerator's `JsonWriteContext` not maintained properly, loses
+  current field name
+ (reported by Sam R)
+#98: Improve handling of failures for `BigDecimal`, for "NaN" (and infinity)
+#102: Unquoted field names can not start with a digit
+#103: Add `JsonFactory.canHandleBinaryNatively`, `JsonGenerator.canWriteBinaryNatively`
+ to let databind module detect level of support for binary data.
+#105: Parser parsers numbers eagerly; does not report error with missing space
+#106: Add `JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION` for preventing dup names
+#110: Improve overridability of `JsonGeneratorDelegate`
+ (suggested by qpliu@github)
+#111: _currInputRowStart isn't initialized in UTF8StreamJsonParser() constructor
+ (reported by dreamershl@github)
+#115: JsonGenerator writeRawValue problem with surrogate UTF-8 characters
+ (reported by Marcin Z)
+#116: WriterBasedJsonGenerator produces truncated Unicode escape sequences
+ (reported by Steve L-S)
+- Improve `DefaultPrettyPrinter`, `Lf2SpacesIndenter` (from databind #276)
+- Add `JsonGenerator.canOmitFields()` method to support discovery of
+  positional formats, needed for handling of filtering for CSV
+- Rewrite `InternCache` to use `ConcurrentHashMap`, to work more efficiently both
+  for common case of few misses (no block on access), and slowest cases (lots of
+  misses).
+- Add `JsonPointer` implementation, to be used by tree model, streaming
+- Make `UTF8StreamJsonParser` non-final, for potential sub-classing
+
+2.2.3 (23-Aug-2013)
+
+#78: ArrayIndexOutOfBoundsException for very long numbers (>500 digits)
+ (reported by boothen@github)
+#81: CharTypes.appendQuoted misencodes first 32 Unicode values as '\0000'
+ (reported by githubaff0@github)
+#84: Support for parsing 'Infinity' when feature ALLOW_NON_NUMERIC_NUMBERS is on
+ (contributed by ebrevdo@github)
+- Add `Base64Variant.decode()` convenience methods
+
+2.2.2 (26-May-2013)
+
+No changes since previous version.
+
+2.2.1 (03-May-2013)
+
+#72: JsonFactory.copy() was not copying settings properly
+ (reported by Christian S (squiddle@github))
+- Moved VERSION/LICENSE contained in jars under META-INF/, to resolve
+  Android packaging (APK) issues
+
+2.2.0 (22-Apr-2013)
+
+Fixes:
+
+#51: JsonLocation had non-serializable field, mark as transient
+
+Improvements
+
+#46, #49: Improve VersionUtil to generate PackageVersion, instead of
+  reading VERSION.txt from jar -- improves startup perf on Android significantly
+ (contributed by Ben G)
+#59: Add more functionality in `TreeNode` interface, to allow some
+ level of traversal over any and all Tree Model implementations
+#69: Add support for writing `short` values in JsonGenerator
+
+2.1.3 (19-Jan-2013)
+
+* [JACKSON-884]: JsonStringEncoder.quoteAsStringValue() fails to encode 
+  ctrl chars correctly.
+* [Issue#48] Problems with spaces in URLs
+ (reported by KlausBrunner)
+
+2.1.2 (04-Dec-2012)
+
+* [Issue#42] Problems with UTF32Reader
+ (reported by James R [jroper@github])
+* Added missing methods (like 'setPrettyPrinter()' in JsonGeneratorDelegate
+
+2.1.1 (11-Nov-2012)
+
+* [Issue#34] `JsonParser.nextFieldName()` fails on buffer boundary
+ (reported by gsson@github)
+* [Issue#38] `JsonParser.nextFieldName()` problems when handling
+ names with trailing spaces
+ (reported by matjazs@github)
+
+2.1.0 (08-Oct-2012)
+
+A new minor version for 2.x.
+
+New features:
+
+* [Issue#14]: add 'readBinaryValue(...)' method in JsonParser
+* [Issue#16]: add 'writeBinary(InputStream, int)' method in JsonGenerator
+  (and implement for JSON backend)
+* [Issue#26]: Allow overriding "root value separator"
+ (suggested by Henning S)
+
+Improvements:
+
+* [JACKSON-837]: Made JsonGenerator implement Flushable.
+ (suggested by Matt G)
+* [Issue#10]: add 'JsonProcessingException.getOriginalMessage()' for accessing
+  message without location info
+* [Issue#31]: make `JsonFactory` java.io.Serializable (via JDK)
+
+Other:
+
+* [Issue-25]: Add 'createParser' and 'createGenerator' (as eventual replacements
+  for 'createJsonParser'/'createJsonGenerator') in 'JsonFactory'
+* Try to improve locking aspects of symbol tables, by reducing scope of
+  synchronized sections when creating, merging table contents.
+* Added 'JsonFactory.copy()' method to support databinding's 'ObjectMapper.copy()'
+* Added method 'requiresCustomCodec()' for JsonFactory and JsonParser
+* Added 'JsonParser.getValueAsString()' method (to support flexible conversions)
+* Added META-INF/services/com.fasterxml.jackson.core.JsonFactory SPI to register
+  `JsonFactory` for even more automatic format discovery in future.
+
+2.0.4 (26-Jun-2012)
+
+Fixes:
+
+* [Issue-6] PrettyPrinter, count wrong for end-object case
+* 1.9.x fixes up to 1.9.8
+
+2.0.3: skipped;	 only some modules use this version
+
+2.0.2 (14-May-2012)
+
+* 1.9.x fixes up to 1.9.7
+
+2.0.1 (22-Apr-2012)
+
+Fixes:
+
+* [JACKSON-827] Fix incompatibilities with JDK 1.5 (2.0.0 accidentally
+  required 1.6)
+ (reported Pascal G)
+
+2.0.0 (25-Mar-2012)
+
+Fixes:
+
+(all fixes up until 1.9.6)
+
+Improvements
+
+* [JACKSON-730]: Add checks to ensure that Features are applicable for
+  instances (parsers, generators), or if not, throw IllegalArgumentException
+* [JACKSON-742]: Add append-methods in SerializableString
+
+New features:
+
+* [JACKSON-782]: Add 'JsonParser.overrideCurrentName()', needed as a workaround
+  for some exotic data binding cases (and/or formats)
+
+[entries for versions 1.x and earlier not retained; refer to earlier releases)

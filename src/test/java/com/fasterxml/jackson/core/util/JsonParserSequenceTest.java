@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
@@ -12,15 +13,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.*;
-
 /**
  * Unit tests for class {@link JsonParserSequence}.
  *
  * @date 2017-09-18
  * @see JsonParserSequence
  **/
-public class JsonParserSequenceTest {
+public class JsonParserSequenceTest extends BaseTest {
     @Test
     public void testClose() throws IOException {
         BufferRecycler bufferRecycler = new BufferRecycler();

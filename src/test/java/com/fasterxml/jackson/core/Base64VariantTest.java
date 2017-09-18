@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Unit tests for class {@link Base64Variant}.
@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * @date 2017-09-18
  * @see Base64Variant
  **/
-public class Base64VariantTest {
+public class Base64VariantTest extends BaseTest {
     @Test
     public void testDecodeTaking2ArgumentsThrowsIllegalArgumentException() {
         Base64Variant base64Variant = new Base64Variant("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",

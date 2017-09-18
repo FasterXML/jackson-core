@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
+import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -10,15 +11,13 @@ import org.junit.Test;
 
 import java.io.*;
 
-import static org.junit.Assert.*;
-
 /**
  * Unit tests for class {@link UTF8DataInputJsonParser}.
  *
  * @date 2017-09-18
  * @see UTF8DataInputJsonParser
  **/
-public class UTF8DataInputJsonParserTest {
+public class UTF8DataInputJsonParserTest extends BaseTest {
     @Test
     public void test_decodeBase64ThrowsEOFException() throws IOException {
         BufferRecycler bufferRecycler = new BufferRecycler();

@@ -6,7 +6,11 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.*;
@@ -175,14 +179,18 @@ public class JsonFactory
     /* Buffer, symbol table management
     /**********************************************************
      */
+    /**
+     * A list of the used buffer recyclers, softly referenced. Used to be able to release them on shutdown.
+     */
+    private static final List<SoftReference<BufferRecycler>> bufRecList = Collections.synchronizedList(new ArrayList<SoftReference<BufferRecycler>>());
 
     /**
-     * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
+     * This <code>ThreadLocal</code> contains a {@link java.lang.ref.WeakReference}
      * to a {@link BufferRecycler} used to provide a low-cost
      * buffer recycling between reader and writer instances.
      */
-    final protected static ThreadLocal<SoftReference<BufferRecycler>> _recyclerRef
-        = new ThreadLocal<SoftReference<BufferRecycler>>();
+    final protected static ThreadLocal<WeakReference<BufferRecycler>> _recyclerRef
+        = new ThreadLocal<WeakReference<BufferRecycler>>();
 
     /**
      * Each factory comes equipped with a shared root symbol table.
@@ -987,6 +995,17 @@ public class JsonFactory
     }
 
     /**
+     * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
+     * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
+     * application to survive much longer than the application itself.
+     */
+    public void shutdown() {
+        for (SoftReference ref : bufRecList) {
+            ref.clear(); // possibly already cleared by gc, nothing happens in that case
+        }
+    }
+
+    /**
      * Convenience method for constructing generator that uses default
      * encoding of the format (UTF-8 for JSON and most other data formats).
      *<p>
@@ -1217,12 +1236,14 @@ public class JsonFactory
          *   on Android, for example)
          */
         if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            SoftReference<BufferRecycler> ref = _recyclerRef.get();
+            WeakReference<BufferRecycler> ref = _recyclerRef.get();
             BufferRecycler br = (ref == null) ? null : ref.get();
     
             if (br == null) {
                 br = new BufferRecycler();
-                _recyclerRef.set(new SoftReference<BufferRecycler>(br));
+                _recyclerRef.set(new WeakReference<BufferRecycler>(br));
+                // retain br softly in a list to be able to release it on shutdown
+                bufRecList.add(new SoftReference<BufferRecycler>(br));
             }
             return br;
         }

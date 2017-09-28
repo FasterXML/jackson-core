@@ -164,9 +164,8 @@ public class TestPrettyPrinter
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
                 .withArrayValueSeparator('|')));
-
         _writeTestDocument(gen);
-
+        gen.close();
         assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", sw.toString());
     }
 
@@ -180,7 +179,7 @@ public class TestPrettyPrinter
                 .withArrayValueSeparator('|')));
 
         _writeTestDocument(gen);
-
+        gen.close();
         assertEquals("[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
                 "  \"f\" = null;" + DefaultIndenter.SYS_LF +
                 "  \"f2\" = null" + DefaultIndenter.SYS_LF +
@@ -198,7 +197,7 @@ public class TestPrettyPrinter
             .withoutSpacesInObjectEntries());
 
         _writeTestDocument(gen);
-
+        gen.close();
         assertEquals("[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
                 "  \"f\"=null;" + DefaultIndenter.SYS_LF +
                 "  \"f2\"=null" + DefaultIndenter.SYS_LF +

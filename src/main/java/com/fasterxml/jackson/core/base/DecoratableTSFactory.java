@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.io.*;
  * @since 3.0
  */
 @SuppressWarnings("resource")
-public abstract class DecoratableFactory
+public abstract class DecoratableTSFactory
     extends TokenStreamFactory
 {
     /*
@@ -49,9 +49,9 @@ public abstract class DecoratableFactory
     /**********************************************************
      */
     
-    protected DecoratableFactory() { this(null); }
+    protected DecoratableTSFactory() { this(null); }
 
-    protected DecoratableFactory(ObjectCodec oc) {
+    protected DecoratableTSFactory(ObjectCodec oc) {
         super();
         _objectCodec = oc;
     }
@@ -59,7 +59,7 @@ public abstract class DecoratableFactory
     /**
      * Constructor used when copy()ing a factory instance.
      */
-    protected DecoratableFactory(DecoratableFactory src, ObjectCodec codec) {
+    protected DecoratableTSFactory(DecoratableTSFactory src, ObjectCodec codec) {
         super(src);
         _objectCodec = codec;
     }
@@ -78,7 +78,7 @@ public abstract class DecoratableFactory
      * of {@link JsonParser} and {@link JsonGenerator} instances.
      */
     @Override
-    public DecoratableFactory setCodec(ObjectCodec oc) {
+    public DecoratableTSFactory setCodec(ObjectCodec oc) {
         _objectCodec = oc;
         return this;
     }
@@ -99,7 +99,7 @@ public abstract class DecoratableFactory
      * Method for overriding currently configured output decorator
      */
     @Override
-    public DecoratableFactory setOutputDecorator(OutputDecorator d) {
+    public DecoratableTSFactory setOutputDecorator(OutputDecorator d) {
         _outputDecorator = d;
         return this;
     }
@@ -117,7 +117,7 @@ public abstract class DecoratableFactory
      * Method for overriding currently configured input decorator
      */
     @Override
-    public DecoratableFactory setInputDecorator(InputDecorator d) {
+    public DecoratableTSFactory setInputDecorator(InputDecorator d) {
         _inputDecorator = d;
         return this;
     }

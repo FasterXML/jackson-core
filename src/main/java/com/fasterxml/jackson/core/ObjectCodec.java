@@ -168,5 +168,5 @@ public abstract class ObjectCodec
      * Accessor for finding underlying data format factory
      * ({@link JsonFactory}) codec will use for data binding.
      */
-    public abstract JsonFactory getFactory();
+    public abstract TokenStreamFactory getFactory();
 }

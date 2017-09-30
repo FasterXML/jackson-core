@@ -40,6 +40,7 @@ public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
         assertEquals(0, byteArrayBuilder.toByteArray()[1]);
         assertEquals(0, byteArrayBuilder.toByteArray()[2]);
         assertEquals(2, byteArrayBuilder.toByteArray()[3]);
+        byteArrayBuilder.close();
     }
 
     public void testAppendTwoBytesWithZero() {
@@ -51,6 +52,7 @@ public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
 
         assertEquals(2, byteArrayBuilder.size());
         assertEquals(0, byteArrayBuilder.toByteArray()[0]);
+        byteArrayBuilder.close();
     }
 
     public void testFinishCurrentSegment() {
@@ -60,8 +62,9 @@ public class ByteArrayBuilderTest extends com.fasterxml.jackson.core.BaseTest
 
         assertEquals(3, byteArrayBuilder.getCurrentSegmentLength());
 
-        byte[] byteArray = byteArrayBuilder.finishCurrentSegment();
+        /*byte[] byteArray =*/ byteArrayBuilder.finishCurrentSegment();
 
         assertEquals(0, byteArrayBuilder.getCurrentSegmentLength());
+        byteArrayBuilder.close();
     }
 }

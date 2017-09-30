@@ -18,4 +18,5 @@ JSON library.
 3.0.0 (not yet released)
 
 #402: Remove dataformat-auto-detection functionality
+#408: Rename `JsonFactory` as `TokenStreamFactory`, split JSON-specific into `JsonFactory`
 

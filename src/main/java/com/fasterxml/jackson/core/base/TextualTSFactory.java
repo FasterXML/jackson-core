@@ -4,122 +4,31 @@ import java.io.*;
 import java.net.URL;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.*;
+import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.UTF8Writer;
 
 /**
- * Intermediate base implementation for factories that allow decorators
- * for input and output.
- *
- * @since 3.0
+ * Intermediate {@link TokenStreamFactory} sub-class used as the base for
+ * textual data formats.
  */
 @SuppressWarnings("resource")
-public abstract class DecoratableTSFactory
-    extends TokenStreamFactory
+public abstract class TextualTSFactory extends DecorableTSFactory
 {
-    /*
-    /**********************************************************
-    /* Configuration
-    /**********************************************************
-     */
-
-    /**
-     * Object that implements conversion functionality between
-     * Java objects and JSON content. For base JsonFactory implementation
-     * usually not set by default, but can be explicitly set.
-     * Sub-classes (like @link org.codehaus.jackson.map.MappingJsonFactory}
-     * usually provide an implementation.
-     */
-    protected ObjectCodec _objectCodec;
-
-    /**
-     * Optional helper object that may decorate input sources, to do
-     * additional processing on input during parsing.
-     */
-    protected InputDecorator _inputDecorator;
-
-    /**
-     * Optional helper object that may decorate output object, to do
-     * additional processing on output during content generation.
-     */
-    protected OutputDecorator _outputDecorator;
-
     /*
     /**********************************************************
     /* Construction
     /**********************************************************
      */
     
-    protected DecoratableTSFactory() { this(null); }
+    protected TextualTSFactory() { super(); }
 
-    protected DecoratableTSFactory(ObjectCodec oc) {
-        super();
-        _objectCodec = oc;
-    }
+    protected TextualTSFactory(ObjectCodec codec) { super(codec); }
 
     /**
      * Constructor used when copy()ing a factory instance.
      */
-    protected DecoratableTSFactory(DecoratableTSFactory src, ObjectCodec codec) {
-        super(src);
-        _objectCodec = codec;
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration
-    /**********************************************************
-     */
-
-    /**
-     * Method for associating a {@link ObjectCodec} (typically
-     * a <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
-     * with this factory (and more importantly, parsers and generators
-     * it constructs). This is needed to use data-binding methods
-     * of {@link JsonParser} and {@link JsonGenerator} instances.
-     */
-    @Override
-    public DecoratableTSFactory setCodec(ObjectCodec oc) {
-        _objectCodec = oc;
-        return this;
-    }
-
-    @Override
-    public ObjectCodec getCodec() { return _objectCodec; }
-
-    /**
-     * Method for getting currently configured output decorator (if any;
-     * there is no default decorator).
-     */
-    @Override
-    public OutputDecorator getOutputDecorator() {
-        return _outputDecorator;
-    }
-
-    /**
-     * Method for overriding currently configured output decorator
-     */
-    @Override
-    public DecoratableTSFactory setOutputDecorator(OutputDecorator d) {
-        _outputDecorator = d;
-        return this;
-    }
-
-    /**
-     * Method for getting currently configured input decorator (if any;
-     * there is no default decorator).
-     */
-    @Override
-    public InputDecorator getInputDecorator() {
-        return _inputDecorator;
-    }
-
-    /**
-     * Method for overriding currently configured input decorator
-     */
-    @Override
-    public DecoratableTSFactory setInputDecorator(InputDecorator d) {
-        _inputDecorator = d;
-        return this;
+    protected TextualTSFactory(TextualTSFactory src, ObjectCodec codec) {
+        super(src, codec);
     }
 
     /*
@@ -296,72 +205,4 @@ public abstract class DecoratableTSFactory
         // not optimal, but should do unless we really care about UTF-16/32 encoding speed
         return new OutputStreamWriter(out, enc.getJavaName());
     }
-
-    /*
-    /**********************************************************
-    /* Decorators, input
-    /**********************************************************
-     */
-
-    protected InputStream _decorate(InputStream in, IOContext ctxt) throws IOException
-    {
-        if (_inputDecorator != null) {
-            InputStream in2 = _inputDecorator.decorate(ctxt, in);
-            if (in2 != null) {
-                return in2;
-            }
-        }
-        return in;
-    }
-
-    protected Reader _decorate(Reader in, IOContext ctxt) throws IOException
-    {
-        if (_inputDecorator != null) {
-            Reader in2 = _inputDecorator.decorate(ctxt, in);
-            if (in2 != null) {
-                return in2;
-            }
-        }
-        return in;
-    }
-
-    protected DataInput _decorate(DataInput in, IOContext ctxt) throws IOException
-    {
-        if (_inputDecorator != null) {
-            DataInput in2 = _inputDecorator.decorate(ctxt, in);
-            if (in2 != null) {
-                return in2;
-            }
-        }
-        return in;
-    }
-
-    /*
-    /**********************************************************
-    /* Decorators, output
-    /**********************************************************
-     */
-
-    protected OutputStream _decorate(OutputStream out, IOContext ctxt) throws IOException
-    {
-        if (_outputDecorator != null) {
-            OutputStream out2 = _outputDecorator.decorate(ctxt, out);
-            if (out2 != null) {
-                return out2;
-            }
-        }
-        return out;
-    }
-
-    protected Writer _decorate(Writer out, IOContext ctxt) throws IOException
-    {
-        if (_outputDecorator != null) {
-            Writer out2 = _outputDecorator.decorate(ctxt, out);
-            if (out2 != null) {
-                return out2;
-            }
-        }
-        return out;
-    }
-
 }

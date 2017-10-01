@@ -6,7 +6,7 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.base.DecoratableTSFactory;
+import com.fasterxml.jackson.core.base.TextualTSFactory;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
  * JSON-encoded content.
  */
 public class JsonFactory
-    extends DecoratableTSFactory
+    extends TextualTSFactory
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1;

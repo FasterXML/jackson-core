@@ -159,40 +159,25 @@ public class JsonFactory
         return PackageVersion.VERSION;
     }
 
-    /**
-     * Introspection method that can be used to check whether this
-     * factory can create non-blocking parsers: parsers that do not
-     * use blocking I/O abstractions but instead use a
-     * {@link com.fasterxml.jackson.core.async.NonBlockingInputFeeder}.
-     */
     @Override
     public boolean canParseAsync() {
         // 31-May-2017, tatu: Jackson 2.9 does support async parsing for JSON
         return true;
     }
 
-    /**
-     * Method for accessing kind of {@link FormatFeature} that a parser
-     * {@link JsonParser} produced by this factory would accept, if any;
-     * <code>null</code> returned if none.
-     */
     @Override
     public Class<? extends FormatFeature> getFormatReadFeatureType() {
         return null;
     }
 
-    /**
-     * Method for accessing kind of {@link FormatFeature} that a parser
-     * {@link JsonGenerator} produced by this factory would accept, if any;
-     * <code>null</code> returned if none.
-     */
     @Override
     public Class<? extends FormatFeature> getFormatWriteFeatureType() {
         return null;
     }
+
     /*
     /**********************************************************
-    /* Format detection functionality
+    /* Format support
     /**********************************************************
      */
 

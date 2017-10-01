@@ -33,6 +33,36 @@ public abstract class TextualTSFactory extends DecorableTSFactory
 
     /*
     /**********************************************************
+    /* Default introspection
+    /**********************************************************
+     */
+    
+    @Override
+    public boolean canHandleBinaryNatively() {
+        // typically textual formats need escaping like Base64 so:
+        return false;
+    }
+
+    /*
+    /**********************************************************
+    /* Extended capabilities for textual formats (only)
+    /**********************************************************
+     */
+    
+    /**
+     * Introspection method that can be used by base factory to check
+     * whether access using <code>char[]</code> is something that actual
+     * parser implementations can take advantage of, over having to
+     * use {@link java.io.Reader}. Sub-types are expected to override
+     * definition; default implementation (suitable for JSON) alleges
+     * that optimization are possible; and thereby is likely to try
+     * to access {@link java.lang.String} content by first copying it into
+     * recyclable intermediate buffer.
+     */
+    public boolean canUseCharArrays() { return true; }
+    
+    /*
+    /**********************************************************
     /* Factory methods: parsers
     /**********************************************************
      */

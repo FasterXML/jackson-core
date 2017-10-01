@@ -154,6 +154,11 @@ public class JsonFactory
     /**********************************************************
      */
 
+    @Override
+    public Version version() {
+        return PackageVersion.VERSION;
+    }
+
     /**
      * Introspection method that can be used to check whether this
      * factory can create non-blocking parsers: parsers that do not
@@ -214,17 +219,6 @@ public class JsonFactory
     @Override
     public String getFormatName() {
         return FORMAT_NAME_JSON;
-    }
-
-    /*
-    /**********************************************************
-    /* Versioned
-    /**********************************************************
-     */
-
-    @Override
-    public Version version() {
-        return PackageVersion.VERSION;
     }
 
     /*

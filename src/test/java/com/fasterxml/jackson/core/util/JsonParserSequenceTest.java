@@ -19,7 +19,9 @@ import java.io.InputStream;
  * @date 2017-09-18
  * @see JsonParserSequence
  **/
-public class JsonParserSequenceTest extends BaseTest {
+@SuppressWarnings("resource")
+public class JsonParserSequenceTest extends BaseTest
+{
     @Test
     public void testClose() throws IOException {
         BufferRecycler bufferRecycler = new BufferRecycler();

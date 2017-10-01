@@ -12,6 +12,7 @@ import static org.junit.Assert.assertArrayEquals;
  * @date 2017-09-18
  * @see Base64Variant
  **/
+@SuppressWarnings("resource")
 public class Base64VariantTest extends BaseTest {
     @Test
     public void testDecodeTaking2ArgumentsThrowsIllegalArgumentException() {

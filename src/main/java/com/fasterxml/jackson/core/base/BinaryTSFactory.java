@@ -32,6 +32,18 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
 
     /*
     /**********************************************************
+    /* Default introspection
+    /**********************************************************
+     */
+    
+    @Override
+    public boolean canHandleBinaryNatively() {
+        // binary formats tend to support native inclusion:
+        return true;
+    }
+    
+    /*
+    /**********************************************************
     /* Factory methods: parsers
     /**********************************************************
      */

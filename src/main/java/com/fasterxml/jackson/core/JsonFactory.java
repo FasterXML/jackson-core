@@ -319,7 +319,8 @@ public class JsonFactory
         }
         // NOTE: JSON generator does not use schema; has no format-specific features
         return new WriterBasedJsonGenerator(ctxt,
-                writeCtxt.getGeneratorFeatures(_generatorFeatures), _objectCodec, out,
+                writeCtxt.getGeneratorFeatures(_generatorFeatures),
+                _objectCodec, out,
                 rootSep, charEsc, writeCtxt.getPrettyPrinter());
     }
 
@@ -335,7 +336,8 @@ public class JsonFactory
         // NOTE: JSON generator does not use schema; has no format-specific features
 
         return new UTF8JsonGenerator(ctxt,
-                writeCtxt.getGeneratorFeatures(_generatorFeatures), _objectCodec, out,
+                writeCtxt.getGeneratorFeatures(_generatorFeatures),
+                _objectCodec, out,
                 rootSep, charEsc, writeCtxt.getPrettyPrinter());
     }
 }

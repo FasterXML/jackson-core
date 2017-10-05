@@ -116,6 +116,29 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
      */
 
     @Override
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
+        throws IOException
+    {
+        // false -> we won't manage the stream unless explicitly directed to
+        IOContext ctxt = _createContext(out, false, enc);
+        return _createGenerator(EMPTY_WRITE_CONTEXT, _decorate(out, ctxt), ctxt);
+    }
+
+    @Override
+    public JsonGenerator createGenerator(Writer w) throws IOException {
+        return _nonByteTarget();
+    }
+
+    @Override
+    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
+    {
+        OutputStream out = new FileOutputStream(f);
+        // true -> yes, we have to manage the stream since we created it
+        IOContext ioCtxt = _createContext(out, true, enc);
+        return _createGenerator(EMPTY_WRITE_CONTEXT, _decorate(out, ioCtxt), ioCtxt);
+    }
+
+    @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             OutputStream out, JsonEncoding enc)
         throws IOException
@@ -140,6 +163,12 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         IOContext ioCtxt = _createContext(out, true, enc);
         return _createGenerator(writeCtxt, _decorate(out, ioCtxt), ioCtxt);
     }
+
+    /*
+    /**********************************************************
+    /* Factory methods: abstract, for sub-classes to implement
+    /**********************************************************
+     */
 
     /**
      * Overridable factory method that actually instantiates generator for

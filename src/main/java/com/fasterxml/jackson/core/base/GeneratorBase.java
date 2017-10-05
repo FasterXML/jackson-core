@@ -55,6 +55,15 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
+    /**
+     * Context object used both to pass some initial settings and to allow
+     * triggering of Object serialization through generator.
+     *
+     * @since 3.0
+     */
+    protected final ObjectWriteContext _objectWriteContext;
+
+    @Deprecated
     protected ObjectCodec _objectCodec;
 
     /**
@@ -81,7 +90,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * Object that keeps track of the current contextual state
      * of the generator.
      */
-    protected JsonWriteContext _writeContext;
+    protected JsonWriteContext _outputContext;
 
     /**
      * Flag that indicates whether generator is closed or not. Gets
@@ -96,21 +105,23 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
-    protected GeneratorBase(int features, ObjectCodec codec) {
+    protected GeneratorBase(ObjectWriteContext writeCtxt, int features, ObjectCodec codec) {
         super();
+        _objectWriteContext = writeCtxt;
         _features = features;
         _objectCodec = codec;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
-        _writeContext = JsonWriteContext.createRootContext(dups);
+        _outputContext = JsonWriteContext.createRootContext(dups);
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
-    protected GeneratorBase(int features, ObjectCodec codec, JsonWriteContext ctxt) {
+    protected GeneratorBase(ObjectWriteContext writeCtxt, int features, ObjectCodec codec, JsonWriteContext ctxt) {
         super();
+        _objectWriteContext = writeCtxt;
         _features = features;
         _objectCodec = codec;
-        _writeContext = ctxt;
+        _outputContext = ctxt;
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
@@ -123,12 +134,12 @@ public abstract class GeneratorBase extends JsonGenerator
 
     @Override
     public Object getCurrentValue() {
-        return _writeContext.getCurrentValue();
+        return _outputContext.getCurrentValue();
     }
 
     @Override
     public void setCurrentValue(Object v) {
-        _writeContext.setCurrentValue(v);
+        _outputContext.setCurrentValue(v);
     }
 
     /*
@@ -154,8 +165,8 @@ public abstract class GeneratorBase extends JsonGenerator
             } else if (f == Feature.ESCAPE_NON_ASCII) {
                 setHighestNonEscapedChar(127);
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
-                if (_writeContext.getDupDetector() == null) { // but only if disabled currently
-                    _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
+                if (_outputContext.getDupDetector() == null) { // but only if disabled currently
+                    _outputContext = _outputContext.withDupDetector(DupDetector.rootDetector(this));
                 }
             }
         }
@@ -172,7 +183,7 @@ public abstract class GeneratorBase extends JsonGenerator
             } else if (f == Feature.ESCAPE_NON_ASCII) {
                 setHighestNonEscapedChar(0);
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
-                _writeContext = _writeContext.withDupDetector(null);
+                _outputContext = _outputContext.withDupDetector(null);
             }
         }
         return this;
@@ -202,11 +213,11 @@ public abstract class GeneratorBase extends JsonGenerator
         }
         if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(changedFeatures)) {
             if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newFeatureFlags)) { // enabling
-                if (_writeContext.getDupDetector() == null) { // but only if disabled currently
-                    _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
+                if (_outputContext.getDupDetector() == null) { // but only if disabled currently
+                    _outputContext = _outputContext.withDupDetector(DupDetector.rootDetector(this));
                 }
             } else { // disabling
-                _writeContext = _writeContext.withDupDetector(null);
+                _outputContext = _outputContext.withDupDetector(null);
             }
         }
     }
@@ -232,7 +243,8 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
-    @Override public JsonStreamContext getOutputContext() { return _writeContext; }
+    @Override public JsonStreamContext getOutputContext() { return _outputContext; }
+    @Override public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }
 
     /*
     /**********************************************************
@@ -249,8 +261,8 @@ public abstract class GeneratorBase extends JsonGenerator
     public void writeStartObject(Object forValue) throws IOException
     {
         writeStartObject();
-        if ((_writeContext != null) && (forValue != null)) {
-            _writeContext.setCurrentValue(forValue);
+        if ((_outputContext != null) && (forValue != null)) {
+            _outputContext.setCurrentValue(forValue);
         }
         setCurrentValue(forValue);
     }

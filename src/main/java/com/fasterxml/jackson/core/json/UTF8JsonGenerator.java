@@ -113,20 +113,21 @@ public class UTF8JsonGenerator
     /**********************************************************
      */
 
-    public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
+    public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
+            int features, ObjectCodec codec,
             OutputStream out,
             SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp)
     {
-        super(ctxt, features, codec, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, features, codec, rootValueSep, charEsc, pp);
         _outputStream = out;
         _bufferRecyclable = true;
-        _outputBuffer = ctxt.allocWriteEncodingBuffer();
+        _outputBuffer = ioCtxt.allocWriteEncodingBuffer();
         _outputEnd = _outputBuffer.length;
         // To be exact, each char can take up to 6 bytes when escaped (Unicode
         // escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
         // we will actually round down to only do up to 1/8 number of chars
         _outputMaxContiguous = _outputEnd >> 3;
-        _charBuffer = ctxt.allocConcatBuffer();
+        _charBuffer = ioCtxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
 
         // By default we use this feature to determine additional quoting
@@ -135,12 +136,13 @@ public class UTF8JsonGenerator
         }
     }
 
-    public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
+    public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
+            int features, ObjectCodec codec,
             OutputStream out,
             SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
-        super(ctxt, features, codec, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, features, codec, rootValueSep, charEsc, pp);
         _outputStream = out;
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;
@@ -148,7 +150,7 @@ public class UTF8JsonGenerator
         _outputEnd = _outputBuffer.length;
         // up to 6 bytes per char (see above), rounded up to 1/8
         _outputMaxContiguous = (_outputEnd >> 3);
-        _charBuffer = ctxt.allocConcatBuffer();
+        _charBuffer = ioCtxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
     }
 
@@ -182,7 +184,7 @@ public class UTF8JsonGenerator
             _writePPFieldName(name);
             return;
         }
-        final int status = _writeContext.writeFieldName(name);
+        final int status = _outputContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -232,7 +234,7 @@ public class UTF8JsonGenerator
             _writePPFieldName(name);
             return;
         }
-        final int status = _writeContext.writeFieldName(name.getValue());
+        final int status = _outputContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -281,7 +283,7 @@ public class UTF8JsonGenerator
     public final void writeStartArray() throws IOException
     {
         _verifyValueWrite("start an array");
-        _writeContext = _writeContext.createChildArrayContext();
+        _outputContext = _outputContext.createChildArrayContext();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -295,25 +297,25 @@ public class UTF8JsonGenerator
     @Override
     public final void writeEndArray() throws IOException
     {
-        if (!_writeContext.inArray()) {
-            _reportError("Current context not Array but "+_writeContext.typeDesc());
+        if (!_outputContext.inArray()) {
+            _reportError("Current context not Array but "+_outputContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndArray(this, _writeContext.getEntryCount());
+            _cfgPrettyPrinter.writeEndArray(this, _outputContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = BYTE_RBRACKET;
         }
-        _writeContext = _writeContext.clearAndGetParent();
+        _outputContext = _outputContext.clearAndGetParent();
     }
 
     @Override
     public final void writeStartObject() throws IOException
     {
         _verifyValueWrite("start an object");
-        _writeContext = _writeContext.createChildObjectContext();
+        _outputContext = _outputContext.createChildObjectContext();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -328,8 +330,8 @@ public class UTF8JsonGenerator
     public void writeStartObject(Object forValue) throws IOException
     {
         _verifyValueWrite("start an object");
-        JsonWriteContext ctxt = _writeContext.createChildObjectContext();
-        _writeContext = ctxt;
+        JsonWriteContext ctxt = _outputContext.createChildObjectContext();
+        _outputContext = ctxt;
         if (forValue != null) {
             ctxt.setCurrentValue(forValue);
         }
@@ -346,18 +348,18 @@ public class UTF8JsonGenerator
     @Override
     public final void writeEndObject() throws IOException
     {
-        if (!_writeContext.inObject()) {
-            _reportError("Current context not Object but "+_writeContext.typeDesc());
+        if (!_outputContext.inObject()) {
+            _reportError("Current context not Object but "+_outputContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndObject(this, _writeContext.getEntryCount());
+            _cfgPrettyPrinter.writeEndObject(this, _outputContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = BYTE_RCURLY;
         }
-        _writeContext = _writeContext.clearAndGetParent();
+        _outputContext = _outputContext.clearAndGetParent();
     }
 
     /**
@@ -366,7 +368,7 @@ public class UTF8JsonGenerator
      */
     protected final void _writePPFieldName(String name) throws IOException
     {
-        int status = _writeContext.writeFieldName(name);
+        int status = _outputContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -406,7 +408,7 @@ public class UTF8JsonGenerator
 
     protected final void _writePPFieldName(SerializableString name) throws IOException
     {
-        final int status = _writeContext.writeFieldName(name.getValue());
+        final int status = _outputContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -1049,7 +1051,7 @@ public class UTF8JsonGenerator
     @Override
     protected final void _verifyValueWrite(String typeMsg) throws IOException
     {
-        final int status = _writeContext.writeValue();
+        final int status = _outputContext.writeValue();
         if (_cfgPrettyPrinter != null) {
             // Otherwise, pretty printer knows what to do...
             _verifyPrettyValueWrite(typeMsg, status);

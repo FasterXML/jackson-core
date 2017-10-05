@@ -88,14 +88,14 @@ public class WriterBasedJsonGenerator
     /**********************************************************
      */
 
-    public WriterBasedJsonGenerator(IOContext ctxt, int features,
-            ObjectCodec codec, Writer w,
+    public WriterBasedJsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
+            int features, ObjectCodec codec, Writer w,
             SerializableString rootValueSep, CharacterEscapes charEsc,
             PrettyPrinter pp)
     {
-        super(ctxt, features, codec, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, features, codec, rootValueSep, charEsc, pp);
         _writer = w;
-        _outputBuffer = ctxt.allocConcatBuffer();
+        _outputBuffer = ioCtxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
     }
 
@@ -130,7 +130,7 @@ public class WriterBasedJsonGenerator
     @Override
     public void writeFieldName(String name)  throws IOException
     {
-        int status = _writeContext.writeFieldName(name);
+        int status = _outputContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -141,7 +141,7 @@ public class WriterBasedJsonGenerator
     public void writeFieldName(SerializableString name) throws IOException
     {
         // Object is a value, need to verify it's allowed
-        int status = _writeContext.writeFieldName(name.getValue());
+        int status = _outputContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -224,7 +224,7 @@ public class WriterBasedJsonGenerator
     public void writeStartArray() throws IOException
     {
         _verifyValueWrite("start an array");
-        _writeContext = _writeContext.createChildArrayContext();
+        _outputContext = _outputContext.createChildArrayContext();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -238,26 +238,26 @@ public class WriterBasedJsonGenerator
     @Override
     public void writeEndArray() throws IOException
     {
-        if (!_writeContext.inArray()) {
-            _reportError("Current context not Array but "+_writeContext.typeDesc());
+        if (!_outputContext.inArray()) {
+            _reportError("Current context not Array but "+_outputContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndArray(this, _writeContext.getEntryCount());
+            _cfgPrettyPrinter.writeEndArray(this, _outputContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = ']';
         }
-        _writeContext = _writeContext.clearAndGetParent();
+        _outputContext = _outputContext.clearAndGetParent();
     }
 
     @Override // since 2.8
     public void writeStartObject(Object forValue) throws IOException
     {
         _verifyValueWrite("start an object");
-        JsonWriteContext ctxt = _writeContext.createChildObjectContext();
-        _writeContext = ctxt;
+        JsonWriteContext ctxt = _outputContext.createChildObjectContext();
+        _outputContext = ctxt;
         if (forValue != null) {
             ctxt.setCurrentValue(forValue);
         }
@@ -275,7 +275,7 @@ public class WriterBasedJsonGenerator
     public void writeStartObject() throws IOException
     {
         _verifyValueWrite("start an object");
-        _writeContext = _writeContext.createChildObjectContext();
+        _outputContext = _outputContext.createChildObjectContext();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -289,18 +289,18 @@ public class WriterBasedJsonGenerator
     @Override
     public void writeEndObject() throws IOException
     {
-        if (!_writeContext.inObject()) {
-            _reportError("Current context not Object but "+_writeContext.typeDesc());
+        if (!_outputContext.inObject()) {
+            _reportError("Current context not Object but "+_outputContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndObject(this, _writeContext.getEntryCount());
+            _cfgPrettyPrinter.writeEndObject(this, _outputContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = '}';
         }
-        _writeContext = _writeContext.clearAndGetParent();
+        _outputContext = _outputContext.clearAndGetParent();
     }
 
     /**
@@ -838,7 +838,7 @@ public class WriterBasedJsonGenerator
     @Override
     protected final void _verifyValueWrite(String typeMsg) throws IOException
     {
-        final int status = _writeContext.writeValue();
+        final int status = _outputContext.writeValue();
         if (_cfgPrettyPrinter != null) {
             // Otherwise, pretty printer knows what to do...
             _verifyPrettyValueWrite(typeMsg, status);

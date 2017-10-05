@@ -100,10 +100,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
-    public JsonGeneratorImpl(IOContext ctxt, int features, ObjectCodec codec,
+    public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt,
+            int features, ObjectCodec codec,
             SerializableString rvs, CharacterEscapes charEsc, PrettyPrinter pp)
     {
-        super(features, codec);
+        super(writeCtxt, features, codec);
         _ioContext = ctxt;
         if (Feature.ESCAPE_NON_ASCII.enabledIn(features)) {
             // inlined `setHighestNonEscapedChar()`
@@ -238,9 +239,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
             break;
         case JsonWriteContext.STATUS_OK_AS_IS:
             // First entry, but of which context?
-            if (_writeContext.inArray()) {
+            if (_outputContext.inArray()) {
                 _cfgPrettyPrinter.beforeArrayValues(this);
-            } else if (_writeContext.inObject()) {
+            } else if (_outputContext.inObject()) {
                 _cfgPrettyPrinter.beforeObjectEntries(this);
             }
             break;
@@ -256,6 +257,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected void _reportCantWriteValueExpectName(String typeMsg) throws IOException
     {
         _reportError(String.format("Can not %s, expecting field name (context: %s)",
-                typeMsg, _writeContext.typeDesc()));
+                typeMsg, _outputContext.typeDesc()));
     }
 }

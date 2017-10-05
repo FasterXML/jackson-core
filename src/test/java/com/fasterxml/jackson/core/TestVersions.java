@@ -17,7 +17,9 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
                 CharsToNameCanonicalizer.createRoot());
         assertVersion(jp.version());
         jp.close();
-        JsonGenerator jg = new WriterBasedJsonGenerator(getIOContext(), 0, null, null,
+        JsonGenerator jg = new WriterBasedJsonGenerator(ObjectWriteContext.empty(),
+                getIOContext(),
+                0, null, null,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null);
         assertVersion(jg.version());
         jg.close();

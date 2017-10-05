@@ -251,6 +251,7 @@ public abstract class JsonGenerator
      *
      * @return Generator itself (this), to allow chaining
      */
+    @Deprecated // since 3.0
     public abstract JsonGenerator setCodec(ObjectCodec oc);
 
     /**
@@ -258,13 +259,110 @@ public abstract class JsonGenerator
      * object as JSON content
      * (using method {@link #writeObject}).
      */
+    @Deprecated // since 3.0
     public abstract ObjectCodec getCodec();
 
+    /*
+    /**********************************************************
+    /* Versioned
+    /**********************************************************
+     */
+    
     /**
      * Accessor for finding out version of the bundle that provided this generator instance.
      */
     @Override
     public abstract Version version();
+
+    /*
+    /**********************************************************
+    /* Public API, output configuration, state access
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for context object that provides information about low-level
+     * logical position withing output token stream.
+     */
+    public abstract JsonStreamContext getOutputContext();
+    
+    /**
+     * Accessor for context object provided by higher-level databinding
+     * functionality (or, in some cases, simple placeholder of the same)
+     * that allows some level of interaction including ability to trigger
+     * serialization of Object values through generator instance.
+     *
+     * @since 3.0
+     */
+    public abstract ObjectWriteContext getObjectWriteContext();
+
+    /**
+     * Method that can be used to get access to object that is used
+     * as target for generated output; this is usually either
+     * {@link OutputStream} or {@link Writer}, depending on what
+     * generator was constructed with.
+     * Note that returned value may be null in some cases; including
+     * case where implementation does not want to exposed raw
+     * source to caller.
+     * In cases where output has been decorated, object returned here
+     * is the decorated version; this allows some level of interaction
+     * between users of generator and decorator object.
+     *<p>
+     * In general use of this accessor should be considered as
+     * "last effort", i.e. only used if no other mechanism is applicable.
+     */
+    public Object getOutputTarget() {
+        return null;
+    }
+
+    /**
+     * Method for verifying amount of content that is buffered by generator
+     * but not yet flushed to the underlying target (stream, writer),
+     * in units (byte, char) that the generator implementation uses for buffering;
+     * or -1 if this information is not available.
+     * Unit used is often the same as the unit of underlying target (that is,
+     * `byte` for {@link java.io.OutputStream}, `char` for {@link java.io.Writer}),
+     * but may differ if buffering is done before encoding.
+     * Default JSON-backed implementations do use matching units.
+     *<p>
+     * Note: non-JSON implementations will be retrofitted for 2.6 and beyond;
+     * please report if you see -1 (missing override)
+     *
+     * @return Amount of content buffered in internal units, if amount known and
+     *    accessible; -1 if not accessible.
+     */
+    public int getOutputBuffered() {
+        return -1;
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getOutputContext().getCurrentValue();
+     *</code>
+     *<p>
+     * Note that "current value" is NOT populated (or used) by Streaming parser;
+     * it is only used by higher-level data-binding functionality.
+     * The reason it is included here is that it can be stored and accessed hierarchically,
+     * and gets passed through data-binding.
+     */
+    public Object getCurrentValue() {
+        JsonStreamContext ctxt = getOutputContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getOutputContext().setCurrentValue(v);
+     *</code>
+     */
+    public void setCurrentValue(Object v) {
+        JsonStreamContext ctxt = getOutputContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
+    }
 
     /*
     /**********************************************************
@@ -446,86 +544,6 @@ public abstract class JsonGenerator
      * Default implementation does nothing and simply returns this instance.
      */
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) { return this; }
-
-    /*
-    /**********************************************************
-    /* Public API, output state access
-    /**********************************************************
-     */
-
-    /**
-     * Method that can be used to get access to object that is used
-     * as target for generated output; this is usually either
-     * {@link OutputStream} or {@link Writer}, depending on what
-     * generator was constructed with.
-     * Note that returned value may be null in some cases; including
-     * case where implementation does not want to exposed raw
-     * source to caller.
-     * In cases where output has been decorated, object returned here
-     * is the decorated version; this allows some level of interaction
-     * between users of generator and decorator object.
-     *<p>
-     * In general use of this accessor should be considered as
-     * "last effort", i.e. only used if no other mechanism is applicable.
-     */
-    public Object getOutputTarget() {
-        return null;
-    }
-
-    /**
-     * Method for verifying amount of content that is buffered by generator
-     * but not yet flushed to the underlying target (stream, writer),
-     * in units (byte, char) that the generator implementation uses for buffering;
-     * or -1 if this information is not available.
-     * Unit used is often the same as the unit of underlying target (that is,
-     * `byte` for {@link java.io.OutputStream}, `char` for {@link java.io.Writer}),
-     * but may differ if buffering is done before encoding.
-     * Default JSON-backed implementations do use matching units.
-     *<p>
-     * Note: non-JSON implementations will be retrofitted for 2.6 and beyond;
-     * please report if you see -1 (missing override)
-     *
-     * @return Amount of content buffered in internal units, if amount known and
-     *    accessible; -1 if not accessible.
-     *
-     * @since 2.6
-     */
-    public int getOutputBuffered() {
-        return -1;
-    }
-
-    /**
-     * Helper method, usually equivalent to:
-     *<code>
-     *   getOutputContext().getCurrentValue();
-     *</code>
-     *<p>
-     * Note that "current value" is NOT populated (or used) by Streaming parser;
-     * it is only used by higher-level data-binding functionality.
-     * The reason it is included here is that it can be stored and accessed hierarchically,
-     * and gets passed through data-binding.
-     * 
-     * @since 2.5
-     */
-    public Object getCurrentValue() {
-        JsonStreamContext ctxt = getOutputContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
-
-    /**
-     * Helper method, usually equivalent to:
-     *<code>
-     *   getOutputContext().setCurrentValue(v);
-     *</code>
-     * 
-     * @since 2.5
-     */
-    public void setCurrentValue(Object v) {
-        JsonStreamContext ctxt = getOutputContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
-    }
     
     /*
     /**********************************************************
@@ -554,8 +572,6 @@ public abstract class JsonGenerator
      * that do support native Object Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native object ids.
-     * 
-     * @since 2.3
      */
     public boolean canWriteObjectId() { return false; }
 
@@ -570,8 +586,6 @@ public abstract class JsonGenerator
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native type ids.
-     * 
-     * @since 2.3
      */
     public boolean canWriteTypeId() { return false; }
 
@@ -582,8 +596,6 @@ public abstract class JsonGenerator
      *<p>
      * Default implementation returns false; overridden by data formats
      * that do support native binary content.
-     * 
-     * @since 2.3
      */
     public boolean canWriteBinaryNatively() { return false; }
     
@@ -592,8 +604,6 @@ public abstract class JsonGenerator
      * writing of Object fields or not. Most formats do allow omission,
      * but certain positional formats (such as CSV) require output of
      * placeholders, even if no real values are to be emitted.
-     * 
-     * @since 2.3
      */
     public boolean canOmitFields() { return true; }
 
@@ -606,8 +616,6 @@ public abstract class JsonGenerator
      * Usual reason for calling this method is to check whether custom
      * formatting of numbers may be applied by higher-level code (databinding)
      * or not.
-     *
-     * @since 2.8
      */
     public boolean canWriteFormattedNumbers() { return false; }
 
@@ -640,8 +648,6 @@ public abstract class JsonGenerator
      *   number of values written (before matching call to
      *   {@link #writeEndArray()} MUST match; generator MAY verify
      *   this is the case.
-     *   
-     * @since 2.4
      */
     public void writeStartArray(int size) throws IOException {
         writeStartArray();
@@ -679,8 +685,6 @@ public abstract class JsonGenerator
      * Object values can be written in any context where values
      * are allowed: meaning everywhere except for when
      * a field name is expected.
-     *
-     * @since 2.8.
      */
     public void writeStartObject(Object forValue) throws IOException
     {
@@ -731,8 +735,6 @@ public abstract class JsonGenerator
      * unlike JSON), or for convenient conversion into String presentation.
      * Default implementation will simply convert id into <code>String</code>
      * and call {@link #writeFieldName(String)}.
-     *
-     * @since 2.8
      */
     public void writeFieldId(long id) throws IOException {
         writeFieldName(Long.toString(id));
@@ -748,8 +750,6 @@ public abstract class JsonGenerator
      * Value write method that can be called to write a single
      * array (sequence of {@link JsonToken#START_ARRAY}, zero or
      * more {@link JsonToken#VALUE_NUMBER_INT}, {@link JsonToken#END_ARRAY})
-     *
-     * @since 2.8
      *
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
@@ -773,8 +773,6 @@ public abstract class JsonGenerator
      * array (sequence of {@link JsonToken#START_ARRAY}, zero or
      * more {@link JsonToken#VALUE_NUMBER_INT}, {@link JsonToken#END_ARRAY})
      *
-     * @since 2.8
-     *
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
@@ -796,8 +794,6 @@ public abstract class JsonGenerator
      * Value write method that can be called to write a single
      * array (sequence of {@link JsonToken#START_ARRAY}, zero or
      * more {@link JsonToken#VALUE_NUMBER_FLOAT}, {@link JsonToken#END_ARRAY})
-     *
-     * @since 2.8
      *
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
@@ -840,8 +836,6 @@ public abstract class JsonGenerator
      * If the reader is null, then write a null.
      * If len is &lt; 0, then write all contents of the reader.
      * Otherwise, write only len characters.
-     *
-     * @since 2.9
      */
     public void writeString(Reader reader, int len) throws IOException {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
@@ -985,8 +979,6 @@ public abstract class JsonGenerator
      * other backends that support raw inclusion of text are encouraged
      * to implement it in more efficient manner (especially if they
      * use UTF-8 encoding).
-     * 
-     * @since 2.1
      */
     public void writeRaw(SerializableString raw) throws IOException {
         writeRaw(raw.getValue());
@@ -1010,8 +1002,6 @@ public abstract class JsonGenerator
      * Method similar to {@link #writeRawValue(String)}, but potentially more
      * efficient as it may be able to use pre-encoded content (similar to
      * {@link #writeRaw(SerializableString)}.
-     * 
-     * @since 2.5
      */
     public void writeRawValue(SerializableString raw) throws IOException {
         writeRawValue(raw.getValue());
@@ -1096,8 +1086,6 @@ public abstract class JsonGenerator
      *    other formats may.
      * 
      * @return Number of bytes read from <code>data</code> and written as binary payload
-     * 
-     * @since 2.1
      */
     public abstract int writeBinary(Base64Variant bv,
             InputStream data, int dataLength) throws IOException;
@@ -1116,8 +1104,6 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
-     *
-     * @since 2.2
      */
     public void writeNumber(short v) throws IOException { writeNumber((int) v); }
 
@@ -1238,8 +1224,6 @@ public abstract class JsonGenerator
     /**
      * Method that can be called on backends that support passing opaque datatypes of
      * non-JSON formats
-     *
-     * @since 2.8
      */
     public void writeEmbeddedObject(Object object) throws IOException {
         // 01-Sep-2016, tatu: As per [core#318], handle small number of cases
@@ -1270,8 +1254,6 @@ public abstract class JsonGenerator
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
      * a {@link JsonGenerationException} will be thrown.
-     * 
-     * @since 2.3
      */
     public void writeObjectId(Object id) throws IOException {
         throw new JsonGenerationException("No native support for writing Object Ids", this);
@@ -1298,8 +1280,6 @@ public abstract class JsonGenerator
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
      * a {@link JsonGenerationException} will be thrown.
-     * 
-     * @since 2.3
      */
     public void writeTypeId(Object id) throws IOException {
         throw new JsonGenerationException("No native support for writing Type Ids", this);
@@ -1316,8 +1296,6 @@ public abstract class JsonGenerator
      * (and instead included type id via regular write methods and/or {@link #writeTypeId}
      * -- this is discouraged, but not illegal, and may be necessary as a work-around
      * in some cases.
-     *
-     * @since 2.9
      */
     public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws IOException
     {
@@ -1378,9 +1356,6 @@ public abstract class JsonGenerator
         return typeIdDef;
     }
 
-    /*
-     * @since 2.9
-     */
     public WritableTypeId writeTypeSuffix(WritableTypeId typeIdDef) throws IOException
     {
         final JsonToken valueShape = typeIdDef.valueShape;
@@ -1629,8 +1604,6 @@ public abstract class JsonGenerator
      * <code>false</code> from {@link #canOmitFields()}.
      *<p>
      * Default implementation does nothing.
-     * 
-     * @since 2.3
      */
     public void writeOmittedField(String fieldName) throws IOException { }
     
@@ -1787,18 +1760,6 @@ public abstract class JsonGenerator
             copyCurrentEvent(p);
         }
     }
-
-    /*
-    /**********************************************************
-    /* Public API, context access
-    /**********************************************************
-     */
-
-    /**
-     * @return Context object that can give information about logical
-     *   position within generated json content.
-     */
-    public abstract JsonStreamContext getOutputContext();
 
     /*
     /**********************************************************

@@ -310,7 +310,7 @@ public class JsonFactory
 
     @Override
     protected JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            Writer out, IOContext ctxt) throws IOException
+            Writer out, IOContext ioCtxt) throws IOException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
         CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();
@@ -318,7 +318,7 @@ public class JsonFactory
             charEsc = _characterEscapes;
         }
         // NOTE: JSON generator does not use schema; has no format-specific features
-        return new WriterBasedJsonGenerator(ctxt,
+        return new WriterBasedJsonGenerator(writeCtxt, ioCtxt,
                 writeCtxt.getGeneratorFeatures(_generatorFeatures),
                 _objectCodec, out,
                 rootSep, charEsc, writeCtxt.getPrettyPrinter());
@@ -326,7 +326,7 @@ public class JsonFactory
 
     @Override
     protected JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
-            OutputStream out, IOContext ctxt) throws IOException
+            OutputStream out, IOContext ioCtxt) throws IOException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
         CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();
@@ -335,7 +335,7 @@ public class JsonFactory
         }
         // NOTE: JSON generator does not use schema; has no format-specific features
 
-        return new UTF8JsonGenerator(ctxt,
+        return new UTF8JsonGenerator(writeCtxt, ioCtxt,
                 writeCtxt.getGeneratorFeatures(_generatorFeatures),
                 _objectCodec, out,
                 rootSep, charEsc, writeCtxt.getPrettyPrinter());

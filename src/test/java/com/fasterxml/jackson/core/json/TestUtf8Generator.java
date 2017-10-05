@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectWriteContext;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -20,7 +21,7 @@ public class TestUtf8Generator extends BaseTest
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(new BufferRecycler(), bytes, true);
-        JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes,
+        JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, null, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null);
                 
         String str = "Natuurlijk is alles gelukt en weer een tevreden klant\uD83D\uDE04";

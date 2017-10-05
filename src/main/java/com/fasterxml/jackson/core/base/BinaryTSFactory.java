@@ -121,9 +121,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false);
-        ctxt.setEncoding(enc);
-        return _createGenerator(_decorate(out, ctxt), ctxt);
+        IOContext ctxt = _createContext(out, false, enc);
+        return _createGenerator(writeCtxt, _decorate(out, ctxt), ctxt);
     }
 
     @Override
@@ -138,9 +137,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     {
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
-        IOContext ctxt = _createContext(out, true);
-        ctxt.setEncoding(enc);
-        return _createGenerator(_decorate(out, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(out, true, enc);
+        return _createGenerator(writeCtxt, _decorate(out, ioCtxt), ioCtxt);
     }
 
     /**
@@ -153,7 +151,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
      */
-    protected abstract JsonGenerator _createGenerator(OutputStream out, IOContext ctxt) throws IOException;
+    protected abstract JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
+            OutputStream out, IOContext ctxt) throws IOException;
 
     protected <T> T _nonByteSource() throws IOException {
         throw new UnsupportedOperationException("Can not create parser for character-based (not byte-based) source");

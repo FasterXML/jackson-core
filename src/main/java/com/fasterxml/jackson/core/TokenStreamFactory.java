@@ -27,10 +27,15 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
  *
  * @since 3.0 (refactored out of {@link JsonFactory})
  */
-@SuppressWarnings("resource")
 public abstract class TokenStreamFactory
     implements Versioned
 {
+    /**
+     * Shareable stateles "empty" {@link ObjectWriteContext} Object, passed in
+     * cases where caller had not passed actual context -- "null object" of sort.
+     */
+    public final static ObjectWriteContext EMPTY_WRITE_CONTEXT = new ObjectWriteContext.Base();
+
     /*
     /**********************************************************
     /* Helper types
@@ -655,10 +660,116 @@ public abstract class TokenStreamFactory
 
     /*
     /**********************************************************
-    /* Generator factories
+    /* Generator factories with databind context (3.0)
     /**********************************************************
      */
 
+    /**
+     * Method for constructing generator that writes contents
+     * using specified {@link OutputStream}.
+     * Textual encoding used will be UTF-8, where applicable.
+     *<p>
+     * Underlying stream <b>is NOT owned</b> by the generator constructed,
+     * so that generator will NOT close the output stream when
+     * {@link JsonGenerator#close} is called (unless auto-closing
+     * feature,
+     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET}
+     * is enabled).
+     * Using application needs to close it explicitly if this is the case.
+     *
+     * @param writeCtxt Object-binding context where applicable; used for providing contextual
+     *    configuration
+     * @param out OutputStream to use for writing JSON content
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, OutputStream out)
+        throws IOException {
+        return createGenerator(writeCtxt, out, JsonEncoding.UTF8);
+    }
+
+    /**
+     * Method for constructing generator that writes contents
+     * using specified {@link OutputStream} with specified textual encoding
+     * (if applicable).
+     *<p>
+     * Underlying stream <b>is NOT owned</b> by the generator constructed,
+     * so that generator will NOT close the output stream when
+     * {@link JsonGenerator#close} is called (unless auto-closing
+     * feature,
+     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET}
+     * is enabled).
+     * Using application needs to close it explicitly if this is the case.
+     *
+     * @param writeCtxt Object-binding context where applicable; used for providing contextual
+     *    configuration
+     * @param out OutputStream to use for writing JSON content
+     *
+     * @since 3.0
+     */
+    public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
+            OutputStream out, JsonEncoding enc)
+        throws IOException;
+
+    /**
+     * Method for constructing generator that writes contents
+     * using specified {@link Writer}.
+     * Textual encoding used will be UTF-8, where applicable.
+     *<p>
+     * Underlying stream <b>is NOT owned</b> by the generator constructed,
+     * so that generator will NOT close the Reader when
+     * {@link JsonGenerator#close} is called (unless auto-closing
+     * feature,
+     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
+     * Using application needs to close it explicitly.
+     *
+     * @param writeCtxt Object-binding context where applicable; used for providing contextual
+     *    configuration
+     * @param w Writer to use for writing JSON content 
+     *
+     * @since 3.0
+     */
+    public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w)
+        throws IOException;
+
+    /**
+     * Method for constructing generator that writes contents
+     * to specified file, overwriting contents it might have (or creating
+     * it if such file does not yet exist).
+     *<p>
+     * Underlying stream <b>is owned</b> by the generator constructed,
+     * i.e. generator will handle closing of file when
+     * {@link JsonGenerator#close} is called.
+     *
+     * @since 3.0
+     *
+     * @param writeCtxt Object-binding context where applicable; used for providing contextual
+     *    configuration
+     * @param f File to write contents to
+     */
+    public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt, File f,
+            JsonEncoding enc)
+        throws IOException;
+
+    /**
+     * Method for constructing generator that writes content into specified {@link DataOutput},
+     * using UTF-8 encoding (with formats where encoding is user-configurable).
+     *
+     * @param writeCtxt Object-binding context where applicable; used for providing contextual
+     *    configuration
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out) throws IOException {
+        return createGenerator(writeCtxt, _createDataOutputWrapper(out));
+    }
+    
+    /*
+    /**********************************************************
+    /* Generator factories
+    /**********************************************************
+     */
+    
     /**
      * Method for constructing JSON generator for writing JSON content
      * using specified output stream.
@@ -777,7 +888,16 @@ public abstract class TokenStreamFactory
      * context object.
      */
     protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
+        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged, null);
+    }
+
+    /**
+     * Overridable factory method that actually instantiates desired
+     * context object.
+     */
+    protected IOContext _createContext(Object srcRef, boolean resourceManaged,
+            JsonEncoding enc) {
+        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged, enc);
     }
 
     protected OutputStream _createDataOutputWrapper(DataOutput out) {

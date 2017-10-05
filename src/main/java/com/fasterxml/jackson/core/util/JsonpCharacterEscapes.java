@@ -1,5 +1,6 @@
-package com.fasterxml.jackson.core;
+package com.fasterxml.jackson.core.util;
 
+import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 
@@ -9,8 +10,6 @@ import com.fasterxml.jackson.core.io.SerializedString;
  * escaped otherwise), which are apparently considered linefeeds as
  * per newer Javascript specifications, and consequently problematic
  * when using JSONP (see https://en.wikipedia.org/wiki/JSONP).
- *
- * @since 2.8
  */
 public class JsonpCharacterEscapes extends CharacterEscapes
 {

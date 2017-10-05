@@ -114,18 +114,17 @@ public class UTF8JsonGenerator
      */
 
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
-            OutputStream out)
+            OutputStream out,
+            SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp)
     {
-        super(ctxt, features, codec);
+        super(ctxt, features, codec, rootValueSep, charEsc, pp);
         _outputStream = out;
         _bufferRecyclable = true;
         _outputBuffer = ctxt.allocWriteEncodingBuffer();
         _outputEnd = _outputBuffer.length;
-
-        /* To be exact, each char can take up to 6 bytes when escaped (Unicode
-         * escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
-         * we will actually round down to only do up to 1/8 number of chars
-         */
+        // To be exact, each char can take up to 6 bytes when escaped (Unicode
+        // escape with backslash, 'u' and 4 hex digits); but to avoid fluctuation,
+        // we will actually round down to only do up to 1/8 number of chars
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ctxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
@@ -135,13 +134,13 @@ public class UTF8JsonGenerator
             setHighestNonEscapedChar(127);
         }
     }
-    
+
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out,
+            SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
-        
-        super(ctxt, features, codec);
+        super(ctxt, features, codec, rootValueSep, charEsc, pp);
         _outputStream = out;
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;

@@ -30,24 +30,6 @@ public class GeneratorFeaturesTest
         g.close();
     }
 
-    @SuppressWarnings("deprecation")
-    public void testConfigOverrides() throws IOException
-    {
-        // but also allow overide
-        JsonGenerator g = JSON_F.createGenerator(new StringWriter());
-        int mask = JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
-                | JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN.getMask();
-        g.overrideStdFeatures(mask, mask);
-        assertTrue(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
-        assertTrue(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
-
-        // and for now, also test straight override
-        g.setFeatureMask(0);
-        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
-        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
-        g.close();
-    }
-
     public void testFieldNameQuoting() throws IOException
     {
         JsonFactory f = new JsonFactory();

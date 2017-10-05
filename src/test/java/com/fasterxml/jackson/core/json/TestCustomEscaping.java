@@ -5,6 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
 
 public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 {

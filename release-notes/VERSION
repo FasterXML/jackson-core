@@ -19,4 +19,5 @@ JSON library.
 
 #402: Remove dataformat-auto-detection functionality
 #408: Rename `JsonFactory` as `TokenStreamFactory`, split JSON-specific into `JsonFactory`
-
+#410: Add `ObjectWriteContext` abstraction for databind to pass config, state to
+  `JsonGenerator` on construction

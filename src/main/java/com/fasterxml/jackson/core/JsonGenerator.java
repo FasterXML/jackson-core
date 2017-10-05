@@ -126,8 +126,6 @@ public abstract class JsonGenerator
          *<p>
          * Feature is disabled by default, so default output mode is used; this generally
          * depends on how {@link BigDecimal} has been created.
-         * 
-         * @since 2.3
          */
         WRITE_BIGDECIMAL_AS_PLAIN(false),
         
@@ -167,8 +165,6 @@ public abstract class JsonGenerator
          * mode.
          *<p>
          * Feature is disabled by default.
-         *
-         * @since Xxx
          */
 //        ESCAPE_UTF8_SURROGATES(false),
         
@@ -186,8 +182,6 @@ public abstract class JsonGenerator
          * due to having to store and check additional information.
          *<p>
          * Feature is disabled by default.
-         * 
-         * @since 2.3
          */
         STRICT_DUPLICATE_DETECTION(false),
         
@@ -208,8 +202,6 @@ public abstract class JsonGenerator
          * Feature is disabled by default, meaning that if the underlying data format
          * requires knowledge of all properties to output, attempts to write an unknown
          * property will result in a {@link JsonProcessingException}
-         *
-         * @since 2.5
          */
         IGNORE_UNKNOWN(false),
         ;
@@ -239,26 +231,10 @@ public abstract class JsonGenerator
 
         public boolean enabledByDefault() { return _defaultState; }
 
-        /**
-         * @since 2.3
-         */
         public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 
         public int getMask() { return _mask; }
     }
-
-    /*
-    /**********************************************************
-    /* Configuration
-    /**********************************************************
-     */
-
-    /**
-     * Object that handles pretty-printing (usually additional
-     * white space to make results more human-readable) during
-     * output. If null, no pretty-printing is done.
-     */
-    protected PrettyPrinter _cfgPrettyPrinter;
 
     /*
     /**********************************************************
@@ -335,74 +311,18 @@ public abstract class JsonGenerator
      * 
      * @return Bit mask that defines current states of all standard {@link JsonGenerator.Feature}s.
      */
-    public abstract int getFeatureMask();
-
-    /**
-     * Bulk set method for (re)setting states of all standard {@link Feature}s
-     * 
-     * @param values Bitmask that defines which {@link Feature}s are enabled
-     *    and which disabled
-     *
-     * @return This parser object, to allow chaining of calls
-     *
-     * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead -- remove from 2.9
-     */
-    @Deprecated
-    public abstract JsonGenerator setFeatureMask(int values);
-
-    /**
-     * Bulk set method for (re)setting states of features specified by <code>mask</code>.
-     * Functionally equivalent to
-     *<code>
-     *    int oldState = getFeatureMask();
-     *    int newState = (oldState &amp; ~mask) | (values &amp; mask);
-     *    setFeatureMask(newState);
-     *</code>
-     * but preferred as this lets caller more efficiently specify actual changes made.
-     * 
-     * @param values Bit mask of set/clear state for features to change
-     * @param mask Bit mask of features to change
-     */
-    public JsonGenerator overrideStdFeatures(int values, int mask) {
-        int oldState = getFeatureMask();
-        int newState = (oldState & ~mask) | (values & mask);
-        return setFeatureMask(newState);
-    }
+    public abstract int getGeneratorFeatures();
 
     /**
      * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
      * on/off configuration settings.
      * 
      * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
-     * 
-     * @since 2.6
      */
     public int getFormatFeatures() {
         return 0;
     }
-    
-    /**
-     * Bulk set method for (re)setting states of {@link FormatFeature}s,
-     * by specifying values (set / clear) along with a mask, to determine
-     * which features to change, if any.
-     *<p>
-     * Default implementation will simply throw an exception to indicate that
-     * the generator implementation does not support any {@link FormatFeature}s.
-     * 
-     * @param values Bit mask of set/clear state for features to change
-     * @param mask Bit mask of features to change
-     * 
-     * @since 2.6
-     */
-    public JsonGenerator overrideFormatFeatures(int values, int mask) {
-        throw new IllegalArgumentException("No FormatFeatures defined for generator of type "+getClass().getName());
-        /*
-        int oldState = getFeatureMask();
-        int newState = (oldState & ~mask) | (values & mask);
-        return setFeatureMask(newState);
-        */
-    }
-    
+
     /*
     /**********************************************************
     /* Public API, Schema configuration
@@ -432,8 +352,6 @@ public abstract class JsonGenerator
     /**
      * Method for accessing Schema that this parser uses, if any.
      * Default implementation returns null.
-     *
-     * @since 2.1
      */
     public FormatSchema getSchema() { return null; }
 
@@ -455,18 +373,15 @@ public abstract class JsonGenerator
      * @return Generator itself (this), to allow chaining
      */
     public JsonGenerator setPrettyPrinter(PrettyPrinter pp) {
-        _cfgPrettyPrinter = pp;
-        return this;
+        return _reportUnsupportedOperation();
     }
 
     /**
      * Accessor for checking whether this generator has a configured
      * {@link PrettyPrinter}; returns it if so, null if none configured.
-     * 
-     * @since 2.1
      */
     public PrettyPrinter getPrettyPrinter() {
-        return _cfgPrettyPrinter;
+        return null;
     }
     
     /**
@@ -516,11 +431,13 @@ public abstract class JsonGenerator
     public int getHighestEscapedChar() { return 0; }
 
     /**
-     * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
+     * Method for accessing custom escapes generator uses for {@link JsonGenerator}s
      * it creates.
      */
     public CharacterEscapes getCharacterEscapes() { return null; }
 
+    // 04-Oct-2017, tatu: Would like to remove this method, but alas JSONP-support
+    //    does require it...
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
@@ -529,27 +446,12 @@ public abstract class JsonGenerator
      */
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) { return this; }
 
-    /**
-     * Method that allows overriding String used for separating root-level
-     * JSON values (default is single space character)
-     *<p>
-     * Default implementation throws {@link UnsupportedOperationException}.
-     * 
-     * @param sep Separator to use, if any; null means that no separator is
-     *   automatically added
-     * 
-     * @since 2.1
-     */
-    public JsonGenerator setRootValueSeparator(SerializableString sep) {
-        throw new UnsupportedOperationException();
-    }
-
     /*
     /**********************************************************
     /* Public API, output state access
     /**********************************************************
      */
-    
+
     /**
      * Method that can be used to get access to object that is used
      * as target for generated output; this is usually either
@@ -1951,19 +1853,16 @@ public abstract class JsonGenerator
      * Note that sub-classes may override this method to add more detail
      * or use a {@link JsonGenerationException} sub-class.
      */
-    protected void _reportError(String msg) throws JsonGenerationException {
+    protected <T> T  _reportError(String msg) throws JsonGenerationException {
         throw new JsonGenerationException(msg, this);
     }
 
-    protected final void _throwInternal() { VersionUtil.throwInternal(); }
+    protected void _throwInternal() { VersionUtil.throwInternal(); }
 
-    protected void _reportUnsupportedOperation() {
+    protected <T> T _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
     }
 
-    /**
-     * @since 2.8
-     */
     protected final void _verifyOffsets(int arrayLength, int offset, int length)
     {
         if ((offset < 0) || (offset + length) > arrayLength) {

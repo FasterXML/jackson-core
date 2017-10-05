@@ -32,8 +32,6 @@ public class WriterBasedJsonGenerator
     /**
      * Character used for quoting JSON Object property names
      * and String values.
-     *
-     * @since 2.8
      */
     protected char _quoteChar = '"'; // TODO: make configurable
 
@@ -81,8 +79,6 @@ public class WriterBasedJsonGenerator
     /**
      * Intermediate buffer in which characters of a String are copied
      * before being encoded.
-     *
-     * @since 2.9
      */
     protected char[] _charBuffer;
 
@@ -93,9 +89,11 @@ public class WriterBasedJsonGenerator
      */
 
     public WriterBasedJsonGenerator(IOContext ctxt, int features,
-            ObjectCodec codec, Writer w)
+            ObjectCodec codec, Writer w,
+            SerializableString rootValueSep, CharacterEscapes charEsc,
+            PrettyPrinter pp)
     {
-        super(ctxt, features, codec);
+        super(ctxt, features, codec, rootValueSep, charEsc, pp);
         _writer = w;
         _outputBuffer = ctxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;

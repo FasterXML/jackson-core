@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * defined in the "jackson-databind".
  */
 public abstract class ObjectCodec
+//@Deprecated // since 3.0 -- or possibly removed in 3.0?
     extends TreeCodec
     implements Versioned
 {

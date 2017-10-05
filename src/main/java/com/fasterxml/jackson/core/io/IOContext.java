@@ -105,18 +105,23 @@ public class IOContext
         _managedResource = managedResource;
     }
 
-    public void setEncoding(JsonEncoding enc) {
+    /**
+     * @since 3.0
+     */
+    public IOContext(BufferRecycler br, Object sourceRef, boolean managedResource,
+            JsonEncoding enc)
+    {
+        _bufferRecycler = br;
+        _sourceRef = sourceRef;
+        _managedResource = managedResource;
         _encoding = enc;
     }
-
-    /**
-     * @since 1.6
-     */
-    public IOContext withEncoding(JsonEncoding enc) {
+    
+    public IOContext setEncoding(JsonEncoding enc) {
         _encoding = enc;
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, accessors

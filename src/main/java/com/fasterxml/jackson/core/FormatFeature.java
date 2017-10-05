@@ -5,13 +5,6 @@ package com.fasterxml.jackson.core;
  * Interface used since Java Enums can not extend classes or other Enums, but
  * they can implement interfaces; and as such we may be able to use limited
  * amount of generic functionality.
- *<p>
- * Note that this type is only implemented by non-JSON formats:
- * types {@link JsonParser.Feature} and {@link JsonGenerator.Feature} do NOT
- * implement it. This is to make it easier to avoid ambiguity with method
- * calls.
- * 
- * @since 2.6 (to be fully used in 2.7 and beyond)
  */
 public interface FormatFeature
 {

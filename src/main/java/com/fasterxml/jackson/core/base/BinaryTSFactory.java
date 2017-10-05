@@ -76,20 +76,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     }
 
     @Override
-    public JsonParser createParser(byte[] data) throws IOException {
-        IOContext ctxt = _createContext(data, true);
-        if (_inputDecorator != null) {
-            InputStream in = _inputDecorator.decorate(ctxt, data, 0, data.length);
-            if (in != null) {
-                return _createParser(in, ctxt);
-            }
-        }
-        return _createParser(data, 0, data.length, ctxt);
-    }
-
-    @Override
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
-        IOContext ctxt = _createContext(data, true);
+        IOContext ctxt = _createContext(data, true, null);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ctxt, data, offset, len);
             if (in != null) {
@@ -128,7 +116,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
      */
 
     @Override
-    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
+            OutputStream out, JsonEncoding enc)
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
@@ -138,12 +127,14 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     }
 
     @Override
-    public JsonGenerator createGenerator(Writer w) throws IOException {
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
+            Writer w) throws IOException {
         return _nonByteTarget();
     }
 
     @Override
-    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
+            File f, JsonEncoding enc) throws IOException
     {
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it

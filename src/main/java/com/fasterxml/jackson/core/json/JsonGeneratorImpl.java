@@ -7,14 +7,11 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * Intermediate base class shared by JSON-backed generators
  * like {@link UTF8JsonGenerator} and {@link WriterBasedJsonGenerator}.
- * 
- * @since 2.1
  */
 public abstract class JsonGeneratorImpl extends GeneratorBase
 {
@@ -67,6 +64,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * Definition of custom character escapes to use for generators created
      * by this factory, if any. If null, standard data format specific
      * escapes are used.
+     *<p>
+     * NOTE: although typically set during construction (in constructor),
+     * can not be made final in 3.0 due to some edge use cases (JSONP support).
      */
     protected CharacterEscapes _characterEscapes;
     
@@ -78,19 +78,21 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     /**
      * Separator to use, if any, between root-level values.
-     * 
-     * @since 2.1
      */
-    protected SerializableString _rootValueSeparator
-        = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+    protected final SerializableString _rootValueSeparator;
 
     /**
      * Flag that is set if quoting is not to be added around
      * JSON Object property names.
-     *
-     * @since 2.7
      */
     protected boolean _cfgUnqNames;
+
+    /**
+     * Object that handles pretty-printing (usually additional
+     * white space to make results more human-readable) during
+     * output. If null, no pretty-printing is done.
+     */
+    protected PrettyPrinter _cfgPrettyPrinter;
 
     /*
     /**********************************************************
@@ -98,7 +100,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
-    public JsonGeneratorImpl(IOContext ctxt, int features, ObjectCodec codec)
+    public JsonGeneratorImpl(IOContext ctxt, int features, ObjectCodec codec,
+            SerializableString rvs, CharacterEscapes charEsc, PrettyPrinter pp)
     {
         super(features, codec);
         _ioContext = ctxt;
@@ -107,6 +110,12 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
             _maximumNonEscapedChar = 127;
         }
         _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
+        _rootValueSeparator = rvs;
+
+        _cfgPrettyPrinter = pp;
+        // 03-Oct-2017, tatu: Not clean (shouldn't call non-static methods from ctor),
+        //    but for now best way to avoid code duplication
+        setCharacterEscapes(charEsc);
     }
 
     /*
@@ -181,13 +190,18 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     public CharacterEscapes getCharacterEscapes() {
         return _characterEscapes;
     }
-    
+
     @Override
-    public JsonGenerator setRootValueSeparator(SerializableString sep) {
-        _rootValueSeparator = sep;
+    public JsonGenerator setPrettyPrinter(PrettyPrinter pp) {
+        _cfgPrettyPrinter = pp;
         return this;
     }
 
+    @Override
+    public PrettyPrinter getPrettyPrinter() {
+        return _cfgPrettyPrinter;
+    }
+    
     /*
     /**********************************************************
     /* Partial API

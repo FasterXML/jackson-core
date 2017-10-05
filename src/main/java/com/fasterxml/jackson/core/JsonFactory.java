@@ -37,7 +37,7 @@ public class JsonFactory
      */
     public final static String FORMAT_NAME_JSON = "JSON";
 
-    private final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+    public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
 
     /*
     /**********************************************************
@@ -109,12 +109,8 @@ public class JsonFactory
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
         _rootValueSeparator = src._rootValueSeparator;
-        
-        // 27-Apr-2013, tatu: How about symbol table; should we try to
-        //   reuse shared symbol tables? Could be more efficient that way;
-        //   although can slightly add to concurrency overhead.
     }
-    
+
     /**
      * Method for constructing a new {@link JsonFactory} that has
      * the same settings as this instance, but is otherwise
@@ -161,7 +157,7 @@ public class JsonFactory
 
     @Override
     public boolean canParseAsync() {
-        // 31-May-2017, tatu: Jackson 2.9 does support async parsing for JSON
+        // Jackson 2.9 and later do support async parsing for JSON
         return true;
     }
 
@@ -270,7 +266,6 @@ public class JsonFactory
 
     @Override
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
-        // As per [JACKSON-259], may want to fully disable canonicalization:
         return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
                 _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
@@ -314,31 +309,33 @@ public class JsonFactory
      */
 
     @Override
-    protected JsonGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException
+    protected JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
+            Writer out, IOContext ctxt) throws IOException
     {
-        WriterBasedJsonGenerator gen = new WriterBasedJsonGenerator(ctxt,
-                _generatorFeatures, _objectCodec, out);
-        if (_characterEscapes != null) {
-            gen.setCharacterEscapes(_characterEscapes);
+        SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
+        CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();
+        if (charEsc == null) {
+            charEsc = _characterEscapes;
         }
-        SerializableString rootSep = _rootValueSeparator;
-        if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
-            gen.setRootValueSeparator(rootSep);
-        }
-        return gen;
+        // NOTE: JSON generator does not use schema; has no format-specific features
+        return new WriterBasedJsonGenerator(ctxt,
+                writeCtxt.getGeneratorFeatures(_generatorFeatures), _objectCodec, out,
+                rootSep, charEsc, writeCtxt.getPrettyPrinter());
     }
 
     @Override
-    protected JsonGenerator _createUTF8Generator(OutputStream out, IOContext ctxt) throws IOException {
-        UTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt,
-                _generatorFeatures, _objectCodec, out);
-        if (_characterEscapes != null) {
-            gen.setCharacterEscapes(_characterEscapes);
+    protected JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
+            OutputStream out, IOContext ctxt) throws IOException
+    {
+        SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
+        CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();
+        if (charEsc == null) {
+            charEsc = _characterEscapes;
         }
-        SerializableString rootSep = _rootValueSeparator;
-        if (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {
-            gen.setRootValueSeparator(rootSep);
-        }
-        return gen;
+        // NOTE: JSON generator does not use schema; has no format-specific features
+
+        return new UTF8JsonGenerator(ctxt,
+                writeCtxt.getGeneratorFeatures(_generatorFeatures), _objectCodec, out,
+                rootSep, charEsc, writeCtxt.getPrettyPrinter());
     }
 }

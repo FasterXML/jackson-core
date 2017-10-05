@@ -106,9 +106,6 @@ public abstract class GeneratorBase extends JsonGenerator
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
-    /**
-     * @since 2.5
-     */
     protected GeneratorBase(int features, ObjectCodec codec, JsonWriteContext ctxt) {
         super();
         _features = features;
@@ -142,7 +139,7 @@ public abstract class GeneratorBase extends JsonGenerator
 
 
     @Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }
-    @Override public int getFeatureMask() { return _features; }
+    @Override public int getGeneratorFeatures() { return _features; }
 
     //public JsonGenerator configure(Feature f, boolean state) { }
 
@@ -177,29 +174,6 @@ public abstract class GeneratorBase extends JsonGenerator
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
                 _writeContext = _writeContext.withDupDetector(null);
             }
-        }
-        return this;
-    }
-
-    @Override
-    @Deprecated
-    public JsonGenerator setFeatureMask(int newMask) {
-        int changed = newMask ^ _features;
-        _features = newMask;
-        if (changed != 0) {
-            _checkStdFeatureChanges(newMask, changed);
-        }
-        return this;
-    }
-
-    @Override // since 2.7
-    public JsonGenerator overrideStdFeatures(int values, int mask) {
-        int oldState = _features;
-        int newState = (oldState & ~mask) | (values & mask);
-        int changed = oldState ^ newState;
-        if (changed != 0) {
-            _features = newState;
-            _checkStdFeatureChanges(newState, changed);
         }
         return this;
     }
@@ -258,11 +232,6 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
-    /**
-     * Note: type was co-variant until Jackson 2.7; reverted back to
-     * base type in 2.8 to allow for overriding by subtypes that use
-     * custom context type.
-     */
     @Override public JsonStreamContext getOutputContext() { return _writeContext; }
 
     /*
@@ -276,7 +245,7 @@ public abstract class GeneratorBase extends JsonGenerator
     //public void writeStartObject() throws IOException
     //public void writeEndObject() throws IOException
 
-    @Override // since 2.8
+    @Override
     public void writeStartObject(Object forValue) throws IOException
     {
         writeStartObject();

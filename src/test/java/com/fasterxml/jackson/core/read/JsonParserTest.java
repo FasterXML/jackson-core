@@ -113,7 +113,7 @@ public class JsonParserTest extends BaseTest
 
     private void _testKeywords(JsonParser p, boolean checkColumn) throws Exception
     {
-        JsonStreamContext ctxt = p.getParsingContext();
+        TokenStreamContext ctxt = p.getParsingContext();
         assertEquals("/", ctxt.toString());
         assertTrue(ctxt.inRoot());
         assertFalse(ctxt.inArray());

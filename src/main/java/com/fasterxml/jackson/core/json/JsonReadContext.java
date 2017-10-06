@@ -3,11 +3,11 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.*;
 
 /**
- * Extension of {@link JsonStreamContext}, which implements
+ * Extension of {@link TokenStreamContext}, which implements
  * core methods needed, and also exposes
  * more complete API to parser implementation classes.
  */
-public final class JsonReadContext extends JsonStreamContext
+public final class JsonReadContext extends TokenStreamContext
 {
     // // // Configuration
 

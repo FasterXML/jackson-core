@@ -391,7 +391,7 @@ public abstract class JsonParser
      * @since 2.5
      */
     public Object getCurrentValue() {
-        JsonStreamContext ctxt = getParsingContext();
+        TokenStreamContext ctxt = getParsingContext();
         return (ctxt == null) ? null : ctxt.getCurrentValue();
     }
 
@@ -404,7 +404,7 @@ public abstract class JsonParser
      * @since 2.5
      */
     public void setCurrentValue(Object v) {
-        JsonStreamContext ctxt = getParsingContext();
+        TokenStreamContext ctxt = getParsingContext();
         if (ctxt != null) {
             ctxt.setCurrentValue(v);
         }
@@ -590,7 +590,7 @@ public abstract class JsonParser
      * Contexts can also be used for simple xpath-like matching of
      * input, if so desired.
      */
-    public abstract JsonStreamContext getParsingContext();
+    public abstract TokenStreamContext getParsingContext();
 
     /**
      * Method that return the <b>starting</b> location of the current

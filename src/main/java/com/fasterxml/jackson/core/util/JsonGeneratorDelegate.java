@@ -410,7 +410,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /**********************************************************
      */
 
-    @Override public JsonStreamContext getOutputContext() { return delegate.getOutputContext(); }
+    @Override public TokenStreamContext getOutputContext() { return delegate.getOutputContext(); }
     @Override public ObjectWriteContext getObjectWriteContext() { return delegate.getObjectWriteContext(); }
 
     /*

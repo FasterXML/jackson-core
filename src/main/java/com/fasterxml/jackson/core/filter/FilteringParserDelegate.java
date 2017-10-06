@@ -157,16 +157,16 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
 
     @Override
-    public JsonStreamContext getParsingContext() {
+    public TokenStreamContext getParsingContext() {
         return _filterContext();
     }
     
     // !!! TODO: Verify it works as expected: copied from standard JSON parser impl
     @Override
     public String getCurrentName() throws IOException {
-        JsonStreamContext ctxt = _filterContext();
+        TokenStreamContext ctxt = _filterContext();
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-            JsonStreamContext parent = ctxt.getParent();
+            TokenStreamContext parent = ctxt.getParent();
             return (parent == null) ? null : parent.getCurrentName();
         }
         return ctxt.getCurrentName();
@@ -887,7 +887,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**********************************************************
      */
 
-    protected JsonStreamContext _filterContext() {
+    protected TokenStreamContext _filterContext() {
         if (_exposedContext != null) {
             return _exposedContext;
         }

@@ -5,12 +5,12 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 
 /**
- * Alternative variant of {@link JsonStreamContext}, used when filtering
+ * Alternative variant of {@link TokenStreamContext}, used when filtering
  * content being read or written (based on {@link TokenFilter}).
  * 
  * @since 2.6
  */
-public class TokenFilterContext extends JsonStreamContext
+public class TokenFilterContext extends TokenStreamContext
 {
     /**
      * Parent context for this context; null for root context.

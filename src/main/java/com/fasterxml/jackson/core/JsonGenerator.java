@@ -284,7 +284,7 @@ public abstract class JsonGenerator
      * Accessor for context object that provides information about low-level
      * logical position withing output token stream.
      */
-    public abstract JsonStreamContext getOutputContext();
+    public abstract TokenStreamContext getOutputContext();
     
     /**
      * Accessor for context object provided by higher-level databinding
@@ -347,7 +347,7 @@ public abstract class JsonGenerator
      * and gets passed through data-binding.
      */
     public Object getCurrentValue() {
-        JsonStreamContext ctxt = getOutputContext();
+        TokenStreamContext ctxt = getOutputContext();
         return (ctxt == null) ? null : ctxt.getCurrentValue();
     }
 
@@ -358,7 +358,7 @@ public abstract class JsonGenerator
      *</code>
      */
     public void setCurrentValue(Object v) {
-        JsonStreamContext ctxt = getOutputContext();
+        TokenStreamContext ctxt = getOutputContext();
         if (ctxt != null) {
             ctxt.setCurrentValue(v);
         }

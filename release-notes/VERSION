@@ -21,3 +21,4 @@ JSON library.
 #408: Rename `JsonFactory` as `TokenStreamFactory`, split JSON-specific into `JsonFactory`
 #410: Add `ObjectWriteContext` abstraction for databind to pass config, state to
   `JsonGenerator` on construction
+#411: Rename `JsonStreamContext` as `TokenStreamContext`

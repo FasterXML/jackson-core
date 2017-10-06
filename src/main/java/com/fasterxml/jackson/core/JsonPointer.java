@@ -139,7 +139,7 @@ public class JsonPointer
 
     /**
      * Factory method that will construct a pointer instance that describes
-     * path to location given {@link JsonStreamContext} points to.
+     * path to location given {@link TokenStreamContext} points to.
      *
      * @param context Context to build pointer expression fot
      * @param includeRoot Whether to include number offset for virtual "root context"
@@ -147,7 +147,7 @@ public class JsonPointer
      *
      * @since 2.9
      */
-    public static JsonPointer forPath(JsonStreamContext context,
+    public static JsonPointer forPath(TokenStreamContext context,
             boolean includeRoot)
     {
         // First things first: last segment may be for START_ARRAY/START_OBJECT,

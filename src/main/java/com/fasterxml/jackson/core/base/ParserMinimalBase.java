@@ -249,7 +249,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public abstract void close() throws IOException;
     @Override public abstract boolean isClosed();
 
-    @Override public abstract JsonStreamContext getParsingContext();
+    @Override public abstract TokenStreamContext getParsingContext();
 
 //    public abstract JsonLocation getTokenLocation();
 

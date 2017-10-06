@@ -175,7 +175,7 @@ public class GeneratorBasicTest
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(sw);
-        JsonStreamContext ctxt = gen.getOutputContext();
+        TokenStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
 
         gen.writeStartObject();

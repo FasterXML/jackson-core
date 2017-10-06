@@ -9,15 +9,20 @@ import com.fasterxml.jackson.core.io.CharTypes;
 
 /**
  * Shared base class for streaming processing contexts used during
- * reading and writing of Json content using Streaming API.
+ * reading and writing of token streams using Streaming API.
  * This context is also exposed to applications:
  * context object can be used by applications to get an idea of
- * relative position of the parser/generator within json content
+ * relative position of the parser/generator within content
  * being processed. This allows for some contextual processing: for
  * example, output within Array context can differ from that of
- * Object context.
+ * Object context. Perhaps more importantly context is hierarchic so
+ * that enclosing contexts can be inspected as well. All levels
+ * also include information about current property name (for Objects)
+ * and element index (for Arrays).
+ *<p>
+ * NOTE: In jackson 2.x this class was named <code>JsonStreamContext</code>
  */
-public abstract class JsonStreamContext
+public abstract class TokenStreamContext
 {
     // // // Type constants used internally
 
@@ -42,17 +47,17 @@ public abstract class JsonStreamContext
     /**********************************************************
      */
 
-    protected JsonStreamContext() { }
+    protected TokenStreamContext() { }
 
     /**
      * Copy constructor used by sub-classes for creating copies for buffering.
      */
-    protected JsonStreamContext(JsonStreamContext base) {
+    protected TokenStreamContext(TokenStreamContext base) {
         _type = base._type;
         _index = base._index;
     }
 
-    protected JsonStreamContext(int type, int index) {
+    protected TokenStreamContext(int type, int index) {
         _type = type;
         _index = index;
     }
@@ -67,7 +72,7 @@ public abstract class JsonStreamContext
      * Accessor for finding parent context of this context; will
      * return null for root context.
      */
-    public abstract JsonStreamContext getParent();
+    public abstract TokenStreamContext getParent();
 
     /**
      * Method that returns true if this context is an Array context;

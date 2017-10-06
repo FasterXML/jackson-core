@@ -110,7 +110,7 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public String getCurrentName() throws IOException { return delegate.getCurrentName(); }
     @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
-    @Override public JsonStreamContext getParsingContext() { return delegate.getParsingContext(); }
+    @Override public TokenStreamContext getParsingContext() { return delegate.getParsingContext(); }
     @Override public boolean isExpectedStartArrayToken() { return delegate.isExpectedStartArrayToken(); }
     @Override public boolean isExpectedStartObjectToken() { return delegate.isExpectedStartObjectToken(); }
     @Override public boolean isNaN() throws IOException { return delegate.isNaN(); }

@@ -99,7 +99,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     public TokenFilter getFilter() { return rootFilter; }
 
-    public JsonStreamContext getFilterContext() {
+    public TokenStreamContext getFilterContext() {
         return _filterContext;
     }
     
@@ -118,7 +118,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
     
     @Override
-    public JsonStreamContext getOutputContext() {
+    public TokenStreamContext getOutputContext() {
         /* 11-Apr-2015, tatu: Choice is between pre- and post-filter context;
          *   let's expose post-filter context that correlates with the view
          *   of caller.

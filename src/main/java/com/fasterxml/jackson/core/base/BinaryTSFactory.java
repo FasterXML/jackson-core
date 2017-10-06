@@ -120,8 +120,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false, enc);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, _decorate(out, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(out, false, enc);
+        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(out, ioCtxt));
     }
 
     @Override
@@ -135,7 +135,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         IOContext ioCtxt = _createContext(out, true, enc);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, _decorate(out, ioCtxt), ioCtxt);
+        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(out, ioCtxt));
     }
 
     @Override
@@ -144,8 +144,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false, enc);
-        return _createGenerator(writeCtxt, _decorate(out, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(out, false, enc);
+        return _createGenerator(writeCtxt, ioCtxt, _decorate(out, ioCtxt));
     }
 
     @Override
@@ -161,7 +161,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         IOContext ioCtxt = _createContext(out, true, enc);
-        return _createGenerator(writeCtxt, _decorate(out, ioCtxt), ioCtxt);
+        return _createGenerator(writeCtxt, ioCtxt, _decorate(out, ioCtxt));
     }
 
     /*
@@ -181,7 +181,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
      * method available to users of factory implementations.
      */
     protected abstract JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            OutputStream out, IOContext ctxt) throws IOException;
+            IOContext ctxt, OutputStream out) throws IOException;
 
     protected <T> T _nonByteSource() throws IOException {
         throw new UnsupportedOperationException("Can not create parser for character-based (not byte-based) source");

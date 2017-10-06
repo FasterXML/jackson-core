@@ -10,26 +10,10 @@ import java.util.Iterator;
 /**
  * Marker interface used to denote JSON Tree nodes, as far as
  * the core package knows them (which is very little): mostly
- * needed to allow {@link ObjectCodec} to have some level
- * of interoperability.
+ * needed to allow {@link ObjectReadContext} and {@link ObjectWriteContext}
+ * to have some level of interoperability.
  * Most functionality is within <code>JsonNode</code>
- * base class in <code>mapper</code> package.
- *<p>
- * Note that in Jackson 1.x <code>JsonNode</code> itself
- * was part of core package: Jackson 2.x refactored this
- * since conceptually Tree Model is part of mapper package,
- * and so part visible to <code>core</code> package should
- * be minimized.
- *<p>
- * NOTE: starting with Jackson 2.2, there is more functionality
- * available via this class, and the intent is that this should
- * form actual base for multiple alternative tree representations;
- * for example, immutable trees could use different implementation
- * than mutable trees. It should also be possible to move actual
- * Tree Model implementation out of databind package eventually
- * (Jackson 3?).
- * 
- * @since 2.2
+ * base class in <code>databind</code> package.
  */
 public interface TreeNode
 {
@@ -65,8 +49,6 @@ public interface TreeNode
      *
      * @return For non-container nodes returns 0; for arrays number of
      *   contained elements, and for objects number of fields.
-     * 
-     * @since 2.2
      */
     int size();
 
@@ -79,8 +61,6 @@ public interface TreeNode
      * Note: one and only one of methods {@link #isValueNode},
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
-     * 
-     * @since 2.2
      */
     boolean isValueNode();
 
@@ -90,8 +70,6 @@ public interface TreeNode
      * Note: one and only one of methods {@link #isValueNode},
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
-     * 
-     * @since 2.2
      */
     boolean isContainerNode();
     
@@ -103,8 +81,6 @@ public interface TreeNode
      * Note: one and only one of methods {@link #isValueNode},
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
-     * 
-     * @since 2.2
      */
     boolean isMissingNode();
     
@@ -113,8 +89,6 @@ public interface TreeNode
      * otherwise.
      * Note that if true is returned, {@link #isContainerNode}
      * must also return true.
-     * 
-     * @since 2.2
      */
     boolean isArray();
 
@@ -123,10 +97,19 @@ public interface TreeNode
      * otherwise.
      * Note that if true is returned, {@link #isContainerNode}
      * must also return true.
-     * 
-     * @since 2.2
      */
     boolean isObject();
+
+    /**
+     * Method that returns true if this node represents an embedded
+     * "foreign" (or perhaps native?) object (like POJO), not represented
+     * as regular content. Such nodes are used to pass information that
+     * either native format can not express as-is, metadata not included within
+     * at all, or something else that requires special handling.
+     *
+     * @since 3.0
+     */
+    boolean isEmbeddedValue();
 
     /*
     /**********************************************************
@@ -147,8 +130,6 @@ public interface TreeNode
      * @return Node that represent value of the specified field,
      *   if this node is an object and has value for the specified
      *   field. Null otherwise.
-     * 
-     * @since 2.2
      */
     TreeNode get(String fieldName);
 
@@ -167,8 +148,6 @@ public interface TreeNode
      * @return Node that represent value of the specified element,
      *   if this node is an array and has specified element.
      *   Null otherwise.
-     * 
-     * @since 2.2
      */
     TreeNode get(int index);
 
@@ -181,8 +160,6 @@ public interface TreeNode
      * @return Node that represent value of the specified field,
      *   if this node is an object and has value for the specified field;
      *   otherwise "missing node" is returned.
-     * 
-     * @since 2.2
      */
     TreeNode path(String fieldName);
 
@@ -203,8 +180,6 @@ public interface TreeNode
      * @return Node that represent value of the specified element,
      *   if this node is an array and has specified element;
      *   otherwise "missing node" is returned.
-     * 
-     * @since 2.2
      */
     TreeNode path(int index);
     
@@ -212,8 +187,6 @@ public interface TreeNode
      * Method for accessing names of all fields for this node, iff
      * this node is an Object node. Number of field names accessible
      * will be {@link #size}.
-     * 
-     * @since 2.2
      */
     Iterator<String> fieldNames();
 
@@ -224,8 +197,6 @@ public interface TreeNode
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
     TreeNode at(JsonPointer ptr);
 
@@ -239,15 +210,12 @@ public interface TreeNode
      * {@link JsonPointer} instance once and reuse it: this method will not perform
      * any caching of compiled expressions.
      * 
-     * @param jsonPointerExpression Expression to compile as a {@link JsonPointer}
-     *   instance
+     * @param ptrExpr Expression to compile as a {@link JsonPointer} instance
      * 
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
-     * 
-     * @since 2.3
      */
-    TreeNode at(String jsonPointerExpression) throws IllegalArgumentException;
+    TreeNode at(String ptrExpr) throws IllegalArgumentException;
     
     /*
     /**********************************************************
@@ -272,17 +240,4 @@ public interface TreeNode
      * It is often better to call {@link #traverse(ObjectCodec)} to pass the codec explicitly.
      */
     JsonParser traverse();
-
-    /**
-     * Same as {@link #traverse()}, but additionally passes {@link com.fasterxml.jackson.core.ObjectCodec}
-     * to use if {@link JsonParser#readValueAs(Class)} is used (otherwise caller must call
-     * {@link JsonParser#setCodec} on response explicitly).
-     *<p>
-     * NOTE: constructed parser instance will NOT initially point to a token,
-     * so before passing it to deserializers, it is typically necessary to
-     * advance it to the first available token by calling {@link JsonParser#nextToken()}.
-     * 
-     * @since 2.1
-     */
-    JsonParser traverse(ObjectCodec codec);
 }

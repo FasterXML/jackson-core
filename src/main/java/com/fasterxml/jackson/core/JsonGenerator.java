@@ -243,7 +243,7 @@ public abstract class JsonGenerator
 
     /**
      * Method that can be called to set or reset the object to
-     * use for writing Java objects as JsonContent
+     * use for writing Java objects as JSON Content
      * (using method {@link #writeObject}).
      *
      * @return Generator itself (this), to allow chaining

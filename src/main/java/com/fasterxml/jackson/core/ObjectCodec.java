@@ -119,10 +119,7 @@ public abstract class ObjectCodec
      */
     @Override
     public abstract <T extends TreeNode> T readTree(JsonParser p) throws IOException;
-    
-    @Override
-    public abstract void writeTree(JsonGenerator gen, TreeNode tree) throws IOException;
-    
+
     /**
      * Method for construct root level Object nodes
      * for Tree Model instances.

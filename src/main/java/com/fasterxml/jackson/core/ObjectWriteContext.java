@@ -3,6 +3,8 @@ package com.fasterxml.jackson.core;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.tree.ArrayTreeNode;
+import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 
 /**
  * Defines API for accessing configuration and state exposed by
@@ -30,7 +32,19 @@ public interface ObjectWriteContext
     public int getGeneratorFeatures(int defaults);
     public int getFormatWriteFeatures(int defaults);
 
-    // // // Databinding callbacks
+    // // // Databinding callbacks, tree node creation
+
+    /**
+     * Method for construct Array nodes for Tree Model instances.
+     */
+    public ArrayTreeNode createArrayNode();
+    
+    /**
+     * Method for construct Object nodes for Tree Model instances.
+     */
+    public ObjectTreeNode createObjectNode();
+    
+    // // // Databinding callbacks, value serialization
 
     /**
      * Method that may be called to serialize given value, using specified
@@ -46,6 +60,8 @@ public interface ObjectWriteContext
     public static class Base implements ObjectWriteContext {
         protected static ObjectWriteContext EMPTY_CONTEXT = new Base();
 
+        // // // Config access methods
+        
         @Override
         public FormatSchema getSchema() { return null; }
 
@@ -70,6 +86,18 @@ public interface ObjectWriteContext
             return defaults;
         }
 
+        // // // Databind integration
+
+        @Override
+        public ObjectTreeNode createObjectNode() {
+            return _reportUnsupportedOperation();
+        }
+
+        @Override
+        public ArrayTreeNode createArrayNode() {
+            return _reportUnsupportedOperation();
+        }
+        
         @Override
         public void writeValue(JsonGenerator g, Object value) throws IOException {
             _reportUnsupportedOperation();

@@ -310,7 +310,7 @@ public class JsonFactory
 
     @Override
     protected JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            Writer out, IOContext ioCtxt) throws IOException
+            IOContext ioCtxt, Writer out) throws IOException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
         CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();
@@ -326,7 +326,7 @@ public class JsonFactory
 
     @Override
     protected JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
-            OutputStream out, IOContext ioCtxt) throws IOException
+            IOContext ioCtxt, OutputStream out) throws IOException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
         CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();

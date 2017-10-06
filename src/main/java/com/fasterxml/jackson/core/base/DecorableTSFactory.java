@@ -105,10 +105,10 @@ public abstract class DecorableTSFactory
     /**********************************************************
      */
 
-    protected InputStream _decorate(InputStream in, IOContext ctxt) throws IOException
+    protected InputStream _decorate(IOContext ioCtxt, InputStream in) throws IOException
     {
         if (_inputDecorator != null) {
-            InputStream in2 = _inputDecorator.decorate(ctxt, in);
+            InputStream in2 = _inputDecorator.decorate(ioCtxt, in);
             if (in2 != null) {
                 return in2;
             }
@@ -116,10 +116,10 @@ public abstract class DecorableTSFactory
         return in;
     }
 
-    protected Reader _decorate(Reader in, IOContext ctxt) throws IOException
+    protected Reader _decorate(IOContext ioCtxt, Reader in) throws IOException
     {
         if (_inputDecorator != null) {
-            Reader in2 = _inputDecorator.decorate(ctxt, in);
+            Reader in2 = _inputDecorator.decorate(ioCtxt, in);
             if (in2 != null) {
                 return in2;
             }
@@ -127,10 +127,10 @@ public abstract class DecorableTSFactory
         return in;
     }
 
-    protected DataInput _decorate(DataInput in, IOContext ctxt) throws IOException
+    protected DataInput _decorate(IOContext ioCtxt, DataInput in) throws IOException
     {
         if (_inputDecorator != null) {
-            DataInput in2 = _inputDecorator.decorate(ctxt, in);
+            DataInput in2 = _inputDecorator.decorate(ioCtxt, in);
             if (in2 != null) {
                 return in2;
             }
@@ -144,10 +144,10 @@ public abstract class DecorableTSFactory
     /**********************************************************
      */
 
-    protected OutputStream _decorate(OutputStream out, IOContext ctxt) throws IOException
+    protected OutputStream _decorate(IOContext ioCtxt, OutputStream out) throws IOException
     {
         if (_outputDecorator != null) {
-            OutputStream out2 = _outputDecorator.decorate(ctxt, out);
+            OutputStream out2 = _outputDecorator.decorate(ioCtxt, out);
             if (out2 != null) {
                 return out2;
             }
@@ -155,10 +155,10 @@ public abstract class DecorableTSFactory
         return out;
     }
 
-    protected Writer _decorate(Writer out, IOContext ctxt) throws IOException
+    protected Writer _decorate(IOContext ioCtxt, Writer out) throws IOException
     {
         if (_outputDecorator != null) {
-            Writer out2 = _outputDecorator.decorate(ctxt, out);
+            Writer out2 = _outputDecorator.decorate(ioCtxt, out);
             if (out2 != null) {
                 return out2;
             }

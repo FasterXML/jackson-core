@@ -70,40 +70,40 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     @Override
     public JsonParser createParser(File f) throws IOException {
         // true, since we create InputStream from File
-        IOContext ctxt = _createContext(f, true);
-        return _createParser(_decorate(new FileInputStream(f), ctxt), ctxt);
+        IOContext ioCtxt = _createContext(f, true);
+        return _createParser(_decorate(ioCtxt, new FileInputStream(f)), ioCtxt);
     }
 
     @Override
     public JsonParser createParser(URL url) throws IOException {
         // true, since we create InputStream from URL
-        IOContext ctxt = _createContext(url, true);
-        return _createParser(_decorate(_optimizedStreamFromURL(url), ctxt), ctxt);
+        IOContext ioCtxt = _createContext(url, true);
+        return _createParser(_decorate(ioCtxt, _optimizedStreamFromURL(url)), ioCtxt);
     }
 
     @Override
     public JsonParser createParser(InputStream in) throws IOException {
-        IOContext ctxt = _createContext(in, false);
-        return _createParser(_decorate(in, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(in, false);
+        return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }
 
     @Override
     public JsonParser createParser(Reader r) throws IOException {
         // false -> we do NOT own Reader (did not create it)
-        IOContext ctxt = _createContext(r, false);
-        return _createParser(_decorate(r, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(r, false);
+        return _createParser(_decorate(ioCtxt, r), ioCtxt);
     }
 
     @Override
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
-        IOContext ctxt = _createContext(data, true);
+        IOContext ioCtxt = _createContext(data, true);
         if (_inputDecorator != null) {
-            InputStream in = _inputDecorator.decorate(ctxt, data, offset, len);
+            InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
             if (in != null) {
-                return _createParser(in, ctxt);
+                return _createParser(in, ioCtxt);
             }
         }
-        return _createParser(data, offset, len, ctxt);
+        return _createParser(data, offset, len, ioCtxt);
     }
 
     @Override
@@ -115,10 +115,10 @@ public abstract class TextualTSFactory extends DecorableTSFactory
             // is too long for us to copy it over
             return createParser(new StringReader(content));
         }
-        IOContext ctxt = _createContext(content, true);
-        char[] buf = ctxt.allocTokenBuffer(strLen);
+        IOContext ioCtxt = _createContext(content, true);
+        char[] buf = ioCtxt.allocTokenBuffer(strLen);
         content.getChars(0, strLen, buf, 0);
-        return _createParser(buf, 0, strLen, ctxt, true);
+        return _createParser(buf, 0, strLen, ioCtxt, true);
     }
 
     @Override
@@ -133,8 +133,8 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     
     @Override
     public JsonParser createParser(DataInput in) throws IOException {
-        IOContext ctxt = _createContext(in, false);
-        return _createParser(_decorate(in, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(in, false);
+        return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }
     
     protected abstract JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException;
@@ -159,21 +159,21 @@ public abstract class TextualTSFactory extends DecorableTSFactory
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false).setEncoding(enc);
+        IOContext ioCtxt = _createContext(out, false).setEncoding(enc);
         if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(EMPTY_WRITE_CONTEXT,
-                    _decorate(out, ctxt), ctxt);
+            return _createUTF8Generator(EMPTY_WRITE_CONTEXT, ioCtxt,
+                    _decorate(ioCtxt, out));
         }
-        Writer w = _createWriter(out, enc, ctxt);
-        return _createGenerator(EMPTY_WRITE_CONTEXT,
-                _decorate(w, ctxt), ctxt);
+        Writer w = _createWriter(ioCtxt, out, enc);
+        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt,
+                _decorate(ioCtxt, w));
     }
 
     @Override
     public JsonGenerator createGenerator(Writer w) throws IOException {
-        IOContext ctxt = _createContext(w, false);
-        return _createGenerator(EMPTY_WRITE_CONTEXT,
-                _decorate(w, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(w, false);
+        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt,
+                _decorate(ioCtxt, w));
     }
 
     @Override
@@ -181,13 +181,13 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     {
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
-        IOContext ctxt = _createContext(f, true).setEncoding(enc);
+        IOContext ioCtxt = _createContext(f, true).setEncoding(enc);
         if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(EMPTY_WRITE_CONTEXT,
-                    _decorate(out, ctxt), ctxt);
+            return _createUTF8Generator(EMPTY_WRITE_CONTEXT, ioCtxt,
+                    _decorate(ioCtxt, out));
         }
-        return _createGenerator(EMPTY_WRITE_CONTEXT,
-                _decorate(_createWriter(out, enc, ctxt), ctxt), ctxt);
+        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt,
+                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
     }
 
     @Override
@@ -196,20 +196,20 @@ public abstract class TextualTSFactory extends DecorableTSFactory
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false, enc);
+        IOContext ioCtxt = _createContext(out, false, enc);
         if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(writeCtxt, _decorate(out, ctxt), ctxt);
+            return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
         }
-        return _createGenerator(writeCtxt,
-                _decorate(_createWriter(out, enc, ctxt), ctxt), ctxt);
+        return _createGenerator(writeCtxt, ioCtxt,
+                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
     }
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w)
         throws IOException
     {
-        IOContext ctxt = _createContext(w, false);
-        return _createGenerator(writeCtxt, _decorate(w, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(w, false);
+        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, w));
     }
 
     @Override
@@ -218,11 +218,12 @@ public abstract class TextualTSFactory extends DecorableTSFactory
         throws IOException
     {
         OutputStream out = new FileOutputStream(f);
-        IOContext ctxt = _createContext(f, true, enc);
+        IOContext ioCtxt = _createContext(f, true, enc);
         if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(writeCtxt, _decorate(out, ctxt), ctxt);
+            return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
         }
-        return _createGenerator(writeCtxt, _decorate(_createWriter(out, enc, ctxt), ctxt), ctxt);
+        return _createGenerator(writeCtxt, ioCtxt,
+                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
     }
 
     /*
@@ -242,7 +243,7 @@ public abstract class TextualTSFactory extends DecorableTSFactory
      * method available to users of factory implementations.
      */
     protected abstract JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            Writer out, IOContext ioCtxt) throws IOException;
+            IOContext ioCtxt, Writer out) throws IOException;
 
     /**
      * Overridable factory method that actually instantiates generator for
@@ -255,14 +256,14 @@ public abstract class TextualTSFactory extends DecorableTSFactory
      * method available to users of factory implementations.
      */
     protected abstract JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
-            OutputStream out, IOContext ctxt) throws IOException;
+            IOContext ioCtxt, OutputStream out) throws IOException;
 
-    protected Writer _createWriter(OutputStream out, JsonEncoding enc, IOContext ctxt)
+    protected Writer _createWriter(IOContext ioCtxt, OutputStream out, JsonEncoding enc)
         throws IOException
     {
         // note: this should not get called any more (caller checks, dispatches)
         if (enc == JsonEncoding.UTF8) { // We have optimized writer for UTF-8
-            return new UTF8Writer(ctxt, out);
+            return new UTF8Writer(ioCtxt, out);
         }
         // not optimal, but should do unless we really care about UTF-16/32 encoding speed
         return new OutputStreamWriter(out, enc.getJavaName());

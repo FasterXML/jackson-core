@@ -51,23 +51,23 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     @Override
     public JsonParser createParser(File f) throws IOException {
         // true, since we create InputStream from File
-        IOContext ctxt = _createContext(f, true);
+        IOContext ioCtxt = _createContext(f, true);
         InputStream in = new FileInputStream(f);
-        return _createParser(_decorate(in, ctxt), ctxt);
+        return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }
 
     @Override
     public JsonParser createParser(URL url) throws IOException {
         // true, since we create InputStream from URL
-        IOContext ctxt = _createContext(url, true);
+        IOContext ioCtxt = _createContext(url, true);
         InputStream in = _optimizedStreamFromURL(url);
-        return _createParser(_decorate(in, ctxt), ctxt);
+        return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }
 
     @Override
     public JsonParser createParser(InputStream in) throws IOException {
-        IOContext ctxt = _createContext(in, false);
-        return _createParser(_decorate(in, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(in, false);
+        return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }
 
     @Override
@@ -77,14 +77,14 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
 
     @Override
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
-        IOContext ctxt = _createContext(data, true, null);
+        IOContext ioCtxt = _createContext(data, true, null);
         if (_inputDecorator != null) {
-            InputStream in = _inputDecorator.decorate(ctxt, data, offset, len);
+            InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
             if (in != null) {
-                return _createParser(in, ctxt);
+                return _createParser(in, ioCtxt);
             }
         }
-        return _createParser(data, offset, len, ctxt);
+        return _createParser(data, offset, len, ioCtxt);
     }
 
     @Override
@@ -99,8 +99,8 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     
     @Override
     public JsonParser createParser(DataInput in) throws IOException {
-        IOContext ctxt = _createContext(in, false);
-        return _createParser(_decorate(in, ctxt), ctxt);
+        IOContext ioCtxt = _createContext(in, false);
+        return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }
     
     protected abstract JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException;
@@ -121,7 +121,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(out, false, enc);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(out, ioCtxt));
+        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(ioCtxt, out));
     }
 
     @Override
@@ -135,7 +135,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         IOContext ioCtxt = _createContext(out, true, enc);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(out, ioCtxt));
+        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(ioCtxt, out));
     }
 
     @Override
@@ -145,7 +145,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(out, false, enc);
-        return _createGenerator(writeCtxt, ioCtxt, _decorate(out, ioCtxt));
+        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
     }
 
     @Override
@@ -161,7 +161,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         IOContext ioCtxt = _createContext(out, true, enc);
-        return _createGenerator(writeCtxt, ioCtxt, _decorate(out, ioCtxt));
+        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
     }
 
     /*

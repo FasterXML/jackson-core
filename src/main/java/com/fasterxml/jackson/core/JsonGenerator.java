@@ -7,9 +7,6 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
@@ -259,8 +256,8 @@ public abstract class JsonGenerator
      * object as JSON content
      * (using method {@link #writeObject}).
      */
-    @Deprecated // since 3.0
-    public abstract ObjectCodec getCodec();
+//    @Deprecated // since 3.0
+//    public abstract ObjectCodec getCodec();
 
     /*
     /**********************************************************
@@ -1399,25 +1396,18 @@ public abstract class JsonGenerator
      */
 
     /**
-     * Method for writing given Java object (POJO) as Json.
-     * Exactly how the object gets written depends on object
-     * in question (ad on codec, its configuration); for most
-     * beans it will result in JSON Object, but for others JSON
-     * Array, or String or numeric value (and for nulls, JSON
-     * null literal.
-     * <b>NOTE</b>: generator must have its <b>object codec</b>
-     * set to non-null value; for generators created by a mapping
-     * factory this is the case, for others not.
+     * Method for writing given Java object (POJO) as tokens into
+     * stream this generator manages.
+     * This is done by delegating call to
+     * {@link ObjectWriteContext#writeValue(JsonGenerator, Object)}.
      */
     public abstract void writeObject(Object pojo) throws IOException;
 
     /**
      * Method for writing given JSON tree (expressed as a tree
-     * where given JsonNode is the root) using this generator.
-     * This will generally just call
-     * {@link #writeObject} with given node, but is added
-     * for convenience and to make code more explicit in cases
-     * where it deals specifically with trees.
+     * where given {@code TreeNode} is the root) using this generator.
+     * This is done by delegating call to
+     * {@link ObjectWriteContext#writeTree}.
      */
     public abstract void writeTree(TreeNode rootNode) throws IOException;
 
@@ -1833,74 +1823,4 @@ public abstract class JsonGenerator
                     offset, length, arrayLength));
         }
     }
-
-    /**
-     * Helper method to try to call appropriate write method for given
-     * untyped Object. At this point, no structural conversions should be done,
-     * only simple basic types are to be coerced as necessary.
-     *
-     * @param value Non-null value to write
-     */
-    protected void _writeSimpleObject(Object value)  throws IOException
-    {
-        /* 31-Dec-2009, tatu: Actually, we could just handle some basic
-         *    types even without codec. This can improve interoperability,
-         *    and specifically help with TokenBuffer.
-         */
-        if (value == null) {
-            writeNull();
-            return;
-        }
-        if (value instanceof String) {
-            writeString((String) value);
-            return;
-        }
-        if (value instanceof Number) {
-            Number n = (Number) value;
-            if (n instanceof Integer) {
-                writeNumber(n.intValue());
-                return;
-            } else if (n instanceof Long) {
-                writeNumber(n.longValue());
-                return;
-            } else if (n instanceof Double) {
-                writeNumber(n.doubleValue());
-                return;
-            } else if (n instanceof Float) {
-                writeNumber(n.floatValue());
-                return;
-            } else if (n instanceof Short) {
-                writeNumber(n.shortValue());
-                return;
-            } else if (n instanceof Byte) {
-                writeNumber(n.byteValue());
-                return;
-            } else if (n instanceof BigInteger) {
-                writeNumber((BigInteger) n);
-                return;
-            } else if (n instanceof BigDecimal) {
-                writeNumber((BigDecimal) n);
-                return;
-
-            // then Atomic types
-            } else if (n instanceof AtomicInteger) {
-                writeNumber(((AtomicInteger) n).get());
-                return;
-            } else if (n instanceof AtomicLong) {
-                writeNumber(((AtomicLong) n).get());
-                return;
-            }
-        } else if (value instanceof byte[]) {
-            writeBinary((byte[]) value);
-            return;
-        } else if (value instanceof Boolean) {
-            writeBoolean((Boolean) value);
-            return;
-        } else if (value instanceof AtomicBoolean) {
-            writeBoolean(((AtomicBoolean) value).get());
-            return;
-        }
-        throw new IllegalStateException("No ObjectCodec defined for the generator, can only serialize simple wrapper types (type passed "
-                +value.getClass().getName()+")");
-    }    
 }

@@ -99,7 +99,7 @@ public abstract class ObjectCodec
      * Method to serialize given Java Object, using generator
      * provided.
      */
-    public abstract void writeValue(JsonGenerator gen, Object value) throws IOException;
+//    public abstract void writeValue(JsonGenerator gen, Object value) throws IOException;
 
     /*
     /**********************************************************

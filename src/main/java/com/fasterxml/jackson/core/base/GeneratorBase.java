@@ -235,8 +235,6 @@ public abstract class GeneratorBase extends JsonGenerator
         return this;
     }
 
-    @Override public ObjectCodec getCodec() { return _objectCodec; }
-
     /*
     /**********************************************************
     /* Public API, accessors
@@ -354,24 +352,17 @@ public abstract class GeneratorBase extends JsonGenerator
              *   contained POJO. If we did call it it would advance state
              *   causing exception later on
              */
-            if (_objectCodec != null) {
-                _objectCodec.writeValue(this, value);
-                return;
-            }
-            _writeSimpleObject(value);
+            _objectWriteContext.writeValue(this, value);
         }
     }
 
     @Override
     public void writeTree(TreeNode rootNode) throws IOException {
-        // As with 'writeObject()', we are not check if write would work
+        // As with 'writeObject()', we are not to check if write would work
         if (rootNode == null) {
             writeNull();
         } else {
-            if (_objectCodec == null) {
-                throw new IllegalStateException("No ObjectCodec defined");
-            }
-            _objectCodec.writeValue(this, rootNode);
+            _objectWriteContext.writeTree(this, rootNode);
         }
     }
 

@@ -66,8 +66,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /* Public API, metadata
     /**********************************************************
      */
-    
-    @Override public ObjectCodec getCodec() { return delegate.getCodec(); }
 
     @Override public JsonGenerator setCodec(ObjectCodec oc) {
         delegate.setCodec(oc);
@@ -351,12 +349,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         if (pojo == null) {
             writeNull();
         } else {
-            ObjectCodec c = getCodec();
-            if (c != null) {
-                c.writeValue(this, pojo);
-                return;
-            }
-            _writeSimpleObject(pojo);
+            getObjectWriteContext().writeValue(this, pojo);
         }
     }
     
@@ -370,11 +363,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         if (tree == null) {
             writeNull();
         } else {
-            ObjectCodec c = getCodec();
-            if (c == null) {
-                throw new IllegalStateException("No ObjectCodec defined");
-            }
-            c.writeTree(this, tree);
+            getObjectWriteContext().writeTree(this, tree);
         }
     }
 

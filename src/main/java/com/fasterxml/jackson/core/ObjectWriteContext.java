@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 
 /**
@@ -17,6 +19,8 @@ public interface ObjectWriteContext
         return Base.EMPTY_CONTEXT;
     }
 
+    // // // Configuration
+
     public FormatSchema getSchema();
 
     public CharacterEscapes getCharacterEscapes();
@@ -26,6 +30,16 @@ public interface ObjectWriteContext
     public int getGeneratorFeatures(int defaults);
     public int getFormatWriteFeatures(int defaults);
 
+    // // // Databinding callbacks
+
+    /**
+     * Method that may be called to serialize given value, using specified
+     * token stream generator.
+     */
+    public void writeValue(JsonGenerator g, Object value) throws IOException;
+
+    public void writeTree(JsonGenerator g, TreeNode value) throws IOException;
+    
     /**
      * Default no-op implementation.
      */
@@ -54,6 +68,20 @@ public interface ObjectWriteContext
         @Override
         public int getFormatWriteFeatures(int defaults) {
             return defaults;
+        }
+
+        @Override
+        public void writeValue(JsonGenerator g, Object value) throws IOException {
+            _reportUnsupportedOperation();
+        }
+
+        @Override
+        public void writeTree(JsonGenerator g, TreeNode value) throws IOException {
+            _reportUnsupportedOperation();
+        }
+        
+        protected <T> T _reportUnsupportedOperation() {
+            throw new UnsupportedOperationException("Operation not supported by `ObjectWriteContext` of type "+getClass().getName());
         }
     }
 }

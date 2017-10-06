@@ -25,10 +25,10 @@ public class JsonParserSequenceTest extends BaseTest
     @Test
     public void testClose() throws IOException {
         BufferRecycler bufferRecycler = new BufferRecycler();
-        TestDelegates.BogusCodec testDelegates_BogusCodec = new TestDelegates.BogusCodec();
         IOContext iOContext = new IOContext(bufferRecycler, bufferRecycler, true);
         CharsToNameCanonicalizer charsToNameCanonicalizer = CharsToNameCanonicalizer.createRoot();
-        ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(iOContext, 2, null, testDelegates_BogusCodec, charsToNameCanonicalizer);
+        ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(iOContext,
+                2, null, null, charsToNameCanonicalizer);
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, readerBasedJsonParser, readerBasedJsonParser);
 
         assertFalse(jsonParserSequence.isClosed());
@@ -46,9 +46,9 @@ public class JsonParserSequenceTest extends BaseTest
         IOContext iOContext = new IOContext(bufferRecycler, bufferRecycler, true);
         byte[] byteArray = new byte[8];
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray, 0, (byte) 58);
-        TestDelegates.BogusCodec testDelegates_BogusCodec = new TestDelegates.BogusCodec();
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(iOContext, 0, byteArrayInputStream, testDelegates_BogusCodec, byteQuadsCanonicalizer, byteArray, -1, (byte) 9, true);
+        UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(iOContext,
+                0, byteArrayInputStream, null, byteQuadsCanonicalizer, byteArray, -1, (byte) 9, true);
         JsonParserDelegate jsonParserDelegate = new JsonParserDelegate(jsonParserArray[0]);
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, uTF8StreamJsonParser, jsonParserDelegate);
         JsonParserSequence jsonParserSequenceTwo = (JsonParserSequence) jsonParserSequence.skipChildren();

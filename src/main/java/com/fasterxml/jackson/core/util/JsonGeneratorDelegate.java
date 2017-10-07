@@ -67,11 +67,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /**********************************************************
      */
 
-    @Override public JsonGenerator setCodec(ObjectCodec oc) {
-        delegate.setCodec(oc);
-        return this;
-    }
-    
     @Override public void setSchema(FormatSchema schema) { delegate.setSchema(schema); }
     @Override public FormatSchema getSchema() { return delegate.getSchema(); }
     @Override public Version version() { return delegate.version(); }

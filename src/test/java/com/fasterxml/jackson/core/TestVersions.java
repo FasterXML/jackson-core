@@ -19,7 +19,7 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
         jp.close();
         JsonGenerator jg = new WriterBasedJsonGenerator(ObjectWriteContext.empty(),
                 getIOContext(),
-                0, null, null,
+                0, null,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null);
         assertVersion(jg.version());
         jg.close();

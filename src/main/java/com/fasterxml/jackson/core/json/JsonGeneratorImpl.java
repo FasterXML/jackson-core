@@ -100,11 +100,10 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
-    public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt,
-            int features, ObjectCodec codec,
+    public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt, int features,
             SerializableString rvs, CharacterEscapes charEsc, PrettyPrinter pp)
     {
-        super(writeCtxt, features, codec);
+        super(writeCtxt, features);
         _ioContext = ctxt;
         if (Feature.ESCAPE_NON_ASCII.enabledIn(features)) {
             // inlined `setHighestNonEscapedChar()`

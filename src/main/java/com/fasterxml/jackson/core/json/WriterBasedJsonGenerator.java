@@ -89,11 +89,11 @@ public class WriterBasedJsonGenerator
      */
 
     public WriterBasedJsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
-            int features, ObjectCodec codec, Writer w,
+            int features, Writer w,
             SerializableString rootValueSep, CharacterEscapes charEsc,
             PrettyPrinter pp)
     {
-        super(writeCtxt, ioCtxt, features, codec, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, features, rootValueSep, charEsc, pp);
         _writer = w;
         _outputBuffer = ioCtxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;

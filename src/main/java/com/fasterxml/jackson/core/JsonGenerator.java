@@ -241,24 +241,6 @@ public abstract class JsonGenerator
     
     protected JsonGenerator() { }
 
-    /**
-     * Method that can be called to set or reset the object to
-     * use for writing Java objects as JSON Content
-     * (using method {@link #writeObject}).
-     *
-     * @return Generator itself (this), to allow chaining
-     */
-    @Deprecated // since 3.0
-    public abstract JsonGenerator setCodec(ObjectCodec oc);
-
-    /**
-     * Method for accessing the object used for writing Java
-     * object as JSON content
-     * (using method {@link #writeObject}).
-     */
-//    @Deprecated // since 3.0
-//    public abstract ObjectCodec getCodec();
-
     /*
     /**********************************************************
     /* Versioned

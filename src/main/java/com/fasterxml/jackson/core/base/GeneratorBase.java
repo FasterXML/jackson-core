@@ -105,22 +105,20 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
-    protected GeneratorBase(ObjectWriteContext writeCtxt, int features, ObjectCodec codec) {
+    protected GeneratorBase(ObjectWriteContext writeCtxt, int features) {
         super();
         _objectWriteContext = writeCtxt;
         _features = features;
-        _objectCodec = codec;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _outputContext = JsonWriteContext.createRootContext(dups);
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
-    protected GeneratorBase(ObjectWriteContext writeCtxt, int features, ObjectCodec codec, JsonWriteContext ctxt) {
+    protected GeneratorBase(ObjectWriteContext writeCtxt, int features, JsonWriteContext ctxt) {
         super();
         _objectWriteContext = writeCtxt;
         _features = features;
-        _objectCodec = codec;
         _outputContext = ctxt;
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
@@ -228,11 +226,6 @@ public abstract class GeneratorBase extends JsonGenerator
             return this;
         }
         return setPrettyPrinter(_constructDefaultPrettyPrinter());
-    }
-    
-    @Override public JsonGenerator setCodec(ObjectCodec oc) {
-        _objectCodec = oc;
-        return this;
     }
 
     /*
@@ -347,11 +340,9 @@ public abstract class GeneratorBase extends JsonGenerator
             // important: call method that does check value write:
             writeNull();
         } else {
-            /* 02-Mar-2009, tatu: we are NOT to call _verifyValueWrite here,
-             *   because that will be done when codec actually serializes
-             *   contained POJO. If we did call it it would advance state
-             *   causing exception later on
-             */
+            // We are NOT to call _verifyValueWrite here, because that will be
+            // done when actual serialization of POJO occurs. If we did call it,
+            // state would advance causing exception later on
             _objectWriteContext.writeValue(this, value);
         }
     }
@@ -434,9 +425,6 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     /**********************************************************
      */
 
-    /**
-     * @since 2.5
-     */
     protected final int _decodeSurrogate(int surr1, int surr2) throws IOException
     {
         // First is known to be valid, but how about the other?

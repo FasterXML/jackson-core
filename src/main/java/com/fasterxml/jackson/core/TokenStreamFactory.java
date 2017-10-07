@@ -520,9 +520,8 @@ public abstract class TokenStreamFactory
      */
 
     /**
-     * Method for constructing JSON parser instance to parse
+     * Method for constructing parser instance to decode
      * contents of specified file.
-     *
      *<p>
      * Encoding is auto-detected from contents according to JSON
      * specification recommended mechanism. Json specification
@@ -537,10 +536,11 @@ public abstract class TokenStreamFactory
      *
      * @param f File that contains JSON content to parse
      */
-    public abstract JsonParser createParser(File f) throws IOException, JsonParseException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            File f) throws IOException;
 
     /**
-     * Method for constructing JSON parser instance to parse
+     * Method for constructing JSON parser instance to decode
      * contents of resource reference by given URL.
      *
      *<p>
@@ -557,7 +557,8 @@ public abstract class TokenStreamFactory
      *
      * @param url URL pointing to resource that contains JSON content to parse
      */
-    public abstract JsonParser createParser(URL url) throws IOException, JsonParseException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            URL url) throws IOException;
 
     /**
      * Method for constructing JSON parser instance to parse
@@ -578,7 +579,8 @@ public abstract class TokenStreamFactory
      *
      * @param in InputStream to use for reading JSON content to parse
      */
-    public abstract JsonParser createParser(InputStream in) throws IOException, JsonParseException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            InputStream in) throws IOException;
 
     /**
      * Method for constructing parser for parsing
@@ -592,14 +594,15 @@ public abstract class TokenStreamFactory
      *
      * @param r Reader to use for reading JSON content to parse
      */
-    public abstract JsonParser createParser(Reader r) throws IOException, JsonParseException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            Reader r) throws IOException;
 
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
      */
-    public JsonParser createParser(byte[] data) throws IOException, JsonParseException {
-        return createParser(data, 0, data.length);
+    public JsonParser createParser(ObjectReadContext readCtxt, byte[] data) throws IOException {
+        return createParser(readCtxt, data, 0, data.length);
     }
 
     /**
@@ -610,24 +613,77 @@ public abstract class TokenStreamFactory
      * @param offset Offset of the first data byte within buffer
      * @param len Length of contents to parse within buffer
      */
-    public abstract JsonParser createParser(byte[] data, int offset, int len) throws IOException, JsonParseException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            byte[] data, int offset, int len) throws IOException;
 
     /**
      * Method for constructing parser for parsing contents of given String.
      */
-    public abstract JsonParser createParser(String content) throws IOException, JsonParseException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            String content) throws IOException;
 
     /**
      * Method for constructing parser for parsing contents of given char array.
      */
-    public JsonParser createParser(char[] content) throws IOException {
-        return createParser(content, 0, content.length);
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            char[] content) throws IOException {
+        return createParser(readCtxt, content, 0, content.length);
     }
 
     /**
      * Method for constructing parser for parsing contents of given char array.
      */
-    public abstract JsonParser createParser(char[] content, int offset, int len) throws IOException;
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            char[] content, int offset, int len) throws IOException;
+
+    /*
+    /**********************************************************
+    /* Parser factories, convenience methods that do not specify
+    /* `ObjectReadContext` 
+    /**********************************************************
+     */
+
+    public final JsonParser createParser(File src) throws IOException {
+        return createParser(ObjectReadContext.empty(), src);
+    }
+
+    public final JsonParser createParser(URL src) throws IOException {
+        return createParser(ObjectReadContext.empty(), src);
+    }
+
+    public final JsonParser createParser(InputStream in) throws IOException {
+        return createParser(ObjectReadContext.empty(), in);
+    }
+
+    public final JsonParser createParser(Reader r) throws IOException {
+        return createParser(ObjectReadContext.empty(), r);
+    }
+
+    public final JsonParser createParser(byte[] data) throws IOException {
+        return createParser(ObjectReadContext.empty(), data, 0, data.length);
+    }
+
+    public final JsonParser createParser(byte[] data, int offset, int len) throws IOException {
+        return createParser(ObjectReadContext.empty(), data, offset, len);
+    }
+
+    public final JsonParser createParser(String content) throws IOException {
+        return createParser(ObjectReadContext.empty(), content);
+    }
+
+    public JsonParser createParser(char[] content) throws IOException {
+        return createParser(ObjectReadContext.empty(), content, 0, content.length);
+    }
+
+    public final JsonParser createParser(char[] content, int offset, int len) throws IOException {
+        return createParser(ObjectReadContext.empty(), content, offset, len);
+    }
+
+    /*
+    /**********************************************************
+    /* Parser factories, non-stream sources
+    /**********************************************************
+     */
 
     /**
      * Optional method for constructing parser for reading contents from specified {@link DataInput}
@@ -636,13 +692,8 @@ public abstract class TokenStreamFactory
      * If this factory does not support {@link DataInput} as source,
      * will throw {@link UnsupportedOperationException}
      */
-    public abstract JsonParser createParser(DataInput in) throws IOException;
-
-    /*
-    /**********************************************************
-    /* Parser factories, non-blocking (async) sources
-    /**********************************************************
-     */
+    public abstract JsonParser createParser(ObjectReadContext readCtx,
+            DataInput in) throws IOException;
 
     /**
      * Optional method for constructing parser for non-blocking parsing
@@ -654,7 +705,7 @@ public abstract class TokenStreamFactory
      * or from byte array),
      * will throw {@link UnsupportedOperationException}
      */
-    public JsonParser createNonBlockingByteArrayParser() throws IOException {
+    public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException {
         return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");        
     }
 

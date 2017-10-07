@@ -250,56 +250,66 @@ public class JsonFactory
      */
 
     @Override
-    public JsonParser createNonBlockingByteArrayParser() throws IOException
+    public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException
     {
         IOContext ctxt = _createContext(null, false);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
-        return new NonBlockingJsonParser(ctxt, _parserFeatures, can);
+        return new NonBlockingJsonParser(ctxt,
+                readCtxt.getParserFeatures(_parserFeatures), can);
     }
 
     /*
     /**********************************************************
-    /* Factory methods used by factory for creating parser instances,
-    /* overridable by sub-classes
+    /* Factory methods used by factory for creating parser instances
     /**********************************************************
      */
 
     @Override
-    protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
-        return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
-                _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ctxt,
+            InputStream in) throws IOException {
+        return new ByteSourceJsonBootstrapper(ctxt, in)
+                .constructParser(readCtxt.getParserFeatures(_parserFeatures),
+                        _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     @Override
-    protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
-        return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ctxt,
+            Reader r) throws IOException {
+        return new ReaderBasedJsonParser(ctxt, readCtxt.getParserFeatures(_parserFeatures),
+                r, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures));
     }
 
     @Override
-    protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ctxt,
+            char[] data, int offset, int len,
             boolean recyclable) throws IOException {
-        return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
+        return new ReaderBasedJsonParser(ctxt, readCtxt.getParserFeatures(_parserFeatures),
+                null, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures),
                         data, offset, offset+len, recyclable);
     }
 
     @Override
-    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ctxt,
+            byte[] data, int offset, int len) throws IOException
     {
-        return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
-                _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+        return new ByteSourceJsonBootstrapper(ctxt, data, offset, len)
+                .constructParser(readCtxt.getParserFeatures(_parserFeatures),
+                        _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     @Override
-    protected JsonParser _createParser(DataInput input, IOContext ctxt) throws IOException
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ctxt,
+            DataInput input) throws IOException
     {
         // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
-        return new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
-                _objectCodec, can, firstByte);
+        return new UTF8DataInputJsonParser(ctxt,
+                readCtxt.getParserFeatures(_parserFeatures),
+                input, _objectCodec, can, firstByte);
     }
 
     /*

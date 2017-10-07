@@ -393,7 +393,7 @@ public abstract class BaseTest
             DataInput input)
         throws IOException
     {
-        return f.createParser(input);
+        return f.createParser(ObjectReadContext.empty(), input);
     }
 
     /*

@@ -237,7 +237,7 @@ public interface TreeNode
      * Also note that calling this method will <b>NOT</b> pass {@link ObjectCodec}
      * reference, so data-binding callback methods like {@link JsonParser#readValueAs(Class)}
      * will not work with calling {@link JsonParser#setCodec}).
-     * It is often better to call {@link #traverse(ObjectCodec)} to pass the codec explicitly.
+     * It is often better to call {@link #traverse} to pass the codec explicitly.
      */
     JsonParser traverse();
 }

@@ -49,7 +49,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
      */
 
     @Override
-    public JsonParser createParser(File f) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, File f) throws IOException {
         // true, since we create InputStream from File
         IOContext ioCtxt = _createContext(f, true);
         InputStream in = new FileInputStream(f);
@@ -57,7 +57,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     }
 
     @Override
-    public JsonParser createParser(URL url) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, URL url) throws IOException {
         // true, since we create InputStream from URL
         IOContext ioCtxt = _createContext(url, true);
         InputStream in = _optimizedStreamFromURL(url);
@@ -65,18 +65,19 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     }
 
     @Override
-    public JsonParser createParser(InputStream in) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, InputStream in) throws IOException {
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }
 
     @Override
-    public JsonParser createParser(Reader r) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, Reader r) throws IOException {
         return _nonByteSource();
     }
 
     @Override
-    public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, 
+            byte[] data, int offset, int len) throws IOException {
         IOContext ioCtxt = _createContext(data, true, null);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
@@ -88,17 +89,20 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     }
 
     @Override
-    public JsonParser createParser(String content) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, 
+            String content) throws IOException {
         return _nonByteSource();
     }
 
     @Override
-    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, 
+            char[] content, int offset, int len) throws IOException {
         return _nonByteSource();
     }
     
     @Override
-    public JsonParser createParser(DataInput in) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, 
+            DataInput in) throws IOException {
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(_decorate(ioCtxt, in), ioCtxt);
     }

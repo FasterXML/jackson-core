@@ -53,12 +53,12 @@ public interface ObjectWriteContext
     public void writeValue(JsonGenerator g, Object value) throws IOException;
 
     public void writeTree(JsonGenerator g, TreeNode value) throws IOException;
-    
+
     /**
      * Default no-op implementation.
      */
     public static class Base implements ObjectWriteContext {
-        protected static ObjectWriteContext EMPTY_CONTEXT = new Base();
+        protected static Base EMPTY_CONTEXT = new Base();
 
         // // // Config access methods
         

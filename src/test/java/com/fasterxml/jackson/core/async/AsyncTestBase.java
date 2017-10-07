@@ -19,7 +19,7 @@ public abstract class AsyncTestBase extends BaseTest
             int bytesPerRead,
             byte[] bytes, int padding) throws IOException
     {
-        return new AsyncReaderWrapperForByteArray(f.createNonBlockingByteArrayParser(),
+        return new AsyncReaderWrapperForByteArray(f.createNonBlockingByteArrayParser(ObjectReadContext.empty()),
                 bytesPerRead, bytes, padding);
     }
 

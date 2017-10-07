@@ -459,7 +459,8 @@ public class JsonParserTest extends BaseTest
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 
-        p = JSON_FACTORY.createParser(new MockDataInput(input));
+        p = JSON_FACTORY.createParser(ObjectReadContext.empty(),
+                new MockDataInput(input));
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         // same BOM, but DataInput is more restrctive so can skip but offsets
         // are not reliable...

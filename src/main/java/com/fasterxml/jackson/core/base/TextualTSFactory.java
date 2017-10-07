@@ -68,46 +68,55 @@ public abstract class TextualTSFactory extends DecorableTSFactory
      */
 
     @Override
-    public JsonParser createParser(File f) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            File f) throws IOException {
         // true, since we create InputStream from File
         IOContext ioCtxt = _createContext(f, true);
-        return _createParser(_decorate(ioCtxt, new FileInputStream(f)), ioCtxt);
+        return _createParser(readCtxt, ioCtxt,
+                _decorate(ioCtxt, new FileInputStream(f)));
     }
 
     @Override
-    public JsonParser createParser(URL url) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            URL url) throws IOException {
         // true, since we create InputStream from URL
         IOContext ioCtxt = _createContext(url, true);
-        return _createParser(_decorate(ioCtxt, _optimizedStreamFromURL(url)), ioCtxt);
+        return _createParser(readCtxt, ioCtxt,
+                _decorate(ioCtxt, _optimizedStreamFromURL(url)));
     }
 
     @Override
-    public JsonParser createParser(InputStream in) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            InputStream in) throws IOException {
         IOContext ioCtxt = _createContext(in, false);
-        return _createParser(_decorate(ioCtxt, in), ioCtxt);
+        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
-    public JsonParser createParser(Reader r) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            Reader r) throws IOException {
         // false -> we do NOT own Reader (did not create it)
         IOContext ioCtxt = _createContext(r, false);
-        return _createParser(_decorate(ioCtxt, r), ioCtxt);
+        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, r));
     }
 
     @Override
-    public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            byte[] data, int offset, int len) throws IOException {
         IOContext ioCtxt = _createContext(data, true);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
             if (in != null) {
-                return _createParser(in, ioCtxt);
+                return _createParser(readCtxt, ioCtxt, in);
             }
         }
-        return _createParser(data, offset, len, ioCtxt);
+        return _createParser(readCtxt, ioCtxt, data, offset, len);
     }
 
     @Override
-    public JsonParser createParser(String content) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            String content) throws IOException
+    {
         final int strLen = content.length();
         // Actually, let's use this for medium-sized content, up to 64kB chunk (32kb char)
         if ((_inputDecorator != null) || (strLen > 0x8000) || !canUseCharArrays()) {
@@ -118,35 +127,45 @@ public abstract class TextualTSFactory extends DecorableTSFactory
         IOContext ioCtxt = _createContext(content, true);
         char[] buf = ioCtxt.allocTokenBuffer(strLen);
         content.getChars(0, strLen, buf, 0);
-        return _createParser(buf, 0, strLen, ioCtxt, true);
+        return _createParser(readCtxt, ioCtxt, buf, 0, strLen, true);
     }
 
     @Override
-    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            char[] content, int offset, int len) throws IOException {
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
-            return createParser(new CharArrayReader(content, offset, len));
+            return createParser(readCtxt, new CharArrayReader(content, offset, len));
         }
-        return _createParser(content, offset, len, _createContext(content, true),
+        return _createParser(readCtxt, _createContext(content, true),
+                content, offset, len,
                 // important: buffer is NOT recyclable, as it's from caller
                 false);
     }
-    
+
     @Override
-    public JsonParser createParser(DataInput in) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, 
+            DataInput in) throws IOException
+    {
         IOContext ioCtxt = _createContext(in, false);
-        return _createParser(_decorate(ioCtxt, in), ioCtxt);
+        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
     
-    protected abstract JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException;
+    protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
+            IOContext ctxt, InputStream in) throws IOException;
 
-    protected abstract JsonParser _createParser(Reader r, IOContext ctxt) throws IOException;
+    protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
+            IOContext ctxt, Reader r) throws IOException;
 
-    protected abstract JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException;
+    protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
+            IOContext ctxt,
+            byte[] data, int offset, int len) throws IOException;
 
-    protected abstract JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
-        boolean recyclable) throws IOException;
+    protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
+            IOContext ctxt, char[] data, int offset, int len, boolean recyclable)
+                    throws IOException;
 
-    protected abstract JsonParser _createParser(DataInput input, IOContext ctxt) throws IOException;
+    protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
+            IOContext ctxt, DataInput input) throws IOException;
 
     /*
     /**********************************************************

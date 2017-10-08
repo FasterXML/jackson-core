@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Helper class that implements
@@ -27,6 +30,11 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
+    public ObjectReadContext getObjectReadContext() {
+        return delegate.getObjectReadContext();
+    }
+
+    @Override
     public Object getCurrentValue() {
         return delegate.getCurrentValue();
     }
@@ -41,9 +49,6 @@ public class JsonParserDelegate extends JsonParser
     /* Public API, configuration
     /**********************************************************
      */
-
-    @Override public void setCodec(ObjectCodec c) { delegate.setCodec(c); }
-    @Override public ObjectCodec getCodec() { return delegate.getCodec(); }
 
     @Override
     public JsonParser enable(Feature f) {
@@ -72,7 +77,9 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************
      */
 
-    @Override public boolean requiresCustomCodec() { return delegate.requiresCustomCodec(); }
+    @Override public boolean canParseAsync() { return delegate.canParseAsync(); }
+
+    @Override public NonBlockingInputFeeder getNonBlockingInputFeeder() { return delegate.getNonBlockingInputFeeder(); }
 
     /*
     /**********************************************************
@@ -198,12 +205,38 @@ public class JsonParserDelegate extends JsonParser
     @Override public JsonToken nextValue() throws IOException { return delegate.nextValue(); }
 
     @Override public void finishToken() throws IOException { delegate.finishToken(); }
-    
+
     @Override
     public JsonParser skipChildren() throws IOException {
         delegate.skipChildren();
         // NOTE: must NOT delegate this method to delegate, needs to be self-reference for chaining
         return this;
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, databind callbacks via `ObjectReadContext`
+    /**********************************************************
+     */
+
+    @Override
+    public <T> T readValueAs(Class<T> valueType) throws IOException {
+        return delegate.readValueAs(valueType);
+    }
+
+    @Override
+    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException {
+        return delegate.readValueAs(valueTypeRef);
+    }
+
+    @Override
+    public <T> T readValueAs(ResolvedType type) throws IOException {
+        return delegate.readValueAs(type);
+    }
+
+    @Override
+    public <T extends TreeNode> T readValueAsTree() throws IOException {
+        return delegate.readValueAsTree();
     }
 
     /*

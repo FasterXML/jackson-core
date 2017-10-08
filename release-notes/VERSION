@@ -22,3 +22,4 @@ JSON library.
 #410: Add `ObjectWriteContext` abstraction for databind to pass config, state to
   `JsonGenerator` on construction
 #411: Rename `JsonStreamContext` as `TokenStreamContext`
+#413: Remove `ObjectCodec`: replace with `ObjectWriteContext` / `ObjectReadContext

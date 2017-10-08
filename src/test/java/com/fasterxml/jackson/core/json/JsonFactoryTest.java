@@ -10,8 +10,6 @@ public class JsonFactoryTest
     public void testGeneratorFeatures() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        assertNull(f.getCodec());
-
         f.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
         assertTrue(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
         f.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);

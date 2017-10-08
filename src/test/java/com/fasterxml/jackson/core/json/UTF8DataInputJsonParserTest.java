@@ -28,7 +28,7 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
         UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
-                ioContext, (byte) 26, dataInputStream, null, byteQuadsCanonicalizer, 3);
+                ioContext, (byte) 26, dataInputStream, byteQuadsCanonicalizer, 3);
 
         try {
             uTF8DataInputJsonParser._decodeBase64(null);
@@ -45,7 +45,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         byteArray[4] = (byte) (-10);
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 100, dataInputStream, null, null, 11);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 100, dataInputStream, null, 11);
 
         try {
             uTF8DataInputJsonParser._skipString();
@@ -62,7 +63,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         byteArray[4] = (byte) (-10);
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 100, dataInputStream, null, null, 11);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 100, dataInputStream, null, 11);
 
         try {
             uTF8DataInputJsonParser.nextBooleanValue();
@@ -79,7 +81,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         byteArray[0] = (byte) 47;
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 915, dataInputStream, null, null, (byte) 47);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 915, dataInputStream, null, (byte) 47);
 
         try {
             uTF8DataInputJsonParser.nextTextValue();
@@ -96,7 +99,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         byteArray[0] = (byte) 47;
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 100, dataInputStream, null, null, -2624);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 100, dataInputStream, null, -2624);
 
         try {
             uTF8DataInputJsonParser.nextFieldName();
@@ -114,7 +118,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 3, dataInputStream, null, byteQuadsCanonicalizer, 1);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 3, dataInputStream, byteQuadsCanonicalizer, 1);
 
         try {
             uTF8DataInputJsonParser._handleApos();
@@ -132,7 +137,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 42, dataInputStream, null, byteQuadsCanonicalizer, 0);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 42, dataInputStream, byteQuadsCanonicalizer, 0);
 
         try {
             uTF8DataInputJsonParser._parseAposName();
@@ -149,7 +155,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         PipedInputStream pipedInputStream = new PipedInputStream(pipedOutputStream, 131);
         DataInputStream dataInputStream = new DataInputStream(pipedInputStream);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 131, dataInputStream, null, byteQuadsCanonicalizer, (byte) 57);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 131, dataInputStream, byteQuadsCanonicalizer, (byte) 57);
         int[] intArray = new int[3];
 
         try {
@@ -167,7 +174,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         byteArray[2] = (byte) 73;
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 100, dataInputStream, null, null, 3);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 100, dataInputStream, null, 3);
         dataInputStream.readUnsignedShort();
 
         try {
@@ -187,7 +195,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 1568, dataInputStream, null, byteQuadsCanonicalizer, 13);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 1568, dataInputStream, byteQuadsCanonicalizer, 13);
         JsonToken jsonToken = uTF8DataInputJsonParser._parsePosNumber(7);
 
         assertEquals(7, jsonToken.id());
@@ -202,7 +211,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 500, dataInputStream, null, byteQuadsCanonicalizer, 1);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 500, dataInputStream, byteQuadsCanonicalizer, 1);
 
         try {
             uTF8DataInputJsonParser._readBinary(null, null, byteArray);
@@ -217,7 +227,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         BufferRecycler bufferRecycler = new BufferRecycler();
         IOContext ioContext = new IOContext(bufferRecycler, this, false);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, (-53), null, null, byteQuadsCanonicalizer, 48);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, (-53), null, byteQuadsCanonicalizer, 48);
         ByteArrayBuilder byteArrayBuilder = new ByteArrayBuilder(bufferRecycler, 1);
 
         try {
@@ -237,7 +248,7 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
         UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
-                ioContext, 42, dataInputStream, null, byteQuadsCanonicalizer, 0);
+                ioContext, 42, dataInputStream, byteQuadsCanonicalizer, 0);
         assertEquals(0, uTF8DataInputJsonParser.getTextOffset());
         assertNull(uTF8DataInputJsonParser.nextFieldName());
     }
@@ -249,8 +260,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         IOContext ioContext = new IOContext(new BufferRecycler(), byteArray, false);
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(), ioContext, 42, dataInputStream, null, byteQuadsCanonicalizer, 0);
+        UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
+                ioContext, 42, dataInputStream, ByteQuadsCanonicalizer.createRoot(), 0);
         uTF8DataInputJsonParser.nextFieldName();
 
         assertNull(uTF8DataInputJsonParser.getObjectId());
@@ -263,9 +274,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         IOContext ioContext = new IOContext(new BufferRecycler(), byteArray, false);
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
         UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
-                ioContext, 500, dataInputStream, null, byteQuadsCanonicalizer, 1);
+                ioContext, 500, dataInputStream, ByteQuadsCanonicalizer.createRoot(), 1);
 
         assertEquals(466, uTF8DataInputJsonParser.getValueAsInt(466));
     }
@@ -276,9 +286,8 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         IOContext ioContext = new IOContext(new BufferRecycler(), byteArray, false);
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
-        ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
         UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
-                ioContext, 42, dataInputStream, null, byteQuadsCanonicalizer, 0);
+                ioContext, 42, dataInputStream, ByteQuadsCanonicalizer.createRoot(), 0);
 
         assertEquals(0, uTF8DataInputJsonParser.getValueAsInt());
     }

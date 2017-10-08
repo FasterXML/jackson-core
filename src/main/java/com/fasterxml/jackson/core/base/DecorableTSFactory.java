@@ -21,15 +21,6 @@ public abstract class DecorableTSFactory
      */
 
     /**
-     * Object that implements conversion functionality between
-     * Java objects and JSON content. For base JsonFactory implementation
-     * usually not set by default, but can be explicitly set.
-     * Sub-classes (like @link org.codehaus.jackson.map.MappingJsonFactory}
-     * usually provide an implementation.
-     */
-    protected ObjectCodec _objectCodec;
-
-    /**
      * Optional helper object that may decorate input sources, to do
      * additional processing on input during parsing.
      */
@@ -47,19 +38,13 @@ public abstract class DecorableTSFactory
     /**********************************************************
      */
     
-    protected DecorableTSFactory() { this(null); }
-
-    protected DecorableTSFactory(ObjectCodec oc) {
-        super();
-        _objectCodec = oc;
-    }
+    protected DecorableTSFactory() { }
 
     /**
      * Constructor used when copy()ing a factory instance.
      */
-    protected DecorableTSFactory(DecorableTSFactory src, ObjectCodec codec) {
+    protected DecorableTSFactory(DecorableTSFactory src) {
         super(src);
-        _objectCodec = codec;
     }
 
     /*
@@ -67,15 +52,6 @@ public abstract class DecorableTSFactory
     /* Configuration
     /**********************************************************
      */
-
-    @Override
-    public DecorableTSFactory setCodec(ObjectCodec oc) {
-        _objectCodec = oc;
-        return this;
-    }
-
-    @Override
-    public ObjectCodec getCodec() { return _objectCodec; }
 
     @Override
     public OutputDecorator getOutputDecorator() {

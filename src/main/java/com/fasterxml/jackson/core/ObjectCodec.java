@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * <code>com.fasterxml.jackson.databind.ObjectMapper</code>,
  * defined in the "jackson-databind".
  */
+@Deprecated // for now, will be removed from 3.0
 public abstract class ObjectCodec
     extends TreeCodec
     implements Versioned

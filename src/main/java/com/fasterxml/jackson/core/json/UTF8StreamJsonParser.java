@@ -36,13 +36,6 @@ public class UTF8StreamJsonParser
      */
 
     /**
-     * Codec used for data binding when (if) requested; typically full
-     * <code>ObjectMapper</code>, but that abstract is not part of core
-     * package.
-     */
-    protected ObjectCodec _objectCodec;
-
-    /**
      * Symbol table that contains field names encountered so far
      */
     final protected ByteQuadsCanonicalizer _symbols;
@@ -120,13 +113,12 @@ public class UTF8StreamJsonParser
 
     public UTF8StreamJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int features, InputStream in,
-            ObjectCodec codec, ByteQuadsCanonicalizer sym,
+            ByteQuadsCanonicalizer sym,
             byte[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
         super(readCtxt, ctxt, features);
         _inputStream = in;
-        _objectCodec = codec;
         _symbols = sym;
         _inputBuffer = inputBuffer;
         _inputPtr = start;
@@ -135,16 +127,6 @@ public class UTF8StreamJsonParser
         // If we have offset, need to omit that from byte offset, so:
         _currInputProcessed = -start;
         _bufferRecyclable = bufferRecyclable;
-    }
-
-    @Override
-    public ObjectCodec getCodec() {
-        return _objectCodec;
-    }
-
-    @Override
-    public void setCodec(ObjectCodec c) {
-        _objectCodec = c;
     }
 
     /*

@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.RequestPayload;
 
@@ -182,8 +183,6 @@ public abstract class JsonParser
           * <p>
           * Since the JSON specification does not allow missing values this is a non-compliant JSON
           * feature and is disabled by default.
-          * 
-          * @since 2.8
           */
          ALLOW_MISSING_VALUES(false),
 
@@ -205,8 +204,6 @@ public abstract class JsonParser
           * <p>
           * Since the JSON specification does not permit trailing commas, this is a non-standard
           * feature, and as such disabled by default.
-          *
-          * @since 2.9
           */
          ALLOW_TRAILING_COMMA(false),
 
@@ -225,8 +222,6 @@ public abstract class JsonParser
           * Note that enabling this feature will incur performance overhead
           * due to having to store and check additional information: this typically
           * adds 20-30% to execution time for basic parsing.
-          * 
-          * @since 2.3
           */
          STRICT_DUPLICATE_DETECTION(false),
 
@@ -249,8 +244,6 @@ public abstract class JsonParser
           * Feature is disabled by default, meaning that if the underlying data format
           * requires knowledge of all properties to output, attempts to read an unknown
           * property will result in a {@link JsonProcessingException}
-          *
-          * @since 2.6
           */
          IGNORE_UNDEFINED(false),
 
@@ -272,8 +265,6 @@ public abstract class JsonParser
           * Feature is enabled by default, meaning that "source reference" information is passed
           * and some or all of the source content may be included in {@link JsonLocation} information
           * constructed either when requested explicitly, or when needed for an exception.
-          *
-          * @since 2.9
           */
          INCLUDE_SOURCE_IN_LOCATION(true),
          
@@ -341,19 +332,18 @@ public abstract class JsonParser
     protected JsonParser(int features) { _features = features; }
 
     /**
-     * Accessor for {@link ObjectCodec} associated with this
-     * parser, if any. Codec is used by {@link #readValueAs(Class)}
-     * method (and its variants).
+     * Accessor for context object provided by higher-level databinding
+     * functionality (or, in some cases, simple placeholder of the same)
+     * that allows some level of interaction including ability to trigger
+     * deserialization of Object values through generator instance.
+     *<p>
+     * Context object is used by parser to implement some methods,
+     * like {@code readValueAs(...)}
+     *
+     * @since 3.0
      */
-    public abstract ObjectCodec getCodec();
-
-    /**
-     * Setter that allows defining {@link ObjectCodec} associated with this
-     * parser, if any. Codec is used by {@link #readValueAs(Class)}
-     * method (and its variants).
-     */
-    public abstract void setCodec(ObjectCodec c);
-
+    public abstract ObjectReadContext getObjectReadContext();
+    
     /**
      * Method that can be used to get access to object that is used
      * to access input being parsed; this is usually either
@@ -467,19 +457,6 @@ public abstract class JsonParser
     /* Capability introspection
     /**********************************************************
      */
-    
-    /**
-     * Method that can be called to determine if a custom
-     * {@link ObjectCodec} is needed for binding data parsed
-     * using {@link JsonParser} constructed by this factory
-     * (which typically also implies the same for serialization
-     * with {@link JsonGenerator}).
-     * 
-     * @return True if custom codec is needed with parsers and
-     *   generators created by this factory; false if a general
-     *   {@link ObjectCodec} is enough
-     */
-    public boolean requiresCustomCodec() { return false;}
 
     /**
      * Method that can be called to determine if this parser instance
@@ -1578,8 +1555,6 @@ public abstract class JsonParser
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native type ids.
-     * 
-     * @since 2.3
      */
     public boolean canReadTypeId() { return false; }
 
@@ -1593,8 +1568,6 @@ public abstract class JsonParser
      * code.
      *<p>
      * Default implementation will simply return null.
-     * 
-     * @since 2.3
      */
     public Object getObjectId() throws IOException { return null; }
 
@@ -1608,8 +1581,6 @@ public abstract class JsonParser
      * code.
      *<p>
      * Default implementation will simply return null.
-     * 
-     * @since 2.3
      */
     public Object getTypeId() throws IOException { return null; }
 
@@ -1620,18 +1591,19 @@ public abstract class JsonParser
      */
 
     /**
-     * Method to deserialize JSON content into a non-container
+     * Method to deserialize stream content into a non-container
      * type (it can be an array type, however): typically a bean, array
      * or a wrapper type (like {@link java.lang.Boolean}).
+     *<br>
      * <b>Note</b>: method can only be called if the parser has
-     * an object codec assigned; this is true for parsers constructed
-     * by <code>MappingJsonFactory</code> (from "jackson-databind" jar)
-     * but not for {@link JsonFactory} (unless its <code>setCodec</code>
-     * method has been explicitly called).
+     * been constructed with a linkage to
+     * {@link ObjectReadContext}; this is true if constructed by
+     * databinding layer above, or by factory method that takes in
+     * context object.
      *<p>
-     * This method may advance the event stream, for structured types
+     * This method may advance the event stream, for structured values
      * the current token will be the closing end marker (END_ARRAY,
-     * END_OBJECT) of the bound structure. For non-structured Json types
+     * END_OBJECT) of the bound structure. For non-structured values
      * (and for {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * stream is not advanced.
      *<p>
@@ -1640,55 +1612,51 @@ public abstract class JsonParser
      * The reason is that due to type erasure, key and value types
      * can not be introspected when using this method.
      */
-    public <T> T readValueAs(Class<T> valueType) throws IOException {
-        return _codec().readValue(this, valueType);
-    }
+    public abstract <T> T readValueAs(Class<T> valueType) throws IOException;
 
     /**
-     * Method to deserialize JSON content into a Java type, reference
+     * Method to deserialize stream content into a Java type, reference
      * to which is passed as argument. Type is passed using so-called
      * "super type token"
      * and specifically needs to be used if the root type is a 
      * parameterized (generic) container type.
+     *<br>
      * <b>Note</b>: method can only be called if the parser has
-     * an object codec assigned; this is true for parsers constructed
-     * by <code>MappingJsonFactory</code> (defined in 'jackson-databind' bundle)
-     * but not for {@link JsonFactory} (unless its <code>setCodec</code>
-     * method has been explicitly called).
+     * been constructed with a linkage to
+     * {@link ObjectReadContext}; this is true if constructed by
+     * databinding layer above, or by factory method that takes in
+     * context object.
      *<p>
      * This method may advance the event stream, for structured types
      * the current token will be the closing end marker (END_ARRAY,
-     * END_OBJECT) of the bound structure. For non-structured Json types
+     * END_OBJECT) of the bound structure. For non-structured types
      * (and for {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * stream is not advanced.
      */
-    @SuppressWarnings("unchecked")
-    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException {
-        return (T) _codec().readValue(this, valueTypeRef);
-    }
+    public abstract <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException;
 
     /**
-     * Method to deserialize JSON content into equivalent "tree model",
+     * @since 3.0
+     */
+    public abstract <T> T readValueAs(ResolvedType type) throws IOException;
+    
+    /**
+     * Method to deserialize stream content into equivalent "tree model",
      * represented by root {@link TreeNode} of resulting model.
-     * For JSON Arrays it will an array node (with child nodes),
-     * for objects object node (with child nodes), and for other types
+     * For Array values it will an array node (with child nodes),
+     * for Object values object node (with child nodes), and for other types
      * matching leaf node type. Empty or whitespace documents are null.
+     *<br>
+     * <b>Note</b>: method can only be called if the parser has
+     * been constructed with a linkage to
+     * {@link ObjectReadContext}; this is true if constructed by
+     * databinding layer above, or by factory method that takes in
+     * context object.
      *
      * @return root of the document, or null if empty or whitespace.
      */
-    @SuppressWarnings("unchecked")
-    public <T extends TreeNode> T readValueAsTree() throws IOException {
-        return (T) _codec().readTree(this);
-    }
+    public abstract <T extends TreeNode> T readValueAsTree() throws IOException;
 
-    protected ObjectCodec _codec() {
-        ObjectCodec c = getCodec();
-        if (c == null) {
-            throw new IllegalStateException("No ObjectCodec defined for parser, needed for deserialization");
-        }
-        return c;
-    }
-    
     /*
     /**********************************************************
     /* Internal methods
@@ -1707,8 +1675,6 @@ public abstract class JsonParser
     /**
      * Helper method to call for operations that are not supported by
      * parser implementation.
-     *
-     * @since 2.1
      */
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Operation not supported by parser of type "+getClass().getName());

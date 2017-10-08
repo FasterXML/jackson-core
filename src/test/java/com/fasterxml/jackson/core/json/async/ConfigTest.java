@@ -22,7 +22,6 @@ public class ConfigTest extends AsyncTestBase
         JsonParser p = r.parser();
 
         assertTrue(p.canParseAsync());
-        assertNull(p.getCodec());
         assertNull(p.getInputSource());
         assertEquals(-1, p.releaseBuffered(new StringWriter()));
         assertEquals(0, p.releaseBuffered(new ByteArrayOutputStream()));

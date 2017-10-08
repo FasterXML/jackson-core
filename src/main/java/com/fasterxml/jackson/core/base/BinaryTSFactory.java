@@ -21,13 +21,11 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
 
     protected BinaryTSFactory() { super(); }
 
-    protected BinaryTSFactory(ObjectCodec codec) { super(codec); }
-
     /**
      * Constructor used when copy()ing a factory instance.
      */
-    protected BinaryTSFactory(BinaryTSFactory src, ObjectCodec codec) {
-        super(src, codec);
+    protected BinaryTSFactory(BinaryTSFactory src) {
+        super(src);
     }
 
     /*

@@ -26,11 +26,10 @@ public class JsonParserSequenceTest extends BaseTest
     @Test
     public void testClose() throws IOException {
         IOContext ioContext = new IOContext(new BufferRecycler(), this, true);
-        CharsToNameCanonicalizer charsToNameCanonicalizer = CharsToNameCanonicalizer.createRoot();
         ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
                 ObjectReadContext.empty(),
                 ioContext,
-                2, null, null, charsToNameCanonicalizer);
+                2, null, CharsToNameCanonicalizer.createRoot());
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, readerBasedJsonParser, readerBasedJsonParser);
 
         assertFalse(jsonParserSequence.isClosed());
@@ -47,10 +46,10 @@ public class JsonParserSequenceTest extends BaseTest
         IOContext ioContext = new IOContext(new BufferRecycler(), jsonParserArray, true);
         byte[] byteArray = new byte[8];
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray, 0, (byte) 58);
-        ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
         UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(ObjectReadContext.empty(),
                 ioContext,
-                0, byteArrayInputStream, null, byteQuadsCanonicalizer, byteArray, -1, (byte) 9, true);
+                0, byteArrayInputStream, ByteQuadsCanonicalizer.createRoot(),
+                byteArray, -1, (byte) 9, true);
         JsonParserDelegate jsonParserDelegate = new JsonParserDelegate(jsonParserArray[0]);
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, uTF8StreamJsonParser, jsonParserDelegate);
         JsonParserSequence jsonParserSequenceTwo = (JsonParserSequence) jsonParserSequence.skipChildren();

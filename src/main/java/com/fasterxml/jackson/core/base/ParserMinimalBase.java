@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
@@ -172,6 +174,11 @@ public abstract class ParserMinimalBase extends JsonParser
     /* Configuration overrides if any
     /**********************************************************
      */
+
+    @Override
+    public ObjectReadContext getObjectReadContext() {
+        return _objectReadContext;
+    }
 
     // from base class:
 
@@ -485,10 +492,39 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return getText();
     }
+
+    /*
+    /**********************************************************
+    /* Databind callbacks
+    /**********************************************************
+     */
+
+    @Override
+    public <T> T readValueAs(Class<T> valueType) throws IOException {
+        return _objectReadContext.readValue(this, valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException {
+        return (T) _objectReadContext.readValue(this, valueTypeRef);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T readValueAs(ResolvedType type) throws IOException {
+        return (T) _objectReadContext.readValue(this, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends TreeNode> T readValueAsTree() throws IOException {
+        return (T) _objectReadContext.readTree(this);
+    }
     
     /*
     /**********************************************************
-    /* Base64 decoding
+    /* Helper methods: Base64 decoding
     /**********************************************************
      */
 

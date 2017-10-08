@@ -12,8 +12,6 @@ import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
  * Specialized {@link JsonGeneratorDelegate} that allows use of
  * {@link TokenFilter} for outputting a subset of content that
  * caller tries to generate.
- * 
- * @since 2.6
  */
 public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 {
@@ -756,37 +754,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /*
     @Override
     public void writeObject(Object pojo) throws IOException,JsonProcessingException {
-        if (delegateCopyMethods) {
-            delegate.writeObject(pojo);
-            return;
-        }
-        // NOTE: copied from 
-        if (pojo == null) {
-            writeNull();
-        } else {
-            if (getCodec() != null) {
-                getCodec().writeValue(this, pojo);
-                return;
-            }
-            _writeSimpleObject(pojo);
-        }
+...
     }
     
     @Override
     public void writeTree(TreeNode rootNode) throws IOException {
-        if (delegateCopyMethods) {
-            delegate.writeTree(rootNode);
-            return;
-        }
-        // As with 'writeObject()', we are not check if write would work
-        if (rootNode == null) {
-            writeNull();
-        } else {
-            if (getCodec() == null) {
-                throw new IllegalStateException("No ObjectCodec defined");
-            }
-            getCodec().writeValue(this, rootNode);
-        }
+...    
     }
     */
 

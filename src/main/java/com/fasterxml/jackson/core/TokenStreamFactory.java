@@ -223,12 +223,6 @@ public abstract class TokenStreamFactory
      * the same settings as this instance, but is otherwise
      * independent (i.e. nothing is actually shared, symbol tables
      * are separate).
-     * Note that {@link ObjectCodec} reference is not copied but is
-     * set to null; caller typically needs to set it after calling
-     * this method. Reason for this is that the codec is used for
-     * callbacks, and assumption is that there is strict 1-to-1
-     * mapping between codec, factory. Caller has to, then, explicitly
-     * set codec after making the copy.
      */
     public abstract TokenStreamFactory copy();
 
@@ -495,23 +489,6 @@ public abstract class TokenStreamFactory
     public TokenStreamFactory setRootValueSeparator(String sep) {
         return _unsupported();
     }
-
-    /*
-    /**********************************************************
-    /* Configuration, other
-    /**********************************************************
-     */
-
-    /**
-     * Method for associating a {@link ObjectCodec} (typically
-     * a <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
-     * with this factory (and more importantly, parsers and generators
-     * it constructs). This is needed to use data-binding methods
-     * of {@link JsonParser} and {@link JsonGenerator} instances.
-     */
-    public abstract TokenStreamFactory setCodec(ObjectCodec oc);
-
-    public abstract ObjectCodec getCodec();
 
     /*
     /**********************************************************

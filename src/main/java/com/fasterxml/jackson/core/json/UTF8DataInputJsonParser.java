@@ -29,8 +29,6 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  *    equal; and checks are simplified NOT to check for control characters
  *  </li>
  * </ul>
- *
- * @since 2.8
  */
 public class UTF8DataInputJsonParser
     extends ParserBase
@@ -49,13 +47,6 @@ public class UTF8DataInputJsonParser
     /* Configuration
     /**********************************************************
      */
-
-    /**
-     * Codec used for data binding when (if) requested; typically full
-     * <code>ObjectMapper</code>, but that abstract is not part of core
-     * package.
-     */
-    protected ObjectCodec _objectCodec;
 
     /**
      * Symbol table that contains field names encountered so far
@@ -107,24 +98,13 @@ public class UTF8DataInputJsonParser
 
     public UTF8DataInputJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int features, DataInput inputData,
-            ObjectCodec codec, ByteQuadsCanonicalizer sym,
+            ByteQuadsCanonicalizer sym,
             int firstByte)
     {
         super(readCtxt, ctxt, features);
-        _objectCodec = codec;
         _symbols = sym;
         _inputData = inputData;
         _nextByte = firstByte;
-    }
-
-    @Override
-    public ObjectCodec getCodec() {
-        return _objectCodec;
-    }
-
-    @Override
-    public void setCodec(ObjectCodec c) {
-        _objectCodec = c;
     }
 
     /*

@@ -264,7 +264,7 @@ public abstract class JsonGenerator
      * logical position withing output token stream.
      */
     public abstract TokenStreamContext getOutputContext();
-    
+
     /**
      * Accessor for context object provided by higher-level databinding
      * functionality (or, in some cases, simple placeholder of the same)

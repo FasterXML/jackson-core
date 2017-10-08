@@ -57,8 +57,8 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         try {
             jp.readValueAsTree();
             fail("Should get exception without codec");
-        } catch (IllegalStateException e) {
-            verifyException(e, "No ObjectCodec defined");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Operation not supported");
         }
         jp.close();
     }

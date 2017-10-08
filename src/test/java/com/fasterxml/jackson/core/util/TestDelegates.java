@@ -94,7 +94,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         }
 
         @Override
-        public JsonParser traverse() {
+        public JsonParser traverse(ObjectReadContext readCtxt) {
             return null;
         }
     }

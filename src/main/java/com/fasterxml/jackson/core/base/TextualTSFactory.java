@@ -22,13 +22,11 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     
     protected TextualTSFactory() { super(); }
 
-    protected TextualTSFactory(ObjectCodec codec) { super(codec); }
-
     /**
      * Constructor used when copy()ing a factory instance.
      */
-    protected TextualTSFactory(TextualTSFactory src, ObjectCodec codec) {
-        super(src, codec);
+    protected TextualTSFactory(TextualTSFactory src) {
+        super(src);
     }
 
     /*

@@ -94,17 +94,14 @@ public class JsonFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    public JsonFactory() { this(null); }
-
-    public JsonFactory(ObjectCodec oc) { super(oc); }
+    public JsonFactory() { super(); }
 
     /**
      * Constructor used when copy()ing a factory instance.
      */
-    protected JsonFactory(JsonFactory src, ObjectCodec codec)
+    protected JsonFactory(JsonFactory src)
     {
-        super(src, codec);
-        _objectCodec = codec;
+        super(src);
         _characterEscapes = src._characterEscapes;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
@@ -116,17 +113,11 @@ public class JsonFactory
      * the same settings as this instance, but is otherwise
      * independent (i.e. nothing is actually shared, symbol tables
      * are separate).
-     * Note that {@link ObjectCodec} reference is not copied but is
-     * set to null; caller typically needs to set it after calling
-     * this method. Reason for this is that the codec is used for
-     * callbacks, and assumption is that there is strict 1-to-1
-     * mapping between codec, factory. Caller has to, then, explicitly
-     * set codec after making the copy.
      */
     @Override
     public JsonFactory copy()
     {
-        return new JsonFactory(this, null);
+        return new JsonFactory(this);
     }
 
     /*
@@ -141,7 +132,7 @@ public class JsonFactory
      * Also: must be overridden by sub-classes as well.
      */
     protected Object readResolve() {
-        return new JsonFactory(this, _objectCodec);
+        return new JsonFactory(this);
     }
 
     /*
@@ -269,7 +260,7 @@ public class JsonFactory
             InputStream in) throws IOException {
         return new ByteSourceJsonBootstrapper(ioCtxt, in)
                 .constructParser(readCtxt, readCtxt.getParserFeatures(_parserFeatures),
-                        _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+                        _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     @Override
@@ -277,7 +268,7 @@ public class JsonFactory
             Reader r) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
                 readCtxt.getParserFeatures(_parserFeatures),
-                r, _objectCodec,
+                r,
                 _rootCharSymbols.makeChild(_factoryFeatures));
     }
 
@@ -287,9 +278,9 @@ public class JsonFactory
             boolean recyclable) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
                 readCtxt.getParserFeatures(_parserFeatures),
-                null, _objectCodec,
+                null,
                 _rootCharSymbols.makeChild(_factoryFeatures),
-                        data, offset, offset+len, recyclable);
+                data, offset, offset+len, recyclable);
     }
 
     @Override
@@ -298,7 +289,7 @@ public class JsonFactory
     {
         return new ByteSourceJsonBootstrapper(ioCtxt, data, offset, len)
                 .constructParser(readCtxt, readCtxt.getParserFeatures(_parserFeatures),
-                        _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+                        _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     @Override
@@ -311,7 +302,7 @@ public class JsonFactory
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new UTF8DataInputJsonParser(readCtxt, ioCtxt,
                 readCtxt.getParserFeatures(_parserFeatures),
-                input, _objectCodec, can, firstByte);
+                input, can, firstByte);
     }
 
     /*

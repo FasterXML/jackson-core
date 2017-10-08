@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.core;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Defines API for accessing configuration and state exposed by
@@ -38,7 +42,15 @@ public interface ObjectReadContext
     public ObjectTreeNode createObjectNode();
     
     // // // Databinding callbacks, value deserialization
-    
+
+    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException;
+
+    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException;
+
+    public <T> T readValue(JsonParser p, ResolvedType type) throws IOException;
+
+    public <T extends TreeNode> T readTree(JsonParser p) throws IOException;
+
     /**
      * Default no-op implementation.
      */
@@ -60,7 +72,7 @@ public interface ObjectReadContext
             return defaults;
         }
 
-        // // // Databind integration
+        // // // Databind, trees
 
         @Override
         public ObjectTreeNode createObjectNode() {
@@ -72,6 +84,30 @@ public interface ObjectReadContext
             return _reportUnsupportedOperation();
         }
 
+        // // // Databind integration
+
+        @Override
+        public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
+            return _reportUnsupportedOperation();
+        }
+
+        @Override
+        public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+            return _reportUnsupportedOperation();
+        }
+
+        @Override
+        public <T> T readValue(JsonParser p, ResolvedType type) throws IOException {
+            return _reportUnsupportedOperation();
+        }
+
+        @Override
+        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+            return _reportUnsupportedOperation();
+        }
+
+        // // // Helper methods
+        
         protected <T> T _reportUnsupportedOperation() {
             throw new UnsupportedOperationException("Operation not supported by `ObjectReadContext` of type "+getClass().getName());
         }

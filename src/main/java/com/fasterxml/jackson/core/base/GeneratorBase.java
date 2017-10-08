@@ -63,9 +63,6 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     protected final ObjectWriteContext _objectWriteContext;
 
-    @Deprecated
-    protected ObjectCodec _objectCodec;
-
     /**
      * Bit flag composed of bits that indicate which
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s

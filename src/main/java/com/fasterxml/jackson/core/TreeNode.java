@@ -226,18 +226,12 @@ public interface TreeNode
     /**
      * Method for constructing a {@link JsonParser} instance for
      * iterating over contents of the tree that this node is root of.
-     * Functionally equivalent to first serializing tree using
-     * {@link ObjectCodec} and then re-parsing but
+     * Functionally equivalent to first serializing tree and then re-parsing but
      * more efficient.
      *<p>
      * NOTE: constructed parser instance will NOT initially point to a token,
      * so before passing it to deserializers, it is typically necessary to
      * advance it to the first available token by calling {@link JsonParser#nextToken()}.
-     *<p>
-     * Also note that calling this method will <b>NOT</b> pass {@link ObjectCodec}
-     * reference, so data-binding callback methods like {@link JsonParser#readValueAs(Class)}
-     * will not work with calling {@link JsonParser#setCodec}).
-     * It is often better to call {@link #traverse} to pass the codec explicitly.
      */
-    JsonParser traverse();
+    JsonParser traverse(ObjectReadContext readCtxt);
 }

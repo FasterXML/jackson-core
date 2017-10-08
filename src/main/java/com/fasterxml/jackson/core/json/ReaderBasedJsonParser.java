@@ -59,8 +59,6 @@ public class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    protected ObjectCodec _objectCodec;
-
     final protected CharsToNameCanonicalizer _symbols;
 
     final protected int _hashSeed;
@@ -83,8 +81,6 @@ public class ReaderBasedJsonParser
      * name token was read. Used for calculating token location when requested;
      * combined with {@link #_currInputProcessed}, may be updated appropriately
      * as needed.
-     *
-     * @since 2.7
      */
     protected long _nameStartOffset;
 
@@ -110,7 +106,7 @@ public class ReaderBasedJsonParser
      */
     public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int features, Reader r,
-            ObjectCodec codec, CharsToNameCanonicalizer st,
+            CharsToNameCanonicalizer st,
             char[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
@@ -119,7 +115,6 @@ public class ReaderBasedJsonParser
         _inputBuffer = inputBuffer;
         _inputPtr = start;
         _inputEnd = end;
-        _objectCodec = codec;
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = bufferRecyclable;
@@ -131,14 +126,13 @@ public class ReaderBasedJsonParser
      */
     public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int features, Reader r,
-            ObjectCodec codec, CharsToNameCanonicalizer st)
+            CharsToNameCanonicalizer st)
     {
         super(readCtxt, ctxt, features);
         _reader = r;
         _inputBuffer = ctxt.allocTokenBuffer();
         _inputPtr = 0;
         _inputEnd = 0;
-        _objectCodec = codec;
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = true;
@@ -149,9 +143,6 @@ public class ReaderBasedJsonParser
     /* Base method defs, overrides
     /**********************************************************
      */
-
-    @Override public ObjectCodec getCodec() { return _objectCodec; }
-    @Override public void setCodec(ObjectCodec c) { _objectCodec = c; }
 
     @Override
     public int releaseBuffered(Writer w) throws IOException {

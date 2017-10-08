@@ -6,7 +6,6 @@
 package com.fasterxml.jackson.core;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * defined in the "jackson-databind".
  */
 public abstract class ObjectCodec
-//@Deprecated // since 3.0 -- or possibly removed in 3.0?
     extends TreeCodec
     implements Versioned
 {
@@ -66,27 +64,6 @@ public abstract class ObjectCodec
      * {@link java.util.Map}).
      */
     public abstract <T> T readValue(JsonParser p, ResolvedType valueType)
-        throws IOException;
-
-    /**
-     * Method for reading sequence of Objects from parser stream,
-     * all with same specified value type.
-     */
-    public abstract <T> Iterator<T> readValues(JsonParser p, Class<T> valueType)
-        throws IOException;
-
-    /**
-     * Method for reading sequence of Objects from parser stream,
-     * all with same specified value type.
-     */
-    public abstract <T> Iterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef)
-        throws IOException;
-    
-    /**
-     * Method for reading sequence of Objects from parser stream,
-     * all with same specified value type.
-     */
-    public abstract <T> Iterator<T> readValues(JsonParser p, ResolvedType valueType)
         throws IOException;
 
     /*

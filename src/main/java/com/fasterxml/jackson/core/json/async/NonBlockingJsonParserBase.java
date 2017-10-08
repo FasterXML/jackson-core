@@ -246,10 +246,10 @@ public abstract class NonBlockingJsonParserBase
     /**********************************************************************
      */
 
-    public NonBlockingJsonParserBase(IOContext ctxt, int parserFeatures,
-            ByteQuadsCanonicalizer sym)
+    public NonBlockingJsonParserBase(ObjectReadContext readCtxt, IOContext ctxt,
+            int parserFeatures, ByteQuadsCanonicalizer sym)
     {
-        super(ctxt, parserFeatures);
+        super(readCtxt, ctxt, parserFeatures);
         _symbols = sym;
         _currToken = null;
         _majorState = MAJOR_INITIAL;

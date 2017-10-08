@@ -8,7 +8,6 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Iterator;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -309,9 +308,6 @@ public abstract class JsonParser
 
         public boolean enabledByDefault() { return _defaultState; }
 
-        /**
-         * @since 2.3
-         */
         public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 
         public int getMask() { return _mask; }
@@ -329,11 +325,9 @@ public abstract class JsonParser
      * are enabled.
      */
     protected int _features;
-    
+
     /**
      * Optional container that holds the request payload which will be displayed on JSON parsing error.
-     *
-     * @since 2.8
      */
     protected transient RequestPayload _requestPayload;
 
@@ -387,8 +381,6 @@ public abstract class JsonParser
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
-     * 
-     * @since 2.5
      */
     public Object getCurrentValue() {
         TokenStreamContext ctxt = getParsingContext();
@@ -400,8 +392,6 @@ public abstract class JsonParser
      *<code>
      *   getParsingContext().setCurrentValue(v);
      *</code>
-     * 
-     * @since 2.5
      */
     public void setCurrentValue(Object v) {
         TokenStreamContext ctxt = getParsingContext();
@@ -412,8 +402,6 @@ public abstract class JsonParser
 
     /**
      * Sets the payload to be passed if {@link JsonParseException} is thrown.
-     *
-     * @since 2.8
      */
     public void setRequestPayloadOnError(RequestPayload payload) {
         _requestPayload = payload;
@@ -421,8 +409,6 @@ public abstract class JsonParser
     
     /**
      * Sets the byte[] request payload and the charset
-     *
-     * @since 2.8
      */
      public void setRequestPayloadOnError(byte[] payload, String charset) {
          _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
@@ -430,8 +416,6 @@ public abstract class JsonParser
 
      /**
      * Sets the String request payload
-     *
-     * @since 2.8
      */
     public void setRequestPayloadOnError(String payload) {
         _requestPayload = (payload == null) ? null : new RequestPayload(payload);
@@ -465,8 +449,6 @@ public abstract class JsonParser
     /**
      * Method for accessing Schema that this parser uses, if any.
      * Default implementation returns null.
-     *
-     * @since 2.1
      */
     public FormatSchema getSchema() { return null; }
     
@@ -496,8 +478,6 @@ public abstract class JsonParser
      * @return True if custom codec is needed with parsers and
      *   generators created by this factory; false if a general
      *   {@link ObjectCodec} is enough
-     * 
-     * @since 2.1
      */
     public boolean requiresCustomCodec() { return false;}
 
@@ -511,8 +491,6 @@ public abstract class JsonParser
      * {@link #getNonBlockingInputFeeder()} to obtain object to use
      * for feeding input; otherwise (<code>false</code> returned)
      * input is read by blocking 
-     *
-     * @since 2.9
      */
     public boolean canParseAsync() { return false; }
 
@@ -520,8 +498,6 @@ public abstract class JsonParser
      * Method that will either return a feeder instance (if parser uses
      * non-blocking, aka asynchronous access); or <code>null</code> for
      * parsers that use blocking I/O.
-     *
-     * @since 2.9
      */
     public NonBlockingInputFeeder getNonBlockingInputFeeder() {
         return null;
@@ -688,39 +664,10 @@ public abstract class JsonParser
      * Bulk access method for getting state of all standard {@link Feature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link Feature}s.
+     *
+     * @since 3.0
      */
-    public int getFeatureMask() { return _features; }
-
-    /**
-     * Bulk set method for (re)setting states of all standard {@link Feature}s
-     * 
-     * @return This parser object, to allow chaining of calls
-
-     * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead
-     */
-    @Deprecated
-    public JsonParser setFeatureMask(int mask) {
-        _features = mask;
-        return this;
-    }
-
-    /**
-     * Bulk set method for (re)setting states of features specified by <code>mask</code>.
-     * Functionally equivalent to
-     *<code>
-     *    int oldState = getFeatureMask();
-     *    int newState = (oldState &amp; ~mask) | (values &amp; mask);
-     *    setFeatureMask(newState);
-     *</code>
-     * but preferred as this lets caller more efficiently specify actual changes made.
-     * 
-     * @param values Bit mask of set/clear state for features to change
-     * @param mask Bit mask of features to change
-     */
-    public JsonParser overrideStdFeatures(int values, int mask) {
-        int newState = (_features & ~mask) | (values & mask);
-        return setFeatureMask(newState);
-    }
+    public int getParserFeatures() { return _features; }
 
     /**
      * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
@@ -1720,22 +1667,6 @@ public abstract class JsonParser
         return (T) _codec().readValue(this, valueTypeRef);
     }
 
-    /**
-     * Method for reading sequence of Objects from parser stream,
-     * all with same specified value type.
-     */
-    public <T> Iterator<T> readValuesAs(Class<T> valueType) throws IOException {
-        return _codec().readValues(this, valueType);
-    }
-
-    /**
-     * Method for reading sequence of Objects from parser stream,
-     * all with same specified value type.
-     */
-    public <T> Iterator<T> readValuesAs(TypeReference<?> valueTypeRef) throws IOException {
-        return _codec().readValues(this, valueTypeRef);
-    }
-    
     /**
      * Method to deserialize JSON content into equivalent "tree model",
      * represented by root {@link TreeNode} of resulting model.

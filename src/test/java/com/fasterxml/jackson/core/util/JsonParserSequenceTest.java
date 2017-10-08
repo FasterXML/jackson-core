@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
@@ -24,10 +25,11 @@ public class JsonParserSequenceTest extends BaseTest
 {
     @Test
     public void testClose() throws IOException {
-        BufferRecycler bufferRecycler = new BufferRecycler();
-        IOContext iOContext = new IOContext(bufferRecycler, bufferRecycler, true);
+        IOContext ioContext = new IOContext(new BufferRecycler(), this, true);
         CharsToNameCanonicalizer charsToNameCanonicalizer = CharsToNameCanonicalizer.createRoot();
-        ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(iOContext,
+        ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
+                ObjectReadContext.empty(),
+                ioContext,
                 2, null, null, charsToNameCanonicalizer);
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, readerBasedJsonParser, readerBasedJsonParser);
 
@@ -42,12 +44,12 @@ public class JsonParserSequenceTest extends BaseTest
     @Test
     public void testSkipChildren() throws IOException {
         JsonParser[] jsonParserArray = new JsonParser[3];
-        BufferRecycler bufferRecycler = new BufferRecycler();
-        IOContext iOContext = new IOContext(bufferRecycler, bufferRecycler, true);
+        IOContext ioContext = new IOContext(new BufferRecycler(), jsonParserArray, true);
         byte[] byteArray = new byte[8];
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray, 0, (byte) 58);
         ByteQuadsCanonicalizer byteQuadsCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-        UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(iOContext,
+        UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(ObjectReadContext.empty(),
+                ioContext,
                 0, byteArrayInputStream, null, byteQuadsCanonicalizer, byteArray, -1, (byte) 9, true);
         JsonParserDelegate jsonParserDelegate = new JsonParserDelegate(jsonParserArray[0]);
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, uTF8StreamJsonParser, jsonParserDelegate);

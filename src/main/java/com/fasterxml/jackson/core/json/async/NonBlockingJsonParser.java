@@ -51,10 +51,10 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    public NonBlockingJsonParser(IOContext ctxt, int parserFeatures,
-            ByteQuadsCanonicalizer sym)
+    public NonBlockingJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+            int parserFeatures, ByteQuadsCanonicalizer sym)
     {
-        super(ctxt, parserFeatures, sym);
+        super(readCtxt, ctxt, parserFeatures, sym);
     }
 
     /*

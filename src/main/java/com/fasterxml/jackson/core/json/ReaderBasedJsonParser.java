@@ -108,12 +108,13 @@ public class ReaderBasedJsonParser
      * Method called when caller wants to provide input buffer directly,
      * and it may or may not be recyclable use standard recycle context.
      */
-    public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
+    public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+            int features, Reader r,
             ObjectCodec codec, CharsToNameCanonicalizer st,
             char[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
-        super(ctxt, features);
+        super(readCtxt, ctxt, features);
         _reader = r;
         _inputBuffer = inputBuffer;
         _inputPtr = start;
@@ -128,10 +129,11 @@ public class ReaderBasedJsonParser
      * Method called when input comes as a {@link java.io.Reader}, and buffer allocation
      * can be done using default mechanism.
      */
-    public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
-        ObjectCodec codec, CharsToNameCanonicalizer st)
+    public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+            int features, Reader r,
+            ObjectCodec codec, CharsToNameCanonicalizer st)
     {
-        super(ctxt, features);
+        super(readCtxt, ctxt, features);
         _reader = r;
         _inputBuffer = ctxt.allocTokenBuffer();
         _inputPtr = 0;

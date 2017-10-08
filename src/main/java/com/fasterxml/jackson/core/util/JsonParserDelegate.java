@@ -58,19 +58,7 @@ public class JsonParserDelegate extends JsonParser
     }
  
     @Override public boolean isEnabled(Feature f) { return delegate.isEnabled(f); }
-    @Override public int getFeatureMask() { return delegate.getFeatureMask(); }
-
-    @Override
-    public JsonParser overrideStdFeatures(int values, int mask) {
-        delegate.overrideStdFeatures(values, mask);
-        return this;
-    }
-
-    @Override
-    public JsonParser overrideFormatFeatures(int values, int mask) {
-        delegate.overrideFormatFeatures(values, mask);
-        return this;
-    }
+    @Override public int getParserFeatures() { return delegate.getParserFeatures(); }
 
     @Override public FormatSchema getSchema() { return delegate.getSchema(); }
     @Override public void setSchema(FormatSchema schema) { delegate.setSchema(schema); }

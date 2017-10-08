@@ -13,7 +13,9 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
     public void testCoreVersions() throws Exception
     {
         assertVersion(new JsonFactory().version());
-        ReaderBasedJsonParser jp = new ReaderBasedJsonParser(getIOContext(), 0, null, null,
+        ReaderBasedJsonParser jp = new ReaderBasedJsonParser(ObjectReadContext.empty(),
+                getIOContext(),
+                0, null, null,
                 CharsToNameCanonicalizer.createRoot());
         assertVersion(jp.version());
         jp.close();

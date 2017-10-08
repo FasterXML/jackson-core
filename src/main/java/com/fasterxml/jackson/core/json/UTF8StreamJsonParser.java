@@ -118,12 +118,13 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    public UTF8StreamJsonParser(IOContext ctxt, int features, InputStream in,
+    public UTF8StreamJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+            int features, InputStream in,
             ObjectCodec codec, ByteQuadsCanonicalizer sym,
             byte[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
-        super(ctxt, features);
+        super(readCtxt, ctxt, features);
         _inputStream = in;
         _objectCodec = codec;
         _symbols = sym;

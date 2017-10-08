@@ -228,8 +228,9 @@ public abstract class ParserBase extends ParserMinimalBase
     /**********************************************************
      */
 
-    protected ParserBase(IOContext ctxt, int features) {
-        super(features);
+    protected ParserBase(ObjectReadContext readCtxt,
+            IOContext ctxt, int features) {
+        super(readCtxt, features);
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
@@ -273,53 +274,6 @@ public abstract class ParserBase extends ParserMinimalBase
             _parsingContext = _parsingContext.withDupDetector(null);
         }
         return this;
-    }
-
-    @Override
-    @Deprecated
-    public JsonParser setFeatureMask(int newMask) {
-        int changes = (_features ^ newMask);
-        if (changes != 0) {
-            _features = newMask;
-            _checkStdFeatureChanges(newMask, changes);
-        }
-        return this;
-    }
-
-    @Override // since 2.7
-    public JsonParser overrideStdFeatures(int values, int mask) {
-        int oldState = _features;
-        int newState = (oldState & ~mask) | (values & mask);
-        int changed = oldState ^ newState;
-        if (changed != 0) {
-            _features = newState;
-            _checkStdFeatureChanges(newState, changed);
-        }
-        return this;
-    }
-
-    /**
-     * Helper method called to verify changes to standard features.
-     *
-     * @param newFeatureFlags Bitflag of standard features after they were changed
-     * @param changedFeatures Bitflag of standard features for which setting
-     *    did change
-     *
-     * @since 2.7
-     */
-    protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures)
-    {
-        int f = Feature.STRICT_DUPLICATE_DETECTION.getMask();
-        
-        if ((changedFeatures & f) != 0) {
-            if ((newFeatureFlags & f) != 0) {
-                if (_parsingContext.getDupDetector() == null) {
-                    _parsingContext = _parsingContext.withDupDetector(DupDetector.rootDetector(this));
-                } else { // disabling
-                    _parsingContext = _parsingContext.withDupDetector(null);
-                }
-            }
-        }
     }
 
     /*
@@ -414,12 +368,12 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     @SuppressWarnings("resource")
-    @Override // since 2.7
+    @Override
     public byte[] getBinaryValue(Base64Variant variant) throws IOException
     {
         if (_binaryValue == null) {
             if (_currToken != JsonToken.VALUE_STRING) {
-                _reportError("Current token ("+_currToken+") not VALUE_STRING, can not access as binary");
+                _reportError("Current token (%s) not VALUE_EMBEDDED_OBJECT or VALUE_STRING, can not access as binary", _currToken);
             }
             ByteArrayBuilder builder = _getByteArrayBuilder();
             _decodeBase64(getText(), builder, variant);

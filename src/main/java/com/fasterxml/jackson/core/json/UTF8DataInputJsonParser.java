@@ -105,11 +105,12 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    public UTF8DataInputJsonParser(IOContext ctxt, int features, DataInput inputData,
+    public UTF8DataInputJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+            int features, DataInput inputData,
             ObjectCodec codec, ByteQuadsCanonicalizer sym,
             int firstByte)
     {
-        super(ctxt, features);
+        super(readCtxt, ctxt, features);
         _objectCodec = codec;
         _symbols = sym;
         _inputData = inputData;

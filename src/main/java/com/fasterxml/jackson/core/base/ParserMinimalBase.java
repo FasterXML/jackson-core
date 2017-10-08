@@ -128,6 +128,16 @@ public abstract class ParserMinimalBase extends JsonParser
      */
 
     /**
+     * Context object provided by higher level functionality like
+     * databinding for two reasons: passing configuration information
+     * during construction, and to allow calling of some databind
+     * operations via parser instance.
+     *
+     * @since 3.0
+     */
+    protected final ObjectReadContext _objectReadContext;
+
+    /**
      * Last token retrieved via {@link #nextToken}, if any.
      * Null before the first call to <code>nextToken()</code>,
      * as well as if token has been explicitly cleared
@@ -146,11 +156,16 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    protected ParserMinimalBase() { }
-    protected ParserMinimalBase(int features) { super(features); }
+    protected ParserMinimalBase(ObjectReadContext readCtxt) {
+        _objectReadContext = readCtxt;
+    }
 
-    // NOTE: had base impl in 2.3 and before; but shouldn't
-    // public abstract Version version();
+    protected ParserMinimalBase(ObjectReadContext readCtxt,
+            int features)
+    {
+        super(features);
+        _objectReadContext = readCtxt;
+    }
 
     /*
     /**********************************************************

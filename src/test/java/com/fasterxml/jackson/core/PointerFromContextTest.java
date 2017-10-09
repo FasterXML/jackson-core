@@ -16,7 +16,7 @@ public class PointerFromContextTest extends BaseTest
     {
         final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
-        JsonParser p = JSON_F.createParser(SIMPLE);
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), SIMPLE);
 
         // by default should just get "empty"
         assertSame(JsonPointer.EMPTY, p.getParsingContext().pathAsPointer());
@@ -100,7 +100,7 @@ public class PointerFromContextTest extends BaseTest
     public void testViaGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
-        JsonGenerator g = JSON_F.createGenerator(w);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         assertSame(JsonPointer.EMPTY, g.getOutputContext().pathAsPointer());
 
         g.writeStartArray();
@@ -145,7 +145,7 @@ public class PointerFromContextTest extends BaseTest
     {
         final String JSON = aposToQuotes("{'a':1,'b':3}\n"
                 +"{'a':5,'c':[1,2]}\n[1,2]\n");
-        JsonParser p = JSON_F.createParser(JSON);
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), JSON);
         // before pointing to anything, we have no path to point to
         assertSame(JsonPointer.EMPTY, p.getParsingContext().pathAsPointer(true));
 
@@ -207,7 +207,7 @@ public class PointerFromContextTest extends BaseTest
     public void testGeneratorWithRoot() throws Exception
     {
         StringWriter w = new StringWriter();
-        JsonGenerator g = JSON_F.createGenerator(w);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         assertSame(JsonPointer.EMPTY, g.getOutputContext().pathAsPointer(true));
 
         g.writeStartArray();

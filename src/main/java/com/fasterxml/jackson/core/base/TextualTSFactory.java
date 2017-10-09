@@ -171,6 +171,7 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     /**********************************************************
      */
 
+    /*
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
         throws IOException
@@ -206,6 +207,7 @@ public abstract class TextualTSFactory extends DecorableTSFactory
         return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt,
                 _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
     }
+    */
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,

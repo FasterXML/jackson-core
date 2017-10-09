@@ -59,13 +59,13 @@ public class ConcurrencyReadTest
         }
     }
 
-    protected void parse(JsonFactory jf, byte[] input) throws IOException
+    protected void parse(JsonFactory f, byte[] input) throws IOException
     {
-        JsonParser jp = jf.createParser(input, 0, input.length);
-        while (jp.nextToken() != null) {
+        JsonParser p = f.createParser(ObjectReadContext.empty(), input, 0, input.length);
+        while (p.nextToken() != null) {
             ;
         }
-        jp.close();
+        p.close();
     }
     
     public static void main(String[] args) throws Exception

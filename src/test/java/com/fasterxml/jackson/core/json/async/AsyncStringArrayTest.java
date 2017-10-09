@@ -153,7 +153,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
     private byte[] _stringDoc(JsonFactory f, String[] input) throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
-        JsonGenerator g = f.createGenerator(bytes);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartArray();
         for (int i = 0; i < input.length; ++i) {
             g.writeString(input[i]);

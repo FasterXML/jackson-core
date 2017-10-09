@@ -620,38 +620,47 @@ public abstract class TokenStreamFactory
     /**********************************************************
      */
 
+    @Deprecated
     public final JsonParser createParser(File src) throws IOException {
         return createParser(ObjectReadContext.empty(), src);
     }
 
+    @Deprecated
     public final JsonParser createParser(URL src) throws IOException {
         return createParser(ObjectReadContext.empty(), src);
     }
 
+    @Deprecated
     public final JsonParser createParser(InputStream in) throws IOException {
         return createParser(ObjectReadContext.empty(), in);
     }
 
+    @Deprecated
     public final JsonParser createParser(Reader r) throws IOException {
         return createParser(ObjectReadContext.empty(), r);
     }
 
+    @Deprecated
     public final JsonParser createParser(byte[] data) throws IOException {
         return createParser(ObjectReadContext.empty(), data, 0, data.length);
     }
 
+    @Deprecated
     public final JsonParser createParser(byte[] data, int offset, int len) throws IOException {
         return createParser(ObjectReadContext.empty(), data, offset, len);
     }
 
+    @Deprecated
     public final JsonParser createParser(String content) throws IOException {
         return createParser(ObjectReadContext.empty(), content);
     }
 
+    @Deprecated
     public JsonParser createParser(char[] content) throws IOException {
         return createParser(ObjectReadContext.empty(), content, 0, content.length);
     }
 
+    @Deprecated
     public final JsonParser createParser(char[] content, int offset, int len) throws IOException {
         return createParser(ObjectReadContext.empty(), content, offset, len);
     }
@@ -791,10 +800,11 @@ public abstract class TokenStreamFactory
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out) throws IOException {
         return createGenerator(writeCtxt, _createDataOutputWrapper(out));
     }
-    
+
     /*
     /**********************************************************
-    /* Generator factories
+    /* Generator factories, convenience methods that do not specify
+    /* `ObjectWriteContext` 
     /**********************************************************
      */
     
@@ -818,8 +828,11 @@ public abstract class TokenStreamFactory
      * @param out OutputStream to use for writing JSON content 
      * @param enc Character encoding to use
      */
-    public abstract JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
-        throws IOException;
+    @Deprecated
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
+        throws IOException {
+        return createGenerator(ObjectWriteContext.empty(), out, enc);
+    }
 
     /**
      * Convenience method for constructing generator that uses default
@@ -827,8 +840,9 @@ public abstract class TokenStreamFactory
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
      */
-    public JsonGenerator createGenerator(OutputStream out) throws IOException {
-        return createGenerator(out, JsonEncoding.UTF8);
+    @Deprecated
+    public final JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
     }
     
     /**
@@ -844,7 +858,10 @@ public abstract class TokenStreamFactory
      *
      * @param w Writer to use for writing JSON content 
      */
-    public abstract JsonGenerator createGenerator(Writer w) throws IOException;
+    @Deprecated
+    public final JsonGenerator createGenerator(Writer w) throws IOException {
+        return createGenerator(ObjectWriteContext.empty(), w);
+    }
 
     /**
      * Method for constructing JSON generator for writing JSON content
@@ -860,14 +877,19 @@ public abstract class TokenStreamFactory
      * @param f File to write contents to
      * @param enc Character encoding to use
      */
-    public abstract JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException;
+    @Deprecated
+    public final JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException {
+        return createGenerator(ObjectWriteContext.empty(), f, enc);
+    }
 
     /**
      * Method for constructing generator for writing content using specified
      * {@link DataOutput} instance.
      */
-    public JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException {
-        return createGenerator(_createDataOutputWrapper(out), enc);
+    @Deprecated
+    public final JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException {
+        return createGenerator(ObjectWriteContext.empty(),
+                _createDataOutputWrapper(out), enc);
     }
 
     /**
@@ -876,8 +898,10 @@ public abstract class TokenStreamFactory
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
      */
-    public JsonGenerator createGenerator(DataOutput out) throws IOException {
-        return createGenerator(_createDataOutputWrapper(out), JsonEncoding.UTF8);
+    @Deprecated
+    public final JsonGenerator createGenerator(DataOutput out) throws IOException {
+        return createGenerator(ObjectWriteContext.empty(),
+                _createDataOutputWrapper(out), JsonEncoding.UTF8);
     }
 
     /*

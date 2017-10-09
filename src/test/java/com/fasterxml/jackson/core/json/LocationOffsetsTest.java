@@ -15,7 +15,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         final String DOC = "{ }";
 
         // first, char based:
-        p = JSON_F.createParser(DOC);
+        p = JSON_F.createParser(ObjectReadContext.empty(), DOC);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         loc = p.getTokenLocation();
@@ -34,7 +34,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
 
         // then byte-based
         
-        p = JSON_F.createParser(DOC.getBytes("UTF-8"));
+        p = JSON_F.createParser(ObjectReadContext.empty(), DOC.getBytes("UTF-8"));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         loc = p.getTokenLocation();
@@ -61,7 +61,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         byte[] b = "   { }  ".getBytes("UTF-8");
 
         // and then peel them off
-        p = JSON_F.createParser(b, 3, b.length-5);
+        p = JSON_F.createParser(ObjectReadContext.empty(), b, 3, b.length-5);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         loc = p.getTokenLocation();

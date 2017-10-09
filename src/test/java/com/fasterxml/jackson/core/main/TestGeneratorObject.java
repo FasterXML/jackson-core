@@ -16,7 +16,7 @@ public class TestGeneratorObject
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
 
         TokenStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
@@ -58,7 +58,7 @@ public class TestGeneratorObject
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
         // Mismatch:
         try {
@@ -74,7 +74,7 @@ public class TestGeneratorObject
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
         gen.writeFieldName("first");
         gen.writeNumber(-901);
@@ -110,7 +110,7 @@ public class TestGeneratorObject
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
 
         final BigDecimal dec = new BigDecimal("0.1");
@@ -178,7 +178,7 @@ public class TestGeneratorObject
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
 
         gen.writeStringField("str", null);

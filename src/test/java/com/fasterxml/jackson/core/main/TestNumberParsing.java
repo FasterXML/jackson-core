@@ -95,7 +95,7 @@ public class TestNumberParsing
           arr[i + 3] = '-';
           arr[i + 4] = '1';
           CharArrayReader r = new CharArrayReader(arr, 0, i+5);
-          JsonParser p = f.createParser(r);
+          JsonParser p = f.createParser(ObjectReadContext.empty(), r);
           assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
           p.close();
         }        
@@ -113,7 +113,7 @@ public class TestNumberParsing
           arr[i + 3] = '-';
           arr[i + 4] = '1';
           ByteArrayInputStream in = new ByteArrayInputStream(arr, 0, i+5);
-          JsonParser p = f.createParser(in);
+          JsonParser p = f.createParser(ObjectReadContext.empty(), in);
           assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
           p.close();
         }        

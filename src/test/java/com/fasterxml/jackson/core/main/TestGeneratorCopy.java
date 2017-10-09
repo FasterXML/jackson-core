@@ -17,9 +17,9 @@ public class TestGeneratorCopy
     {
         JsonFactory jf = new JsonFactory();
         final String DOC = "\"text\\non two lines\" true false 2.0";
-        JsonParser jp = jf.createParser(new StringReader(DOC));
+        JsonParser jp = jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
 
         JsonToken t;
 
@@ -39,9 +39,9 @@ public class TestGeneratorCopy
     {
         JsonFactory jf = new JsonFactory();
         final String DOC = "123 [ 1, null, [ false ] ]";
-        JsonParser jp = jf.createParser(new StringReader(DOC));
+        JsonParser jp = jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
 
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         gen.copyCurrentEvent(jp);
@@ -65,9 +65,9 @@ public class TestGeneratorCopy
     {
         JsonFactory jf = new JsonFactory();
         final String DOC = "{ \"a\":1, \"b\":[{ \"c\" : null }] }";
-        JsonParser jp = jf.createParser(new StringReader(DOC));
+        JsonParser jp = jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
 
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         gen.copyCurrentStructure(jp);

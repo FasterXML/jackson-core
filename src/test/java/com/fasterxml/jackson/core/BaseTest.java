@@ -322,7 +322,7 @@ public abstract class BaseTest
         case MODE_INPUT_STREAM_THROTTLED:
             {
                 InputStream in = new ThrottledInputStream(doc.getBytes("UTF-8"), 1);
-                return f.createParser(in);
+                return f.createParser(ObjectReadContext.empty(), in);
             }
         case MODE_READER:
             return createParserUsingReader(f, doc);
@@ -337,14 +337,14 @@ public abstract class BaseTest
     {
         switch (mode) {
         case MODE_INPUT_STREAM:
-            return f.createParser(new ByteArrayInputStream(doc));
+            return f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(doc));
         case MODE_INPUT_STREAM_THROTTLED:
             {
                 InputStream in = new ThrottledInputStream(doc, 1);
-                return f.createParser(in);
+                return f.createParser(ObjectReadContext.empty(), in);
             }
         case MODE_READER:
-            return f.createParser(new StringReader(new String(doc, "UTF-8")));
+            return f.createParser(ObjectReadContext.empty(), new StringReader(new String(doc, "UTF-8")));
         case MODE_DATA_INPUT:
             return createParserForDataInput(f, new MockDataInput(doc));
         default:
@@ -360,7 +360,7 @@ public abstract class BaseTest
     protected JsonParser createParserUsingReader(JsonFactory f, String input)
         throws IOException
     {
-        return f.createParser(new StringReader(input));
+        return f.createParser(ObjectReadContext.empty(), new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
@@ -386,7 +386,7 @@ public abstract class BaseTest
             data = input.getBytes(encoding);
         }
         InputStream is = new ByteArrayInputStream(data);
-        return f.createParser(is);
+        return f.createParser(ObjectReadContext.empty(), is);
     }
 
     protected JsonParser createParserForDataInput(JsonFactory f,
@@ -404,12 +404,12 @@ public abstract class BaseTest
     
     protected void writeJsonDoc(JsonFactory f, String doc, Writer w) throws IOException
     {
-        writeJsonDoc(f, doc, f.createGenerator(w));
+        writeJsonDoc(f, doc, f.createGenerator(ObjectWriteContext.empty(), w));
     }
 
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
     {
-        JsonParser p = f.createParser(aposToQuotes(doc));
+        JsonParser p = f.createParser(ObjectReadContext.empty(), aposToQuotes(doc));
         
         while (p.nextToken() != null) {
             g.copyCurrentStructure(p);
@@ -421,7 +421,7 @@ public abstract class BaseTest
     protected String readAndWrite(JsonFactory f, JsonParser p) throws IOException
     {
         StringWriter sw = new StringWriter(100);
-        JsonGenerator g = f.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         try {
             while (p.nextToken() != null) {

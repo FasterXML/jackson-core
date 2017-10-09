@@ -59,12 +59,12 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
     void _assert(String input, String pathExpr, boolean includeParent, String exp)
         throws Exception
     {
-        JsonParser p0 = JSON_F.createParser(input);
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), input);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new JsonPointerBasedFilter(pathExpr),
                 includeParent, false);
         StringWriter w = new StringWriter();
-        JsonGenerator g = JSON_F.createGenerator(w);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
 
         try {
             while (p.nextToken() != null) {

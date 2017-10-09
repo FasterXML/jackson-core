@@ -115,7 +115,7 @@ public class TestByteBasedSymbols
         }
         stringBuilder.append("\n}");
 
-        JsonParser p = jsonF.createParser(stringBuilder.toString().getBytes("UTF-8"));
+        JsonParser p = jsonF.createParser(ObjectReadContext.empty(), stringBuilder.toString().getBytes("UTF-8"));
         while (p.nextToken() != null) { }
         p.close();
     }
@@ -130,7 +130,7 @@ public class TestByteBasedSymbols
     {
         byte[] data = input.getBytes("UTF-8");
         InputStream is = new ByteArrayInputStream(data);
-        return jf.createParser(is);
+        return jf.createParser(ObjectReadContext.empty(), is);
     }
 
     private String createDoc(String[] fieldNames, boolean add)

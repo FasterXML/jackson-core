@@ -144,7 +144,7 @@ public class TestCharEscaping
 
         StringWriter writer = new StringWriter();
         // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
-        JsonGenerator jgen = jf.createGenerator(writer);
+        JsonGenerator jgen = jf.createGenerator(ObjectWriteContext.empty(), writer);
         jgen.setHighestNonEscapedChar(127); // must set to trigger bug
         jgen.writeString(longString.toString());
         jgen.close();
@@ -154,7 +154,7 @@ public class TestCharEscaping
     public void testEscapesForCharArrays() throws Exception {
         JsonFactory jf = new JsonFactory();
         StringWriter writer = new StringWriter();
-        JsonGenerator jgen = jf.createGenerator(writer);
+        JsonGenerator jgen = jf.createGenerator(ObjectWriteContext.empty(), writer);
         // must call #writeString(char[],int,int) and not #writeString(String)
         jgen.writeString(new char[] { '\0' }, 0, 1);
         jgen.close();

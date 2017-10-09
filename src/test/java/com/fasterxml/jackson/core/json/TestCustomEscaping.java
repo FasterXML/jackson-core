@@ -105,9 +105,9 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
         // First: output normally; should not add escaping
         if (useStream) {
-            g = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
         }
         final String VALUE_TEMPLATE = "String with JS 'linefeeds': %s and %s...";
         final String INPUT_VALUE = String.format(VALUE_TEMPLATE, "\u2028", "\u2029");
@@ -140,9 +140,9 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
         // First: output normally; should not add escaping
         if (useStream) {
-            g = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartArray();
         g.writeString(VALUE);
@@ -156,9 +156,9 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            g = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(ObjectWriteContext.empty(),new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartArray();
@@ -171,9 +171,9 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         // and then keys
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            g = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartObject();
@@ -196,9 +196,9 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         
         // First: output normally; should not add escaping
         if (useStream) {
-            g = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartObject();
         g.writeStringField(STR_IN, STR_IN);

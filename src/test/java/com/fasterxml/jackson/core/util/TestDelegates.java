@@ -108,7 +108,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     {
         final String TOKEN ="foo";
 
-        JsonParser parser = JSON_F.createParser("[ 1, true, null, { } ]");
+        JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(), "[ 1, true, null, { } ]");
         JsonParserDelegate del = new JsonParserDelegate(parser);
         
         assertNull(del.currentToken());
@@ -147,7 +147,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         final String TOKEN ="foo";
 
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
         del.writeStartArray();
 
@@ -183,9 +183,9 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
     public void testNotDelegateCopyMethods() throws IOException
     {
-        JsonParser jp = JSON_F.createParser("[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
+        JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), "[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = new JsonGeneratorDelegate(JSON_F.createGenerator(sw), false) {
+        JsonGenerator jg = new JsonGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), sw), false) {
             @Override
             public void writeFieldName(String name) throws IOException {
                 super.writeFieldName(name+"-test");

@@ -86,9 +86,9 @@ public class TestRootValues
         JsonGenerator gen;
 
         if (useStream) {
-            gen = JSON_F.createGenerator(out, JsonEncoding.UTF8);
+            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         } else {
-            gen = JSON_F.createGenerator(w);
+            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         }
         gen.writeNumber(123);
         gen.writeString("abc");

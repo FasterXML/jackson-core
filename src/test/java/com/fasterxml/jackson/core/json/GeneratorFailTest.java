@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectWriteContext;
 
 public class GeneratorFailTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -49,9 +50,9 @@ public class GeneratorFailTest
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
         gen.writeFieldName("a");
@@ -72,9 +73,9 @@ public class GeneratorFailTest
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
         
@@ -95,9 +96,9 @@ public class GeneratorFailTest
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         try {
             gen.writeFieldName("a");

@@ -93,7 +93,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
     {
         StringWriter w = new StringWriter();
 
-        JsonGenerator g0 = JSON_F.createGenerator(w);
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         FilteringGeneratorDelegate g = new FilteringGeneratorDelegate(g0,
                 new JsonPointerBasedFilter(pathExpr),
                 includeParent, false);

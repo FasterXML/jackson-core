@@ -47,7 +47,7 @@ public class ManualReadPerfWithMedia extends ParserTestBase
     {
         while (--reps >= 0) {
 //            JsonParser p = _factory.createParser(new StringReader(_json));
-            JsonParser p = _factory.createParser(_json);
+            JsonParser p = _factory.createParser(ObjectReadContext.empty(), _json);
             _stream(p);
             p.close();
         }
@@ -58,7 +58,7 @@ public class ManualReadPerfWithMedia extends ParserTestBase
     {
         final char[] ch = _json.toCharArray();
         while (--reps >= 0) {
-            JsonParser p = _factory.createParser(ch, 0, ch.length);
+            JsonParser p = _factory.createParser(ObjectReadContext.empty(), ch, 0, ch.length);
             _stream(p);
             p.close();
         }

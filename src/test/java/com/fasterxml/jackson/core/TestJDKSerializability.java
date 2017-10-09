@@ -51,7 +51,7 @@ public class TestJDKSerializability extends BaseTest
     public void testLocation() throws Exception
     {
         JsonFactory jf = new JsonFactory();
-        JsonParser jp = jf.createParser("  { }");
+        JsonParser jp = jf.createParser(ObjectReadContext.empty(), "  { }");
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         JsonLocation loc = jp.getCurrentLocation();
 
@@ -67,7 +67,7 @@ public class TestJDKSerializability extends BaseTest
     public void testParseException() throws Exception
     {
         JsonFactory jf = new JsonFactory();
-        JsonParser p = jf.createParser("  { garbage! }");
+        JsonParser p = jf.createParser(ObjectReadContext.empty(), "  { garbage! }");
         JsonParseException exc = null;
         try {
             p.nextToken();
@@ -85,7 +85,7 @@ public class TestJDKSerializability extends BaseTest
     public void testGenerationException() throws Exception
     {
         JsonFactory jf = new JsonFactory();
-        JsonGenerator g = jf.createGenerator(new ByteArrayOutputStream());
+        JsonGenerator g = jf.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream());
         JsonGenerationException exc = null;
         g.writeStartObject();
         try {
@@ -134,19 +134,19 @@ public class TestJDKSerializability extends BaseTest
     {
         if (useBytes) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            JsonGenerator jg = f.createGenerator(bytes);
+            JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), bytes);
             _copyJson(f, json, jg);
             return bytes.toString("UTF-8");
         }
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = f.createGenerator(sw);
+        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), sw);
         _copyJson(f, json, jg);
         return sw.toString();
     }
         
     protected void _copyJson(JsonFactory f, String json, JsonGenerator g) throws IOException
     {
-        JsonParser p = f.createParser(json);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), json);
         while (p.nextToken() != null) {
             g.copyCurrentEvent(p);
         }

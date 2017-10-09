@@ -39,7 +39,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
         ByteQuadsCanonicalizer symbolsRoot = ByteQuadsCanonicalizer.createRoot(SEED);
         ByteQuadsCanonicalizer symbols = symbolsRoot.makeChild(JsonFactory.Feature.collectDefaults());
         JsonFactory f = new JsonFactory();
-        JsonParser p = f.createParser(JSON.getBytes("UTF-8"));
+        JsonParser p = f.createParser(ObjectReadContext.empty(), JSON.getBytes("UTF-8"));
 
         JsonToken t;
         while ((t = p.nextToken()) != null) {
@@ -69,7 +69,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
 
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(SEED).makeChild(-1);
         JsonFactory f = new JsonFactory();
-        JsonParser p = f.createParser(JSON);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), JSON);
 
         JsonToken t;
         while ((t = p.nextToken()) != null) {

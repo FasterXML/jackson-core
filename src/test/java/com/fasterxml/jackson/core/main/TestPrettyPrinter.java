@@ -42,14 +42,14 @@ public class TestPrettyPrinter
     public void testObjectCount() throws Exception
     {
         final String EXP = "{\"x\":{\"a\":1,\"b\":2(2)}(1)}";
-        final JsonFactory jf = new JsonFactory();
+        final JsonFactory f = new JsonFactory();
 
         for (int i = 0; i < 2; ++i) {
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? jf.createGenerator(bytes)
-                    : jf.createGenerator(sw);
+            JsonGenerator gen = useBytes ? f.createGenerator(ObjectWriteContext.empty(), bytes)
+                    : f.createGenerator(ObjectWriteContext.empty(), sw);
             gen.setPrettyPrinter(new CountPrinter());
             gen.writeStartObject();
             gen.writeFieldName("x");
@@ -69,14 +69,14 @@ public class TestPrettyPrinter
     {
         final String EXP = "[6,[1,2,9(3)](2)]";
         
-        final JsonFactory jf = new JsonFactory();
+        final JsonFactory f = new JsonFactory();
 
         for (int i = 0; i < 2; ++i) {
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? jf.createGenerator(bytes)
-                    : jf.createGenerator(sw);
+            JsonGenerator gen = useBytes ? f.createGenerator(ObjectWriteContext.empty(), bytes)
+                    : f.createGenerator(ObjectWriteContext.empty(), sw);
             gen.setPrettyPrinter(new CountPrinter());
             gen.writeStartArray();
             gen.writeNumber(6);
@@ -96,7 +96,7 @@ public class TestPrettyPrinter
     public void testSimpleDocWithDefault() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.useDefaultPrettyPrinter();
         _verifyPrettyPrinter(gen, sw);
         gen.close();
@@ -106,7 +106,7 @@ public class TestPrettyPrinter
     public void testSimpleDocWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         // first with standard minimal
         gen.setPrettyPrinter(new MinimalPrettyPrinter());
         String docStr = _verifyPrettyPrinter(gen, sw);
@@ -115,7 +115,7 @@ public class TestPrettyPrinter
         assertEquals(-1, docStr.indexOf('\t'));
 
         // And then with slightly customized variant
-        gen = new JsonFactory().createGenerator(sw);
+        gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.setPrettyPrinter(new MinimalPrettyPrinter() {
             @Override
             // use TAB between array values
@@ -133,22 +133,22 @@ public class TestPrettyPrinter
     // [Issue#26]
     public void testCustomRootSeparatorWithPP() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         // first, no pretty-printing (will still separate root values with a space!)
-        assertEquals("{} {} []", _generateRoot(jf, null));
+        assertEquals("{} {} []", _generateRoot(f, null));
         // First with default pretty printer, default configs:
-        assertEquals("{ } { } [ ]", _generateRoot(jf, new DefaultPrettyPrinter()));
+        assertEquals("{ } { } [ ]", _generateRoot(f, new DefaultPrettyPrinter()));
         // then custom:
-        assertEquals("{ }|{ }|[ ]", _generateRoot(jf, new DefaultPrettyPrinter("|")));
+        assertEquals("{ }|{ }|[ ]", _generateRoot(f, new DefaultPrettyPrinter("|")));
     }
 
     // Alternative solution for [Issue#26]
     public void testCustomRootSeparatorWithFactory() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
-        jf.setRootValueSeparator("##");
+        JsonFactory f = new JsonFactory();
+        f.setRootValueSeparator("##");
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(sw);
+        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeNumber(13);
         gen.writeBoolean(false);
         gen.writeNull();
@@ -159,7 +159,7 @@ public class TestPrettyPrinter
     public void testCustomSeparatorsWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.setPrettyPrinter(new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
@@ -172,7 +172,7 @@ public class TestPrettyPrinter
     public void testCustomSeparatorsWithPP() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.setPrettyPrinter(new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
@@ -189,7 +189,7 @@ public class TestPrettyPrinter
     public void testCustomSeparatorsWithPPWithoutSpaces() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.setPrettyPrinter(new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
@@ -264,10 +264,10 @@ public class TestPrettyPrinter
         gen.close();
     }
 
-    protected String _generateRoot(JsonFactory jf, PrettyPrinter pp) throws IOException
+    protected String _generateRoot(TokenStreamFactory f, PrettyPrinter pp) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.setPrettyPrinter(pp);
         gen.writeStartObject();
         gen.writeEndObject();

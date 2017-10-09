@@ -53,28 +53,28 @@ public class TestHashCollisionChars
 
         // First: attempt with exceptions turned on; should catch an exception
 
-        JsonFactory jf = new JsonFactory();
-        JsonParser jp = jf.createParser(sb.toString());
-        jf.enable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
+        JsonFactory f = new JsonFactory();
+        JsonParser p = f.createParser(ObjectReadContext.empty(), sb.toString());
+        f.enable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
 
         try {
-            while (jp.nextToken() != null) {
+            while (p.nextToken() != null) {
                 ;
             }
             fail("Should have failed");
         } catch (IllegalStateException e) {
             verifyException(e, "hash collision");
         }
-        jp.close();
+        p.close();
 
         // but then without feature, should pass
-        jf = new JsonFactory();
-        jf.disable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
-        jp = jf.createParser(sb.toString());
-        while (jp.nextToken() != null) {
+        f = new JsonFactory();
+        f.disable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW);
+        p = f.createParser(ObjectReadContext.empty(), sb.toString());
+        while (p.nextToken() != null) {
             ;
         }
-        jp.close();
+        p.close();
     }
 
     /*

@@ -17,7 +17,7 @@ public class UTF32ParseTest extends BaseTest
         };
 
         for (int len = 5; len <= 7; ++len) {
-            JsonParser parser = FACTORY.createParser(data, 0, len);
+            JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data, 0, len);
             try {
                 parser.nextToken();
                 fail("Should not pass");
@@ -43,7 +43,7 @@ public class UTF32ParseTest extends BaseTest
                 0x01
         };
 
-        JsonParser parser = FACTORY.createParser(data);
+        JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data);
 
         try {
             parser.nextToken();

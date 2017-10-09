@@ -17,7 +17,7 @@ public class GeneratorFeaturesTest
 
     public void testConfigDefaults() throws IOException
     {
-        JsonGenerator g = JSON_F.createGenerator(new StringWriter());
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), new StringWriter());
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
 
@@ -80,14 +80,14 @@ public class GeneratorFeaturesTest
         BigDecimal ENG = new BigDecimal("1E+2");
 
         StringWriter sw = new StringWriter();
-        JsonGenerator g = f.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeNumber(ENG);
         g.close();
         assertEquals("1E+2", sw.toString());
 
         f.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
         sw = new StringWriter();
-        g = f.createGenerator(sw);
+        g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeNumber(ENG);
         g.close();
         assertEquals("100", sw.toString());
@@ -101,14 +101,14 @@ public class GeneratorFeaturesTest
         f.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
 
         StringWriter sw = new StringWriter();
-        JsonGenerator g = f.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeNumber(ENG);
         g.close();
         assertEquals(quote("100"), sw.toString());
 
         // also, as bytes
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        g = f.createGenerator(bos);
+        g = f.createGenerator(ObjectWriteContext.empty(), bos);
         g.writeNumber(ENG);
         g.close();
         assertEquals(quote("100"), bos.toString("UTF-8"));
@@ -131,9 +131,9 @@ public class GeneratorFeaturesTest
                 JsonGenerator g;
                 
                 if (useBytes) {
-                    g = f.createGenerator(new ByteArrayOutputStream());
+                    g = f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream());
                 } else {
-                    g = f.createGenerator(new StringWriter());
+                    g = f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
                 }
                 if (asString) {
                     g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
@@ -149,9 +149,9 @@ public class GeneratorFeaturesTest
                 // then invalid
                 for (BigDecimal input : new BigDecimal[] { TOO_BIG, TOO_SMALL }) {
                     if (useBytes) {
-                        g = f.createGenerator(new ByteArrayOutputStream());
+                        g = f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream());
                     } else {
-                        g = f.createGenerator(new StringWriter());
+                        g = f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
                     }
                     if (asString) {
                         g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
@@ -172,7 +172,7 @@ public class GeneratorFeaturesTest
     private String _writeNumbers(JsonFactory f) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g = f.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
     
         g.writeStartArray();
         g.writeNumber(1);
@@ -219,7 +219,8 @@ public class GeneratorFeaturesTest
     {
         ByteArrayOutputStream bytes = useBytes ? new ByteArrayOutputStream() : null;
         StringWriter sw = useBytes ? null : new StringWriter();
-        JsonGenerator gen = useBytes ? f.createGenerator(bytes) : f.createGenerator(sw);
+        JsonGenerator gen = useBytes ? f.createGenerator(ObjectWriteContext.empty(),bytes)
+                : f.createGenerator(ObjectWriteContext.empty(), sw);
         if (useQuotes) {
             gen.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
         } else {
@@ -240,7 +241,7 @@ public class GeneratorFeaturesTest
     {
         StringWriter w = new StringWriter();
 
-        JsonGenerator g = JSON_F.createGenerator(w);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(),w);
         g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
         g.writeNumber(123);
         g.close();
@@ -248,7 +249,7 @@ public class GeneratorFeaturesTest
 
         // but also the opposite
         w = new StringWriter();
-        g = JSON_F.createGenerator(w);
+        g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
         g.disable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
         g.writeNumber(123);
@@ -266,7 +267,7 @@ public class GeneratorFeaturesTest
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g = f.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartObject();
         g.writeFieldName("foo");
         g.writeNumber(1);
@@ -284,7 +285,7 @@ public class GeneratorFeaturesTest
         throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g = f.createGenerator(sw);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartObject();
         g.writeFieldName("double");
         g.writeNumber(Double.NaN);

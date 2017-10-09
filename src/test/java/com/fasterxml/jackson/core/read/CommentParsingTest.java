@@ -31,9 +31,9 @@ public class CommentParsingTest
      */
     public void testDefaultSettings() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
-        assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        JsonParser p = jf.createParser(new StringReader("[ 1 ]"));
+        JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        JsonParser p = f.createParser(ObjectReadContext.empty(), new StringReader("[ 1 ]"));
         assertFalse(p.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         p.close();
     }

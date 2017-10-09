@@ -387,7 +387,7 @@ public class NumberParsingTest
             if (input == 0) {
                 p = createParserUsingStream(DOC, "UTF-8");
             } else {
-                p = FACTORY.createParser(DOC);
+                p = FACTORY.createParser(ObjectReadContext.empty(), DOC);
             }
 
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -420,8 +420,8 @@ public class NumberParsingTest
     {
         final String doc = "[ "+num+" ]";
         JsonParser p = useStream
-                ? f.createParser(doc.getBytes("UTF-8"))
-                        : f.createParser(doc);
+                ? f.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))
+                        : f.createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(num, p.getText());
@@ -446,8 +446,8 @@ public class NumberParsingTest
     private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream) throws Exception
     {
         JsonParser p = useStream
-                ? FACTORY.createParser(doc.getBytes("UTF-8"))
-                        : FACTORY.createParser(doc);
+                ? FACTORY.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))
+                        : FACTORY.createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         BigInteger v = p.getBigIntegerValue();
         assertNull(p.nextToken());
@@ -590,11 +590,11 @@ public class NumberParsingTest
         // test out with both Reader and ByteArrayInputStream
         JsonParser p;
 
-        p = FACTORY.createParser(new StringReader(DOC));
+        p = FACTORY.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         _testLongerFloat(p, DOC);
         p.close();
         
-        p = FACTORY.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")));
+        p = FACTORY.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(DOC.getBytes("UTF-8")));
         _testLongerFloat(p, DOC);
         p.close();
     }

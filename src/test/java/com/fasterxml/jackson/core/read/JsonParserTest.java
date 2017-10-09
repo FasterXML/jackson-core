@@ -357,7 +357,7 @@ public class JsonParserTest extends BaseTest
         
         // Let's use real generator to get JSON done right
         StringWriter sw = new StringWriter(LEN + (LEN >> 2));
-        JsonGenerator g = JSON_FACTORY.createGenerator(sw);
+        JsonGenerator g = JSON_FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartObject();
         g.writeFieldName("doc");
         g.writeString(VALUE);
@@ -375,7 +375,7 @@ public class JsonParserTest extends BaseTest
                 p = createParser(type, DOC);
                 break;
             default:
-                p = JSON_FACTORY.createParser(encodeInUTF32BE(DOC));
+                p = JSON_FACTORY.createParser(ObjectReadContext.empty(), encodeInUTF32BE(DOC));
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
@@ -416,7 +416,7 @@ public class JsonParserTest extends BaseTest
 
         System.arraycopy(b, 0, src, offset, len);
 
-        JsonParser p = JSON_FACTORY.createParser(src, offset, len);
+        JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), src, offset, len);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -443,7 +443,7 @@ public class JsonParserTest extends BaseTest
         bytes.write("[ 1 ]".getBytes("UTF-8"));
         byte[] input = bytes.toByteArray();
 
-        JsonParser p = JSON_FACTORY.createParser(input);
+        JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), input);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         // should also have skipped first 3 bytes of BOM; but do we have offset available?
         /* 08-Oct-2013, tatu: Alas, due to [core#111], we have to omit BOM in calculations
@@ -480,7 +480,7 @@ public class JsonParserTest extends BaseTest
         w.close();
         URL url = f.toURI().toURL();
 
-        JsonParser p = JSON_FACTORY.createParser(url);
+        JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), url);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
@@ -524,8 +524,8 @@ public class JsonParserTest extends BaseTest
     {
         InputStream in = getClass().getResourceAsStream("/test_0xA0.json");
         JsonParser p = useStream
-                ? JSON_FACTORY.createParser(in)
-                : JSON_FACTORY.createParser(new InputStreamReader(in, "UTF-8"));
+                ? JSON_FACTORY.createParser(ObjectReadContext.empty(), in)
+                : JSON_FACTORY.createParser(ObjectReadContext.empty(), new InputStreamReader(in, "UTF-8"));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             assertToken(JsonToken.FIELD_NAME, p.nextToken());

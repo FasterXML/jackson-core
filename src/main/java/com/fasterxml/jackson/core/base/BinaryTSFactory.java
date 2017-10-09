@@ -117,6 +117,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     /**********************************************************
      */
 
+    /*
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
         throws IOException
@@ -127,11 +128,6 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     }
 
     @Override
-    public JsonGenerator createGenerator(Writer w) throws IOException {
-        return _nonByteTarget();
-    }
-
-    @Override
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
     {
         OutputStream out = new FileOutputStream(f);
@@ -139,6 +135,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         IOContext ioCtxt = _createContext(out, true, enc);
         return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(ioCtxt, out));
     }
+    */
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,

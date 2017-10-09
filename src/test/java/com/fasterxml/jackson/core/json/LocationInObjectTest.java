@@ -10,7 +10,7 @@ public class LocationInObjectTest extends BaseTest
         final JsonFactory f = new JsonFactory();
         byte[] b = "{\"f1\":\"v1\",\"f2\":{\"f3\":\"v3\"},\"f4\":[true,false],\"f5\":5}".getBytes("UTF-8");
         //            1      6      11    16 17    22      28    33 34 39      46    51
-        JsonParser p = f.createParser(b);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), b);
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
@@ -56,7 +56,7 @@ public class LocationInObjectTest extends BaseTest
         final JsonFactory f = new JsonFactory();
         char[] c = "{\"f1\":\"v1\",\"f2\":{\"f3\":\"v3\"},\"f4\":[true,false],\"f5\":5}".toCharArray();
         //            1      6      11    16 17    22      28    33 34 39      46    51
-        JsonParser p = f.createParser(c);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), c);
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 

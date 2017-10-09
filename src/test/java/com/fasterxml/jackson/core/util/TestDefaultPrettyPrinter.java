@@ -89,7 +89,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         final String EXP = "1|2|3";
 
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.setPrettyPrinter(pp);
 
         gen.writeNumber(1);
@@ -99,7 +99,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, sw.toString());
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        gen = JSON_F.createGenerator(bytes);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
         gen.setPrettyPrinter(pp);
 
         gen.writeNumber(1);
@@ -114,7 +114,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
                 .withObjectIndenter(null)
                 .withoutSpacesInObjectEntries();
         sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.setPrettyPrinter(pp);
 
         gen.writeNumber(1);
@@ -139,11 +139,11 @@ public class TestDefaultPrettyPrinter extends BaseTest
         if (useBytes) {
             sw = null;
             bytes = new ByteArrayOutputStream();
-            gen = JSON_F.createGenerator(bytes);
+            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
         } else {
             sw = new StringWriter();
             bytes = null;
-            gen = JSON_F.createGenerator(sw);
+            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         }
         gen.setPrettyPrinter(pp);
         gen.writeStartObject();

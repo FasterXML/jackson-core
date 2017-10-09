@@ -111,7 +111,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
-        JsonGenerator g = f.createGenerator(bytes);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartObject();
         g.writeNumberField("i1", NUMBER_EXP_I);
         g.writeNumberField("doubley", NUMBER_EXP_D);

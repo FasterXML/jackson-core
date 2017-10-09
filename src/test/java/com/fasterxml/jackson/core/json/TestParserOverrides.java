@@ -6,6 +6,7 @@ import java.io.StringReader;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectReadContext;
 
 public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
 {
@@ -43,8 +44,8 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     {
         final String DOC = "[ ]";
         JsonParser jp = useStream ?
-                jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-                : jf.createParser(DOC);
+                jf.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+                : jf.createParser(ObjectReadContext.empty(), DOC);
         assertNull(jp.currentToken());
         jp.clearCurrentToken();
         assertNull(jp.currentToken());
@@ -67,8 +68,8 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     {
         final String DOC = "{\"first\":{\"second\":3, \"third\":false}}";
         JsonParser jp = useStream ?
-                jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-                : jf.createParser(new StringReader(DOC));
+                jf.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+                : jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         assertNull(jp.currentToken());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());

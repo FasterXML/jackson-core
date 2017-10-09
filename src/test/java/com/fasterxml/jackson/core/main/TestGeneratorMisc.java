@@ -24,9 +24,10 @@ public class TestGeneratorMisc
     {
         for (int i = 0; i < 2; ++i) {
             boolean stream = ((i & 1) == 0);
+            ObjectWriteContext writeCtxt = ObjectWriteContext.empty();
             JsonGenerator jg = stream ?
-                    JSON_F.createGenerator(new StringWriter())
-                : JSON_F.createGenerator(new ByteArrayOutputStream(), JsonEncoding.UTF8)
+                    JSON_F.createGenerator(writeCtxt, new StringWriter())
+                : JSON_F.createGenerator(writeCtxt, new ByteArrayOutputStream(), JsonEncoding.UTF8)
                 ;
             assertFalse(jg.isClosed());
             jg.writeStartArray();
@@ -49,7 +50,7 @@ public class TestGeneratorMisc
     public void testRaw() throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartArray();
         gen.writeRaw("-123, true");
         gen.writeRaw(", \"x\"  ");
@@ -71,7 +72,7 @@ public class TestGeneratorMisc
     public void testRawValue() throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartArray();
         gen.writeRawValue("7");
         gen.writeRawValue("[ null ]");
@@ -113,18 +114,19 @@ public class TestGeneratorMisc
     {
         JsonGenerator g;
         ByteArrayOutputStream bout = new ByteArrayOutputStream(200);
+        final ObjectWriteContext writeCtxt = ObjectWriteContext.empty();
 
         switch (mode) {
         case 0:
-            g = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            g = jf.createGenerator(writeCtxt, new OutputStreamWriter(bout, "UTF-8"));
             break;
         case 1:
-            g = jf.createGenerator(bout, JsonEncoding.UTF8);
+            g = jf.createGenerator(writeCtxt, bout, JsonEncoding.UTF8);
             break;
         case 2:
             {
                 DataOutputStream dout = new DataOutputStream(bout);
-                g = jf.createGenerator((DataOutput) dout);
+                g = jf.createGenerator(writeCtxt, (DataOutput) dout);
             }
         
             break;
@@ -156,7 +158,7 @@ public class TestGeneratorMisc
         g.close();
 
         byte[] json = bout.toByteArray();
-        JsonParser jp = jf.createParser(json);
+        JsonParser jp = jf.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         for (int rounds = 0; rounds < 1500; ++rounds) {
         for (int letter = 'a'; letter <= 'z'; ++letter) {
@@ -192,13 +194,13 @@ public class TestGeneratorMisc
         JsonGenerator g;
 
         StringWriter sw = new StringWriter();
-        g = JSON_F.createGenerator(sw);
+        g = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeEmbeddedObject(null);
         g.close();
         assertEquals("null", sw.toString());
 
         ByteArrayOutputStream bytes =  new ByteArrayOutputStream(100);
-        g = JSON_F.createGenerator(bytes);
+        g = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeEmbeddedObject(null);
         g.close();
         assertEquals("null", bytes.toString("UTF-8"));
@@ -206,7 +208,7 @@ public class TestGeneratorMisc
         // also, for fun, try illegal unknown thingy
 
         try {
-            g = JSON_F.createGenerator(bytes);
+            g = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
             // try writing a Class object
             g.writeEmbeddedObject(getClass());
             fail("Expected an exception");

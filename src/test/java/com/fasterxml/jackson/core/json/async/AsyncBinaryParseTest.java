@@ -65,7 +65,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
         for (int size : SIZES) {
             byte[] binary = _generateData(size);
             ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
-            JsonGenerator g = f.createGenerator(bo);
+            JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
             g.writeBinary(binary);
             g.close();
             byte[] smile = bo.toByteArray();
@@ -93,7 +93,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
         for (int size : SIZES) {
             byte[] binary = _generateData(size);
             ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
-            JsonGenerator g = f.createGenerator(bo);
+            JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
             g.writeStartArray();
             g.writeBinary(binary);
             g.writeNumber(1); // just to verify there's no overrun
@@ -131,7 +131,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
         for (int size : SIZES) {
             byte[] data = _generateData(size);
             ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
-            JsonGenerator g = f.createGenerator(bo);
+            JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
             g.writeStartObject();
             g.writeFieldName("binary");
             g.writeBinary(data);

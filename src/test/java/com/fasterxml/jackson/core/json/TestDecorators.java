@@ -75,21 +75,21 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         f.setInputDecorator(new SimpleInputDecorator());
         JsonParser jp;
         // first test with Reader
-        jp = f.createParser(new StringReader("{ }"));
+        jp = f.createParser(ObjectReadContext.empty(), new StringReader("{ }"));
         // should be overridden;
         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(789, jp.getIntValue());
         jp.close();
 
         // similarly with InputStream
-        jp = f.createParser(new ByteArrayInputStream("[ ]".getBytes("UTF-8")));
+        jp = f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream("[ ]".getBytes("UTF-8")));
         // should be overridden;
         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(123, jp.getIntValue());
         jp.close();
 
         // and with raw bytes
-        jp = f.createParser("[ ]".getBytes("UTF-8"));
+        jp = f.createParser(ObjectReadContext.empty(), "[ ]".getBytes("UTF-8"));
         // should be overridden;
         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(456, jp.getIntValue());
@@ -103,12 +103,12 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         JsonGenerator jg;
 
         StringWriter sw = new StringWriter();
-        jg = f.createGenerator(sw);
+        jg = f.createGenerator(ObjectWriteContext.empty(), sw);
         jg.close();
         assertEquals("567", sw.toString());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        jg = f.createGenerator(out, JsonEncoding.UTF8);
+        jg = f.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         jg.close();
         assertEquals("123", out.toString("UTF-8"));
     }

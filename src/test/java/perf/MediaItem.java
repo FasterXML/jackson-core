@@ -37,7 +37,7 @@ public class MediaItem
     public String asJsonString(JsonFactory f) throws IOException
     {
         StringWriter w = new StringWriter();
-        JsonGenerator gen = f.createGenerator(w);
+        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), w);
         write(gen);
         gen.close();
         w.close();

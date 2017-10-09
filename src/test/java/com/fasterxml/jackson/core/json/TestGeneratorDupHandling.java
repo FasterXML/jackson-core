@@ -72,8 +72,8 @@ public class TestGeneratorDupHandling
     protected JsonGenerator _generator(JsonFactory f, boolean useStream) throws IOException
     {
         return useStream ?
-                f.createGenerator(new ByteArrayOutputStream())
-                : f.createGenerator(new StringWriter());
+                f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream())
+                : f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
     }
 
     protected void _writeSimple0(JsonGenerator g, String name) throws IOException

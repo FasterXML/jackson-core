@@ -138,16 +138,16 @@ public class Base64BinaryParsingTest
 
                 if (mode == MODE_READER) {
                     chars = new StringWriter();
-                    g = jsonFactory.createGenerator(chars);
+                    g = jsonFactory.createGenerator(ObjectWriteContext.empty(), chars);
                 } else {
                     bytes.reset();
-                    g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
+                    g = jsonFactory.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
                 }
                 g.writeBinary(variant, input, 0, input.length);
                 g.close();
                 JsonParser p;
                 if (mode == MODE_READER) {
-                    p = jsonFactory.createParser(chars.toString());
+                    p = jsonFactory.createParser(ObjectReadContext.empty(), chars.toString());
                 } else {
                     p = createParser(jsonFactory, mode, bytes.toByteArray());
                 }
@@ -197,10 +197,10 @@ public class Base64BinaryParsingTest
             JsonGenerator g;
             if (mode == MODE_READER) {
                 chars = new StringWriter();
-                g = jsonFactory.createGenerator(chars);
+                g = jsonFactory.createGenerator(ObjectWriteContext.empty(), chars);
             } else {
                 bytes.reset();
-                g = jsonFactory.createGenerator(bytes, JsonEncoding.UTF8);
+                g = jsonFactory.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
             }
 
             g.writeStartObject();
@@ -212,7 +212,7 @@ public class Base64BinaryParsingTest
             // and verify
             JsonParser p;
             if (mode == MODE_READER) {
-                p = jsonFactory.createParser(chars.toString());
+                p = jsonFactory.createParser(ObjectReadContext.empty(), chars.toString());
             } else {
                 p = createParser(jsonFactory, mode, bytes.toByteArray());
             }
@@ -268,7 +268,7 @@ public class Base64BinaryParsingTest
         final int entryCount = 7;
 
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = f.createGenerator(sw);
+        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), sw);
         jg.writeStartArray();
 
         byte[][] entries = new byte[entryCount][];

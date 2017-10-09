@@ -35,7 +35,7 @@ public class TestExceptions extends BaseTest
     // [core#198]
     public void testAccessToParser() throws Exception
     {
-        JsonParser p = JSON_F.createParser("{}");
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "{}");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         JsonParseException e = new JsonParseException(p, "Test!");
         assertSame(p, e.getProcessor());
@@ -51,7 +51,7 @@ public class TestExceptions extends BaseTest
     public void testAccessToGenerator() throws Exception
     {
         StringWriter w = new StringWriter();
-        JsonGenerator g = JSON_F.createGenerator(w);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         g.writeStartObject();
         JsonGenerationException e = new JsonGenerationException("Test!", g);
         assertSame(g, e.getProcessor());

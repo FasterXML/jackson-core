@@ -77,7 +77,7 @@ public class TestLocation extends BaseTest
         JsonFactory f = new JsonFactory();
         f.disable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION);
 
-        JsonParser p = f.createParser("[ foobar ]");
+        JsonParser p = f.createParser(ObjectReadContext.empty(), "[ foobar ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             p.nextToken();
@@ -91,7 +91,7 @@ public class TestLocation extends BaseTest
         p.close();
 
         // and verify same works for byte-based too
-        p = f.createParser("[ foobar ]".getBytes("UTF-8"));
+        p = f.createParser(ObjectReadContext.empty(), "[ foobar ]".getBytes("UTF-8"));
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             p.nextToken();

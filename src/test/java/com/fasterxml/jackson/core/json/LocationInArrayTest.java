@@ -23,8 +23,8 @@ public class LocationInArrayTest extends com.fasterxml.jackson.core.BaseTest
         final String DOC = "  [10, 251,\n   3  ]";
 
         // first, char based:
-        p = useBytes ? JSON_F.createParser(DOC.getBytes("UTF-8"))
-                : JSON_F.createParser(DOC.toCharArray());
+        p = useBytes ? JSON_F.createParser(ObjectReadContext.empty(), DOC.getBytes("UTF-8"))
+                : JSON_F.createParser(ObjectReadContext.empty(), DOC.toCharArray());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         _assertLocation(useBytes, p.getTokenLocation(), 2L, 1, 3);
         _assertLocation(useBytes, p.getCurrentLocation(), 3L, 1, 4);

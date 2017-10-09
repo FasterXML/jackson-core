@@ -18,18 +18,18 @@ public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
         // Let's create set of Strings to output; no ctrl chars as we do raw
         List<byte[]> strings = generateStrings(new Random(28), 750000, false);
         ByteArrayOutputStream out = new ByteArrayOutputStream(16000);
-        JsonFactory jf = new JsonFactory();
-        JsonGenerator jgen = jf.createGenerator(out, JsonEncoding.UTF8);
-        jgen.writeStartArray();
+        JsonFactory f = new JsonFactory();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
+        g.writeStartArray();
         for (byte[] str : strings) {
-            jgen.writeRawUTF8String(str, 0, str.length);
+            g.writeRawUTF8String(str, 0, str.length);
         }
-        jgen.writeEndArray();
-        jgen.close();
+        g.writeEndArray();
+        g.close();
         byte[] json = out.toByteArray();
         
         // Ok: let's verify that stuff was written out ok
-        JsonParser jp = jf.createParser(json);
+        JsonParser jp = f.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         for (byte[] inputBytes : strings) {
             assertToken(JsonToken.VALUE_STRING, jp.nextToken());
@@ -51,20 +51,20 @@ public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
         // Let's create set of Strings to output; do include control chars too:
         List<byte[]> strings = generateStrings(new Random(28), 720000, true);
         ByteArrayOutputStream out = new ByteArrayOutputStream(16000);
-        JsonFactory jf = new JsonFactory();
-        JsonGenerator jgen = jf.createGenerator(out, JsonEncoding.UTF8);
-        jgen.writeStartArray();
+        JsonFactory f = new JsonFactory();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
+        g.writeStartArray();
 
         for (byte[] str : strings) {
-            jgen.writeUTF8String(str, 0, str.length);
-            jgen.writeRaw('\n');
+            g.writeUTF8String(str, 0, str.length);
+            g.writeRaw('\n');
         }
-        jgen.writeEndArray();
-        jgen.close();
+        g.writeEndArray();
+        g.close();
         byte[] json = out.toByteArray();
         
         // Ok: let's verify that stuff was written out ok
-        JsonParser jp = jf.createParser(json);
+        JsonParser jp = f.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         for (byte[] inputBytes : strings) {
             assertToken(JsonToken.VALUE_STRING, jp.nextToken());
@@ -80,34 +80,34 @@ public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
 
     public void testWriteRawWithSerializable() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         
-        _testWithRaw(jf, true);
-        _testWithRaw(jf, false);
+        _testWithRaw(f, true);
+        _testWithRaw(f, false);
     }
     
     private void _testWithRaw(JsonFactory f, boolean useBytes) throws Exception
     {
-        JsonGenerator jgen;
+        JsonGenerator g;
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter sw = new StringWriter();
 
         if (useBytes) {
-            jgen = f.createGenerator(bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
-            jgen = f.createGenerator(sw);
+            g = f.createGenerator(ObjectWriteContext.empty(), sw);
         }
 
-        jgen.writeStartArray();
-        jgen.writeRawValue(new SerializedString("\"foo\""));
-        jgen.writeRawValue(new SerializedString("12"));
-        jgen.writeRaw(new SerializedString(", false"));
-        jgen.writeEndArray();
-        jgen.close();
+        g.writeStartArray();
+        g.writeRawValue(new SerializedString("\"foo\""));
+        g.writeRawValue(new SerializedString("12"));
+        g.writeRaw(new SerializedString(", false"));
+        g.writeEndArray();
+        g.close();
 
         JsonParser p = useBytes
-                ? f.createParser(bytes.toByteArray())
-                : f.createParser(sw.toString());
+                ? f.createParser(ObjectReadContext.empty(), bytes.toByteArray())
+                : f.createParser(ObjectReadContext.empty(), sw.toString());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());

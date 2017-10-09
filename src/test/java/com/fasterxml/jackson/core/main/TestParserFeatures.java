@@ -20,10 +20,10 @@ public class TestParserFeatures
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
 
-        JsonParser p = f.createParser(new StringReader("{}"));
+        JsonParser p = f.createParser(ObjectReadContext.empty(), new StringReader("{}"));
         _testDefaultSettings(p);
         p.close();
-        p = f.createParser(new ByteArrayInputStream("{}".getBytes("UTF-8")));
+        p = f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream("{}".getBytes("UTF-8")));
         _testDefaultSettings(p);
         p.close();
     }

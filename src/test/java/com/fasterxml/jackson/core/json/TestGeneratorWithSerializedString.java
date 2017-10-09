@@ -20,19 +20,19 @@ public class TestGeneratorWithSerializedString
 
         // First using char-backed generator
         StringWriter sw = new StringWriter();
-        JsonGenerator jgen = jf.createGenerator(sw);
+        JsonGenerator jgen = jf.createGenerator(ObjectWriteContext.empty(), sw);
         _writeSimple(jgen);
         jgen.close();
         String json = sw.toString();
-        _verifySimple(jf.createParser(json));
+        _verifySimple(jf.createParser(ObjectReadContext.empty(), json));
 
         // then using UTF-8
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        jgen = jf.createGenerator(out, JsonEncoding.UTF8);
+        jgen = jf.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         _writeSimple(jgen);
         jgen.close();
         byte[] jsonB = out.toByteArray();
-        _verifySimple(jf.createParser(jsonB));
+        _verifySimple(jf.createParser(ObjectReadContext.empty(), jsonB));
     }
 
     /*

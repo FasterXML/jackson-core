@@ -25,9 +25,11 @@ public class GeneratorBasicTest
                     JsonGenerator gen;
                     ByteArrayOutputStream bout = new ByteArrayOutputStream();
                     if (useReader != 0) {
-                        gen = JSON_F.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+                        gen = JSON_F.createGenerator(ObjectWriteContext.empty(),
+                                new OutputStreamWriter(bout, "UTF-8"));
                     } else {
-                        gen = JSON_F.createGenerator(bout, JsonEncoding.UTF8);
+                        gen = JSON_F.createGenerator(ObjectWriteContext.empty(),
+                                bout, JsonEncoding.UTF8);
                     }
                     if (writeString > 0) {
                         gen.writeString(input);
@@ -40,7 +42,8 @@ public class GeneratorBasicTest
                     }
                     gen.flush();
                     gen.close();
-                    JsonParser jp = JSON_F.createParser(new ByteArrayInputStream(bout.toByteArray()));
+                    JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(),
+                            new ByteArrayInputStream(bout.toByteArray()));
                 
                     JsonToken t = jp.nextToken();
                     assertNotNull("Document \""+bout.toString("UTF-8")+"\" yielded no tokens", t);
@@ -79,7 +82,7 @@ public class GeneratorBasicTest
             boolean state = (i & 1) == 0;
             boolean pad = (i & 2) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = JSON_F.createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
             gen.writeBoolean(state);
             if (pad) {
                 gen.writeRaw(" ");
@@ -104,7 +107,7 @@ public class GeneratorBasicTest
         for (int i = 0; i < 2; ++i) {
             boolean pad = (i & 1) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = JSON_F.createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
             gen.writeNull();
             if (pad) {
                 gen.writeRaw(" ");
@@ -129,7 +132,7 @@ public class GeneratorBasicTest
          throws Exception
      {
          StringWriter sw = new StringWriter();
-         JsonGenerator gen = JSON_F.createGenerator(sw);
+         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
          gen.writeNumber(1);
          gen.writeNumber(2);
          gen.writeNumber(-13);
@@ -157,7 +160,7 @@ public class GeneratorBasicTest
          throws Exception
      {
          StringWriter sw = new StringWriter();
-         JsonGenerator gen = JSON_F.createGenerator(sw);
+         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
          gen.writeStartObject();
          gen.writeNumberField("long", 3L);
          gen.writeNumberField("double", 0.25);
@@ -174,7 +177,7 @@ public class GeneratorBasicTest
     public void testOutputContext() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         TokenStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
 
@@ -242,12 +245,12 @@ public class GeneratorBasicTest
     public void testGetOutputTarget() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
-        JsonGenerator gen = JSON_F.createGenerator(out);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
         assertSame(out, gen.getOutputTarget());
         gen.close();
 
         StringWriter sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         assertSame(sw, gen.getOutputTarget());
         gen.close();
     }
@@ -256,12 +259,12 @@ public class GeneratorBasicTest
     public void testGetOutputBufferd() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
-        JsonGenerator gen = JSON_F.createGenerator(out);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
         _testOutputBuffered(gen);
         gen.close();
 
         StringWriter sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         _testOutputBuffered(gen);
         gen.close();
     }
@@ -303,24 +306,24 @@ public class GeneratorBasicTest
 
             if (useBytes) {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                JsonGenerator gen = JSON_F.createGenerator(bytes);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = bytes.toString("UTF-8");
-                p = JSON_F.createParser(bytes.toByteArray());
+                p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();
-                JsonGenerator gen = JSON_F.createGenerator(sw);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = sw.toString();
-                p = JSON_F.createParser(docStr);
+                p = JSON_F.createParser(ObjectReadContext.empty(), docStr);
             }
             JsonToken t = null;
             try {
@@ -359,24 +362,24 @@ public class GeneratorBasicTest
 
             if (useBytes) {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                JsonGenerator gen = JSON_F.createGenerator(bytes);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = bytes.toString("UTF-8");
-                p = JSON_F.createParser(bytes.toByteArray());
+                p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();
-                JsonGenerator gen = JSON_F.createGenerator(sw);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = sw.toString();
-                p = JSON_F.createParser(docStr);
+                p = JSON_F.createParser(ObjectReadContext.empty(), docStr);
             }
             JsonToken t = null;
             try {

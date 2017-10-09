@@ -44,7 +44,7 @@ public class JsonFactoryTest
         // First, generation
         for (int i = 0; i < 3; ++i) {
             StringWriter w = new StringWriter();
-            JsonGenerator gen = f.createGenerator(w);
+            JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), w);
             gen.writeStartObject();
             gen.writeEndObject();
             gen.close();
@@ -53,7 +53,7 @@ public class JsonFactoryTest
     
         for (int i = 0; i < 3; ++i) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            JsonGenerator gen = f.createGenerator(bytes);
+            JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
             gen.writeStartArray();
             gen.writeEndArray();
             gen.close();
@@ -62,13 +62,13 @@ public class JsonFactoryTest
 
         // Then parsing:
         for (int i = 0; i < 3; ++i) {
-            JsonParser p = f.createParser("{}");
+            JsonParser p = f.createParser(ObjectReadContext.empty(), "{}");
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());
             p.close();
 
-            p = f.createParser("{}".getBytes("UTF-8"));
+            p = f.createParser(ObjectReadContext.empty(), "{}".getBytes("UTF-8"));
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());
@@ -84,21 +84,21 @@ public class JsonFactoryTest
         JsonFactory f = new JsonFactory();
 
         // First: create file via generator.. and use an odd encoding
-        JsonGenerator jg = f.createGenerator(file, JsonEncoding.UTF16_LE);
-        jg.writeStartObject();
-        jg.writeRaw("   ");
-        jg.writeEndObject();
-        jg.close();
+        JsonGenerator g = f.createGenerator( ObjectWriteContext.empty(), file, JsonEncoding.UTF16_LE);
+        g.writeStartObject();
+        g.writeRaw("   ");
+        g.writeEndObject();
+        g.close();
 
         // Ok: first read file directly
-        JsonParser jp = f.createParser(file);
+        JsonParser jp = f.createParser(ObjectReadContext.empty(), file);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         assertNull(jp.nextToken());
         jp.close();
 
         // Then via URL:
-        jp = f.createParser(file.toURI().toURL());
+        jp = f.createParser(ObjectReadContext.empty(), file.toURI().toURL());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         assertNull(jp.nextToken());

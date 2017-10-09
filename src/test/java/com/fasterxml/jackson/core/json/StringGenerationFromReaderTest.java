@@ -134,8 +134,8 @@ public class StringGenerationFromReaderTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = (readMode != MODE_READER) ? FACTORY.createGenerator(bytes)
-                : FACTORY.createGenerator(sw);
+        JsonGenerator gen = (readMode != MODE_READER) ? FACTORY.createGenerator(ObjectWriteContext.empty(), bytes)
+                : FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartArray();
 
         StringReader reader = new StringReader(text);
@@ -145,7 +145,7 @@ public class StringGenerationFromReaderTest
 
         JsonParser p;
         if (readMode == MODE_READER) {
-            p = FACTORY.createParser(sw.toString());
+            p = FACTORY.createParser(ObjectReadContext.empty(), sw.toString());
         } else {
             p = createParser(FACTORY, readMode, bytes.toByteArray());
         }
@@ -161,7 +161,7 @@ public class StringGenerationFromReaderTest
         for (int i = 0; i < SAMPLES.length; ++i) {
             String VALUE = SAMPLES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = FACTORY.createGenerator(sw);
+            JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
             gen.writeStartArray();
             StringReader reader = new StringReader(VALUE);
             gen.writeString(reader, -1);
@@ -183,7 +183,7 @@ public class StringGenerationFromReaderTest
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
+        JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         StringReader reader = new StringReader(text);
         gen.writeString(reader, -1);
@@ -215,14 +215,14 @@ public class StringGenerationFromReaderTest
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
+        JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         StringReader reader = new StringReader(text);
         gen.writeString(reader, -1);
         gen.writeEndArray();
         gen.close();
         
-        gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
+        gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         gen.writeStartArray();
 

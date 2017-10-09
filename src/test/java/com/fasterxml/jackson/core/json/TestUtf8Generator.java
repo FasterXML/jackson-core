@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.ObjectWriteContext;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
@@ -35,7 +36,7 @@ public class TestUtf8Generator extends BaseTest
         gen.close();
         
         // Also verify it's parsable?
-        JsonParser p = JSON_F.createParser(bytes.toByteArray());
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
         for (int i = 1; i <= length; ++i) {
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(1, p.getIntValue());
@@ -51,7 +52,7 @@ public class TestUtf8Generator extends BaseTest
     {
         final String VALUE = quote("\ud83d\ude0c");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JsonGenerator g = JSON_F.createGenerator(out);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
         g.writeStartArray();
         g.writeRaw(VALUE);
         g.writeEndArray();
@@ -59,7 +60,7 @@ public class TestUtf8Generator extends BaseTest
 
         final byte[] JSON = out.toByteArray();
 
-        JsonParser jp = JSON_F.createParser(JSON);
+        JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         String str = jp.getText();
@@ -76,7 +77,7 @@ public class TestUtf8Generator extends BaseTest
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         @SuppressWarnings("resource")
-        JsonGenerator g = JSON_F.createGenerator(out);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(g,
                 new JsonPointerBasedFilter("/escapes"),
@@ -105,7 +106,7 @@ public class TestUtf8Generator extends BaseTest
         gen.writeEndObject();
         gen.close();
 
-        JsonParser p = JSON_F.createParser(out.toByteArray());
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), out.toByteArray());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());

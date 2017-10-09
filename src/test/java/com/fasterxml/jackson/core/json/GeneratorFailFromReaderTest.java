@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.ObjectWriteContext;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
@@ -48,9 +49,9 @@ public class GeneratorFailFromReaderTest
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
         
@@ -70,9 +71,9 @@ public class GeneratorFailFromReaderTest
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
 
@@ -94,9 +95,9 @@ public class GeneratorFailFromReaderTest
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
 

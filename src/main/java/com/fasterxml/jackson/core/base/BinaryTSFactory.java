@@ -51,7 +51,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         // true, since we create InputStream from File
         IOContext ioCtxt = _createContext(f, true);
         InputStream in = new FileInputStream(f);
-        return _createParser(readCtxt, _decorate(ioCtxt, in), ioCtxt);
+        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
@@ -59,13 +59,13 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         // true, since we create InputStream from URL
         IOContext ioCtxt = _createContext(url, true);
         InputStream in = _optimizedStreamFromURL(url);
-        return _createParser(readCtxt, _decorate(ioCtxt, in), ioCtxt);
+        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, InputStream in) throws IOException {
         IOContext ioCtxt = _createContext(in, false);
-        return _createParser(readCtxt, _decorate(ioCtxt, in), ioCtxt);
+        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
@@ -80,10 +80,10 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
             if (in != null) {
-                return _createParser(readCtxt, in, ioCtxt);
+                return _createParser(readCtxt, ioCtxt, in);
             }
         }
-        return _createParser(readCtxt, data, offset, len, ioCtxt);
+        return _createParser(readCtxt, ioCtxt, data, offset, len);
     }
 
     @Override
@@ -102,17 +102,17 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     public JsonParser createParser(ObjectReadContext readCtxt, 
             DataInput in) throws IOException {
         IOContext ioCtxt = _createContext(in, false);
-        return _createParser(readCtxt, _decorate(ioCtxt, in), ioCtxt);
+        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
     
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
-            InputStream in, IOContext ctxt) throws IOException;
+            IOContext ioCtxt, InputStream in) throws IOException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt, 
-            byte[] data, int offset, int len, IOContext ctxt) throws IOException;
+            IOContext ioCtxt, byte[] data, int offset, int len) throws IOException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
-            DataInput input, IOContext ctxt) throws IOException;
+            IOContext ioCtxt, DataInput input) throws IOException;
 
     /*
     /**********************************************************

@@ -671,26 +671,6 @@ public abstract class JsonParser
     public int getFormatFeatures() {
         return 0;
     }
-    
-    /**
-     * Bulk set method for (re)setting states of {@link FormatFeature}s,
-     * by specifying values (set / clear) along with a mask, to determine
-     * which features to change, if any.
-     *<p>
-     * Default implementation will simply throw an exception to indicate that
-     * the generator implementation does not support any {@link FormatFeature}s.
-     * 
-     * @param values Bit mask of set/clear state for features to change
-     * @param mask Bit mask of features to change
-     * 
-     * @since 2.6
-     */
-    public JsonParser overrideFormatFeatures(int values, int mask) {
-        throw new IllegalArgumentException("No FormatFeatures defined for parser of type "+getClass().getName());
-        /*
-        _formatFeatures = (_formatFeatures & ~mask) | (values & mask);
-        */
-    }
 
     /*
     /**********************************************************

@@ -120,7 +120,7 @@ public abstract class TextualTSFactory extends DecorableTSFactory
         if ((_inputDecorator != null) || (strLen > 0x8000) || !canUseCharArrays()) {
             // easier to just wrap in a Reader than extend InputDecorator; or, if content
             // is too long for us to copy it over
-            return createParser(new StringReader(content));
+            return createParser(readCtxt, new StringReader(content));
         }
         IOContext ioCtxt = _createContext(content, true);
         char[] buf = ioCtxt.allocTokenBuffer(strLen);

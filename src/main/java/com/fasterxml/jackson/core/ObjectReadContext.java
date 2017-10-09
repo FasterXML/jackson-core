@@ -35,21 +35,34 @@ public interface ObjectReadContext
      * Method for construct Array nodes for Tree Model instances.
      */
     public ArrayTreeNode createArrayNode();
-    
+
     /**
      * Method for construct Object nodes for Tree Model instances.
      */
     public ObjectTreeNode createObjectNode();
-    
-    // // // Databinding callbacks, value deserialization
+
+    // // // Databinding callbacks, tree deserialization
+
+    public <T extends TreeNode> T readTree(JsonParser p) throws IOException;
+
+    /**
+     * Convenience method for traversing over given {@link TreeNode} by exposing
+     * contents as a {@link JsonParser}.
+     *<p>
+     * NOTE! Returned parser has not been advanced to the first token; caller has to
+     * do this.
+     */
+    default JsonParser treeAsTokens(TreeNode n) {
+        return n.traverse(this);
+    }
+
+    // // // Databinding callbacks, non-tree value deserialization
 
     public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException;
 
     public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException;
 
     public <T> T readValue(JsonParser p, ResolvedType type) throws IOException;
-
-    public <T extends TreeNode> T readTree(JsonParser p) throws IOException;
 
     /**
      * Default no-op implementation.
@@ -84,8 +97,15 @@ public interface ObjectReadContext
             return _reportUnsupportedOperation();
         }
 
-        // // // Databind integration
+        // // // Databind integration, trees
 
+        @Override
+        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+            return _reportUnsupportedOperation();
+        }
+
+        // // // Databind integration, other values
+        
         @Override
         public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
             return _reportUnsupportedOperation();
@@ -98,11 +118,6 @@ public interface ObjectReadContext
 
         @Override
         public <T> T readValue(JsonParser p, ResolvedType type) throws IOException {
-            return _reportUnsupportedOperation();
-        }
-
-        @Override
-        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
             return _reportUnsupportedOperation();
         }
 

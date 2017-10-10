@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
@@ -22,13 +24,37 @@ public interface ObjectReadContext
         return Base.EMPTY_CONTEXT;
     }
 
-    // // // Configuration
+    // // // Configuration access
 
     public FormatSchema getSchema();
 
     public int getParserFeatures(int defaults);
     public int getFormatReadFeatures(int defaults);
 
+    public TokenStreamFactory getParserFactory();
+
+    // // // Parser construction
+
+    default JsonParser createParser(InputStream in) throws IOException {
+        return getParserFactory().createParser(this, in);
+    }
+
+    default JsonParser createParser(Reader r) throws IOException {
+        return getParserFactory().createParser(this, r);
+    }
+
+    default JsonParser createParser(String content) throws IOException {
+        return getParserFactory().createParser(this, content);
+    }
+
+    default JsonParser createParser(byte[] content) throws IOException {
+        return getParserFactory().createParser(this, content);
+    }
+
+    default JsonParser createParser(byte[] content, int offset, int length) throws IOException {
+        return getParserFactory().createParser(this, content, offset, length);
+    }
+    
     // // // Databinding callbacks, tree node creation
 
     /**
@@ -71,7 +97,7 @@ public interface ObjectReadContext
         protected static Base EMPTY_CONTEXT = new Base();
 
         // // // Config access methods
-        
+
         @Override
         public FormatSchema getSchema() { return null; }
 
@@ -83,6 +109,11 @@ public interface ObjectReadContext
         @Override
         public int getFormatReadFeatures(int defaults) {
             return defaults;
+        }
+
+        @Override
+        public TokenStreamFactory getParserFactory() {
+            return _reportUnsupportedOperation();
         }
 
         // // // Databind, trees

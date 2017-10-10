@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
@@ -21,7 +23,7 @@ public interface ObjectWriteContext
         return Base.EMPTY_CONTEXT;
     }
 
-    // // // Configuration
+    // // // Configuration access
 
     public FormatSchema getSchema();
 
@@ -31,6 +33,23 @@ public interface ObjectWriteContext
 
     public int getGeneratorFeatures(int defaults);
     public int getFormatWriteFeatures(int defaults);
+
+    public TokenStreamFactory getGeneratorFactory();
+
+    // // // Generator construction: limited to targets that make sense for embedding
+    // // // purposes (like "JSON in JSON" etc)
+
+    default JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return getGeneratorFactory().createGenerator(this, out);
+    }
+
+    default JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+        return getGeneratorFactory().createGenerator(this, out, enc);
+    }
+
+    default JsonGenerator createGenerator(Writer w) throws IOException {
+        return getGeneratorFactory().createGenerator(this, w);
+    }
 
     // // // Databinding callbacks, tree node creation
 
@@ -81,6 +100,11 @@ public interface ObjectWriteContext
             return defaults;
         }
 
+        @Override
+        public TokenStreamFactory getGeneratorFactory() {
+            return _reportUnsupportedOperation();
+        }
+        
         @Override
         public int getFormatWriteFeatures(int defaults) {
             return defaults;

@@ -621,37 +621,37 @@ public abstract class TokenStreamFactory
      */
 
     @Deprecated
-    public final JsonParser createParser(File src) throws IOException {
+    public JsonParser createParser(File src) throws IOException {
         return createParser(ObjectReadContext.empty(), src);
     }
 
     @Deprecated
-    public final JsonParser createParser(URL src) throws IOException {
+    public JsonParser createParser(URL src) throws IOException {
         return createParser(ObjectReadContext.empty(), src);
     }
 
     @Deprecated
-    public final JsonParser createParser(InputStream in) throws IOException {
+    public JsonParser createParser(InputStream in) throws IOException {
         return createParser(ObjectReadContext.empty(), in);
     }
 
     @Deprecated
-    public final JsonParser createParser(Reader r) throws IOException {
+    public JsonParser createParser(Reader r) throws IOException {
         return createParser(ObjectReadContext.empty(), r);
     }
 
     @Deprecated
-    public final JsonParser createParser(byte[] data) throws IOException {
+    public JsonParser createParser(byte[] data) throws IOException {
         return createParser(ObjectReadContext.empty(), data, 0, data.length);
     }
 
     @Deprecated
-    public final JsonParser createParser(byte[] data, int offset, int len) throws IOException {
+    public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
         return createParser(ObjectReadContext.empty(), data, offset, len);
     }
 
     @Deprecated
-    public final JsonParser createParser(String content) throws IOException {
+    public JsonParser createParser(String content) throws IOException {
         return createParser(ObjectReadContext.empty(), content);
     }
 
@@ -661,7 +661,7 @@ public abstract class TokenStreamFactory
     }
 
     @Deprecated
-    public final JsonParser createParser(char[] content, int offset, int len) throws IOException {
+    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         return createParser(ObjectReadContext.empty(), content, offset, len);
     }
 
@@ -841,7 +841,7 @@ public abstract class TokenStreamFactory
      * Note: there are formats that use fixed encoding (like most binary data formats).
      */
     @Deprecated
-    public final JsonGenerator createGenerator(OutputStream out) throws IOException {
+    public JsonGenerator createGenerator(OutputStream out) throws IOException {
         return createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
     }
     
@@ -859,7 +859,7 @@ public abstract class TokenStreamFactory
      * @param w Writer to use for writing JSON content 
      */
     @Deprecated
-    public final JsonGenerator createGenerator(Writer w) throws IOException {
+    public JsonGenerator createGenerator(Writer w) throws IOException {
         return createGenerator(ObjectWriteContext.empty(), w);
     }
 
@@ -878,7 +878,7 @@ public abstract class TokenStreamFactory
      * @param enc Character encoding to use
      */
     @Deprecated
-    public final JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException {
         return createGenerator(ObjectWriteContext.empty(), f, enc);
     }
 
@@ -887,7 +887,7 @@ public abstract class TokenStreamFactory
      * {@link DataOutput} instance.
      */
     @Deprecated
-    public final JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException {
         return createGenerator(ObjectWriteContext.empty(),
                 _createDataOutputWrapper(out), enc);
     }
@@ -899,7 +899,7 @@ public abstract class TokenStreamFactory
      * Note: there are formats that use fixed encoding (like most binary data formats).
      */
     @Deprecated
-    public final JsonGenerator createGenerator(DataOutput out) throws IOException {
+    public JsonGenerator createGenerator(DataOutput out) throws IOException {
         return createGenerator(ObjectWriteContext.empty(),
                 _createDataOutputWrapper(out), JsonEncoding.UTF8);
     }

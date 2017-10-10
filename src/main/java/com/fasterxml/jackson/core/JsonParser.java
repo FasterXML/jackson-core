@@ -448,8 +448,9 @@ public abstract class JsonParser
      * @throws UnsupportedOperationException if parser does not support schema
      */
     public void setSchema(FormatSchema schema) {
-        throw new UnsupportedOperationException("Parser of type "+getClass().getName()+" does not support schema of type '"
-                +schema.getSchemaType()+"'");
+        String desc = (schema == null) ? "NULL" : String.format("'%s'", schema.getSchemaType());
+        throw new UnsupportedOperationException("Parser of type "+getClass().getName()
+                +" does not support schema of type "+desc);
     }
 
     /**

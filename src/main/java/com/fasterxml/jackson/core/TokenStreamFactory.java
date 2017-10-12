@@ -356,7 +356,7 @@ public abstract class TokenStreamFactory
     public final boolean isEnabled(TokenStreamFactory.Feature f) {
         return (_factoryFeatures & f.getMask()) != 0;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, parser features
@@ -394,6 +394,13 @@ public abstract class TokenStreamFactory
      */
     public final boolean isEnabled(JsonParser.Feature f) {
         return (_parserFeatures & f.getMask()) != 0;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public final int getParserFeatures() {
+        return _parserFeatures;
     }
 
     /*
@@ -435,59 +442,11 @@ public abstract class TokenStreamFactory
         return (_generatorFeatures & f.getMask()) != 0;
     }
 
-    /*
-    /**********************************************************
-    /* Configuration, input/output decorators, modifiers
-    /**********************************************************
-     */
-
     /**
-     * Method for getting currently configured input decorator (if any;
-     * there is no default decorator).
+     * @since 3.0
      */
-    public abstract InputDecorator getInputDecorator();
-
-    /**
-     * Method for overriding currently configured input decorator
-     */
-    public abstract TokenStreamFactory setInputDecorator(InputDecorator d);
-
-    /**
-     * Method for getting currently configured output decorator (if any;
-     * there is no default decorator).
-     */
-    public abstract OutputDecorator getOutputDecorator();
-
-    /**
-     * Method for overriding currently configured output decorator
-     */
-    public abstract TokenStreamFactory setOutputDecorator(OutputDecorator d);
-    
-    /**
-     * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
-     * it creates.
-     */
-    public CharacterEscapes getCharacterEscapes() { return null; }
-
-    /**
-     * Method for defining custom escapes factory uses for {@link JsonGenerator}s
-     * it creates.
-     */
-    public TokenStreamFactory setCharacterEscapes(CharacterEscapes esc) {
-        return _unsupported();
-    }
-
-    public String getRootValueSeparator() { return null; }
-    
-    /**
-     * Method that allows overriding String used for separating root-level
-     * JSON values (default is single space character)
-     * 
-     * @param sep Separator to use, if any; null means that no separator is
-     *   automatically added
-     */
-    public TokenStreamFactory setRootValueSeparator(String sep) {
-        return _unsupported();
+    public final int getGeneratorFeatures() {
+        return _generatorFeatures;
     }
 
     /*

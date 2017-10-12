@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.URL;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.UTF8Writer;
 
@@ -58,6 +59,39 @@ public abstract class TextualTSFactory extends DecorableTSFactory
      * recyclable intermediate buffer.
      */
     public boolean canUseCharArrays() { return true; }
+
+    /*
+    /**********************************************************
+    /* Configuration, textual configuration
+    /**********************************************************
+     */
+    
+    /**
+     * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
+     * it creates.
+     */
+    public CharacterEscapes getCharacterEscapes() { return null; }
+
+    /**
+     * Method for defining custom escapes factory uses for {@link JsonGenerator}s
+     * it creates.
+     */
+    public TokenStreamFactory setCharacterEscapes(CharacterEscapes esc) {
+        return _unsupported();
+    }
+
+    public String getRootValueSeparator() { return null; }
+    
+    /**
+     * Method that allows overriding String used for separating root-level
+     * JSON values (default is single space character)
+     * 
+     * @param sep Separator to use, if any; null means that no separator is
+     *   automatically added
+     */
+    public TokenStreamFactory setRootValueSeparator(String sep) {
+        return _unsupported();
+    }
 
     /*
     /**********************************************************
@@ -170,44 +204,6 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     /* Factory methods: generators
     /**********************************************************
      */
-
-    /*
-    @Override
-    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
-        throws IOException
-    {
-        // false -> we won't manage the stream unless explicitly directed to
-        IOContext ioCtxt = _createContext(out, false).setEncoding(enc);
-        if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(EMPTY_WRITE_CONTEXT, ioCtxt,
-                    _decorate(ioCtxt, out));
-        }
-        Writer w = _createWriter(ioCtxt, out, enc);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt,
-                _decorate(ioCtxt, w));
-    }
-
-    @Override
-    public JsonGenerator createGenerator(Writer w) throws IOException {
-        IOContext ioCtxt = _createContext(w, false);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt,
-                _decorate(ioCtxt, w));
-    }
-
-    @Override
-    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
-    {
-        OutputStream out = new FileOutputStream(f);
-        // true -> yes, we have to manage the stream since we created it
-        IOContext ioCtxt = _createContext(f, true).setEncoding(enc);
-        if (enc == JsonEncoding.UTF8) {
-            return _createUTF8Generator(EMPTY_WRITE_CONTEXT, ioCtxt,
-                    _decorate(ioCtxt, out));
-        }
-        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt,
-                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
-    }
-    */
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,

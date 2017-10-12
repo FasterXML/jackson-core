@@ -49,27 +49,23 @@ public abstract class DecorableTSFactory
 
     /*
     /**********************************************************
-    /* Configuration
+    /* Configuration, decorators
     /**********************************************************
      */
 
-    @Override
     public OutputDecorator getOutputDecorator() {
         return _outputDecorator;
     }
 
-    @Override
     public DecorableTSFactory setOutputDecorator(OutputDecorator d) {
         _outputDecorator = d;
         return this;
     }
 
-    @Override
     public InputDecorator getInputDecorator() {
         return _inputDecorator;
     }
 
-    @Override
     public DecorableTSFactory setInputDecorator(InputDecorator d) {
         _inputDecorator = d;
         return this;

@@ -50,8 +50,6 @@ public abstract class ResolvedType
      * values themselves. Typical examples include things like
      * {@link java.util.concurrent.atomic.AtomicReference}, and various
      * <code>Optional</code> types (in JDK8, Guava).
-     *
-     * @since 2.6
      */
     public boolean isReferenceType() {
         return getReferencedType() != null;

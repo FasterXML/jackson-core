@@ -5,6 +5,7 @@
 package com.fasterxml.jackson.core;
 
 import java.io.*;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -179,18 +180,31 @@ public class JsonFactory
     /* Buffer, symbol table management
     /**********************************************************
      */
+
+    /*
+     * For issue #400: In ThreadLocal a WeakReference is used instead of SoftReference,
+     * so if no other (stronger) reference references the BufferRecycler, it will be gc-ed quickly.
+     * We keep references here to the BufferRecyclers in all ThreadLocals in order to be able to release them (dereference) in shutdown method.
+     * This is a list of SoftReferences, so BufferRecyclers will still be released in case of memory pressure, when not using the shutdown.
+     * We use a referenceQueue to release the SoftReferences which were cleared by gc.
+    */
+
     /**
      * A list of the used buffer recyclers, softly referenced. Used to be able to release them on shutdown.
      */
-    private static final List<SoftReference<BufferRecycler>> bufRecList = Collections.synchronizedList(new ArrayList<SoftReference<BufferRecycler>>());
+    private static final List<SoftReference<BufferRecycler>> bufRecyclerList = Collections.synchronizedList(new ArrayList<SoftReference<BufferRecycler>>());
+
+    /**
+     * Queue where gc will put just-cleared SoftReferences, previously referencing BufferRecyclers. We use it to remove the cleared softRefs from the above list.
+     */
+    private static final ReferenceQueue<BufferRecycler> refQueue = new ReferenceQueue<BufferRecycler>();
 
     /**
      * This <code>ThreadLocal</code> contains a {@link java.lang.ref.WeakReference}
      * to a {@link BufferRecycler} used to provide a low-cost
      * buffer recycling between reader and writer instances.
      */
-    final protected static ThreadLocal<WeakReference<BufferRecycler>> _recyclerRef
-        = new ThreadLocal<WeakReference<BufferRecycler>>();
+    final protected static ThreadLocal<WeakReference<BufferRecycler>> _recyclerRef = new ThreadLocal<WeakReference<BufferRecycler>>();
 
     /**
      * Each factory comes equipped with a shared root symbol table.
@@ -1000,9 +1014,10 @@ public class JsonFactory
      * application to survive much longer than the application itself.
      */
     public void shutdown() {
-        for (SoftReference ref : bufRecList) {
+        for (SoftReference ref : bufRecyclerList) {
             ref.clear(); // possibly already cleared by gc, nothing happens in that case
         }
+        bufRecyclerList.clear(); //release cleared SoftRefs
     }
 
     /**
@@ -1242,12 +1257,36 @@ public class JsonFactory
             if (br == null) {
                 br = new BufferRecycler();
                 _recyclerRef.set(new WeakReference<BufferRecycler>(br));
+
                 // retain br softly in a list to be able to release it on shutdown
-                bufRecList.add(new SoftReference<BufferRecycler>(br));
+                bufRecyclerList.add(new SoftReference<BufferRecycler>(br, refQueue));
+                // gc may have cleared one or more SoftRefs
+                removeClearedSoftRefs();
             }
             return br;
         }
         return new BufferRecycler();
+    }
+
+    /**
+     * Remove cleared (inactive) SoftRefs from our list. Gc may have cleared one or more, and made them inactive.
+     * We minimize contention by keeping critical sections short: the list methods
+     */
+    private static void removeClearedSoftRefs() {
+        final int MAX_TO_REMOVE = 100; // limit work
+        int iter = 0;
+        while (refQueue.poll() != null && iter++ < MAX_TO_REMOVE) {
+            try {
+                SoftReference clearedSoftRef = (SoftReference) refQueue.remove(1); // timeout 1 ms in case we got scheduled out and another thread removed it
+                if (clearedSoftRef != null) {
+                    bufRecyclerList.remove(clearedSoftRef); // uses reference-equality, quick, as we want
+                }
+            }
+            catch(InterruptedException e) {
+                // may be interrupted during the remove with timeout. Set the flag back to interrupted, nothing else needed
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**

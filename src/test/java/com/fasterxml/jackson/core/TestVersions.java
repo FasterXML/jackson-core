@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.json.*;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-
 /**
  * Tests to verify functioning of {@link Version} class.
  */

@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.9.2 (13-Oct-2017)
+
+- New parent pom (`jackson-base`)
+
 2.9.1 (07-Sep-2017)
 
 #397: Add `Automatic-Module-Name` ("com.fasterxml.jackson.core") for JDK 9 module system

@@ -3,15 +3,10 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.junit.Test;
+
 import static org.junit.Assert.*;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.core.util.BufferRecycler;
-import java.io.FileDescriptor;
-import java.io.IOException;
-import java.io.PipedReader;
 
 /**
  * Unit tests for class {@link JsonReadContext}.

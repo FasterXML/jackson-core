@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
@@ -181,14 +182,6 @@ public class JsonFactory
     /* Buffer, symbol table management
     /**********************************************************
      */
-
-    /**
-     * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
-     * to a {@link BufferRecycler} used to provide a low-cost
-     * buffer recycling between reader and writer instances.
-     */
-    final protected static ThreadLocal<SoftReference<BufferRecycler>> _recyclerRef
-        = new ThreadLocal<SoftReference<BufferRecycler>>();
 
     /**
      * Each factory comes equipped with a shared root symbol table.
@@ -1542,14 +1535,7 @@ public class JsonFactory
          *   on Android, for example)
          */
         if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            SoftReference<BufferRecycler> ref = _recyclerRef.get();
-            BufferRecycler br = (ref == null) ? null : ref.get();
-    
-            if (br == null) {
-                br = new BufferRecycler();
-                _recyclerRef.set(new SoftReference<BufferRecycler>(br));
-            }
-            return br;
+            return BufferRecyclers.getBufferRecycler();
         }
         return new BufferRecycler();
     }

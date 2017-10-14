@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.io.NumberInput;
-import org.junit.Test;
 
 public class TestTextBuffer
     extends com.fasterxml.jackson.core.BaseTest

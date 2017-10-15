@@ -10,6 +10,7 @@ import java.net.URL;
 
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.BufferRecyclers;
 
 /**
  * The main factory class of Jackson streaming package, used to configure and
@@ -154,20 +155,6 @@ public abstract class TokenStreamFactory
      * by default.
      */
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
-
-    /*
-    /**********************************************************
-    /* Buffer recycling support
-    /**********************************************************
-     */
-
-    /**
-     * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
-     * to a {@link BufferRecycler} used to provide a low-cost
-     * buffer recycling between reader and writer instances.
-     */
-    final protected static ThreadLocal<SoftReference<BufferRecycler>> _recyclerRef
-        = new ThreadLocal<SoftReference<BufferRecycler>>();
 
     /*
     /**********************************************************
@@ -882,14 +869,7 @@ public abstract class TokenStreamFactory
          *   on Android, for example)
          */
         if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
-            SoftReference<BufferRecycler> ref = _recyclerRef.get();
-            BufferRecycler br = (ref == null) ? null : ref.get();
-    
-            if (br == null) {
-                br = new BufferRecycler();
-                _recyclerRef.set(new SoftReference<BufferRecycler>(br));
-            }
-            return br;
+            return BufferRecyclers.getBufferRecycler();
         }
         return new BufferRecycler();
     }

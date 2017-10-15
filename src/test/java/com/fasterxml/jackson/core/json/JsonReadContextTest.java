@@ -3,7 +3,9 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**

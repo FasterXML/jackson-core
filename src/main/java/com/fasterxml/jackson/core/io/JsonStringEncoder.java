@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.core.io;
 
-import java.lang.ref.SoftReference;
-
-import com.fasterxml.jackson.core.util.BufferRecycler;
+import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -28,14 +26,6 @@ public final class JsonStringEncoder
 //    private final static int INT_BACKSLASH = '\\';
 //    private final static int INT_U = 'u';
 //    private final static int INT_0 = '0';
-    
-    /**
-     * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
-     * to a {@link BufferRecycler} used to provide a low-cost
-     * buffer recycling between reader and writer instances.
-     */
-    final protected static ThreadLocal<SoftReference<JsonStringEncoder>> _threadEncoder
-        = new ThreadLocal<SoftReference<JsonStringEncoder>>();
 
     /**
      * Lazily constructed text buffer used to produce JSON encoded Strings
@@ -70,16 +60,12 @@ public final class JsonStringEncoder
     /**
      * Factory method for getting an instance; this is either recycled per-thread instance,
      * or a newly constructed one.
+     *
+     * @deprecated Since 2.9.2 use {@link BufferRecyclers#getJsonStringEncoder()} instead
      */
+    @Deprecated
     public static JsonStringEncoder getInstance() {
-        SoftReference<JsonStringEncoder> ref = _threadEncoder.get();
-        JsonStringEncoder enc = (ref == null) ? null : ref.get();
-
-        if (enc == null) {
-            enc = new JsonStringEncoder();
-            _threadEncoder.set(new SoftReference<JsonStringEncoder>(enc));
-        }
-        return enc;
+        return BufferRecyclers.getJsonStringEncoder();
     }
 
     /*

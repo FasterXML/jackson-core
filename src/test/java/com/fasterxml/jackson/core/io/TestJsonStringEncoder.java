@@ -6,6 +6,7 @@ import java.util.Random;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.BufferRecyclers;
 
 public class TestJsonStringEncoder
     extends com.fasterxml.jackson.core.BaseTest
@@ -110,7 +111,7 @@ public class TestJsonStringEncoder
     public void testCtrlChars() throws Exception
     {
         char[] input = new char[] { 0, 1, 2, 3, 4 };
-        char[] quoted = JsonStringEncoder.getInstance().quoteAsString(new String(input));
+        char[] quoted = BufferRecyclers.getJsonStringEncoder().quoteAsString(new String(input));
         assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", new String(quoted));
     }
 
@@ -121,7 +122,7 @@ public class TestJsonStringEncoder
         StringBuilder builder = new StringBuilder();
         builder.append(input);
         StringBuilder output = new StringBuilder();
-        JsonStringEncoder.getInstance().quoteAsString(builder, output);
+        BufferRecyclers.getJsonStringEncoder().quoteAsString(builder, output);
         assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", output.toString());
     }
 

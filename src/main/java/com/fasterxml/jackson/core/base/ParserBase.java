@@ -442,9 +442,6 @@ public abstract class ParserBase extends ParserMinimalBase
         }
     }
 
-    /**
-     * @since 2.4
-     */
     protected final int _eofAsNextChar() throws JsonParseException {
         _handleEOF();
         return -1;

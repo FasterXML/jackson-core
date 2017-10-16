@@ -382,7 +382,7 @@ public abstract class NonBlockingJsonParserBase
         }
     }
 
-    @Override // since 2.8
+    @Override
     public int getText(Writer writer) throws IOException
     {
         JsonToken t = _currToken;
@@ -409,8 +409,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     // // // Let's override default impls for improved performance
-    
-    // @since 2.1
+
     @Override
     public String getValueAsString() throws IOException
     {
@@ -422,8 +421,7 @@ public abstract class NonBlockingJsonParserBase
         }
         return super.getValueAsString(null);
     }
-    
-    // @since 2.1
+
     @Override
     public String getValueAsString(String defValue) throws IOException
     {

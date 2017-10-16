@@ -916,7 +916,7 @@ public class NonBlockingJsonParser
     /* Second-level decoding, skipping white-space, comments
     /**********************************************************************
      */
-    
+
     private final int _skipWS(int ch) throws IOException
     {
         do {

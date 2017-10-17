@@ -202,7 +202,7 @@ public class CommentParsingTest
         }
         
     }
-    
+
     private void _testYAMLComments(JsonFactory f, int mode) throws Exception
     {
         final String DOC = "# foo\n"

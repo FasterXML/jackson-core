@@ -753,6 +753,103 @@ public class UTF8StreamJsonParser
     }
 
     /*
+    /**********************************************************
+    /* Public API, traversal, nextXxxValue/nextFieldName
+    /**********************************************************
+     */
+
+    @Override
+    public String nextFieldName() throws IOException
+    {
+        // // // Note: this is almost a verbatim copy of nextToken()
+        if (_tokenIncomplete) {
+            _skipString(); // only strings can be partial
+        }
+        // clear any data retained so far
+        _binaryValue = null;
+        _numTypesValid = NR_UNKNOWN;
+
+        if (_inputPtr >= _inputEnd) {
+            if (!_loadMore()) {
+                _handleEOF();
+                return null;
+            }
+        }
+
+        int st = _majorState;
+        if (st == MAJOR_OBJECT_FIELD_NEXT) {
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            if (ch <= 0x0020) {
+                ch = _skipWSNoEOF(ch); // will skip through all available ws (and comments)
+            }
+            if (ch != INT_COMMA) { // either comma, separating entries, or closing right curly
+                if (ch == INT_RCURLY) {
+                    _closeObjectScope();
+                    return null;
+                }
+                ch = _skipCommentsAndWS(ch);
+                if (ch != INT_COMMA) {
+                    if (ch == INT_RCURLY) {
+                        _closeObjectScope();
+                        return null;
+                    }
+                    _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+                }
+            }
+            if (_inputPtr >= _inputEnd) {
+                _loadMoreGuaranteed();
+            }
+            ch = _inputBuffer[_inputPtr++];
+            if (ch <= 0x0020) {
+                ch = _skipWSNoEOF(ch);
+                // must always return valid char (no valid EOF at this point)
+            }
+            _updateTokenLocation();
+            if (ch != INT_QUOTE) {
+                if (ch == INT_RCURLY) {
+                    if (JsonParser.Feature.ALLOW_TRAILING_COMMA.enabledIn(_features)) {
+                        _closeObjectScope();
+                        return null;
+                    }
+                }
+                return (_handleOddName(ch) == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+            }
+            // First: can we optimize out bounds checks?
+            if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
+                String n = _fastParseName();
+                if (n != null) {
+                    return _fieldCompleteReturnName(n);
+                }
+            }
+            return (_parseEscapedName(0, 0, 0) == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        } else if (st == MAJOR_OBJECT_FIELD_FIRST) {
+            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            if (ch <= 0x0020) {
+                // NOTE: can not return succesfully without some data
+                ch = _skipWSNoEOF(ch);
+            }
+            _updateTokenLocation();
+            if (ch != INT_QUOTE) {
+                if (ch == INT_RCURLY) {
+                    _closeObjectScope();
+                    return null;
+                }
+                return (_handleOddName(ch) == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+            }
+            // First: can we optimize out bounds checks?
+            if ((_inputPtr + 13) <= _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
+                String n = _fastParseName();
+                if (n != null) {
+                    return _fieldCompleteReturnName(n);
+                }
+            }
+            return (_parseEscapedName(0, 0, 0) == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        } else {
+            return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        }
+    }
+
+    /*
     /**********************************************************************
     /* Second-level decoding, field names
     /**********************************************************************
@@ -800,13 +897,10 @@ public class UTF8StreamJsonParser
                 _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
         }
-        int ptr = _inputPtr;
-        if (ptr >= _inputEnd) {
+        if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
-            ptr = _inputPtr;
         }
-        ch = _inputBuffer[ptr];
-        _inputPtr = ptr+1;
+        ch = _inputBuffer[_inputPtr++];
         if (ch <= 0x0020) {
             ch = _skipWSNoEOF(ch);
             // must always return valid char (no valid EOF at this point)
@@ -846,7 +940,7 @@ public class UTF8StreamJsonParser
         // First: any leading white space?
         if (ch <= 0x0020) {
             ch = _skipWSMaybeEOF(ch);
-            if (ch < 0) { // only returns if it's ok 
+            if (ch == -1) { // only returns if it's ok 
                 return (_currToken = null);
             }
         }
@@ -855,11 +949,19 @@ public class UTF8StreamJsonParser
         case '"':
             return _startString();
         case '#':
-            return _startValue(_skipCommentsAndWS(ch));
+            ch = _skipCommentsAndWSMaybeEOF(ch);
+            if (ch == -1) { // only returns if it's ok 
+                return (_currToken = null);
+            }
+            return _startValue(ch);
         case '-':
             return _startNegativeNumber();
         case '/': // c/c++ comments
-            return _startValue(_skipCommentsAndWS(ch));
+            ch = _skipCommentsAndWSMaybeEOF(ch);
+            if (ch == -1) { // only returns if it's ok 
+                return (_currToken = null);
+            }
+            return _startValue(ch);
             
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
@@ -1165,6 +1267,35 @@ public class UTF8StreamJsonParser
             ch = _inputBuffer[_inputPtr++] & 0xFF;
             if (ch <= 0x0020) {
                 ch = _skipWSNoEOF(ch);
+            }
+        }
+    }
+
+    private final int _skipCommentsAndWSMaybeEOF(int ch) throws IOException
+    {
+        while (true) {
+            if (ch == INT_SLASH) {
+                _skipSlashComment();
+            } else if (ch == INT_HASH) {
+                if (!JsonParser.Feature.ALLOW_YAML_COMMENTS.enabledIn(_features)) {
+                    _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
+                }
+                _skipLine();
+            } else {
+                return ch;
+            }
+            // and then white space, if any
+            if (_inputPtr >= _inputEnd) {
+                if (!_loadMore()) {
+                    return -1;
+                }
+            }
+            ch = _inputBuffer[_inputPtr++] & 0xFF;
+            if (ch <= 0x0020) {
+                ch = _skipWSMaybeEOF(ch);
+                if (ch < 0) {
+                    return ch;
+                }
             }
         }
     }
@@ -2829,6 +2960,14 @@ public class UTF8StreamJsonParser
         JsonToken t = JsonToken.FIELD_NAME;
         _currToken = t;
         return t;
+    }
+
+    private final String _fieldCompleteReturnName(String name) throws IOException
+    {
+        _majorState = MAJOR_OBJECT_VALUE;
+        _parsingContext.setCurrentName(name);
+        _currToken = JsonToken.FIELD_NAME;
+        return name;
     }
 
     private final JsonToken _valueComplete(JsonToken t) throws IOException

@@ -794,6 +794,9 @@ public class UTF8StreamJsonParser
             }
             ch = _skipCommentsAndWS(ch);
             if (ch != INT_COMMA) {
+                if (ch == INT_RCURLY) {
+                    return _closeObjectScope();
+                }
                 _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
         }
@@ -971,6 +974,12 @@ public class UTF8StreamJsonParser
             }
             ch = _skipCommentsAndWS(ch);
             if (ch != INT_COMMA) {
+                if (ch == INT_RBRACKET) {
+                    return _closeArrayScope();
+                }
+                if (ch == INT_RCURLY){
+                    return _closeObjectScope();
+                }
                 _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
             }
         }
@@ -1154,7 +1163,9 @@ public class UTF8StreamJsonParser
                 _loadMoreGuaranteed();
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
-            ch = _skipWSNoEOF(ch);
+            if (ch <= 0x0020) {
+                ch = _skipWSNoEOF(ch);
+            }
         }
     }
 
@@ -1281,6 +1292,9 @@ public class UTF8StreamJsonParser
             return _handleOddName(_skipCommentsAndWS(ch));
         case '/':
             return _handleOddName(_skipCommentsAndWS(ch));
+        case '"':
+            // Bit cumbersome but necessary
+            return _startFieldName(ch);
         case '\'':
             if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
                 return _finishAposName(0, 0, 0);
@@ -1303,7 +1317,6 @@ public class UTF8StreamJsonParser
         if (codes[ch] != 0) {
             _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
         }
-
         return _finishUnquotedName(0, ch, 1);
     }
 

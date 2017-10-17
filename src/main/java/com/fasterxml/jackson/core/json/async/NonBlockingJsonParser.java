@@ -2728,7 +2728,7 @@ public class NonBlockingJsonParser
 
     /*
     /**********************************************************************
-    /* Internal methods, UTF8 decoding
+    /* Internal methods, un-escaping
     /**********************************************************************
      */
 

@@ -432,6 +432,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     @Override
     protected void _handleEOF() throws JsonParseException {
+        _currToken = null;
         if (!_parsingContext.inRoot()) {
             String marker = _parsingContext.inArray() ? "Array" : "Object";
             _reportInvalidEOF(String.format(

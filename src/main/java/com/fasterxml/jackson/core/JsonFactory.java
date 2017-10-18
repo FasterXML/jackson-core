@@ -1274,22 +1274,17 @@ public class JsonFactory
     }
 
     /**
-     * Remove cleared (inactive) SoftRefs from our list. Gc may have cleared one or more, and made them inactive.
+     * Remove cleared (inactive) SoftRefs from our set. Gc may have cleared one or more, and made them inactive.
      * We minimize contention by keeping synchronized sections short: the poll/remove methods
      */
     private static void removeSoftRefsClearedByGc() {
-        while (refQueue.poll() != null) {
-            try {
-                SoftReference clearedSoftRef = (SoftReference) refQueue.remove(1); // timeout 1 ms in case we got scheduled out and another thread removed it, don't block
-                if (clearedSoftRef != null) {
-                    allSoftBufRecyclers.remove(clearedSoftRef); // uses reference-equality, quick, and O(1) removal by HashSet
-                }
+        SoftReference clearedSoftRef = null;
+        do {
+            clearedSoftRef = (SoftReference) refQueue.poll();
+            if (clearedSoftRef != null) {
+                allSoftBufRecyclers.remove(clearedSoftRef); // uses reference-equality, quick, and O(1) removal by HashSet
             }
-            catch(InterruptedException e) {
-                // may be interrupted during the remove with timeout. Set the flag back to interrupted, nothing else needed
-                Thread.currentThread().interrupt();
-            }
-        }
+        } while(clearedSoftRef != null);
     }
 
 

@@ -133,7 +133,7 @@ public class UTF32Reader extends Reader
         }
 
         // 02-Jun-2017, tatu: Must ensure we don't try to read past buffer end:
-        final int _lastValidInputStart = (_length - 3);
+        final int _lastValidInputStart = (_length - 4);
         
         main_loop:
         while (outPtr < outEnd) {

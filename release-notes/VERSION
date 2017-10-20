@@ -51,6 +51,15 @@ JSON library.
 #374: Minimal and DefaultPrettyPrinter with configurable separators 
  (contributed by Rafal F)
 
+2.8.11 (not yet released)
+
+#418: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
+ (reported, contributed fix for by pfitzsimons-r7@github)
+
+2.8.10 (24-Aug-2017)
+
+No changes since 2.8.9
+
 2.8.9 (12-Jun-2017)
 
 #382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input

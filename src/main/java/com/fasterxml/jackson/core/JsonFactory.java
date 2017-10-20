@@ -190,12 +190,15 @@ public class JsonFactory
     private static final Object SHUTDOWN_LOCK = new Object();
 
     /**
-     * A set of all SoftReferences to all buffer recyclers to be able to release them on shutdown. We use a HashSet to have quick O(1) add and remove operations.
+     * A set of all SoftReferences to all BufferRecyclers to be able to release them on shutdown.
+     * 'All' means the ones created by this class, in this classloader. There may be more from other classloaders.
+     * We use a HashSet to have quick O(1) add and remove operations.
      */
     private static final Set<SoftReference<BufferRecycler>> allSoftBufRecyclers = Collections.synchronizedSet(new HashSet<SoftReference<BufferRecycler>>());
 
     /**
-     * Queue where gc will put just-cleared SoftReferences, previously referencing BufferRecyclers. We use it to remove the cleared softRefs from the above set.
+     * Queue where gc will put just-cleared SoftReferences, previously referencing BufferRecyclers.
+     * We use it to remove the cleared softRefs from the above set.
      */
     private static final ReferenceQueue<BufferRecycler> refQueue = new ReferenceQueue<BufferRecycler>();
 
@@ -339,6 +342,28 @@ public class JsonFactory
         if (getClass() != exp) {
             throw new IllegalStateException("Failed copy(): "+getClass().getName()
                     +" (version: "+version()+") does not override copy(); it has to");
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Shutdown, releasing resources
+    /**********************************************************
+    */
+
+    /**
+     * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
+     * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
+     * application to survive much longer than the application itself.
+     * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
+     */
+    public static void shutdown() {
+        synchronized(SHUTDOWN_LOCK) {
+            removeSoftRefsClearedByGc(); // make sure the refQueue is empty
+            for (SoftReference ref : allSoftBufRecyclers) {
+                ref.clear(); // possibly already cleared by gc, nothing happens in that case
+            }
+            allSoftBufRecyclers.clear(); //release cleared SoftRefs
         }
     }
 
@@ -1006,22 +1031,6 @@ public class JsonFactory
      */
     public JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException {
         return createGenerator(_createDataOutputWrapper(out), enc);
-    }
-
-    /**
-     * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
-     * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
-     * application to survive much longer than the application itself.
-     * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
-     */
-    public void shutdown() {
-        synchronized(SHUTDOWN_LOCK) {
-            removeSoftRefsClearedByGc();
-            for (SoftReference ref : allSoftBufRecyclers) {
-                ref.clear(); // possibly already cleared by gc, nothing happens in that case
-            }
-            allSoftBufRecyclers.clear(); //release cleared SoftRefs
-        }
     }
 
     /**

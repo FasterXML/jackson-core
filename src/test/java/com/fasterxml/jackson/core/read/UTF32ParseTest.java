@@ -53,4 +53,16 @@ public class UTF32ParseTest extends BaseTest
         }
         parser.close();
     }
+
+    public void testSimpleSevenNullBytes() throws Exception {
+        byte[] data = new byte[7];
+        JsonParser parser = FACTORY.createParser(/*ObjectReadContext.empty(), */data);
+        try {
+            parser.nextToken();
+            fail("Should not pass");
+        } catch (JsonParseException e) {
+            verifyException(e, "Illegal character ((CTRL-CHAR, code 0))");
+        }
+        parser.close();
+    }
 }

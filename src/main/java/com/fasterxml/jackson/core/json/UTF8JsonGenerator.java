@@ -328,11 +328,8 @@ public class UTF8JsonGenerator
     public void writeStartObject(Object forValue) throws IOException
     {
         _verifyValueWrite("start an object");
-        JsonWriteContext ctxt = _outputContext.createChildObjectContext();
+        JsonWriteContext ctxt = _outputContext.createChildObjectContext(forValue);
         _outputContext = ctxt;
-        if (forValue != null) {
-            ctxt.setCurrentValue(forValue);
-        }
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {

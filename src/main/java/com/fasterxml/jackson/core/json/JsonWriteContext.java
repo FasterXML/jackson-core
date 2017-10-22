@@ -71,6 +71,19 @@ public class JsonWriteContext extends TokenStreamContext
         _index = -1;
     }
 
+    /**
+     * @since 3.0
+     */
+    protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups,
+            Object currValue) {
+        super();
+        _type = type;
+        _parent = parent;
+        _dups = dups;
+        _index = -1;
+        _currentValue = currValue;
+    }
+
     protected JsonWriteContext reset(int type) {
         _type = type;
         _index = -1;
@@ -81,6 +94,19 @@ public class JsonWriteContext extends TokenStreamContext
         return this;
     }
 
+    /**
+     * @since 3.0
+     */
+    protected JsonWriteContext reset(int type, Object currValue) {
+        _type = type;
+        _index = -1;
+        _currentName = null;
+        _gotName = false;
+        _currentValue = currValue;
+        if (_dups != null) { _dups.reset(); }
+        return this;
+    }
+    
     public JsonWriteContext withDupDetector(DupDetector dups) {
         _dups = dups;
         return this;
@@ -122,6 +148,20 @@ public class JsonWriteContext extends TokenStreamContext
             return ctxt;
         }
         return ctxt.reset(TYPE_OBJECT);
+    }
+
+    /**
+     * @since 3.0
+     */
+    public JsonWriteContext createChildObjectContext(Object currValue) {
+        JsonWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this,
+                    (_dups == null) ? null : _dups.child(),
+                    currValue);
+            return ctxt;
+        }
+        return ctxt.reset(TYPE_OBJECT, currValue);
     }
 
     @Override public final JsonWriteContext getParent() { return _parent; }

@@ -631,7 +631,22 @@ public abstract class JsonGenerator
     public void writeStartArray(int size) throws IOException {
         writeStartArray();
     }
-    
+
+    /**
+     * Method for writing start marker of an Array value, similar
+     * to {@link #writeStartArray()}, but also specifying how many
+     * elements will be written for the array before calling
+     * {@link #writeEndArray()}.
+     *<p>
+     * Default implementation simply calls {@link #writeStartArray()}.
+     * 
+     * @param size Number of elements this array will have: actual
+     *   number of values written (before matching call to
+     *   {@link #writeEndArray()} MUST match; generator MAY verify
+     *   this is the case.
+     */
+    public abstract void writeStartArray(Object forValue, int size) throws IOException;
+
     /**
      * Method for writing closing marker of a JSON Array value
      * (character ']'; plus possible white space decoration
@@ -665,11 +680,7 @@ public abstract class JsonGenerator
      * are allowed: meaning everywhere except for when
      * a field name is expected.
      */
-    public void writeStartObject(Object forValue) throws IOException
-    {
-        writeStartObject();
-        setCurrentValue(forValue);
-    }
+    public abstract void writeStartObject(Object forValue) throws IOException;
 
     /**
      * Method for writing closing marker of a JSON Object value

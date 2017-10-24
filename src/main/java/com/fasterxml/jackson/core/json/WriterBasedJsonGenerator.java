@@ -236,6 +236,36 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
+    public void writeStartArray(int len) throws IOException
+    {
+        _verifyValueWrite("start an array");
+        _outputContext = _outputContext.createChildArrayContext();
+        if (_cfgPrettyPrinter != null) {
+            _cfgPrettyPrinter.writeStartArray(this);
+        } else {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = '[';
+        }
+    }
+
+    @Override
+    public void writeStartArray(Object forValue, int len) throws IOException
+    {
+        _verifyValueWrite("start an array");
+        _outputContext = _outputContext.createChildArrayContext(forValue);
+        if (_cfgPrettyPrinter != null) {
+            _cfgPrettyPrinter.writeStartArray(this);
+        } else {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = '[';
+        }
+    }
+    
+    @Override
     public void writeEndArray() throws IOException
     {
         if (!_outputContext.inArray()) {

@@ -141,6 +141,20 @@ public class JsonWriteContext extends TokenStreamContext
         return ctxt.reset(TYPE_ARRAY);
     }
 
+    /**
+     * @since 3.0
+     */
+    public JsonWriteContext createChildArrayContext(Object currValue) {
+        JsonWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this,
+                    (_dups == null) ? null : _dups.child(),
+                    currValue);
+            return ctxt;
+        }
+        return ctxt.reset(TYPE_ARRAY, currValue);
+    }
+
     public JsonWriteContext createChildObjectContext() {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {

@@ -161,7 +161,10 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public void writeStartArray(int size) throws IOException { delegate.writeStartArray(size); }
-    
+
+    @Override
+    public void writeStartArray(Object forValue, int size) throws IOException { delegate.writeStartArray(forValue, size); }
+
     @Override
     public void writeEndArray() throws IOException { delegate.writeEndArray(); }
 

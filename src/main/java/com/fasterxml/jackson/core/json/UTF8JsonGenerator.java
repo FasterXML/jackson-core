@@ -293,6 +293,36 @@ public class UTF8JsonGenerator
     }
 
     @Override
+    public final void writeStartArray(int len) throws IOException
+    {
+        _verifyValueWrite("start an array");
+        _outputContext = _outputContext.createChildArrayContext();
+        if (_cfgPrettyPrinter != null) {
+            _cfgPrettyPrinter.writeStartArray(this);
+        } else {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = BYTE_LBRACKET;
+        }
+    }
+
+    @Override
+    public final void writeStartArray(Object forValue, int len) throws IOException
+    {
+        _verifyValueWrite("start an array");
+        _outputContext = _outputContext.createChildArrayContext(forValue);
+        if (_cfgPrettyPrinter != null) {
+            _cfgPrettyPrinter.writeStartArray(this);
+        } else {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = BYTE_LBRACKET;
+        }
+    }
+    
+    @Override
     public final void writeEndArray() throws IOException
     {
         if (!_outputContext.inArray()) {
@@ -324,7 +354,7 @@ public class UTF8JsonGenerator
         }
     }
 
-    @Override // since 2.8
+    @Override 
     public void writeStartObject(Object forValue) throws IOException
     {
         _verifyValueWrite("start an object");

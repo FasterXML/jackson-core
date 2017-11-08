@@ -4,8 +4,6 @@ package com.fasterxml.jackson.core.sym;
  * Base class for tokenized names (key strings in objects) that have
  * been tokenized from byte-based input sources (like
  * {@link java.io.InputStream}.
- *
- * @author Tatu Saloranta
  */
 public abstract class Name
 {
@@ -30,9 +28,6 @@ public abstract class Name
 
     public abstract boolean equals(int q1, int q2);
 
-    /**
-     * @since 2.6
-     */
     public abstract boolean equals(int q1, int q2, int q3);
 
     public abstract boolean equals(int[] quads, int qlen);

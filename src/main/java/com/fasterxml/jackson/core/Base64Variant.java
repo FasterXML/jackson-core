@@ -7,6 +7,7 @@ package com.fasterxml.jackson.core;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.Named;
 
 /**
  * Abstract base class used to define specific details of which
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
  * @author Tatu Saloranta
  */
 public final class Base64Variant
-    implements java.io.Serializable
+    implements Named, java.io.Serializable
 {
     private final static int INT_SPACE = 0x20;
     
@@ -188,6 +189,7 @@ public final class Base64Variant
     /**********************************************************
      */
 
+    @Override
     public String getName() { return _name; }
 
     public boolean usesPadding() { return _usesPadding; }

@@ -7,10 +7,15 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.util.List;
 
 import com.fasterxml.jackson.core.io.*;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.SimpleCINameMatcher;
+import com.fasterxml.jackson.core.sym.SimpleCSNameMatcher;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
+import com.fasterxml.jackson.core.util.Named;
 
 /**
  * The main factory class of Jackson streaming package, used to configure and
@@ -434,6 +439,31 @@ public abstract class TokenStreamFactory
      */
     public final int getGeneratorFeatures() {
         return _generatorFeatures;
+    }
+
+    /*
+    /**********************************************************
+    /* Factory methods for helper objects
+    /**********************************************************
+     */
+
+    /**
+     * @param matches Names to match, including both primary names (which should come first)
+     *     and possible aliases (after primary names)
+     * @param propCount Number of primary matches; if less than `matches` rest are aliases
+     * @param caseInsensitive Whether matching should be case-insensitive or not
+     */
+    /*
+    public abstract FieldNameMatcher constructFieldNameMatcher(List<Named> matches,
+            int propCount, boolean caseInsensitive);
+            */
+    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches,
+            int propCount, boolean caseInsensitive) {
+        // !!! 10-Nov-2017, tatu: Temporary -- require real impl in near future
+        if (caseInsensitive) {
+            return SimpleCINameMatcher.construct(matches);
+        }
+        return SimpleCSNameMatcher.construct(matches);
     }
 
     /*

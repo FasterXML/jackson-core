@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -189,11 +190,44 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************
-    /* JsonParser impl
+    /* JsonParser impl: open / close
+    /**********************************************************
+     */
+
+    //public JsonToken getCurrentToken()
+    //public boolean hasCurrentToken()
+
+    @Override public abstract void close() throws IOException;
+    @Override public abstract boolean isClosed();
+
+    /*
+    /**********************************************************
+    /* JsonParser impl: basic state access
+    /**********************************************************
+     */
+
+    @Override public abstract TokenStreamContext getParsingContext();
+
+//  public abstract JsonLocation getTokenLocation();
+
+//  public abstract JsonLocation getCurrentLocation();
+
+    /**
+     * Method sub-classes need to implement
+     */
+    protected abstract void _handleEOF() throws JsonParseException;
+    
+    @Override public abstract String getCurrentName() throws IOException;
+
+    /*
+    /**********************************************************
+    /* JsonParser impl: basic stream iteration
     /**********************************************************
      */
 
     @Override public abstract JsonToken nextToken() throws IOException;
+
+    @Override public void finishToken() throws IOException { ; /* nothing */ }
 
     @Override public JsonToken currentToken() { return _currToken; }
     @Override public int currentTokenId() {
@@ -216,7 +250,7 @@ public abstract class ParserMinimalBase extends JsonParser
     
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
-    
+
     @Override
     public JsonToken nextValue() throws IOException {
         // Implementation should be as trivial as follows; only needs to change if
@@ -259,23 +293,34 @@ public abstract class ParserMinimalBase extends JsonParser
         }
     }
 
-    /**
-     * Method sub-classes need to implement
+    /*
+    /**********************************************************
+    /* JsonParser impl: stream iteration, field names
+    /**********************************************************
      */
-    protected abstract void _handleEOF() throws JsonParseException;
 
-    //public JsonToken getCurrentToken()
-    //public boolean hasCurrentToken()
+    @Override
+    public boolean nextFieldName(SerializableString str) throws IOException {
+        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+    }
 
-    @Override public abstract String getCurrentName() throws IOException;
-    @Override public abstract void close() throws IOException;
-    @Override public abstract boolean isClosed();
+    @Override
+    public String nextFieldName() throws IOException {
+        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+    }
 
-    @Override public abstract TokenStreamContext getParsingContext();
-
-//    public abstract JsonLocation getTokenLocation();
-
-//   public abstract JsonLocation getCurrentLocation();
+    // !!! 10-Nov-2017, tatu: Temporary implementation
+    @Override
+    public int nextFieldName(FieldNameMatcher matcher) throws IOException {
+        String str = nextFieldName();
+        if (str != null) {
+            return matcher.matchName(str);
+        }
+        if (this.hasToken(JsonToken.END_OBJECT)) {
+            return FieldNameMatcher.MATCH_END_OBJECT;
+        }
+        return FieldNameMatcher.MATCH_ODD_TOKEN;
+    }
 
     /*
     /**********************************************************

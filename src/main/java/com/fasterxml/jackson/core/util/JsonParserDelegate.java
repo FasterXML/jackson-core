@@ -8,6 +8,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -115,11 +116,44 @@ public class JsonParserDelegate extends JsonParser
     /* Public API, token state overrides
     /**********************************************************
      */
-    
+
     @Override public void clearCurrentToken() { delegate.clearCurrentToken(); }
     @Override public JsonToken getLastClearedToken() { return delegate.getLastClearedToken(); }
     @Override public void overrideCurrentName(String name) { delegate.overrideCurrentName(name); }
 
+    /*
+    /**********************************************************
+    /* Public API, iteration over token stream
+    /**********************************************************
+     */
+
+    @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
+    @Override public JsonToken nextValue() throws IOException { return delegate.nextValue(); }
+    @Override public void finishToken() throws IOException { delegate.finishToken(); }
+
+    @Override
+    public JsonParser skipChildren() throws IOException {
+        delegate.skipChildren();
+        // NOTE: must NOT delegate this method to delegate, needs to be self-reference for chaining
+        return this;
+    }
+
+    // 10-Nov-2017, tatu: Not sure why, but full delegation causes problems here; can not do (yet?)
+//    @Override public String nextFieldName() throws IOException { return delegate.nextFieldName(); }
+    @Override
+    public String nextFieldName() throws IOException {
+        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+    }
+
+    // 10-Nov-2017, tatu: Not sure why, but full delegation causes problems here; can not do (yet?)
+//    @Override public boolean nextFieldName(SerializableString str) throws IOException { return delegate.nextFieldName(str); }
+    @Override
+    public boolean nextFieldName(SerializableString str) throws IOException {
+        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+    }
+
+    @Override public int nextFieldName(FieldNameMatcher matcher) throws IOException { return delegate.nextFieldName(matcher); }
+    
     /*
     /**********************************************************
     /* Public API, access to token information, text
@@ -138,7 +172,7 @@ public class JsonParserDelegate extends JsonParser
     /* Public API, access to token information, numeric
     /**********************************************************
      */
-    
+
     @Override
     public BigInteger getBigIntegerValue() throws IOException { return delegate.getBigIntegerValue(); }
 
@@ -199,19 +233,6 @@ public class JsonParserDelegate extends JsonParser
     @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException { return delegate.getBinaryValue(b64variant); }
     @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException { return delegate.readBinaryValue(b64variant, out); }
     @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
-
-    @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
-
-    @Override public JsonToken nextValue() throws IOException { return delegate.nextValue(); }
-
-    @Override public void finishToken() throws IOException { delegate.finishToken(); }
-
-    @Override
-    public JsonParser skipChildren() throws IOException {
-        delegate.skipChildren();
-        // NOTE: must NOT delegate this method to delegate, needs to be self-reference for chaining
-        return this;
-    }
 
     /*
     /**********************************************************

@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.RequestPayload;
@@ -675,7 +676,7 @@ public abstract class JsonParser
 
     /*
     /**********************************************************
-    /* Public API, traversal
+    /* Public API, iterating accessors: general
     /**********************************************************
      */
 
@@ -710,6 +711,42 @@ public abstract class JsonParser
     public abstract JsonToken nextValue() throws IOException;
 
     /**
+     * Method that will skip all child tokens of an array or
+     * object token that the parser currently points to,
+     * iff stream points to
+     * {@link JsonToken#START_OBJECT} or {@link JsonToken#START_ARRAY}.
+     * If not, it will do nothing.
+     * After skipping, stream will point to <b>matching</b>
+     * {@link JsonToken#END_OBJECT} or {@link JsonToken#END_ARRAY}
+     * (possibly skipping nested pairs of START/END OBJECT/ARRAY tokens
+     * as well as value tokens).
+     * The idea is that after calling this method, application
+     * will call {@link #nextToken} to point to the next
+     * available token, if any.
+     */
+    public abstract JsonParser skipChildren() throws IOException;
+
+    /**
+     * Method that may be used to force full handling of the current token
+     * so that even if lazy processing is enabled, the whole contents are
+     * read for possible retrieval. This is usually used to ensure that
+     * the token end location is available, as well as token contents
+     * (similar to what calling, say {@link #getTextCharacters()}, would
+     * achieve).
+     *<p>
+     * Note that for many dataformat implementations this method
+     * will not do anything; this is the default implementation unless
+     * overridden by sub-classes.
+     */
+    public abstract void finishToken() throws IOException;
+
+    /*
+    /**********************************************************
+    /* Public API, iterating accessors: field names
+    /**********************************************************
+     */
+
+    /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#FIELD_NAME} with specified name
      * and returns result of that comparison.
@@ -723,20 +760,30 @@ public abstract class JsonParser
      * @param str Property name to compare next token to (if next token is
      *   <code>JsonToken.FIELD_NAME</code>)
      */
-    public boolean nextFieldName(SerializableString str) throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
-    }
+    public abstract boolean nextFieldName(SerializableString str) throws IOException;
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
      * returns same as {@link #getCurrentName()}, otherwise null.
-     * 
-     * @since 2.5
      */
-    public String nextFieldName() throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
-    }
+    public abstract String nextFieldName() throws IOException;
+
+    /**
+     * Method that tries to match next token from stream as {@link JsonToken#FIELD_NAME},
+     * and if so, further match it to one of pre-specified (field) names.
+     * If match succeeds, field index (non-negative `int`) is returned; otherwise one of
+     * marker constants from {@link FieldNameMatcher}.
+     *
+     * @since 3.0
+     */
+    public abstract int nextFieldName(FieldNameMatcher matcher) throws IOException;
+
+    /*
+    /**********************************************************
+    /* Public API, iterating accessors: typed values
+    /**********************************************************
+     */
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
@@ -803,40 +850,6 @@ public abstract class JsonParser
         if (t == JsonToken.VALUE_FALSE) { return Boolean.FALSE; }
         return null;
     }
-    
-    /**
-     * Method that will skip all child tokens of an array or
-     * object token that the parser currently points to,
-     * iff stream points to 
-     * {@link JsonToken#START_OBJECT} or {@link JsonToken#START_ARRAY}.
-     * If not, it will do nothing.
-     * After skipping, stream will point to <b>matching</b>
-     * {@link JsonToken#END_OBJECT} or {@link JsonToken#END_ARRAY}
-     * (possibly skipping nested pairs of START/END OBJECT/ARRAY tokens
-     * as well as value tokens).
-     * The idea is that after calling this method, application
-     * will call {@link #nextToken} to point to the next
-     * available token, if any.
-     */
-    public abstract JsonParser skipChildren() throws IOException;
-
-    /**
-     * Method that may be used to force full handling of the current token
-     * so that even if lazy processing is enabled, the whole contents are
-     * read for possible retrieval. This is usually used to ensure that
-     * the token end location is available, as well as token contents
-     * (similar to what calling, say {@link #getTextCharacters()}, would
-     * achieve).
-     *<p>
-     * Note that for many dataformat implementations this method
-     * will not do anything; this is the default implementation unless
-     * overridden by sub-classes.
-     *
-     * @since 2.8
-     */
-    public void finishToken() throws IOException {
-        ; // nothing
-    }
 
     /*
     /**********************************************************
@@ -854,8 +867,6 @@ public abstract class JsonParser
      *   if any: null before any tokens have been read, and
      *   after end-of-input has been encountered, as well as
      *   if the current token has been explicitly cleared.
-     *
-     * @since 2.8
      */
     public abstract JsonToken currentToken();
 
@@ -908,8 +919,6 @@ public abstract class JsonParser
      * Note that no traversal or conversion is performed; so in some
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
-     *
-     * @since 2.6
      */
     public abstract boolean hasToken(JsonToken t);
 
@@ -937,8 +946,6 @@ public abstract class JsonParser
     /**
      * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
      * currently points to {@link JsonToken#START_OBJECT}.
-     *
-     * @since 2.5
      */
     public boolean isExpectedStartObjectToken() { return currentToken() == JsonToken.START_OBJECT; }
 

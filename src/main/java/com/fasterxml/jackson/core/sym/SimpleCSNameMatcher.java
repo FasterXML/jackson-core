@@ -4,8 +4,12 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.util.Named;
 
-public class SimpleCSNameMatcher extends FieldNameMatcher
+public class SimpleCSNameMatcher
+    extends FieldNameMatcher
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final HashMap<String,Integer> _fields;
 
     protected SimpleCSNameMatcher(HashMap<String,Integer> f) {

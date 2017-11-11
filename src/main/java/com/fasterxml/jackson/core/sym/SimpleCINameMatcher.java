@@ -5,8 +5,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.util.Named;
 
-public class SimpleCINameMatcher extends FieldNameMatcher
+public class SimpleCINameMatcher
+    extends FieldNameMatcher
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final HashMap<String,Integer> _fields;
 
     protected SimpleCINameMatcher(HashMap<String,Integer> f) {

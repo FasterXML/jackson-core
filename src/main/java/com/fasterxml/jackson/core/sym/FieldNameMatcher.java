@@ -10,8 +10,9 @@ package com.fasterxml.jackson.core.sym;
  * @since 3.0
  */
 public abstract class FieldNameMatcher
+    implements java.io.Serializable
 {
-    // // // Constants for non-match values
+    private static final long serialVersionUID = 1L;
 
     /**
      * Marker for case where <code>JsonToken.END_OBJECT</code> encountered.

@@ -204,6 +204,12 @@ public class NonBlockingJsonParser
         return null;
     }
 
+    @Override
+    public void finishToken() throws IOException {
+        // 10-Nov-2017, tatu: Can not implement reliably -- should this produce
+        //    exception or not? For now, quietly ignore
+    }
+
     /**
      * Method called when decoding of a token has been started, but not yet completed due
      * to missing input; method is to continue decoding due to at least one more byte

@@ -19,7 +19,11 @@ public class SimpleCSNameMatcher
     public static SimpleCSNameMatcher construct(List<Named> fields) {
         HashMap<String,Integer> toMatch = new HashMap<>();
         for (int i = 0; i < fields.size(); ++i) {
-            toMatch.put(fields.get(i).getName(), i);
+            Named n = fields.get(i);
+            // 11-Nov-2017, tatu: Holes are actually allowed -- odd but true
+            if (n != null) {
+                toMatch.put(n.getName(), i);
+            }
         }
         return new SimpleCSNameMatcher(toMatch);
     }

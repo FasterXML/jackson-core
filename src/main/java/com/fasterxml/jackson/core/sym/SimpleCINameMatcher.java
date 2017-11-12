@@ -20,8 +20,12 @@ public class SimpleCINameMatcher
     public static SimpleCINameMatcher construct(List<Named> fields) {
         HashMap<String,Integer> toMatch = new HashMap<>();
         for (int i = 0; i < fields.size(); ++i) {
-            String key = fields.get(i).getName().toLowerCase();
-            toMatch.put(key, i);
+            Named n = fields.get(i);
+            // 11-Nov-2017, tatu: Holes are actually allowed -- odd but true
+            if (n != null) {
+                String key = n.getName().toLowerCase();
+                toMatch.put(key, i);
+            }
         }
         return new SimpleCINameMatcher(toMatch);
     }

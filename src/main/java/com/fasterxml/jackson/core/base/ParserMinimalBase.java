@@ -300,13 +300,13 @@ public abstract class ParserMinimalBase extends JsonParser
      */
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+    public String nextFieldName() throws IOException {
+        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
     }
 
     @Override
-    public String nextFieldName() throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+    public boolean nextFieldName(SerializableString str) throws IOException {
+        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
     }
 
     // !!! 10-Nov-2017, tatu: Temporary implementation
@@ -316,7 +316,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (str != null) {
             return matcher.matchName(str);
         }
-        if (this.hasToken(JsonToken.END_OBJECT)) {
+        if (hasToken(JsonToken.END_OBJECT)) {
             return FieldNameMatcher.MATCH_END_OBJECT;
         }
         return FieldNameMatcher.MATCH_ODD_TOKEN;

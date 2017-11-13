@@ -138,22 +138,13 @@ public class JsonParserDelegate extends JsonParser
         return this;
     }
 
-    // 10-Nov-2017, tatu: Not sure why, but full delegation causes problems here; can not do (yet?)
-//    @Override public String nextFieldName() throws IOException { return delegate.nextFieldName(); }
-    @Override
-    public String nextFieldName() throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
-    }
+    // 12-Nov-2017, tatu: These DO work as long as `JsonParserSequence` further overrides
+    //     handling
 
-    // 10-Nov-2017, tatu: Not sure why, but full delegation causes problems here; can not do (yet?)
-//    @Override public boolean nextFieldName(SerializableString str) throws IOException { return delegate.nextFieldName(str); }
-    @Override
-    public boolean nextFieldName(SerializableString str) throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
-    }
-
+    @Override public String nextFieldName() throws IOException { return delegate.nextFieldName(); }
+    @Override public boolean nextFieldName(SerializableString str) throws IOException { return delegate.nextFieldName(str); }
     @Override public int nextFieldName(FieldNameMatcher matcher) throws IOException { return delegate.nextFieldName(matcher); }
-    
+
     /*
     /**********************************************************
     /* Public API, access to token information, text

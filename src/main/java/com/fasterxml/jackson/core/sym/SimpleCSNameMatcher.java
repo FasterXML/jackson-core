@@ -36,4 +36,9 @@ public class SimpleCSNameMatcher
         }
         return ((Integer) o).intValue();
     }
+
+    @Override
+    public String toString() {
+        return "[SimpleCSNameMatcher with "+_fields.size()+" fields: "+_fields+"]";
+    }
 }

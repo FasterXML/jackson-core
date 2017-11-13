@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 
 /**
  * Helper class that can be used to sequence multiple physical
@@ -162,6 +163,39 @@ public class JsonParserSequence extends JsonParserDelegate
                 }
             }
         }
+    }
+
+    /*
+    /*******************************************************
+    /* And some more methods where default delegation would
+    /* cause problems with state handling here
+    /*******************************************************
+     */
+
+    @Override
+    public String nextFieldName() throws IOException {
+        // NOTE: call `nextToken()` to handle delegation
+        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+    }
+
+    @Override
+    public boolean nextFieldName(SerializableString str) throws IOException {
+        // NOTE: call `nextToken()` to handle delegation
+        return (nextToken() == JsonToken.FIELD_NAME)
+                && str.getValue().equals(getCurrentName());
+    }
+
+    @Override
+    public int nextFieldName(FieldNameMatcher matcher) throws IOException {
+        // NOTE: call `nextToken()` to handle delegation
+        String str = nextFieldName();
+        if (str != null) {
+            return matcher.matchName(str);
+        }
+        if (hasToken(JsonToken.END_OBJECT)) {
+            return FieldNameMatcher.MATCH_END_OBJECT;
+        }
+        return FieldNameMatcher.MATCH_ODD_TOKEN;
     }
 
     /*

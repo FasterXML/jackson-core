@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.core.filter;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;

@@ -821,7 +821,8 @@ public class FilteringParserDelegate extends JsonParserDelegate
     public int nextFieldName(FieldNameMatcher matcher) throws IOException {
         String str = nextFieldName();
         if (str != null) {
-            return matcher.matchName(str);
+            // 15-Nov-2017, tatu: We can not rely on name being interned here
+            return matcher.matchAnyName(str);
         }
         if (hasToken(JsonToken.END_OBJECT)) {
             return FieldNameMatcher.MATCH_END_OBJECT;

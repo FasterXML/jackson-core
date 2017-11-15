@@ -314,7 +314,7 @@ public abstract class ParserMinimalBase extends JsonParser
     public int nextFieldName(FieldNameMatcher matcher) throws IOException {
         String str = nextFieldName();
         if (str != null) {
-            return matcher.matchName(str);
+            return matcher.matchAnyName(str);
         }
         if (hasToken(JsonToken.END_OBJECT)) {
             return FieldNameMatcher.MATCH_END_OBJECT;

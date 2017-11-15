@@ -11,16 +11,19 @@ import com.fasterxml.jackson.core.util.Named;
  */
 public class FieldMatchersTest extends BaseTest
 {
-    public void testMatching()
+    public void testSmallMatching()
     {
         // First small (1 - 4)
         _testMatching("single");
         _testMatching("1", "2a");
         _testMatching("first", "second", "third");
-        _testMatching("a", "bcd", "Fittipaldi", "goober");
-
         // ... with nulls
         _testMatching(null, "b", null);
+    }
+
+    public void testMediumMatching()
+    {
+        _testMatching("a", "bcd", "Fittipaldi", "goober");
         _testMatching("a", "bcd", null, "goober");
         // important: non-null size still small, but full size big(ger)
         _testMatching("a", null, null, "goober", "xyz");
@@ -30,7 +33,10 @@ public class FieldMatchersTest extends BaseTest
 
         _testMatching("a", "b", "c", "d", "E", "f", "G", "h");
         _testMatching("a", "b", null, "d", "E", "f", "G", null);
+    }
         
+    public void testLargeMatching()
+    {
         // And then generate even bigger
         _testMatching(generate("base", 39));
         _testMatching(generate("Of ", 139));
@@ -89,8 +95,8 @@ public class FieldMatchersTest extends BaseTest
 
     private void _testMatching(List<String> names) {
         _testCaseSensitive(names);
-        _testInterned(names);
         _testCaseInsensitive(names);
+        _testInterned(names);
     }
 
     private void _testCaseSensitive(List<String> names)
@@ -99,25 +105,27 @@ public class FieldMatchersTest extends BaseTest
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
             if (name != null) {
-                _expectMatch(matcher, names, i);
+                _expectAnyMatch(matcher, names, i);
                 // similarly, if different string
-                _expectMatch(matcher, names, i, new String(name));
+                _expectAnyMatch(matcher, names, i, new String(name));
                 // but not with suffix
                 _expectNonMatch(matcher, name+"FOOBAR");
             }
         }
     }
 
-
     private void _testInterned(List<String> names)
     {
-        FieldNameMatcher matcher = InternedNameMatcher.construct(names);
+        FieldNameMatcher matcher = SimpleNameMatcher.construct(names);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
             if (name != null) {
-                _expectMatch(matcher, names, i);
+                // should match both ways really
+                _expectAnyMatch(matcher, names, i);
+                _expectInternedMatch(matcher, names, i);
+
                 // no match when passing non-interned, or different
-                _expectNonMatch(matcher, new String(name));
+                _expectInternedNonMatch(matcher, new String(name));
                 _expectNonMatch(matcher, name+"FOOBAR");
             }
         }
@@ -125,14 +133,14 @@ public class FieldMatchersTest extends BaseTest
 
     private void _testCaseInsensitive(List<String> names)
     {
-        FieldNameMatcher matcher = CaseInsensitiveNameMatcher.constructFrom(named(names));
+        FieldNameMatcher matcher = CaseInsensitiveNameMatcher.constructFrom(named(names), true);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
             if (name != null) {
-                _expectMatch(matcher, names, i);
-                _expectMatch(matcher, names, i, new String(name));
-                _expectMatch(matcher, names, i, name.toLowerCase());
-                _expectMatch(matcher, names, i, name.toUpperCase());
+                _expectAnyMatch(matcher, names, i);
+                _expectAnyMatch(matcher, names, i, new String(name));
+                _expectAnyMatch(matcher, names, i, name.toLowerCase());
+                _expectAnyMatch(matcher, names, i, name.toUpperCase());
     
                 // but not if different
                 _expectNonMatch(matcher, name+"FOOBAR");
@@ -140,33 +148,70 @@ public class FieldMatchersTest extends BaseTest
         }
     }
 
-    private void _expectMatch(FieldNameMatcher matcher, List<String> names, int index)
+    private void _expectAnyMatch(FieldNameMatcher matcher, List<String> names, int index)
     {     
         String name = names.get(index);
         if (name != null) {
-            _expectMatch(matcher, names, index, name);
+            _expectAnyMatch(matcher, names, index, name);
+        }
+    }
+    private void _expectInternedMatch(FieldNameMatcher matcher, List<String> names, int index)
+    {     
+        String name = names.get(index);
+        if (name != null) {
+            _expectInternedMatch(matcher, names, index, name);
         }
     }
 
-    private void _expectMatch(FieldNameMatcher matcher, List<String> names, int index,
+    private void _expectAnyMatch(FieldNameMatcher matcher, List<String> names, int index,
             String name)
     {
-        if (name != null) {
-            int match = matcher.matchName(name);
-            if (match != index) {
-                fail("Should have matched #"+index+" (of "+names.size()+") for '"+name+"', did not, got: "+match);
-            }
+        if (name == null) {
+            return;
+        }
+        int match = matcher.matchAnyName(name);
+        if (match != index) {
+            fail("Should have any-matched #"+index+" (of "+names.size()+") for '"+name+"', did not, got: "+match);
+        }
+    }
+
+    private void _expectInternedMatch(FieldNameMatcher matcher, List<String> names, int index,
+            String name)
+    {
+        if (name == null) {
+            return;
+        }
+        int match = matcher.matchInternedName(name);
+        if (match != index) {
+            fail("Should have intern-matched #"+index+" (of "+names.size()+"; matcher "+
+                    matcher.getClass().getName()+") for '"+name+"', did not, got: "+match);
         }
     }
 
     private void _expectNonMatch(FieldNameMatcher matcher, String name)
     {
-        int match = matcher.matchName(name);
-        if (match != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-            fail("Should NOT have matched '"+name+"'; did match with index #"+match);
+        if (name == null) {
+            return;
         }
+        // make sure to test both intern() and non-intern paths
+        int match = matcher.matchAnyName(name);
+        if (match != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            fail("Should NOT have any-matched '"+name+"'; did match with index #"+match);
+        }
+        _expectInternedNonMatch(matcher, name);
     }
 
+    private void _expectInternedNonMatch(FieldNameMatcher matcher, String name)
+    {
+        if (name != null) {
+            // make sure to test both intern() and non-intern paths
+            int match = matcher.matchInternedName(name);
+            if (match != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                fail("Should NOT have intern-matched '"+name+"'; did match with index #"+match);
+            }
+        }
+    }
+    
     private List<Named> named(List<String> names) {
         return names.stream().map(StringAsNamed::construct)
                 .collect(Collectors.toList());

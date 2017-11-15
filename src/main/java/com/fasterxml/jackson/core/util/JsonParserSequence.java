@@ -190,7 +190,8 @@ public class JsonParserSequence extends JsonParserDelegate
         // NOTE: call `nextToken()` to handle delegation
         String str = nextFieldName();
         if (str != null) {
-            return matcher.matchName(str);
+            // 15-Nov-2017, tatu: Can not assume intern()ing aspects when delegating...
+            return matcher.matchAnyName(str);
         }
         if (hasToken(JsonToken.END_OBJECT)) {
             return FieldNameMatcher.MATCH_END_OBJECT;

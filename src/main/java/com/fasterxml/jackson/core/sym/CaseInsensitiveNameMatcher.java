@@ -24,9 +24,10 @@ public class CaseInsensitiveNameMatcher
         _lowerCaseMatcher = lcMatcher;
     }
 
-    public static CaseInsensitiveNameMatcher constructFrom(List<Named> fields)
+    public static CaseInsensitiveNameMatcher constructFrom(List<Named> fields,
+            boolean alreadyInterned)
     {
-        return new CaseInsensitiveNameMatcher(SimpleNameMatcher.constructFrom(fields),
+        return new CaseInsensitiveNameMatcher(SimpleNameMatcher.constructFrom(fields, alreadyInterned),
                 _constructWithLC(fields));
     }
 
@@ -38,13 +39,15 @@ public class CaseInsensitiveNameMatcher
             // key may be lower-cased after primary access
             lcd.add((n == null) ? null : n.getName().toLowerCase());
         }
+        // NOTE! We do NOT intern() secondary entries so make sure not to assume
+        // inter()ing for secondary lookup
         return SimpleNameMatcher.construct(lcd);
     }
 
     @Override
-    public int matchName(String name) {
+    public int matchAnyName(String name) {
         // First: see if non-modified name is matched by base implementation
-        int match = _mainMatcher.matchName(name);
+        int match = _mainMatcher.matchAnyName(name);
         if (match >= 0) {
             return match;
         }
@@ -52,6 +55,18 @@ public class CaseInsensitiveNameMatcher
         // since original name may have been lower-cases
         // (could try optimizing for case where all input was already lower case
         // and key too... but seems unlikely to be particularly common case)
-        return _lowerCaseMatcher.matchName(name.toLowerCase());
+        return _lowerCaseMatcher.matchAnyName(name.toLowerCase());
+    }
+
+    @Override
+    public int matchInternedName(String name) {
+        // 15-Nov-2017, tatu: we can try intern-based matching for primary one
+        int match = _mainMatcher.matchInternedName(name);
+        if (match >= 0) {
+            return match;
+        }
+        // but not to secondary: neither are entries to-match intern()ed nor lower-cased here
+        // (unless lower-casing makes difference)
+        return _lowerCaseMatcher.matchAnyName(name.toLowerCase());
     }
 }

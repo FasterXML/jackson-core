@@ -30,7 +30,21 @@ public abstract class FieldNameMatcher
      */
     public final static int MATCH_ODD_TOKEN = -3;
 
-    // // // API
-    
-    public abstract int matchName(String name);
+    /*
+    /**********************************************************************
+    /* API: lookup by String
+    /**********************************************************************
+     */
+
+    /**
+     * Lookup method when caller does not guarantee that name to match has been
+     * {@link String#intern}ed
+     */
+    public abstract int matchAnyName(String name);
+
+    /**
+     * Lookup method when caller guarantees that name to match has been
+     * {@link String#intern}ed
+     */
+    public abstract int matchInternedName(String name);
 }

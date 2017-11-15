@@ -448,22 +448,27 @@ public abstract class TokenStreamFactory
      */
 
     /**
-     * @param matches Names to match, including both primary names (which should come first)
-     *     and possible aliases (after primary names)
-     * @param propCount Number of primary matches; if less than `matches` rest are aliases
-     * @param caseInsensitive Whether matching should be case-insensitive or not
+     * Factory method for constructing case-sensitive {@link FieldNameMatcher}
+     * for given names. It will call {@link String#intern} on names unless specified
+     * that this has already been done by caller.
+     *
+     * @param matches Names to match, including both primary names and possible aliases
      */
-    /*
-    public abstract FieldNameMatcher constructFieldNameMatcher(List<Named> matches,
-            int propCount, boolean caseInsensitive);
-            */
-    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches,
-            int propCount, boolean caseInsensitive)
+    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned)
     {
-        if (caseInsensitive) {
-            return CaseInsensitiveNameMatcher.constructFrom(matches);
-        }
-        return SimpleNameMatcher.constructFrom(matches);
+        return SimpleNameMatcher.constructFrom(matches, alreadyInterned);
+    }
+
+    /**
+     * Factory method for constructing case-insensitive {@link FieldNameMatcher}
+     * for given names. It will call {@link String#intern} on names unless specified
+     * that this has already been done by caller.
+     *
+     * @param matches Names to match, including both primary names and possible aliases
+     */
+    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned)
+    {
+        return CaseInsensitiveNameMatcher.constructFrom(matches, alreadyInterned);
     }
 
     /*

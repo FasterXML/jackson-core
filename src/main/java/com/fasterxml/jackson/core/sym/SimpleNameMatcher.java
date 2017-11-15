@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.core.sym;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
 
 /**
@@ -10,17 +12,51 @@ import com.fasterxml.jackson.core.util.Named;
  * {@link String#intern}ed.
  */
 public final class SimpleNameMatcher
-    extends NameMatcherBase
+    extends FieldNameMatcher
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    private final static InternCache INTERNER = InternCache.instance;
+
+    protected final int _mask;
+    final int BOGUS_PADDING = 0; // for funsies
+    protected final String[] _names;
+    protected final int[] _offsets;
+    
     private SimpleNameMatcher(String[] names, int[] offsets, int mask) {
-        super(names, offsets, mask);
+        _names = names;
+        _offsets = offsets;
+        _mask = mask;
     }
 
-    public static FieldNameMatcher constructFrom(List<Named> fields) {
-        return construct(stringsFromNames(fields));
+    public static FieldNameMatcher constructFrom(List<Named> fields,
+            boolean alreadyInterned) {
+        return construct(stringsFromNames(fields, alreadyInterned));
+    }
+
+    protected static int findSize(int size) {
+        if (size <= 6) return 8;
+        if (size <= 12) return 16;
+        int needed = size + (size >> 2); // at most 80% full
+        int result = 32;
+        while (result < needed) {
+            result += result;
+        }
+        return result;
+    }
+
+    protected static List<String> stringsFromNames(List<Named> fields,
+            final boolean alreadyInterned) {
+        return fields.stream()
+                .map(n -> fromName(n, alreadyInterned))
+                .collect(Collectors.toList());
+    }
+
+    protected static String fromName(Named n, boolean alreadyInterned) {
+        if (n == null) return null;
+        String name = n.getName();
+        return alreadyInterned ? name : INTERNER.intern(name);
     }
 
     public static FieldNameMatcher construct(List<String> fieldNames)
@@ -68,13 +104,8 @@ public final class SimpleNameMatcher
         return new SimpleNameMatcher(names, offsets, mask);
     }
 
-    private final static int _hash(String str, int mask) {
-        int h = str.hashCode();
-        return (h ^ (h >> 3)) & mask;
-    }
-
     @Override
-    public int matchName(String toMatch) {
+    public int matchAnyName(String toMatch) {
         int ix = _hash(toMatch, _mask);
         String name = _names[ix];
         if ((toMatch == name) || toMatch.equals(name)) {
@@ -89,13 +120,13 @@ public final class SimpleNameMatcher
             }
             // or spill-over if need be
             if (name != null) {
-                return _matchSpill(toMatch);
+                return _matchAnySpill(toMatch);
             }
         }
         return MATCH_UNKNOWN_NAME;
     }
 
-    private final int _matchSpill(String toMatch) {
+    private final int _matchAnySpill(String toMatch) {
         int ix = (_mask+1);
         ix += (ix>>1);
 
@@ -112,12 +143,55 @@ public final class SimpleNameMatcher
         return MATCH_UNKNOWN_NAME;
     }
 
+    @Override
+    public int matchInternedName(String toMatch) {
+        int ix = _hash(toMatch, _mask);
+        String name = _names[ix];
+        if (name == toMatch) {
+            return _offsets[ix];
+        }
+        if (name != null) {
+            // check secondary slot
+            ix = (_mask + 1) + (ix >> 1);
+            name = _names[ix];
+            if (name == toMatch) {
+                return _offsets[ix];
+            }
+            // or spill-over if need be
+            if (name != null) {
+                return _matchInternedSpill(toMatch);
+            }
+        }
+        return MATCH_UNKNOWN_NAME;
+    }
+
+    private final int _matchInternedSpill(String toMatch) {
+        int ix = (_mask+1);
+        ix += (ix>>1);
+
+        for (int end = _names.length; ix < end; ++ix) {
+            String name = _names[ix];
+            if (name == toMatch) {
+                return _offsets[ix];
+            }
+            if (name == null) {
+                break;
+            }
+        }
+        return MATCH_UNKNOWN_NAME;
+    }
+    
     // For tests; gives rought count (may have slack at the end)
     public int spillCount() {
         int spillStart = (_mask+1) + ((_mask+1) >> 1);
         return _names.length - spillStart;
     }
-    
+
+    private final static int _hash(String str, int mask) {
+        int h = str.hashCode();
+        return (h ^ (h >> 3)) & mask;
+    }
+
     /*
     /**********************************************************************
     /* Specialized matcher for small number of fields
@@ -153,16 +227,18 @@ public final class SimpleNameMatcher
         }
 
         @Override
-        public int matchName(String name) {
-            if (name.equals(_f1)) {
-                return 0;
-            }
-            if (name.equals(_f2)) {
-                return 1;
-            }
-            if (name.equals(_f3)) {
-                return 2;
-            }
+        public int matchAnyName(String name) {
+            if (name.equals(_f1)) return 0;
+            if (name.equals(_f2)) return 1;
+            if (name.equals(_f3)) return 2;
+            return FieldNameMatcher.MATCH_UNKNOWN_NAME;
+        }
+
+        @Override
+        public int matchInternedName(String name) {
+            if (name == _f1) return 0;
+            if (name == _f2) return 1;
+            if (name == _f3) return 2;
             return FieldNameMatcher.MATCH_UNKNOWN_NAME;
         }
     }

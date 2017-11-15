@@ -22,23 +22,28 @@ public final class InternedNameMatcher
 
     private final int _mask;
 
-    protected InternedNameMatcher(String[] names, int[] offsets, int mask) {
+    private InternedNameMatcher(String[] names, int[] offsets, int mask) {
         _names = names;
         _offsets = offsets;
         _mask = mask;
     }
 
-    public static InternedNameMatcher construct(List<Named> fields)
+    public static FieldNameMatcher construct(List<Named> fields)
     {
+        int size = fields.size();
+        if (size <= 4) {
+            return Small.construct(fields);
+        }
+
         // First: calculate size of primary hash area
-        final int hashSize = findSize(fields.size());
+        final int hashSize = findSize(size);
         final int mask = hashSize-1;
 
         // primary is hashSize; secondary hashSize/2; spill-overs after that
         String[] names = new String[hashSize + (hashSize>>1)];
         int[] offsets = new int[names.length];
         int spillPtr = names.length;
-        for (int i = 0; i < fields.size(); ++i) {
+        for (int i = 0; i < size; ++i) {
             Named n = fields.get(i);
             // 11-Nov-2017, tatu: Holes are actually allowed -- odd but true
             if (n == null) {
@@ -120,5 +125,53 @@ public final class InternedNameMatcher
             }
         }
         return MATCH_UNKNOWN_NAME;
+    }
+
+    /*
+    /**********************************************************************
+    /* Specialized matcher for small number of fields
+    /**********************************************************************
+     */
+
+    private final static class Small extends FieldNameMatcher
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected final String a, b, c, d;
+
+        private Small(String f1, String f2, String f3, String f4) {
+            a = f1;
+            b = f2;
+            c = f3;
+            d = f4;
+        }
+
+        public static Small construct(List<Named> fields) {
+                return new Small(
+                    _get(fields, 0),
+                    _get(fields, 1),
+                    _get(fields, 2),
+                    _get(fields, 3));
+        }
+
+        private static String _get(List<Named> fields, int index) {
+            if (index < fields.size()) {
+                Named n = fields.get(index);
+                if (n != null) {
+                    return n.getName();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public int matchName(String name) {
+            if (name == a) return 0;
+            if (name == b) return 1;
+            if (name == c) return 2;
+            if (name == d) return 3;
+            return FieldNameMatcher.MATCH_UNKNOWN_NAME;
+        }
     }
 }

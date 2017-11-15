@@ -12,59 +12,60 @@ import com.fasterxml.jackson.core.util.Named;
  * @since 3.0
  */
 public final class InternedNameMatcher
-    extends FieldNameMatcher
+    extends NameMatcherBase
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String[] _names;
-    private final int[] _offsets;
-
-    private final int _mask;
-
     private InternedNameMatcher(String[] names, int[] offsets, int mask) {
-        _names = names;
-        _offsets = offsets;
-        _mask = mask;
+        super(names, offsets, mask);
     }
 
-    public static FieldNameMatcher construct(List<Named> fields)
-    {
-        int size = fields.size();
-        if (size <= 4) {
-            return Small.construct(fields);
+    public static FieldNameMatcher constructFrom(List<Named> fields) {
+        List<String> names = new ArrayList<>(fields.size());
+        int count = 0;
+        for (Named n : fields) {
+            if (n != null) {
+                names.add(n.getName());
+                ++count;
+            } else {
+                names.add(null);
+            }
         }
+        return construct(names, count);
+    }
+    
+    public static FieldNameMatcher construct(List<String> fieldNames, int nonNullCount)
+    {
+        if (nonNullCount <= 4) {
+            return Small.construct(fieldNames);
+        }
+        final int hashSize = findSize(nonNullCount);
+        final int allocSize = hashSize + (hashSize>>1);
 
-        // First: calculate size of primary hash area
-        final int hashSize = findSize(size);
+        String[] names = new String[allocSize];
+        int[] offsets = new int[allocSize];
+
+        // Alas: can not easily extract out without tuples or such since names/offsets need resizing...
         final int mask = hashSize-1;
-
-        // primary is hashSize; secondary hashSize/2; spill-overs after that
-        String[] names = new String[hashSize + (hashSize>>1)];
-        int[] offsets = new int[names.length];
         int spillPtr = names.length;
-        for (int i = 0; i < size; ++i) {
-            Named n = fields.get(i);
-            // 11-Nov-2017, tatu: Holes are actually allowed -- odd but true
-            if (n == null) {
+        for (int i = 0, fcount = fieldNames.size(); i < fcount; ++i) {
+            String name = fieldNames.get(i);
+            if (name == null) {
                 continue;
             }
-            String name = n.getName();
             int ix = name.hashCode() & mask;
             if (names[ix] == null) {
                 names[ix] = name;
                 offsets[ix] = i;
                 continue;
             }
-            // secondary?
             ix = (mask+1) + (ix >> 1);
             if (names[ix] == null) {
                 names[ix] = name;
                 offsets[ix] = i;
                 continue;
             }
-
-            // no, spill-over
             if (names.length >= spillPtr) {
                 int newLength = names.length + 4;
                 names = Arrays.copyOf(names, newLength);
@@ -75,18 +76,6 @@ public final class InternedNameMatcher
             ++spillPtr;
         }
         return new InternedNameMatcher(names, offsets, mask);
-    }
-
-    private final static int findSize(int size) {
-        if (size <= 3) return 4;
-        if (size <= 6) return 8;
-        if (size <= 12) return 16;
-        int needed = size + (size >> 2); // at most 80% full
-        int result = 32;
-        while (result < needed) {
-            result += result;
-        }
-        return result;
     }
     
     @Override
@@ -147,22 +136,13 @@ public final class InternedNameMatcher
             d = f4;
         }
 
-        public static Small construct(List<Named> fields) {
-                return new Small(
-                    _get(fields, 0),
-                    _get(fields, 1),
-                    _get(fields, 2),
-                    _get(fields, 3));
+        public static Small construct(List<String> fields) {
+                return new Small(_get(fields, 0),  _get(fields, 1),
+                    _get(fields, 2), _get(fields, 3));
         }
 
-        private static String _get(List<Named> fields, int index) {
-            if (index < fields.size()) {
-                Named n = fields.get(index);
-                if (n != null) {
-                    return n.getName();
-                }
-            }
-            return null;
+        private static String _get(List<String> fields, int index) {
+            return (index < fields.size()) ? fields.get(index) : null;
         }
 
         @Override

@@ -11,8 +11,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
-import com.fasterxml.jackson.core.sym.SimpleCINameMatcher;
-import com.fasterxml.jackson.core.sym.SimpleCSNameMatcher;
+import com.fasterxml.jackson.core.sym.CaseInsensitiveNameMatcher;
+import com.fasterxml.jackson.core.sym.SimpleNameMatcher;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.Named;
@@ -458,12 +458,12 @@ public abstract class TokenStreamFactory
             int propCount, boolean caseInsensitive);
             */
     public FieldNameMatcher constructFieldNameMatcher(List<Named> matches,
-            int propCount, boolean caseInsensitive) {
-        // !!! 10-Nov-2017, tatu: Temporary -- require real impl in near future
+            int propCount, boolean caseInsensitive)
+    {
         if (caseInsensitive) {
-            return SimpleCINameMatcher.construct(matches);
+            return CaseInsensitiveNameMatcher.constructFrom(matches);
         }
-        return SimpleCSNameMatcher.construct(matches);
+        return SimpleNameMatcher.constructFrom(matches);
     }
 
     /*

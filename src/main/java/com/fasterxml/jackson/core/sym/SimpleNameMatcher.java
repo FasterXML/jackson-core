@@ -54,7 +54,7 @@ public final class SimpleNameMatcher
             if (name == null) {
                 continue;
             }
-            int ix = name.hashCode() & mask;
+            int ix = _hash(name, mask);
             if (names[ix] == null) {
                 names[ix] = name;
                 offsets[ix] = i;
@@ -78,9 +78,14 @@ public final class SimpleNameMatcher
         return new SimpleNameMatcher(names, offsets, mask);
     }
 
+private final static int _hash(String str, int mask) {
+    int h = str.hashCode();
+    return (h ^ (h >> 3)) & mask;
+}
+
     @Override
     public int matchName(String toMatch) {
-        int ix = toMatch.hashCode() & _mask;
+        int ix = _hash(toMatch, _mask);
         String name = _names[ix];
         if ((toMatch == name) || toMatch.equals(name)) {
             return _offsets[ix];

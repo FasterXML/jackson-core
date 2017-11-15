@@ -30,16 +30,25 @@ public class FieldMatchersTest extends BaseTest
     // Simple test to try to see if we can tweak hashing to limit overflow
     public void testSpillEfficiency()
     {
+        // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce
+        //   default collision counts
+
+        _testSpillEfficiency(generate("", 99), 4);
         _testSpillEfficiency(generate("base", 39), 4);
-        _testSpillEfficiency(generate("Of ", 139), 24);
-        _testSpillEfficiency(generate("ACE-", 499), 160);
+        _testSpillEfficiency(generate("Of ", 139), 8);
+        _testSpillEfficiency(generate("ACE-", 499), 32);
+
+        _testSpillEfficiency(generate2("", 99), 4);
+        _testSpillEfficiency(generate2("base", 39), 0);
+        _testSpillEfficiency(generate2("Of ", 139), 4);
+        _testSpillEfficiency(generate2("ACE-", 499), 4);
     }
 
     private void _testSpillEfficiency(List<String> names, int expSpills) {
         FieldNameMatcher matcher = SimpleNameMatcher.construct(names, names.size());
         assertEquals(expSpills, ((SimpleNameMatcher) matcher).spillCount());
     }
-    
+
     private List<String> generate(String base, int count) {
         List<String> result = new ArrayList<>(count);
         while (--count >= 0) {
@@ -50,6 +59,16 @@ public class FieldMatchersTest extends BaseTest
         return result;
     }
 
+    private List<String> generate2(String base, int count) {
+        List<String> result = new ArrayList<>(count);
+        while (--count >= 0) {
+            String name = ""+ count + base;
+            // important for interned case
+            result.add(name.intern());
+        }
+        return result;
+    }
+    
     private void _testMatching(String... nameArray) {
         _testMatching(Arrays.asList(nameArray));
     }

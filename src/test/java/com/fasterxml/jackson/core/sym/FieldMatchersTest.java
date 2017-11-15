@@ -19,12 +19,26 @@ public class FieldMatchersTest extends BaseTest
         _testMatching("first", "second", "third");
         _testMatching("a", "bcd", "Fittipaldi", "goober");
 
+        // ... with nulls
+        _testMatching(null, "b", null);
+        _testMatching("a", "bcd", null, "goober");
+        // important: non-null size still small, but full size big(ger)
+        _testMatching("a", null, null, "goober", "xyz");
+
         // then bit larger
         _testMatching("foo", "bar", "foobar", "fubar", "bizzbah", "grimagnoefwemp");
+
+        _testMatching("a", "b", "c", "d", "E", "f", "G", "h");
+        _testMatching("a", "b", null, "d", "E", "f", "G", null);
+        
         // And then generate even bigger
         _testMatching(generate("base", 39));
         _testMatching(generate("Of ", 139));
         _testMatching(generate("ACE-", 499));
+
+        List<String> names = generate("ACE-", 250);
+        names.set(27, null);
+        names.set(111, null);
     }
 
     // Simple test to try to see if we can tweak hashing to limit overflow
@@ -45,7 +59,7 @@ public class FieldMatchersTest extends BaseTest
     }
 
     private void _testSpillEfficiency(List<String> names, int expSpills) {
-        FieldNameMatcher matcher = SimpleNameMatcher.construct(names, names.size());
+        FieldNameMatcher matcher = SimpleNameMatcher.construct(names);
         assertEquals(expSpills, ((SimpleNameMatcher) matcher).spillCount());
     }
 
@@ -81,27 +95,31 @@ public class FieldMatchersTest extends BaseTest
 
     private void _testCaseSensitive(List<String> names)
     {
-        FieldNameMatcher matcher = SimpleNameMatcher.construct(names, names.size());
+        FieldNameMatcher matcher = SimpleNameMatcher.construct(names);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
-            _expectMatch(matcher, names, i);
-            // similarly, if different string
-            _expectMatch(matcher, names, i, new String(name));
-            // but not with suffix
-            _expectNonMatch(matcher, name+"FOOBAR");
+            if (name != null) {
+                _expectMatch(matcher, names, i);
+                // similarly, if different string
+                _expectMatch(matcher, names, i, new String(name));
+                // but not with suffix
+                _expectNonMatch(matcher, name+"FOOBAR");
+            }
         }
     }
 
 
     private void _testInterned(List<String> names)
     {
-        FieldNameMatcher matcher = InternedNameMatcher.construct(names, names.size());
+        FieldNameMatcher matcher = InternedNameMatcher.construct(names);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
-            _expectMatch(matcher, names, i);
-            // no match when passing non-interned, or different
-            _expectNonMatch(matcher, new String(name));
-            _expectNonMatch(matcher, name+"FOOBAR");
+            if (name != null) {
+                _expectMatch(matcher, names, i);
+                // no match when passing non-interned, or different
+                _expectNonMatch(matcher, new String(name));
+                _expectNonMatch(matcher, name+"FOOBAR");
+            }
         }
     }
 
@@ -110,27 +128,34 @@ public class FieldMatchersTest extends BaseTest
         FieldNameMatcher matcher = CaseInsensitiveNameMatcher.constructFrom(named(names));
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
-            _expectMatch(matcher, names, i);
-            _expectMatch(matcher, names, i, new String(name));
-            _expectMatch(matcher, names, i, name.toLowerCase());
-            _expectMatch(matcher, names, i, name.toUpperCase());
-
-            // but not if different
-            _expectNonMatch(matcher, name+"FOOBAR");
+            if (name != null) {
+                _expectMatch(matcher, names, i);
+                _expectMatch(matcher, names, i, new String(name));
+                _expectMatch(matcher, names, i, name.toLowerCase());
+                _expectMatch(matcher, names, i, name.toUpperCase());
+    
+                // but not if different
+                _expectNonMatch(matcher, name+"FOOBAR");
+            }
         }
     }
 
     private void _expectMatch(FieldNameMatcher matcher, List<String> names, int index)
-    {
-        _expectMatch(matcher, names, index, names.get(index));
+    {     
+        String name = names.get(index);
+        if (name != null) {
+            _expectMatch(matcher, names, index, name);
+        }
     }
 
     private void _expectMatch(FieldNameMatcher matcher, List<String> names, int index,
             String name)
     {
-        int match = matcher.matchName(name);
-        if (match != index) {
-            fail("Should have matched #"+index+" (of "+names.size()+") for '"+name+"', did not, got: "+match);
+        if (name != null) {
+            int match = matcher.matchName(name);
+            if (match != index) {
+                fail("Should have matched #"+index+" (of "+names.size()+") for '"+name+"', did not, got: "+match);
+            }
         }
     }
 
@@ -143,7 +168,7 @@ public class FieldMatchersTest extends BaseTest
     }
 
     private List<Named> named(List<String> names) {
-        return names.stream().map(str -> new StringAsNamed(str))
+        return names.stream().map(StringAsNamed::construct)
                 .collect(Collectors.toList());
     }
 
@@ -152,6 +177,13 @@ public class FieldMatchersTest extends BaseTest
 
         public StringAsNamed(String n) {
             name = n;
+        }
+
+        public static StringAsNamed construct(String str){
+            if (str == null) {
+                return null;
+            }
+            return new StringAsNamed(str);
         }
 
         @Override

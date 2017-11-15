@@ -20,26 +20,16 @@ public final class SimpleNameMatcher
     }
 
     public static FieldNameMatcher constructFrom(List<Named> fields) {
-        List<String> names = new ArrayList<>(fields.size());
-        int count = 0;
-        for (Named n : fields) {
-            if (n != null) {
-                names.add(n.getName());
-                ++count;
-            } else {
-                names.add(null);
-            }
-        }
-        return construct(names, count);
+        return construct(stringsFromNames(fields));
     }
 
-    public static FieldNameMatcher construct(List<String> fieldNames,
-            int nonNullCount)
+    public static FieldNameMatcher construct(List<String> fieldNames)
     {
-        if (nonNullCount <= 4) {
+        final int fieldCount = fieldNames.size();
+        if (fieldCount <= Small.MAX_FIELDS) {
             return Small.construct(fieldNames);
         }
-        final int hashSize = findSize(nonNullCount);
+        final int hashSize = findSize(fieldCount);
         final int allocSize = hashSize + (hashSize>>1);
 
         String[] names = new String[allocSize];
@@ -78,10 +68,10 @@ public final class SimpleNameMatcher
         return new SimpleNameMatcher(names, offsets, mask);
     }
 
-private final static int _hash(String str, int mask) {
-    int h = str.hashCode();
-    return (h ^ (h >> 3)) & mask;
-}
+    private final static int _hash(String str, int mask) {
+        int h = str.hashCode();
+        return (h ^ (h >> 3)) & mask;
+    }
 
     @Override
     public int matchName(String toMatch) {
@@ -134,23 +124,28 @@ private final static int _hash(String str, int mask) {
     /**********************************************************************
      */
 
+    /**
+     * Compact implementation for small lookups: threshold chosen to balance costlier
+     * lookup (must check equality for all) with more compact representation and
+     * avoidance of hash code access, usage.
+     */
     private final static class Small extends FieldNameMatcher
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        protected final String a, b, c, d;
+        final static int MAX_FIELDS = 3;
+        
+        protected final String _f1, _f2, _f3;
 
-        private Small(String f1, String f2, String f3, String f4) {
-            a = f1;
-            b = f2;
-            c = f3;
-            d = f4;
+        private Small(String f1, String f2, String f3) {
+            _f1 = f1;
+            _f2 = f2;
+            _f3 = f3;
         }
 
         public static Small construct(List<String> fields) {
-            return new Small(_get(fields, 0), _get(fields, 1),
-                    _get(fields, 2), _get(fields, 3));
+            return new Small(_get(fields, 0), _get(fields, 1), _get(fields, 2));
         }
 
         private static String _get(List<String> fields, int index) {
@@ -159,17 +154,14 @@ private final static int _hash(String str, int mask) {
 
         @Override
         public int matchName(String name) {
-            if (name.equals(a)) {
+            if (name.equals(_f1)) {
                 return 0;
             }
-            if (name.equals(b)) {
+            if (name.equals(_f2)) {
                 return 1;
             }
-            if (name.equals(c)) {
+            if (name.equals(_f3)) {
                 return 2;
-            }
-            if (name.equals(d)) {
-                return 3;
             }
             return FieldNameMatcher.MATCH_UNKNOWN_NAME;
         }

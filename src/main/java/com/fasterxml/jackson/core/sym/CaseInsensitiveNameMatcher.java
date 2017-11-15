@@ -33,18 +33,12 @@ public class CaseInsensitiveNameMatcher
     private static FieldNameMatcher _constructWithLC(List<Named> fields)
     {
         List<String> lcd = new ArrayList<>(fields.size());
-        int count = 0;
         for (Named n : fields) {
             // Important! MUST include even if not different because lookup
             // key may be lower-cased after primary access
-            if (n != null) {
-                lcd.add(n.getName().toLowerCase());
-                ++count;
-            } else {
-                lcd.add(null);
-            }
+            lcd.add((n == null) ? null : n.getName().toLowerCase());
         }
-        return SimpleNameMatcher.construct(lcd, count);
+        return SimpleNameMatcher.construct(lcd);
     }
 
     @Override

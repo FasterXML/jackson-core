@@ -22,25 +22,16 @@ public final class InternedNameMatcher
     }
 
     public static FieldNameMatcher constructFrom(List<Named> fields) {
-        List<String> names = new ArrayList<>(fields.size());
-        int count = 0;
-        for (Named n : fields) {
-            if (n != null) {
-                names.add(n.getName());
-                ++count;
-            } else {
-                names.add(null);
-            }
-        }
-        return construct(names, count);
+        return construct(stringsFromNames(fields));
     }
     
-    public static FieldNameMatcher construct(List<String> fieldNames, int nonNullCount)
+    public static FieldNameMatcher construct(List<String> fieldNames)
     {
-        if (nonNullCount <= 4) {
+        final int fieldCount = fieldNames.size();
+        if (fieldCount <= Small.MAX_FIELDS) {
             return Small.construct(fieldNames);
         }
-        final int hashSize = findSize(nonNullCount);
+        final int hashSize = findSize(fieldCount);
         final int allocSize = hashSize + (hashSize>>1);
 
         String[] names = new String[allocSize];
@@ -122,10 +113,17 @@ public final class InternedNameMatcher
     /**********************************************************************
      */
 
+    /**
+     * Compact implementation for small lookups: threshold chosen to balance costlier
+     * lookup (must check equality for all) with more compact representation and
+     * avoidance of hash code access, usage.
+     */
     private final static class Small extends FieldNameMatcher
         implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
+
+        final static int MAX_FIELDS = 3;
 
         protected final String a, b, c, d;
 

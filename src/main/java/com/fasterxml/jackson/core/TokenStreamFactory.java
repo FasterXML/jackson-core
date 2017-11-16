@@ -454,8 +454,9 @@ public abstract class TokenStreamFactory
      *
      * @param matches Names to match, including both primary names and possible aliases
      */
-    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned)
-    {
+    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
+        // 15-Nov-2017, tatu: Base implementation that is likely to work fine for
+        //    most if not all implementations as it is more difficult to optimize
         return SimpleNameMatcher.constructFrom(matches, alreadyInterned);
     }
 
@@ -466,8 +467,7 @@ public abstract class TokenStreamFactory
      *
      * @param matches Names to match, including both primary names and possible aliases
      */
-    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned)
-    {
+    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
         return CaseInsensitiveNameMatcher.constructFrom(matches, alreadyInterned);
     }
 

@@ -280,7 +280,7 @@ public class ReaderBasedJsonParser
             return _textBuffer.contentsToWriter(writer);
         }
         if (t == JsonToken.FIELD_NAME) {
-            String n = _parsingContext.getCurrentName();
+            String n = _parsingContext.currentName();
             writer.write(n);
             return n.length();
         }
@@ -309,7 +309,7 @@ public class ReaderBasedJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -325,7 +325,7 @@ public class ReaderBasedJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -336,7 +336,7 @@ public class ReaderBasedJsonParser
         }
         switch (t.id()) {
         case ID_FIELD_NAME:
-            return _parsingContext.getCurrentName();
+            return _parsingContext.currentName();
 
         case ID_STRING:
             // fall through
@@ -355,7 +355,7 @@ public class ReaderBasedJsonParser
             switch (_currToken.id()) {
             case ID_FIELD_NAME:
                 if (!_nameCopied) {
-                    String name = _parsingContext.getCurrentName();
+                    String name = _parsingContext.currentName();
                     int nameLen = name.length();
                     if (_nameCopyBuffer == null) {
                         _nameCopyBuffer = _ioContext.allocNameCopyBuffer(nameLen);
@@ -388,7 +388,7 @@ public class ReaderBasedJsonParser
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
             case ID_FIELD_NAME:
-                return _parsingContext.getCurrentName().length();
+                return _parsingContext.currentName().length();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;

@@ -217,7 +217,7 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected abstract void _handleEOF() throws JsonParseException;
     
-    @Override public abstract String getCurrentName() throws IOException;
+    @Override public abstract String currentName() throws IOException;
 
     /*
     /**********************************************************
@@ -301,22 +301,34 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override
     public String nextFieldName() throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
     }
 
     @Override
     public boolean nextFieldName(SerializableString str) throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(currentName());
     }
 
-    // !!! 10-Nov-2017, tatu: Temporary implementation
+    // Base implementation that should work well for most implementations but that
+    // is typically overridden for performance optimization purposes
     @Override
     public int nextFieldName(FieldNameMatcher matcher) throws IOException {
         String str = nextFieldName();
         if (str != null) {
             return matcher.matchAnyName(str);
         }
-        if (hasToken(JsonToken.END_OBJECT)) {
+        if (_currToken == JsonToken.END_OBJECT) {
+            return FieldNameMatcher.MATCH_END_OBJECT;
+        }
+        return FieldNameMatcher.MATCH_ODD_TOKEN;
+    }
+
+    @Override
+    public int currentFieldName(FieldNameMatcher matcher) throws IOException {
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return matcher.matchAnyName(currentName());
+        }
+        if (_currToken == JsonToken.END_OBJECT) {
             return FieldNameMatcher.MATCH_END_OBJECT;
         }
         return FieldNameMatcher.MATCH_ODD_TOKEN;
@@ -519,7 +531,7 @@ public abstract class ParserMinimalBase extends JsonParser
             return getText();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return getValueAsString(null);
     }
@@ -530,7 +542,7 @@ public abstract class ParserMinimalBase extends JsonParser
             return getText();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
             return defaultValue;

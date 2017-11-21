@@ -700,7 +700,7 @@ public abstract class JsonParser
      * time to get the value for the field.
      * Method is most useful for iterating over value entries
      * of JSON objects; field name will still be available
-     * by calling {@link #getCurrentName} when parser points to
+     * by calling {@link #currentName} when parser points to
      * the value.
      *
      * @return Next non-field-name token from the stream, if any found,
@@ -752,7 +752,7 @@ public abstract class JsonParser
      * and returns result of that comparison.
      * It is functionally equivalent to:
      *<pre>
-     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(getCurrentName());
+     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(currentName());
      *</pre>
      * but may be faster for parser to verify, and can therefore be used if caller
      * expects to get such a property name from input next.
@@ -765,7 +765,7 @@ public abstract class JsonParser
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
-     * returns same as {@link #getCurrentName()}, otherwise null.
+     * returns same as {@link #currentName()}, otherwise null.
      */
     public abstract String nextFieldName() throws IOException;
 
@@ -778,6 +778,16 @@ public abstract class JsonParser
      * @since 3.0
      */
     public abstract int nextFieldName(FieldNameMatcher matcher) throws IOException;
+
+    /**
+     * Method that verifies that the current token (see {@link #currentToken} is
+     * {@link JsonToken#FIELD_NAME} and if so, further match it to one of pre-specified (field) names.
+     * If match succeeds, field index (non-negative `int`) is returned; otherwise one of
+     * marker constants from {@link FieldNameMatcher}.
+     *
+     * @since 3.0
+     */
+    public abstract int currentFieldName(FieldNameMatcher matcher) throws IOException;
 
     /*
     /**********************************************************
@@ -871,6 +881,12 @@ public abstract class JsonParser
     public abstract JsonToken currentToken();
 
     /**
+     * @deprecated Since 3.0 use {@link #currentToken} instead.
+     */
+    @Deprecated
+    public JsonToken getCurrentToken() { return currentToken(); }
+
+    /**
      * Method similar to {@link #currentToken()} but that returns an
      * <code>int</code> instead of {@link JsonToken} (enum value).
      *<p>
@@ -956,8 +972,6 @@ public abstract class JsonParser
      * but often supported for {@link JsonToken#VALUE_NUMBER_FLOAT}.
      * NOTE: roughly equivalent to calling <code>!Double.isFinite()</code>
      * on value you would get from calling {@link #getDoubleValue()}.
-     *
-     * @since 2.9
      */
     public boolean isNaN() throws IOException {
         return false;
@@ -1015,11 +1029,19 @@ public abstract class JsonParser
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#FIELD_NAME}s it will
      * be the same as what {@link #getText} returns;
-     * for field values it will be preceding field name;
+     * for field values it will be the preceding field name;
      * and for others (array values, root-level values) null.
+     *
+     * @since 3.0
      */
-    public abstract String getCurrentName() throws IOException;
+    public abstract String currentName() throws IOException;
     
+    /**
+     * @deprecated Since 3.0 use {@link #currentName} instead
+     */
+    @Deprecated
+    public final String getCurrentName() throws IOException { return currentName(); }
+
     /**
      * Method for accessing textual representation of the current token;
      * if no current token (before first call to {@link #nextToken}, or
@@ -1040,8 +1062,6 @@ public abstract class JsonParser
      * can occur directly from intermediate buffers Jackson uses.
      * 
      * @return The number of characters written to the Writer
-     *  
-     * @since 2.8
      */
     public int getText(Writer writer) throws IOException, UnsupportedOperationException
     {

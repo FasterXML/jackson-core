@@ -135,7 +135,10 @@ public final class JsonReadContext extends TokenStreamContext
     /**********************************************************
      */
 
-    @Override public String getCurrentName() { return _currentName; }
+    /**
+     * @since 3.0
+     */
+    @Override public String currentName() { return _currentName; }
 
     @Override public boolean hasCurrentName() { return _currentName != null; }
 

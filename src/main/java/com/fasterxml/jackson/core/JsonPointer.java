@@ -142,10 +142,7 @@ public class JsonPointer
      * path to location given {@link TokenStreamContext} points to.
      *
      * @param context Context to build pointer expression fot
-     * @param includeRoot Whether to include number offset for virtual "root context"
-     *    or not.
-     *
-     * @since 2.9
+     * @param includeRoot Whether to include number offset for virtual "root context" or not.
      */
     public static JsonPointer forPath(TokenStreamContext context,
             boolean includeRoot)
@@ -165,7 +162,7 @@ public class JsonPointer
 
         for (; context != null; context = context.getParent()) {
             if (context.inObject()) {
-                String seg = context.getCurrentName();
+                String seg = context.currentName();
                 if (seg == null) { // is this legal?
                     seg = "";
                 }

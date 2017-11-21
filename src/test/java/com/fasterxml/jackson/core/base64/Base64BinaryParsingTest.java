@@ -219,7 +219,7 @@ public class Base64BinaryParsingTest
             assertToken(JsonToken.START_OBJECT, p.nextToken());
     
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("b", p.getCurrentName());
+            assertEquals("b", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             ByteArrayOutputStream result = new ByteArrayOutputStream(size);
             int gotten = p.readBinaryValue(result);

@@ -179,7 +179,7 @@ public class JsonWriteContext extends TokenStreamContext
     }
 
     @Override public final JsonWriteContext getParent() { return _parent; }
-    @Override public final String getCurrentName() { return _currentName; }
+    @Override public final String currentName() { return _currentName; }
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
     /**

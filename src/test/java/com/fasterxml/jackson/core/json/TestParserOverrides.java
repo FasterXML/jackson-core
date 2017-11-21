@@ -73,25 +73,25 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         assertNull(jp.currentToken());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("first", jp.getCurrentName());
+        assertEquals("first", jp.currentName());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertEquals("first", jp.getCurrentName()); // still the same...
+        assertEquals("first", jp.currentName()); // still the same...
         jp.overrideCurrentName("foobar");
-        assertEquals("foobar", jp.getCurrentName()); // but not any more!
+        assertEquals("foobar", jp.currentName()); // but not any more!
 
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("second", jp.getCurrentName());
+        assertEquals("second", jp.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals("second", jp.getCurrentName());
+        assertEquals("second", jp.currentName());
 
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("third", jp.getCurrentName());
+        assertEquals("third", jp.currentName());
         assertToken(JsonToken.VALUE_FALSE, jp.nextToken());
-        assertEquals("third", jp.getCurrentName());
+        assertEquals("third", jp.currentName());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         // should retain overrides, too
-        assertEquals("foobar", jp.getCurrentName());
+        assertEquals("foobar", jp.currentName());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.clearCurrentToken();

@@ -286,15 +286,15 @@ public abstract class ParserBase extends ParserMinimalBase
      * Method that can be called to get the name associated with
      * the current event.
      */
-    @Override public String getCurrentName() throws IOException {
+    @Override public String currentName() throws IOException {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             JsonReadContext parent = _parsingContext.getParent();
             if (parent != null) {
-                return parent.getCurrentName();
+                return parent.currentName();
             }
         }
-        return _parsingContext.getCurrentName();
+        return _parsingContext.currentName();
     }
 
     @Override public void overrideCurrentName(String name) {
@@ -303,9 +303,8 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             ctxt = ctxt.getParent();
         }
-        /* 24-Sep-2013, tatu: Unfortunate, but since we did not expose exceptions,
-         *   need to wrap this here
-         */
+        // 24-Sep-2013, tatu: Unfortunate, but since we did not expose exceptions,
+        //  need to wrap this here
         try {
             ctxt.setCurrentName(name);
         } catch (IOException e) {

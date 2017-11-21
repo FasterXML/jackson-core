@@ -44,7 +44,7 @@ public class UTF8NamesParseTest
         JsonParser p = createParser(mode, DOC);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("", p.getCurrentName());
+        assertEquals("", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("", p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -73,13 +73,13 @@ public class UTF8NamesParseTest
             assertTrue(p.hasToken(JsonToken.FIELD_NAME));
             assertTrue(p.hasTokenId(JsonTokenId.ID_FIELD_NAME));
             
-            assertEquals(NAME, p.getCurrentName());
+            assertEquals(NAME, p.currentName());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertTrue(p.hasToken(JsonToken.VALUE_NUMBER_INT));
             assertTrue(p.hasTokenId(JsonTokenId.ID_NUMBER_INT));
 
             // should retain name during value entry, too
-            assertEquals(NAME, p.getCurrentName());
+            assertEquals(NAME, p.currentName());
             
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             p.close();
@@ -105,9 +105,9 @@ public class UTF8NamesParseTest
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals(NAME, p.getCurrentName());
+            assertEquals(NAME, p.currentName());
             assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-            assertEquals(NAME, p.getCurrentName());
+            assertEquals(NAME, p.currentName());
             
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             

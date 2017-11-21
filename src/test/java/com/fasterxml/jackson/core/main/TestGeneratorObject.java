@@ -193,15 +193,15 @@ public class TestGeneratorObject
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
 
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("str", jp.getCurrentName());
+        assertEquals("str", jp.currentName());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("num", jp.getCurrentName());
+        assertEquals("num", jp.currentName());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("obj", jp.getCurrentName());
+        assertEquals("obj", jp.currentName());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());

@@ -274,8 +274,8 @@ public class TokenFilterContext extends TokenStreamContext
     public void setCurrentValue(Object v) { }
 
     @Override public final TokenFilterContext getParent() { return _parent; }
-    @Override public final String getCurrentName() { return _currentName; }
-    // @since 2.9
+    @Override public final String currentName() { return _currentName; }
+
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
     public TokenFilter getFilter() { return _filter; }

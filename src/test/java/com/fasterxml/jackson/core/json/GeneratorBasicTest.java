@@ -185,7 +185,7 @@ public class GeneratorBasicTest
         assertTrue(gen.getOutputContext().inObject());
 
         gen.writeFieldName("a");
-        assertEquals("a", gen.getOutputContext().getCurrentName());
+        assertEquals("a", gen.getOutputContext().currentName());
 
         gen.writeStartArray();
         assertTrue(gen.getOutputContext().inArray());
@@ -195,17 +195,17 @@ public class GeneratorBasicTest
 
         gen.writeFieldName("b");
         ctxt = gen.getOutputContext();
-        assertEquals("b", ctxt.getCurrentName());
+        assertEquals("b", ctxt.currentName());
         gen.writeNumber(123);
-        assertEquals("b", ctxt.getCurrentName());
+        assertEquals("b", ctxt.currentName());
 
         gen.writeFieldName("c");
-        assertEquals("c", gen.getOutputContext().getCurrentName());
+        assertEquals("c", gen.getOutputContext().currentName());
         gen.writeNumber(5);
-//        assertEquals("c", gen.getOutputContext().getCurrentName());
+//        assertEquals("c", gen.getOutputContext().currentName());
 
         gen.writeFieldName("d");
-        assertEquals("d", gen.getOutputContext().getCurrentName());
+        assertEquals("d", gen.getOutputContext().currentName());
 
         gen.writeStartArray();
         ctxt = gen.getOutputContext();

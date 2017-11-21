@@ -1630,7 +1630,7 @@ public abstract class JsonGenerator
             writeEndArray();
             break;
         case ID_FIELD_NAME:
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             break;
         case ID_STRING:
             if (p.hasTextCharacters()) {
@@ -1719,7 +1719,7 @@ public abstract class JsonGenerator
         // Let's handle field-name separately first
         int id = t.id();
         if (id == ID_FIELD_NAME) {
-            writeFieldName(p.getCurrentName());
+            writeFieldName(p.currentName());
             t = p.nextToken();
             id = t.id();
             // fall-through to copy the associated value

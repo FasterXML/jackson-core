@@ -158,16 +158,15 @@ public class FilteringParserDelegate extends JsonParserDelegate
     public TokenStreamContext getParsingContext() {
         return _filterContext();
     }
-    
-    // !!! TODO: Verify it works as expected: copied from standard JSON parser impl
+
     @Override
-    public String getCurrentName() throws IOException {
+    public String currentName() throws IOException {
         TokenStreamContext ctxt = _filterContext();
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             TokenStreamContext parent = ctxt.getParent();
-            return (parent == null) ? null : parent.getCurrentName();
+            return (parent == null) ? null : parent.currentName();
         }
-        return ctxt.getCurrentName();
+        return ctxt.currentName();
     }
 
     /*
@@ -365,7 +364,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
         case ID_FIELD_NAME:
             {
-                final String name = delegate.getCurrentName();
+                final String name = delegate.currentName();
                 // note: this will also set 'needToHandleName'
                 f = _headContext.setFieldName(name);
                 if (f == TokenFilter.INCLUDE_ALL) {
@@ -531,7 +530,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
             case ID_FIELD_NAME:
                 {
-                    final String name = delegate.getCurrentName();
+                    final String name = delegate.currentName();
                     f = _headContext.setFieldName(name);
                     if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
@@ -671,7 +670,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
             case ID_FIELD_NAME:
                 {
-                    final String name = delegate.getCurrentName();
+                    final String name = delegate.currentName();
                     f = _headContext.setFieldName(name);
                     if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
@@ -809,12 +808,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
     @Override
     public String nextFieldName() throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
     }
 
     @Override
     public boolean nextFieldName(SerializableString str) throws IOException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
+        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(currentName());
     }
 
     @Override

@@ -99,12 +99,12 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public JsonToken currentToken() { return delegate.currentToken(); }
     @Override public int currentTokenId() { return delegate.currentTokenId(); }
+    @Override public String currentName() throws IOException { return delegate.currentName(); }
 
     @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }
     @Override public boolean hasTokenId(int id) { return delegate.hasTokenId(id); }
     @Override public boolean hasToken(JsonToken t) { return delegate.hasToken(t); }
 
-    @Override public String getCurrentName() throws IOException { return delegate.getCurrentName(); }
     @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
     @Override public TokenStreamContext getParsingContext() { return delegate.getParsingContext(); }
     @Override public boolean isExpectedStartArrayToken() { return delegate.isExpectedStartArrayToken(); }
@@ -144,6 +144,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public String nextFieldName() throws IOException { return delegate.nextFieldName(); }
     @Override public boolean nextFieldName(SerializableString str) throws IOException { return delegate.nextFieldName(str); }
     @Override public int nextFieldName(FieldNameMatcher matcher) throws IOException { return delegate.nextFieldName(matcher); }
+
+    // NOTE: fine without overrides since it does NOT change state
+    @Override public int currentFieldName(FieldNameMatcher matcher) throws IOException { return delegate.currentFieldName(matcher); }
 
     /*
     /**********************************************************

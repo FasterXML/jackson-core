@@ -248,7 +248,7 @@ public class UTF8StreamJsonParser
         return _getText2(_currToken);
     }
 
-    @Override // since 2.8
+    @Override
     public int getText(Writer writer) throws IOException
     {
         JsonToken t = _currToken;
@@ -260,7 +260,7 @@ public class UTF8StreamJsonParser
             return _textBuffer.contentsToWriter(writer);
         }
         if (t == JsonToken.FIELD_NAME) {
-            String n = _parsingContext.getCurrentName();
+            String n = _parsingContext.currentName();
             writer.write(n);
             return n.length();
         }
@@ -288,7 +288,7 @@ public class UTF8StreamJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -304,7 +304,7 @@ public class UTF8StreamJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -356,7 +356,7 @@ public class UTF8StreamJsonParser
         }
         switch (t.id()) {
         case ID_FIELD_NAME:
-            return _parsingContext.getCurrentName();
+            return _parsingContext.currentName();
 
         case ID_STRING:
             // fall through
@@ -376,7 +376,7 @@ public class UTF8StreamJsonParser
                 
             case ID_FIELD_NAME:
                 if (!_nameCopied) {
-                    String name = _parsingContext.getCurrentName();
+                    String name = _parsingContext.currentName();
                     int nameLen = name.length();
                     if (_nameCopyBuffer == null) {
                         _nameCopyBuffer = _ioContext.allocNameCopyBuffer(nameLen);
@@ -412,7 +412,7 @@ public class UTF8StreamJsonParser
             switch (_currToken.id()) {
                 
             case ID_FIELD_NAME:
-                return _parsingContext.getCurrentName().length();
+                return _parsingContext.currentName().length();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;

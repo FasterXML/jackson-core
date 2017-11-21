@@ -27,11 +27,11 @@ public class JsonReadContextTest // extends BaseMapTest
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(0, 0, (DupDetector) null);
       jsonReadContext.setCurrentName("asd / \" € < - _");
 
-      assertEquals("asd / \" € < - _", jsonReadContext.getCurrentName());
+      assertEquals("asd / \" € < - _", jsonReadContext.currentName());
 
       jsonReadContext.setCurrentName(null);
 
-      assertNull(jsonReadContext.getCurrentName());
+      assertNull(jsonReadContext.currentName());
   }
 
   @Test

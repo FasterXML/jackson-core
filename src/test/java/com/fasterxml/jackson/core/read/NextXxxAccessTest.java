@@ -126,7 +126,7 @@ public class NextXxxAccessTest
         assertEquals(JsonTokenId.ID_START_OBJECT, p.currentTokenId());
         assertTrue(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals(NAME.getValue(), p.getCurrentName());
+        assertEquals(NAME.getValue(), p.currentName());
         assertEquals(NAME.getValue(), p.getText());
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
@@ -134,13 +134,13 @@ public class NextXxxAccessTest
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("name2", p.getCurrentName());
+        assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // do NOT check number value, to enforce skipping
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("x", p.getCurrentName());
+        assertEquals("x", p.currentName());
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
@@ -159,7 +159,7 @@ public class NextXxxAccessTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertFalse(p.nextFieldName(new SerializedString("Nam")));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals(NAME.getValue(), p.getCurrentName());
+        assertEquals(NAME.getValue(), p.currentName());
         assertEquals(NAME.getValue(), p.getText());
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
@@ -167,12 +167,12 @@ public class NextXxxAccessTest
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("name2", p.getCurrentName());
+        assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("x", p.getCurrentName());
+        assertEquals("x", p.currentName());
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
@@ -195,7 +195,7 @@ public class NextXxxAccessTest
         assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertTrue(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals(NAME.getValue(), p.getCurrentName());
+        assertEquals(NAME.getValue(), p.currentName());
         assertEquals(NAME.getValue(), p.getText());
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
@@ -203,12 +203,12 @@ public class NextXxxAccessTest
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("name2", p.getCurrentName());
+        assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("x", p.getCurrentName());
+        assertEquals("x", p.currentName());
 
         assertFalse(p.nextFieldName(NAME));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
@@ -230,7 +230,7 @@ public class NextXxxAccessTest
         assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertEquals("name", p.nextFieldName());
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("name", p.getCurrentName());
+        assertEquals("name", p.currentName());
         assertEquals("name", p.getText());
         assertNull(p.nextFieldName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
@@ -238,12 +238,12 @@ public class NextXxxAccessTest
 
         assertEquals("name2", p.nextFieldName());
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("name2", p.getCurrentName());
+        assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
         assertEquals("x", p.nextFieldName());
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("x", p.getCurrentName());
+        assertEquals("x", p.currentName());
 
         assertNull(p.nextFieldName());
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
@@ -301,11 +301,11 @@ public class NextXxxAccessTest
         assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertNull(p.nextTextValue());
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
 
         assertEquals("123", p.nextTextValue());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("b", p.getCurrentName());
+        assertEquals("b", p.currentName());
         assertNull(p.nextFieldName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
 
@@ -336,13 +336,13 @@ public class NextXxxAccessTest
         assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertEquals(0, p.nextIntValue(0));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
 
         assertEquals(0, p.nextIntValue(0));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
         assertEquals("123", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("b", p.getCurrentName());
+        assertEquals("b", p.currentName());
         assertEquals(5, p.nextIntValue(0));
 
         assertEquals("c", p.nextFieldName());
@@ -372,13 +372,13 @@ public class NextXxxAccessTest
         assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertEquals(0L, p.nextLongValue(0L));
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
 
         assertEquals(0L, p.nextLongValue(0L));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
         assertEquals("xyz", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("b", p.getCurrentName());
+        assertEquals("b", p.currentName());
         assertEquals(-59L, p.nextLongValue(0L));
 
         assertEquals("c", p.nextFieldName());
@@ -408,13 +408,13 @@ public class NextXxxAccessTest
         assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertNull(p.nextBooleanValue());
         assertToken(JsonToken.FIELD_NAME, p.currentToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals("a", p.currentName());
 
         assertNull(p.nextBooleanValue());
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
         assertEquals("xyz", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("b", p.getCurrentName());
+        assertEquals("b", p.currentName());
         assertEquals(Boolean.TRUE, p.nextBooleanValue());
 
         assertEquals("c", p.nextFieldName());

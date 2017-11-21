@@ -290,7 +290,7 @@ public abstract class BaseTest
         throws IOException
     {
         assertEquals(expName, p.getText());
-        assertEquals(expName, p.getCurrentName());
+        assertEquals(expName, p.currentName());
     }
 
     protected void verifyIntValue(JsonParser p, long expValue)

@@ -175,14 +175,14 @@ public class JsonParserSequence extends JsonParserDelegate
     @Override
     public String nextFieldName() throws IOException {
         // NOTE: call `nextToken()` to handle delegation
-        return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
     }
 
     @Override
     public boolean nextFieldName(SerializableString str) throws IOException {
         // NOTE: call `nextToken()` to handle delegation
         return (nextToken() == JsonToken.FIELD_NAME)
-                && str.getValue().equals(getCurrentName());
+                && str.getValue().equals(currentName());
     }
 
     @Override

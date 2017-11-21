@@ -172,7 +172,7 @@ public class TestGeneratorMisc
                 } else {
                     name = "__"+index+letter;
                 }
-                assertEquals(name, jp.getCurrentName());
+                assertEquals(name, jp.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
                 assertEquals(index-1, jp.getIntValue());
             }

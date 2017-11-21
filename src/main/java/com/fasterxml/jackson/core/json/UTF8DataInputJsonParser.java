@@ -177,7 +177,7 @@ public class UTF8DataInputJsonParser
             return _textBuffer.contentsToWriter(writer);
         }
         if (t == JsonToken.FIELD_NAME) {
-            String n = _parsingContext.getCurrentName();
+            String n = _parsingContext.currentName();
             writer.write(n);
             return n.length();
         }
@@ -204,7 +204,7 @@ public class UTF8DataInputJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(null);
     }
@@ -220,7 +220,7 @@ public class UTF8DataInputJsonParser
             return _textBuffer.contentsAsString();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -270,7 +270,7 @@ public class UTF8DataInputJsonParser
         }
         switch (t.id()) {
         case ID_FIELD_NAME:
-            return _parsingContext.getCurrentName();
+            return _parsingContext.currentName();
 
         case ID_STRING:
             // fall through
@@ -290,7 +290,7 @@ public class UTF8DataInputJsonParser
                 
             case ID_FIELD_NAME:
                 if (!_nameCopied) {
-                    String name = _parsingContext.getCurrentName();
+                    String name = _parsingContext.currentName();
                     int nameLen = name.length();
                     if (_nameCopyBuffer == null) {
                         _nameCopyBuffer = _ioContext.allocNameCopyBuffer(nameLen);
@@ -330,7 +330,7 @@ public class UTF8DataInputJsonParser
             return _textBuffer.size();
         }
         if (_currToken == JsonToken.FIELD_NAME) {
-            return _parsingContext.getCurrentName().length();
+            return _parsingContext.currentName().length();
         }
         if (_currToken != null) { // null only before/after document
             if (_currToken.isNumeric()) {

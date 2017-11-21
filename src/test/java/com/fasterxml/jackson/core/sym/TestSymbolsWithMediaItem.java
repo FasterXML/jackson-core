@@ -46,7 +46,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
             if (t != JsonToken.FIELD_NAME) {
                 continue;
             }
-            String name = p.getCurrentName();
+            String name = p.currentName();
             int[] quads = calcQuads(name.getBytes("UTF-8"));
 
             if (symbols.findName(quads, quads.length) != null) {
@@ -76,7 +76,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
             if (t != JsonToken.FIELD_NAME) {
                 continue;
             }
-            String name = p.getCurrentName();
+            String name = p.currentName();
             char[] ch = name.toCharArray();
             symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(name));
         }

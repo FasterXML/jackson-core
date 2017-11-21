@@ -148,9 +148,15 @@ public abstract class TokenStreamContext
      * Non-null for <code>FIELD_NAME</code> and value events that directly
      * follow field names; null for root level and array values.
      */
-    public abstract String getCurrentName();
+    public abstract String currentName();
 
-    public boolean hasCurrentName() { return getCurrentName() != null; }
+    /**
+     * @deprecated Since 3.0 use {@link #currentName} instead
+     */
+    @Deprecated
+    public String getCurrentName() { return currentName(); }
+    
+    public boolean hasCurrentName() { return currentName() != null; }
 
     /**
      * Method for accessing currently active value being used by data-binding

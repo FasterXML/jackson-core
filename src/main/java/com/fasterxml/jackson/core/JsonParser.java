@@ -1040,7 +1040,7 @@ public abstract class JsonParser
      * @deprecated Since 3.0 use {@link #currentName} instead
      */
     @Deprecated
-    public final String getCurrentName() throws IOException { return currentName(); }
+    public String getCurrentName() throws IOException { return currentName(); }
 
     /**
      * Method for accessing textual representation of the current token;

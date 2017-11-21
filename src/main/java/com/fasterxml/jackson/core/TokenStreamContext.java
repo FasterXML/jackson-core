@@ -237,7 +237,7 @@ public abstract class TokenStreamContext
         case TYPE_OBJECT:
         default:
             sb.append('{');
-            String currentName = getCurrentName();
+            String currentName = currentName();
             if (currentName != null) {
                 sb.append('"');
                 CharTypes.appendQuoted(sb, currentName);

@@ -62,9 +62,11 @@ public final class SimpleNameMatcher
     public static FieldNameMatcher construct(List<String> fieldNames)
     {
         final int fieldCount = fieldNames.size();
+        /*
         if (fieldCount <= Small.MAX_FIELDS) {
             return Small.construct(fieldNames);
         }
+        */
         final int hashSize = findSize(fieldCount);
         final int allocSize = hashSize + (hashSize>>1);
 
@@ -80,7 +82,7 @@ public final class SimpleNameMatcher
             if (name == null) {
                 continue;
             }
-            int ix = _hash(name, mask);
+            int ix = _hash(name.hashCode(), mask);
             if (names[ix] == null) {
                 names[ix] = name;
                 offsets[ix] = i;
@@ -106,12 +108,15 @@ public final class SimpleNameMatcher
 
     @Override
     public int matchAnyName(String toMatch) {
-        int ix = _hash(toMatch, _mask);
+        int ix = _hash(toMatch.hashCode(), _mask);
         String name = _names[ix];
-        if ((toMatch == name) || toMatch.equals(name)) {
+        if (toMatch == name) {
             return _offsets[ix];
         }
         if (name != null) {
+            if (toMatch.equals(name)) {
+                return _offsets[ix];
+            }
             // check secondary slot
             ix = (_mask + 1) + (ix >> 1);
             name = _names[ix];
@@ -145,7 +150,7 @@ public final class SimpleNameMatcher
 
     @Override
     public int matchInternedName(String toMatch) {
-        int ix = _hash(toMatch, _mask);
+        int ix = _hash(toMatch.hashCode(), _mask);
         String name = _names[ix];
         if (name == toMatch) {
             return _offsets[ix];
@@ -180,17 +185,22 @@ public final class SimpleNameMatcher
         }
         return MATCH_UNKNOWN_NAME;
     }
-    
+
     // For tests; gives rought count (may have slack at the end)
     public int spillCount() {
         int spillStart = (_mask+1) + ((_mask+1) >> 1);
         return _names.length - spillStart;
     }
 
+    private final static int _hash(int h, int mask) {
+        return (h ^ (h >> 3)) & mask;
+    }
+    /*
     private final static int _hash(String str, int mask) {
         int h = str.hashCode();
         return (h ^ (h >> 3)) & mask;
     }
+    */
 
     /*
     /**********************************************************************
@@ -203,6 +213,7 @@ public final class SimpleNameMatcher
      * lookup (must check equality for all) with more compact representation and
      * avoidance of hash code access, usage.
      */
+    /*
     private final static class Small extends FieldNameMatcher
         implements java.io.Serializable
     {
@@ -242,4 +253,5 @@ public final class SimpleNameMatcher
             return FieldNameMatcher.MATCH_UNKNOWN_NAME;
         }
     }
+    */
 }

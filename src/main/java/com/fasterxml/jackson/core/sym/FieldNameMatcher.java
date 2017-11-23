@@ -47,4 +47,18 @@ public abstract class FieldNameMatcher
      * {@link String#intern}ed
      */
     public abstract int matchInternedName(String name);
+
+    /*
+    /**********************************************************************
+    /* API: lookup by quad-bytes
+    /**********************************************************************
+     */
+
+    public int matchByQuad(int q1) { throw new UnsupportedOperationException(); }
+
+    public int matchByQuad(int q1, int q2) { throw new UnsupportedOperationException(); }
+
+    public int matchByQuad(int q1, int q2, int q3) { throw new UnsupportedOperationException(); }
+
+    public int matchByQuad(int[] q, int qlen) { throw new UnsupportedOperationException(); }
 }

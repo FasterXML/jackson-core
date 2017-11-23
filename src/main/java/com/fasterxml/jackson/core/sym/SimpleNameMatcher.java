@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.util.Named;
  * not require (or expect) that names passed as arguments have been
  * {@link String#intern}ed.
  */
-public final class SimpleNameMatcher
+public class SimpleNameMatcher
     extends FieldNameMatcher
     implements java.io.Serializable
 {
@@ -201,6 +201,10 @@ public final class SimpleNameMatcher
         return (h ^ (h >> 3)) & mask;
     }
     */
+
+    public List<String> namesInOrder() {
+        return Arrays.asList(_names);
+    }
 
     /*
     /**********************************************************************

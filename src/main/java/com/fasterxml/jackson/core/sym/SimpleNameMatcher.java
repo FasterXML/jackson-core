@@ -17,19 +17,28 @@ public class SimpleNameMatcher
 
     protected final int _mask;
     final int BOGUS_PADDING = 0; // for funsies
-    protected final String[] _names;
-    protected final int[] _offsets;
 
+    // // // Main hash area (ints) along with Strings it maps (sparse)
+    
+    protected final int[] _offsets;
+    protected final String[] _names;
+
+    // // // Original indexed Strings (dense) iff preserved
+
+    protected final String[] _nameLookup;
+    
     private SimpleNameMatcher(String[] names, int[] offsets, int mask) {
         _names = names;
         _offsets = offsets;
         _mask = mask;
+        _nameLookup = null;
     }
 
-    protected SimpleNameMatcher(SimpleNameMatcher base) {
+    protected SimpleNameMatcher(SimpleNameMatcher base, String[] nameLookup) {
         _mask = base._mask;
         _names = base._names;
         _offsets = base._offsets;
+        _nameLookup = nameLookup;
     }
 
     public static SimpleNameMatcher constructFrom(List<Named> fields,
@@ -102,8 +111,8 @@ public class SimpleNameMatcher
      */
 
     @Override
-    public final String[] indexedStrings() {
-        return _names;
+    public final String[] nameLookup() {
+        return _nameLookup;
     }
 
     @Override

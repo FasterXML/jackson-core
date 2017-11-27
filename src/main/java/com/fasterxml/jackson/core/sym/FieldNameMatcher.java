@@ -40,14 +40,6 @@ public abstract class FieldNameMatcher
 
     /*
     /**********************************************************************
-    /* API: access to indexed Strings
-    /**********************************************************************
-     */
-
-    public abstract String[] indexedStrings();
-
-    /*
-    /**********************************************************************
     /* API: lookup by String
     /**********************************************************************
      */
@@ -77,6 +69,14 @@ public abstract class FieldNameMatcher
     public int matchByQuad(int q1, int q2, int q3) { throw new UnsupportedOperationException(); }
 
     public int matchByQuad(int[] q, int qlen) { throw new UnsupportedOperationException(); }
+
+    /*
+    /**********************************************************************
+    /* API: optional access to indexed Strings
+    /**********************************************************************
+     */
+
+    public abstract String[] nameLookup();
 
     /*
     /**********************************************************************

@@ -1,5 +1,11 @@
 package com.fasterxml.jackson.core.sym;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.util.InternCache;
+import com.fasterxml.jackson.core.util.Named;
+
 /**
  * Interface for implementations used for efficient matching of field names from
  * input stream (via parser) to higher-level abstractions like properties that
@@ -30,6 +36,7 @@ public abstract class FieldNameMatcher
      */
     public final static int MATCH_ODD_TOKEN = -3;
 
+    private final static InternCache INTERNER = InternCache.instance;
     /*
     /**********************************************************************
     /* API: lookup by String
@@ -61,4 +68,23 @@ public abstract class FieldNameMatcher
     public int matchByQuad(int q1, int q2, int q3) { throw new UnsupportedOperationException(); }
 
     public int matchByQuad(int[] q, int qlen) { throw new UnsupportedOperationException(); }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for sub-classes
+    /**********************************************************************
+     */
+
+    public static List<String> stringsFromNames(List<Named> fields,
+            final boolean alreadyInterned) {
+        return fields.stream()
+                .map(n -> fromName(n, alreadyInterned))
+                .collect(Collectors.toList());
+    }
+
+    protected static String fromName(Named n, boolean alreadyInterned) {
+        if (n == null) return null;
+        String name = n.getName();
+        return alreadyInterned ? name : INTERNER.intern(name);
+    }
 }

@@ -11,8 +11,6 @@ import com.fasterxml.jackson.core.util.InternCache;
  * memory access due to flattening of name quad data.
  * Performance improvement modest for simple JSON document data binding (maybe 3%),
  * but should help more for larger symbol tables, or for binary formats like Smile.
- *
- * @since 2.6
  */
 public final class ByteQuadsCanonicalizer
 {
@@ -93,8 +91,6 @@ public final class ByteQuadsCanonicalizer
     /**
      * Flag that indicates whether we should throw an exception if enough 
      * hash collisions are detected (true); or just worked around (false).
-     * 
-     * @since 2.4
      */
     private final boolean _failOnDoS;
     
@@ -813,15 +809,13 @@ public final class ByteQuadsCanonicalizer
         int offset;
         
         switch (qlen) {
-        case 1:
-        {
+        case 1: {
                 offset = _findOffsetForAdd(calcHash(q[0]));
                 _hashArea[offset] = q[0];
                 _hashArea[offset+3] = 1;
             }
             break;
-        case 2:
-            {
+        case 2: {
                 offset = _findOffsetForAdd(calcHash(q[0], q[1]));
                 _hashArea[offset] = q[0];
                 _hashArea[offset+1] = q[1];

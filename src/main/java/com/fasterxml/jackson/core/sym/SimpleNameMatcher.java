@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.core.sym;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
 
 /**
@@ -17,20 +15,24 @@ public class SimpleNameMatcher
 {
     private static final long serialVersionUID = 1L;
 
-    private final static InternCache INTERNER = InternCache.instance;
-
     protected final int _mask;
     final int BOGUS_PADDING = 0; // for funsies
     protected final String[] _names;
     protected final int[] _offsets;
-    
+
     private SimpleNameMatcher(String[] names, int[] offsets, int mask) {
         _names = names;
         _offsets = offsets;
         _mask = mask;
     }
 
-    public static FieldNameMatcher constructFrom(List<Named> fields,
+    protected SimpleNameMatcher(SimpleNameMatcher base) {
+        _mask = base._mask;
+        _names = base._names;
+        _offsets = base._offsets;
+    }
+
+    public static SimpleNameMatcher constructFrom(List<Named> fields,
             boolean alreadyInterned) {
         return construct(stringsFromNames(fields, alreadyInterned));
     }
@@ -46,20 +48,7 @@ public class SimpleNameMatcher
         return result;
     }
 
-    protected static List<String> stringsFromNames(List<Named> fields,
-            final boolean alreadyInterned) {
-        return fields.stream()
-                .map(n -> fromName(n, alreadyInterned))
-                .collect(Collectors.toList());
-    }
-
-    protected static String fromName(Named n, boolean alreadyInterned) {
-        if (n == null) return null;
-        String name = n.getName();
-        return alreadyInterned ? name : INTERNER.intern(name);
-    }
-
-    public static FieldNameMatcher construct(List<String> fieldNames)
+    public static SimpleNameMatcher construct(List<String> fieldNames)
     {
         final int fieldCount = fieldNames.size();
         /*
@@ -106,6 +95,12 @@ public class SimpleNameMatcher
         return new SimpleNameMatcher(names, offsets, mask);
     }
 
+    /*
+    /**********************************************************************
+    /* Public API
+    /**********************************************************************
+     */
+    
     @Override
     public int matchAnyName(String toMatch) {
         int ix = _hash(toMatch.hashCode(), _mask);

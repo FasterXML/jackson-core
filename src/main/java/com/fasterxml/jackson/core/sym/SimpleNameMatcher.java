@@ -100,9 +100,14 @@ public class SimpleNameMatcher
     /* Public API
     /**********************************************************************
      */
-    
+
     @Override
-    public int matchAnyName(String toMatch) {
+    public final String[] indexedStrings() {
+        return _names;
+    }
+
+    @Override
+    public final int matchAnyName(String toMatch) {
         int ix = _hash(toMatch.hashCode(), _mask);
         String name = _names[ix];
         if (toMatch == name) {
@@ -144,7 +149,7 @@ public class SimpleNameMatcher
     }
 
     @Override
-    public int matchInternedName(String toMatch) {
+    public final int matchInternedName(String toMatch) {
         int ix = _hash(toMatch.hashCode(), _mask);
         String name = _names[ix];
         if (name == toMatch) {
@@ -196,10 +201,6 @@ public class SimpleNameMatcher
         return (h ^ (h >> 3)) & mask;
     }
     */
-
-    public List<String> namesInOrder() {
-        return Arrays.asList(_names);
-    }
 
     /*
     /**********************************************************************

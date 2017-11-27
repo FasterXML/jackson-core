@@ -37,6 +37,15 @@ public abstract class FieldNameMatcher
     public final static int MATCH_ODD_TOKEN = -3;
 
     private final static InternCache INTERNER = InternCache.instance;
+
+    /*
+    /**********************************************************************
+    /* API: access to indexed Strings
+    /**********************************************************************
+     */
+
+    public abstract String[] indexedStrings();
+
     /*
     /**********************************************************************
     /* API: lookup by String

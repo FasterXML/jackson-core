@@ -45,6 +45,12 @@ public class CaseInsensitiveNameMatcher
     }
 
     @Override
+    public final String[] indexedStrings() {
+        // Let's return Strings using original casing
+        return _mainMatcher.indexedStrings();
+    }
+
+    @Override
     public int matchAnyName(String name) {
         // First: see if non-modified name is matched by base implementation
         int match = _mainMatcher.matchAnyName(name);

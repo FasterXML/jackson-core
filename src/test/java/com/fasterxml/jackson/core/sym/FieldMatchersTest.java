@@ -155,13 +155,6 @@ public class FieldMatchersTest extends BaseTest
             _expectAnyMatch(matcher, names, index, name);
         }
     }
-    private void _expectInternedMatch(FieldNameMatcher matcher, List<String> names, int index)
-    {     
-        String name = names.get(index);
-        if (name != null) {
-            _expectInternedMatch(matcher, names, index, name);
-        }
-    }
 
     private void _expectAnyMatch(FieldNameMatcher matcher, List<String> names, int index,
             String name)
@@ -172,6 +165,14 @@ public class FieldMatchersTest extends BaseTest
         int match = matcher.matchAnyName(name);
         if (match != index) {
             fail("Should have any-matched #"+index+" (of "+names.size()+") for '"+name+"', did not, got: "+match);
+        }
+    }
+
+    private void _expectInternedMatch(FieldNameMatcher matcher, List<String> names, int index)
+    {
+        String name = names.get(index);
+        if (name != null) {
+            _expectInternedMatch(matcher, names, index, name);
         }
     }
 

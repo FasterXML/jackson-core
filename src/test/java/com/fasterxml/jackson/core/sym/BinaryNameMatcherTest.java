@@ -18,7 +18,6 @@ public class BinaryNameMatcherTest extends BaseTest
 
     public void testMediumMatching()
     {
-        /*
         _testMatching("a", "bcd", "Fittipaldi", "goober");
 
         // then bit larger
@@ -26,8 +25,6 @@ public class BinaryNameMatcherTest extends BaseTest
 
         _testMatching("a", "b", "c", "d", "E", "f", "G", "h");
         _testMatching("a", "b", "d", "E", "f", "G");
-        */
-
         _testMatching("areaNames", "audienceSubCategoryNames", "blockNames", "seatCategoryNames", "subTopicNames",
                 "subjectNames", "topicNames", "topicSubTopics", "venueNames", "events", "performances");
     }
@@ -42,39 +39,6 @@ public class BinaryNameMatcherTest extends BaseTest
         // but ALSO make sure to use longer strings -- need longer pre/suffix
         _testMatching(generate2("-longer", 999)); // 9-12 bytes -> 3 quads
         _testMatching(generate("slartibartfast-", 3000));
-    }
-
-    // Simple test to try to see if we can tweak hashing to limit overflow
-    public void testSpillEfficiency()
-    {
-        // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce
-        //   default collision counts
-        _testSpillEfficiency(generate("", 99), 56, 26, 17, 0);
-        _testSpillEfficiency(generate("base", 39), 37, 2, 0, 0);
-        _testSpillEfficiency(generate("Of ", 139), 124, 15, 0, 0);
-
-        // inferior hashing here -- should we worry? (performance would be gnarly)
-        _testSpillEfficiency(generate("ACE-", 499), 191, 104, 115, 89);
-        // similarly, not so great...
-        _testSpillEfficiency(generate("SlartiBartFast#", 3000), 1112, 761, 897, 230);
-        
-        _testSpillEfficiency(generate2("", 99), 56, 26, 17, 0);
-        _testSpillEfficiency(generate2("base", 39), 28, 6, 5, 0);
-        _testSpillEfficiency(generate2("Of ", 139), 111, 21, 7, 0);
-        _testSpillEfficiency(generate2("ACE-", 499), 297, 122, 77, 3);
-    }
-
-    private void _testSpillEfficiency(List<String> names,
-            int prim, int sec, int ter,
-            int expSpills)
-    {
-        BinaryNameMatcher quads = _construct(names);
-        assertEquals(names.size(), quads.totalCount());
-
-        assertEquals("Primary count not matching", prim, quads.primaryCount());
-        assertEquals("Secondary count not matching", sec, quads.secondaryCount());
-        assertEquals("Tertiary count not matching", ter, quads.tertiaryCount());
-        assertEquals("Spill count not matching", expSpills, quads.spilloverCount());
     }
 
     private List<String> generate(String base, int count) {

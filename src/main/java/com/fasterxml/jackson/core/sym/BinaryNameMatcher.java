@@ -684,42 +684,24 @@ public final class BinaryNameMatcher
     
     public int calcHash(int q1)
     {
-        int hash = q1;
-        hash += (hash >>> 16);
-        hash ^= (hash << 3);
-        hash += (hash >>> 12);
-        return hash;
+        int hash = q1 + (q1 >>> 16) ^ (q1 << 3);
+        return hash + (hash >>> 11);
     }
 
     public int calcHash(int q1, int q2)
     {
-        int hash = q1;
-
-        hash += (hash >>> 15);
-        hash ^= (hash >>> 9);
-        hash += (q2 * MULT);
-        hash += (hash >>> 16);
-        hash ^= (hash >>> 4);
-        hash += (hash << 3);
-        
+        int hash = q1 + (q1 >>> 15) ^ (q1 >>> 9);
+        hash += (q2 * MULT) ^ (q2 >>> 15);
+        hash += (hash >>> 7) + (hash >>> 3);
         return hash;
     }
 
     public int calcHash(int q1, int q2, int q3)
-    { // use same algorithm as multi-byte, tested to work well
-        int hash = q1;
-        hash += (hash >>> 9);
-        hash *= MULT3;
-        hash += q2;
-        hash *= MULT;
-        hash += (hash >>> 15);
-        hash ^= q3;
-        // 26-Mar-2015, tatu: As per two-quad case, a short shift seems to help more here
+    {
+        int hash = q1 + (q1 >>> 15) ^ (q1 >>> 9);
+        hash = (hash * MULT) + q2 ^ (q2 >>> 15) + (q2 >> 7);
+        hash = (hash * MULT3) + q3 ^ (q3 >>> 13) + (q3 >> 9);
         hash += (hash >>> 4);
-
-        hash += (hash >>> 15);
-        hash ^= (hash << 9);
-
         return hash;
     }
 
@@ -728,11 +710,7 @@ public final class BinaryNameMatcher
         if (qlen < 4) {
             throw new IllegalArgumentException();
         }
-        /* And then change handling again for "multi-quad" case; mostly
-         * to make calculation of collisions less fun. For example,
-         * add seed bit later in the game, and switch plus/xor around,
-         * use different shift lengths.
-         */
+        // And then change handling again for "multi-quad" case
         int hash = q[0];
         hash += (hash >>> 9);
         hash += q[1];

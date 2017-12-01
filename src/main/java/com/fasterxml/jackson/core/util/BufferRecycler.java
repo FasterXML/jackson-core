@@ -100,7 +100,7 @@ public class BufferRecycler
         return buffer;
     }
 
-    public final void releaseByteBuffer(int ix, byte[] buffer) {
+    public void releaseByteBuffer(int ix, byte[] buffer) {
         _byteBuffers[ix] = buffer;
     }
 

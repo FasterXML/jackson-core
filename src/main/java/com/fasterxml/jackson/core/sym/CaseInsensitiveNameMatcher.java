@@ -15,20 +15,19 @@ public class CaseInsensitiveNameMatcher
 {
     private static final long serialVersionUID = 1L;
 
-    protected final FieldNameMatcher _mainMatcher;
     protected final FieldNameMatcher _lowerCaseMatcher;
     
     protected CaseInsensitiveNameMatcher(FieldNameMatcher mainMatcher,
             FieldNameMatcher lcMatcher) {
-        _mainMatcher = mainMatcher;
+        super(mainMatcher, null);
         _lowerCaseMatcher = lcMatcher;
     }
 
     public static CaseInsensitiveNameMatcher constructFrom(List<Named> fields,
             boolean alreadyInterned)
     {
-        return new CaseInsensitiveNameMatcher(SimpleNameMatcher.constructFrom(fields, alreadyInterned),
-                _constructWithLC(fields));
+        SimpleNameMatcher primary = SimpleNameMatcher.constructFrom(fields, alreadyInterned);
+        return new CaseInsensitiveNameMatcher(primary, _constructWithLC(fields));
     }
 
     private static FieldNameMatcher _constructWithLC(List<Named> fields)
@@ -45,33 +44,12 @@ public class CaseInsensitiveNameMatcher
     }
 
     @Override
-    public final String[] nameLookup() {
-        return null;
-    }
-
-    @Override
-    public int matchAnyName(String name) {
-        // First: see if non-modified name is matched by base implementation
-        int match = _mainMatcher.matchAnyName(name);
-        if (match >= 0) {
-            return match;
-        }
-        // Important! May need to secondary lookup even if key does not change
-        // since original name may have been lower-cases
-        // (could try optimizing for case where all input was already lower case
-        // and key too... but seems unlikely to be particularly common case)
-        return _lowerCaseMatcher.matchAnyName(name.toLowerCase());
-    }
-
-    @Override
-    public int matchInternedName(String name) {
-        // 15-Nov-2017, tatu: we can try intern-based matching for primary one
-        int match = _mainMatcher.matchInternedName(name);
-        if (match >= 0) {
-            return match;
-        }
-        // but not to secondary: neither are entries to-match intern()ed nor lower-cased here
-        // (unless lower-casing makes difference)
-        return _lowerCaseMatcher.matchAnyName(name.toLowerCase());
+    protected int matchSecondary(String toMatch) {
+        final String key = toMatch.toLowerCase();
+        // 04-Dec-2017, tatu: Note that we absolutely MUST do another lookup even if
+        //   key does not change; thing being that we are now using secondary index,
+        //   contents of which MAY be different from primary one. Specifically, if original
+        //   keys are not all lower-case, we would induce a miss if skipping lookup here.
+        return _lowerCaseMatcher.matchAnyName(key);
     }
 }

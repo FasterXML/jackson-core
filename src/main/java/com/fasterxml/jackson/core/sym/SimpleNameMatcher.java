@@ -15,30 +15,12 @@ public class SimpleNameMatcher
 {
     private static final long serialVersionUID = 1L;
 
-    protected final int _mask;
-    final int BOGUS_PADDING = 0; // for funsies
-
-    // // // Main hash area (ints) along with Strings it maps (sparse)
-    
-    protected final int[] _offsets;
-    protected final String[] _names;
-
-    // // // Original indexed Strings (dense) iff preserved
-
-    protected final String[] _nameLookup;
-    
     private SimpleNameMatcher(String[] names, int[] offsets, int mask) {
-        _names = names;
-        _offsets = offsets;
-        _mask = mask;
-        _nameLookup = null;
+        super(names, offsets, mask, null);
     }
 
     protected SimpleNameMatcher(SimpleNameMatcher base, String[] nameLookup) {
-        _mask = base._mask;
-        _names = base._names;
-        _offsets = base._offsets;
-        _nameLookup = nameLookup;
+        super(base, nameLookup);
     }
 
     public static SimpleNameMatcher constructFrom(List<Named> fields,
@@ -60,11 +42,6 @@ public class SimpleNameMatcher
     public static SimpleNameMatcher construct(List<String> fieldNames)
     {
         final int fieldCount = fieldNames.size();
-        /*
-        if (fieldCount <= Small.MAX_FIELDS) {
-            return Small.construct(fieldNames);
-        }
-        */
         final int hashSize = findSize(fieldCount);
         final int allocSize = hashSize + (hashSize>>1);
 
@@ -104,163 +81,9 @@ public class SimpleNameMatcher
         return new SimpleNameMatcher(names, offsets, mask);
     }
 
-    /*
-    /**********************************************************************
-    /* Public API
-    /**********************************************************************
-     */
-
     @Override
-    public final String[] nameLookup() {
-        return _nameLookup;
-    }
-
-    @Override
-    public final int matchAnyName(String toMatch) {
-        int ix = _hash(toMatch.hashCode(), _mask);
-        String name = _names[ix];
-        if (toMatch == name) {
-            return _offsets[ix];
-        }
-        if (name != null) {
-            if (toMatch.equals(name)) {
-                return _offsets[ix];
-            }
-            // check secondary slot
-            ix = (_mask + 1) + (ix >> 1);
-            name = _names[ix];
-            if (toMatch.equals(name)) {
-                return _offsets[ix];
-            }
-            // or spill-over if need be
-            if (name != null) {
-                return _matchAnySpill(toMatch);
-            }
-        }
+    protected int matchSecondary(String toMatch) {
+        // Default implementation has no fallback so:
         return MATCH_UNKNOWN_NAME;
     }
-
-    private final int _matchAnySpill(String toMatch) {
-        int ix = (_mask+1);
-        ix += (ix>>1);
-
-        for (int end = _names.length; ix < end; ++ix) {
-            String name = _names[ix];
-
-            if (toMatch.equals(name)) {
-                return _offsets[ix];
-            }
-            if (name == null) {
-                break;
-            }
-        }
-        return MATCH_UNKNOWN_NAME;
-    }
-
-    @Override
-    public final int matchInternedName(String toMatch) {
-        int ix = _hash(toMatch.hashCode(), _mask);
-        String name = _names[ix];
-        if (name == toMatch) {
-            return _offsets[ix];
-        }
-        if (name != null) {
-            // check secondary slot
-            ix = (_mask + 1) + (ix >> 1);
-            name = _names[ix];
-            if (name == toMatch) {
-                return _offsets[ix];
-            }
-            // or spill-over if need be
-            if (name != null) {
-                return _matchInternedSpill(toMatch);
-            }
-        }
-        return MATCH_UNKNOWN_NAME;
-    }
-
-    private final int _matchInternedSpill(String toMatch) {
-        int ix = (_mask+1);
-        ix += (ix>>1);
-
-        for (int end = _names.length; ix < end; ++ix) {
-            String name = _names[ix];
-            if (name == toMatch) {
-                return _offsets[ix];
-            }
-            if (name == null) {
-                break;
-            }
-        }
-        return MATCH_UNKNOWN_NAME;
-    }
-
-    // For tests; gives rought count (may have slack at the end)
-    public int spillCount() {
-        int spillStart = (_mask+1) + ((_mask+1) >> 1);
-        return _names.length - spillStart;
-    }
-
-    private final static int _hash(int h, int mask) {
-        return (h ^ (h >> 3)) & mask;
-    }
-    /*
-    private final static int _hash(String str, int mask) {
-        int h = str.hashCode();
-        return (h ^ (h >> 3)) & mask;
-    }
-    */
-
-    /*
-    /**********************************************************************
-    /* Specialized matcher for small number of fields
-    /**********************************************************************
-     */
-
-    /**
-     * Compact implementation for small lookups: threshold chosen to balance costlier
-     * lookup (must check equality for all) with more compact representation and
-     * avoidance of hash code access, usage.
-     */
-    /*
-    private final static class Small extends FieldNameMatcher
-        implements java.io.Serializable
-    {
-        private static final long serialVersionUID = 1L;
-
-        final static int MAX_FIELDS = 3;
-        
-        protected final String _f1, _f2, _f3;
-
-        private Small(String f1, String f2, String f3) {
-            _f1 = f1;
-            _f2 = f2;
-            _f3 = f3;
-        }
-
-        public static Small construct(List<String> fields) {
-            return new Small(_get(fields, 0), _get(fields, 1), _get(fields, 2));
-        }
-
-        private static String _get(List<String> fields, int index) {
-            return (index < fields.size()) ? fields.get(index) : null;
-        }
-
-        @Override
-        public int matchAnyName(String name) {
-            if (name.equals(_f1)) return 0;
-            if (name.equals(_f2)) return 1;
-            if (name.equals(_f3)) return 2;
-            return FieldNameMatcher.MATCH_UNKNOWN_NAME;
-        }
-
-        @Override
-        public int matchInternedName(String name) {
-            if (name == _f1) return 0;
-            if (name == _f2) return 1;
-            if (name == _f3) return 2;
-            return FieldNameMatcher.MATCH_UNKNOWN_NAME;
-        }
-    }
-    */
 }

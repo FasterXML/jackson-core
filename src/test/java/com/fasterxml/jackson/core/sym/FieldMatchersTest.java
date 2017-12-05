@@ -16,7 +16,7 @@ public class FieldMatchersTest extends BaseTest
         // First small (1 - 4)
         _testMatching("single");
         _testMatching("1", "2a");
-        _testMatching("first", "second", "third");
+        _testMatching("first", "Second", "third");
         // ... with nulls
         _testMatching(null, "b", null);
     }

@@ -133,7 +133,7 @@ public class FieldMatchersTest extends BaseTest
 
     private void _testCaseInsensitive(List<String> names)
     {
-        FieldNameMatcher matcher = CaseInsensitiveNameMatcher.constructFrom(named(names), true);
+        FieldNameMatcher matcher = SimpleNameMatcher.constructCaseInsensitive(named(names), true);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
             if (name != null) {

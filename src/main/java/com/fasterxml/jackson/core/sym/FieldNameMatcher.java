@@ -54,6 +54,10 @@ public abstract class FieldNameMatcher
 
     protected final String[] _nameLookup;
 
+    // // // Backup index, mostly for case-insensitive lookups
+
+    protected final FieldNameMatcher _backupMatcher;
+
     /*
     /**********************************************************************
     /* Construction
@@ -61,15 +65,21 @@ public abstract class FieldNameMatcher
      */
 
     protected FieldNameMatcher(String[] names, int[] offsets, int mask,
-            String[] nameLookup) {
+            FieldNameMatcher backup, String[] nameLookup)
+    {
         _names = names;
         _offsets = offsets;
         _mask = mask;
+        _backupMatcher = backup;
         _nameLookup = nameLookup;
     }
 
     protected FieldNameMatcher(FieldNameMatcher base, String[] nameLookup) {
-        this(base._names, base._offsets, base._mask, nameLookup);
+        this(base._names, base._offsets, base._mask, base._backupMatcher, nameLookup);
+    }
+
+    protected FieldNameMatcher(FieldNameMatcher base, FieldNameMatcher backup) {
+        this(base._names, base._offsets, base._mask, backup, base._nameLookup);
     }
 
     /*
@@ -170,13 +180,13 @@ public abstract class FieldNameMatcher
     /**********************************************************************
      */
 
-    public int matchByQuad(int q1) { throw new UnsupportedOperationException(); }
+    public abstract int matchByQuad(int q1);
 
-    public int matchByQuad(int q1, int q2) { throw new UnsupportedOperationException(); }
+    public abstract int matchByQuad(int q1, int q2);
 
-    public int matchByQuad(int q1, int q2, int q3) { throw new UnsupportedOperationException(); }
+    public abstract int matchByQuad(int q1, int q2, int q3);
 
-    public int matchByQuad(int[] q, int qlen) { throw new UnsupportedOperationException(); }
+    public abstract int matchByQuad(int[] q, int qlen);
 
     /*
     /**********************************************************************
@@ -201,7 +211,16 @@ public abstract class FieldNameMatcher
      * Secondary lookup method used for matchers that operate with more complex
      * matching rules, such as case-insensitive matchers.
      */
-    protected abstract int matchSecondary(String toMatch);
+    protected int matchSecondary(String toMatch) {
+        if (_backupMatcher == null) {
+            return MATCH_UNKNOWN_NAME;
+        }
+        // 04-Dec-2017, tatu: Note that we absolutely MUST do another lookup even if
+        //   key does not change; thing being that we are now using secondary index,
+        //   contents of which MAY be different from primary one. Specifically, if original
+        //   keys are not all lower-case, we would induce a miss if skipping lookup here.
+        return _backupMatcher.matchAnyName(toMatch.toLowerCase());
+    }
 
     /*
     /**********************************************************************

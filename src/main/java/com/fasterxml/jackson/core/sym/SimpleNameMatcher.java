@@ -16,27 +16,40 @@ public class SimpleNameMatcher
     private static final long serialVersionUID = 1L;
 
     private SimpleNameMatcher(String[] names, int[] offsets, int mask) {
-        super(names, offsets, mask, null);
+        super(names, offsets, mask, null, null);
     }
 
     protected SimpleNameMatcher(SimpleNameMatcher base, String[] nameLookup) {
         super(base, nameLookup);
     }
 
+    protected SimpleNameMatcher(SimpleNameMatcher primary, SimpleNameMatcher secondary) {
+        super(primary, secondary);
+    }
+
+    /**
+     * Factory method for constructing case-sensitive matcher that only supports
+     * matching from `String`.
+     */
     public static SimpleNameMatcher constructFrom(List<Named> fields,
             boolean alreadyInterned) {
         return construct(stringsFromNames(fields, alreadyInterned));
     }
 
-    protected static int findSize(int size) {
-        if (size <= 6) return 8;
-        if (size <= 12) return 16;
-        int needed = size + (size >> 2); // at most 80% full
-        int result = 32;
-        while (result < needed) {
-            result += result;
+    public static SimpleNameMatcher constructCaseInsensitive(List<Named> fields,
+            boolean alreadyInterned)
+    {
+        SimpleNameMatcher primary = SimpleNameMatcher.constructFrom(fields, alreadyInterned);
+        List<String> lcd = new ArrayList<>(fields.size());
+        for (Named n : fields) {
+            // Important! MUST include even if not different because lookup
+            // key may be lower-cased after primary access
+            lcd.add((n == null) ? null : n.getName().toLowerCase());
         }
-        return result;
+        // NOTE! We do NOT intern() secondary entries so make sure not to assume
+        // intern()ing for secondary lookup
+        SimpleNameMatcher secondary = SimpleNameMatcher.construct(lcd);
+        return new SimpleNameMatcher(primary, secondary);
     }
 
     public static SimpleNameMatcher construct(List<String> fieldNames)
@@ -81,9 +94,28 @@ public class SimpleNameMatcher
         return new SimpleNameMatcher(names, offsets, mask);
     }
 
-    @Override
-    protected int matchSecondary(String toMatch) {
-        // Default implementation has no fallback so:
-        return MATCH_UNKNOWN_NAME;
+    protected static int findSize(int size) {
+        if (size <= 6) return 8;
+        if (size <= 12) return 16;
+        int needed = size + (size >> 2); // at most 80% full
+        int result = 32;
+        while (result < needed) {
+            result += result;
+        }
+        return result;
     }
+
+    // // // Not implemented by this matcher, but not an error to call (caller won't know)
+
+    @Override
+    public int matchByQuad(int q1) { return MATCH_UNKNOWN_NAME; }
+
+    @Override
+    public int matchByQuad(int q1, int q2) { return MATCH_UNKNOWN_NAME; }
+
+    @Override
+    public int matchByQuad(int q1, int q2, int q3) { return MATCH_UNKNOWN_NAME; }
+
+    @Override
+    public int matchByQuad(int[] q, int qlen) { return MATCH_UNKNOWN_NAME; }
 }

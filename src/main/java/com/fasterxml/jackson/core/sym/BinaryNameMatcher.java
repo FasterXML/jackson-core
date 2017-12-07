@@ -14,7 +14,8 @@ import com.fasterxml.jackson.core.util.Named;
  * @since 3.0
  */
 public final class BinaryNameMatcher
-    extends SimpleNameMatcher
+    extends FieldNameMatcher
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -145,18 +146,29 @@ public final class BinaryNameMatcher
     /**********************************************************
      */
 
-    public static BinaryNameMatcher constructFrom(List<Named> symbols,
+    public static BinaryNameMatcher constructFrom(List<Named> fields,
             boolean alreadyInterned)
     {
-        return construct(stringsFromNames(symbols, alreadyInterned));
+        return construct(stringsFromNames(fields, alreadyInterned));
     }
 
     public static BinaryNameMatcher construct(List<String> symbols)
     {
         // Two-step process: since we need backup string-based lookup (when matching
         // current name, buffered etc etc), start with that
-        SimpleNameMatcher base = SimpleNameMatcher.construct(symbols);
+        return _construct(symbols, SimpleNameMatcher.construct(symbols));
+    }
 
+    public static BinaryNameMatcher constructCaseInsensitive(List<Named> fields,
+            boolean alreadyInterned)
+    {
+        final List<String> names = FieldNameMatcher.stringsFromNames(fields, alreadyInterned);
+        return _construct(names, SimpleNameMatcher.constructCaseInsensitive(names));
+    }
+
+    private static BinaryNameMatcher _construct(List<String> symbols,
+            SimpleNameMatcher base)
+    {
         int sz = symbols.size();
         // Sanity check: let's now allow hash sizes below certain minimum value. This is size in entries
         if (sz < MIN_HASH_SIZE) {

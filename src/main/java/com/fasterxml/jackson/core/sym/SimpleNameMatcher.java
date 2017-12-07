@@ -36,22 +36,6 @@ public class SimpleNameMatcher
         return construct(stringsFromNames(fields, alreadyInterned));
     }
 
-    public static SimpleNameMatcher constructCaseInsensitive(List<Named> fields,
-            boolean alreadyInterned)
-    {
-        SimpleNameMatcher primary = SimpleNameMatcher.constructFrom(fields, alreadyInterned);
-        List<String> lcd = new ArrayList<>(fields.size());
-        for (Named n : fields) {
-            // Important! MUST include even if not different because lookup
-            // key may be lower-cased after primary access
-            lcd.add((n == null) ? null : n.getName().toLowerCase());
-        }
-        // NOTE! We do NOT intern() secondary entries so make sure not to assume
-        // intern()ing for secondary lookup
-        SimpleNameMatcher secondary = SimpleNameMatcher.construct(lcd);
-        return new SimpleNameMatcher(primary, secondary);
-    }
-
     public static SimpleNameMatcher construct(List<String> fieldNames)
     {
         final int fieldCount = fieldNames.size();
@@ -92,6 +76,31 @@ public class SimpleNameMatcher
             ++spillPtr;
         }
         return new SimpleNameMatcher(names, offsets, mask);
+    }
+
+    public static SimpleNameMatcher constructCaseInsensitive(List<Named> fields,
+            boolean alreadyInterned)
+    {
+        SimpleNameMatcher primary = SimpleNameMatcher.constructFrom(fields, alreadyInterned);
+        List<String> lcd = new ArrayList<>(fields.size());
+        for (Named n : fields) {
+            // Important! MUST include even if not different because lookup
+            // key may be lower-cased after primary access
+            lcd.add((n == null) ? null : n.getName().toLowerCase());
+        }
+        // NOTE! We do NOT intern() secondary entries so make sure not to assume
+        // intern()ing for secondary lookup
+        return new SimpleNameMatcher(primary, SimpleNameMatcher.construct(lcd));
+    }
+
+    public static SimpleNameMatcher constructCaseInsensitive(List<String> names)
+    {
+        SimpleNameMatcher primary = SimpleNameMatcher.construct(names);
+        List<String> lcd = new ArrayList<>(names.size());
+        for (String n : names) {
+            lcd.add((n == null) ? null : n.toLowerCase());
+        }
+        return new SimpleNameMatcher(primary, SimpleNameMatcher.construct(lcd));
     }
 
     protected static int findSize(int size) {

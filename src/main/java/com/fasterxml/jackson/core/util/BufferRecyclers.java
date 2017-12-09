@@ -5,7 +5,11 @@ import java.lang.ref.SoftReference;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 /**
- * Helper entity used to further 
+ * Helper entity used to control access to simple buffer recyling scheme used for
+ * some encoding, decoding tasks.
+ * 
+ * @see BufferRecycler
+ * @see JsonStringEncoder
  *
  * @since 2.9.2
  */

@@ -218,7 +218,7 @@ public final class CharTypes
     public static void appendQuoted(StringBuilder sb, String content)
     {
         final int[] escCodes = sOutputEscapes128;
-        int escLen = escCodes.length;
+        final int escLen = escCodes.length;
         for (int i = 0, len = content.length(); i < len; ++i) {
             char c = content.charAt(i);
             if (c >= escLen || escCodes[c] == 0) {

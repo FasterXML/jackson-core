@@ -35,12 +35,12 @@ public class SerializedString
      *   search framework; and they believed this is an important optimization for
      *   heaviest, multi-core deployed use cases.
      */
-    /*
-     * 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
-     *   area, or anything pointing to it. So I think we are safe up to JDK7
-     *   and hopefully beyond.
-     */
+    // 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
+    //  area, or anything pointing to it. So I think we are safe up to JDK7
+    //   and hopefully beyond.
     
+    // 09-Dec-2017, tatu: ... fine up until Java 8, Jackson 2.9, no reports.
+
     protected /*volatile*/ byte[] _quotedUTF8Ref;
 
     protected /*volatile*/ byte[] _unquotedUTF8Ref;
@@ -63,8 +63,6 @@ public class SerializedString
     /**
      * Ugly hack, to work through the requirement that _value is indeed final,
      * and that JDK serialization won't call ctor(s).
-     * 
-     * @since 2.1
      */
     protected transient String _jdkSerializeValue;
 
@@ -106,8 +104,8 @@ public class SerializedString
     }
 
     /**
-     * Accessor for accessing value that has been quoted using JSON
-     * quoting rules, and encoded using UTF-8 encoding.
+     * Accessor for accessing value as is (without JSON quoting)
+     * encoded using UTF-8 encoding.
      */
     @Override
     public final byte[] asUnquotedUTF8() {
@@ -120,8 +118,8 @@ public class SerializedString
     }
 
     /**
-     * Accessor for accessing value as is (without JSON quoting)
-     * encoded using UTF-8 encoding.
+     * Accessor for accessing value that has been quoted using JSON
+     * quoting rules, and encoded using UTF-8 encoding.
      */
     @Override
     public final byte[] asQuotedUTF8() {

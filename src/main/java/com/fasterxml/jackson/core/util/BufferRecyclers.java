@@ -5,7 +5,11 @@ import java.lang.ref.SoftReference;
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 /**
- * Helper entity used to further 
+ * Helper entity used to control access to simple buffer recyling scheme used for
+ * some encoding, decoding tasks.
+ * 
+ * @see BufferRecycler
+ * @see JsonStringEncoder
  *
  * @since 2.9.2
  */
@@ -60,5 +64,35 @@ public class BufferRecyclers
             _encoderRef.set(new SoftReference<JsonStringEncoder>(enc));
         }
         return enc;
+    }
+
+    /**
+     * Helper method for encoding given String as UTF-8 encoded
+     *
+     * @since 2.9.4
+     */
+    public static byte[] encodeAsUTF8(String text) {
+        return getJsonStringEncoder().encodeAsUTF8(text);
+    }
+
+    /**
+     * @since 2.9.4
+     */
+    public static char[] quoteAsJsonText(String rawText) {
+        return getJsonStringEncoder().quoteAsString(rawText);
+    }
+
+    /**
+     * @since 2.9.4
+     */
+    public static void quoteAsJsonText(CharSequence input, StringBuilder output) {
+        getJsonStringEncoder().quoteAsString(input, output);
+    }
+
+    /**
+     * @since 2.9.4
+     */
+    public static byte[] quoteAsJsonUTF8(String rawText) {
+        return getJsonStringEncoder().quoteAsUTF8(rawText);
     }
 }

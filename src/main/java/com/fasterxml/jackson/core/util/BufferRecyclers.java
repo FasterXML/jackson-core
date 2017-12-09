@@ -61,4 +61,34 @@ public class BufferRecyclers
         }
         return enc;
     }
+
+    /**
+     * Helper method for encoding given String as UTF-8 encoded
+     *
+     * @since 2.9.4
+     */
+    public static byte[] encodeAsUTF8(String text) {
+        return getJsonStringEncoder().encodeAsUTF8(text);
+    }
+
+    /**
+     * @since 2.9.4
+     */
+    public static char[] quoteAsJsonText(String rawText) {
+        return getJsonStringEncoder().quoteAsString(rawText);
+    }
+
+    /**
+     * @since 2.9.4
+     */
+    public static void quoteAsJsonText(CharSequence input, StringBuilder output) {
+        getJsonStringEncoder().quoteAsString(input, output);
+    }
+
+    /**
+     * @since 2.9.4
+     */
+    public static byte[] quoteAsJsonUTF8(String rawText) {
+        return getJsonStringEncoder().quoteAsUTF8(rawText);
+    }
 }

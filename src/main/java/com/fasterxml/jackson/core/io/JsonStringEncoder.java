@@ -11,6 +11,9 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * Note that methods in here are somewhat optimized, but not ridiculously so.
  * Reason is that conversion method results are expected to be cached so that
  * these methods will not be hot spots during normal operation.
+ *<p>
+ * NOTE: starting with 2.9.3, access to most functionality should go through
+ * {@link BufferRecyclers} and NOT directly through this class.
  */
 public final class JsonStringEncoder
 {

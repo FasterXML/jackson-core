@@ -1,10 +1,11 @@
 package com.fasterxml.jackson.core;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
+import com.fasterxml.jackson.core.util.Named;
 
 import junit.framework.TestCase;
 
@@ -81,7 +82,16 @@ public abstract class BaseTest
     /* Helper classes (beans)
     /**********************************************************
      */
-    
+
+    static class StringNamed implements Named {
+        private final String str;
+        public StringNamed(String s) { str = s; }
+        @Override
+        public String getName() {
+            return str;
+        }
+    }
+
     /**
      * Sample class from Jackson tutorial ("JacksonInFiveMinutes")
      */
@@ -573,5 +583,17 @@ public abstract class BaseTest
             result[i >> 2] = x;
         }
         return result;
+    }
+
+    public static List<Named> namedFromStrings(Collection<String> input) {
+        ArrayList<Named> result = new ArrayList<>(input.size());
+        for (String str : input) {
+            result.add(new StringNamed(str));
+        }
+        return result;
+    }
+
+    public static List<Named> namedFromStrings(String... input) {
+        return namedFromStrings(Arrays.asList(input));
     }
 }

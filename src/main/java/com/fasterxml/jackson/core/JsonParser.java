@@ -748,6 +748,13 @@ public abstract class JsonParser
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
+     * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
+     * returns same as {@link #currentName()}, otherwise null.
+     */
+    public abstract String nextFieldName() throws IOException;
+
+    /**
+     * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#FIELD_NAME} with specified name
      * and returns result of that comparison.
      * It is functionally equivalent to:
@@ -761,13 +768,6 @@ public abstract class JsonParser
      *   <code>JsonToken.FIELD_NAME</code>)
      */
     public abstract boolean nextFieldName(SerializableString str) throws IOException;
-
-    /**
-     * Method that fetches next token (as if calling {@link #nextToken}) and
-     * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
-     * returns same as {@link #currentName()}, otherwise null.
-     */
-    public abstract String nextFieldName() throws IOException;
 
     /**
      * Method that tries to match next token from stream as {@link JsonToken#FIELD_NAME},

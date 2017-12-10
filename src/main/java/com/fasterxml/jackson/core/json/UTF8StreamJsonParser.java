@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.*;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -831,92 +832,6 @@ public class UTF8StreamJsonParser
      */
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws IOException
-    {
-        // // // Note: most of code below is copied from nextToken()
-        _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) { // can't have name right after name
-            _nextAfterName();
-            return false;
-        }
-        if (_tokenIncomplete) {
-            _skipString();
-        }
-        int i = _skipWSOrEnd();
-        if (i < 0) { // end-of-input
-            close();
-            _currToken = null;
-            return false;
-        }
-        _binaryValue = null;
-
-        // Closing scope?
-        if (i == INT_RBRACKET) {
-            _closeArrayScope();
-            _currToken = JsonToken.END_ARRAY;
-            return false;
-        }
-        if (i == INT_RCURLY) {
-            _closeObjectScope();
-            _currToken = JsonToken.END_OBJECT;
-            return false;
-        }
-
-        // Nope: do we then expect a comma?
-        if (_parsingContext.expectComma()) {
-            if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
-            }
-            i = _skipWS();
-
-            // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
-                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
-                    _closeScope(i);
-                    return false;
-                }
-            }
-        }
-        if (!_parsingContext.inObject()) {
-            _updateLocation();
-            _nextTokenNotInObject(i);
-            return false;
-        }
-        
-        // // // This part differs, name parsing
-        _updateNameLocation();
-        if (i == INT_QUOTE) {
-            // when doing literal match, must consider escaping:
-            byte[] nameBytes = str.asQuotedUTF8();
-            final int len = nameBytes.length;
-            // 22-May-2014, tatu: Actually, let's require 4 more bytes for faster skipping
-            //    of colon that follows name
-            if ((_inputPtr + len + 4) < _inputEnd) { // maybe...
-                // first check length match by
-                final int end = _inputPtr+len;
-                if (_inputBuffer[end] == INT_QUOTE) {
-                    int offset = 0;
-                    int ptr = _inputPtr;
-                    while (true) {
-                        if (ptr == end) { // yes, match!
-                            _parsingContext.setCurrentName(str.getValue());
-                            i = _skipColonFast(ptr+1);
-                            _isNextTokenNameYes(i);
-                            return true;
-                        }
-                        if (nameBytes[offset] != _inputBuffer[ptr]) {
-                            break;
-                        }
-                        ++offset;
-                        ++ptr;
-                    }
-                }
-            }
-        }
-        return _isNextTokenNameMaybe(i, str);
-    }
-
-    @Override
     public String nextFieldName() throws IOException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
@@ -1022,6 +937,201 @@ public class UTF8StreamJsonParser
         }
         _nextToken = t;
         return nameStr;
+    }
+
+    @Override
+    public boolean nextFieldName(SerializableString str) throws IOException
+    {
+        // // // Note: most of code below is copied from nextToken()
+        _numTypesValid = NR_UNKNOWN;
+        if (_currToken == JsonToken.FIELD_NAME) { // can't have name right after name
+            _nextAfterName();
+            return false;
+        }
+        if (_tokenIncomplete) {
+            _skipString();
+        }
+        int i = _skipWSOrEnd();
+        if (i < 0) { // end-of-input
+            close();
+            _currToken = null;
+            return false;
+        }
+        _binaryValue = null;
+
+        // Closing scope?
+        if (i == INT_RBRACKET) {
+            _closeArrayScope();
+            _currToken = JsonToken.END_ARRAY;
+            return false;
+        }
+        if (i == INT_RCURLY) {
+            _closeObjectScope();
+            _currToken = JsonToken.END_OBJECT;
+            return false;
+        }
+
+        // Nope: do we then expect a comma?
+        if (_parsingContext.expectComma()) {
+            if (i != INT_COMMA) {
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+            }
+            i = _skipWS();
+
+            // Was that a trailing comma?
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
+                    _closeScope(i);
+                    return false;
+                }
+            }
+        }
+        if (!_parsingContext.inObject()) {
+            _updateLocation();
+            _nextTokenNotInObject(i);
+            return false;
+        }
+        
+        // // // This part differs, name parsing
+        _updateNameLocation();
+        if (i == INT_QUOTE) {
+            // when doing literal match, must consider escaping:
+            byte[] nameBytes = str.asQuotedUTF8();
+            final int len = nameBytes.length;
+            // 22-May-2014, tatu: Actually, let's require 4 more bytes for faster skipping
+            //    of colon that follows name
+            if ((_inputPtr + len + 4) < _inputEnd) { // maybe...
+                // first check length match by
+                final int end = _inputPtr+len;
+                if (_inputBuffer[end] == INT_QUOTE) {
+                    int offset = 0;
+                    int ptr = _inputPtr;
+                    while (true) {
+                        if (ptr == end) { // yes, match!
+                            _parsingContext.setCurrentName(str.getValue());
+                            i = _skipColonFast(ptr+1);
+                            _isNextTokenNameYes(i);
+                            return true;
+                        }
+                        if (nameBytes[offset] != _inputBuffer[ptr]) {
+                            break;
+                        }
+                        ++offset;
+                        ++ptr;
+                    }
+                }
+            }
+        }
+        return _isNextTokenNameMaybe(i, str);
+    }
+
+    @Override
+    public int nextFieldName(FieldNameMatcher matcher) throws IOException
+    {
+        // // // Note: this is almost a verbatim copy of nextToken()
+
+        _numTypesValid = NR_UNKNOWN;
+        if (_currToken == JsonToken.FIELD_NAME) {
+            _nextAfterName();
+            return FieldNameMatcher.MATCH_ODD_TOKEN;
+        }
+        if (_tokenIncomplete) {
+            _skipString();
+        }
+        int i = _skipWSOrEnd();
+        if (i < 0) {
+            close();
+            _currToken = null;
+            return FieldNameMatcher.MATCH_ODD_TOKEN;
+        }
+        _binaryValue = null;
+
+        if (i == INT_RBRACKET) {
+            _closeArrayScope();
+            _currToken = JsonToken.END_ARRAY;
+            return FieldNameMatcher.MATCH_ODD_TOKEN;
+        }
+        if (i == INT_RCURLY) {
+            _closeObjectScope();
+            _currToken = JsonToken.END_OBJECT;
+            return FieldNameMatcher.MATCH_END_OBJECT;
+        }
+
+        // Nope: do we then expect a comma?
+        if (_parsingContext.expectComma()) {
+            if (i != INT_COMMA) {
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+            }
+            i = _skipWS();
+            // Was that a trailing comma?
+            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+                boolean isEndObject = (i == INT_RCURLY);
+                if (isEndObject || (i == INT_RBRACKET)) {
+                    _closeScope(i);
+                    return isEndObject ? FieldNameMatcher.MATCH_END_OBJECT : FieldNameMatcher.MATCH_ODD_TOKEN;
+                }
+            }
+        }
+
+        if (!_parsingContext.inObject()) {
+            _updateLocation();
+            _nextTokenNotInObject(i);
+            return FieldNameMatcher.MATCH_ODD_TOKEN;
+        }
+
+        _updateNameLocation();
+        final String nameStr = _parseName(i);
+        _parsingContext.setCurrentName(nameStr);
+        _currToken = JsonToken.FIELD_NAME;
+
+        i = _skipColon();
+        _updateLocation();
+        if (i == INT_QUOTE) {
+            _tokenIncomplete = true;
+            _nextToken = JsonToken.VALUE_STRING;
+            return matcher.matchAnyName(nameStr);
+        }
+        JsonToken t;
+        switch (i) {
+        case '-':
+            t = _parseNegNumber();
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            t = _parsePosNumber(i);
+            break;
+        case 'f':
+            _matchFalse();
+             t = JsonToken.VALUE_FALSE;
+            break;
+        case 'n':
+            _matchNull();
+            t = JsonToken.VALUE_NULL;
+            break;
+        case 't':
+            _matchTrue();
+            t = JsonToken.VALUE_TRUE;
+            break;
+        case '[':
+            t = JsonToken.START_ARRAY;
+            break;
+        case '{':
+            t = JsonToken.START_OBJECT;
+            break;
+
+        default:
+            t = _handleUnexpectedValue(i);
+        }
+        _nextToken = t;
+        return matcher.matchAnyName(nameStr);
     }
 
     // Variant called when we know there's at least 4 more bytes available

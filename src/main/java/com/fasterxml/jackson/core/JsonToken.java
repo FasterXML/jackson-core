@@ -83,15 +83,18 @@ public enum JsonToken
      * VALUE_NUMBER_INT is returned when an integer numeric token is
      * encountered in value context: that is, a number that does
      * not have floating point or exponent marker in it (consists
-     * only of an optional sign, followed by one or more digits)
+     * only of an optional sign, followed by one or more digits;
+     * or, for binary formats, is indicated as integral number
+     * by internal representation).
      */
     VALUE_NUMBER_INT(null, JsonTokenId.ID_NUMBER_INT),
 
     /**
-     * VALUE_NUMBER_INT is returned when a numeric token other
-     * that is not an integer is encountered: that is, a number that does
+     * VALUE_NUMBER_FLOAT is returned when a numeric token other
+     * than integer is encountered: that is, a number that does
      * have floating point or exponent marker in it, in addition
-     * to one or more digits.
+     * to one or more digits (or, for non-textual formats,
+     * has internal floating-point representation).
      */
     VALUE_NUMBER_FLOAT(null, JsonTokenId.ID_NUMBER_FLOAT),
     

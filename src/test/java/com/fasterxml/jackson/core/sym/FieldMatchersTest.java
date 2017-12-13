@@ -214,25 +214,7 @@ public class FieldMatchersTest extends BaseTest
     }
     
     private List<Named> named(List<String> names) {
-        return names.stream().map(StringAsNamed::construct)
+        return names.stream().map(Named::fromString)
                 .collect(Collectors.toList());
-    }
-
-    static class StringAsNamed implements Named {
-        private final String name;
-
-        public StringAsNamed(String n) {
-            name = n;
-        }
-
-        public static StringAsNamed construct(String str){
-            if (str == null) {
-                return null;
-            }
-            return new StringAsNamed(str);
-        }
-
-        @Override
-        public String getName() { return name; }
     }
 }

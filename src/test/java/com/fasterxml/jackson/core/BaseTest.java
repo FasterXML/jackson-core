@@ -83,15 +83,6 @@ public abstract class BaseTest
     /**********************************************************
      */
 
-    static class StringNamed implements Named {
-        private final String str;
-        public StringNamed(String s) { str = s; }
-        @Override
-        public String getName() {
-            return str;
-        }
-    }
-
     /**
      * Sample class from Jackson tutorial ("JacksonInFiveMinutes")
      */
@@ -588,7 +579,7 @@ public abstract class BaseTest
     public static List<Named> namedFromStrings(Collection<String> input) {
         ArrayList<Named> result = new ArrayList<>(input.size());
         for (String str : input) {
-            result.add(new StringNamed(str));
+            result.add(Named.fromString(str));
         }
         return result;
     }

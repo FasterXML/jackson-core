@@ -559,9 +559,8 @@ public class JsonFactory
     /**
      * Enables use of releasable ThreadLocalBuffers, released in shutDown method
      */
-    public JsonFactory enableUseReleasableThreadLocalBuffers() {
+    public static void enableUseReleasableThreadLocalBuffers() {
         _bufferMgr = ThreadLocalBufferManager.instance();
-        return this;
     }
 
     /*

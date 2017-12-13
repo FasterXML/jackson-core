@@ -9,6 +9,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.*;
@@ -113,8 +114,17 @@ public class JsonFactory
          *<p>
          * This setting is enabled by default.
          */
-        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true)
+        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true),
 
+        /**
+         * Feature that determines whether we register {@link SoftReference}-d {@link BufferRecycler}s in
+         *  {@link ThreadLocal}s, to be able to release them with a shutDown method.
+         *  Note that this feature works on class level and can only be set once, that is,
+         *  once enabled by one JsonFactory instance, it will always be enabled for all instances.
+         *<p>
+         * This setting is disabled by default.
+         */
+        USE_RELEASABLE_THREAD_LOCAL_BUFFERS(false)
         ;
 
         /**
@@ -179,28 +189,12 @@ public class JsonFactory
      */
 
     /*
-     * For issue #400: We keep a separate Set of all SoftReferences to BufferRecyclers which we put in all ThreadLocals
+     * For issue #400: We optionally keep references to all SoftReferences to BufferRecyclers which we put in all ThreadLocals
      * We do this to be able to release them (dereference) in a newly introduced shutdown method.
-     * When gc clears a SoftReference, it puts it on a newly introduced referenceQueue. We use this queue to release the inactive SoftReferences from the Set.
-    */
-
-    /**
-     * A lock to make sure shutdown is only be executed by one thread at a time since it iterates over and modifies the allSoftBufRecyclers.
+     * It can be enabled by Feature.USE_RELEASABLE_THREAD_LOCAL_BUFFERS on a JsonFactory instance or by
+     * enableUseReleasableThreadLocalBuffers on JsonFactory class.
      */
-    private static final Object SHUTDOWN_LOCK = new Object();
-
-    /**
-     * A set of all SoftReferences to all BufferRecyclers to be able to release them on shutdown.
-     * 'All' means the ones created by this class, in this classloader. There may be more from other classloaders.
-     * We use a HashSet to have quick O(1) add and remove operations.
-     */
-    private static final Set<SoftReference<BufferRecycler>> allSoftBufRecyclers = Collections.synchronizedSet(new HashSet<SoftReference<BufferRecycler>>());
-
-    /**
-     * Queue where gc will put just-cleared SoftReferences, previously referencing BufferRecyclers.
-     * We use it to remove the cleared softRefs from the above set.
-     */
-    private static final ReferenceQueue<BufferRecycler> refQueue = new ReferenceQueue<BufferRecycler>();
+    private static volatile ThreadLocalBufferManager _bufferMgr = null;
 
     /**
      * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
@@ -358,12 +352,9 @@ public class JsonFactory
      * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
      */
     public static void shutdown() {
-        synchronized(SHUTDOWN_LOCK) {
-            removeSoftRefsClearedByGc(); // make sure the refQueue is empty
-            for (SoftReference ref : allSoftBufRecyclers) {
-                ref.clear(); // possibly already cleared by gc, nothing happens in that case
-            }
-            allSoftBufRecyclers.clear(); //release cleared SoftRefs
+        System.out.println("JsonFactory shutdown called");
+        if (_bufferMgr != null) {
+            _bufferMgr.shutdown();
         }
     }
 
@@ -530,24 +521,27 @@ public class JsonFactory
      */
 
     /**
-     * Method for enabling or disabling specified parser feature
-     * (check {@link JsonParser.Feature} for list of features)
+     * Method for enabling or disabling specified factory feature
+     * (check {@link JsonFactory.Feature} for list of features)
      */
     public final JsonFactory configure(JsonFactory.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
 
     /**
-     * Method for enabling specified parser feature
+     * Method for enabling specified factory feature
      * (check {@link JsonFactory.Feature} for list of features)
      */
     public JsonFactory enable(JsonFactory.Feature f) {
         _factoryFeatures |= f.getMask();
+        if (f == Feature.USE_RELEASABLE_THREAD_LOCAL_BUFFERS) {
+            enableUseReleasableThreadLocalBuffers(); // set to true for all instances
+        }
         return this;
     }
 
     /**
-     * Method for disabling specified parser features
+     * Method for disabling specified factory features
      * (check {@link JsonFactory.Feature} for list of features)
      */
     public JsonFactory disable(JsonFactory.Feature f) {
@@ -561,7 +555,15 @@ public class JsonFactory
     public final boolean isEnabled(JsonFactory.Feature f) {
         return (_factoryFeatures & f.getMask()) != 0;
     }
-    
+
+    /**
+     * Enables use of releasable ThreadLocalBuffers, released in shutDown method
+     */
+    public JsonFactory enableUseReleasableThreadLocalBuffers() {
+        _bufferMgr = ThreadLocalBufferManager.instance();
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Configuration, parser configuration
@@ -1269,32 +1271,21 @@ public class JsonFactory
     
             if (br == null) {
                 br = new BufferRecycler();
-                SoftReference newRef = new SoftReference<BufferRecycler>(br, refQueue);
+                SoftReference newRef;
+                if (_bufferMgr != null) {
+                    newRef = _bufferMgr.getReleasableSoftBufRecycler(br);
+                }
+                else {
+                    newRef = new SoftReference<BufferRecycler>(br);
+                }
                 _recyclerRef.set(newRef);
-
-                // also retain softRef to br in a set to be able to release it on shutdown
-                allSoftBufRecyclers.add(newRef);
-                // gc may have cleared one or more SoftRefs, clean them up to avoid a memleak
-                removeSoftRefsClearedByGc();
             }
             return br;
         }
         return new BufferRecycler();
     }
 
-    /**
-     * Remove cleared (inactive) SoftRefs from our set. Gc may have cleared one or more, and made them inactive.
-     * We minimize contention by keeping synchronized sections short: the poll/remove methods
-     */
-    private static void removeSoftRefsClearedByGc() {
-        SoftReference clearedSoftRef = null;
-        do {
-            clearedSoftRef = (SoftReference) refQueue.poll();
-            if (clearedSoftRef != null) {
-                allSoftBufRecyclers.remove(clearedSoftRef); // uses reference-equality, quick, and O(1) removal by HashSet
-            }
-        } while(clearedSoftRef != null);
-    }
+
 
 
     /**
@@ -1362,5 +1353,88 @@ public class JsonFactory
         // NOTE: since we only really care about whether this is standard JSON-backed factory,
         // or its sub-class / delegated to one, no need to check for equality, identity is enough
         return getFormatName() == FORMAT_NAME_JSON;
+    }
+
+    /*
+     * For issue #400: We keep a separate Set of all SoftReferences to BufferRecyclers which we put in all ThreadLocals
+     * We do this to be able to release them (dereference) in a newly introduced shutdown method.
+     * When gc clears a SoftReference, it puts it on a newly introduced referenceQueue. We use this queue to release the inactive SoftReferences from the Set.
+     */
+    private static final class ThreadLocalBufferManager {
+
+        /**
+         * A lock to make sure shutdown is only be executed by one thread at a time since it iterates over and modifies the allSoftBufRecyclers.
+         */
+        private final Object SHUTDOWN_LOCK = new Object();
+
+        /**
+         * A set of all SoftReferences to all BufferRecyclers to be able to release them on shutdown.
+         * 'All' means the ones created by this class, in this classloader. There may be more from other classloaders.
+         * We use a HashSet to have quick O(1) add and remove operations.
+         * The Set is backed by a ConcurrentHashMap to mitigate locking overhead.
+         */
+        private final Set<SoftReference<BufferRecycler>> allSoftBufRecyclers = Collections.newSetFromMap(new ConcurrentHashMap<SoftReference<BufferRecycler>, Boolean>());
+
+        /**
+         * Queue where gc will put just-cleared SoftReferences, previously referencing BufferRecyclers.
+         * We use it to remove the cleared softRefs from the above set.
+         */
+        private final ReferenceQueue<BufferRecycler> refQueue = new ReferenceQueue<BufferRecycler>();
+
+        /**
+         * Returns the lazily intialized singleton instance
+         * @return the singleton instance
+         */
+        private static ThreadLocalBufferManager instance() {
+            return ThreadLocalBufferManagerHolder.manager;
+        }
+        /**
+         * Remove cleared (inactive) SoftRefs from our set. Gc may have cleared one or more, and made them inactive.
+         * We minimize contention by keeping synchronized sections short: the poll/remove methods
+         */
+        private void removeSoftRefsClearedByGc() {
+            SoftReference clearedSoftRef = null;
+            do {
+                clearedSoftRef = (SoftReference) refQueue.poll();
+                if (clearedSoftRef != null) {
+                    allSoftBufRecyclers.remove(clearedSoftRef); // uses reference-equality, quick, and O(1) removal by HashSet
+                }
+            } while(clearedSoftRef != null);
+        }
+
+        private SoftReference getReleasableSoftBufRecycler(BufferRecycler br) {
+            SoftReference newRef;
+            newRef = new SoftReference<BufferRecycler>(br, refQueue);
+            // also retain softRef to br in a set to be able to release it on shutdown
+            allSoftBufRecyclers.add(newRef);
+            // gc may have cleared one or more SoftRefs, clean them up to avoid a memleak
+            removeSoftRefsClearedByGc();
+            return newRef;
+        }
+
+        /**
+         * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
+         * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
+         * application to survive much longer than the application itself.
+         * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
+         */
+        private void shutdown() {
+            System.out.println("ThreadLocalBufferManager shutdown called");
+            synchronized(SHUTDOWN_LOCK) {
+                removeSoftRefsClearedByGc(); // make sure the refQueue is empty
+                for (SoftReference ref : allSoftBufRecyclers) {
+                    ref.clear(); // possibly already cleared by gc, nothing happens in that case
+                }
+                allSoftBufRecyclers.clear(); //release cleared SoftRefs
+            }
+        }
+    }
+
+    /**
+     * ThreadLocalBufferManagerHolder uses the thread-safe initialize-on-demand, holder class idiom that implicitly
+     * incorporates lazy initialization by declaring a static variable within a static Holder inner class
+     */
+    private static class ThreadLocalBufferManagerHolder {
+        private static final ThreadLocalBufferManager manager = new ThreadLocalBufferManager();
     }
 }

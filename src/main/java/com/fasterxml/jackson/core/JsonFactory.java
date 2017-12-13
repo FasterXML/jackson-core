@@ -5,14 +5,18 @@
 package com.fasterxml.jackson.core;
 
 import java.io.*;
+import java.util.List;
 
 import com.fasterxml.jackson.core.base.TextualTSFactory;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
+import com.fasterxml.jackson.core.sym.BinaryNameMatcher;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
+import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Named;
 
 /**
  * JSON-backed {@link TokenStreamFactory} implementation that will create
@@ -342,5 +346,21 @@ public class JsonFactory
                 writeCtxt.getGeneratorFeatures(_generatorFeatures),
                 out,
                 rootSep, charEsc, writeCtxt.getPrettyPrinter());
+    }
+
+    /*
+    /******************************************************
+    /* Other factory methods
+    /******************************************************
+     */
+
+    @Override
+    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
+        return BinaryNameMatcher.constructFrom(matches, alreadyInterned);
+    }
+
+    @Override
+    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
+        return BinaryNameMatcher.constructCaseInsensitive(matches, alreadyInterned);
     }
 }

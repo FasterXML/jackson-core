@@ -65,6 +65,11 @@ public class UTF8StreamJsonParser
     private int _quad1;
 
     /**
+     * Temporary input pointer
+     */
+    private int _quadPtr;
+    
+    /**
      * Value of {@link #_inputPtr} at the time when the first character of
      * name token was read. Used for calculating token location when requested;
      * combined with {@link #_currInputProcessed}, may be updated appropriately
@@ -827,7 +832,7 @@ public class UTF8StreamJsonParser
 
     /*
     /**********************************************************
-    /* Public API, traversal, nextXxxValue/nextFieldName
+    /* Public API, traversal, nextFieldName() variants
     /**********************************************************
      */
 
@@ -1080,16 +1085,34 @@ public class UTF8StreamJsonParser
         }
 
         _updateNameLocation();
-        final String nameStr = _parseName(i);
-        _parsingContext.setCurrentName(nameStr);
+
+        String name;
+        int match = _matchName(matcher, i);
+        if (match >= 0) { // gotcha! (expected case)
+            _inputPtr = _quadPtr;
+            name = matcher.nameLookup()[match];
+        } else {
+            // !!! TODO 12-Dec-2017, tatu: Should probably try to use symbol table
+            //   for cases where quads were decoded ok, but no match?
+            /*
+            if (match == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+                throw new RuntimeException("No name match!");
+            }
+            */
+            name = _parseName(i);
+            match = matcher.matchAnyName(name);
+        }
+
+        _parsingContext.setCurrentName(name);
         _currToken = JsonToken.FIELD_NAME;
+        // Otherwise, try again...
 
         i = _skipColon();
         _updateLocation();
-        if (i == INT_QUOTE) {
+        if (i == INT_QUOTE) { // optimize commonest case, String value
             _tokenIncomplete = true;
             _nextToken = JsonToken.VALUE_STRING;
-            return matcher.matchAnyName(nameStr);
+            return match;
         }
         JsonToken t;
         switch (i) {
@@ -1131,7 +1154,7 @@ public class UTF8StreamJsonParser
             t = _handleUnexpectedValue(i);
         }
         _nextToken = t;
-        return matcher.matchAnyName(nameStr);
+        return match;
     }
 
     // Variant called when we know there's at least 4 more bytes available
@@ -1290,6 +1313,235 @@ public class UTF8StreamJsonParser
         return match;
     }
 
+    protected final int _matchName(FieldNameMatcher matcher, int i) throws IOException
+    {
+        if (i != INT_QUOTE) {
+            return -1;
+        }
+        // First: can we optimize out bounds checks for first rounds of processing?
+        int qptr = _inputPtr;
+        if ((qptr + 13) > _inputEnd) { // Need up to 12 chars, plus one trailing (quote)
+            return -1;
+        }
+
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
+
+        int q = input[qptr++] & 0xFF;
+
+        if (codes[q] != 0) {
+            if (q == INT_QUOTE) { // special case, ""
+                return matcher.matchInternedName("");
+            }
+            return -1;
+        }
+            
+        i = input[qptr++] & 0xFF;
+        if (codes[i] != 0) {
+            if (i != INT_QUOTE) {
+                return -1;
+            }
+// 12-Dec-2017, tatu: we would need something like this for "null masking", to handle
+//   special case of trailing "null chars": but for now it does not seem necessary.
+//  So cross that bridge if we ever get there
+//            q = _padLastQuadNoCheck(q, (-1 << 8));
+        } else {
+            q = (q << 8) | i;
+            i = input[qptr++] & 0xFF;
+            if (codes[i] != 0) {
+                if (i != INT_QUOTE) {
+                    return -1;
+                }
+//                q = _padLastQuadNoCheck(q, (-1 << 16));
+            } else {
+                q = (q << 8) | i;
+                i = input[qptr++] & 0xFF;
+                if (codes[i] != 0) {
+                    if (i != INT_QUOTE) {
+                        return -1;
+                    }
+//                    q = _padLastQuadNoCheck(q, (-1 << 24));
+                } else {
+                    q = (q << 8) | i;
+                    i = input[qptr++] & 0xFF;
+                    if (codes[i] == 0) {
+                        _quad1 = q;
+                        return _matchMediumName(matcher, qptr, i);
+                    }
+                    if (i != INT_QUOTE) {
+                        return -1;
+                    }
+                }                
+            }
+        }
+        _quadPtr = qptr;
+//System.err.printf("_matchName(0x%08x): %d\n", q, matcher.matchByQuad(q));
+        return matcher.matchByQuad(q);
+    }
+
+    protected final int _matchMediumName(FieldNameMatcher matcher, int qptr, int q2) throws IOException
+    {
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
+
+        // Ok, got 5 name bytes so far, with `q2` last one we got
+        int i = input[qptr++] & 0xFF;
+        if (codes[i] != 0) {
+            if (i != INT_QUOTE) {
+                return -1;
+            }
+//            q2 = _padLastQuadNoCheck(q2, (-1 << 8));
+        } else {
+            q2 = (q2 << 8) | i;
+            i = input[qptr++] & 0xFF;
+            if (codes[i] != 0) {
+                if (i != INT_QUOTE) {
+                    return -1;
+                }
+//                q2 = _padLastQuadNoCheck(q2, (-1 << 16));
+            } else {
+                q2 = (q2 << 8) | i;
+                i = input[qptr++] & 0xFF;
+                if (codes[i] != 0) {
+                    if (i != INT_QUOTE) {
+                        return -1;
+                    }
+//                    q2 = _padLastQuadNoCheck(q2, (-1 << 24));
+                } else {
+                    q2 = (q2 << 8) | i;
+                    i = input[qptr++] & 0xFF;
+                    if (codes[i] == 0) {
+                        return _matchMediumName2(matcher, qptr, i, q2);
+                    }
+                    if (i != INT_QUOTE) {
+                        return -1;
+                    }
+                }
+            }
+        }
+        _quadPtr = qptr;
+//System.err.printf("_matchMediumName(0x%08x,0x%08x): %d\n", _quad1, q2, matcher.matchByQuad(_quad1, q2));
+        return matcher.matchByQuad(_quad1, q2);
+    }
+
+    protected final int _matchMediumName2(FieldNameMatcher matcher, int qptr,
+            int q3, final int q2) throws IOException
+    {
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
+
+        // Got 9 name bytes so far, q3 being the last
+        int i = input[qptr++] & 0xFF;
+        if (codes[i] != 0) {
+            if (i != INT_QUOTE) {
+                return -1;
+            }
+//            q3 = _padLastQuadNoCheck(q3, (-1 << 8));
+        } else {
+            q3 = (q3 << 8) | i;
+            i = input[qptr++] & 0xFF;
+            if (codes[i] != 0) {
+                if (i != INT_QUOTE) {
+                    return -1;
+                }
+//                q3 = _padLastQuadNoCheck(q3, (-1 << 16));
+            } else {
+                q3 = (q3 << 8) | i;
+                i = input[qptr++] & 0xFF;
+                if (codes[i] != 0) {
+                    if (i != INT_QUOTE) {
+                        return -1;
+                    }
+//                    q3 = _padLastQuadNoCheck(q3, (-1 << 24));
+                } else {
+                    q3 = (q3 << 8) | i;
+                    i = input[qptr++] & 0xFF;
+                    if (codes[i] == 0) {
+                        _quadBuffer[0] = _quad1;
+                        _quadBuffer[1] = q2;
+                        _quadBuffer[2] = q3;
+                        return _matchLongName(matcher, qptr, i);
+                    }
+                    if (i != INT_QUOTE) {
+                        return -1;
+                    }
+                }
+            }
+        }
+        _quadPtr = qptr;
+        return matcher.matchByQuad(_quad1, q2, q3);
+    }
+
+    protected final int _matchLongName(FieldNameMatcher matcher, int qptr,
+            int q) throws IOException
+    {
+        final byte[] input = _inputBuffer;
+        final int[] codes = _icLatin1;
+        int qlen = 3;
+
+        while ((qptr + 4) <= _inputEnd) {
+            int i = input[qptr++] & 0xFF;
+            if (codes[i] != 0) {
+                if (i != INT_QUOTE) {
+                    return -1;
+                }
+                _quadPtr = qptr;
+                return matcher.matchByQuad(_quadBuffer, qlen);
+            }
+            q = (q << 8) | i;
+            i = input[qptr++] & 0xFF;
+            if (codes[i] != 0) {
+                if (i != INT_QUOTE) {
+                    return -1;
+                }
+//                q = _padLastQuadNoCheck(q, (-1 << 8));
+                break;
+            }
+            q = (q << 8) | i;
+            i = input[qptr++] & 0xFF;
+            if (codes[i] != 0) {
+                if (i != INT_QUOTE) {
+                    return -1;
+                }
+//                q = _padLastQuadNoCheck(q, (-1 << 16));
+                break;
+            }
+            q = (q << 8) | i;
+            i = input[qptr++] & 0xFF;
+            if (codes[i] != 0) {
+                if (i != INT_QUOTE) {
+                    return -1;
+                }
+//                q = _padLastQuadNoCheck(q, (-1 << 24));
+                break;
+            }
+            // Nope, no end in sight. Need to grow quad array etc
+            if (qlen >= _quadBuffer.length) {
+                _quadBuffer = growArrayBy(_quadBuffer, qlen);
+            }
+            _quadBuffer[qlen++] = q;
+            q = i;
+        }
+        // Let's offline if we hit buffer boundary (otherwise would need to [try to]
+        // align input, which is bit complicated and may not always be possible)
+        return -1;
+    }
+
+    // 12-Dec-2017, tatu: Might need this to cover case of trailing "null chars"
+    //    (Unicode character point 0); but since we have fallback lookup, does not
+    //    actually look like this is necessary for our fast patch.
+    /*
+    private final static int _padLastQuadNoCheck(int q, int mask) {
+        return q;
+    }
+    */
+
+    /*
+    /**********************************************************
+    /* Public API, traversal, nextXxxValue() variants
+    /**********************************************************
+     */
+    
     @Override
     public String nextTextValue() throws IOException
     {
@@ -1718,7 +1970,7 @@ public class UTF8StreamJsonParser
     /* Internal methods, secondary parsing
     /**********************************************************
      */
-    
+
     protected final String _parseName(int i) throws IOException
     {
         if (i != INT_QUOTE) {

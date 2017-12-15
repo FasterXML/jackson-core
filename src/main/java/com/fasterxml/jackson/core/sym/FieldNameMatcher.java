@@ -229,8 +229,9 @@ public abstract class FieldNameMatcher
      */
 
     protected final static int _hash(int h, int mask) {
-        return (h ^ (h >> 3)) & mask;
-    }    
+        // for some reason, slight shuffle with add (not xor!) works quite well
+        return (h + (h >> 3)) & mask;
+    }
 
     public static List<String> stringsFromNames(List<Named> fields,
             final boolean alreadyInterned) {

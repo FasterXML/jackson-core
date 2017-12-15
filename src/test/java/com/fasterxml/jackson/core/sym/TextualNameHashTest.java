@@ -11,37 +11,37 @@ public class TextualNameHashTest extends BaseTest
     public void testSuffix1() {
         // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce
         //   default collision counts
-        _testSpillEfficiency(generate("", 99), 7, 4);
+        _testSpillEfficiency(generate("", 99), 4, 3);
     }
 
     public void testSuffix2() {
-        _testSpillEfficiency(generate("base", 39), 2, 2);
+        _testSpillEfficiency(generate("base", 39), 7, 1);
     }
 
     public void testSuffix3() {
-        _testSpillEfficiency(generate("Of ", 139), 8, 5);
+        _testSpillEfficiency(generate("Of ", 139), 14, 6);
     }
 
     public void testSuffix4() {
-        _testSpillEfficiency(generate("ACE-", 499), 45, 32);
+        _testSpillEfficiency(generate("ACE-", 499), 71, 34);
     }
 
     public void testSuffix5() {
         // similarly, not so great...
-        _testSpillEfficiency(generate("SlartiBartFast#", 3000), 411, 488);
+        _testSpillEfficiency(generate("SlartiBartFast#", 3000), 479, 291);
     }
         
     public void testPrefix1() {
-        _testSpillEfficiency(generate2("", 99), 7, 4);
+        _testSpillEfficiency(generate2("", 99), 4, 3);
     }
     public void testPrefix2() {
-        _testSpillEfficiency(generate2("base", 39), 3, 0);
+        _testSpillEfficiency(generate2("base", 39), 5, 0);
     }
     public void testPrefix3() {
-        _testSpillEfficiency(generate2("Of ", 139), 16, 3);
+        _testSpillEfficiency(generate2("Of ", 139), 15, 0);
     }
     public void testPrefix4() {
-        _testSpillEfficiency(generate2("ACE-", 499), 73, 2);
+        _testSpillEfficiency(generate2("ACE-", 499), 54, 3);
     }
 
     public void testMisc11() {
@@ -49,7 +49,7 @@ public class TextualNameHashTest extends BaseTest
                 "player", "uri", "title", "width",
                 "height", "format", "duration", "size",
                 "bitrate", "copyright", "persons"),
-                3, 0);
+                1, 0);
     }
 
     public void testMisc5() {
@@ -77,23 +77,6 @@ public class TextualNameHashTest extends BaseTest
             result.add(name.intern());
         }
         return result;
-    }
-
-    // Simple test to try to see if we can tweak hashing to limit overflow
-    public void testSpillEfficiency()
-    {
-        // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce
-        //   default collision counts
-
-        _testSpillEfficiency(generate("", 99), 7, 4);
-        _testSpillEfficiency(generate("base", 39), 2, 2);
-        _testSpillEfficiency(generate("Of ", 139), 8, 5);
-        _testSpillEfficiency(generate("ACE-", 499), 45, 32);
-
-        _testSpillEfficiency(generate2("", 99), 7, 4);
-        _testSpillEfficiency(generate2("base", 39), 3, 0);
-        _testSpillEfficiency(generate2("Of ", 139), 16, 3);
-        _testSpillEfficiency(generate2("ACE-", 499), 73, 2);
     }
 
     private void _testSpillEfficiency(List<String> names,

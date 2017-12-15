@@ -349,10 +349,11 @@ public class JsonFactory
      * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
      * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
      * application to survive much longer than the application itself.
-     * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
+     * Note: {@link JsonFactory.Feature}.USE_RELEASABLE_THREAD_LOCAL_BUFFERS needs to be enabled or
+     * enableUseReleasableThreadLocalBuffers needs to have be called on startup
      */
     public static void shutdown() {
-        System.out.println("JsonFactory shutdown called");
+        System.out.println("JsonFactory shutdown called"); // for debugging, @TODO remove after test
         if (_bufferMgr != null) {
             _bufferMgr.shutdown();
         }
@@ -1418,7 +1419,7 @@ public class JsonFactory
          * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
          */
         private void shutdown() {
-            System.out.println("ThreadLocalBufferManager shutdown called");
+            System.out.println("ThreadLocalBufferManager shutdown called"); // for debugging, @TODO remove after test
             synchronized(SHUTDOWN_LOCK) {
                 removeSoftRefsClearedByGc(); // make sure the refQueue is empty
                 for (SoftReference ref : allSoftBufRecyclers) {

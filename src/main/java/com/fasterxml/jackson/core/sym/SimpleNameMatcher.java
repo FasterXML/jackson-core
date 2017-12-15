@@ -104,9 +104,9 @@ public class SimpleNameMatcher
     }
 
     protected static int findSize(int size) {
-        if (size <= 6) return 8;
-        if (size <= 12) return 16;
-        int needed = size + (size >> 2); // at most 80% full
+        if (size <= 5) return 8;
+        if (size <= 11) return 16;
+        int needed = size + (size >> 2) + (size >> 4); // at most 75% full
         int result = 32;
         while (result < needed) {
             result += result;

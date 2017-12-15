@@ -11,7 +11,7 @@ public class TextualNameHashTest extends BaseTest
     public void testSuffix1() {
         // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce
         //   default collision counts
-        _testSpillEfficiency(generate("", 99), 4, 3);
+        _testSpillEfficiency(generate("", 99), 0, 0);
     }
 
     public void testSuffix2() {
@@ -32,7 +32,7 @@ public class TextualNameHashTest extends BaseTest
     }
         
     public void testPrefix1() {
-        _testSpillEfficiency(generate2("", 99), 4, 3);
+        _testSpillEfficiency(generate2("", 99), 0, 0);
     }
     public void testPrefix2() {
         _testSpillEfficiency(generate2("base", 39), 5, 0);

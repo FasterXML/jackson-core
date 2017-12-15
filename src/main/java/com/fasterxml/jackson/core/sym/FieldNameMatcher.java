@@ -20,6 +20,8 @@ public abstract class FieldNameMatcher
 {
     private static final long serialVersionUID = 1L;
 
+    private final static InternCache INTERNER = InternCache.instance;
+    
     /**
      * Marker for case where <code>JsonToken.END_OBJECT</code> encountered.
      */
@@ -36,20 +38,6 @@ public abstract class FieldNameMatcher
      */
     public final static int MATCH_ODD_TOKEN = -3;
 
-    private final static InternCache INTERNER = InternCache.instance;
-
-    /**
-     * Mask used to get index from raw hash code, within hash area.
-     */
-    protected final int _mask;
-
-    final int BOGUS_PADDING = 0; // just for aligning
-
-    // // // Main hash area (ints) along with Strings it maps (sparse)
-    
-    protected final int[] _offsets;
-    protected final String[] _names;
-
     // // // Original indexed Strings (dense) iff preserved
 
     protected final String[] _nameLookup;
@@ -64,22 +52,10 @@ public abstract class FieldNameMatcher
     /**********************************************************************
      */
 
-    protected FieldNameMatcher(String[] names, int[] offsets, int mask,
-            FieldNameMatcher backup, String[] nameLookup)
+    protected FieldNameMatcher(FieldNameMatcher backup, String[] nameLookup)
     {
-        _names = names;
-        _offsets = offsets;
-        _mask = mask;
         _backupMatcher = backup;
         _nameLookup = nameLookup;
-    }
-
-    protected FieldNameMatcher(FieldNameMatcher base, String[] nameLookup) {
-        this(base._names, base._offsets, base._mask, base._backupMatcher, nameLookup);
-    }
-
-    protected FieldNameMatcher(FieldNameMatcher base, FieldNameMatcher backup) {
-        this(base._names, base._offsets, base._mask, backup, base._nameLookup);
     }
 
     /*
@@ -90,89 +66,15 @@ public abstract class FieldNameMatcher
 
     /**
      * Lookup method when caller does not guarantee that name to match has been
-     * {@link String#intern}ed
+     * {@link String#intern}ed.
      */
-    public final int matchAnyName(String toMatch) {
-        int ix = _hash(toMatch.hashCode(), _mask);
-        String name = _names[ix];
-        if (toMatch == name) {
-            return _offsets[ix];
-        }
-        if (name != null) {
-            if (toMatch.equals(name)) {
-                return _offsets[ix];
-            }
-            // check secondary slot
-            ix = (_mask + 1) + (ix >> 1);
-            name = _names[ix];
-            if (toMatch.equals(name)) {
-                return _offsets[ix];
-            }
-            // or spill-over if need be
-            if (name != null) {
-                return _matchAnySpill(toMatch);
-            }
-        }
-        return matchSecondary(toMatch);
-    }
-
-    private final int _matchAnySpill(String toMatch) {
-        int ix = (_mask+1);
-        ix += (ix>>1);
-
-        for (int end = _names.length; ix < end; ++ix) {
-            String name = _names[ix];
-
-            if (toMatch.equals(name)) {
-                return _offsets[ix];
-            }
-            if (name == null) {
-                break;
-            }
-        }
-        return matchSecondary(toMatch);
-    }
+    public abstract int matchAnyName(String toMatch);
 
     /**
-     * Lookup method when caller guarantees that name to match has been
-     * {@link String#intern}ed
+     * Lookup method when caller does guarantee that name to match has been
+     * {@link String#intern}ed.
      */
-    public final int matchInternedName(String toMatch) {
-        int ix = _hash(toMatch.hashCode(), _mask);
-        String name = _names[ix];
-        if (name == toMatch) {
-            return _offsets[ix];
-        }
-        if (name != null) {
-            // check secondary slot
-            ix = (_mask + 1) + (ix >> 1);
-            name = _names[ix];
-            if (name == toMatch) {
-                return _offsets[ix];
-            }
-            // or spill-over if need be
-            if (name != null) {
-                return _matchInternedSpill(toMatch);
-            }
-        }
-        return matchSecondary(toMatch);
-    }
-
-    private final int _matchInternedSpill(String toMatch) {
-        int ix = (_mask+1);
-        ix += (ix>>1);
-
-        for (int end = _names.length; ix < end; ++ix) {
-            String name = _names[ix];
-            if (name == toMatch) {
-                return _offsets[ix];
-            }
-            if (name == null) {
-                break;
-            }
-        }
-        return matchSecondary(toMatch);
-    }
+    public abstract int matchInternedName(String toMatch);
 
     /*
     /**********************************************************************
@@ -233,44 +135,28 @@ public abstract class FieldNameMatcher
         return (h + (h >> 3)) & mask;
     }
 
+    protected static int _findSize(int size) {
+        if (size <= 5) return 8;
+        if (size <= 11) return 16;
+        if (size <= 23) return 32;
+        int needed = size + (size >> 2) + (size >> 4); // at most 75% full
+        int result = 64;
+        while (result < needed) {
+            result += result;
+        }
+        return result;
+    }
+
     public static List<String> stringsFromNames(List<Named> fields,
             final boolean alreadyInterned) {
         return fields.stream()
-                .map(n -> fromName(n, alreadyInterned))
+                .map(n -> _fromName(n, alreadyInterned))
                 .collect(Collectors.toList());
     }
 
-    protected static String fromName(Named n, boolean alreadyInterned) {
+    protected static String _fromName(Named n, boolean alreadyInterned) {
         if (n == null) return null;
         String name = n.getName();
         return alreadyInterned ? name : INTERNER.intern(name);
-    }
-
-    /*
-    /**********************************************************************
-    /* Test methods
-    /**********************************************************************
-     */
-
-    public int spillCount() {
-        int spillStart = (_mask+1) + ((_mask+1) >> 1);
-        int count = 0;
-        for (int i = spillStart; i < _names.length; ++i) {
-            if (_names[i] != null) {
-                ++count;
-            }
-        }
-        return count;
-    }
-
-    public int secondaryCount() {
-        int spillStart = (_mask+1) + ((_mask+1) >> 1);
-        int count = 0;
-        for (int i = _mask+1; i < spillStart; ++i) {
-            if (_names[i] != null) {
-                ++count;
-            }
-        }
-        return count;
     }
 }

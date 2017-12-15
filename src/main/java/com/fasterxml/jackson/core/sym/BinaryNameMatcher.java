@@ -14,12 +14,10 @@ import com.fasterxml.jackson.core.util.Named;
  * @since 3.0
  */
 public final class BinaryNameMatcher
-    extends FieldNameMatcher
+    extends HashedMatcherBase
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-
-    private final static int MIN_HASH_SIZE = 8;
 
     // Limit to 32k entries as well as 32k-int (i.e. 128kb) strings so that both
     // size and offset (in string table) can be encoded in a single int.
@@ -169,20 +167,7 @@ public final class BinaryNameMatcher
     private static BinaryNameMatcher _construct(List<String> symbols,
             SimpleNameMatcher base)
     {
-        int sz = symbols.size();
-        // Sanity check: let's now allow hash sizes below certain minimum value. This is size in entries
-        if (sz < MIN_HASH_SIZE) {
-            sz = MIN_HASH_SIZE;
-        } else {
-            // Also; size must be 2^N; otherwise hash algorithm won't work: let's just pad it up, if so
-            if ((sz & (sz - 1)) != 0) { // only true if it's 2^N
-                int curr = MIN_HASH_SIZE;
-                while (curr < sz) {
-                    curr += curr;
-                }
-                sz = curr;
-            }
-        }
+        int sz = _findSize(symbols.size());
         String[] lookup = symbols.toArray(new String[symbols.size()]);
         BinaryNameMatcher matcher = new BinaryNameMatcher(base, lookup, sz);
         for (String name : symbols) {

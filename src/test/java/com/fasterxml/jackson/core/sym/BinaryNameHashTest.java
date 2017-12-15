@@ -12,7 +12,7 @@ public class BinaryNameHashTest extends BaseTest
     public void testSuffix1() {
         // 14-Nov-2017, tatu: Slightly optimized hashing with shifting, to reduce
         //   default collision counts
-        _testSpillEfficiency(generate("", 99), 72, 20, 7, 0);
+        _testSpillEfficiency(generate("", 99), 77, 16, 6, 0);
     }
 
     public void testSuffix2() {
@@ -24,7 +24,7 @@ public class BinaryNameHashTest extends BaseTest
     }
 
     public void testSuffix4() {
-        _testSpillEfficiency(generate("ACE-", 499), 328, 112, 59, 0);
+        _testSpillEfficiency(generate("ACE-", 499), 422, 66, 11, 0);
     }
 
     public void testSuffix5() {
@@ -33,7 +33,7 @@ public class BinaryNameHashTest extends BaseTest
     }
         
     public void testPrefix1() {
-        _testSpillEfficiency(generate2("", 99), 72, 20, 7, 0);
+        _testSpillEfficiency(generate2("", 99), 77, 16, 6, 0);
     }
     public void testPrefix2() {
         _testSpillEfficiency(generate2("base", 39), 29, 8, 2, 0);
@@ -42,7 +42,7 @@ public class BinaryNameHashTest extends BaseTest
         _testSpillEfficiency(generate2("Of ", 139), 116, 16, 7, 0);
     }
     public void testPrefix4() {
-        _testSpillEfficiency(generate2("ACE-", 499), 306, 117, 71, 5);
+        _testSpillEfficiency(generate2("ACE-", 499), 384, 92, 23, 0);
     }
 
     public void testMisc11() {

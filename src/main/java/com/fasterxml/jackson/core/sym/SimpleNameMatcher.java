@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.util.Named;
  * {@link String#intern}ed.
  */
 public class SimpleNameMatcher
-    extends FieldNameMatcher
+    extends HashedMatcherBase
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -39,7 +39,7 @@ public class SimpleNameMatcher
     public static SimpleNameMatcher construct(List<String> fieldNames)
     {
         final int fieldCount = fieldNames.size();
-        final int hashSize = findSize(fieldCount);
+        final int hashSize = _findSize(fieldCount);
         final int allocSize = hashSize + (hashSize>>1);
 
         String[] names = new String[allocSize];
@@ -101,17 +101,6 @@ public class SimpleNameMatcher
             lcd.add((n == null) ? null : n.toLowerCase());
         }
         return new SimpleNameMatcher(primary, SimpleNameMatcher.construct(lcd));
-    }
-
-    protected static int findSize(int size) {
-        if (size <= 5) return 8;
-        if (size <= 11) return 16;
-        int needed = size + (size >> 2) + (size >> 4); // at most 75% full
-        int result = 32;
-        while (result < needed) {
-            result += result;
-        }
-        return result;
     }
 
     // // // Not implemented by this matcher, but not an error to call (caller won't know)

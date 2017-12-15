@@ -70,10 +70,10 @@ public class BinaryNameHashTest extends BaseTest
         BinaryNameMatcher quads = _construct(names);
         assertEquals(names.size(), quads.totalCount());
 
-        assertEquals("Primary count not matching", prim, quads.primaryCount());
-        assertEquals("Secondary count not matching", sec, quads.secondaryCount());
-        assertEquals("Tertiary count not matching", ter, quads.tertiaryCount());
-        assertEquals("Spill count not matching", expSpills, quads.spilloverCount());
+        assertEquals("Primary count not matching", prim, quads.primaryQuadCount());
+        assertEquals("Secondary count not matching", sec, quads.secondaryQuadCount());
+        assertEquals("Tertiary count not matching", ter, quads.tertiaryQuadCount());
+        assertEquals("Spill count not matching", expSpills, quads.spilloverQuadCount());
     }
 
     private List<String> generate(String base, int count) {

@@ -331,7 +331,7 @@ public final class BinaryNameMatcher
     public int bucketCount() { return _hashSize; }
 
     // For tests
-    public int primaryCount()
+    public int primaryQuadCount()
     {
         int count = 0;
         for (int offset = 3, end = _secondaryStart; offset < end; offset += 4) {
@@ -343,7 +343,7 @@ public final class BinaryNameMatcher
     }
 
     // For tests
-    public int secondaryCount() {
+    public int secondaryQuadCount() {
         int count = 0;
         int offset = _secondaryStart + 3;
         for (int end = _tertiaryStart; offset < end; offset += 4) {
@@ -355,7 +355,7 @@ public final class BinaryNameMatcher
     }
 
     // For tests
-    public int tertiaryCount() {
+    public int tertiaryQuadCount() {
         int count = 0;
         int offset = _tertiaryStart + 3; // to 1.5x, starting point of tertiary
         for (int end = offset + _hashSize; offset < end; offset += 4) {
@@ -367,7 +367,7 @@ public final class BinaryNameMatcher
     }
 
     // For tests
-    public int spilloverCount() {
+    public int spilloverQuadCount() {
         // difference between spillover end, start, divided by 4 (four ints per slot)
         return (_spilloverEnd - _spilloverStart()) >> 2;
     }
@@ -746,10 +746,10 @@ public final class BinaryNameMatcher
 
     @Override
     public String toString() {
-        int pri = primaryCount();
-        int sec = secondaryCount();
-        int tert = tertiaryCount();
-        int spill = spilloverCount();
+        int pri = primaryQuadCount();
+        int sec = secondaryQuadCount();
+        int tert = tertiaryQuadCount();
+        int spill = spilloverQuadCount();
         int total = totalCount();
         return String.format("[%s: size=%d, hashSize=%d, %d/%d/%d/%d pri/sec/ter/spill (=%s), total:%d]",
                 getClass().getName(), _count, _hashSize,

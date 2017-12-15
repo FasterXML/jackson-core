@@ -228,12 +228,6 @@ public abstract class FieldNameMatcher
     /**********************************************************************
      */
 
-    // For tests; gives rought count (may have slack at the end)
-    public int spillCount() {
-        int spillStart = (_mask+1) + ((_mask+1) >> 1);
-        return _names.length - spillStart;
-    }
-
     protected final static int _hash(int h, int mask) {
         return (h ^ (h >> 3)) & mask;
     }    
@@ -249,5 +243,33 @@ public abstract class FieldNameMatcher
         if (n == null) return null;
         String name = n.getName();
         return alreadyInterned ? name : INTERNER.intern(name);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
+    public int spillCount() {
+        int spillStart = (_mask+1) + ((_mask+1) >> 1);
+        int count = 0;
+        for (int i = spillStart; i < _names.length; ++i) {
+            if (_names[i] != null) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
+    public int secondaryCount() {
+        int spillStart = (_mask+1) + ((_mask+1) >> 1);
+        int count = 0;
+        for (int i = _mask+1; i < spillStart; ++i) {
+            if (_names[i] != null) {
+                ++count;
+            }
+        }
+        return count;
     }
 }

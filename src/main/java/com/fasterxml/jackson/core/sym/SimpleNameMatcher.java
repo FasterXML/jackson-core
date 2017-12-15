@@ -81,26 +81,13 @@ public class SimpleNameMatcher
     public static SimpleNameMatcher constructCaseInsensitive(List<Named> fields,
             boolean alreadyInterned)
     {
-        SimpleNameMatcher primary = SimpleNameMatcher.constructFrom(fields, alreadyInterned);
-        List<String> lcd = new ArrayList<>(fields.size());
-        for (Named n : fields) {
-            // Important! MUST include even if not different because lookup
-            // key may be lower-cased after primary access
-            lcd.add((n == null) ? null : n.getName().toLowerCase());
-        }
-        // NOTE! We do NOT intern() secondary entries so make sure not to assume
-        // intern()ing for secondary lookup
-        return new SimpleNameMatcher(primary, SimpleNameMatcher.construct(lcd));
+        return constructCaseInsensitive(stringsFromNames(fields, alreadyInterned));
     }
 
     public static SimpleNameMatcher constructCaseInsensitive(List<String> names)
     {
-        SimpleNameMatcher primary = SimpleNameMatcher.construct(names);
-        List<String> lcd = new ArrayList<>(names.size());
-        for (String n : names) {
-            lcd.add((n == null) ? null : n.toLowerCase());
-        }
-        return new SimpleNameMatcher(primary, SimpleNameMatcher.construct(lcd));
+        return new SimpleNameMatcher(SimpleNameMatcher.construct(names),
+                SimpleNameMatcher.construct(_lc(names)));
     }
 
     // // // Not implemented by this matcher, but not an error to call (caller won't know)

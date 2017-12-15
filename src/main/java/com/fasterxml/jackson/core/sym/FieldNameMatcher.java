@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.sym;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -158,5 +159,13 @@ public abstract class FieldNameMatcher
         if (n == null) return null;
         String name = n.getName();
         return alreadyInterned ? name : INTERNER.intern(name);
+    }
+
+    protected static List<String> _lc(List<String> src) {
+        List<String> lcd = new ArrayList<>(src.size());
+        for (String n : src) {
+            lcd.add((n == null) ? null : n.toLowerCase());
+        }
+        return lcd;
     }
 }

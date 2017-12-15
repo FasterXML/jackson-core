@@ -84,6 +84,16 @@ public class Base64CodecTest
         Assert.assertArrayEquals(input, decoded);
 
         assertEquals(quote(encoded), std.encode(input, true));
+
+        // [core#414]: check white-space allow too
+        decoded = std.decode("\n"+encoded);
+        Assert.assertArrayEquals(input, decoded);
+        decoded = std.decode("   "+encoded);
+        Assert.assertArrayEquals(input, decoded);
+        decoded = std.decode(encoded + "   ");
+        Assert.assertArrayEquals(input, decoded);
+        decoded = std.decode(encoded + "\n");
+        Assert.assertArrayEquals(input, decoded);
     }
 
     @SuppressWarnings("unused")

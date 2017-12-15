@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.Named;
 
 /**
- * Abstract base class used to define specific details of which
+ * Class used to define specific details of which
  * variant of Base64 encoding/decoding is to be used. Although there is
  * somewhat standard basic version (so-called "MIME Base64"), other variants
  * exists, see <a href="http://en.wikipedia.org/wiki/Base64">Base64 Wikipedia entry</a> for details.
@@ -459,13 +459,17 @@ public final class Base64Variant
     {
         int ptr = 0;
         int len = str.length();
-        
-        while (ptr < len) {
+
+    main_loop:
+        while (true) {
             // first, we'll skip preceding white space, if any
             char ch;
             do {
+                if (ptr >= len) {
+                    break main_loop;
+                }
                 ch = str.charAt(ptr++);
-            } while ((ptr < len) && (ch <= INT_SPACE));
+            } while (ch <= INT_SPACE);
             int bits = decodeBase64Char(ch);
             if (bits < 0) {
                 _reportInvalidBase64(ch, 0, null);

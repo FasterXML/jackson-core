@@ -17,6 +17,13 @@ JSON library.
 
 3.0.0 (not yet released)
 
+...
+
+2.9.4 (not yet released)
+
+#414: Base64 MIME variant does not ignore white space chars as per RFC2045
+ (reporte by tmoschou@github)
+
 2.9.3 (09-Dec-2017)
 
 #419: `ArrayIndexOutOfBoundsException` from `UTF32Reader.read()` on invalid input

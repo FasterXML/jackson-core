@@ -1117,7 +1117,13 @@ public abstract class JsonParser
      * and for others (array values, root-level values) null.
      */
     public abstract String getCurrentName() throws IOException;
-    
+
+    // 15-Dec-2017, tatu: Forward-looking, added in 2.9.4 (and officially in 3.0)
+    //   to smooth upgrading
+    public String currentName() throws IOException {
+        return getCurrentName();
+    }
+
     /**
      * Method for accessing textual representation of the current token;
      * if no current token (before first call to {@link #nextToken}, or

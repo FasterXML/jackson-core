@@ -1035,7 +1035,7 @@ public abstract class JsonParser
      * @since 3.0
      */
     public abstract String currentName() throws IOException;
-    
+
     /**
      * @deprecated Since 3.0 use {@link #currentName} instead
      */

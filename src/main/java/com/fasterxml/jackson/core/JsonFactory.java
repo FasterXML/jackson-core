@@ -1434,7 +1434,7 @@ public class JsonFactory
      * ThreadLocalBufferManagerHolder uses the thread-safe initialize-on-demand, holder class idiom that implicitly
      * incorporates lazy initialization by declaring a static variable within a static Holder inner class
      */
-    private static class ThreadLocalBufferManagerHolder {
+    private static final class ThreadLocalBufferManagerHolder {
         private static final ThreadLocalBufferManager manager = new ThreadLocalBufferManager();
     }
 }

@@ -70,7 +70,6 @@ public abstract class TokenStreamFactory
          *<p>
          * This setting is disabled by default since 3.0 (was enabled in 1.x and 2.x)
          */
-// 09-Dec-2017, tatu: Not quite yet changed, will be once JSON codec upgraded
         INTERN_FIELD_NAMES(false),
 
         /**

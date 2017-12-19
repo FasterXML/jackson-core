@@ -119,8 +119,6 @@ public final class CharsToNameCanonicalizer
      * instance.
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
-     * 
-     * @since 2.1
      */
     final private int _seed;
 
@@ -179,8 +177,6 @@ public final class CharsToNameCanonicalizer
      * We need to keep track of the longest collision list; this is needed
      * both to indicate problems with attacks and to allow flushing for
      * other cases.
-     * 
-     * @since 2.1
      */
     private int _longestCollisionList;
 
@@ -214,8 +210,6 @@ public final class CharsToNameCanonicalizer
      * collision buckets that have overflowed once: this is used
      * to detect likely attempts at denial-of-service attacks that
      * uses hash collisions.
-     * 
-     * @since 2.4
      */
     private BitSet _overflows;
 
@@ -607,10 +601,9 @@ public final class CharsToNameCanonicalizer
         int size = _symbols.length;
         int newSize = size + size;
 
-        /* 12-Mar-2010, tatu: Let's actually limit maximum size we are
-         *    prepared to use, to guard against OOME in case of unbounded
-         *    name sets (unique [non-repeating] names)
-         */
+        // 12-Mar-2010, tatu: Let's actually limit maximum size we are
+        //    prepared to use, to guard against OOME in case of unbounded
+        //    name sets (unique [non-repeating] names)
         if (newSize > MAX_T_SIZE) {
             // If this happens, there's no point in either growing or shrinking hash areas.
             // Rather, let's just cut our losses and stop canonicalizing.
@@ -681,9 +674,6 @@ public final class CharsToNameCanonicalizer
         }
     }
 
-    /**
-     * @since 2.1
-     */
     protected void reportTooManyCollisions(int maxLen) {
         throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
@@ -778,8 +768,6 @@ public final class CharsToNameCanonicalizer
      * Immutable value class used for sharing information as efficiently
      * as possible, by only require synchronization of reference manipulation
      * but not access to contents.
-     * 
-     * @since 2.8.7
      */
     private final static class TableInfo
     {

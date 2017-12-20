@@ -96,7 +96,7 @@ public class BinaryNameMatcherTest extends BaseTest
             fail("Should have found '"+name+"' (index #"+index+" of total of "+names.size()+"), didn't: got "+match);
         }
         // secondary: needs to work via backup-lookup
-        int match2 = matcher.matchAnyName(name);
+        int match2 = matcher.matchName(name);
         if (match2 != index) {
             fail("Should have found '"+name+"' (index #"+index+" of total of "+names.size()+") via String lookup: instead got "+match2);
         }

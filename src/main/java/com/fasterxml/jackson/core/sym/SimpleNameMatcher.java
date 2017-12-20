@@ -44,6 +44,9 @@ public class SimpleNameMatcher
 
         String[] names = new String[allocSize];
         int[] offsets = new int[allocSize];
+        // 20-Dec-2017, tatu: Let's initialize to value "not found" just in case, since `0` would
+        //    be valid value, indicating first entry
+        Arrays.fill(offsets, FieldNameMatcher.MATCH_UNKNOWN_NAME); // since we are never called if there's no name involved
 
         // Alas: can not easily extract out without tuples or such since names/offsets need resizing...
         final int mask = hashSize-1;

@@ -72,12 +72,6 @@ public abstract class FieldNameMatcher
      */
     public abstract int matchName(String toMatch);
 
-    @Deprecated
-    public abstract int matchAnyName(String toMatch);
-
-    @Deprecated
-    public abstract int matchInternedName(String toMatch);
-
     /*
     /**********************************************************************
     /* API: lookup by quad-bytes
@@ -123,7 +117,7 @@ public abstract class FieldNameMatcher
         //   key does not change; thing being that we are now using secondary index,
         //   contents of which MAY be different from primary one. Specifically, if original
         //   keys are not all lower-case, we would induce a miss if skipping lookup here.
-        return _backupMatcher.matchAnyName(toMatch.toLowerCase());
+        return _backupMatcher.matchName(toMatch.toLowerCase());
     }
 
     /*

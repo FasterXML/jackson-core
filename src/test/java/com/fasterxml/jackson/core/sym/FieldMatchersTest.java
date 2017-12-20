@@ -64,7 +64,6 @@ public class FieldMatchersTest extends BaseTest
     private void _testMatching(List<String> names) {
         _testCaseSensitive(names);
         _testCaseInsensitive(names);
-        _testInterned(names);
     }
 
     private void _testCaseSensitive(List<String> names)
@@ -77,23 +76,6 @@ public class FieldMatchersTest extends BaseTest
                 // similarly, if different string
                 _expectAnyMatch(matcher, names, i, new String(name));
                 // but not with suffix
-                _expectNonMatch(matcher, name+"FOOBAR");
-            }
-        }
-    }
-
-    private void _testInterned(List<String> names)
-    {
-        FieldNameMatcher matcher = SimpleNameMatcher.construct(names);
-        for (int i = 0; i < names.size(); ++i) {
-            String name = names.get(i);
-            if (name != null) {
-                // should match both ways really
-                _expectAnyMatch(matcher, names, i);
-                _expectInternedMatch(matcher, names, i);
-
-                // no match when passing non-interned, or different
-                _expectInternedNonMatch(matcher, new String(name));
                 _expectNonMatch(matcher, name+"FOOBAR");
             }
         }
@@ -130,30 +112,9 @@ public class FieldMatchersTest extends BaseTest
         if (name == null) {
             return;
         }
-        int match = matcher.matchAnyName(name);
+        int match = matcher.matchName(name);
         if (match != index) {
             fail("Should have any-matched #"+index+" (of "+names.size()+") for '"+name+"', did not, got: "+match);
-        }
-    }
-
-    private void _expectInternedMatch(FieldNameMatcher matcher, List<String> names, int index)
-    {
-        String name = names.get(index);
-        if (name != null) {
-            _expectInternedMatch(matcher, names, index, name);
-        }
-    }
-
-    private void _expectInternedMatch(FieldNameMatcher matcher, List<String> names, int index,
-            String name)
-    {
-        if (name == null) {
-            return;
-        }
-        int match = matcher.matchInternedName(name);
-        if (match != index) {
-            fail("Should have intern-matched #"+index+" (of "+names.size()+"; matcher "+
-                    matcher.getClass().getName()+") for '"+name+"', did not, got: "+match);
         }
     }
 
@@ -163,7 +124,7 @@ public class FieldMatchersTest extends BaseTest
             return;
         }
         // make sure to test both intern() and non-intern paths
-        int match = matcher.matchAnyName(name);
+        int match = matcher.matchName(name);
         if (match != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
             fail("Should NOT have any-matched '"+name+"'; did match with index #"+match);
         }
@@ -174,7 +135,7 @@ public class FieldMatchersTest extends BaseTest
     {
         if (name != null) {
             // make sure to test both intern() and non-intern paths
-            int match = matcher.matchInternedName(name);
+            int match = matcher.matchName(name);
             if (match != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
                 fail("Should NOT have intern-matched '"+name+"'; did match with index #"+match);
             }

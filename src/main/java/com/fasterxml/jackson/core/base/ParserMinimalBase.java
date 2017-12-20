@@ -315,7 +315,7 @@ public abstract class ParserMinimalBase extends JsonParser
     public int nextFieldName(FieldNameMatcher matcher) throws IOException {
         String str = nextFieldName();
         if (str != null) {
-            return matcher.matchAnyName(str);
+            return matcher.matchName(str);
         }
         if (_currToken == JsonToken.END_OBJECT) {
             return FieldNameMatcher.MATCH_END_OBJECT;
@@ -326,7 +326,7 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override
     public int currentFieldName(FieldNameMatcher matcher) throws IOException {
         if (_currToken == JsonToken.FIELD_NAME) {
-            return matcher.matchAnyName(currentName());
+            return matcher.matchName(currentName());
         }
         if (_currToken == JsonToken.END_OBJECT) {
             return FieldNameMatcher.MATCH_END_OBJECT;

@@ -9,7 +9,6 @@ import static org.junit.Assert.*;
  *
  * @see RequestPayload
  */
-@SuppressWarnings("unused")
 public class RequestPayloadTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {

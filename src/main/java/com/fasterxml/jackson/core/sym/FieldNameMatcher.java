@@ -66,15 +66,16 @@ public abstract class FieldNameMatcher
      */
 
     /**
-     * Lookup method when caller does not guarantee that name to match has been
-     * {@link String#intern}ed.
+     * Lookup method that does not assume name to be matched to be
+     * {@link String#intern}ed (although passing interned String is likely
+     * to result in more efficient matching).
      */
+    public abstract int matchName(String toMatch);
+
+    @Deprecated
     public abstract int matchAnyName(String toMatch);
 
-    /**
-     * Lookup method when caller does guarantee that name to match has been
-     * {@link String#intern}ed.
-     */
+    @Deprecated
     public abstract int matchInternedName(String toMatch);
 
     /*

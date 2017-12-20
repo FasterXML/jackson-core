@@ -1100,7 +1100,7 @@ public class UTF8StreamJsonParser
             }
             */
             name = _parseName(i);
-            match = matcher.matchAnyName(name);
+            match = matcher.matchName(name);
         }
 
         _parsingContext.setCurrentName(name);
@@ -1331,7 +1331,7 @@ public class UTF8StreamJsonParser
 
         if (codes[q] != 0) {
             if (q == INT_QUOTE) { // special case, ""
-                return matcher.matchInternedName("");
+                return matcher.matchName("");
             }
             return -1;
         }

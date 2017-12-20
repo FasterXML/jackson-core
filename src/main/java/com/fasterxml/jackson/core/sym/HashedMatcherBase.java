@@ -14,8 +14,6 @@ public abstract class HashedMatcherBase
      */
     protected final int _mask;
 
-    final int BOGUS_PADDING = 0; // just for aligning
-
     // // // Main hash area (ints) along with Strings it maps (sparse)
     
     protected final int[] _offsets;
@@ -47,6 +45,66 @@ public abstract class HashedMatcherBase
     /*
     /**********************************************************************
     /* API: lookup by String
+    /**********************************************************************
+     */
+
+    @Override
+    public final int matchName(String toMatch)
+    {
+        // Logic here is that it is expected most names to match are intern()ed
+        // anyway; as are (typically) contents. So identity check is likely to
+        // work, just not guaranteed. So do fast checks for primary, secondary here
+        
+        int ix = _hash(toMatch.hashCode(), _mask);
+        if (_names[ix] == toMatch) {
+            return _offsets[ix];
+        }
+        // check secondary slot
+        int ix2 = (_mask + 1) + (ix >> 1);
+        if (_names[ix2] == toMatch) {
+            return _offsets[ix2];
+        }
+        return _matchName2(toMatch, ix, ix2);
+    }
+
+    private final int _matchName2(String toMatch, int ix, int ix2)
+    {
+        String name = _names[ix];
+        if (toMatch.equals(name)) {
+            return _offsets[ix];
+        }
+        if (name != null) {
+            name = _names[ix2];
+            if (toMatch.equals(name)) {
+                return _offsets[ix2];
+            }
+            if (name != null) {
+                return _matchSpill(toMatch);
+            }
+        }
+        return matchSecondary(toMatch);
+    }
+
+    protected int _matchSpill(String toMatch) {
+        int ix = (_mask+1);
+        ix += (ix>>1);
+
+        for (int end = _names.length; ix < end; ++ix) {
+            String name = _names[ix];
+
+            if (toMatch.equals(name)) {
+                return _offsets[ix];
+            }
+            if (name == null) {
+                break;
+            }
+        }
+        return matchSecondary(toMatch);
+    }
+    
+    /*
+    /**********************************************************************
+    /* Deprecated (to be removed)
     /**********************************************************************
      */
 
@@ -92,25 +150,31 @@ public abstract class HashedMatcherBase
         return matchSecondary(toMatch);
     }
 
-    /**
-     * Lookup method when caller guarantees that name to match has been
-     * {@link String#intern}ed
-     */
     @Override
     public final int matchInternedName(String toMatch) {
         int ix = _hash(toMatch.hashCode(), _mask);
+        if (_names[ix] == toMatch) {
+            return _offsets[ix];
+        }
+        // check secondary slot
+        int ix2 = (_mask + 1) + (ix >> 1);
+        if (_names[ix2] == toMatch) {
+            return _offsets[ix2];
+        }
+        return _matchInterned2(toMatch, ix, ix2);
+    }
+
+    protected int _matchInterned2(String toMatch, int ix, int ix2)
+    {
         String name = _names[ix];
-        if (name == toMatch) {
+        if (toMatch.equals(name)) {
             return _offsets[ix];
         }
         if (name != null) {
-            // check secondary slot
-            ix = (_mask + 1) + (ix >> 1);
-            name = _names[ix];
-            if (name == toMatch) {
-                return _offsets[ix];
+            name = _names[ix2];
+            if (toMatch.equals(name)) {
+                return _offsets[ix2];
             }
-            // or spill-over if need be
             if (name != null) {
                 return _matchInternedSpill(toMatch);
             }
@@ -118,7 +182,7 @@ public abstract class HashedMatcherBase
         return matchSecondary(toMatch);
     }
 
-    private final int _matchInternedSpill(String toMatch) {
+    protected int _matchInternedSpill(String toMatch) {
         int ix = (_mask+1);
         ix += (ix>>1);
 
@@ -161,5 +225,4 @@ public abstract class HashedMatcherBase
         }
         return count;
     }
-
 }

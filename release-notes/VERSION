@@ -14,11 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.0 (not yet released)
-
-#304: Optimize `NumberOutput.outputLong()` method
-
-2.8.11 (not yet released)
+2.8.11 (23-Dec-2017)
 
 #418: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
  (reported, contributed fix for by pfitzsimons-r7@github)

@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 {

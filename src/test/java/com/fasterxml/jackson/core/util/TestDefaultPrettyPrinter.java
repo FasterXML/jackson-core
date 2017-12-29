@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestDefaultPrettyPrinter extends BaseTest
 {

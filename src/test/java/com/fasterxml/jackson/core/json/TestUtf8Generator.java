@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;

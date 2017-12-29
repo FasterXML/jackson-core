@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.ByteArrayOutputStream;
-import com.fasterxml.jackson.core.JsonFactory;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectWriteContext;
 

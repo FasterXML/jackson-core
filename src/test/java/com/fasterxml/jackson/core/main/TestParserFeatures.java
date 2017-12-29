@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.main;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>

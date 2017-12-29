@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -276,7 +276,7 @@ public final class CharsToNameCanonicalizer
      */
 
     /**
-     * Method called to create root canonicalizer for a {@link com.fasterxml.jackson.core.JsonFactory}
+     * Method called to create root canonicalizer for a {@link com.fasterxml.jackson.core.json.JsonFactory}
      * instance. Root instance is never used directly; its main use is for
      * storing and sharing underlying symbol arrays as needed.
      */

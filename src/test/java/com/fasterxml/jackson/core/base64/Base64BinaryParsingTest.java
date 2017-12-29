@@ -5,6 +5,7 @@ import static org.junit.Assert.assertArrayEquals;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class Base64BinaryParsingTest
     extends com.fasterxml.jackson.core.BaseTest

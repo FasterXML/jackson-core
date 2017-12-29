@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 

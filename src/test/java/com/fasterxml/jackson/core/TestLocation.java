@@ -3,6 +3,8 @@ package com.fasterxml.jackson.core;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import com.fasterxml.jackson.core.json.JsonFactory;
+
 public class TestLocation extends BaseTest
 {
     static class Foobar { }

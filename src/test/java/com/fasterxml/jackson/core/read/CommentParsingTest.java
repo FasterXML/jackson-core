@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.read;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Unit tests for verifying that support for (non-standard) comments

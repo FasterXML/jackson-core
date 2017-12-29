@@ -1,6 +1,7 @@
 package perf;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Manually run micro-benchmark for checking performance of tokenizing

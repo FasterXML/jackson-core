@@ -5,12 +5,12 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.ObjectWriteContext;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class Surrogate223Test extends BaseTest
 {

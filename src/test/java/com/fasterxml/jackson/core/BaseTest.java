@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import com.fasterxml.jackson.core.util.Named;

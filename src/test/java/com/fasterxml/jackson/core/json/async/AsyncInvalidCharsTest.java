@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 // Tests for verifying things such as handling of invalid control characters;

@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Low-level tests for explicit, hand-written tests for generator-side

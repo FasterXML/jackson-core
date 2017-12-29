@@ -14,7 +14,7 @@ public abstract class InputDecorator
     private static final long serialVersionUID = 1L;
     
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating parser given an {@link InputStream}, when this decorator
      * has been registered.
      * 
@@ -31,7 +31,7 @@ public abstract class InputDecorator
         throws IOException;
 
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating parser on given "raw" byte source.
      * Method can either construct a {@link InputStream} for reading; or return
      * null to indicate that no wrapping should occur.
@@ -51,7 +51,7 @@ public abstract class InputDecorator
         throws IOException;
 
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating parser given an {@link DataInput}, when this decorator
      * has been registered.
      *<p>
@@ -74,7 +74,7 @@ public abstract class InputDecorator
     }
 
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating parser given an {@link Reader}, when this decorator
      * has been registered.
      * 

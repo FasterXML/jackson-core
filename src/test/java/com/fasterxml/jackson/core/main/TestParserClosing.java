@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.main;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 import java.io.*;
 

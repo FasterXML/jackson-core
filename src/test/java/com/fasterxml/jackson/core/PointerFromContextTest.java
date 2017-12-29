@@ -2,6 +2,8 @@ package com.fasterxml.jackson.core;
 
 import java.io.StringWriter;
 
+import com.fasterxml.jackson.core.json.JsonFactory;
+
 public class PointerFromContextTest extends BaseTest
 {
     /*

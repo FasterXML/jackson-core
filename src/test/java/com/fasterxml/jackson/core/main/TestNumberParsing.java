@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Set of basic unit tests for verifying that the low-level number

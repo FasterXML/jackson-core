@@ -4,10 +4,10 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.Base64Variants;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**

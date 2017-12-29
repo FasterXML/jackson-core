@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.sym;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTest
 {

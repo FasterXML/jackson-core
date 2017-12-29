@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Set of basic unit tests for verifying that the basic parser

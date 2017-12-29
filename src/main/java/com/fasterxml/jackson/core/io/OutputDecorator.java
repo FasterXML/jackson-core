@@ -12,7 +12,7 @@ import java.io.*;
 public abstract class OutputDecorator implements java.io.Serializable // since 2.1
 {
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating generator for given {@link OutputStream}, when this decorator
      * has been registered.
      * 
@@ -25,7 +25,7 @@ public abstract class OutputDecorator implements java.io.Serializable // since 2
     public abstract OutputStream decorate(IOContext ctxt, OutputStream out) throws IOException;
 
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating generator for given {@link Writer}, when this decorator
      * has been registered.
      * 

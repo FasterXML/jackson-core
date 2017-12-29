@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class ParserDupHandlingTest
     extends com.fasterxml.jackson.core.BaseTest

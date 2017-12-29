@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Unit test(s) to verify that handling of (byte-based) symbol tables

@@ -3,9 +3,9 @@ package com.fasterxml.jackson.core.read;
 import java.util.Arrays;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.Named;
 

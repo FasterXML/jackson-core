@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.filter;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 @SuppressWarnings("resource")
 public class BasicParserFilteringTest extends BaseTest

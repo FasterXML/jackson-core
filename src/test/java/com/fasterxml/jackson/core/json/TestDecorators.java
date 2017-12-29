@@ -71,8 +71,9 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
 
     public void testInputDecoration() throws IOException
     {
-        JsonFactory f = new JsonFactory();
-        f.setInputDecorator(new SimpleInputDecorator());
+        JsonFactory f = JsonFactory.builder()
+                .inputDecorator(new SimpleInputDecorator())
+                .build();
         JsonParser jp;
         // first test with Reader
         jp = f.createParser(ObjectReadContext.empty(), new StringReader("{ }"));
@@ -98,8 +99,9 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
 
     public void testOutputDecoration() throws IOException
     {
-        JsonFactory f = new JsonFactory();
-        f.setOutputDecorator(new SimpleOutputDecorator());
+        JsonFactory f = JsonFactory.builder()
+                .outputDecorator(new SimpleOutputDecorator())
+                .build();
         JsonGenerator jg;
 
         StringWriter sw = new StringWriter();

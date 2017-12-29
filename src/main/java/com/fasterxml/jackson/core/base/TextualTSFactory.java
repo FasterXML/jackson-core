@@ -24,6 +24,16 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     protected TextualTSFactory() { super(); }
 
     /**
+     * Constructors used by builders for instantiation.
+     *
+     * @since 3.0
+     */
+    protected TextualTSFactory(DecorableTSFBuilder<?,?> baseBuilder)
+    {
+        super(baseBuilder);
+    }
+
+    /**
      * Constructor used when copy()ing a factory instance.
      */
     protected TextualTSFactory(TextualTSFactory src) {

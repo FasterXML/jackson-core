@@ -22,6 +22,16 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     protected BinaryTSFactory() { super(); }
 
     /**
+     * Constructors used by builders for instantiation.
+     *
+     * @since 3.0
+     */
+    protected BinaryTSFactory(DecorableTSFBuilder<?,?> baseBuilder)
+    {
+        super(baseBuilder);
+    }
+
+    /**
      * Constructor used when copy()ing a factory instance.
      */
     protected BinaryTSFactory(BinaryTSFactory src) {

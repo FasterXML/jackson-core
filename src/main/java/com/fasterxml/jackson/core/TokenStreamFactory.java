@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.List;
 
 import com.fasterxml.jackson.core.io.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.sym.SimpleNameMatcher;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -137,6 +138,139 @@ public abstract class TokenStreamFactory
         public int getMask() { return (1 << ordinal()); }
     }
 
+    /**
+     * Since factory instances are immutable, a Builder class is needed for creating
+     * configurations for differently configured factory instances.
+     *
+     * @since 3.0
+     */
+    public abstract static class TSFBuilder<F extends TokenStreamFactory,
+        T extends TSFBuilder<F,T>>
+    {
+        /**
+         * Set of {@link TokenStreamFactory.Feature}s enabled, as bitmask.
+         */
+        protected int _factoryFeatures;
+
+        /**
+         * Set of {@link JsonParser.Feature}s enabled, as bitmask.
+         */
+        protected int _parserFeatures;
+
+        /**
+         * Set of {@link JsonGenerator.Feature}s enabled, as bitmask.
+         */
+        protected int _generatorFeatures;
+
+        // // // Construction
+
+        protected TSFBuilder() {
+            _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
+            _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
+            _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+        }
+
+        protected TSFBuilder(TokenStreamFactory base)
+        {
+            this(base._factoryFeatures,
+                    base.getParserFeatures(), base.getGeneratorFeatures());
+        }
+
+        protected TSFBuilder(int factoryFeatures,
+                int parserFeatures, int generatorFeatures)
+        {
+            _factoryFeatures = factoryFeatures;
+            _parserFeatures = parserFeatures;
+            _generatorFeatures = generatorFeatures;
+        }
+
+        // // // Accessors
+
+        public int factoryFeaturesMask() { return _factoryFeatures; }
+        public int parserFeaturesMask() { return _parserFeatures; }
+        public int generatorFeaturesMask() { return _generatorFeatures; }
+
+        // // // Factory features
+
+        public T with(TokenStreamFactory.Feature f) {
+            _factoryFeatures |= f.getMask();
+            return _this();
+        }
+
+        public T without(TokenStreamFactory.Feature f) {
+            _factoryFeatures &= ~f.getMask();
+            return _this();
+        }
+
+        // // // Parser features
+
+        public T with(JsonParser.Feature f) {
+            _parserFeatures |= f.getMask();
+            return _this();
+        }
+
+        public T with(JsonParser.Feature first, JsonParser.Feature... other) {
+            _parserFeatures |= first.getMask();
+            for (JsonParser.Feature f : other) {
+                _parserFeatures |= f.getMask();
+            }
+            return _this();
+        }
+
+        public T without(JsonParser.Feature f) {
+            _parserFeatures &= ~f.getMask();
+            return _this();
+        }
+
+        public T without(JsonParser.Feature first, JsonParser.Feature... other) {
+            _parserFeatures &= ~first.getMask();
+            for (JsonParser.Feature f : other) {
+                _parserFeatures &= ~f.getMask();
+            }
+            return _this();
+        }
+
+        // // // Generator features
+
+        public T with(JsonGenerator.Feature f) {
+            _generatorFeatures |= f.getMask();
+            return _this();
+        }
+
+        public T with(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+            _generatorFeatures |= first.getMask();
+            for (JsonGenerator.Feature f : other) {
+                _parserFeatures |= f.getMask();
+            }
+            return _this();
+        }
+
+        public T without(JsonGenerator.Feature f) {
+            _generatorFeatures &= ~f.getMask();
+            return _this();
+        }
+        
+        public T without(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+            _generatorFeatures &= ~first.getMask();
+            for (JsonGenerator.Feature f : other) {
+                _generatorFeatures &= ~f.getMask();
+            }
+            return _this();
+        }
+
+        // // // Other methods
+
+        /**
+         * Method for constructing actual {@link TokenStreamFactory} instance, given
+         * configuration.
+         */
+        protected abstract F build();
+
+        // silly convenience cast method we need
+        @SuppressWarnings("unchecked")
+        protected final T _this() { return (T) this; }
+    }
+
     /*
     /**********************************************************
     /* Constants
@@ -200,6 +334,22 @@ public abstract class TokenStreamFactory
     public TokenStreamFactory() { }
 
     /**
+     * Constructors used by {@link TSFBuilder} for instantiation. Base builder is
+     * passed as-is to try to make interface between base types and implementations
+     * less likely to change (given that sub-classing is a fragile way to do it):
+     * if and when new general-purpose properties are added, implementation classes
+     * do not have to use different constructors.
+     *
+     * @since 3.0
+     */
+    protected TokenStreamFactory(TSFBuilder<?,?> baseBuilder)
+    {
+        _factoryFeatures = baseBuilder.factoryFeaturesMask();
+        _parserFeatures = baseBuilder.parserFeaturesMask();
+        _generatorFeatures = baseBuilder.generatorFeaturesMask();
+    }
+
+    /**
      * Constructor used when copy()ing a factory instance.
      */
     protected TokenStreamFactory(TokenStreamFactory src)
@@ -216,6 +366,14 @@ public abstract class TokenStreamFactory
      * are separate).
      */
     public abstract TokenStreamFactory copy();
+
+    /**
+     * Method that can be used to create differently configured stream factories.
+     *
+     * @since 3.0
+     */
+    public abstract TSFBuilder<?,?> rebuild();
+//    public abstract <F extends TokenStreamFactory, T extends TSFBuilder<F,T>> TSFBuilder<F,T> rebuild();
 
     /*
     /**********************************************************
@@ -600,46 +758,73 @@ public abstract class TokenStreamFactory
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.File)}
+     */
     @Deprecated
     public JsonParser createParser(File src) throws IOException {
         return createParser(ObjectReadContext.empty(), src);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.net.URL)}
+     */
     @Deprecated
     public JsonParser createParser(URL src) throws IOException {
         return createParser(ObjectReadContext.empty(), src);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.InputStream)}
+     */
     @Deprecated
     public JsonParser createParser(InputStream in) throws IOException {
         return createParser(ObjectReadContext.empty(), in);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.Reader)}
+     */
     @Deprecated
     public JsonParser createParser(Reader r) throws IOException {
         return createParser(ObjectReadContext.empty(), r);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[])}
+     */
     @Deprecated
     public JsonParser createParser(byte[] data) throws IOException {
         return createParser(ObjectReadContext.empty(), data, 0, data.length);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[],int,int)}
+     */
     @Deprecated
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
         return createParser(ObjectReadContext.empty(), data, offset, len);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,String)}
+     */
     @Deprecated
     public JsonParser createParser(String content) throws IOException {
         return createParser(ObjectReadContext.empty(), content);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,char[])}
+     */
     @Deprecated
     public JsonParser createParser(char[] content) throws IOException {
         return createParser(ObjectReadContext.empty(), content, 0, content.length);
     }
 
+    /**
+     * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,char[],int,int)}
+     */
     @Deprecated
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
         return createParser(ObjectReadContext.empty(), content, offset, len);

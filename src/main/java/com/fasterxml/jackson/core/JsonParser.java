@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -524,7 +525,7 @@ public abstract class JsonParser
      * {@link Feature#AUTO_CLOSE_SOURCE} is enabled.
      * Whether parser owns the input source depends on factory
      * method that was used to construct instance (so check
-     * {@link com.fasterxml.jackson.core.JsonFactory} for details,
+     * {@link com.fasterxml.jackson.core.json.JsonFactory} for details,
      * but the general
      * idea is that if caller passes in closable resource (such
      * as {@link InputStream} or {@link Reader}) parser does NOT

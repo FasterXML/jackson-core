@@ -2,14 +2,14 @@
  *
  * Copyright (c) 2007- Tatu Saloranta, tatu.saloranta@iki.fi
  */
-package com.fasterxml.jackson.core;
+package com.fasterxml.jackson.core.json;
 
 import java.io.*;
 import java.util.List;
 
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.TextualTSFactory;
 import com.fasterxml.jackson.core.io.*;
-import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.sym.BinaryNameMatcher;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -22,6 +22,10 @@ import com.fasterxml.jackson.core.util.Named;
  * JSON-backed {@link TokenStreamFactory} implementation that will create
  * token readers ("parsers") and writers ("generators") for handling
  * JSON-encoded content.
+ *<p>
+ * Note that this class used to reside at main <code>com.fasterxml.jackson.core</code>
+ * in 2.x, but moved here to denote its changed role as implementation, not base
+ * class for factories.
  */
 public class JsonFactory
     extends TextualTSFactory
@@ -110,6 +114,29 @@ public class JsonFactory
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
         _rootValueSeparator = src._rootValueSeparator;
+    }
+
+    /**
+     * Constructors used by {@link JsonFactoryBuilder} for instantiation.
+     *
+     * @since 3.0
+     */
+    protected JsonFactory(JsonFactoryBuilder b)
+    {
+        super(b);
+    }
+
+    @Override
+    public JsonFactoryBuilder rebuild() {
+        return new JsonFactoryBuilder(this);
+    }
+
+    /**
+     * Main factory method to use for constructing {@link JsonFactory} instances with
+     * different configuration.
+     */
+    public static JsonFactoryBuilder builder() {
+        return new JsonFactoryBuilder();
     }
 
     /**

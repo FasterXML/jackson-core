@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class MediaItem
 {

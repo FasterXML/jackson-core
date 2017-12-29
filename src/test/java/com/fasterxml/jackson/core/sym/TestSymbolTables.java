@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Tests that directly modify/access underlying low-level symbol tables

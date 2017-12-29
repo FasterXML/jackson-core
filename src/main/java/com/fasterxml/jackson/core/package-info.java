@@ -1,6 +1,6 @@
 /**
  * Main public API classes of the core streaming JSON
- * processor: most importantly {@link com.fasterxml.jackson.core.JsonFactory}
+ * processor: most importantly {@link com.fasterxml.jackson.core.json.JsonFactory}
  * used for constructing
  * JSON parser ({@link com.fasterxml.jackson.core.JsonParser})
  * and generator

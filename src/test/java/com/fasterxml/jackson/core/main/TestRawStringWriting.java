@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
 {

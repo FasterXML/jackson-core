@@ -6,6 +6,7 @@ import java.util.Random;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 
 public class TestJsonStringEncoder

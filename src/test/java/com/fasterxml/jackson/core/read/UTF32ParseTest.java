@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.read;
 import java.io.CharConversionException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 // Tests from [jackson-core#382]
 public class UTF32ParseTest extends BaseTest

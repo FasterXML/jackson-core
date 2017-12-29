@@ -10,6 +10,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
 import com.fasterxml.jackson.core.util.VersionUtil;

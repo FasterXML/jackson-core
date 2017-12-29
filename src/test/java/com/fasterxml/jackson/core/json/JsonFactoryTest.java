@@ -18,16 +18,20 @@ public class JsonFactoryTest
 
     public void testFactoryFeatures() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-
-        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, true);
+        JsonFactory f = JsonFactory.builder()
+                .with(TokenStreamFactory.Feature.INTERN_FIELD_NAMES)
+                .build();
         assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false);
+
+        f = f.rebuild()
+                .without(JsonFactory.Feature.INTERN_FIELD_NAMES)
+                .build();
         assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
 
         // by default, should be enabled
         assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
-        f.configure(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING, false);
+        f = f.rebuild().without(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
+                .build();
         assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
     }
 
@@ -37,9 +41,9 @@ public class JsonFactoryTest
     // disables this handling otherwise
     public void testDisablingBufferRecycling() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-
-        f.disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING);
+        JsonFactory f = JsonFactory.builder()
+                .without(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
+                .build();
 
         // First, generation
         for (int i = 0; i < 3; ++i) {
@@ -119,9 +123,11 @@ public class JsonFactoryTest
         assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
 
-        jf.enable(JsonFactory.Feature.INTERN_FIELD_NAMES);
-        jf.enable(JsonParser.Feature.ALLOW_COMMENTS);
-        jf.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+        jf = jf.rebuild()
+                .with(JsonFactory.Feature.INTERN_FIELD_NAMES)
+                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .with(JsonGenerator.Feature.ESCAPE_NON_ASCII)
+                .build();
         // then change, verify that changes "stick"
         assertTrue(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));

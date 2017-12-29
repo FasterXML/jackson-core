@@ -202,6 +202,13 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
+        public T configure(TokenStreamFactory.Feature f, boolean state) {
+            if (state) {
+                return with(f);
+            }
+            return without(f);
+        }
+
         // // // Parser features
 
         public T with(JsonParser.Feature f) {
@@ -264,7 +271,7 @@ public abstract class TokenStreamFactory
          * Method for constructing actual {@link TokenStreamFactory} instance, given
          * configuration.
          */
-        protected abstract F build();
+        public abstract F build();
 
         // silly convenience cast method we need
         @SuppressWarnings("unchecked")
@@ -469,41 +476,63 @@ public abstract class TokenStreamFactory
 
     /*
     /**********************************************************
-    /* Configuration, factory features
+    /* Configuration, access to features
     /**********************************************************
      */
 
-    /**
-     * Method for enabling or disabling specified parser feature
-     * (check {@link JsonParser.Feature} for list of features)
-     */
-    public final TokenStreamFactory configure(TokenStreamFactory.Feature f, boolean state) {
-        return state ? enable(f) : disable(f);
-    }
-
-    /**
-     * Method for enabling specified parser feature
-     * (check {@link TokenStreamFactory.Feature} for list of features)
-     */
-    public TokenStreamFactory enable(TokenStreamFactory.Feature f) {
-        _factoryFeatures |= f.getMask();
-        return this;
-    }
-
-    /**
-     * Method for disabling specified parser features
-     * (check {@link TokenStreamFactory.Feature} for list of features)
-     */
-    public TokenStreamFactory disable(TokenStreamFactory.Feature f) {
-        _factoryFeatures &= ~f.getMask();
-        return this;
+    public final boolean isEnabled(TokenStreamFactory.Feature f) {
+        return (_factoryFeatures & f.getMask()) != 0;
     }
 
     /**
      * Checked whether specified parser feature is enabled.
      */
-    public final boolean isEnabled(TokenStreamFactory.Feature f) {
-        return (_factoryFeatures & f.getMask()) != 0;
+    public final boolean isEnabled(JsonParser.Feature f) {
+        return (_parserFeatures & f.getMask()) != 0;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public final int getParserFeatures() {
+        return _parserFeatures;
+    }
+
+    /**
+     * Check whether specified generator feature is enabled.
+     */
+    public final boolean isEnabled(JsonGenerator.Feature f) {
+        return (_generatorFeatures & f.getMask()) != 0;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public final int getGeneratorFeatures() {
+        return _generatorFeatures;
+    }
+
+    /*
+    /**********************************************************
+    /* Configuration, factory features
+    /**********************************************************
+     */
+
+    @Deprecated // since 3.0
+    public final TokenStreamFactory configure(TokenStreamFactory.Feature f, boolean state) {
+        return state ? enable(f) : disable(f);
+    }
+
+    @Deprecated // since 3.0
+    public TokenStreamFactory enable(TokenStreamFactory.Feature f) {
+        _factoryFeatures |= f.getMask();
+        return this;
+    }
+
+    @Deprecated // since 3.0
+    public TokenStreamFactory disable(TokenStreamFactory.Feature f) {
+        _factoryFeatures &= ~f.getMask();
+        return this;
     }
 
     /*
@@ -538,20 +567,6 @@ public abstract class TokenStreamFactory
         return this;
     }
 
-    /**
-     * Checked whether specified parser feature is enabled.
-     */
-    public final boolean isEnabled(JsonParser.Feature f) {
-        return (_parserFeatures & f.getMask()) != 0;
-    }
-
-    /**
-     * @since 3.0
-     */
-    public final int getParserFeatures() {
-        return _parserFeatures;
-    }
-
     /*
     /**********************************************************
     /* Configuration, generator features
@@ -582,20 +597,6 @@ public abstract class TokenStreamFactory
     public TokenStreamFactory disable(JsonGenerator.Feature f) {
         _generatorFeatures &= ~f.getMask();
         return this;
-    }
-
-    /**
-     * Check whether specified generator feature is enabled.
-     */
-    public final boolean isEnabled(JsonGenerator.Feature f) {
-        return (_generatorFeatures & f.getMask()) != 0;
-    }
-
-    /**
-     * @since 3.0
-     */
-    public final int getGeneratorFeatures() {
-        return _generatorFeatures;
     }
 
     /*

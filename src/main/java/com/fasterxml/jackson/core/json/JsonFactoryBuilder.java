@@ -20,7 +20,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     }
 
     @Override
-    protected JsonFactory build() {
+    public JsonFactory build() {
         // 28-Dec-2017, tatu: No special settings beyond base class ones, so:
         return new JsonFactory(this);
     }

@@ -803,13 +803,13 @@ public abstract class ParserBase extends ParserMinimalBase
             _wrapError("Malformed numeric value '"+numStr+"'", nex);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Numeric conversions
     /**********************************************************
-     */    
-    
+     */
+
     protected void convertNumberToInt() throws IOException
     {
         // First, converting from long ought to be easy
@@ -843,7 +843,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         _numTypesValid |= NR_INT;
     }
-    
+
     protected void convertNumberToLong() throws IOException
     {
         if ((_numTypesValid & NR_INT) != 0) {

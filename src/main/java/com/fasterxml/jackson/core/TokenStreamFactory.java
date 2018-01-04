@@ -202,11 +202,8 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T configure(TokenStreamFactory.Feature f, boolean state) {
-            if (state) {
-                return with(f);
-            }
-            return without(f);
+        public T set(TokenStreamFactory.Feature f, boolean state) {
+            return state ? with(f) : without(f);
         }
 
         // // // Parser features
@@ -237,6 +234,10 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
+        public T set(JsonParser.Feature f, boolean state) {
+            return state ? with(f) : without(f);
+        }
+
         // // // Generator features
 
         public T with(JsonGenerator.Feature f) {
@@ -263,6 +264,10 @@ public abstract class TokenStreamFactory
                 _generatorFeatures &= ~f.getMask();
             }
             return _this();
+        }
+
+        public T set(JsonGenerator.Feature f, boolean state) {
+            return state ? with(f) : without(f);
         }
 
         // // // Other methods

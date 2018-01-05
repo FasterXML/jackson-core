@@ -135,8 +135,9 @@ public class TestCharEscaping
     // for [JACKSON-627]
     public void testWriteLongCustomEscapes() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
-        jf.setCharacterEscapes(ESC_627); // must set to trigger bug
+        JsonFactory jf = JsonFactory.builder()
+                .characterEscapes(ESC_627)
+                .build(); // must set to trigger bug
         StringBuilder longString = new StringBuilder();
         while (longString.length() < 2000) {
           longString.append("\u65e5\u672c\u8a9e");

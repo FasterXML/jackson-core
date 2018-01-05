@@ -98,8 +98,9 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     @SuppressWarnings("resource")
     private void _testJsonpEscapes(boolean useStream) throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.setCharacterEscapes(JsonpCharacterEscapes.instance());
+        JsonFactory f = JsonFactory.builder()
+                .characterEscapes(JsonpCharacterEscapes.instance())
+                .build();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
 
@@ -188,7 +189,9 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     @SuppressWarnings("resource")
     private void _testEscapeCustom(boolean useStream) throws Exception
     {
-        JsonFactory f = new JsonFactory().setCharacterEscapes(new MyEscapes());
+        JsonFactory f = JsonFactory.builder()
+                .characterEscapes(new MyEscapes())
+                .build();
         final String STR_IN = "[abcd/"+((char) TWO_BYTE_ESCAPED)+"/"+((char) THREE_BYTE_ESCAPED)+"]";
         final String STR_OUT = "[\\A\\u0062c[D]/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

@@ -143,11 +143,12 @@ public class TestPrettyPrinter
         assertEquals("{ }|{ }|[ ]", _generateRoot(f, new DefaultPrettyPrinter("|")));
     }
 
-    // Alternative solution for [Issue#26]
+    // Alternative solution for [jackson-core#26]
     public void testCustomRootSeparatorWithFactory() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.setRootValueSeparator("##");
+        JsonFactory f = JsonFactory.builder()
+                .rootValueSeparator("##")
+                .build();
         StringWriter sw = new StringWriter();
         JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeNumber(13);

@@ -34,9 +34,9 @@ public class JsonFactory
     private static final long serialVersionUID = 1;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constants
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -48,9 +48,9 @@ public class JsonFactory
     public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -58,19 +58,19 @@ public class JsonFactory
      * by this factory, if any. If null, standard data format specific
      * escapes are used.
      */
-    protected CharacterEscapes _characterEscapes;
+    protected final CharacterEscapes _characterEscapes;
 
     /**
      * Separator used between root-level values, if any; null indicates
      * "do not add separator".
      * Default separator is a single space character.
      */
-    protected SerializableString _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
+    protected final SerializableString _rootValueSeparator;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Symbol table management
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -85,11 +85,11 @@ public class JsonFactory
      * parsers use different name canonicalization method.
      */
     protected final transient ByteQuadsCanonicalizer _byteSymbolCanonicalizer = ByteQuadsCanonicalizer.createRoot();
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -102,7 +102,11 @@ public class JsonFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    public JsonFactory() { super(); }
+    public JsonFactory() {
+        super();
+        _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
+        _characterEscapes = null;
+    }
 
     /**
      * Constructor used when copy()ing a factory instance.
@@ -110,10 +114,10 @@ public class JsonFactory
     protected JsonFactory(JsonFactory src)
     {
         super(src);
+        _rootValueSeparator = src._rootValueSeparator;
         _characterEscapes = src._characterEscapes;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
-        _rootValueSeparator = src._rootValueSeparator;
     }
 
     /**
@@ -124,6 +128,8 @@ public class JsonFactory
     protected JsonFactory(JsonFactoryBuilder b)
     {
         super(b);
+        _rootValueSeparator = b.rootValueSeparator();
+        _characterEscapes = b.characterEscapes();
     }
 
     @Override
@@ -152,9 +158,9 @@ public class JsonFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializable overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -167,9 +173,9 @@ public class JsonFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Capability introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -183,20 +189,10 @@ public class JsonFactory
         return true;
     }
 
-    @Override
-    public Class<? extends FormatFeature> getFormatReadFeatureType() {
-        return null;
-    }
-
-    @Override
-    public Class<? extends FormatFeature> getFormatWriteFeatureType() {
-        return null;
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Format support
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -224,51 +220,36 @@ public class JsonFactory
         return FORMAT_NAME_JSON;
     }
 
+    @Override
+    public Class<? extends FormatFeature> getFormatReadFeatureType() {
+        return null;
+    }
+
+    @Override
+    public Class<? extends FormatFeature> getFormatWriteFeatureType() {
+        return null;
+    }
+    
     /*
-    /**********************************************************
-    /* Configuration, generator settings
-    /**********************************************************
+    /**********************************************************************
+    /* Configuration accessors
+    /**********************************************************************
      */
 
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
      */
-    @Override
     public CharacterEscapes getCharacterEscapes() { return _characterEscapes; }
 
-    /**
-     * Method for defining custom escapes factory uses for {@link JsonGenerator}s
-     * it creates.
-     */
-    @Override
-    public JsonFactory setCharacterEscapes(CharacterEscapes esc) {
-        _characterEscapes = esc;
-        return this;
-    }
-
-    /**
-     * Method that allows overriding String used for separating root-level
-     * JSON values (default is single space character)
-     * 
-     * @param sep Separator to use, if any; null means that no separator is
-     *   automatically added
-     */
-    @Override
-    public JsonFactory setRootValueSeparator(String sep) {
-        _rootValueSeparator = (sep == null) ? null : new SerializedString(sep);
-        return this;
-    }
-
-    @Override
     public String getRootValueSeparator() {
         return (_rootValueSeparator == null) ? null : _rootValueSeparator.getValue();
-    }
+    }    
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parser factories, non-blocking (async) sources
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -281,9 +262,9 @@ public class JsonFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods used by factory for creating parser instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -337,9 +318,9 @@ public class JsonFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods used by factory for creating generator instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -376,9 +357,9 @@ public class JsonFactory
     }
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Other factory methods
-    /******************************************************
+    /**********************************************************************
      */
 
     @Override

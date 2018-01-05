@@ -19,6 +19,7 @@ JSON library.
 
 #378: Change default for `TokenStreamFactory.Feature.INTERN_FIELD_NAMES` to `false`
 #432: Add new `TreeNode` subtypes: `ArrayTreeNode`, `ObjectTreeNode`
+#433: Add Builder pattern for creating configured Stream factories
 
 2.9.4 (not yet released)
 

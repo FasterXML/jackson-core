@@ -1,7 +1,7 @@
 language: java
 # core streaming still builds on jdk6 and above:
+# 05-Jan-2018, tatu: Not sure why, but travis build fails on jdk6 so leave it out
 jdk:
-  - openjdk6
   - openjdk7
   - openjdk8
 

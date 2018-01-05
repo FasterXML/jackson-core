@@ -14,7 +14,7 @@ after_success: "mvn deploy --settings target/travis/settings.xml"
 branches:
   only:
     - master
-    - "2.8"
+    - "2.9"
 
 # to make jdk6 work, as per: https://github.com/travis-ci/travis-ci/issues/8199
 addons:

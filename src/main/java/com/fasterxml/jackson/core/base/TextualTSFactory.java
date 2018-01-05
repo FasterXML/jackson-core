@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.URL;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.UTF8Writer;
 
@@ -69,39 +68,6 @@ public abstract class TextualTSFactory extends DecorableTSFactory
      * recyclable intermediate buffer.
      */
     public boolean canUseCharArrays() { return true; }
-
-    /*
-    /**********************************************************
-    /* Configuration, textual configuration
-    /**********************************************************
-     */
-    
-    /**
-     * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
-     * it creates.
-     */
-    public CharacterEscapes getCharacterEscapes() { return null; }
-
-    /**
-     * Method for defining custom escapes factory uses for {@link JsonGenerator}s
-     * it creates.
-     */
-    public TokenStreamFactory setCharacterEscapes(CharacterEscapes esc) {
-        return _unsupported();
-    }
-
-    public String getRootValueSeparator() { return null; }
-    
-    /**
-     * Method that allows overriding String used for separating root-level
-     * JSON values (default is single space character)
-     * 
-     * @param sep Separator to use, if any; null means that no separator is
-     *   automatically added
-     */
-    public TokenStreamFactory setRootValueSeparator(String sep) {
-        return _unsupported();
-    }
 
     /*
     /**********************************************************

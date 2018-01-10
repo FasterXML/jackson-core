@@ -924,7 +924,7 @@ public class WriterBasedJsonGenerator
          */
         // First: let's see that we still have buffers...
         if (_outputBuffer != null
-            && isEnabled(Feature.AUTO_CLOSE_JSON_CONTENT)) {
+            && isEnabled(Feature.AUTO_CLOSE_CONTENT)) {
             while (true) {
                 TokenStreamContext ctxt = getOutputContext();
                 if (ctxt.inArray()) {

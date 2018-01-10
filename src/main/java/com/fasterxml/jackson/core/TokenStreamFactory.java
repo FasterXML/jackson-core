@@ -315,17 +315,17 @@ public abstract class TokenStreamFactory
     /**
      * Currently enabled {@link TokenStreamFactory.Feature}s features as a bitmask.
      */
-    protected int _factoryFeatures;
+    protected final int _factoryFeatures;
     
     /**
      * Currently enabled {@link JsonParser.Feature}s as a bitmask.
      */
-    protected int _parserFeatures;
+    protected final int _parserFeatures;
 
     /**
      * Currently enabled {@link JsonGenerator.Feature}s as a bitmask.
      */
-    protected int _generatorFeatures;
+    protected final int _generatorFeatures;
 
     /*
     /**********************************************************
@@ -519,75 +519,6 @@ public abstract class TokenStreamFactory
      */
     public final int getGeneratorFeatures() {
         return _generatorFeatures;
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration, factory features
-    /**********************************************************
-     */
-
-    @Deprecated // since 3.0
-    public final TokenStreamFactory configure(TokenStreamFactory.Feature f, boolean state) {
-        return state ? enable(f) : disable(f);
-    }
-
-    @Deprecated // since 3.0
-    public TokenStreamFactory enable(TokenStreamFactory.Feature f) {
-        _factoryFeatures |= f.getMask();
-        return this;
-    }
-
-    @Deprecated // since 3.0
-    public TokenStreamFactory disable(TokenStreamFactory.Feature f) {
-        _factoryFeatures &= ~f.getMask();
-        return this;
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration, parser features
-    /**********************************************************
-     */
-    
-    @Deprecated // since 3.0
-    public final TokenStreamFactory configure(JsonParser.Feature f, boolean state) {
-        return state ? enable(f) : disable(f);
-    }
-
-    @Deprecated // since 3.0
-    public TokenStreamFactory enable(JsonParser.Feature f) {
-        _parserFeatures |= f.getMask();
-        return this;
-    }
-
-    @Deprecated // since 3.0
-    public TokenStreamFactory disable(JsonParser.Feature f) {
-        _parserFeatures &= ~f.getMask();
-        return this;
-    }
-
-    /*
-    /**********************************************************
-    /* Configuration, generator features
-    /**********************************************************
-     */
-
-    @Deprecated // since 3.0
-    public final TokenStreamFactory configure(JsonGenerator.Feature f, boolean state) {
-        return state ? enable(f) : disable(f);
-    }
-
-    @Deprecated // since 3.0
-    public TokenStreamFactory enable(JsonGenerator.Feature f) {
-        _generatorFeatures |= f.getMask();
-        return this;
-    }
-
-    @Deprecated // since 3.0
-    public TokenStreamFactory disable(JsonGenerator.Feature f) {
-        _generatorFeatures &= ~f.getMask();
-        return this;
     }
 
     /*

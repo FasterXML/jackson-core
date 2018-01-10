@@ -56,9 +56,11 @@ public abstract class JsonGenerator
          * Object(s) are automatically closed; if disabled, nothing
          * specific is done.
          *<p>
+         * NOTE: was named {@code AUTO_CLOSE_JSON_CONTENT} in Jackson 2.x.
+         *<p>
          * Feature is enabled by default.
          */
-        AUTO_CLOSE_JSON_CONTENT(true),
+        AUTO_CLOSE_CONTENT(true),
 
         /**
          * Feature that specifies that calls to {@link #flush} will cause

@@ -96,47 +96,47 @@ public class TestGeneratorClosing extends BaseTest
         // Check the default settings
         assertTrue(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         // then change
-        f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        f = f.rebuild().without(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
         assertFalse(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), output);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output);
 
         // shouldn't be closed to begin with...
         assertFalse(output.isClosed());
-        jg.writeNumber(39);
+        g.writeNumber(39);
         // regular close won't close it either:
-        jg.close();
+        g.close();
         assertFalse(output.isClosed());
     }
 
     public void testCloseGenerator() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.enable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        JsonFactory f = JsonFactory.builder()
+                .with(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), output);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output);
 
         // shouldn't be closed to begin with...
         assertFalse(output.isClosed());
-        jg.writeNumber(39);
+        g.writeNumber(39);
         // but close() should now close the writer
-        jg.close();
+        g.close();
         assertTrue(output.isClosed());
     }
 
     public void testNoAutoCloseOutputStream() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        JsonFactory f = JsonFactory.builder()
+                .without(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
         MyStream output = new MyStream();
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), output, JsonEncoding.UTF8);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output, JsonEncoding.UTF8);
 
         assertFalse(output.isClosed());
-        jg.writeNumber(39);
-        jg.close();
+        g.writeNumber(39);
+        g.close();
         assertFalse(output.isClosed());
     }
 
@@ -149,36 +149,36 @@ public class TestGeneratorClosing extends BaseTest
         StringWriter sw = new StringWriter();
 
         // First, test arrays:
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), sw);
-        jg.writeStartArray();
-        jg.close();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        g.writeStartArray();
+        g.close();
         assertEquals("[]", sw.toString());
 
         // Then objects
         sw = new StringWriter();
-        jg = f.createGenerator(ObjectWriteContext.empty(), sw);
-        jg.writeStartObject();
-        jg.close();
+        g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        g.writeStartObject();
+        g.close();
         assertEquals("{}", sw.toString());
     }
 
     public void testNoAutoCloseArraysAndObjects()
         throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+        JsonFactory f = JsonFactory.builder()
+                .without(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT).build();
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), sw);
-        jg.writeStartArray();
-        jg.close();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        g.writeStartArray();
+        g.close();
         // shouldn't close
         assertEquals("[", sw.toString());
 
         // Then objects
         sw = new StringWriter();
-        jg = f.createGenerator(ObjectWriteContext.empty(), sw);
-        jg.writeStartObject();
-        jg.close();
+        g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        g.writeStartObject();
+        g.close();
         assertEquals("{", sw.toString());
     }
 
@@ -189,47 +189,47 @@ public class TestGeneratorClosing extends BaseTest
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM));
         MyChars sw = new MyChars();
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(), sw);
-        jg.writeStartArray();
-        jg.writeEndArray();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        g.writeStartArray();
+        g.writeEndArray();
         assertEquals(0, sw.flushed);
-        jg.flush();
+        g.flush();
         assertEquals(1, sw.flushed);
-        jg.close();
+        g.close();
         
         // ditto with stream
         MyBytes bytes = new MyBytes();
-        jg = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
-        jg.writeStartArray();
-        jg.writeEndArray();
+        g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
+        g.writeStartArray();
+        g.writeEndArray();
         assertEquals(0, bytes.flushed);
-        jg.flush();
+        g.flush();
         assertEquals(1, bytes.flushed);
         assertEquals(2, bytes.toByteArray().length);
-        jg.close();
+        g.close();
 
         // then disable and we should not see flushing again...
-        f.disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM);
+        f = f.rebuild().without(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM).build();
         // first with a Writer
         sw = new MyChars();
-        jg = f.createGenerator(ObjectWriteContext.empty(), sw);
-        jg.writeStartArray();
-        jg.writeEndArray();
+        g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        g.writeStartArray();
+        g.writeEndArray();
         assertEquals(0, sw.flushed);
-        jg.flush();
+        g.flush();
         assertEquals(0, sw.flushed);
-        jg.close();
+        g.close();
         assertEquals("[]", sw.toString());
 
         // and then with OutputStream
         bytes = new MyBytes();
-        jg = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
-        jg.writeStartArray();
-        jg.writeEndArray();
+        g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
+        g.writeStartArray();
+        g.writeEndArray();
         assertEquals(0, bytes.flushed);
-        jg.flush();
+        g.flush();
         assertEquals(0, bytes.flushed);
-        jg.close();
+        g.close();
         assertEquals(2, bytes.toByteArray().length);
     }
 }

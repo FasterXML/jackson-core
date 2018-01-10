@@ -30,7 +30,7 @@ public class TestParserClosing
         // Check the default settings
         assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         // then change
-        f.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        f = f.rebuild().without(JsonParser.Feature.AUTO_CLOSE_SOURCE).build();
         assertFalse(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         @SuppressWarnings("resource")
         MyReader input = new MyReader(DOC);
@@ -53,9 +53,8 @@ public class TestParserClosing
     public void testAutoCloseReader() throws Exception
     {
         final String DOC = "[ 1 ]";
-
-        JsonFactory f = new JsonFactory();
-        f.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        JsonFactory f = JsonFactory.builder()
+                .with(JsonParser.Feature.AUTO_CLOSE_SOURCE).build();
         assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         MyReader input = new MyReader(DOC);
         JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
@@ -80,9 +79,8 @@ public class TestParserClosing
     public void testNoAutoCloseInputStream() throws Exception
     {
         final String DOC = "[ 1 ]";
-        JsonFactory f = new JsonFactory();
-
-        f.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        JsonFactory f = JsonFactory.builder()
+                .without(JsonParser.Feature.AUTO_CLOSE_SOURCE).build();
         MyStream input = new MyStream(DOC.getBytes("UTF-8"));
         JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
 

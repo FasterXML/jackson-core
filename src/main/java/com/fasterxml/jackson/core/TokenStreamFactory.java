@@ -248,7 +248,7 @@ public abstract class TokenStreamFactory
         public T with(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
             _generatorFeatures |= first.getMask();
             for (JsonGenerator.Feature f : other) {
-                _parserFeatures |= f.getMask();
+                _generatorFeatures |= f.getMask();
             }
             return _this();
         }
@@ -313,19 +313,19 @@ public abstract class TokenStreamFactory
      */
 
     /**
-     * Currently enabled factory features.
+     * Currently enabled {@link TokenStreamFactory.Feature}s features as a bitmask.
      */
-    protected int _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
+    protected int _factoryFeatures;
     
     /**
-     * Currently enabled parser features.
+     * Currently enabled {@link JsonParser.Feature}s as a bitmask.
      */
-    protected int _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
+    protected int _parserFeatures;
 
     /**
-     * Currently enabled generator features.
+     * Currently enabled {@link JsonGenerator.Feature}s as a bitmask.
      */
-    protected int _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+    protected int _generatorFeatures;
 
     /*
     /**********************************************************
@@ -343,7 +343,11 @@ public abstract class TokenStreamFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    public TokenStreamFactory() { }
+    protected TokenStreamFactory() {
+        _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
+        _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
+        _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+    }
 
     /**
      * Constructors used by {@link TSFBuilder} for instantiation. Base builder is
@@ -546,27 +550,18 @@ public abstract class TokenStreamFactory
     /**********************************************************
      */
     
-    /**
-     * Method for enabling or disabling specified parser feature
-     * (check {@link JsonParser.Feature} for list of features)
-     */
+    @Deprecated // since 3.0
     public final TokenStreamFactory configure(JsonParser.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
 
-    /**
-     * Method for enabling specified parser feature
-     * (check {@link JsonParser.Feature} for list of features)
-     */
+    @Deprecated // since 3.0
     public TokenStreamFactory enable(JsonParser.Feature f) {
         _parserFeatures |= f.getMask();
         return this;
     }
 
-    /**
-     * Method for disabling specified parser features
-     * (check {@link JsonParser.Feature} for list of features)
-     */
+    @Deprecated // since 3.0
     public TokenStreamFactory disable(JsonParser.Feature f) {
         _parserFeatures &= ~f.getMask();
         return this;
@@ -578,27 +573,18 @@ public abstract class TokenStreamFactory
     /**********************************************************
      */
 
-    /**
-     * Method for enabling or disabling specified generator feature
-     * (check {@link JsonGenerator.Feature} for list of features)
-     */
+    @Deprecated // since 3.0
     public final TokenStreamFactory configure(JsonGenerator.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
 
-    /**
-     * Method for enabling specified generator features
-     * (check {@link JsonGenerator.Feature} for list of features)
-     */
+    @Deprecated // since 3.0
     public TokenStreamFactory enable(JsonGenerator.Feature f) {
         _generatorFeatures |= f.getMask();
         return this;
     }
 
-    /**
-     * Method for disabling specified generator feature
-     * (check {@link JsonGenerator.Feature} for list of features)
-     */
+    @Deprecated // since 3.0
     public TokenStreamFactory disable(JsonGenerator.Feature f) {
         _generatorFeatures &= ~f.getMask();
         return this;

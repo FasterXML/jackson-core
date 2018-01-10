@@ -36,10 +36,13 @@ public class GeneratorFeaturesTest
         // by default, quoting should be enabled
         _testFieldNameQuoting(f, true);
         // can disable it
-        f.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        f = f.rebuild().without(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .build();
         _testFieldNameQuoting(f, false);
         // and (re)enable:
-        f.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        f = f.rebuild()
+                .with(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .build();
         _testFieldNameQuoting(f, true);
     }
 
@@ -49,10 +52,13 @@ public class GeneratorFeaturesTest
         // by default, quoting should be enabled
         _testNonNumericQuoting(f, true);
         // can disable it
-        f.disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
+        f = f.rebuild().without(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
+                .build();
         _testNonNumericQuoting(f, false);
         // and (re)enable:
-        f.enable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
+        f = f.rebuild()
+                .with(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
+                .build();
         _testNonNumericQuoting(f, true);
     }
 
@@ -67,7 +73,8 @@ public class GeneratorFeaturesTest
         assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(f));        
 
         // but if overridden, quotes as Strings
-        f.configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
+        f = f.rebuild().set(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true)
+                .build();
         assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
                      _writeNumbers(f));
 
@@ -85,7 +92,8 @@ public class GeneratorFeaturesTest
         g.close();
         assertEquals("1E+2", sw.toString());
 
-        f.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        f = f.rebuild().with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build();
         sw = new StringWriter();
         g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeNumber(ENG);
@@ -97,9 +105,9 @@ public class GeneratorFeaturesTest
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
-        f.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        f.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
-
+        f = f.rebuild().with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN,
+                JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS)
+                .build();
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeNumber(ENG);
@@ -117,8 +125,9 @@ public class GeneratorFeaturesTest
     // [core#315]
     public void testTooBigBigDecimal() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        JsonFactory f = JsonFactory.builder()
+                .with(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build();
 
         // 24-Aug-2016, tatu: Initial check limits scale to [-9999,+9999]
         BigDecimal BIG = new BigDecimal("1E+9999");
@@ -203,8 +212,9 @@ public class GeneratorFeaturesTest
 
         // // Then with alternatively configured factory
 
-        JsonFactory f2 = new JsonFactory();
-        f2.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
+        JsonFactory f2 = JsonFactory.builder()
+                .without(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .build();
 
         _testFieldNameQuotingEnabled(f2, true, true, "{\"foo\":1}");
         _testFieldNameQuotingEnabled(f2, false, true, "{\"foo\":1}");

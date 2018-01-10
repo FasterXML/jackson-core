@@ -9,10 +9,12 @@ public class JsonFactoryTest
 {
     public void testGeneratorFeatures() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
+        JsonFactory f = JsonFactory.builder()
+                .with(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .build();
         assertTrue(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
-        f.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
+        f = f.rebuild().set(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false)
+                .build();
         assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
     }
 

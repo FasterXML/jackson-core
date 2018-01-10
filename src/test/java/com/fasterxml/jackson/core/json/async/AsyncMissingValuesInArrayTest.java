@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import org.junit.Test;
@@ -20,12 +21,12 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
     private final HashSet<JsonParser.Feature> features;
 
     public AsyncMissingValuesInArrayTest(Collection<JsonParser.Feature> features) {
-        this.factory = new JsonFactory();
         this.features = new HashSet<JsonParser.Feature>(features);
-
+        JsonFactoryBuilder b = JsonFactory.builder();
         for (JsonParser.Feature feature : features) {
-            factory.enable(feature);
+            b = b.with(feature);
         }
+        this.factory = b.build();
     }
 
     @Parameterized.Parameters(name = "Features {0}")

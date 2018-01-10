@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.json.UTF8DataInputJsonParser;
 
 import org.junit.Test;
@@ -21,13 +22,12 @@ public class TrailingCommasTest extends BaseTest {
   private final int mode;
 
   public TrailingCommasTest(int mode, List<Feature> features) {
-    this.factory = new JsonFactory();
     this.features = new HashSet<JsonParser.Feature>(features);
-
+    JsonFactoryBuilder b = JsonFactory.builder();
     for (JsonParser.Feature feature : features) {
-      factory.enable(feature);
+        b = b.with(feature);
     }
-
+    this.factory = b.build();
     this.mode = mode;
   }
 

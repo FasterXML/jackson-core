@@ -462,8 +462,8 @@ public class NumberParsingTest
      */
     public void testParsingOfLongerSequencesWithNonNumeric() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+        JsonFactory f = JsonFactory.builder()
+                .with(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS).build();
         _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM);
         _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM_THROTTLED);
         _testParsingOfLongerSequencesWithNonNumeric(f, MODE_READER);

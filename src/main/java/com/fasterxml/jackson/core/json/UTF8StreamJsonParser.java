@@ -669,6 +669,9 @@ public class UTF8StreamJsonParser
     @Override
     public JsonToken nextToken() throws IOException
     {
+        if (_closed) {
+            _reportIllegalReadOnClosedParser();
+        }
         /* First: field names are special -- we will always tokenize
          * (part of) value along with field name to simplify
          * state handling. If so, can and need to use secondary token:
@@ -861,6 +864,9 @@ public class UTF8StreamJsonParser
     public boolean nextFieldName(SerializableString str) throws IOException
     {
         // // // Note: most of code below is copied from nextToken()
+        if (_closed) {
+            _reportIllegalReadOnClosedParser();
+        }
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.FIELD_NAME) { // can't have name right after name
             _nextAfterName();
@@ -947,7 +953,9 @@ public class UTF8StreamJsonParser
     public String nextFieldName() throws IOException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
-
+        if (_closed) {
+            _reportIllegalReadOnClosedParser();
+        }
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.FIELD_NAME) {
             _nextAfterName();
@@ -2918,7 +2926,7 @@ public class UTF8StreamJsonParser
         }        
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.typeDesc()+" entries");
     }
-    
+
     private final int _skipWSOrEnd() throws IOException
     {
         // Let's handle first character separately since it is likely that
@@ -3549,6 +3557,10 @@ public class UTF8StreamJsonParser
     {
         _inputPtr = ptr;
         _reportInvalidOther(mask);
+    }
+
+    protected void _reportIllegalReadOnClosedParser() throws JsonParseException {
+        _reportError("Illegal state: Cannot read on closed parser");
     }
 
     /*

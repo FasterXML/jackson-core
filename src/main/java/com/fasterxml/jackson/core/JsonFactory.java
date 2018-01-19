@@ -114,17 +114,8 @@ public class JsonFactory
          *<p>
          * This setting is enabled by default.
          */
-        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true),
+        USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING(true)
 
-        /**
-         * Feature that determines whether we register {@link SoftReference}-d {@link BufferRecycler}s in
-         *  {@link ThreadLocal}s, to be able to release them with a shutDown method.
-         *  Note that this feature works on class level and can only be set once, that is,
-         *  once enabled by one JsonFactory instance, it will always be enabled for all instances.
-         *<p>
-         * This setting is disabled by default.
-         */
-        USE_RELEASABLE_THREAD_LOCAL_BUFFERS(false)
         ;
 
         /**
@@ -191,10 +182,9 @@ public class JsonFactory
     /*
      * For issue #400: We optionally keep references to all SoftReferences to BufferRecyclers which we put in all ThreadLocals
      * We do this to be able to release them (dereference) in a newly introduced shutdown method.
-     * It can be enabled by Feature.USE_RELEASABLE_THREAD_LOCAL_BUFFERS on a JsonFactory instance or by
-     * enableUseReleasableThreadLocalBuffers on JsonFactory class.
+     * It can be enabled by the system property com.fasterxml.jackson.core.use_releasable_thread_local_buffers set to 'true'.
      */
-    private static volatile ThreadLocalBufferManager _bufferMgr = null;
+    private static final ThreadLocalBufferManager _bufferMgr;
 
     /**
      * This <code>ThreadLocal</code> contains a {@link java.lang.ref.SoftReference}
@@ -277,7 +267,17 @@ public class JsonFactory
     /* Construction
     /**********************************************************
      */
-    
+
+    static {
+        if ("true".equals(System.getProperty("com.fasterxml.jackson.core.use_releasable_thread_local_buffers"))) {
+            _bufferMgr = ThreadLocalBufferManager.instance();
+            System.out.println("JsonFactory - ThreadLocalBufferManager constructed"); // @TODO remove after testing
+        }
+        else {
+            _bufferMgr = null;
+        }
+    }
+
     /**
      * Default constructor used to create factory instances.
      * Creation of a factory instance is a light-weight operation,
@@ -349,8 +349,7 @@ public class JsonFactory
      * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
      * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
      * application to survive much longer than the application itself.
-     * Note: {@link JsonFactory.Feature}.USE_RELEASABLE_THREAD_LOCAL_BUFFERS needs to be enabled or
-     * enableUseReleasableThreadLocalBuffers needs to have be called on startup
+     * Note: System property com.fasterxml.jackson.core.use_releasable_thread_local_buffers needs to be set to 'true'
      */
     public static void shutdown() {
         System.out.println("JsonFactory shutdown called"); // for debugging, @TODO remove after test
@@ -535,9 +534,6 @@ public class JsonFactory
      */
     public JsonFactory enable(JsonFactory.Feature f) {
         _factoryFeatures |= f.getMask();
-        if (f == Feature.USE_RELEASABLE_THREAD_LOCAL_BUFFERS) {
-            enableUseReleasableThreadLocalBuffers(); // set to true for all instances
-        }
         return this;
     }
 
@@ -557,12 +553,6 @@ public class JsonFactory
         return (_factoryFeatures & f.getMask()) != 0;
     }
 
-    /**
-     * Enables use of releasable ThreadLocalBuffers, released in shutDown method
-     */
-    public static void enableUseReleasableThreadLocalBuffers() {
-        _bufferMgr = ThreadLocalBufferManager.instance();
-    }
 
     /*
     /**********************************************************
@@ -1419,7 +1409,8 @@ public class JsonFactory
          * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
          */
         private void shutdown() {
-            System.out.println("ThreadLocalBufferManager shutdown called"); // for debugging, @TODO remove after test
+            System.out.println("ThreadLocalBufferManager shutdown called. allsoftBufRecyclers.size = " +
+                    allSoftBufRecyclers.size()); // for debugging, @TODO remove after test
             synchronized(SHUTDOWN_LOCK) {
                 removeSoftRefsClearedByGc(); // make sure the refQueue is empty
                 for (SoftReference ref : allSoftBufRecyclers) {

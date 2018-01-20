@@ -556,6 +556,9 @@ public class UTF8DataInputJsonParser
     @Override
     public JsonToken nextToken() throws IOException
     {
+        if (_closed) {
+            return null;
+        }
         /* First: field names are special -- we will always tokenize
          * (part of) value along with field name to simplify
          * state handling. If so, can and need to use secondary token:

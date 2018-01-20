@@ -1,25 +1,24 @@
 package com.fasterxml.jackson.core.json;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInput;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 /**
- * These tests asserts that using closed JsonParser doesn't cause ArrayIndexOutOfBoundsException.
+ * Tests asserts that using closed `JsonParser` doesn't cause ArrayIndexOutOfBoundsException
+ * with `nextXxx()` methods but returns `null` as expected.
  */
 @RunWith(Parameterized.class)
 public class JsonParserClosedCaseTest {
@@ -35,7 +34,7 @@ public class JsonParserClosedCaseTest {
      */
     @Parameters(name = "{0}")
     public static Collection<Object[]> parsers() throws IOException {
-        ByteArrayInputStream inputStream = new ByteArrayInputStream("{}".getBytes());
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] { '{', '}' });
 
         return closeParsers(
                 (ReaderBasedJsonParser) JSON_F.createParser(new InputStreamReader(inputStream)),

@@ -669,9 +669,6 @@ public class UTF8StreamJsonParser
     @Override
     public JsonToken nextToken() throws IOException
     {
-        if (_closed) {
-            return null;
-        }
         /* First: field names are special -- we will always tokenize
          * (part of) value along with field name to simplify
          * state handling. If so, can and need to use secondary token:
@@ -864,9 +861,6 @@ public class UTF8StreamJsonParser
     public boolean nextFieldName(SerializableString str) throws IOException
     {
         // // // Note: most of code below is copied from nextToken()
-        if (_closed) {
-            return false;
-        }
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.FIELD_NAME) { // can't have name right after name
             _nextAfterName();
@@ -953,9 +947,6 @@ public class UTF8StreamJsonParser
     public String nextFieldName() throws IOException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
-        if (_closed) {
-            return null;
-        }
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.FIELD_NAME) {
             _nextAfterName();

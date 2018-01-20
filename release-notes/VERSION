@@ -25,7 +25,9 @@ JSON library.
 2.9.4 (not yet released)
 
 #414: Base64 MIME variant does not ignore white space chars as per RFC2045
- (reporte by tmoschou@github)
+ (reported by tmoschou@github)
+#437: `ArrayIndexOutOfBoundsException` in `UTF8StreamJsonParser`
+ (reported by Igor A)
 
 2.9.3 (09-Dec-2017)
 

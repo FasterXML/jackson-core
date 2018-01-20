@@ -311,9 +311,11 @@ public abstract class ParserBase extends ParserMinimalBase
             throw new IllegalStateException(e);
         }
     }
-    
+
     @Override public void close() throws IOException {
         if (!_closed) {
+            // 19-Jan-2018, tatu: as per [core#440] need to ensure no more data assumed available
+            _inputPtr = Math.max(_inputPtr, _inputEnd);
             _closed = true;
             try {
                 _closeInput();

@@ -1034,7 +1034,6 @@ public class UTF8StreamJsonParser
     public int nextFieldName(FieldNameMatcher matcher) throws IOException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
-
         _numTypesValid = NR_UNKNOWN;
         if (_currToken == JsonToken.FIELD_NAME) {
             _nextAfterName();
@@ -3246,7 +3245,7 @@ public class UTF8StreamJsonParser
         }        
         throw _constructError("Unexpected end-of-input within/between "+_parsingContext.typeDesc()+" entries");
     }
-    
+
     private final int _skipWSOrEnd() throws IOException
     {
         // Let's handle first character separately since it is likely that

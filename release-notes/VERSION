@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.4 (not yet released)
+2.9.4 (24-Jan-2017)
 
 #414: Base64 MIME variant does not ignore white space chars as per RFC2045
  (reported by tmoschou@github)

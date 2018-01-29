@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.sym;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;

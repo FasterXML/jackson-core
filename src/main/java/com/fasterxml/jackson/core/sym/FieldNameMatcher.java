@@ -145,9 +145,19 @@ public abstract class FieldNameMatcher
 
     public static List<String> stringsFromNames(List<Named> fields,
             final boolean alreadyInterned) {
+        // 29-Jan-2018, tatu: With seemingly simple definition (commented out) getting
+        //   strange "java.lang.NoClassDefFoundError: Could not initialize class java.util.stream.StreamOpFlag"
+        //   so having to replace with bit different
+        /*
         return fields.stream()
                 .map(n -> _fromName(n, alreadyInterned))
                 .collect(Collectors.toList());
+                */
+        ArrayList<String> result = new ArrayList<String>(fields.size());
+        for (Named n : fields) {
+            result.add(_fromName(n, alreadyInterned));
+        }
+        return result;
     }
 
     protected static String _fromName(Named n, boolean alreadyInterned) {

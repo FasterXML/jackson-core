@@ -429,17 +429,15 @@ public final class Base64Variant
      * using this variant's settings.
      * 
      * @param input
-     * 
-     * @since 2.2.3
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */
-    @SuppressWarnings("resource")
     public byte[] decode(String input) throws IllegalArgumentException
     {
-        ByteArrayBuilder b = new ByteArrayBuilder();
-        decode(input, b);
-        return b.toByteArray();
+        try (ByteArrayBuilder b = new ByteArrayBuilder()) {
+            decode(input, b);
+            return b.toByteArray();
+        }
     }
 
     /**

@@ -21,8 +21,6 @@ public class JsonLocation
      * Include at most first 500 characters/bytes from contents; should be enough
      * to give context, but not cause unfortunate side effects in things like
      * logs.
-     *
-     * @since 2.9
      */
     public static final int MAX_CONTENT_SNIPPET = 500;
     
@@ -109,8 +107,6 @@ public class JsonLocation
      * description returned by {@link #toString()}.
      *<p>
      * NOTE: not added as a "getter" to prevent it from getting serialized.
-     *
-     * @since 2.9
      */
     public String sourceDescription() {
         return _appendSourceDesc(new StringBuilder(100)).toString();

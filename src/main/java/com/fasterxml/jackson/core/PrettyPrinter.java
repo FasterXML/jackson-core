@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.util.Separators;
  * to make results more human readable. Usually this means things like adding
  * linefeeds and indentation.
  *<p>
- * Note: since Jackson 2.1, stateful implementations MUST implement
+ * Note: since stateful implementations MUST implement
  * {@link com.fasterxml.jackson.core.util.Instantiatable} interface,
  * to allow for constructing  per-generation instances and avoid
  * state corruption.
@@ -25,24 +25,19 @@ import com.fasterxml.jackson.core.util.Separators;
  */
 public interface PrettyPrinter
 {
-    /**
-     * @since 2.9
-     */
     public final static Separators DEFAULT_SEPARATORS = Separators.createDefaultInstance();
 
     /**
      * Default String used for separating root values is single space.
-     * 
-     * @since 2.9
      */
     public final static SerializedString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(" ");
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* First methods that act both as events, and expect
     /* output for correct functioning (i.e something gets
     /* output even when not pretty-printing)
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // // Root-level handling:
@@ -151,11 +146,11 @@ public interface PrettyPrinter
     void writeArrayValueSeparator(JsonGenerator gen) throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Then events that by default do not produce any output
     /* but that are often overridden to add white space
     /* in pretty-printing mode
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

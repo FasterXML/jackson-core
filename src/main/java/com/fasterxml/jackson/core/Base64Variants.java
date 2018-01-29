@@ -84,9 +84,6 @@ public final class Base64Variants
         return MIME_NO_LINEFEEDS;
     }
 
-    /**
-     * @since 2.1
-     */
     public static Base64Variant valueOf(String name) throws IllegalArgumentException
     {
         if (MIME._name.equals(name)) {

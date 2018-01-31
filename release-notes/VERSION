@@ -21,23 +21,3 @@ JSON library.
 #432: Add new `TreeNode` subtypes: `ArrayTreeNode`, `ObjectTreeNode`
 #433: Add Builder pattern for creating configured Stream factories
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
-
-2.9.4 (not yet released)
-
-#414: Base64 MIME variant does not ignore white space chars as per RFC2045
- (reported by tmoschou@github)
-#437: `ArrayIndexOutOfBoundsException` in `UTF8StreamJsonParser`
- (reported by Igor A)
-
-2.9.3 (09-Dec-2017)
-
-#419: `ArrayIndexOutOfBoundsException` from `UTF32Reader.read()` on invalid input
-
-2.9.2 (13-Oct-2017)
-
-#402: Remove dataformat-auto-detection functionality
-#408: Rename `JsonFactory` as `TokenStreamFactory`, split JSON-specific into `JsonFactory`
-#410: Add `ObjectWriteContext` abstraction for databind to pass config, state to
-  `JsonGenerator` on construction
-#411: Rename `JsonStreamContext` as `TokenStreamContext`
-#413: Remove `ObjectCodec`: replace with `ObjectWriteContext` / `ObjectReadContext

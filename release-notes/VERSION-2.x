@@ -14,6 +14,21 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.9.4 (24-Jan-2017)
+
+#414: Base64 MIME variant does not ignore white space chars as per RFC2045
+ (reported by tmoschou@github)
+#437: `ArrayIndexOutOfBoundsException` in `UTF8StreamJsonParser`
+ (reported by Igor A)
+
+2.9.3 (09-Dec-2017)
+
+#419: `ArrayIndexOutOfBoundsException` from `UTF32Reader.read()` on invalid input
+
+2.9.2 (13-Oct-2017)
+
+- New parent pom (`jackson-base`)
+
 2.9.1 (07-Sep-2017)
 
 #397: Add `Automatic-Module-Name` ("com.fasterxml.jackson.core") for JDK 9 module system
@@ -46,6 +61,15 @@ JSON library.
  (contributed by Michael S)
 #374: Minimal and DefaultPrettyPrinter with configurable separators 
  (contributed by Rafal F)
+
+2.8.11 (not yet released)
+
+#418: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
+ (reported, contributed fix for by pfitzsimons-r7@github)
+
+2.8.10 (24-Aug-2017)
+
+No changes since 2.8.9
 
 2.8.9 (12-Jun-2017)
 

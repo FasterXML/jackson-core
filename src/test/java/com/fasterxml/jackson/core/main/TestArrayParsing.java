@@ -109,7 +109,7 @@ public class TestArrayParsing
     private void _testMissingValueByEnablingFeature(boolean useStream) throws Exception {
         String DOC = "[ \"a\",,,,\"abc\", ] ";
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_MISSING_VALUES).build();
+                .enable(JsonParser.Feature.ALLOW_MISSING_VALUES).build();
     	
         JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
    			          : createParserUsingReader(f, DOC);
@@ -167,7 +167,7 @@ public class TestArrayParsing
         final String DOC = "[ \"a\",\"abc\"] ";
 
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_MISSING_VALUES).build();
+                .enable(JsonParser.Feature.ALLOW_MISSING_VALUES).build();
         JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
    			          : createParserUsingReader(f, DOC);
         

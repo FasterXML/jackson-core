@@ -58,7 +58,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     public void testYAMLCommentsEnabled() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_YAML_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
                 .build();
 
         _testYAMLComments(f, 99);
@@ -76,7 +76,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
 
     public void testCCommentsEnabled() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
                 .build();
         final String COMMENT = "/* foo */\n";
         _testCommentsBeforePropValue(f, COMMENT, 99);
@@ -86,7 +86,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
 
     public void testCppCommentsEnabled() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
                 .build();
         final String COMMENT = "// foo\n";
         _testCommentsBeforePropValue(f, COMMENT, 99);
@@ -246,7 +246,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         throws IOException
     {
         JsonFactory f = JsonFactory.builder()
-                .set(JsonParser.Feature.ALLOW_COMMENTS, enabled)
+                .configure(JsonParser.Feature.ALLOW_COMMENTS, enabled)
                 .build();
         return asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
     }

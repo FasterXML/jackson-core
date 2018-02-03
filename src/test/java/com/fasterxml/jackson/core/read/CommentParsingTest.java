@@ -74,7 +74,7 @@ public class CommentParsingTest
 
     public void testYAMLCommentsBytes() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_YAML_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
                 .build();
         _testYAMLComments(f, MODE_INPUT_STREAM);
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM, "# foo\n");
@@ -86,7 +86,7 @@ public class CommentParsingTest
 
     public void testYAMLCommentsChars() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_YAML_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
                 .build();
         _testYAMLComments(f, MODE_READER);
         final String COMMENT = "# foo\n";
@@ -96,7 +96,7 @@ public class CommentParsingTest
 
     public void testCCommentsBytes() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
                 .build();
         final String COMMENT = "/* foo */\n";
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM, COMMENT);
@@ -106,7 +106,7 @@ public class CommentParsingTest
 
     public void testCCommentsChars() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
                 .build();
         final String COMMENT = "/* foo */\n";
         _testCommentsBeforePropValue(f, MODE_READER, COMMENT);
@@ -114,7 +114,7 @@ public class CommentParsingTest
 
     public void testCppCommentsBytes() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
                 .build();
         final String COMMENT = "// foo\n";
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM, COMMENT);
@@ -124,7 +124,7 @@ public class CommentParsingTest
 
     public void testCppCommentsChars() throws Exception {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
                 .build();
         final String COMMENT = "// foo \n";
         _testCommentsBeforePropValue(f, MODE_READER, COMMENT);
@@ -284,7 +284,7 @@ public class CommentParsingTest
         throws IOException
     {
         JsonFactory f = JsonFactory.builder()
-                .set(JsonParser.Feature.ALLOW_COMMENTS, enabled)
+                .configure(JsonParser.Feature.ALLOW_COMMENTS, enabled)
                 .build();
         JsonParser p = createParser(f, mode, doc);
         assertToken(JsonToken.START_ARRAY, p.nextToken());

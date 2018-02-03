@@ -33,7 +33,7 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
     {
         final String JSON = "[ NaN]";
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
 
         _testAllowNaN(f, JSON, 99);
@@ -64,7 +64,7 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
         p.close();
 
         // finally, should also work with skipping
-        f = f.rebuild().with(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+        f = f.rebuild().enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
         p = createParser(f, doc, readBytes);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -113,7 +113,7 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
     public void testAllowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
 
         String JSON = "[ Infinity, +Infinity, -Infinity ]";
@@ -164,7 +164,7 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
         p.close();
 
         // finally, should also work with skipping
-        f = f.rebuild().with(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+        f = f.rebuild().enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
         p = createParser(f, doc, readBytes);
 

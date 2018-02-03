@@ -114,7 +114,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
     public void testSymbolTableWithIntern() throws IOException
     {
         JsonFactory internF = JsonFactory.builder()
-                .with(TokenStreamFactory.Feature.INTERN_FIELD_NAMES)
+                .enable(TokenStreamFactory.Feature.INTERN_FIELD_NAMES)
                 .build();
 
         final String STR1 = "a";

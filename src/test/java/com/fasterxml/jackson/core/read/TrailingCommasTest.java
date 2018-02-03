@@ -25,7 +25,7 @@ public class TrailingCommasTest extends BaseTest {
     this.features = new HashSet<JsonParser.Feature>(features);
     JsonFactoryBuilder b = JsonFactory.builder();
     for (JsonParser.Feature feature : features) {
-        b = b.with(feature);
+        b = b.enable(feature);
     }
     this.factory = b.build();
     this.mode = mode;

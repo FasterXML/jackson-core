@@ -50,7 +50,7 @@ public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
         }
         
         // and then verify it's ok when enabled
-        f = f.rebuild().with(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS).build();
+        f = f.rebuild().enable(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS).build();
         assertTrue(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
         p = createParser(f, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -88,7 +88,7 @@ public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
         }
         
         // and then verify it's ok when enabled
-        f = f.rebuild().with(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS).build();
+        f = f.rebuild().enable(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS).build();
         assertTrue(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
         p = createParser(f, JSON);
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());

@@ -192,28 +192,28 @@ public abstract class TokenStreamFactory
 
         // // // Factory features
 
-        public T with(TokenStreamFactory.Feature f) {
+        public T enable(TokenStreamFactory.Feature f) {
             _factoryFeatures |= f.getMask();
             return _this();
         }
 
-        public T without(TokenStreamFactory.Feature f) {
+        public T disable(TokenStreamFactory.Feature f) {
             _factoryFeatures &= ~f.getMask();
             return _this();
         }
 
-        public T set(TokenStreamFactory.Feature f, boolean state) {
-            return state ? with(f) : without(f);
+        public T configure(TokenStreamFactory.Feature f, boolean state) {
+            return state ? enable(f) : disable(f);
         }
 
         // // // Parser features
 
-        public T with(JsonParser.Feature f) {
+        public T enable(JsonParser.Feature f) {
             _parserFeatures |= f.getMask();
             return _this();
         }
 
-        public T with(JsonParser.Feature first, JsonParser.Feature... other) {
+        public T enable(JsonParser.Feature first, JsonParser.Feature... other) {
             _parserFeatures |= first.getMask();
             for (JsonParser.Feature f : other) {
                 _parserFeatures |= f.getMask();
@@ -221,12 +221,12 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T without(JsonParser.Feature f) {
+        public T disable(JsonParser.Feature f) {
             _parserFeatures &= ~f.getMask();
             return _this();
         }
 
-        public T without(JsonParser.Feature first, JsonParser.Feature... other) {
+        public T disable(JsonParser.Feature first, JsonParser.Feature... other) {
             _parserFeatures &= ~first.getMask();
             for (JsonParser.Feature f : other) {
                 _parserFeatures &= ~f.getMask();
@@ -234,18 +234,18 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T set(JsonParser.Feature f, boolean state) {
-            return state ? with(f) : without(f);
+        public T configure(JsonParser.Feature f, boolean state) {
+            return state ? enable(f) : disable(f);
         }
 
         // // // Generator features
 
-        public T with(JsonGenerator.Feature f) {
+        public T enable(JsonGenerator.Feature f) {
             _generatorFeatures |= f.getMask();
             return _this();
         }
 
-        public T with(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+        public T enable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
             _generatorFeatures |= first.getMask();
             for (JsonGenerator.Feature f : other) {
                 _generatorFeatures |= f.getMask();
@@ -253,12 +253,12 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T without(JsonGenerator.Feature f) {
+        public T disable(JsonGenerator.Feature f) {
             _generatorFeatures &= ~f.getMask();
             return _this();
         }
         
-        public T without(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+        public T disable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
             _generatorFeatures &= ~first.getMask();
             for (JsonGenerator.Feature f : other) {
                 _generatorFeatures &= ~f.getMask();
@@ -266,8 +266,8 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T set(JsonGenerator.Feature f, boolean state) {
-            return state ? with(f) : without(f);
+        public T configure(JsonGenerator.Feature f, boolean state) {
+            return state ? enable(f) : disable(f);
         }
 
         // // // Other methods

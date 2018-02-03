@@ -96,7 +96,7 @@ public class TestGeneratorClosing extends BaseTest
         // Check the default settings
         assertTrue(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         // then change
-        f = f.rebuild().without(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
+        f = f.rebuild().disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
         assertFalse(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
         @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
@@ -113,7 +113,7 @@ public class TestGeneratorClosing extends BaseTest
     public void testCloseGenerator() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
+                .enable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output);
@@ -129,7 +129,7 @@ public class TestGeneratorClosing extends BaseTest
     public void testNoAutoCloseOutputStream() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .without(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
+                .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
         MyStream output = new MyStream();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output, JsonEncoding.UTF8);
@@ -166,7 +166,7 @@ public class TestGeneratorClosing extends BaseTest
         throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .without(JsonGenerator.Feature.AUTO_CLOSE_CONTENT).build();
+                .disable(JsonGenerator.Feature.AUTO_CLOSE_CONTENT).build();
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartArray();
@@ -209,7 +209,7 @@ public class TestGeneratorClosing extends BaseTest
         g.close();
 
         // then disable and we should not see flushing again...
-        f = f.rebuild().without(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM).build();
+        f = f.rebuild().disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM).build();
         // first with a Writer
         sw = new MyChars();
         g = f.createGenerator(ObjectWriteContext.empty(), sw);

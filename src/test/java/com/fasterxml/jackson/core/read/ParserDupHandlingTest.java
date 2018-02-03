@@ -37,7 +37,7 @@ public class ParserDupHandlingTest
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .with(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
         for (String doc : DUP_DOCS) {
             // First, with static setting
             _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM, "a", false);
@@ -53,7 +53,7 @@ public class ParserDupHandlingTest
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .with(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
         for (String doc : DUP_DOCS) {
             _testSimpleDupsFail(doc, dupF, MODE_DATA_INPUT, "a", false);
             _testSimpleDupsFail(doc, nonDupF, MODE_DATA_INPUT, "a", true);
@@ -64,7 +64,7 @@ public class ParserDupHandlingTest
     {
         JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .with(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
         for (String doc : DUP_DOCS) {
             _testSimpleDupsFail(doc, dupF, MODE_READER, "a", false);
             _testSimpleDupsFail(doc, nonDupF, MODE_READER, "a", true);

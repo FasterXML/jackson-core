@@ -10,10 +10,10 @@ public class JsonFactoryTest
     public void testGeneratorFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .with(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
                 .build();
         assertTrue(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
-        f = f.rebuild().set(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false)
+        f = f.rebuild().configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false)
                 .build();
         assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
     }
@@ -21,18 +21,18 @@ public class JsonFactoryTest
     public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .with(TokenStreamFactory.Feature.INTERN_FIELD_NAMES)
+                .enable(TokenStreamFactory.Feature.INTERN_FIELD_NAMES)
                 .build();
         assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
 
         f = f.rebuild()
-                .without(JsonFactory.Feature.INTERN_FIELD_NAMES)
+                .disable(JsonFactory.Feature.INTERN_FIELD_NAMES)
                 .build();
         assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
 
         // by default, should be enabled
         assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
-        f = f.rebuild().without(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
+        f = f.rebuild().disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
                 .build();
         assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
     }
@@ -44,7 +44,7 @@ public class JsonFactoryTest
     public void testDisablingBufferRecycling() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .without(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
+                .disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
                 .build();
 
         // First, generation
@@ -126,9 +126,9 @@ public class JsonFactoryTest
         assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
 
         jf = jf.rebuild()
-                .with(JsonFactory.Feature.INTERN_FIELD_NAMES)
-                .with(JsonParser.Feature.ALLOW_COMMENTS)
-                .with(JsonGenerator.Feature.ESCAPE_NON_ASCII)
+                .enable(JsonFactory.Feature.INTERN_FIELD_NAMES)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonGenerator.Feature.ESCAPE_NON_ASCII)
                 .build();
         // then change, verify that changes "stick"
         assertTrue(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));

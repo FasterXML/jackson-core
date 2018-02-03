@@ -12,7 +12,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
     private final JsonFactory JSON_F = new JsonFactory();
 
     private final JsonFactory JSON_APOS_F = JsonFactory.builder()
-            .with(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
+            .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
             .build();
 
     // Mainly to test "fast" parse for shortish names

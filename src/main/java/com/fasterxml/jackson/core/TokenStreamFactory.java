@@ -145,7 +145,7 @@ public abstract class TokenStreamFactory
      * @since 3.0
      */
     public abstract static class TSFBuilder<F extends TokenStreamFactory,
-        T extends TSFBuilder<F,T>>
+        B extends TSFBuilder<F,B>>
     {
         /**
          * Set of {@link TokenStreamFactory.Feature}s enabled, as bitmask.
@@ -192,28 +192,28 @@ public abstract class TokenStreamFactory
 
         // // // Factory features
 
-        public T enable(TokenStreamFactory.Feature f) {
+        public B enable(TokenStreamFactory.Feature f) {
             _factoryFeatures |= f.getMask();
             return _this();
         }
 
-        public T disable(TokenStreamFactory.Feature f) {
+        public B disable(TokenStreamFactory.Feature f) {
             _factoryFeatures &= ~f.getMask();
             return _this();
         }
 
-        public T configure(TokenStreamFactory.Feature f, boolean state) {
+        public B configure(TokenStreamFactory.Feature f, boolean state) {
             return state ? enable(f) : disable(f);
         }
 
         // // // Parser features
 
-        public T enable(JsonParser.Feature f) {
+        public B enable(JsonParser.Feature f) {
             _parserFeatures |= f.getMask();
             return _this();
         }
 
-        public T enable(JsonParser.Feature first, JsonParser.Feature... other) {
+        public B enable(JsonParser.Feature first, JsonParser.Feature... other) {
             _parserFeatures |= first.getMask();
             for (JsonParser.Feature f : other) {
                 _parserFeatures |= f.getMask();
@@ -221,12 +221,12 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T disable(JsonParser.Feature f) {
+        public B disable(JsonParser.Feature f) {
             _parserFeatures &= ~f.getMask();
             return _this();
         }
 
-        public T disable(JsonParser.Feature first, JsonParser.Feature... other) {
+        public B disable(JsonParser.Feature first, JsonParser.Feature... other) {
             _parserFeatures &= ~first.getMask();
             for (JsonParser.Feature f : other) {
                 _parserFeatures &= ~f.getMask();
@@ -234,18 +234,18 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T configure(JsonParser.Feature f, boolean state) {
+        public B configure(JsonParser.Feature f, boolean state) {
             return state ? enable(f) : disable(f);
         }
 
         // // // Generator features
 
-        public T enable(JsonGenerator.Feature f) {
+        public B enable(JsonGenerator.Feature f) {
             _generatorFeatures |= f.getMask();
             return _this();
         }
 
-        public T enable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+        public B enable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
             _generatorFeatures |= first.getMask();
             for (JsonGenerator.Feature f : other) {
                 _generatorFeatures |= f.getMask();
@@ -253,12 +253,12 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T disable(JsonGenerator.Feature f) {
+        public B disable(JsonGenerator.Feature f) {
             _generatorFeatures &= ~f.getMask();
             return _this();
         }
         
-        public T disable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+        public B disable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
             _generatorFeatures &= ~first.getMask();
             for (JsonGenerator.Feature f : other) {
                 _generatorFeatures &= ~f.getMask();
@@ -266,7 +266,7 @@ public abstract class TokenStreamFactory
             return _this();
         }
 
-        public T configure(JsonGenerator.Feature f, boolean state) {
+        public B configure(JsonGenerator.Feature f, boolean state) {
             return state ? enable(f) : disable(f);
         }
 
@@ -280,7 +280,7 @@ public abstract class TokenStreamFactory
 
         // silly convenience cast method we need
         @SuppressWarnings("unchecked")
-        protected final T _this() { return (T) this; }
+        protected final B _this() { return (B) this; }
     }
 
     /*

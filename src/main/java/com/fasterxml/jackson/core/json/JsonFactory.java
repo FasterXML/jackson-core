@@ -221,15 +221,17 @@ public class JsonFactory
     }
 
     @Override
-    public Class<? extends FormatFeature> getFormatReadFeatureType() {
-        return null;
-    }
+    public int getFormatParserFeatures() { return 0; }
 
     @Override
-    public Class<? extends FormatFeature> getFormatWriteFeatureType() {
-        return null;
-    }
+    public int getFormatGeneratorFeatures() { return 0; }
     
+    @Override
+    public Class<? extends FormatFeature> getFormatReadFeatureType() { return null; }
+
+    @Override
+    public Class<? extends FormatFeature> getFormatWriteFeatureType() { return null; }
+
     /*
     /**********************************************************************
     /* Configuration accessors

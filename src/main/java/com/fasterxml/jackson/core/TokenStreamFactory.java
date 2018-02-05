@@ -501,13 +501,6 @@ public abstract class TokenStreamFactory
     }
 
     /**
-     * @since 3.0
-     */
-    public final int getParserFeatures() {
-        return _parserFeatures;
-    }
-
-    /**
      * Check whether specified generator feature is enabled.
      */
     public final boolean isEnabled(JsonGenerator.Feature f) {
@@ -517,9 +510,26 @@ public abstract class TokenStreamFactory
     /**
      * @since 3.0
      */
+    public final int getParserFeatures() {
+        return _parserFeatures;
+    }
+
+    /**
+     * @since 3.0
+     */
     public final int getGeneratorFeatures() {
         return _generatorFeatures;
     }
+
+    /**
+     * @since 3.0
+     */
+    public abstract int getFormatParserFeatures();
+
+    /**
+     * @since 3.0
+     */
+    public abstract int getFormatGeneratorFeatures();
 
     /*
     /**********************************************************

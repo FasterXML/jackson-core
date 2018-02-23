@@ -109,7 +109,7 @@ public class JsonFactory
     }
 
     /**
-     * Constructor used when copy()ing a factory instance.
+     * Copy constructor.
      */
     protected JsonFactory(JsonFactory src)
     {
@@ -152,9 +152,13 @@ public class JsonFactory
      * are separate).
      */
     @Override
-    public JsonFactory copy()
-    {
+    public JsonFactory copy() {
         return new JsonFactory(this);
+    }
+
+    @Override
+    public TokenStreamFactory snapshot() {
+        return this;
     }
 
     /*

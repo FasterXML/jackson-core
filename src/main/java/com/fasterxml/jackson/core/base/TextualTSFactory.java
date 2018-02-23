@@ -33,7 +33,7 @@ public abstract class TextualTSFactory extends DecorableTSFactory
     }
 
     /**
-     * Constructor used when copy()ing a factory instance.
+     * Copy constructor.
      */
     protected TextualTSFactory(TextualTSFactory src) {
         super(src);

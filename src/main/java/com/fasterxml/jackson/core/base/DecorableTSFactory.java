@@ -107,7 +107,7 @@ public abstract class DecorableTSFactory
     }
 
     /**
-     * Constructor used when copy()ing a factory instance.
+     * Copy constructor.
      */
     protected DecorableTSFactory(DecorableTSFactory src) {
         super(src);

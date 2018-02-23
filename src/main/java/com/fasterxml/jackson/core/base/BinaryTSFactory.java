@@ -32,7 +32,7 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     }
 
     /**
-     * Constructor used when copy()ing a factory instance.
+     * Copy constructor.
      */
     protected BinaryTSFactory(BinaryTSFactory src) {
         super(src);

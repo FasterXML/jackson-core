@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.sym.SimpleNameMatcher;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.Named;
+import com.fasterxml.jackson.core.util.Snapshottable;
 
 /**
  * The main factory class of Jackson streaming package, used to configure and
@@ -34,7 +35,8 @@ import com.fasterxml.jackson.core.util.Named;
  * @since 3.0 (refactored out of {@link JsonFactory})
  */
 public abstract class TokenStreamFactory
-    implements Versioned
+    implements Versioned,
+        Snapshottable<TokenStreamFactory> // 3.0
 {
     /**
      * Shareable stateles "empty" {@link ObjectWriteContext} Object, passed in
@@ -366,7 +368,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
-     * Constructor used when copy()ing a factory instance.
+     * Constructor used if a snapshot is created, or possibly for sub-classing or
+     * wrapping (delegating)
      */
     protected TokenStreamFactory(TokenStreamFactory src)
     {
@@ -376,12 +379,30 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * Method similar to {@link #snapshot()}, but one that forces creation of actual
+     * new copy that does NOT share any state, even non-visible to calling code,
+     * such as symbol table reuse.
+     *<p>
+     * Implementation should be functionally equivalent to
+     *<pre>
+     *    factoryInstance.rebuild().build();
+     *</pre>
+     */
+    public abstract TokenStreamFactory copy();
+
+    /**
      * Method for constructing a new {@link TokenStreamFactory} that has
      * the same settings as this instance, but is otherwise
      * independent (i.e. nothing is actually shared, symbol tables
      * are separate).
+     *<p>
+     * Although assumption is that all factories are immutable -- and that we could
+     * usually simply return `this` -- method is left unimplemented at this level
+     * to make implementors aware of requirement to consider immutability.
+     *
+     * @since 3.0
      */
-    public abstract TokenStreamFactory copy();
+    public abstract TokenStreamFactory snapshot();
 
     /**
      * Method that can be used to create differently configured stream factories.

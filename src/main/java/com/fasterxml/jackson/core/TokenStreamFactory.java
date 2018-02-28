@@ -402,6 +402,7 @@ public abstract class TokenStreamFactory
      *
      * @since 3.0
      */
+    @Override
     public abstract TokenStreamFactory snapshot();
 
     /**

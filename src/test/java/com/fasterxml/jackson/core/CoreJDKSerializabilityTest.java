@@ -11,9 +11,10 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
- * Unit tests for [core#31] (https://github.com/FasterXML/jackson-core/issues/31)
+ * Unit tests to verify that `JsonFactory` and abstractions it relies on
+ * may be JDK serialized/deserialized.
  */
-public class TestJDKSerializability extends BaseTest
+public class CoreJDKSerializabilityTest extends BaseTest
 {
     public void testJsonFactorySerializable() throws Exception
     {

@@ -13,7 +13,7 @@ package com.fasterxml.jackson.core.util;
  * factories use and rely on have mutable state which can not be shared: instead, to support
  * re-building, a state object may be created to contain copies (snapshots).
  * Intent, therefore, is that caller does not need to know about immutability (or lack thereof)
- * of an entity but can simply call {@link #snapshot(Snapshottable)
+ * of an entity but can simply call {@link #snapshot}.
  *
  * @since 3.0
  */

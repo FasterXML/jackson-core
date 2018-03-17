@@ -86,7 +86,7 @@ public class StringGenerationFromReaderTest
         StringBuilder sb = new StringBuilder(minLen + 1000);
         Random rnd = new Random(minLen);
         do {
-            switch (rnd.nextInt() % 4) {
+            switch (rnd.nextInt(4)) {
             case 0:
                 sb.append(" foo");
                 break;

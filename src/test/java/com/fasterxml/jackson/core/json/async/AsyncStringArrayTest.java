@@ -30,7 +30,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
         final String[] input = new String[] {
                 "Test", "", "1",
                 // 60 chars, to stay short
-                String.format("%s%s%s%s%s%s",
+                String.format("%s%s%s%s%s%s%s",
                         str0to9,str0to9,str0to9,str0to9,str0to9,str0to9,str0to9),
 //                "And unicode: "+UNICODE_2BYTES+" / "+UNICODE_3BYTES,
                 // plus let's do back refs:

@@ -17,9 +17,12 @@ and [CBOR](https://github.com/FasterXML/jackson-dataformat-cbor)
 also build on this base package, implementing the core interfaces,
 making it possible to use standard [data-binding package](https://github.com/FasterXML/jackson-databind) regardless of underlying data format.
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
+Project contains versions 2.0 and above: source code for earlier (1.x) versions can be found from
+[Jackson-1](../../../jackson-1) github repo.
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-core.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-core) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
+
+[![Build Status](https://travis-ci.org/FasterXML/jackson-core.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
 [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-core)
 [![Coverage Status](https://coveralls.io/repos/github/FasterXML/jackson-core/badge.svg?branch=master)](https://coveralls.io/github/FasterXML/jackson-core?branch=master)
 

@@ -70,7 +70,7 @@ Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](https:
 JsonFactory factory = objectMapper.getFactory();
 ```
 
-More information can be found from [Streaming API](../../jackson-docs/wiki/JacksonStreamingApi).
+More information can be found from [Streaming API](../../../jackson-docs/wiki/JacksonStreamingApi).
 
 ## Usage, simple reading
 

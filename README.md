@@ -36,7 +36,7 @@ To use the package, you need to use following Maven dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>${jackson-core-version}</version>
+  <version>${jackson.version.core}</version>
 </dependency>
 ```
 
@@ -47,7 +47,7 @@ Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Wiki](../../wiki).
+For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
@@ -70,8 +70,7 @@ Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](https:
 JsonFactory factory = objectMapper.getFactory();
 ```
 
-More information can be found from [Streaming API](http://wiki.fasterxml.com/JacksonStreamingApi
-) at Jackson Wiki.
+More information can be found from [Streaming API](../../jackson-docs/wiki/JacksonStreamingApi).
 
 ## Usage, simple reading
 
@@ -107,5 +106,5 @@ Note that the main differences compared to 1.0 core jar are:
 * [Jackson Github Hub](https://github.com/FasterXML/jackson) has links to all official Jackson components
 * [Jackson Github Doc](https://github.com/FasterXML/jackson-docs) is the hub for official Jackson documentation
 * [FasterXML Jackson Project Wiki](http://wiki.fasterxml.com/JacksonHome) has additional documentation (especially for older Jackson versions)
-* Commercial support (including alternative licensing arrangements) is available by [FasterXML.com](http://fasterxml.com)
+
 

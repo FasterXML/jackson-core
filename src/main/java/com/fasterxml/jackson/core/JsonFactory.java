@@ -181,7 +181,7 @@ public class JsonFactory
 
     /*
      * For issue #400: We optionally keep references to all SoftReferences to BufferRecyclers which we put in all ThreadLocals
-     * We do this to be able to release them (dereference) in a newly introduced shutdown method.
+     * We do this to be able to release them (dereference) in a releaseBuffers and shutdown method to reduce heap consumption.
      * It can be enabled by the system property com.fasterxml.jackson.core.use_releasable_thread_local_buffers set to 'true'.
      */
     private static final ThreadLocalBufferManager _bufferMgr;
@@ -271,7 +271,6 @@ public class JsonFactory
     static {
         if ("true".equals(System.getProperty("com.fasterxml.jackson.core.use_releasable_thread_local_buffers"))) {
             _bufferMgr = ThreadLocalBufferManager.instance();
-            System.out.println("JsonFactory - ThreadLocalBufferManager constructed"); // @TODO remove after testing
         }
         else {
             _bufferMgr = null;
@@ -346,16 +345,27 @@ public class JsonFactory
     */
 
     /**
-     * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
+     * Releases the buffers retained in ThreadLocals.
+     * To be called to save on consumed heap usage for instance on shutdown event of applications which make use of
+     * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
+     * application to survive much longer than the application itself.
+     * Note: System property com.fasterxml.jackson.core.use_releasable_thread_local_buffers needs to be set to 'true'
+     */
+    public static void releaseBuffers() {
+        if (_bufferMgr != null) {
+            _bufferMgr.releaseBuffers();
+        }
+    }
+
+    /**
+     * Releases the buffers retained in ThreadLocals.
+     * To be called on shutdown event of applications which make use of
      * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
      * application to survive much longer than the application itself.
      * Note: System property com.fasterxml.jackson.core.use_releasable_thread_local_buffers needs to be set to 'true'
      */
     public static void shutdown() {
-        System.out.println("JsonFactory shutdown called"); // for debugging, @TODO remove after test
-        if (_bufferMgr != null) {
-            _bufferMgr.shutdown();
-        }
+        releaseBuffers();
     }
 
     /*
@@ -1347,15 +1357,15 @@ public class JsonFactory
 
     /*
      * For issue #400: We keep a separate Set of all SoftReferences to BufferRecyclers which we put in all ThreadLocals
-     * We do this to be able to release them (dereference) in a newly introduced shutdown method.
+     * We do this to be able to release them (dereference) in a releaseBuffers and shutdown method to reduce heap consumption.
      * When gc clears a SoftReference, it puts it on a newly introduced referenceQueue. We use this queue to release the inactive SoftReferences from the Set.
      */
     private static final class ThreadLocalBufferManager {
 
         /**
-         * A lock to make sure shutdown is only be executed by one thread at a time since it iterates over and modifies the allSoftBufRecyclers.
+         * A lock to make sure releaseBuffers is only executed by one thread at a time since it iterates over and modifies the allSoftBufRecyclers.
          */
-        private final Object SHUTDOWN_LOCK = new Object();
+        private final Object RELEASE_LOCK = new Object();
 
         /**
          * A set of all SoftReferences to all BufferRecyclers to be able to release them on shutdown.
@@ -1403,15 +1413,13 @@ public class JsonFactory
         }
 
         /**
-         * Releases the buffers retained in ThreadLocals. To be called on shutdown event of applications which make use of
+         * Releases the buffers retained in ThreadLocals. To be called for instance on shutdown event of applications which make use of
          * an environment like an appserver which stays alive and uses a thread pool that causes ThreadLocals created by the
          * application to survive much longer than the application itself.
          * It will clear all bufRecyclers from the SoftRefs and release all SoftRefs itself from our set.
          */
-        private void shutdown() {
-            System.out.println("ThreadLocalBufferManager shutdown called. allsoftBufRecyclers.size = " +
-                    allSoftBufRecyclers.size()); // for debugging, @TODO remove after test
-            synchronized(SHUTDOWN_LOCK) {
+        private void releaseBuffers() {
+            synchronized(RELEASE_LOCK) {
                 removeSoftRefsClearedByGc(); // make sure the refQueue is empty
                 for (SoftReference ref : allSoftBufRecyclers) {
                     ref.clear(); // possibly already cleared by gc, nothing happens in that case

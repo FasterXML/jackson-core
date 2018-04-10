@@ -15,6 +15,32 @@ import com.fasterxml.jackson.core.io.JsonStringEncoder;
  */
 public class BufferRecyclers
 {
+    /**
+     * System property that is checked to see if recycled buffers (see {@link BufferRecycler})
+     * should be tracked, for purpose of forcing release of all such buffers, typically
+     * during major classloading.
+     *
+     * @since 2.9.6
+     */
+    public final static String SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS
+        = "com.fasterxml.jackson.core.util.BufferRecyclers.trackReusableBuffers";
+
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+
+    /**
+     * Flag that indicates whether {@link BufferRecycler} instances should be tracked.
+     */
+    private final static ThreadLocalBufferManager _bufferRecyclerTracker;
+    static {
+        _bufferRecyclerTracker = "true".equals(System.getProperty("com.fasterxml.jackson.core.use_releasable_thread_local_buffers"))
+                ? ThreadLocalBufferManager.instance()
+                : null;
+    }    
+
     /*
     /**********************************************************
     /* BufferRecyclers for parsers, generators
@@ -29,6 +55,9 @@ public class BufferRecyclers
     final protected static ThreadLocal<SoftReference<BufferRecycler>> _recyclerRef
         = new ThreadLocal<SoftReference<BufferRecycler>>();
 
+    /**
+     * Main accessor to call for accessing possibly recycled {@link BufferRecycler} instance.
+     */
     public static BufferRecycler getBufferRecycler()
     {
         SoftReference<BufferRecycler> ref = _recyclerRef.get();
@@ -36,9 +65,34 @@ public class BufferRecyclers
 
         if (br == null) {
             br = new BufferRecycler();
-            _recyclerRef.set(new SoftReference<BufferRecycler>(br));
+            if (_bufferRecyclerTracker != null) {
+                ref = _bufferRecyclerTracker.wrapAndTrack(br);
+            } else {
+                ref = new SoftReference<BufferRecycler>(br);
+            }
+            _recyclerRef.set(ref);
         }
         return br;
+    }
+
+    /**
+     * Specialized method that will release all recycled {@link BufferRecycler} if
+     * (and only if) recycler tracking has been enabled
+     * (see {@link #SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS}).
+     * This method is usually called on shutdown of the container like Application Server
+     * to ensure that no references are reachable via {@link ThreadLocal}s as this may cause
+     * unintentional retention of sizable amounts of memory. It may also be called regularly
+     * if GC for some reason does not clear up {@link SoftReference}s aggressively enough.
+     *
+     * @return Number of buffers released, if tracking enabled (zero or more); -1 if tracking not enabled.
+     *
+     * @since 2.9.6
+     */
+    public static int releaseBuffers() {
+        if (_bufferRecyclerTracker != null) {
+            return _bufferRecyclerTracker.releaseBuffers();
+        }
+        return -1;
     }
 
     /*

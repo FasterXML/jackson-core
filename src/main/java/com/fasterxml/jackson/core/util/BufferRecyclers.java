@@ -36,7 +36,7 @@ public class BufferRecyclers
      */
     private final static ThreadLocalBufferManager _bufferRecyclerTracker;
     static {
-        _bufferRecyclerTracker = "true".equals(System.getProperty("com.fasterxml.jackson.core.use_releasable_thread_local_buffers"))
+        _bufferRecyclerTracker = "true".equals(System.getProperty(SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS))
                 ? ThreadLocalBufferManager.instance()
                 : null;
     }    

@@ -145,3 +145,8 @@ Rafal Foltynski (rfoltyns@github)
    (2.9.0)
   * Contributed#208: Make use of `_matchCount` in `FilteringParserDelegate`
    (2.9.0)
+
+Jeroen Borgers (jborgers@github)
+  * Reported, contributed impl for #400: Add mechanism for forcing `BufferRecycler` released
+   (to call on shutdown)
+  (2.9.6)

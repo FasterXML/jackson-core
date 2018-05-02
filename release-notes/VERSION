@@ -20,4 +20,5 @@ JSON library.
 #378: Change default for `TokenStreamFactory.Feature.INTERN_FIELD_NAMES` to `false`
 #432: Add new `TreeNode` subtypes: `ArrayTreeNode`, `ObjectTreeNode`
 #433: Add Builder pattern for creating configured Stream factories
+#456: Add `JsonParser.readAsValue(ResolvedType)`
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`

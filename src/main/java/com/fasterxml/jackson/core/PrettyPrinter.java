@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.util.Separators;
  * to make results more human readable. Usually this means things like adding
  * linefeeds and indentation.
  *<p>
- * Note: since stateful implementations MUST implement
+ * Note: stateful implementations MUST implement
  * {@link com.fasterxml.jackson.core.util.Instantiatable} interface,
  * to allow for constructing  per-generation instances and avoid
  * state corruption.

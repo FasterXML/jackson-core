@@ -141,4 +141,3 @@ public class JsonFactoryTest
         assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
     }
 }
-

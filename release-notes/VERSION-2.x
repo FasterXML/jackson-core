@@ -18,6 +18,7 @@ JSON library.
 
 #400: Add mechanism for forcing `BufferRecycler` released (to call on shutdown)
  (contributed by Jeroen B)
+#460: Failing to link `ObjectCodec` with `JsonFactory` copy constructor
 
 2.9.5 (26-Mar-2018)
 
@@ -71,7 +72,7 @@ No changes since 2.9.4
 #374: Minimal and DefaultPrettyPrinter with configurable separators 
  (contributed by Rafal F)
 
-2.8.11 (not yet released)
+2.8.11 (23-Dec-2017)
 
 #418: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
  (reported, contributed fix for by pfitzsimons-r7@github)
@@ -151,7 +152,23 @@ No changes since 2.8.0
   for `getCurrentToken()` and `getCurrentTokenId()`, respectively. Existing methods
   will likely be deprecated in 2.9.
 
-2.7.10 (not yet released)
+2.7.9.3:
+
+#1872: NullPointerException in SubTypeValidator.validateSubType when
+  validating Spring interface
+#1931: Two more c3p0 gadgets to exploit default typing issue
+
+2.7.9.2 (20-Dec-2017)
+
+#1607: `@JsonIdentityReference` not used when setup on class only
+#1628: Don't print to error stream about failure to load JDK 7 types
+#1680: Blacklist couple more types for deserialization
+#1737: Block more JDK types from polymorphic deserialization
+#1855: Blacklist for more serialization gadgets (dbcp/tomcat, spring)
+
+2.7.9.1 (18-Apr-2017)
+
+#1599: Jackson Deserializer security vulnerability
 
 2.7.9 (04-Feb-2017)
 

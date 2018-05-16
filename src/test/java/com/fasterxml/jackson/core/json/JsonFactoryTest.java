@@ -1,12 +1,97 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private static class BogusCodec extends ObjectCodec {
+        @Override
+        public Version version() { return null; }
+
+        @Override
+        public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, Class<T> valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, ResolvedType valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public void writeValue(JsonGenerator gen, Object value) throws IOException {
+        }
+
+        @Override
+        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+            return null;
+        }
+
+        @Override
+        public void writeTree(JsonGenerator gen, TreeNode tree) throws IOException {
+        }
+
+        @Override
+        public TreeNode createObjectNode() {
+            return null;
+        }
+
+        @Override
+        public TreeNode createArrayNode() {
+            return null;
+        }
+
+        @Override
+        public JsonParser treeAsTokens(TreeNode n) {
+            return null;
+        }
+
+        @Override
+        public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JsonProcessingException {
+            return null;
+        }
+    }
+
+    // for testing [core#460]
+    @SuppressWarnings("serial")
+    static class CustomFactory extends JsonFactory {
+        public CustomFactory(JsonFactory f, ObjectCodec codec) {
+            super(f, codec);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+    
     public void testGeneratorFeatures() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -115,21 +200,32 @@ public class JsonFactoryTest
     {
         JsonFactory jf = new JsonFactory();
         // first, verify defaults
+        assertNull(jf.getCodec());
         assertTrue(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+
+        // then change, verify that changes "stick"
         jf.disable(JsonFactory.Feature.INTERN_FIELD_NAMES);
         jf.enable(JsonParser.Feature.ALLOW_COMMENTS);
         jf.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
-        // then change, verify that changes "stick"
+        ObjectCodec codec = new BogusCodec();
+        jf.setCodec(codec);
+
         assertFalse(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertSame(codec, jf.getCodec());
 
         JsonFactory jf2 = jf.copy();
         assertFalse(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(jf2.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(jf2.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        // 16-May-2018, tatu: But! Note that despited [core#460], this should NOT copy it back
+        assertNull(jf2.getCodec());
+
+        // However: real copy constructor SHOULD copy it
+        JsonFactory jf3 = new CustomFactory(jf, codec);
+        assertSame(codec, jf3.getCodec());
     }
 }
-

@@ -290,7 +290,7 @@ public class JsonFactory
      */
     protected JsonFactory(JsonFactory src, ObjectCodec codec)
     {
-        _objectCodec = null;
+        _objectCodec = codec;
         _factoryFeatures = src._factoryFeatures;
         _parserFeatures = src._parserFeatures;
         _generatorFeatures = src._generatorFeatures;

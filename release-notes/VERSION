@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.11.1 (not yet released)
+
+#460: Failing to link `ObjectCodec` with `JsonFactory` copy constructor
+
 2.8.11 (23-Dec-2017)
 
 #418: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input

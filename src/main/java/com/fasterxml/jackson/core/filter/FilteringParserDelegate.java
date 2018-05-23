@@ -256,7 +256,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 ctxt = _headContext.findChildOf(ctxt);
                 _exposedContext = ctxt;
                 if (ctxt == null) { // should never occur
-                    throw _constructError("Unexpected problem: chain of filtered context broken");
+                    throw _constructError("Unexpected problem: chain of filtered context broken, token: "+t);
                 }
             }
         }

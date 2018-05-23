@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.async;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapperForByteArray;
 
@@ -16,7 +15,7 @@ public abstract class AsyncTestBase extends BaseTest
 
     protected final static String UNICODE_SEGMENT = "["+UNICODE_2BYTES+"/"+UNICODE_3BYTES+"]";
 
-    protected AsyncReaderWrapper asyncForBytes(JsonFactory f,
+    protected AsyncReaderWrapper asyncForBytes(TokenStreamFactory f,
             int bytesPerRead,
             byte[] bytes, int padding) throws IOException
     {

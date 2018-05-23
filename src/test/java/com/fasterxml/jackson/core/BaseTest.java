@@ -507,6 +507,14 @@ public abstract class BaseTest
     /**********************************************************
      */
 
+    protected static String quote(String str) {
+        return '"'+str+'"';
+    }
+
+    protected static String aposToQuotes(String json) {
+        return json.replace("'", "\"");
+    }
+
     protected byte[] encodeInUTF32BE(String input)
     {
         int len = input.length();
@@ -521,12 +529,13 @@ public abstract class BaseTest
         return result;
     }
 
-    protected String quote(String str) {
-        return '"'+str+'"';
-    }
-
-    protected String aposToQuotes(String json) {
-        return json.replace("'", "\"");
+    // @since 2.9.7
+    protected static byte[] utf8Bytes(String str) {
+        try {
+            return str.getBytes("UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void fieldNameFor(StringBuilder sb, int index)

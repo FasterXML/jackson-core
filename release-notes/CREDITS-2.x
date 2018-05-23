@@ -150,3 +150,9 @@ Jeroen Borgers (jborgers@github)
   * Reported, contributed impl for #400: Add mechanism for forcing `BufferRecycler` released
    (to call on shutdown)
   (2.9.6)
+
+Doug Roper (htmldoug@github)
+  * Suggested #463: Ensure that `skipChildren()` of non-blocking `JsonParser` will throw
+    exception if not enough input
+  (2.9.6)
+ 

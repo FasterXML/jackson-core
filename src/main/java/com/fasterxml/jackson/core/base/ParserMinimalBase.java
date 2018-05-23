@@ -289,6 +289,12 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (--open == 0) {
                     return this;
                 }
+                // 23-May-2018, tatu: [core#463] Need to consider non-blocking case...
+            } else if (t == JsonToken.NOT_AVAILABLE) {
+                // Nothing much we can do except to either return `null` (which seems wrong),
+                // or, what we actually do, signal error
+                _reportError("Not enough content available for `skipChildren()`: non-blocking parser? (%s)",
+                            getClass().getName());
             }
         }
     }

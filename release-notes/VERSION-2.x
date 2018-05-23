@@ -19,6 +19,9 @@ JSON library.
 #400: Add mechanism for forcing `BufferRecycler` released (to call on shutdown)
  (contributed by Jeroen B)
 #460: Failing to link `ObjectCodec` with `JsonFactory` copy constructor
+#463: Ensure that `skipChildren()` of non-blocking `JsonParser` will throw
+   exception if not enough input
+  (requested by Doug R)
 
 2.9.5 (26-Mar-2018)
 

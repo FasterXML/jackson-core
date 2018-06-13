@@ -176,8 +176,8 @@ public class JsonFactory
      */
     protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
 
-    private final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
-    
+    public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+
     /*
     /**********************************************************
     /* Buffer, symbol table management
@@ -276,7 +276,7 @@ public class JsonFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    public JsonFactory() { this(null); }
+    public JsonFactory() { this((ObjectCodec) null); }
 
     public JsonFactory(ObjectCodec oc) { _objectCodec = oc; }
 
@@ -300,6 +300,42 @@ public class JsonFactory
          *   reuse shared symbol tables? Could be more efficient that way;
          *   although can slightly add to concurrency overhead.
          */
+    }
+
+    /**
+     * Constructor used by {@link JsonFactoryBuilder} for instantiation.
+     *
+     * @since 2.10
+     */
+    public JsonFactory(JsonFactoryBuilder b) {
+        _objectCodec = null;
+        _factoryFeatures = b._factoryFeatures;
+        _parserFeatures = b._parserFeatures;
+        _generatorFeatures = b._generatorFeatures;
+        _characterEscapes = b._characterEscapes;
+        _inputDecorator = b._inputDecorator;
+        _outputDecorator = b._outputDecorator;
+        _rootValueSeparator = b._rootValueSeparator;
+    }
+
+    /**
+     * Method that allows construction of differently configured factory, starting
+     * with settings of this factory.
+     *
+     * @since 2.10
+     */
+    public JsonFactoryBuilder rebuild() {
+        return new JsonFactoryBuilder(this);
+    }
+
+    /**
+     * Main factory method to use for constructing {@link JsonFactory} instances with
+     * different configuration: creates and returns a builder for collecting configuration
+     * settings; instance created by calling {@code build()} after all configuration
+     * set.
+     */
+    public static JsonFactoryBuilder builder() {
+        return new JsonFactoryBuilder();
     }
 
     /**

@@ -308,23 +308,35 @@ public class JsonFactory
      * @since 2.10
      */
     public JsonFactory(JsonFactoryBuilder b) {
+        this(b, false);
+        _characterEscapes = b._characterEscapes;
+        _rootValueSeparator = b._rootValueSeparator;
+    }
+
+    /**
+     * Constructor for subtypes; needed to work around the fact that before 3.0,
+     * this factory has cumbersome dual role as generic type as well as actual
+     * implementation for json.
+     * 
+     * @param b Builder that contains information
+     * @param bogus Argument only needed to separate constructor signature; ignored
+     */
+    protected JsonFactory(TSFBuilder<?,?> b, boolean bogus) {
         _objectCodec = null;
         _factoryFeatures = b._factoryFeatures;
         _parserFeatures = b._parserFeatures;
         _generatorFeatures = b._generatorFeatures;
-        _characterEscapes = b._characterEscapes;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
-        _rootValueSeparator = b._rootValueSeparator;
     }
-
+    
     /**
      * Method that allows construction of differently configured factory, starting
      * with settings of this factory.
      *
      * @since 2.10
      */
-    public JsonFactoryBuilder rebuild() {
+    public TSFBuilder<?,?> rebuild() {
         return new JsonFactoryBuilder(this);
     }
 
@@ -333,8 +345,11 @@ public class JsonFactory
      * different configuration: creates and returns a builder for collecting configuration
      * settings; instance created by calling {@code build()} after all configuration
      * set.
+     *<p>
+     * NOTE: signature unfortunately does not expose true implementation type; this
+     * will be fixed in 3.0.
      */
-    public static JsonFactoryBuilder builder() {
+    public static TSFBuilder<?,?> builder() {
         return new JsonFactoryBuilder();
     }
 

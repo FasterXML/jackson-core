@@ -16,6 +16,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     private final static String INPUT_STRING = aposToQuotes("{'a': 1, 'b': [2, {'c': 3}]}");
     private final static byte[] INPUT_BYTES = utf8Bytes(INPUT_STRING);
     private final static TokenFilter TOKEN_FILTER = new TokenFilter() {
+        @Override
         public TokenFilter includeProperty(String name) {
             return name.equals("a") ? TokenFilter.INCLUDE_ALL : null;
         }

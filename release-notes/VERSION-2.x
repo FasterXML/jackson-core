@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+- to be filled -
+
 2.9.6 (12-Jun-2018)
 
 #400: Add mechanism for forcing `BufferRecycler` released (to call on shutdown)

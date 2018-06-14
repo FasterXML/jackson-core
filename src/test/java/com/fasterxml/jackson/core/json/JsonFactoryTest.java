@@ -105,17 +105,13 @@ public class JsonFactoryTest
 
     public void testFactoryFeatures() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-
-        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, true);
-        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false);
+        JsonFactory f = JsonFactory.builder()
+                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false)
+                .build();
         assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
 
         // by default, should be enabled
         assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
-        f.configure(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING, false);
-        assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
     }
 
     // for [core#189]: verify that it's ok to disable recycling
@@ -124,9 +120,10 @@ public class JsonFactoryTest
     // disables this handling otherwise
     public void testDisablingBufferRecycling() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-
-        f.disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING);
+        JsonFactory f = JsonFactory.builder()
+                .disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
+                .build();
+        assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
 
         // First, generation
         for (int i = 0; i < 3; ++i) {
@@ -206,9 +203,11 @@ public class JsonFactoryTest
         assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
 
         // then change, verify that changes "stick"
-        jf.disable(JsonFactory.Feature.INTERN_FIELD_NAMES);
-        jf.enable(JsonParser.Feature.ALLOW_COMMENTS);
-        jf.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+        jf = JsonFactory.builder()
+                .disable(JsonFactory.Feature.INTERN_FIELD_NAMES)
+                .enable(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonGenerator.Feature.ESCAPE_NON_ASCII)
+                .build();
         ObjectCodec codec = new BogusCodec();
         jf.setCodec(codec);
 

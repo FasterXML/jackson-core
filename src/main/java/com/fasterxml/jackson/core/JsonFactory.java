@@ -337,6 +337,8 @@ public class JsonFactory
      * @since 2.10
      */
     public TSFBuilder<?,?> rebuild() {
+        // 13-Jun-2018, tatu: Verify sub-classing to prevent strange bugs in format impls
+        _requireJSONFactory("Factory implementation for format (%s) MUST override `rebuild()` method");
         return new JsonFactoryBuilder(this);
     }
 
@@ -599,7 +601,10 @@ public class JsonFactory
     /**
      * Method for enabling or disabling specified parser feature
      * (check {@link JsonParser.Feature} for list of features)
+     *
+     * @deprecated since 2.10 use {@link JsonFactoryBuilder#configure(JsonFactory.Feature, boolean)} instead
      */
+    @Deprecated
     public final JsonFactory configure(JsonFactory.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
@@ -607,7 +612,10 @@ public class JsonFactory
     /**
      * Method for enabling specified parser feature
      * (check {@link JsonFactory.Feature} for list of features)
+     *
+     * @deprecated since 2.10 use {@link JsonFactoryBuilder#configure(JsonFactory.Feature, boolean)} instead
      */
+    @Deprecated
     public JsonFactory enable(JsonFactory.Feature f) {
         _factoryFeatures |= f.getMask();
         return this;
@@ -616,7 +624,10 @@ public class JsonFactory
     /**
      * Method for disabling specified parser features
      * (check {@link JsonFactory.Feature} for list of features)
+     *
+     * @deprecated since 2.10 use {@link JsonFactoryBuilder#configure(JsonFactory.Feature, boolean)} instead
      */
+    @Deprecated
     public JsonFactory disable(JsonFactory.Feature f) {
         _factoryFeatures &= ~f.getMask();
         return this;
@@ -680,7 +691,10 @@ public class JsonFactory
 
     /**
      * Method for overriding currently configured input decorator
+     *
+     * @deprecated Since 2.10 use {@link JsonFactoryBuilder#inputDecorator(InputDecorator)} instead
      */
+    @Deprecated
     public JsonFactory setInputDecorator(InputDecorator d) {
         _inputDecorator = d;
         return this;
@@ -699,7 +713,6 @@ public class JsonFactory
     public final JsonFactory configure(JsonGenerator.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
-
 
     /**
      * Method for enabling specified generator features
@@ -753,7 +766,10 @@ public class JsonFactory
 
     /**
      * Method for overriding currently configured output decorator
+     *
+     * @deprecated Since 2.10 use {@link JsonFactoryBuilder#inputDecorator(InputDecorator)} instead
      */
+    @Deprecated
     public JsonFactory setOutputDecorator(OutputDecorator d) {
         _outputDecorator = d;
         return this;
@@ -1037,7 +1053,7 @@ public class JsonFactory
     {
         // 17-May-2017, tatu: Need to take care not to accidentally create JSON parser
         //   for non-JSON input:
-        _requireJSONFactory("Non-blocking source not (yet?) support for this format (%s)");
+        _requireJSONFactory("Non-blocking source not (yet?) supported for this format (%s)");
         IOContext ctxt = _createContext(null, false);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new NonBlockingJsonParser(ctxt, _parserFeatures, can);
@@ -1254,7 +1270,7 @@ public class JsonFactory
     {
         // 13-May-2016, tatu: Need to take care not to accidentally create JSON parser for
         //   non-JSON input.
-        _requireJSONFactory("InputData source not (yet?) support for this format (%s)");
+        _requireJSONFactory("InputData source not (yet?) supported for this format (%s)");
         // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);

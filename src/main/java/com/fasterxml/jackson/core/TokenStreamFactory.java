@@ -64,6 +64,12 @@ public abstract class TokenStreamFactory
     public abstract boolean isEnabled(JsonParser.Feature f);
     public abstract boolean isEnabled(JsonGenerator.Feature f);
 
+    public abstract int getParserFeatures();
+    public abstract int getGeneratorFeatures();
+
+    public abstract int getFormatParserFeatures();
+    public abstract int getFormatGeneratorFeatures();
+    
     public abstract InputDecorator getInputDecorator();
     public abstract OutputDecorator getOutputDecorator();
     public abstract String getRootValueSeparator();

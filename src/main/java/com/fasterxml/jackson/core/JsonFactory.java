@@ -204,18 +204,9 @@ public class JsonFactory
 
     /*
     /**********************************************************
-    /* Configuration
+    /* Configuration, simple feature flags
     /**********************************************************
      */
-
-    /**
-     * Object that implements conversion functionality between
-     * Java objects and JSON content. For base JsonFactory implementation
-     * usually not set by default, but can be explicitly set.
-     * Sub-classes (like @link org.codehaus.jackson.map.MappingJsonFactory}
-     * usually provide an implementation.
-     */
-    protected ObjectCodec _objectCodec;
 
     /**
      * Currently enabled factory features.
@@ -231,6 +222,21 @@ public class JsonFactory
      * Currently enabled generator features.
      */
     protected int _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+
+    /*
+    /**********************************************************
+    /* Configuration, helper objects
+    /**********************************************************
+     */
+
+    /**
+     * Object that implements conversion functionality between
+     * Java objects and JSON content. For base JsonFactory implementation
+     * usually not set by default, but can be explicitly set.
+     * Sub-classes (like @link org.codehaus.jackson.map.MappingJsonFactory}
+     * usually provide an implementation.
+     */
+    protected ObjectCodec _objectCodec;
 
     /**
      * Definition of custom character escapes to use for generators created
@@ -639,7 +645,29 @@ public class JsonFactory
     public final boolean isEnabled(JsonFactory.Feature f) {
         return (_factoryFeatures & f.getMask()) != 0;
     }
-    
+
+    @Override
+    public final int getParserFeatures() {
+        return _parserFeatures;
+    }
+
+    @Override
+    public final int getGeneratorFeatures() {
+        return _generatorFeatures;
+    }
+
+    // MUST be overridden by sub-classes that support format-specific parser features
+    @Override
+    public int getFormatParserFeatures() {
+        return 0;
+    }
+
+    // MUST be overridden by sub-classes that support format-specific generator features
+    @Override
+    public int getFormatGeneratorFeatures() {
+        return 0;
+    }
+
     /*
     /**********************************************************
     /* Configuration, parser configuration

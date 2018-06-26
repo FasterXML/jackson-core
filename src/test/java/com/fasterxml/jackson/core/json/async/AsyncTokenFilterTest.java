@@ -51,6 +51,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     public void testSkipChildrenFailOnSplit() throws IOException
     {
         NonBlockingJsonParser nbParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
+        @SuppressWarnings("resource")
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
                 TOKEN_FILTER, true, true);
         nbParser.feedInput(INPUT_BYTES, 0, 5);

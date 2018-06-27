@@ -7,37 +7,34 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 @RunWith(Parameterized.class)
 public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 {
     private JsonFactory factory;
-    private HashSet<JsonParser.Feature> features;
+    private HashSet<JsonReadFeature> features;
 
-    public AsyncMissingValuesInObjectTest(Collection<JsonParser.Feature> features) {
-        this.factory = new JsonFactory();
-        this.features = new HashSet<JsonParser.Feature>(features);
-
-        for (JsonParser.Feature feature : features) {
-            factory.enable(feature);
+    public AsyncMissingValuesInObjectTest(Collection<JsonReadFeature> features) {
+        this.features = new HashSet<JsonReadFeature>(features);
+        JsonFactoryBuilder b = (JsonFactoryBuilder) JsonFactory.builder();
+        for (JsonReadFeature feature : features) {
+            b = b.enable(feature);
         }
+        factory = b.build();
     }
 
     @Parameterized.Parameters(name = "Features {0}")
-    public static Collection<EnumSet<JsonParser.Feature>> getTestCases()
+    public static Collection<EnumSet<JsonReadFeature>> getTestCases()
     {
-        List<EnumSet<JsonParser.Feature>> cases = new ArrayList<EnumSet<JsonParser.Feature>>();
-        cases.add(EnumSet.noneOf(JsonParser.Feature.class));
-        cases.add(EnumSet.of(Feature.ALLOW_MISSING_VALUES));
-        cases.add(EnumSet.of(Feature.ALLOW_TRAILING_COMMA));
-        cases.add(EnumSet.of(Feature.ALLOW_MISSING_VALUES, Feature.ALLOW_TRAILING_COMMA));
+        List<EnumSet<JsonReadFeature>> cases = new ArrayList<EnumSet<JsonReadFeature>>();
+        cases.add(EnumSet.noneOf(JsonReadFeature.class));
+        cases.add(EnumSet.of(JsonReadFeature.ALLOW_MISSING_VALUES));
+        cases.add(EnumSet.of(JsonReadFeature.ALLOW_TRAILING_COMMA));
+        cases.add(EnumSet.of(JsonReadFeature.ALLOW_MISSING_VALUES, JsonReadFeature.ALLOW_TRAILING_COMMA));
         return cases;
     }
 
@@ -106,7 +103,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
     assertEquals("b", p.currentText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
-    if (features.contains(Feature.ALLOW_TRAILING_COMMA)) {
+    if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
       assertToken(JsonToken.END_OBJECT, p.nextToken());
       assertEnd(p);
     } else {

@@ -185,6 +185,8 @@ public abstract class JsonParser
           * feature and is disabled by default.
           * 
           * @since 2.8
+          *
+          * @deprecated Since 2.10 use {@link JsonReadFeature#ALLOW_MISSING_VALUES} instead
           */
          ALLOW_MISSING_VALUES(false),
 
@@ -208,6 +210,8 @@ public abstract class JsonParser
           * feature, and as such disabled by default.
           *
           * @since 2.9
+          *
+          * @deprecated Since 2.10 use {@link JsonReadFeature#ALLOW_TRAILING_COMMA} instead
           */
          ALLOW_TRAILING_COMMA(false),
 

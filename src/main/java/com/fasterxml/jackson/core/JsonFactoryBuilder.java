@@ -40,6 +40,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
 
     // // // JSON-parsing features
 
+    @Override
     public JsonFactoryBuilder enable(JsonReadFeature f) {
         JsonParser.Feature old = f.mappedFeature();
         if (old != null) {
@@ -50,6 +51,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
         return _this();
     }
 
+    @Override
     public JsonFactoryBuilder enable(JsonReadFeature first, JsonReadFeature... other) {
         enable(first);
         for (JsonReadFeature f : other) {
@@ -58,6 +60,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
         return _this();
     }
 
+    @Override
     public JsonFactoryBuilder disable(JsonReadFeature f) {
         JsonParser.Feature old = f.mappedFeature();
         if (old != null) {
@@ -68,6 +71,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
         return _this();
     }
 
+    @Override
     public JsonFactoryBuilder disable(JsonReadFeature first, JsonReadFeature... other) {
         disable(first);
         for (JsonReadFeature f : other) {
@@ -76,6 +80,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
         return _this();
     }
 
+    @Override
     public JsonFactoryBuilder configure(JsonReadFeature f, boolean state) {
         return state ? enable(f) : disable(f);
     }

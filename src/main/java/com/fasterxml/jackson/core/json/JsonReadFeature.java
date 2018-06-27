@@ -140,6 +140,7 @@ public enum JsonReadFeature
      * Since the JSON specification does not allow missing values this is a non-compliant JSON
      * feature and is disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_MISSING_VALUES(false, JsonParser.Feature.ALLOW_MISSING_VALUES),
 
     /**
@@ -161,13 +162,14 @@ public enum JsonReadFeature
      * Since the JSON specification does not permit trailing commas, this is a non-standard
      * feature, and as such disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_TRAILING_COMMA(false, JsonParser.Feature.ALLOW_TRAILING_COMMA),
 
     // // // Support for non-standard data format constructs: JSON-like formats
 
     /**
      * Feature that can be turned on to support handling of BSON "shell mode" JSON extensions
-     * as specified in {@link href="https://docs.mongodb.com/manual/reference/mongodb-extended-json/"},
+     * as specified <a href="https://docs.mongodb.com/manual/reference/mongodb-extended-json/">here</a>
      * for "shell mode" (but NOT "strict mode" which uses standard JSON syntax but additional
      * structural constructs).
      *<p>

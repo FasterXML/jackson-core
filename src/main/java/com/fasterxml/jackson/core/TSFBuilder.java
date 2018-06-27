@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
  * Since 2.10, Builder class is offered for creating token stream factories
@@ -191,6 +192,37 @@ public abstract class TSFBuilder<F extends JsonFactory,
         return state ? enable(f) : disable(f);
     }
 
+    /* 26-Jun-2018, tatu: This should not be needed here, but due to 2.x limitations,
+     *   we do need to include it or require casting. So let's select lesser evil(s)
+     */
+
+    // // // JSON-specific, reads
+
+    public B enable(JsonReadFeature f) {
+        return _failNonJSON(f);
+    }
+
+    public B enable(JsonReadFeature first, JsonReadFeature... other) {
+        return _failNonJSON(first);
+    }
+
+    public B disable(JsonReadFeature f) {
+        return _failNonJSON(f);
+    }
+
+    public B disable(JsonReadFeature first, JsonReadFeature... other) {
+        return _failNonJSON(first);
+    }
+
+    public B configure(JsonReadFeature f, boolean state) {
+        return _failNonJSON(f);
+    }
+    
+    private B _failNonJSON(Object feature) {
+        throw new IllegalArgumentException("Feature "+feature.getClass().getName()
+                +"#"+feature.toString()+" not supported for non-JSON backend");
+    }
+    
     // // // Other configuration
 
     public B inputDecorator(InputDecorator dec) {

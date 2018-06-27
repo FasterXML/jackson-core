@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import org.junit.Test;
@@ -16,25 +16,25 @@ import org.junit.runners.Parameterized;
 public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 {
     private final JsonFactory factory;
-    private final HashSet<JsonParser.Feature> features;
+    private final HashSet<JsonReadFeature> features;
 
-    public AsyncMissingValuesInArrayTest(Collection<JsonParser.Feature> features) {
-        this.factory = new JsonFactory();
-        this.features = new HashSet<JsonParser.Feature>(features);
-
-        for (JsonParser.Feature feature : features) {
-            factory.enable(feature);
+    public AsyncMissingValuesInArrayTest(Collection<JsonReadFeature> features) {
+        this.features = new HashSet<JsonReadFeature>(features);
+        JsonFactoryBuilder b = (JsonFactoryBuilder) JsonFactory.builder();
+        for (JsonReadFeature feature : features) {
+            b = b.enable(feature);
         }
+        factory = b.build();
     }
 
     @Parameterized.Parameters(name = "Features {0}")
-    public static Collection<EnumSet<JsonParser.Feature>> getTestCases()
+    public static Collection<EnumSet<JsonReadFeature>> getTestCases()
     {
-        List<EnumSet<JsonParser.Feature>> cases = new ArrayList<EnumSet<JsonParser.Feature>>();
-        cases.add(EnumSet.noneOf(JsonParser.Feature.class));
-        cases.add(EnumSet.of(Feature.ALLOW_MISSING_VALUES));
-        cases.add(EnumSet.of(Feature.ALLOW_TRAILING_COMMA));
-        cases.add(EnumSet.of(Feature.ALLOW_MISSING_VALUES, Feature.ALLOW_TRAILING_COMMA));
+        List<EnumSet<JsonReadFeature>> cases = new ArrayList<EnumSet<JsonReadFeature>>();
+        cases.add(EnumSet.noneOf(JsonReadFeature.class));
+        cases.add(EnumSet.of(JsonReadFeature.ALLOW_MISSING_VALUES));
+        cases.add(EnumSet.of(JsonReadFeature.ALLOW_TRAILING_COMMA));
+        cases.add(EnumSet.of(JsonReadFeature.ALLOW_MISSING_VALUES, JsonReadFeature.ALLOW_TRAILING_COMMA));
         return cases;
     }
 
@@ -70,7 +70,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
     assertToken(JsonToken.VALUE_STRING, p.nextToken());
     assertEquals("a", p.currentText());
 
-    if (!features.contains(Feature.ALLOW_MISSING_VALUES)) {
+    if (!features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
       assertUnexpected(p, ',');
       return;
     }
@@ -92,7 +92,7 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
 
     assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
-    if (!features.contains(Feature.ALLOW_MISSING_VALUES)) {
+    if (!features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
       assertUnexpected(p, ',');
       return;
     }
@@ -125,10 +125,10 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
     assertEquals("b", p.currentText());
 
     // ALLOW_TRAILING_COMMA takes priority over ALLOW_MISSING_VALUES
-    if (features.contains(Feature.ALLOW_TRAILING_COMMA)) {
+    if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
       assertToken(JsonToken.END_ARRAY, p.nextToken());
       assertEnd(p);
-    } else if (features.contains(Feature.ALLOW_MISSING_VALUES)) {
+    } else if (features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.END_ARRAY, p.nextToken());
       assertEnd(p);
@@ -153,12 +153,12 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
     assertEquals("b", p.currentText());
 
     // ALLOW_TRAILING_COMMA takes priority over ALLOW_MISSING_VALUES
-    if (features.contains(Feature.ALLOW_MISSING_VALUES) &&
-        features.contains(Feature.ALLOW_TRAILING_COMMA)) {
+    if (features.contains(JsonReadFeature.ALLOW_MISSING_VALUES) &&
+        features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.END_ARRAY, p.nextToken());
       assertEnd(p);
-    } else if (features.contains(Feature.ALLOW_MISSING_VALUES)) {
+    } else if (features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.END_ARRAY, p.nextToken());
@@ -184,13 +184,13 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
     assertEquals("b", p.currentText());
 
     // ALLOW_TRAILING_COMMA takes priority over ALLOW_MISSING_VALUES
-    if (features.contains(Feature.ALLOW_MISSING_VALUES) &&
-        features.contains(Feature.ALLOW_TRAILING_COMMA)) {
+    if (features.contains(JsonReadFeature.ALLOW_MISSING_VALUES) &&
+        features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.END_ARRAY, p.nextToken());
       assertEnd(p);
-    } else if (features.contains(Feature.ALLOW_MISSING_VALUES)) {
+    } else if (features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.VALUE_NULL, p.nextToken());
       assertToken(JsonToken.VALUE_NULL, p.nextToken());

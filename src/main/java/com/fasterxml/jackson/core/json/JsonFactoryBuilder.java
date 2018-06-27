@@ -82,6 +82,8 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         return state ? enable(f) : disable(f);
     }
 
+    // // // Other JSON-specific configuration
+
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
      * it creates.

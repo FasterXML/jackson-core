@@ -185,6 +185,8 @@ public abstract class JsonParser
           * <p>
           * Since the JSON specification does not allow missing values this is a non-compliant JSON
           * feature and is disabled by default.
+          *
+          * @deprecated Since 3.0 use {@link JsonReadFeature#ALLOW_MISSING_VALUES} instead
           */
          ALLOW_MISSING_VALUES(false),
 
@@ -206,6 +208,8 @@ public abstract class JsonParser
           * <p>
           * Since the JSON specification does not permit trailing commas, this is a non-standard
           * feature, and as such disabled by default.
+          *
+          * @deprecated Since 3.0 use {@link JsonReadFeature#ALLOW_TRAILING_COMMA} instead
           */
          ALLOW_TRAILING_COMMA(false),
 

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.main;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
  * Set of additional unit for verifying array parsing, specifically
@@ -109,7 +110,7 @@ public class TestArrayParsing
     private void _testMissingValueByEnablingFeature(boolean useStream) throws Exception {
         String DOC = "[ \"a\",,,,\"abc\", ] ";
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_MISSING_VALUES).build();
+                .enable(JsonReadFeature.ALLOW_MISSING_VALUES).build();
     	
         JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
    			          : createParserUsingReader(f, DOC);
@@ -167,7 +168,7 @@ public class TestArrayParsing
         final String DOC = "[ \"a\",\"abc\"] ";
 
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_MISSING_VALUES).build();
+                .enable(JsonReadFeature.ALLOW_MISSING_VALUES).build();
         JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
    			          : createParserUsingReader(f, DOC);
         

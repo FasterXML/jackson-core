@@ -14,12 +14,12 @@ public class RequestPayloadTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
-    new RequestPayload(null);
+      new RequestPayload(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
-    new RequestPayload(null, "UTF-8");
+      new RequestPayload(null, "UTF-8");
   }
 
   @Test

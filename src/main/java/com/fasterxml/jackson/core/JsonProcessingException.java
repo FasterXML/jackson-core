@@ -19,9 +19,6 @@ public class JsonProcessingException extends java.io.IOException
     protected JsonLocation _location;
 
     protected JsonProcessingException(String msg, JsonLocation loc, Throwable rootCause) {
-        /* Argh. IOException(Throwable,String) is only available starting
-         * with JDK 1.6...
-         */
         super(msg);
         if (rootCause != null) {
             initCause(rootCause);

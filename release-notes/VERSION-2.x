@@ -16,6 +16,8 @@ JSON library.
 
 2.9.7 (not yet released)
 
+#476: Problem with `BufferRecycler` via async parser (or when sharing parser
+ across threads)
 #477: Exception while decoding Base64 value with escaped `=` character
 
 2.9.6 (12-Jun-2018)

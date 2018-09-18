@@ -96,10 +96,12 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         }
     }
 
+    // [jackson-core#476]
     public void testConcurrentAsync() throws Exception
     {
-        for (int i = 0; i < 50; ++i) {
-            _testConcurrentAsyncOnce(i, 50);
+        final int MAX_ROUNDS = 30;
+        for (int i = 0; i < MAX_ROUNDS; ++i) {
+            _testConcurrentAsyncOnce(i, MAX_ROUNDS);
         }
     }
     

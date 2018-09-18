@@ -54,6 +54,12 @@ public class Base64BinaryParsingTest
         }
     }
 
+    public void testWithEscapedPadding() throws IOException {
+        for (int mode : ALL_MODES) {
+            _testEscapedPadding(mode);
+        }
+    }
+
     public void testInvalidTokenForBase64() throws IOException
     {
         for (int mode : ALL_MODES) {
@@ -333,5 +339,54 @@ public class Base64BinaryParsingTest
             assertNull(p.nextToken());
         }
         p.close();
+    }
+
+    private void _testEscapedPadding(int mode) throws IOException
+    {
+        // Input: "Test!" -> "VGVzdCE="
+        final String DOC = quote("VGVzdCE\\u003d");
+
+        // 06-Sep-2018, tatu: actually one more, test escaping of padding
+        JsonParser p = createParser(mode, DOC);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("Test!", new String(p.getBinaryValue(), "US-ASCII"));
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
+        }
+        p.close();
+
+        // also, try out alternate access method
+        p = createParser(mode, DOC);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("Test!", new String(_readBinary(p), "US-ASCII"));
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
+        }
+        p.close();
+
+        // and then different padding; "X" -> "WA=="
+        final String DOC2 = quote("WA\\u003D\\u003D");
+        p = createParser(mode, DOC2);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("X", new String(p.getBinaryValue(), "US-ASCII"));
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
+        }
+        p.close();
+
+        p = createParser(mode, DOC2);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("X", new String(_readBinary(p), "US-ASCII"));
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
+        }
+        p.close();
+    }
+
+    private byte[] _readBinary(JsonParser p) throws IOException
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        p.readBinaryValue(bytes);
+        return bytes.toByteArray();
     }
 }

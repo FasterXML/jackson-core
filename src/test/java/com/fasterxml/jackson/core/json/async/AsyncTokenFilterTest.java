@@ -38,6 +38,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         assertToken(JsonToken.END_OBJECT, filteredParser.nextToken());
 
         filteredParser.close();
+        nbParser.close();
     }
 
     public void testSkipChildrenFailOnSplit() throws IOException
@@ -56,6 +57,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
             verifyException(e, "skipChildren()");
         }
         filteredParser.close();
+        nbParser.close();
     }
 
     private NonBlockingJsonParser _nonBlockingParser() throws IOException {

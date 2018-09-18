@@ -473,7 +473,10 @@ public class UTF8DataInputJsonParser
                     // Ok, must get padding
                     ch = _inputData.readUnsignedByte();
                     if (!b64variant.usesPaddingChar(ch)) {
-                        throw reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
+                        if ((ch != INT_BACKSLASH)
+                                || _decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
+                            throw reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
+                        }
                     }
                     // Got 12 bits, only need 8, need to shift
                     decodedData >>= 4;
@@ -2743,7 +2746,10 @@ public class UTF8DataInputJsonParser
                 if (bits == Base64Variant.BASE64_VALUE_PADDING) {
                     ch = _inputData.readUnsignedByte();
                     if (!b64variant.usesPaddingChar(ch)) {
-                        throw reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
+                        if ((ch != INT_BACKSLASH)
+                                || _decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
+                            throw reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
+                        }
                     }
                     // Got 12 bits, only need 8, need to shift
                     decodedData >>= 4;

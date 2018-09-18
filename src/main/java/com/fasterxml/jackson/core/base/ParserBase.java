@@ -982,7 +982,9 @@ public abstract class ParserBase extends ParserMinimalBase
         // otherwise try to find actual triplet value
         int bits = b64variant.decodeBase64Char(unescaped);
         if (bits < 0) {
-            throw reportInvalidBase64Char(b64variant, unescaped, index);
+            if (bits != Base64Variant.BASE64_VALUE_PADDING) {
+                throw reportInvalidBase64Char(b64variant, unescaped, index);
+            }
         }
         return bits;
     }
@@ -1002,7 +1004,10 @@ public abstract class ParserBase extends ParserMinimalBase
         // otherwise try to find actual triplet value
         int bits = b64variant.decodeBase64Char(unescaped);
         if (bits < 0) {
-            throw reportInvalidBase64Char(b64variant, unescaped, index);
+            // second check since padding can only be 3rd or 4th byte (index #2 or #3)
+            if ((bits != Base64Variant.BASE64_VALUE_PADDING) || (index < 2)) {
+                throw reportInvalidBase64Char(b64variant, unescaped, index);
+            }
         }
         return bits;
     }

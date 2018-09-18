@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.sym.BinaryNameMatcher;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Named;
 
@@ -261,12 +262,19 @@ public class JsonFactory
     @Override
     public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException
     {
-        IOContext ioCtxt = _createContext(null, false);
+        IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new NonBlockingJsonParser(readCtxt, ioCtxt,
                 readCtxt.getParserFeatures(_parserFeatures), can);
     }
 
+    protected IOContext _createNonBlockingContext(Object srcRef) {
+        // [jackson-core#476]: disable buffer recycling for 2.9 to avoid concurrency issues;
+        // easiest done by just constructing private "recycler":
+        BufferRecycler recycler = new BufferRecycler();
+        return new IOContext(recycler, srcRef, false);
+    }    
+    
     /*
     /**********************************************************************
     /* Factory methods used by factory for creating parser instances

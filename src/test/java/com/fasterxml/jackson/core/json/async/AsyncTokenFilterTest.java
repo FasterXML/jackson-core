@@ -46,6 +46,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         }
 
         filteredParser.close();
+        nonBlockingParser.close();
     }
 
     public void testSkipChildrenFailOnSplit() throws IOException
@@ -65,5 +66,6 @@ public class AsyncTokenFilterTest extends AsyncTestBase
             verifyException(e, "skipChildren()");
         }
         nbParser.close();
+        filteredParser.close();
     }
 }

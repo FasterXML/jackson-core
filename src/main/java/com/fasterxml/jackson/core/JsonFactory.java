@@ -1082,7 +1082,7 @@ public class JsonFactory
         // 17-May-2017, tatu: Need to take care not to accidentally create JSON parser
         //   for non-JSON input:
         _requireJSONFactory("Non-blocking source not (yet?) supported for this format (%s)");
-        IOContext ctxt = _createContext(null, false);
+        IOContext ctxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new NonBlockingJsonParser(ctxt, _parserFeatures, can);
     }
@@ -1474,7 +1474,20 @@ public class JsonFactory
         return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
     }
 
-    /*
+    /**
+     * Overridable factory method that actually instantiates desired
+     * context object for async (non-blocking) parsing
+     *
+     * @since 2.9.7
+     */
+    protected IOContext _createNonBlockingContext(Object srcRef) {
+        // [jackson-core#476]: disable buffer recycling for 2.9 to avoid concurrency issues;
+        // easiest done by just constructing private "recycler":
+        BufferRecycler recycler = new BufferRecycler();
+        return new IOContext(recycler, srcRef, false);
+    }
+
+/*
     /**********************************************************
     /* Internal helper methods
     /**********************************************************

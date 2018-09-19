@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.7 (not yet released)
+2.9.7 (19-Sep-2018)
 
 #476: Problem with `BufferRecycler` via async parser (or when sharing parser
  across threads)

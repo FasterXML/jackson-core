@@ -319,9 +319,9 @@ public abstract class JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Minimal configuration state
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -330,9 +330,9 @@ public abstract class JsonParser
     protected transient RequestPayload _requestPayload;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, configuration, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonParser() { }
@@ -367,6 +367,12 @@ public abstract class JsonParser
      */
     public abstract Object getInputSource();
 
+    /*
+    /**********************************************************************
+    /* Attaching additional metadata
+    /**********************************************************************
+     */
+    
     /**
      * Helper method, usually equivalent to:
      *<code>
@@ -418,9 +424,9 @@ public abstract class JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General capability introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -432,11 +438,11 @@ public abstract class JsonParser
      * @since 3.0
      */
     public boolean canSynthesizeNulls() { return false; }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Format support
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -476,9 +482,9 @@ public abstract class JsonParser
     public boolean canUseSchema(FormatSchema schema) { return false; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Optional support for non-blocking parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -504,9 +510,9 @@ public abstract class JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Versioned
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -517,9 +523,9 @@ public abstract class JsonParser
     public abstract Version version();
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Closeable implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -551,9 +557,9 @@ public abstract class JsonParser
     public abstract boolean isClosed();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, simple location, context accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -582,9 +588,9 @@ public abstract class JsonParser
     public abstract JsonLocation getCurrentLocation();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Buffer handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -621,11 +627,11 @@ public abstract class JsonParser
      * @throws IOException if write using Writer threw exception
      */    
     public int releaseBuffered(Writer w) throws IOException { return -1; }
-    
+
     /*
-    /***************************************************
+    /**********************************************************************
     /* Public API, configuration
-    /***************************************************
+    /**********************************************************************
      */
 
     /**
@@ -663,9 +669,9 @@ public abstract class JsonParser
     public abstract int getFormatFeatures();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, iterating accessors: general
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -729,9 +735,9 @@ public abstract class JsonParser
     public abstract void finishToken() throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, iterating accessors: field names
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -778,9 +784,9 @@ public abstract class JsonParser
     public abstract int currentFieldName(FieldNameMatcher matcher) throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, iterating accessors: typed values
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -850,9 +856,9 @@ public abstract class JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, simple token id/type access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -966,9 +972,9 @@ public abstract class JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token state overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1006,11 +1012,11 @@ public abstract class JsonParser
      * @param name Name to use as the current name; may be null.
      */
     public abstract void overrideCurrentName(String name);
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, text
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1128,9 +1134,9 @@ public abstract class JsonParser
     public abstract boolean hasTextCharacters();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, numeric
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1275,9 +1281,9 @@ public abstract class JsonParser
     public abstract BigDecimal getDecimalValue() throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, other
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -1314,9 +1320,9 @@ public abstract class JsonParser
     public Object getEmbeddedObject() throws IOException { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, binary
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1363,8 +1369,6 @@ public abstract class JsonParser
      * @param out Output stream to use for passing decoded binary data
      * 
      * @return Number of bytes that were decoded and written via {@link OutputStream}
-     * 
-     * @since 2.1
      */
     public int readBinaryValue(OutputStream out) throws IOException {
         return readBinaryValue(Base64Variants.getDefaultVariant(), out);
@@ -1378,8 +1382,6 @@ public abstract class JsonParser
      * @param out Output stream to use for passing decoded binary data
      * 
      * @return Number of bytes that were decoded and written via {@link OutputStream}
-     * 
-     * @since 2.1
      */
     public int readBinaryValue(Base64Variant bv, OutputStream out) throws IOException {
         _reportUnsupportedOperation();
@@ -1387,9 +1389,9 @@ public abstract class JsonParser
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, coercion/conversion
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -1518,8 +1520,6 @@ public abstract class JsonParser
      * If representation can not be converted to a String value (including structured types
      * like Objects and Arrays and null token), default value of
      * <b>null</b> will be returned; no exceptions are thrown.
-     * 
-     * @since 2.1
      */
     public String getValueAsString() throws IOException {
         return getValueAsString(null);
@@ -1533,15 +1533,13 @@ public abstract class JsonParser
      * If representation can not be converted to a String value (including structured types
      * like Objects and Arrays and null token), specified default value
      * will be returned; no exceptions are thrown.
-     * 
-     * @since 2.1
      */
     public abstract String getValueAsString(String def) throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, Native Ids (type, object)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1595,9 +1593,9 @@ public abstract class JsonParser
     public Object getTypeId() throws IOException { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, optional data binding functionality
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1668,9 +1666,9 @@ public abstract class JsonParser
     public abstract <T extends TreeNode> T readValueAsTree() throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

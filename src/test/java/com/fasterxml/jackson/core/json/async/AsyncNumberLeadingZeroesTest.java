@@ -4,10 +4,17 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
 {
+    @SuppressWarnings("deprecation")
+    public void testDefaultsForAsync() throws Exception {
+        JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
+    }
+
     public void testLeadingZeroesInt() throws Exception
     {
         _testLeadingZeroesInt("00003", 3);
@@ -34,8 +41,8 @@ public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
     public void _testLeadingZeroesInt(String valueStr, int value) throws Exception
     {
         // first: verify that we get an exception
+
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
         String JSON = valueStr;
         AsyncReaderWrapper p = createParser(f, JSON);
         try {      
@@ -49,8 +56,9 @@ public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
         }
         
         // and then verify it's ok when enabled
-        f.configure(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS, true);
-        assertTrue(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
+        f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
+                .build();
         p = createParser(f, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(value, p.getIntValue());
@@ -73,7 +81,6 @@ public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
     {
         // first: verify that we get an exception
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
         String JSON = valueStr;
         AsyncReaderWrapper p = createParser(f, JSON);
         try {      
@@ -87,8 +94,9 @@ public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
         }
         
         // and then verify it's ok when enabled
-        f.configure(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS, true);
-        assertTrue(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
+        f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
+                .build();
         p = createParser(f, JSON);
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(String.valueOf(value), p.currentText());

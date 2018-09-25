@@ -16,21 +16,6 @@ import java.util.*;
 @SuppressWarnings("resource")
 public class JsonParserTest extends BaseTest
 {
-    public void testConfig() throws Exception
-    {
-        JsonParser p = createParserUsingReader("[ ]");
-        p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-        assertTrue(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        p.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-        assertFalse(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-
-        p.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
-        assertTrue(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        p.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
-        assertFalse(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        p.close();
-    }
-
     public void testInterningWithStreams() throws Exception
     {
         _testIntern(true, true, "a");

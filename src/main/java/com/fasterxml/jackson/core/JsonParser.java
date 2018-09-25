@@ -325,13 +325,6 @@ public abstract class JsonParser
      */
 
     /**
-     * Bit flag composed of bits that indicate which
-     * {@link com.fasterxml.jackson.core.JsonParser.Feature}s
-     * are enabled.
-     */
-    protected int _features;
-
-    /**
      * Optional container that holds the request payload which will be displayed on JSON parsing error.
      */
     protected transient RequestPayload _requestPayload;
@@ -343,7 +336,6 @@ public abstract class JsonParser
      */
 
     protected JsonParser() { }
-    protected JsonParser(int features) { _features = features; }
 
     /**
      * Accessor for context object provided by higher-level databinding
@@ -373,7 +365,7 @@ public abstract class JsonParser
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
      */
-    public Object getInputSource() { return null; }
+    public abstract Object getInputSource();
 
     /**
      * Helper method, usually equivalent to:
@@ -640,33 +632,18 @@ public abstract class JsonParser
      * Method for enabling specified parser feature
      * (check {@link Feature} for list of features)
      */
-    public JsonParser enable(Feature f) {
-        _features |= f.getMask();
-        return this;
-    }
+    public abstract JsonParser enable(Feature f);
 
     /**
      * Method for disabling specified  feature
      * (check {@link Feature} for list of features)
      */
-    public JsonParser disable(Feature f) {
-        _features &= ~f.getMask();
-        return this;
-    }
+    public abstract JsonParser disable(Feature f);
 
-    /**
-     * Method for enabling or disabling specified feature
-     * (check {@link Feature} for list of features)
-     */
-    public JsonParser configure(Feature f, boolean state) {
-        if (state) enable(f); else disable(f);
-        return this;
-    }
-    
     /**
      * Method for checking whether specified {@link Feature} is enabled.
      */
-    public boolean isEnabled(Feature f) { return f.enabledIn(_features); }
+    public abstract boolean isEnabled(Feature f);
 
     /**
      * Bulk access method for getting state of all standard {@link Feature}s.
@@ -675,7 +652,7 @@ public abstract class JsonParser
      *
      * @since 3.0
      */
-    public int getParserFeatures() { return _features; }
+    public abstract int getParserFeatures();
 
     /**
      * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
@@ -683,9 +660,7 @@ public abstract class JsonParser
      * 
      * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
      */
-    public int getFormatFeatures() {
-        return 0;
-    }
+    public abstract int getFormatFeatures();
 
     /*
     /**********************************************************

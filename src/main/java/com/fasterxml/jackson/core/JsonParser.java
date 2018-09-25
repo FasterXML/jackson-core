@@ -149,7 +149,10 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification does not allow leading zeroes,
          * this is a non-standard feature, and as such disabled by default.
-         */
+          *
+          * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_LEADING_ZEROS_FOR_NUMBERS} instead
+          */
+         @Deprecated
         ALLOW_NUMERIC_LEADING_ZEROS(false),
         
         /**
@@ -169,7 +172,10 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification does not allow use of such values,
          * this is a non-standard feature, and as such disabled by default.
-         */
+          *
+          * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_NON_NUMERIC_NUMBERS} instead
+          */
+         @Deprecated
          ALLOW_NON_NUMERIC_NUMBERS(false),
 
          /**
@@ -186,8 +192,9 @@ public abstract class JsonParser
           * Since the JSON specification does not allow missing values this is a non-compliant JSON
           * feature and is disabled by default.
           *
-          * @deprecated Since 3.0 use {@link JsonReadFeature#ALLOW_MISSING_VALUES} instead
+          * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_MISSING_VALUES} instead
           */
+         @Deprecated
          ALLOW_MISSING_VALUES(false),
 
          /**
@@ -209,8 +216,9 @@ public abstract class JsonParser
           * Since the JSON specification does not permit trailing commas, this is a non-standard
           * feature, and as such disabled by default.
           *
-          * @deprecated Since 3.0 use {@link JsonReadFeature#ALLOW_TRAILING_COMMA} instead
+          * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_TRAILING_COMMA} instead
           */
+         @Deprecated
          ALLOW_TRAILING_COMMA(false),
 
          // // // Validity checks

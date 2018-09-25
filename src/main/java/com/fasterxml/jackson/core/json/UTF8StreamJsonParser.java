@@ -21,14 +21,17 @@ public class UTF8StreamJsonParser
 {
     final static byte BYTE_LF = (byte) '\n';
 
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
+
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
-
-    protected final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
 
     /*
     /**********************************************************
@@ -1818,7 +1821,7 @@ public class UTF8StreamJsonParser
             return INT_0;
         }
         // [JACKSON-358]: we may want to allow them, after all...
-        if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
+        if ((_features & FEAT_MASK_LEADING_ZEROS) == 0) {
             reportInvalidNumber("Leading zeroes not allowed");
         }
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)

@@ -37,5 +37,4 @@ public class RequestPayloadTest
 
     assertSame(byteArray, requestPayload.getRawPayload());
   }
-
 }

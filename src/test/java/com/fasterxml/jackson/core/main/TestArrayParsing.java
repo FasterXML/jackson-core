@@ -103,8 +103,8 @@ public class TestArrayParsing
      */
     public void testNotMissingValueByEnablingFeature() throws Exception
     {
-    	_testNotMissingValueByEnablingFeature(true);
-    	_testNotMissingValueByEnablingFeature(false);
+        _testNotMissingValueByEnablingFeature(true);
+        _testNotMissingValueByEnablingFeature(false);
     }
     
     private void _testMissingValueByEnablingFeature(boolean useStream) throws Exception {
@@ -113,7 +113,7 @@ public class TestArrayParsing
                 .enable(JsonReadFeature.ALLOW_MISSING_VALUES).build();
     	
         JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-   			          : createParserUsingReader(f, DOC);
+                : createParserUsingReader(f, DOC);
         
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -170,8 +170,8 @@ public class TestArrayParsing
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_MISSING_VALUES).build();
         JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-   			          : createParserUsingReader(f, DOC);
-        
+                : createParserUsingReader(f, DOC);
+
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("a", p.getValueAsString());

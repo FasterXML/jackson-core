@@ -19,19 +19,15 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
 
     protected SerializableString _rootValueSeparator;
 
-    protected boolean _handleBSONWrappers;
-
     public JsonFactoryBuilder() {
         super();
         _rootValueSeparator = JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR;
-        _handleBSONWrappers = JsonReadFeature.HANDLE_BSON_WRAPPERS.enabledByDefault();
     }
 
     public JsonFactoryBuilder(JsonFactory base) {
         super(base);
         _characterEscapes = base._characterEscapes;
         _rootValueSeparator = base._rootValueSeparator;
-//        _handleBSONWrappers = base._handleBSONWrappers;
     }
 
     /*
@@ -46,8 +42,6 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         JsonParser.Feature old = f.mappedFeature();
         if (old != null) {
             enable(old);
-        } else if (f == JsonReadFeature.HANDLE_BSON_WRAPPERS) {
-            _handleBSONWrappers = true;
         }
         return _this();
     }
@@ -64,8 +58,6 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         JsonParser.Feature old = f.mappedFeature();
         if (old != null) {
             disable(old);
-        } else if (f == JsonReadFeature.HANDLE_BSON_WRAPPERS) {
-            _handleBSONWrappers = false;
         }
         return _this();
     }

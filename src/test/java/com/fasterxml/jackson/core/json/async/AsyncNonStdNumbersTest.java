@@ -5,16 +5,21 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNonStdNumbersTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
+    @SuppressWarnings("deprecation")
+    public void testDefaultsForAsync() throws Exception {
+        assertFalse(DEFAULT_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
+    }
+    
     public void testDisallowNaN() throws Exception
     {
         final String JSON = "[ NaN]";
-        assertFalse(DEFAULT_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
 
         // without enabling, should get an exception
         AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
@@ -33,9 +38,8 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
     {
         final String JSON = "[ NaN]";
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
-
         _testAllowNaN(f, JSON, 99);
         _testAllowNaN(f, JSON, 5);
         _testAllowNaN(f, JSON, 3);
@@ -64,7 +68,7 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
         p.close();
 
         // finally, should also work with skipping
-        f = f.rebuild().enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+        f = f.rebuild().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
         p = createParser(f, doc, readBytes);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -94,7 +98,6 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
 
     private void _testDisallowInf(JsonFactory f, String token, int readBytes) throws Exception
     {
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
         final String JSON = String.format("[%s]", token);
 
         // without enabling, should get an exception
@@ -113,9 +116,8 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
     public void testAllowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
-
         String JSON = "[ Infinity, +Infinity, -Infinity ]";
         _testAllowInf(f, JSON, 99);
         _testAllowInf(f, JSON, 5);
@@ -164,7 +166,7 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
         p.close();
 
         // finally, should also work with skipping
-        f = f.rebuild().enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS)
+        f = f.rebuild().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
         p = createParser(f, doc, readBytes);
 

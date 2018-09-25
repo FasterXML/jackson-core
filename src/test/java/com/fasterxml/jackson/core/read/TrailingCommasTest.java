@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
+@SuppressWarnings("resource")
 public class TrailingCommasTest extends BaseTest {
 
   private final JsonFactory factory;
@@ -46,7 +47,6 @@ public class TrailingCommasTest extends BaseTest {
     return cases;
   }
 
-  @SuppressWarnings("resource")
   @Test
   public void testArrayBasic() throws Exception {
     String json = "[\"a\", \"b\"]";
@@ -77,8 +77,8 @@ public class TrailingCommasTest extends BaseTest {
     assertEquals("a", p.getText());
 
     if (!features.contains(JsonReadFeature.ALLOW_MISSING_VALUES)) {
-      assertUnexpected(p, ',');
-      return;
+        assertUnexpected(p, ',');
+        return;
     }
 
     assertToken(JsonToken.VALUE_NULL, p.nextToken());
@@ -90,7 +90,6 @@ public class TrailingCommasTest extends BaseTest {
     assertEnd(p);
   }
 
-  @SuppressWarnings("resource")
   @Test
   public void testArrayLeadingComma() throws Exception {
     String json = "[,\"a\", \"b\"]";

@@ -102,6 +102,7 @@ public enum JsonReadFeature
      * Since JSON specification does not allow leading zeroes,
      * this is a non-standard feature, and as such disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_LEADING_ZEROS_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS),
     
     /**
@@ -122,6 +123,7 @@ public enum JsonReadFeature
      * Since JSON specification does not allow use of such values,
      * this is a non-standard feature, and as such disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_NON_NUMERIC_NUMBERS(false, JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS),
 
     // // // Support for non-standard data format constructs: array/value separators
@@ -164,21 +166,6 @@ public enum JsonReadFeature
      */
     @SuppressWarnings("deprecation")
     ALLOW_TRAILING_COMMA(false, JsonParser.Feature.ALLOW_TRAILING_COMMA),
-
-    // // // Support for non-standard data format constructs: JSON-like formats
-
-    /**
-     * Feature that can be turned on to support handling of BSON "shell mode" JSON extensions
-     * as specified <a href="https://docs.mongodb.com/manual/reference/mongodb-extended-json/">here</a>
-     * for "shell mode" (but NOT "strict mode" which uses standard JSON syntax but additional
-     * structural constructs).
-     *<p>
-     * NOTE: although attempt is made to support various extension wrappers there is no guarantee that
-     * all semantic aspects are retained for higher level processing.
-     *
-     * @since 2.10
-     */
-    HANDLE_BSON_WRAPPERS(false, null)
     ;
 
     final private boolean _defaultState;

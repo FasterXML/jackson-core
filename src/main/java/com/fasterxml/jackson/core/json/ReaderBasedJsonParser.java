@@ -19,7 +19,11 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public class ReaderBasedJsonParser
     extends ParserBase
 {
-    protected final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
+
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
@@ -1103,14 +1107,13 @@ public class ReaderBasedJsonParser
          */
         case ',':
         case ']':
-        	if(isEnabled(Feature.ALLOW_MISSING_VALUES)) {
-        		_inputPtr--;
-        		return (_currToken = JsonToken.VALUE_NULL);  
-        	}    
+            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+                --_inputPtr;
+                return (_currToken = JsonToken.VALUE_NULL);  
+            }
         }
         return (_currToken = _handleOddValue(i));
     }
-
     // note: identical to one in UTF8StreamJsonParser
     @Override
     public final String nextTextValue() throws IOException
@@ -1563,7 +1566,7 @@ public class ReaderBasedJsonParser
         if (ch < '0' || ch > '9') {
             return '0';
         }
-        if (!isEnabled(Feature.ALLOW_NUMERIC_LEADING_ZEROS)) {
+        if ((_features & FEAT_MASK_LEADING_ZEROS) == 0) {
             reportInvalidNumber("Leading zeroes not allowed");
         }
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)

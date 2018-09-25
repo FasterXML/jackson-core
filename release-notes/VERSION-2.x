@@ -16,6 +16,7 @@ JSON library.
 
 2.10.0 (not yet released)
 
+#467: Create `JsonReadFeature` to move JSON-specific `JsonParser.Feature`s to
 #480: `SerializableString` value can not directly render to Writer
  (requested by Philippe M)
 

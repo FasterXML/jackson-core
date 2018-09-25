@@ -16,7 +16,8 @@ JSON library.
 
 2.10.0 (not yet released)
 
-- to be filled -
+#480: `SerializableString` value can not directly render to Writer
+ (requested by Philippe M)
 
 2.9.7 (not yet released)
 

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -12,7 +13,7 @@ public class TestGeneratorWithSerializedString
     final static String NAME_WITH_LATIN1 = "P\u00f6ll\u00f6";
 
     final static String VALUE_WITH_QUOTES = "\"Value\"";
-    final static String VALUE2 = "Slightly longer value";
+    final static String VALUE2 = _generateLongName(9000);
     
     private final JsonFactory JSON_F = new JsonFactory();
     
@@ -162,5 +163,22 @@ public class TestGeneratorWithSerializedString
         
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertNull(p.nextToken());
+    }
+
+    private static String _generateLongName(int minLen)
+    {
+        StringBuilder sb = new StringBuilder();
+        Random rnd = new Random(123);
+        while (sb.length() < minLen) {
+            int ch = rnd.nextInt(96);
+            if (ch < 32) { // ascii (single byte)
+                sb.append((char) (48 + ch));
+            } else if (ch < 64) { // 2 byte
+                sb.append((char) (128 + ch));
+            } else { // 3 byte
+                sb.append((char) (4000 + ch));
+            }
+        }
+        return sb.toString();
     }
 }

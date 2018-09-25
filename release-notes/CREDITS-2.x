@@ -155,4 +155,7 @@ Doug Roper (htmldoug@github)
   * Suggested #463: Ensure that `skipChildren()` of non-blocking `JsonParser` will throw
     exception if not enough input
   (2.9.6)
- 
+
+Philippe Marschall (marschall@github)
+  * Requested #480: `SerializableString` value can not directly render to Writer
+  (2.10.0)

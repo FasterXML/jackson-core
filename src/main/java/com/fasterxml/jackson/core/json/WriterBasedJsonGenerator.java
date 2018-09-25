@@ -446,10 +446,23 @@ public class WriterBasedJsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+        int len = sstr.appendQuoted(_outputBuffer, _outputTail);
+        if (len < 0) {
+            _writeString2(sstr);
+            return;
+        }
+        _outputTail += len;
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+    }
+
+    private void _writeString2(SerializableString sstr) throws IOException
+    {
         // Note: copied from writeRaw:
         char[] text = sstr.asQuotedChars();
         final int len = text.length;
-        // Only worth buffering if it's a short write?
         if (len < SHORT_WRITE) {
             int room = _outputEnd - _outputTail;
             if (len > room) {
@@ -458,7 +471,6 @@ public class WriterBasedJsonGenerator
             System.arraycopy(text, 0, _outputBuffer, _outputTail, len);
             _outputTail += len;
         } else {
-            // Otherwise, better just pass through:
             _flushBuffer();
             _writer.write(text, 0, len);
         }
@@ -467,7 +479,7 @@ public class WriterBasedJsonGenerator
         }
         _outputBuffer[_outputTail++] = _quoteChar;
     }
-
+    
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException {
         // could add support for buffering if we really want it...

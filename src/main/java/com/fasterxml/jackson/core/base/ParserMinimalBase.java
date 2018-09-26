@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
@@ -718,33 +717,6 @@ public abstract class ParserMinimalBase extends JsonParser
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
         _reportError(msg);
-    }
-
-    /**
-     * Method called to report a problem with unquoted control character.
-     * Note: starting with version 1.4, it is possible to suppress
-     * exception by enabling {@link Feature#ALLOW_UNQUOTED_CONTROL_CHARS}.
-     */
-    protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
-        // JACKSON-208; possible to allow unquoted control chars:
-        if (!isEnabled(Feature.ALLOW_UNQUOTED_CONTROL_CHARS) || i > INT_SPACE) {
-            char c = (char) i;
-            String msg = "Illegal unquoted character ("+_getCharDesc(c)+"): has to be escaped using backslash to be included in "+ctxtDesc;
-            _reportError(msg);
-        }
-    }
-
-    protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException {
-        // as per [JACKSON-300]
-        if (isEnabled(Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
-            return ch;
-        }
-        // and [JACKSON-548]
-        if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
-            return ch;
-        }
-        _reportError("Unrecognized character escape "+_getCharDesc(ch));
-        return ch;
     }
 
     /*

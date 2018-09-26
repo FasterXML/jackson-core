@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNonStdParsingTest extends AsyncTestBase
@@ -366,7 +367,6 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     {
         // first: verify that we get an exception
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER));
         final String JSON = quote("\\'");
         AsyncReaderWrapper p = createParser(f, JSON, offset, readSize);
         try {      
@@ -379,9 +379,9 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
             p.close();
         }
         // and then verify it's ok...
-        f = f.rebuild().enable(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
+        f = f.rebuild()
+                .enable(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)
                 .build();
-        assertTrue(f.isEnabled(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER));
         p = createParser(f, JSON, offset, readSize);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("'", p.currentText());

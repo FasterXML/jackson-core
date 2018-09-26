@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>
@@ -17,9 +18,6 @@ public class TestParserFeatures
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
 
         JsonParser p = f.createParser(ObjectReadContext.empty(), new StringReader("{}"));
         _testDefaultSettings(p);
@@ -29,6 +27,15 @@ public class TestParserFeatures
         p.close();
     }
 
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedDefaultSettings() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES));
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));
+    }
+    
     public void testQuotesRequired() throws Exception
     {
         _testQuotesRequired(false);
@@ -43,10 +50,12 @@ public class TestParserFeatures
         _testTabsDefault(true);
     }
 
-    public void testTabsEnabled() throws Exception
-    {
-        _testTabsEnabled(false);
+    public void testTabsEnabledBytes() throws Exception {
         _testTabsEnabled(true);
+    }
+
+    public void testTabsEnabledChars() throws Exception {
+        _testTabsEnabled(false);
     }
     
     /*
@@ -84,7 +93,8 @@ public class TestParserFeatures
 
     private void _testTabsDefault(boolean useStream) throws Exception
     {
-        JsonFactory f = new JsonFactory();
+        JsonFactory f = JsonFactory.builder()
+                .disable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS).build();
         // First, let's see that by default unquoted tabs are illegal
         String JSON = "[\"tab:\t\"]";
         JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
@@ -103,7 +113,7 @@ public class TestParserFeatures
     private void _testTabsEnabled(boolean useStream) throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS).build();
+                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS).build();
         String FIELD = "a\tb";
         String VALUE = "\t";
         String JSON = "{ "+quote(FIELD)+" : "+quote(VALUE)+"}";

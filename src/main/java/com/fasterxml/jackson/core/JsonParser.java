@@ -126,7 +126,10 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification requires quoting for all control characters,
          * this is a non-standard feature, and as such disabled by default.
+         *
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER} instead
          */
+        @Deprecated
         ALLOW_UNQUOTED_CONTROL_CHARS(false),
 
         /**
@@ -137,7 +140,10 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification requires quoting for all control characters,
          * this is a non-standard feature, and as such disabled by default.
+         *
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER} instead
          */
+        @Deprecated
         ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false),
 
         /**
@@ -149,9 +155,9 @@ public abstract class JsonParser
          *<p>
          * Since JSON specification does not allow leading zeroes,
          * this is a non-standard feature, and as such disabled by default.
-          *
-          * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_LEADING_ZEROS_FOR_NUMBERS} instead
-          */
+         *
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_LEADING_ZEROS_FOR_NUMBERS} instead
+         */
          @Deprecated
         ALLOW_NUMERIC_LEADING_ZEROS(false),
         

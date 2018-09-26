@@ -25,6 +25,9 @@ public class ReaderBasedJsonParser
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
 
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
+    
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
@@ -1602,14 +1605,14 @@ public class ReaderBasedJsonParser
             if (ch == 'N') {
                 String match = negative ? "-INF" :"+INF";
                 _matchToken(match, 3);
-                if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+                if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
                 _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             } else if (ch == 'n') {
                 String match = negative ? "-Infinity" :"+Infinity";
                 _matchToken(match, 3);
-                if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+                if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
                 _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
@@ -1855,14 +1858,14 @@ public class ReaderBasedJsonParser
             break;
         case 'N':
             _matchToken("NaN", 1);
-            if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                 return resetAsNaN("NaN", Double.NaN);
             }
             _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             break;
         case 'I':
             _matchToken("Infinity", 1);
-            if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                 return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
             }
             _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");

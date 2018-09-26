@@ -362,7 +362,6 @@ public class NonStandardParserFeaturesTest
     {
         // first: verify that we get an exception
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER));
         final String JSON = quote("\\'");
         JsonParser p = createParser(f, mode, JSON);
         try {      
@@ -375,8 +374,9 @@ public class NonStandardParserFeaturesTest
             p.close();
         }
         // and then verify it's ok...
-        f.configure(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true);
-        assertTrue(f.isEnabled(JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER));
+        f = f.rebuild()
+                .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
+                .build();
         p = createParser(f, mode, JSON);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("'", p.getText());

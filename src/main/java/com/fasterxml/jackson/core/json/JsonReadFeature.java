@@ -77,6 +77,7 @@ public enum JsonReadFeature
      * Since JSON specification requires quoting for all control characters,
      * this is a non-standard feature, and as such disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_UNESCAPED_CONTROL_CHARS(false, JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS),
 
     /**
@@ -88,6 +89,7 @@ public enum JsonReadFeature
      * Since JSON specification requires quoting for all control characters,
      * this is a non-standard feature, and as such disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false, JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER),
 
     // // // Support for non-standard data format constructs: number representations

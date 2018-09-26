@@ -836,6 +836,7 @@ public abstract class NonBlockingJsonParserBase
         return t;
     }
 
+    @SuppressWarnings("deprecation")
     protected final JsonToken _valueNonStdNumberComplete(int type) throws IOException
     {
         String tokenStr = NON_STD_TOKENS[type];

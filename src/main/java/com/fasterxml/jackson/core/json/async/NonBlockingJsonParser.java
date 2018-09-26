@@ -25,6 +25,10 @@ public class NonBlockingJsonParser
     private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
 
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
@@ -959,7 +963,7 @@ public class NonBlockingJsonParser
 
     private final JsonToken _startSlashComment(int fromMinorState) throws IOException
     {
-        if (!JsonParser.Feature.ALLOW_COMMENTS.enabledIn(_features)) {
+        if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
 
@@ -983,7 +987,7 @@ public class NonBlockingJsonParser
     private final JsonToken _finishHashComment(int fromMinorState) throws IOException
     {
         // Could by-pass this check by refactoring, but for now simplest way...
-        if (!JsonParser.Feature.ALLOW_YAML_COMMENTS.enabledIn(_features)) {
+        if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
         while (true) {
@@ -2065,7 +2069,7 @@ public class NonBlockingJsonParser
         case '#':
             // Careful, since this may alternatively be leading char of
             // unquoted name...
-            if (JsonParser.Feature.ALLOW_YAML_COMMENTS.enabledIn(_features)) {
+            if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) != 0) {
                 return _finishHashComment(MINOR_FIELD_LEADING_WS);
             }
             break;

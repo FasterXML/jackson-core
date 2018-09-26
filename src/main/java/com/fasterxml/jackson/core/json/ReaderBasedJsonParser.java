@@ -35,6 +35,11 @@ public class ReaderBasedJsonParser
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
 
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
+
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
@@ -2409,7 +2414,7 @@ public class ReaderBasedJsonParser
 
     private void _skipComment() throws IOException
     {
-        if (!isEnabled(Feature.ALLOW_COMMENTS)) {
+        if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -2459,7 +2464,7 @@ public class ReaderBasedJsonParser
 
     private boolean _skipYAMLComment() throws IOException
     {
-        if (!isEnabled(Feature.ALLOW_YAML_COMMENTS)) {
+        if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             return false;
         }
         _skipLine();

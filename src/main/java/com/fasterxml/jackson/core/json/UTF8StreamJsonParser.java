@@ -33,6 +33,10 @@ public class UTF8StreamJsonParser
     private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
 
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
@@ -3431,7 +3435,7 @@ public class UTF8StreamJsonParser
 
     private final void _skipComment() throws IOException
     {
-        if (!isEnabled(Feature.ALLOW_COMMENTS)) {
+        if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -3496,7 +3500,7 @@ public class UTF8StreamJsonParser
 
     private final boolean _skipYAMLComment() throws IOException
     {
-        if (!isEnabled(Feature.ALLOW_YAML_COMMENTS)) {
+        if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             return false;
         }
         _skipLine();

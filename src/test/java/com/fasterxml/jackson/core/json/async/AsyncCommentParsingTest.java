@@ -5,6 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 /**
@@ -57,10 +58,9 @@ public class AsyncCommentParsingTest extends AsyncTestBase
 
     public void testYAMLCommentsEnabled() throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_YAML_COMMENTS)
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
                 .build();
-
         _testYAMLComments(f, 99);
         _testYAMLComments(f, 3);
         _testYAMLComments(f, 1);
@@ -75,8 +75,8 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     }
 
     public void testCCommentsEnabled() throws Exception {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_COMMENTS)
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
         final String COMMENT = "/* foo */\n";
         _testCommentsBeforePropValue(f, COMMENT, 99);
@@ -85,8 +85,8 @@ public class AsyncCommentParsingTest extends AsyncTestBase
     }
 
     public void testCppCommentsEnabled() throws Exception {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_COMMENTS)
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
         final String COMMENT = "// foo\n";
         _testCommentsBeforePropValue(f, COMMENT, 99);
@@ -245,8 +245,8 @@ public class AsyncCommentParsingTest extends AsyncTestBase
             int bytesPerRead)
         throws IOException
     {
-        JsonFactory f = JsonFactory.builder()
-                .configure(JsonParser.Feature.ALLOW_COMMENTS, enabled)
+        final JsonFactory f = JsonFactory.builder()
+                .configure(JsonReadFeature.ALLOW_JAVA_COMMENTS, enabled)
                 .build();
         return asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);
     }

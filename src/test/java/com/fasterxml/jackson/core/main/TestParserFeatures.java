@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.main;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>
@@ -108,7 +109,7 @@ public class TestParserFeatures
     private void _testTabsEnabled(boolean useStream) throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+                .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
                 .build();
 
         String FIELD = "a\tb";

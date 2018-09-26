@@ -11,9 +11,9 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
 {
     public void testLargeUnquotedNames() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .build();
         StringBuilder sb = new StringBuilder(5000);
         sb.append("[\n");
         final int REPS = 1050;
@@ -60,9 +60,9 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
 
     public void testSimpleUnquotedNames() throws Exception
     {
-        final JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .build();
         _testSimpleUnquoted(f, 0, 99);
         _testSimpleUnquoted(f, 0, 5);
         _testSimpleUnquoted(f, 0, 3);
@@ -171,9 +171,9 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
      */
     public void testAposQuotingEnabled() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                .build();
         _testAposQuotingEnabled(f, 0, 99);
         _testAposQuotingEnabled(f, 0, 5);
         _testAposQuotingEnabled(f, 0, 3);
@@ -269,9 +269,9 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     // test to verify that we implicitly allow escaping of apostrophe
     public void testSingleQuotesEscaped() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                .build();
         _testSingleQuotesEscaped(f, 0, 99);
         _testSingleQuotesEscaped(f, 0, 5);
         _testSingleQuotesEscaped(f, 0, 3);
@@ -296,9 +296,9 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
 
     public void testNonStandardNameChars() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .build();
         _testNonStandardNameChars(f, 0, 99);
         _testNonStandardNameChars(f, 0, 6);
         _testNonStandardNameChars(f, 0, 3);

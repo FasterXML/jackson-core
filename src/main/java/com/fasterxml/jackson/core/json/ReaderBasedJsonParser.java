@@ -27,7 +27,14 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
-    
+
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
+
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
@@ -1124,7 +1131,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
          */
         case ',':
         case ']':
-            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
                 --_inputPtr;
                 return (_currToken = JsonToken.VALUE_NULL);  
             }
@@ -1757,11 +1764,11 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     protected String _handleOddName(int i) throws IOException
     {
         // [JACKSON-173]: allow single quotes
-        if (i == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+        if (i == '\'' && (_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
             return _parseAposName();
         }
         // [JACKSON-69]: allow unquoted names if feature enabled:
-        if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+        if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
             _reportUnexpectedChar(i, "was expecting double-quote to start field name");
         }
         final int[] codes = CharTypes.getInputCodeLatin1JsNames();
@@ -1851,7 +1858,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
              * Also, no separation to fast/slow parsing; we'll just do
              * one regular (~= slowish) parsing, to keep code simple
              */
-            if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+            if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
                 return _handleApos();
             }
             break;
@@ -1865,7 +1872,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             // fall through
         case ',':
-            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
                 --_inputPtr;
                 return JsonToken.VALUE_NULL;
             }

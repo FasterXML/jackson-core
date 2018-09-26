@@ -98,7 +98,10 @@ public abstract class JsonParser
          * Since JSON specification requires use of double quotes for
          * field names,
          * this is a non-standard feature, and as such disabled by default.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNQUOTED_FIELD_NAMES} instead
          */
+        @Deprecated
         ALLOW_UNQUOTED_FIELD_NAMES(false),
 
         /**
@@ -111,7 +114,10 @@ public abstract class JsonParser
          * Since JSON specification requires use of double quotes for
          * field names,
          * this is a non-standard feature, and as such disabled by default.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_SINGLE_QUOTES} instead
          */
+        @Deprecated
         ALLOW_SINGLE_QUOTES(false),
 
         /**
@@ -125,7 +131,7 @@ public abstract class JsonParser
          * Since JSON specification requires quoting for all control characters,
          * this is a non-standard feature, and as such disabled by default.
          *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER} instead
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS} instead
          */
         @Deprecated
         ALLOW_UNQUOTED_CONTROL_CHARS(false),

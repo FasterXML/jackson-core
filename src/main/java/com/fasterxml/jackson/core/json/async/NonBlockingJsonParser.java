@@ -19,6 +19,12 @@ public class NonBlockingJsonParser
     private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
 
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
@@ -896,7 +902,7 @@ public class NonBlockingJsonParser
             // 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
             //   we may allow "missing values", that is, encountering a trailing
             //   comma or closing marker where value would be expected
-            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
                 --_inputPtr;
                 return _valueComplete(JsonToken.VALUE_NULL);
             }
@@ -906,7 +912,7 @@ public class NonBlockingJsonParser
             // been handled earlier
             break;
         case '\'':
-            if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+            if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
                 return _startAposString();
             }
             break;
@@ -2066,7 +2072,7 @@ public class NonBlockingJsonParser
         case '/':
             return _startSlashComment(MINOR_FIELD_LEADING_WS);
         case '\'':
-            if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+            if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
                 return _finishAposName(0, 0, 0);
             }
             break;
@@ -2074,7 +2080,7 @@ public class NonBlockingJsonParser
             return _closeArrayScope();
         }
         // allow unquoted names if feature enabled:
-        if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+        if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
          // !!! TODO: Decode UTF-8 characters properly...
 //            char c = (char) _decodeCharForError(ch);
             char c = (char) ch;

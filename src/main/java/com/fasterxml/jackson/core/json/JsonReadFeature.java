@@ -53,6 +53,7 @@ public enum JsonReadFeature
      * field names,
      * this is a non-standard feature, and as such disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_SINGLE_QUOTES(false, JsonParser.Feature.ALLOW_SINGLE_QUOTES),
 
     /**
@@ -64,6 +65,7 @@ public enum JsonReadFeature
      * field names,
      * this is a non-standard feature, and as such disabled by default.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_UNQUOTED_FIELD_NAMES(false, JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES),
 
     /**

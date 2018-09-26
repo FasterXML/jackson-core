@@ -5,6 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncFieldNamesTest extends AsyncTestBase
@@ -12,7 +13,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
     private final JsonFactory JSON_F = new JsonFactory();
 
     private final JsonFactory JSON_APOS_F = JsonFactory.builder()
-            .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)
+            .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
             .build();
 
     // Mainly to test "fast" parse for shortish names

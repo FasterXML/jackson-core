@@ -127,8 +127,9 @@ public class NonStandardParserFeaturesTest
         }
         sb.append("]");
         String JSON = sb.toString();
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES).build();
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .build();
         JsonParser p = createParser(f, mode, JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < REPS; ++i) {
@@ -145,9 +146,9 @@ public class NonStandardParserFeaturesTest
     
     private void _testSimpleUnquoted(int mode) throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES).build();
-
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .build();
         String JSON = "{ a : 1, _foo:true, $:\"money!\", \" \":null }";
         JsonParser p = createParser(f, mode, JSON);
 
@@ -232,8 +233,8 @@ public class NonStandardParserFeaturesTest
     private void _testSingleQuotesEnabled(int mode) throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES).build();
-
+                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                .build();
         String JSON = "{ 'a' : 1, \"foobar\": 'b', '_abcde1234':'d', '\"' : '\"\"', '':'' }";
         JsonParser p = createParser(f, mode, JSON);
 
@@ -309,7 +310,8 @@ public class NonStandardParserFeaturesTest
     private void _testSingleQuotesEscaped(int mode) throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES).build();
+                .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                .build();
         String JSON = "[ '16\\'' ]";
         JsonParser p = createParser(f, mode, JSON);
 
@@ -322,8 +324,9 @@ public class NonStandardParserFeaturesTest
     
     private void _testNonStandardNameChars(int mode) throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES).build();
+        final JsonFactory f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .build();
         String JSON = "{ @type : \"mytype\", #color : 123, *error* : true, "
             +" hyphen-ated : \"yes\", me+my : null"
             +"}";

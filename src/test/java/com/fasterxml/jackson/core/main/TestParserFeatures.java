@@ -113,7 +113,8 @@ public class TestParserFeatures
     private void _testTabsEnabled(boolean useStream) throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS).build();
+                .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
+                .build();
         String FIELD = "a\tb";
         String VALUE = "\t";
         String JSON = "{ "+quote(FIELD)+" : "+quote(VALUE)+"}";

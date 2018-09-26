@@ -41,6 +41,12 @@ public class UTF8DataInputJsonParser
     private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
+    @SuppressWarnings("deprecation")
+    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
 
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
@@ -1477,10 +1483,10 @@ public class UTF8DataInputJsonParser
      */
     protected String _handleOddName(int ch) throws IOException
     {
-        if (ch == '\'' && isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+        if (ch == '\'' && (_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
             return _parseAposName();
         }
-        if (!isEnabled(Feature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+        if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
             char c = (char) _decodeCharForError(ch);
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
@@ -1995,7 +2001,7 @@ public class UTF8DataInputJsonParser
             /* !!! TODO: 08-May-2016, tatu: To support `Feature.ALLOW_MISSING_VALUES` would
              *    need handling here...
              */
-            if (isEnabled(Feature.ALLOW_MISSING_VALUES)) {
+            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
 //               _inputPtr--;
                 _nextByte = c;
                return JsonToken.VALUE_NULL;
@@ -2006,7 +2012,7 @@ public class UTF8DataInputJsonParser
             // been handled earlier
             _reportUnexpectedChar(c, "expected a value");
         case '\'':
-            if (isEnabled(Feature.ALLOW_SINGLE_QUOTES)) {
+            if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
                 return _handleApos();
             }
             break;

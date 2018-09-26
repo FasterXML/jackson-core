@@ -76,7 +76,7 @@ public abstract class JsonParser
          * <b>disabled by default</b> for parsers and must be
          * explicitly enabled.
          *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_JAVA_COMMENTS} instead
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_JAVA_COMMENTS} instead
          */
         @Deprecated
         ALLOW_COMMENTS(false),
@@ -93,7 +93,7 @@ public abstract class JsonParser
          * <b>disabled by default</b> for parsers and must be
          * explicitly enabled.
          *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_YAML_COMMENTS} instead
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_YAML_COMMENTS} instead
          */
         @Deprecated
         ALLOW_YAML_COMMENTS(false),
@@ -107,7 +107,7 @@ public abstract class JsonParser
          * field names,
          * this is a non-standard feature, and as such disabled by default.
          *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNQUOTED_FIELD_NAMES} instead
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNQUOTED_FIELD_NAMES} instead
          */
         @Deprecated
         ALLOW_UNQUOTED_FIELD_NAMES(false),
@@ -123,7 +123,7 @@ public abstract class JsonParser
          * field names,
          * this is a non-standard feature, and as such disabled by default.
          *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_SINGLE_QUOTES} instead
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_SINGLE_QUOTES} instead
          */
         @Deprecated
         ALLOW_SINGLE_QUOTES(false),
@@ -139,11 +139,7 @@ public abstract class JsonParser
          * Since JSON specification requires quoting for all control characters,
          * this is a non-standard feature, and as such disabled by default.
          *
-<<<<<<< HEAD
-         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER} instead
-=======
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS} instead
->>>>>>> 2.10
+         * @deprecated Since 3.0 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS} instead
          */
         @Deprecated
         ALLOW_UNQUOTED_CONTROL_CHARS(false),

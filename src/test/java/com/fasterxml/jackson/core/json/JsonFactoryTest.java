@@ -193,6 +193,7 @@ public class JsonFactoryTest
     }
 
     // #72
+    @SuppressWarnings("deprecation")
     public void testCopy() throws Exception
     {
         JsonFactory jf = new JsonFactory();

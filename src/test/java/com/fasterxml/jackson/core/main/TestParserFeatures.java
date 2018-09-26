@@ -16,7 +16,6 @@ public class TestParserFeatures
     {
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
 
         JsonParser p = f.createParser(new StringReader("{}"));
         _testDefaultSettings(p);
@@ -30,6 +29,7 @@ public class TestParserFeatures
     public void testDeprecatedDefaultSettings() throws Exception
     {
         JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES));
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));

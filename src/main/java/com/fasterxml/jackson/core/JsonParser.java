@@ -73,7 +73,10 @@ public abstract class JsonParser
          * this is extensively used. As such, feature is
          * <b>disabled by default</b> for parsers and must be
          * explicitly enabled.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_JAVA_COMMENTS} instead
          */
+        @Deprecated
         ALLOW_COMMENTS(false),
 
         /**
@@ -87,7 +90,10 @@ public abstract class JsonParser
          * this is a non-standard feature. As such, feature is
          * <b>disabled by default</b> for parsers and must be
          * explicitly enabled.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_YAML_COMMENTS} instead
          */
+        @Deprecated
         ALLOW_YAML_COMMENTS(false),
         
         /**

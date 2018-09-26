@@ -24,6 +24,7 @@ public enum JsonReadFeature
      * <b>disabled by default</b> for parsers and must be
      * explicitly enabled.
      */
+        @SuppressWarnings("deprecation")
     ALLOW_JAVA_COMMENTS(false, JsonParser.Feature.ALLOW_COMMENTS),
 
     /**
@@ -38,6 +39,7 @@ public enum JsonReadFeature
      * <b>disabled by default</b> for parsers and must be
      * explicitly enabled.
      */
+    @SuppressWarnings("deprecation")
     ALLOW_YAML_COMMENTS(false, JsonParser.Feature.ALLOW_YAML_COMMENTS),
 
     // // // Support for non-standard data format constructs: quoting/escaping

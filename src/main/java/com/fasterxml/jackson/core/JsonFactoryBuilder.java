@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.core.json.JsonWriteFeature;
 
 /**
  * {@link com.fasterxml.jackson.core.TSFBuilder}
@@ -77,6 +78,51 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
         return state ? enable(f) : disable(f);
     }
 
+    // // // JSON-generating features
+
+    @Override
+    public JsonFactoryBuilder enable(JsonWriteFeature f) {
+        JsonGenerator.Feature old = f.mappedFeature();
+        if (old != null) {
+            enable(old);
+        }
+        return _this();
+    }
+
+    @Override
+    public JsonFactoryBuilder enable(JsonWriteFeature first, JsonWriteFeature... other) {
+        enable(first);
+        for (JsonWriteFeature f : other) {
+            enable(f);
+        }
+        return _this();
+    }
+
+    @Override
+    public JsonFactoryBuilder disable(JsonWriteFeature f) {
+        JsonGenerator.Feature old = f.mappedFeature();
+        if (old != null) {
+            disable(old);
+        }
+        return _this();
+    }
+
+    @Override
+    public JsonFactoryBuilder disable(JsonWriteFeature first, JsonWriteFeature... other) {
+        disable(first);
+        for (JsonWriteFeature f : other) {
+            disable(f);
+        }
+        return _this();
+    }
+
+    @Override
+    public JsonFactoryBuilder configure(JsonWriteFeature f, boolean state) {
+        return state ? enable(f) : disable(f);
+    }
+    
+    // // // JSON-specific helper objects
+    
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
      * it creates.

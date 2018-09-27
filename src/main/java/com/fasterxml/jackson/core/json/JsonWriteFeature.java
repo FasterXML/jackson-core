@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.json;
 
-import java.math.BigDecimal;
-
 import com.fasterxml.jackson.core.*;
 
 /**
@@ -58,16 +56,6 @@ public enum JsonWriteFeature
      */
     WRITE_NUMBERS_AS_STRINGS(false, JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
 
-    /**
-     * Feature that determines whether {@link java.math.BigDecimal} entries are
-     * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
-     * values to be written using scientific notation.
-     *<p>
-     * Feature is disabled by default, so default output mode is used; this generally
-     * depends on how {@link BigDecimal} has been created.
-     */
-    WRITE_BIGDECIMAL_AS_PLAIN(false, JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN),
-    
     /**
      * Feature that specifies that all characters beyond 7-bit ASCII
      * range (i.e. code points of 128 and above) need to be output

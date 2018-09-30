@@ -426,25 +426,16 @@ public abstract class TokenStreamFactory
      * This is usually used for determining
      * whether to force a stable ordering (like alphabetic ordering by name)
      * if no ordering if explicitly specified.
-     *<p>
-     * Default implementation returns <code>false</code> as JSON does NOT
-     * require stable ordering. Formats that require ordering include positional
-     * textual formats like <code>CSV</code>, and schema-based binary formats
-     * like <code>Avro</code>.
      */
     public boolean requiresPropertyOrdering() { return false; }
 
     /**
      * Introspection method that higher-level functionality may call
      * to see whether underlying data format can read and write binary
-     * data natively; that is, embeded it as-is without using encodings
+     * data natively; that is, embedded it as-is without using encodings
      * such as Base64.
-     *<p>
-     * Default implementation returns <code>false</code> as JSON does not
-     * support native access: all binary content must use Base64 encoding.
-     * Most binary formats (like Smile and Avro) support native binary content.
      */
-    public boolean canHandleBinaryNatively() { return false; }
+    public abstract boolean canHandleBinaryNatively();
 
     /**
      * Introspection method that can be used to check whether this

@@ -413,7 +413,7 @@ public class JsonFactory
     /* Capability introspection
     /**********************************************************
      */
-    
+
     /**
      * Introspection method that higher-level functionality may call
      * to see whether underlying data format requires a stable ordering
@@ -459,7 +459,6 @@ public class JsonFactory
      * 
      * @since 2.4
      */
-    @Override
     public boolean canUseCharArrays() { return true; }
 
     /**
@@ -477,25 +476,11 @@ public class JsonFactory
         return _isJSONFactory();
     }
 
-    /**
-     * Method for accessing kind of {@link FormatFeature} that a parser
-     * {@link JsonParser} produced by this factory would accept, if any;
-     * <code>null</code> returned if none.
-     *
-     * @since 2.6
-     */
     @Override
     public Class<? extends FormatFeature> getFormatReadFeatureType() {
         return null;
     }
 
-    /**
-     * Method for accessing kind of {@link FormatFeature} that a parser
-     * {@link JsonGenerator} produced by this factory would accept, if any;
-     * <code>null</code> returned if none.
-     *
-     * @since 2.6
-     */
     @Override
     public Class<? extends FormatFeature> getFormatWriteFeatureType() {
         return null;
@@ -550,7 +535,6 @@ public class JsonFactory
      * Convenience method for trying to determine whether input via given accessor
      * is of format type supported by this factory.
      */
-    @Override
     public MatchStrength hasFormat(InputAccessor acc) throws IOException
     {
         // since we can't keep this abstract, only implement for "vanilla" instance
@@ -573,7 +557,6 @@ public class JsonFactory
      * 
      * @since 2.1
      */
-    @Override
     public boolean requiresCustomCodec() {
         return false;
     }
@@ -712,7 +695,6 @@ public class JsonFactory
      * Method for getting currently configured input decorator (if any;
      * there is no default decorator).
      */
-    @Override
     public InputDecorator getInputDecorator() {
         return _inputDecorator;
     }
@@ -787,7 +769,6 @@ public class JsonFactory
      * Method for getting currently configured output decorator (if any;
      * there is no default decorator).
      */
-    @Override
     public OutputDecorator getOutputDecorator() {
         return _outputDecorator;
     }
@@ -820,7 +801,6 @@ public class JsonFactory
     /**
      * @since 2.1
      */
-    @Override
     public String getRootValueSeparator() {
         return (_rootValueSeparator == null) ? null : _rootValueSeparator.getValue();
     }
@@ -1215,6 +1195,208 @@ public class JsonFactory
     @Override
     public JsonGenerator createGenerator(DataOutput out) throws IOException {
         return createGenerator(_createDataOutputWrapper(out), JsonEncoding.UTF8);
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated parser factory methods: to be removed from 3.x
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing JSON parser instance to parse
+     * contents of specified file.
+     *<p>
+     * Encoding is auto-detected from contents according to JSON
+     * specification recommended mechanism. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *
+     *<p>
+     * Underlying input stream (needed for reading contents)
+     * will be <b>owned</b> (and managed, i.e. closed as need be) by
+     * the parser, since caller has no access to it.
+     *
+     * @param f File that contains JSON content to parse
+     * 
+     * @deprecated Since 2.2, use {@link #createParser(File)} instead.
+     */
+    @Deprecated
+    public JsonParser createJsonParser(File f) throws IOException, JsonParseException {
+        return createParser(f);
+    }
+
+    /**
+     * Method for constructing JSON parser instance to parse
+     * contents of resource reference by given URL.
+     *
+     *<p>
+     * Encoding is auto-detected from contents according to JSON
+     * specification recommended mechanism. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *
+     *<p>
+     * Underlying input stream (needed for reading contents)
+     * will be <b>owned</b> (and managed, i.e. closed as need be) by
+     * the parser, since caller has no access to it.
+     *
+     * @param url URL pointing to resource that contains JSON content to parse
+     * 
+     * @deprecated Since 2.2, use {@link #createParser(URL)} instead.
+     */
+    @Deprecated
+    public JsonParser createJsonParser(URL url) throws IOException, JsonParseException {
+        return createParser(url);
+    }
+
+    /**
+     * Method for constructing JSON parser instance to parse
+     * the contents accessed via specified input stream.
+     *<p>
+     * The input stream will <b>not be owned</b> by
+     * the parser, it will still be managed (i.e. closed if
+     * end-of-stream is reacher, or parser close method called)
+     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * is enabled.
+     *<p>
+     *
+     * Note: no encoding argument is taken since it can always be
+     * auto-detected as suggested by JSON RFC. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *
+     * @param in InputStream to use for reading JSON content to parse
+     * 
+     * @deprecated Since 2.2, use {@link #createParser(InputStream)} instead.
+     */
+    @Deprecated
+    public JsonParser createJsonParser(InputStream in) throws IOException, JsonParseException {
+        return createParser(in);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * the contents accessed via specified Reader.
+     <p>
+     * The read stream will <b>not be owned</b> by
+     * the parser, it will still be managed (i.e. closed if
+     * end-of-stream is reacher, or parser close method called)
+     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * is enabled.
+     *
+     * @param r Reader to use for reading JSON content to parse
+     * 
+     * @deprecated Since 2.2, use {@link #createParser(Reader)} instead.
+     */
+    @Deprecated
+    public JsonParser createJsonParser(Reader r) throws IOException, JsonParseException {
+        return createParser(r);
+    }
+
+    /**
+     * Method for constructing parser for parsing the contents of given byte array.
+     * 
+     * @deprecated Since 2.2, use {@link #createParser(byte[])} instead.
+     */
+    @Deprecated
+    public JsonParser createJsonParser(byte[] data) throws IOException, JsonParseException {
+        return createParser(data);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * the contents of given byte array.
+     * 
+     * @param data Buffer that contains data to parse
+     * @param offset Offset of the first data byte within buffer
+     * @param len Length of contents to parse within buffer
+     * 
+     * @deprecated Since 2.2, use {@link #createParser(byte[],int,int)} instead.
+     */
+    @Deprecated
+    public JsonParser createJsonParser(byte[] data, int offset, int len) throws IOException, JsonParseException {
+        return createParser(data, offset, len);
+    }
+
+    /**
+     * Method for constructing parser for parsing
+     * contents of given String.
+     * 
+     * @deprecated Since 2.2, use {@link #createParser(String)} instead.
+     */
+    @Deprecated
+    public JsonParser createJsonParser(String content) throws IOException, JsonParseException {
+        return createParser(content);
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated generator factory methods: to be removed from 3.x
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing JSON generator for writing JSON content
+     * using specified output stream.
+     * Encoding to use must be specified, and needs to be one of available
+     * types (as per JSON specification).
+     *<p>
+     * Underlying stream <b>is NOT owned</b> by the generator constructed,
+     * so that generator will NOT close the output stream when
+     * {@link JsonGenerator#close} is called (unless auto-closing
+     * feature,
+     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET}
+     * is enabled).
+     * Using application needs to close it explicitly if this is the case.
+     *<p>
+     * Note: there are formats that use fixed encoding (like most binary data formats)
+     * and that ignore passed in encoding.
+     *
+     * @param out OutputStream to use for writing JSON content 
+     * @param enc Character encoding to use
+     *
+     * @deprecated Since 2.2, use {@link #createGenerator(OutputStream, JsonEncoding)} instead.
+     */
+    @Deprecated
+    public JsonGenerator createJsonGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+        return createGenerator(out, enc);
+    }
+
+    /**
+     * Method for constructing JSON generator for writing JSON content
+     * using specified Writer.
+     *<p>
+     * Underlying stream <b>is NOT owned</b> by the generator constructed,
+     * so that generator will NOT close the Reader when
+     * {@link JsonGenerator#close} is called (unless auto-closing
+     * feature,
+     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
+     * Using application needs to close it explicitly.
+     *
+     * @param out Writer to use for writing JSON content 
+     * 
+     * @deprecated Since 2.2, use {@link #createGenerator(Writer)} instead.
+     */
+    @Deprecated
+    public JsonGenerator createJsonGenerator(Writer out) throws IOException {
+        return createGenerator(out);
+    }
+
+    /**
+     * Convenience method for constructing generator that uses default
+     * encoding of the format (UTF-8 for JSON and most other data formats).
+     *<p>
+     * Note: there are formats that use fixed encoding (like most binary data formats).
+     * 
+     * @deprecated Since 2.2, use {@link #createGenerator(OutputStream)} instead.
+     */
+    @Deprecated
+    public JsonGenerator createJsonGenerator(OutputStream out) throws IOException {
+        return createGenerator(out, JsonEncoding.UTF8);
     }
 
     /*

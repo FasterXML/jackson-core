@@ -424,7 +424,12 @@ public class UTF8JsonGenerator
             }
             _outputBuffer[_outputTail++] = _quoteChar;
         }
-        _writeBytes(name.asQuotedUTF8());
+        int len = name.appendQuotedUTF8(_outputBuffer, _outputTail);
+        if (len < 0) {
+            _writeBytes(name.asQuotedUTF8());
+        } else {
+            _outputTail += len;
+        }
         if (addQuotes) {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
@@ -651,9 +656,11 @@ public class UTF8JsonGenerator
     @Override
     public void writeRaw(SerializableString text) throws IOException
     {
-        byte[] raw = text.asUnquotedUTF8();
-        if (raw.length > 0) {
-            _writeBytes(raw);
+        int len = text.appendUnquotedUTF8(_outputBuffer, _outputTail);
+        if (len < 0) {
+            _writeBytes(text.asUnquotedUTF8());
+        } else {
+            _outputTail += len;
         }
     }
 
@@ -661,9 +668,11 @@ public class UTF8JsonGenerator
     @Override
     public void writeRawValue(SerializableString text) throws IOException {
         _verifyValueWrite(WRITE_RAW);
-        byte[] raw = text.asUnquotedUTF8();
-        if (raw.length > 0) {
-            _writeBytes(raw);
+        int len = text.appendUnquotedUTF8(_outputBuffer, _outputTail);
+        if (len < 0) {
+            _writeBytes(text.asUnquotedUTF8());
+        } else {
+            _outputTail += len;
         }
     }
 

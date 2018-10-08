@@ -34,7 +34,7 @@ public abstract class JsonGenerator
      */
     public enum Feature {
         // // Low-level I/O / content features
-        
+
         /**
          * Feature that determines whether generator will automatically
          * close underlying output target that is NOT owned by the
@@ -1095,6 +1095,7 @@ public abstract class JsonGenerator
      * 
      * @since 2.1
      */
+//    public abstract void writeRaw(SerializableString raw) throws IOException;
     public void writeRaw(SerializableString raw) throws IOException {
         writeRaw(raw.getValue());
     }

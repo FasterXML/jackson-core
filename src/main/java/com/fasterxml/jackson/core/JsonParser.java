@@ -784,10 +784,9 @@ public abstract class JsonParser
      * @since 2.6
      */
     public JsonParser overrideFormatFeatures(int values, int mask) {
-        throw new IllegalArgumentException("No FormatFeatures defined for parser of type "+getClass().getName());
-        /*
-        _formatFeatures = (_formatFeatures & ~mask) | (values & mask);
-        */
+        // 08-Oct-2018, tatu: For 2.10 we actually do get `JsonReadFeature`s so...
+//        throw new IllegalArgumentException("No FormatFeatures defined for parser of type "+getClass().getName());
+        return this;
     }
 
     /*

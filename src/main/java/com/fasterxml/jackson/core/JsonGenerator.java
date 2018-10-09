@@ -149,7 +149,6 @@ public abstract class JsonGenerator
          *<p>
          * Feature is disabled by default.
          */
-        // @Deprecated
         ESCAPE_NON_ASCII(false),
 
 // 23-Nov-2015, tatu: for [core#223], if and when it gets implemented

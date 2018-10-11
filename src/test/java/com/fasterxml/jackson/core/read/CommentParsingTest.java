@@ -31,13 +31,11 @@ public class CommentParsingTest
      * Unit test for verifying that by default comments are not
      * recognized.
      */
-    @SuppressWarnings("deprecation")
     public void testDefaultSettings() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         JsonParser p = f.createParser(ObjectReadContext.empty(), new StringReader("[ 1 ]"));
-        assertFalse(p.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         p.close();
     }
 

@@ -3,9 +3,10 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.base.JsonParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadContext;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
@@ -15,7 +16,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * Intermediate base class for non-blocking JSON parsers.
  */
 public abstract class NonBlockingJsonParserBase
-    extends ParserBase
+    extends JsonParserBase
 {
     /*
     /**********************************************************************
@@ -247,9 +248,9 @@ public abstract class NonBlockingJsonParserBase
      */
 
     public NonBlockingJsonParserBase(ObjectReadContext readCtxt, IOContext ctxt,
-            int parserFeatures, ByteQuadsCanonicalizer sym)
+            int stdFeatures, int formatFeatures, ByteQuadsCanonicalizer sym)
     {
-        super(readCtxt, ctxt, parserFeatures);
+        super(readCtxt, ctxt, stdFeatures, formatFeatures);
         _symbols = sym;
         _currToken = null;
         _majorState = MAJOR_INITIAL;
@@ -823,22 +824,6 @@ public abstract class NonBlockingJsonParserBase
         return t;
     }
 
-    @SuppressWarnings("deprecation")
-    protected final JsonToken _valueNonStdNumberComplete(int type) throws IOException
-    {
-        String tokenStr = NON_STD_TOKENS[type];
-        _textBuffer.resetWithString(tokenStr);
-        if (!isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
-            _reportError("Non-standard token '%s': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow",
-                    tokenStr);
-        }
-        _intLength = 0;
-        _numTypesValid = NR_DOUBLE;
-        _numberDouble = NON_STD_TOKEN_VALUES[type];
-        _majorState = _majorStateAfterValue;
-        return (_currToken = JsonToken.VALUE_NUMBER_FLOAT);
-    }
-
     protected final String _nonStdToken(int type) {
         return NON_STD_TOKENS[type];
     }
@@ -848,6 +833,21 @@ public abstract class NonBlockingJsonParserBase
     /* Internal methods, error reporting, related
     /**********************************************************************
      */
+
+    protected final JsonToken _valueNonStdNumberComplete(int type) throws IOException
+    {
+        String tokenStr = NON_STD_TOKENS[type];
+        _textBuffer.resetWithString(tokenStr);
+        if (!isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
+            _reportError("Non-standard token '%s': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow",
+                    tokenStr);
+        }
+        _intLength = 0;
+        _numTypesValid = NR_DOUBLE;
+        _numberDouble = NON_STD_TOKEN_VALUES[type];
+        _majorState = _majorStateAfterValue;
+        return (_currToken = JsonToken.VALUE_NUMBER_FLOAT);
+    }
 
     protected final void _updateTokenLocation()
     {

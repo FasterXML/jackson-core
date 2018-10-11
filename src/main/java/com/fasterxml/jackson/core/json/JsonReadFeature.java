@@ -24,8 +24,7 @@ public enum JsonReadFeature
      * <b>disabled by default</b> for parsers and must be
      * explicitly enabled.
      */
-        @SuppressWarnings("deprecation")
-    ALLOW_JAVA_COMMENTS(false, JsonParser.Feature.ALLOW_COMMENTS),
+    ALLOW_JAVA_COMMENTS(false),
 
     /**
      * Feature that determines whether parser will allow use
@@ -39,8 +38,7 @@ public enum JsonReadFeature
      * <b>disabled by default</b> for parsers and must be
      * explicitly enabled.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_YAML_COMMENTS(false, JsonParser.Feature.ALLOW_YAML_COMMENTS),
+    ALLOW_YAML_COMMENTS(false),
 
     // // // Support for non-standard data format constructs: quoting/escaping
 
@@ -55,8 +53,7 @@ public enum JsonReadFeature
      * field names,
      * this is a non-standard feature, and as such disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_SINGLE_QUOTES(false, JsonParser.Feature.ALLOW_SINGLE_QUOTES),
+    ALLOW_SINGLE_QUOTES(false),
 
     /**
      * Feature that determines whether parser will allow use
@@ -67,8 +64,7 @@ public enum JsonReadFeature
      * field names,
      * this is a non-standard feature, and as such disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_UNQUOTED_FIELD_NAMES(false, JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES),
+    ALLOW_UNQUOTED_FIELD_NAMES(false),
 
     /**
      * Feature that determines whether parser will allow
@@ -81,8 +77,7 @@ public enum JsonReadFeature
      * Since JSON specification requires quoting for all control characters,
      * this is a non-standard feature, and as such disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_UNESCAPED_CONTROL_CHARS(false, JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS),
+    ALLOW_UNESCAPED_CONTROL_CHARS(false),
 
     /**
      * Feature that can be enabled to accept quoting of all character
@@ -93,8 +88,7 @@ public enum JsonReadFeature
      * Since JSON specification requires quoting for all control characters,
      * this is a non-standard feature, and as such disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false, JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER),
+    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false),
 
     // // // Support for non-standard data format constructs: number representations
     
@@ -108,8 +102,7 @@ public enum JsonReadFeature
      * Since JSON specification does not allow leading zeroes,
      * this is a non-standard feature, and as such disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS),
+    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false),
     
     /**
      * Feature that allows parser to recognize set of
@@ -129,8 +122,7 @@ public enum JsonReadFeature
      * Since JSON specification does not allow use of such values,
      * this is a non-standard feature, and as such disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_NON_NUMERIC_NUMBERS(false, JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS),
+    ALLOW_NON_NUMERIC_NUMBERS(false),
 
     // // // Support for non-standard data format constructs: array/value separators
      
@@ -148,8 +140,7 @@ public enum JsonReadFeature
      * Since the JSON specification does not allow missing values this is a non-compliant JSON
      * feature and is disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_MISSING_VALUES(false, JsonParser.Feature.ALLOW_MISSING_VALUES),
+    ALLOW_MISSING_VALUES(false),
 
     /**
      * Feature that determines whether {@link JsonParser} will allow for a single trailing
@@ -170,19 +161,12 @@ public enum JsonReadFeature
      * Since the JSON specification does not permit trailing commas, this is a non-standard
      * feature, and as such disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ALLOW_TRAILING_COMMA(false, JsonParser.Feature.ALLOW_TRAILING_COMMA),
+    ALLOW_TRAILING_COMMA(false),
     ;
 
     final private boolean _defaultState;
     final private int _mask;
 
-    /**
-     * For backwards compatibility we may need to map to one of existing {@link JsonParser.Feature}s;
-     * if so, this is the feature to enable/disable.
-     */
-    final private JsonParser.Feature _mappedFeature;
-    
     /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
@@ -198,11 +182,9 @@ public enum JsonReadFeature
         return flags;
     }
     
-    private JsonReadFeature(boolean defaultState,
-            JsonParser.Feature  mapTo) {
+    private JsonReadFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());
-        _mappedFeature = mapTo;
     }
 
     @Override
@@ -211,6 +193,4 @@ public enum JsonReadFeature
     public int getMask() { return _mask; }
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
-
-    public JsonParser.Feature mappedFeature() { return _mappedFeature; }
 }

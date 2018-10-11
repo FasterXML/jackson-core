@@ -7,11 +7,10 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class NonStandardParserFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    @SuppressWarnings("deprecation")
     public void testDefaults() {
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
+        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS));
+        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
     public void testSimpleUnquotedBytes() throws Exception {

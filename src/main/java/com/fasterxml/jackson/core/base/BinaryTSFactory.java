@@ -19,7 +19,9 @@ public abstract class BinaryTSFactory extends DecorableTSFactory
     /**********************************************************
      */
 
-    protected BinaryTSFactory() { super(); }
+    protected BinaryTSFactory(int formatPF, int formatGF) {
+        super(formatPF, formatGF);
+    }
 
     /**
      * Constructors used by builders for instantiation.

@@ -12,15 +12,21 @@ import com.fasterxml.jackson.core.io.UTF8Writer;
  * textual data formats.
  */
 @SuppressWarnings("resource")
-public abstract class TextualTSFactory extends DecorableTSFactory
+public abstract class TextualTSFactory
+    extends DecorableTSFactory
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     /*
     /**********************************************************
     /* Construction
     /**********************************************************
      */
-    
-    protected TextualTSFactory() { super(); }
+
+    protected TextualTSFactory(int formatPF, int formatGF) {
+        super(formatPF, formatGF);
+    }
 
     /**
      * Constructors used by builders for instantiation.

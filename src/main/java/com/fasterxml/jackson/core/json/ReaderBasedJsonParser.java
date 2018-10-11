@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.base.JsonParserBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -17,28 +17,15 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * conversion tasks.
  */
 public class ReaderBasedJsonParser
-    extends ParserBase
+    extends JsonParserBase
 {
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
+    private final static int FEAT_MASK_TRAILING_COMMA = JsonReadFeature.ALLOW_TRAILING_COMMA.getMask();
 
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
+    private final static int FEAT_MASK_ALLOW_MISSING = JsonReadFeature.ALLOW_MISSING_VALUES.getMask();
+    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = JsonReadFeature.ALLOW_SINGLE_QUOTES.getMask();
 
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
+    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = JsonReadFeature.ALLOW_JAVA_COMMENTS.getMask();
+    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = JsonReadFeature.ALLOW_YAML_COMMENTS.getMask();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
@@ -124,12 +111,12 @@ public class ReaderBasedJsonParser
      * and it may or may not be recyclable use standard recycle context.
      */
     public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
-            int features, Reader r,
+            int stdFeatures, int formatFeatures, Reader r,
             CharsToNameCanonicalizer st,
             char[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
-        super(readCtxt, ctxt, features);
+        super(readCtxt, ctxt, stdFeatures, formatFeatures);
         _reader = r;
         _inputBuffer = inputBuffer;
         _inputPtr = start;
@@ -144,10 +131,10 @@ public class ReaderBasedJsonParser
      * can be done using default mechanism.
      */
     public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
-            int features, Reader r,
+            int stdFeatures, int formatFeatures, Reader r,
             CharsToNameCanonicalizer st)
     {
-        super(readCtxt, ctxt, features);
+        super(readCtxt, ctxt, stdFeatures, formatFeatures);
         _reader = r;
         _inputBuffer = ctxt.allocTokenBuffer();
         _inputPtr = 0;
@@ -671,7 +658,7 @@ public class ReaderBasedJsonParser
             i = _skipComma(i);
 
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return _currToken;
@@ -826,7 +813,7 @@ public class ReaderBasedJsonParser
             i = _skipComma(i);
 
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return false;
@@ -897,7 +884,7 @@ public class ReaderBasedJsonParser
         }
         if (_parsingContext.expectComma()) {
             i = _skipComma(i);
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return null;
@@ -1122,7 +1109,7 @@ public class ReaderBasedJsonParser
          */
         case ',':
         case ']':
-            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                 --_inputPtr;
                 return (_currToken = JsonToken.VALUE_NULL);  
             }
@@ -1581,7 +1568,7 @@ public class ReaderBasedJsonParser
         if (ch < '0' || ch > '9') {
             return '0';
         }
-        if ((_features & FEAT_MASK_LEADING_ZEROS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)) {
             reportInvalidNumber("Leading zeroes not allowed");
         }
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)
@@ -1617,14 +1604,14 @@ public class ReaderBasedJsonParser
             if (ch == 'N') {
                 String match = negative ? "-INF" :"+INF";
                 _matchToken(match, 3);
-                if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+                if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
                 _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             } else if (ch == 'n') {
                 String match = negative ? "-Infinity" :"+Infinity";
                 _matchToken(match, 3);
-                if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+                if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
                 _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
@@ -1754,12 +1741,12 @@ public class ReaderBasedJsonParser
      */
     protected String _handleOddName(int i) throws IOException
     {
-        // [JACKSON-173]: allow single quotes
-        if (i == '\'' && (_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+        // Allow single quotes?
+        if (i == '\'' && (_formatReadFeatures & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
             return _parseAposName();
         }
-        // [JACKSON-69]: allow unquoted names if feature enabled:
-        if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
+        // Allow unquoted names if feature enabled:
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
             _reportUnexpectedChar(i, "was expecting double-quote to start field name");
         }
         final int[] codes = CharTypes.getInputCodeLatin1JsNames();
@@ -1849,7 +1836,7 @@ public class ReaderBasedJsonParser
              * Also, no separation to fast/slow parsing; we'll just do
              * one regular (~= slowish) parsing, to keep code simple
              */
-            if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
                 return _handleApos();
             }
             break;
@@ -1863,21 +1850,21 @@ public class ReaderBasedJsonParser
             }
             // fall through
         case ',':
-            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                 --_inputPtr;
                 return JsonToken.VALUE_NULL;
             }
             break;
         case 'N':
             _matchToken("NaN", 1);
-            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("NaN", Double.NaN);
             }
             _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             break;
         case 'I':
             _matchToken("Infinity", 1);
-            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
             }
             _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
@@ -2414,7 +2401,7 @@ public class ReaderBasedJsonParser
 
     private void _skipComment() throws IOException
     {
-        if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+        if ((_formatReadFeatures & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -2464,7 +2451,7 @@ public class ReaderBasedJsonParser
 
     private boolean _skipYAMLComment() throws IOException
     {
-        if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+        if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             return false;
         }
         _skipLine();

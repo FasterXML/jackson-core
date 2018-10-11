@@ -237,7 +237,8 @@ public final class ByteSourceJsonBootstrapper
         throw new RuntimeException("Internal error"); // should never get here
     }
 
-    public JsonParser constructParser(ObjectReadContext readCtxt, int parserFeatures,
+    public JsonParser constructParser(ObjectReadContext readCtxt,
+            int parserFeatures, int formatReadFeatures,
             ByteQuadsCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols,
             int factoryFeatures) throws IOException
     {
@@ -249,11 +250,13 @@ public final class ByteSourceJsonBootstrapper
              */
             if (JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(factoryFeatures)) {
                 ByteQuadsCanonicalizer can = rootByteSymbols.makeChild(factoryFeatures);
-                return new UTF8StreamJsonParser(readCtxt, _context, parserFeatures, _in, can,
+                return new UTF8StreamJsonParser(readCtxt, _context,
+                        parserFeatures, formatReadFeatures, _in, can,
                         _inputBuffer, _inputPtr, _inputEnd, _bufferRecyclable);
             }
         }
-        return new ReaderBasedJsonParser(readCtxt, _context, parserFeatures, constructReader(),
+        return new ReaderBasedJsonParser(readCtxt, _context, parserFeatures, formatReadFeatures,
+                constructReader(),
                 rootCharSymbols.makeChild(factoryFeatures));
     }
 

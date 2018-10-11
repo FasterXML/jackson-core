@@ -11,8 +11,6 @@ import com.fasterxml.jackson.core.json.JsonWriteFeature;
  * {@link com.fasterxml.jackson.core.TokenStreamFactory.TSFBuilder}
  * implementation for constructing {@link JsonFactory}
  * instances for reading/writing JSON encoded content.
- *
- * @since 2.10
  */
 public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFactoryBuilder>
 {
@@ -21,7 +19,8 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     protected SerializableString _rootValueSeparator;
 
     public JsonFactoryBuilder() {
-        super();
+        super(JsonFactory.DEFAULT_JSON_PARSER_FEATURE_FLAGS,
+                JsonFactory.DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR;
     }
 
@@ -39,34 +38,30 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
 
     // // // JSON-parsing features
 
+    // // // Parser features
+
     public JsonFactoryBuilder enable(JsonReadFeature f) {
-        JsonParser.Feature old = f.mappedFeature();
-        if (old != null) {
-            enable(old);
-        }
+        _formatReadFeatures |= f.getMask();
         return _this();
     }
 
     public JsonFactoryBuilder enable(JsonReadFeature first, JsonReadFeature... other) {
-        enable(first);
+        _formatReadFeatures |= first.getMask();
         for (JsonReadFeature f : other) {
-            enable(f);
+            _formatReadFeatures |= f.getMask();
         }
         return _this();
     }
 
     public JsonFactoryBuilder disable(JsonReadFeature f) {
-        JsonParser.Feature old = f.mappedFeature();
-        if (old != null) {
-            disable(old);
-        }
+        _formatReadFeatures &= ~f.getMask();
         return _this();
     }
 
     public JsonFactoryBuilder disable(JsonReadFeature first, JsonReadFeature... other) {
-        disable(first);
+        _formatReadFeatures &= ~first.getMask();
         for (JsonReadFeature f : other) {
-            disable(f);
+            _formatReadFeatures &= ~f.getMask();
         }
         return _this();
     }
@@ -75,36 +70,30 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         return state ? enable(f) : disable(f);
     }
 
-    // // // JSON-generating features
+    // // // Generator features
 
     public JsonFactoryBuilder enable(JsonWriteFeature f) {
-        JsonGenerator.Feature old = f.mappedFeature();
-        if (old != null) {
-            enable(old);
-        }
+        _formatWriteFeatures |= f.getMask();
         return _this();
     }
 
     public JsonFactoryBuilder enable(JsonWriteFeature first, JsonWriteFeature... other) {
-        enable(first);
+        _formatWriteFeatures |= first.getMask();
         for (JsonWriteFeature f : other) {
-            enable(f);
+            _formatWriteFeatures |= f.getMask();
         }
         return _this();
     }
 
     public JsonFactoryBuilder disable(JsonWriteFeature f) {
-        JsonGenerator.Feature old = f.mappedFeature();
-        if (old != null) {
-            disable(old);
-        }
+        _formatWriteFeatures &= ~f.getMask();
         return _this();
     }
-
+    
     public JsonFactoryBuilder disable(JsonWriteFeature first, JsonWriteFeature... other) {
-        disable(first);
+        _formatWriteFeatures &= ~first.getMask();
         for (JsonWriteFeature f : other) {
-            disable(f);
+            _formatWriteFeatures &= ~f.getMask();
         }
         return _this();
     }

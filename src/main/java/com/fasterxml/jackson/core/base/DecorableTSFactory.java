@@ -13,7 +13,10 @@ import com.fasterxml.jackson.core.io.*;
  */
 public abstract class DecorableTSFactory
     extends TokenStreamFactory
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     /**
      * Since factory instances are immutable, a Builder class is needed for creating
      * configurations for differently configured factory instances.
@@ -38,8 +41,8 @@ public abstract class DecorableTSFactory
 
         // // // Construction
 
-        protected DecorableTSFBuilder() {
-            super();
+        protected DecorableTSFBuilder(int formatPF, int formatGF) {
+            super(formatPF, formatGF);
             _inputDecorator = null;
             _outputDecorator = null;
         }
@@ -92,7 +95,9 @@ public abstract class DecorableTSFactory
     /**********************************************************
      */
     
-    protected DecorableTSFactory() { }
+    protected DecorableTSFactory(int formatPF, int formatGF) {
+        super(formatPF, formatGF);
+    }
 
     /**
      * Constructors used by builders for instantiation.
@@ -125,7 +130,6 @@ public abstract class DecorableTSFactory
         return _outputDecorator;
     }
 
-    @Deprecated // since 3.0
     public DecorableTSFactory setOutputDecorator(OutputDecorator d) {
         _outputDecorator = d;
         return this;
@@ -135,7 +139,6 @@ public abstract class DecorableTSFactory
         return _inputDecorator;
     }
 
-    @Deprecated // since 3.0
     public DecorableTSFactory setInputDecorator(InputDecorator d) {
         _inputDecorator = d;
         return this;

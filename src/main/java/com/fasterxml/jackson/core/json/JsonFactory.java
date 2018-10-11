@@ -46,6 +46,18 @@ public class JsonFactory
      */
     public final static String FORMAT_NAME_JSON = "JSON";
 
+    /**
+     * Bitfield (set of flags) of all parser features that are enabled
+     * by default.
+     */
+    final static int DEFAULT_JSON_PARSER_FEATURE_FLAGS = JsonReadFeature.collectDefaults();
+
+    /**
+     * Bitfield (set of flags) of all generator features that are enabled
+     * by default.
+     */
+    final static int DEFAULT_JSON_GENERATOR_FEATURE_FLAGS = JsonWriteFeature.collectDefaults();
+
     public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
 
     /*
@@ -104,7 +116,7 @@ public class JsonFactory
      * factory instance.
      */
     public JsonFactory() {
-        super();
+        super(DEFAULT_JSON_PARSER_FEATURE_FLAGS, DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
         _characterEscapes = null;
     }
@@ -194,6 +206,20 @@ public class JsonFactory
         return true;
     }
 
+    /**
+     * Checked whether specified parser feature is enabled.
+     */
+    public final boolean isEnabled(JsonReadFeature f) {
+        return (_formatParserFeatures & f.getMask()) != 0;
+    }
+
+    /**
+     * Check whether specified generator feature is enabled.
+     */
+    public final boolean isEnabled(JsonWriteFeature f) {
+        return (_formatGeneratorFeatures & f.getMask()) != 0;
+    }
+
     /*
     /**********************************************************************
     /* Format support
@@ -226,16 +252,10 @@ public class JsonFactory
     }
 
     @Override
-    public int getFormatParserFeatures() { return 0; }
+    public Class<? extends FormatFeature> getFormatReadFeatureType() { return JsonReadFeature.class; }
 
     @Override
-    public int getFormatGeneratorFeatures() { return 0; }
-    
-    @Override
-    public Class<? extends FormatFeature> getFormatReadFeatureType() { return null; }
-
-    @Override
-    public Class<? extends FormatFeature> getFormatWriteFeatureType() { return null; }
+    public Class<? extends FormatFeature> getFormatWriteFeatureType() { return JsonWriteFeature.class; }
 
     /*
     /**********************************************************************
@@ -265,7 +285,9 @@ public class JsonFactory
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new NonBlockingJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_parserFeatures), can);
+                readCtxt.getParserFeatures(_parserFeatures),
+                readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                can);
     }
 
     protected IOContext _createNonBlockingContext(Object srcRef) {
@@ -285,7 +307,9 @@ public class JsonFactory
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
             InputStream in) throws IOException {
         return new ByteSourceJsonBootstrapper(ioCtxt, in)
-                .constructParser(readCtxt, readCtxt.getParserFeatures(_parserFeatures),
+                .constructParser(readCtxt,
+                        readCtxt.getParserFeatures(_parserFeatures),
+                        readCtxt.getFormatReadFeatures(_formatParserFeatures),
                         _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
@@ -294,6 +318,7 @@ public class JsonFactory
             Reader r) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
                 readCtxt.getParserFeatures(_parserFeatures),
+                readCtxt.getFormatReadFeatures(_formatParserFeatures),
                 r,
                 _rootCharSymbols.makeChild(_factoryFeatures));
     }
@@ -304,6 +329,7 @@ public class JsonFactory
             boolean recyclable) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
                 readCtxt.getParserFeatures(_parserFeatures),
+                readCtxt.getFormatReadFeatures(_formatParserFeatures),
                 null,
                 _rootCharSymbols.makeChild(_factoryFeatures),
                 data, offset, offset+len, recyclable);
@@ -314,8 +340,10 @@ public class JsonFactory
             byte[] data, int offset, int len) throws IOException
     {
         return new ByteSourceJsonBootstrapper(ioCtxt, data, offset, len)
-                .constructParser(readCtxt, readCtxt.getParserFeatures(_parserFeatures),
-                        _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+                .constructParser(readCtxt,
+                        readCtxt.getParserFeatures(_parserFeatures),
+                        readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                       _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
     @Override
@@ -328,6 +356,7 @@ public class JsonFactory
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new UTF8DataInputJsonParser(readCtxt, ioCtxt,
                 readCtxt.getParserFeatures(_parserFeatures),
+                readCtxt.getFormatReadFeatures(_formatParserFeatures),
                 input, can, firstByte);
     }
 

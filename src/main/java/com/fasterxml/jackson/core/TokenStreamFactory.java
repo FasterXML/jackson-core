@@ -36,8 +36,11 @@ import com.fasterxml.jackson.core.util.Snapshottable;
  */
 public abstract class TokenStreamFactory
     implements Versioned,
+        java.io.Serializable,
         Snapshottable<TokenStreamFactory> // 3.0
 {
+    private static final long serialVersionUID = 3L;
+
     /**
      * Shareable stateles "empty" {@link ObjectWriteContext} Object, passed in
      * cases where caller had not passed actual context -- "null object" of sort.
@@ -164,12 +167,24 @@ public abstract class TokenStreamFactory
          */
         protected int _generatorFeatures;
 
+        /**
+         * Set of format-specific read {@link FormatFeature}s enabled, as bitmask.
+         */
+        protected int _formatReadFeatures;
+
+        /**
+         * Set of format-specific write {@link FormatFeature}s enabled, as bitmask.
+         */
+        protected int _formatWriteFeatures;
+
         // // // Construction
 
-        protected TSFBuilder() {
+        protected TSFBuilder(int formatPF, int formatGF) {
             _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
             _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
             _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+            _formatReadFeatures = formatPF;
+            _formatWriteFeatures = formatGF;
         }
 
         protected TSFBuilder(TokenStreamFactory base)
@@ -191,6 +206,9 @@ public abstract class TokenStreamFactory
         public int factoryFeaturesMask() { return _factoryFeatures; }
         public int parserFeaturesMask() { return _parserFeatures; }
         public int generatorFeaturesMask() { return _generatorFeatures; }
+
+        public int formatParserFeaturesMask() { return _formatReadFeatures; }
+        public int formatGeneratorFeaturesMask() { return _formatWriteFeatures; }
 
         // // // Factory features
 
@@ -329,6 +347,16 @@ public abstract class TokenStreamFactory
      */
     protected final int _generatorFeatures;
 
+    /**
+     * Set of format-specific read features enabled, as bitmask.
+     */
+    protected final int _formatParserFeatures;
+
+    /**
+     * Set of format-specific write features enabled, as bitmask.
+     */
+    protected final int _formatGeneratorFeatures;
+    
     /*
     /**********************************************************
     /* Construction
@@ -345,10 +373,12 @@ public abstract class TokenStreamFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    protected TokenStreamFactory() {
+    protected TokenStreamFactory(int formatParserFeatures, int formatGeneratorFeatures) {
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
         _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
         _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+        _formatParserFeatures = formatParserFeatures;
+        _formatGeneratorFeatures = formatGeneratorFeatures;
     }
 
     /**
@@ -365,6 +395,8 @@ public abstract class TokenStreamFactory
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
         _parserFeatures = baseBuilder.parserFeaturesMask();
         _generatorFeatures = baseBuilder.generatorFeaturesMask();
+        _formatParserFeatures = baseBuilder.formatParserFeaturesMask();
+        _formatGeneratorFeatures = baseBuilder.formatGeneratorFeaturesMask();
     }
 
     /**
@@ -376,6 +408,8 @@ public abstract class TokenStreamFactory
         _factoryFeatures = src._factoryFeatures;
         _parserFeatures = src._parserFeatures;
         _generatorFeatures = src._generatorFeatures;
+        _formatParserFeatures = src._formatParserFeatures;
+        _formatGeneratorFeatures = src._formatGeneratorFeatures;
     }
 
     /**
@@ -537,12 +571,12 @@ public abstract class TokenStreamFactory
     /**
      * @since 3.0
      */
-    public abstract int getFormatParserFeatures();
+    public int getFormatParserFeatures() { return _formatParserFeatures; }
 
     /**
      * @since 3.0
      */
-    public abstract int getFormatGeneratorFeatures();
+    public int getFormatGeneratorFeatures() { return _formatGeneratorFeatures; }
 
     /*
     /**********************************************************

@@ -123,22 +123,22 @@ public class JsonFactoryTest
 
         // since 3.0:
         assertFalse(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(jf.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
 
         jf = jf.rebuild()
                 .enable(JsonFactory.Feature.INTERN_FIELD_NAMES)
-                .enable(JsonParser.Feature.ALLOW_COMMENTS)
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .enable(JsonGenerator.Feature.ESCAPE_NON_ASCII)
                 .build();
         // then change, verify that changes "stick"
         assertTrue(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(jf.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
 
         JsonFactory jf2 = jf.copy();
         assertTrue(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(jf.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
     }
 }

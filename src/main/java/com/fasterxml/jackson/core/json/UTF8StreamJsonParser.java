@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.base.JsonParserBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -17,26 +17,14 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * based on a {@link java.io.InputStream} as the input source.
  */
 public class UTF8StreamJsonParser
-    extends ParserBase
+    extends JsonParserBase
 {
     final static byte BYTE_LF = (byte) '\n';
 
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
+    private final static int FEAT_MASK_TRAILING_COMMA = JsonReadFeature.ALLOW_TRAILING_COMMA.getMask();
+    private final static int FEAT_MASK_ALLOW_MISSING = JsonReadFeature.ALLOW_MISSING_VALUES.getMask();
+    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = JsonReadFeature.ALLOW_JAVA_COMMENTS.getMask();
+    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = JsonReadFeature.ALLOW_YAML_COMMENTS.getMask();
 
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
@@ -133,12 +121,13 @@ public class UTF8StreamJsonParser
      */
 
     public UTF8StreamJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
-            int features, InputStream in,
+            int stdFeatures, int formatReadFeatures,
+            InputStream in,
             ByteQuadsCanonicalizer sym,
             byte[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
-        super(readCtxt, ctxt, features);
+        super(readCtxt, ctxt, stdFeatures, formatReadFeatures);
         _inputStream = in;
         _symbols = sym;
         _inputBuffer = inputBuffer;
@@ -700,7 +689,7 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     return _closeScope(i);
                 }
@@ -888,7 +877,7 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return null;
@@ -997,7 +986,7 @@ public class UTF8StreamJsonParser
             i = _skipWS();
 
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return false;
@@ -1081,7 +1070,7 @@ public class UTF8StreamJsonParser
             }
             i = _skipWS();
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 boolean isEndObject = (i == INT_RCURLY);
                 if (isEndObject || (i == INT_RBRACKET)) {
                     _closeScope(i);
@@ -1832,8 +1821,8 @@ public class UTF8StreamJsonParser
         if (ch < INT_0 || ch > INT_9) {
             return INT_0;
         }
-        // [JACKSON-358]: we may want to allow them, after all...
-        if ((_features & FEAT_MASK_LEADING_ZEROS) == 0) {
+        // Optionally may accept leading zeroes:
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)) {
             reportInvalidNumber("Leading zeroes not allowed");
         }
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)
@@ -2326,11 +2315,11 @@ public class UTF8StreamJsonParser
     protected String _handleOddName(int ch) throws IOException
     {
         // First: may allow single quotes
-        if (ch == INT_APOS && (_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+        if (ch == INT_APOS && isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
             return _parseAposName();
         }
-        // Allow unquoted names if feature enabled:
-        if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
+        // Allow unquoted names only if feature enabled:
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
             char c = (char) _decodeCharForError(ch);
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
@@ -2921,7 +2910,7 @@ public class UTF8StreamJsonParser
             // 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
             //   we may allow "missing values", that is, encountering a trailing
             //   comma or closing marker where value would be expected
-            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                 --_inputPtr;
                 return JsonToken.VALUE_NULL;
             }
@@ -2931,20 +2920,20 @@ public class UTF8StreamJsonParser
             // been handled earlier
             _reportUnexpectedChar(c, "expected a value");
         case '\'':
-            if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
                 return _handleApos();
             }
             break;
         case 'N':
             _matchToken("NaN", 1);
-            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("NaN", Double.NaN);
             }
             _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             break;
         case 'I':
             _matchToken("Infinity", 1);
-            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
             }
             _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
@@ -3083,7 +3072,7 @@ public class UTF8StreamJsonParser
                 break;
             }
             _matchToken(match, 3);
-            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN(match, neg ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
             }
             _reportError("Non-standard token '%s': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow",
@@ -3435,7 +3424,7 @@ public class UTF8StreamJsonParser
 
     private final void _skipComment() throws IOException
     {
-        if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+        if ((_formatReadFeatures & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -3500,7 +3489,7 @@ public class UTF8StreamJsonParser
 
     private final boolean _skipYAMLComment() throws IOException
     {
-        if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+        if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
             return false;
         }
         _skipLine();

@@ -14,7 +14,7 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
 
     @SuppressWarnings("deprecation")
     public void testDefaultsForAsync() throws Exception {
-        assertFalse(DEFAULT_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
+        assertFalse(DEFAULT_F.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }
     
     public void testDisallowNaN() throws Exception

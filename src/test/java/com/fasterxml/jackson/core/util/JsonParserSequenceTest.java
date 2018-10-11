@@ -29,7 +29,7 @@ public class JsonParserSequenceTest extends BaseTest
         ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
                 ObjectReadContext.empty(),
                 ioContext,
-                2, null, CharsToNameCanonicalizer.createRoot());
+                2, 0, null, CharsToNameCanonicalizer.createRoot());
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, readerBasedJsonParser, readerBasedJsonParser);
 
         assertFalse(jsonParserSequence.isClosed());
@@ -48,7 +48,7 @@ public class JsonParserSequenceTest extends BaseTest
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray, 0, (byte) 58);
         UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(ObjectReadContext.empty(),
                 ioContext,
-                0, byteArrayInputStream, ByteQuadsCanonicalizer.createRoot(),
+                0, 0, byteArrayInputStream, ByteQuadsCanonicalizer.createRoot(),
                 byteArray, -1, (byte) 9, true);
         JsonParserDelegate jsonParserDelegate = new JsonParserDelegate(jsonParserArray[0]);
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, uTF8StreamJsonParser, jsonParserDelegate);

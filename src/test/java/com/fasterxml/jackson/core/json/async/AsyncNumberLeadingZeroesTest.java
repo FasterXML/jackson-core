@@ -10,10 +10,9 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNumberLeadingZeroesTest extends AsyncTestBase
 {
-    @SuppressWarnings("deprecation")
     public void testDefaultsForAsync() throws Exception {
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
+        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS));
     }
 
     public void testLeadingZeroesInt() throws Exception

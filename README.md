@@ -1,7 +1,7 @@
 # Overview
 
 This project contains core low-level incremental ("streaming") parser and generator abstractions used by
-[Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
+[Jackson Data Processor](https://github.com/FasterXML/jackson).
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
@@ -108,6 +108,6 @@ Note that the main differences compared to 1.0 core jar are:
 * Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
 * [Jackson Github Hub](https://github.com/FasterXML/jackson) has links to all official Jackson components
 * [Jackson Github Doc](https://github.com/FasterXML/jackson-docs) is the hub for official Jackson documentation
-* [FasterXML Jackson Project Wiki](http://wiki.fasterxml.com/JacksonHome) has additional documentation (especially for older Jackson versions)
+* [FasterXML Jackson Project Wiki](https://github.com/FasterXML/jackson/wiki/) has additional documentation (especially for older Jackson versions)
 
 

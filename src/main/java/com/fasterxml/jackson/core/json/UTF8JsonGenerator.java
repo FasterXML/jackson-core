@@ -985,7 +985,7 @@ public class UTF8JsonGenerator
     {
         if (_cfgNumbersAsStrings ||
             (((Double.isNaN(d) || Double.isInfinite(d))
-                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_features)))) {
+                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_streamWriteFeatures)))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -1000,7 +1000,7 @@ public class UTF8JsonGenerator
         if (_cfgNumbersAsStrings ||
             // [JACKSON-139]
             (((Float.isNaN(f) || Float.isInfinite(f))
-                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_features)))) {
+                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_streamWriteFeatures)))) {
             writeString(String.valueOf(f));
             return;
         }

@@ -179,12 +179,12 @@ public abstract class TokenStreamFactory
 
         // // // Construction
 
-        protected TSFBuilder(int formatPF, int formatGF) {
+        protected TSFBuilder(int formatReadF, int formatWriteF) {
             _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
             _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
             _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
-            _formatReadFeatures = formatPF;
-            _formatWriteFeatures = formatGF;
+            _formatReadFeatures = formatReadF;
+            _formatWriteFeatures = formatWriteF;
         }
 
         protected TSFBuilder(TokenStreamFactory base)
@@ -194,11 +194,11 @@ public abstract class TokenStreamFactory
         }
 
         protected TSFBuilder(int factoryFeatures,
-                int parserFeatures, int generatorFeatures)
+                int streamReadFeatures, int streamWriteFeatures)
         {
             _factoryFeatures = factoryFeatures;
-            _streamReadFeatures = parserFeatures;
-            _streamWriteFeatures = generatorFeatures;
+            _streamReadFeatures = streamReadFeatures;
+            _streamWriteFeatures = streamWriteFeatures;
         }
 
         // // // Accessors

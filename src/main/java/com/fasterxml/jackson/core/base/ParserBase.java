@@ -255,7 +255,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override
     public JsonParser enable(Feature f) {
-        _features |= f.getMask();
+        _streamReadFeatures |= f.getMask();
         if (f == Feature.STRICT_DUPLICATE_DETECTION) { // enabling dup detection?
             if (_parsingContext.getDupDetector() == null) { // but only if disabled currently
                 _parsingContext = _parsingContext.withDupDetector(DupDetector.rootDetector(this));
@@ -266,7 +266,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override
     public JsonParser disable(Feature f) {
-        _features &= ~f.getMask();
+        _streamReadFeatures &= ~f.getMask();
         if (f == Feature.STRICT_DUPLICATE_DETECTION) {
             _parsingContext = _parsingContext.withDupDetector(null);
         }
@@ -1047,7 +1047,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * "source reference" when constructing {@link JsonLocation} instances.
      */
     protected Object _getSourceReference() {
-        if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
+        if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_streamReadFeatures)) {
             return _ioContext.getSourceReference();
         }
         return null;

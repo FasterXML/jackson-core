@@ -68,7 +68,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
      * are enabled.
      */
-    protected int _features;
+    protected int _streamWriteFeatures;
 
     /**
      * Flag set to indicate that implicit conversion from number
@@ -105,7 +105,7 @@ public abstract class GeneratorBase extends JsonGenerator
     protected GeneratorBase(ObjectWriteContext writeCtxt, int features) {
         super();
         _objectWriteContext = writeCtxt;
-        _features = features;
+        _streamWriteFeatures = features;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _outputContext = JsonWriteContext.createRootContext(dups);
@@ -115,7 +115,7 @@ public abstract class GeneratorBase extends JsonGenerator
     protected GeneratorBase(ObjectWriteContext writeCtxt, int features, JsonWriteContext ctxt) {
         super();
         _objectWriteContext = writeCtxt;
-        _features = features;
+        _streamWriteFeatures = features;
         _outputContext = ctxt;
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
@@ -144,15 +144,15 @@ public abstract class GeneratorBase extends JsonGenerator
      */
 
 
-    @Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }
-    @Override public int getGeneratorFeatures() { return _features; }
+    @Override public final boolean isEnabled(Feature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
+    @Override public int getGeneratorFeatures() { return _streamWriteFeatures; }
 
     //public JsonGenerator configure(Feature f, boolean state) { }
 
     @Override
     public JsonGenerator enable(Feature f) {
         final int mask = f.getMask();
-        _features |= mask;
+        _streamWriteFeatures |= mask;
         if ((mask & DERIVED_FEATURES_MASK) != 0) {
             // why not switch? Requires addition of a generated class, alas
             if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
@@ -171,7 +171,7 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override
     public JsonGenerator disable(Feature f) {
         final int mask = f.getMask();
-        _features &= ~mask;
+        _streamWriteFeatures &= ~mask;
         if ((mask & DERIVED_FEATURES_MASK) != 0) {
             if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = false;
@@ -410,7 +410,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * @since 2.7.7
      */
     protected String _asString(BigDecimal value) throws IOException {
-        if (Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_features)) {
+        if (Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_streamWriteFeatures)) {
             // 24-Aug-2016, tatu: [core#315] prevent possible DoS vector
             int scale = value.scale();
             if ((scale < -MAX_BIG_DECIMAL_SCALE) || (scale > MAX_BIG_DECIMAL_SCALE)) {

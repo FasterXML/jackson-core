@@ -128,14 +128,14 @@ public abstract class ParserMinimalBase extends JsonParser
     /* Minimal configuration state
     /**********************************************************
      */
-    
+
     /**
      * Bit flag composed of bits that indicate which
      * {@link com.fasterxml.jackson.core.JsonParser.Feature}s
      * are enabled.
      */
-    protected int _features;
-    
+    protected int _streamReadFeatures;
+
     /*
     /**********************************************************
     /* Minimal generally useful state
@@ -180,7 +180,7 @@ public abstract class ParserMinimalBase extends JsonParser
     {
         super();
         _objectReadContext = readCtxt;
-        _features = parserFeatures;
+        _streamReadFeatures = parserFeatures;
     }
 
     /*
@@ -198,21 +198,21 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override
     public JsonParser enable(Feature f) {
-        _features |= f.getMask();
+        _streamReadFeatures |= f.getMask();
         return this;
     }
 
     @Override
     public JsonParser disable(Feature f) {
-        _features &= ~f.getMask();
+        _streamReadFeatures &= ~f.getMask();
         return this;
     }
 
     @Override
-    public boolean isEnabled(Feature f) { return f.enabledIn(_features); }
+    public boolean isEnabled(Feature f) { return f.enabledIn(_streamReadFeatures); }
 
     @Override
-    public int getParserFeatures() { return _features; }
+    public int getParserFeatures() { return _streamReadFeatures; }
 
     @Override
     public int getFormatFeatures() {

@@ -190,15 +190,19 @@ public abstract class TokenStreamFactory
         protected TSFBuilder(TokenStreamFactory base)
         {
             this(base._factoryFeatures,
-                    base.getStreamReadFeatures(), base.getStreamWriteFeatures());
+                    base._streamReadFeatures, base._streamWriteFeatures,
+                    base._formatReadFeatures, base._formatWriteFeatures);
         }
 
         protected TSFBuilder(int factoryFeatures,
-                int streamReadFeatures, int streamWriteFeatures)
+                int streamReadFeatures, int streamWriteFeatures,
+                int formatReadFeatures, int formatWriteFeatures)
         {
             _factoryFeatures = factoryFeatures;
             _streamReadFeatures = streamReadFeatures;
             _streamWriteFeatures = streamWriteFeatures;
+            _formatReadFeatures = formatReadFeatures;
+            _formatWriteFeatures = formatWriteFeatures;
         }
 
         // // // Accessors

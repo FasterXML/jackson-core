@@ -181,8 +181,8 @@ public abstract class TokenStreamFactory
 
         protected TSFBuilder(int formatPF, int formatGF) {
             _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-            _streamReadFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
-            _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+            _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
+            _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
             _formatReadFeatures = formatPF;
             _formatWriteFeatures = formatGF;
         }
@@ -190,7 +190,7 @@ public abstract class TokenStreamFactory
         protected TSFBuilder(TokenStreamFactory base)
         {
             this(base._factoryFeatures,
-                    base.getParserFeatures(), base.getGeneratorFeatures());
+                    base.getStreamReadFeatures(), base.getStreamWriteFeatures());
         }
 
         protected TSFBuilder(int factoryFeatures,
@@ -204,11 +204,11 @@ public abstract class TokenStreamFactory
         // // // Accessors
 
         public int factoryFeaturesMask() { return _factoryFeatures; }
-        public int parserFeaturesMask() { return _streamReadFeatures; }
-        public int generatorFeaturesMask() { return _streamWriteFeatures; }
+        public int streamReadFeaturesMask() { return _streamReadFeatures; }
+        public int streamWriteFeaturesMask() { return _streamWriteFeatures; }
 
-        public int formatParserFeaturesMask() { return _formatReadFeatures; }
-        public int formatGeneratorFeaturesMask() { return _formatWriteFeatures; }
+        public int formatReadFeaturesMask() { return _formatReadFeatures; }
+        public int formatWriteFeaturesMask() { return _formatWriteFeatures; }
 
         // // // Factory features
 
@@ -318,13 +318,13 @@ public abstract class TokenStreamFactory
      * Bitfield (set of flags) of all parser features that are enabled
      * by default.
      */
-    protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
+    protected final static int DEFAULT_STREAM_READ_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
     
     /**
      * Bitfield (set of flags) of all generator features that are enabled
      * by default.
      */
-    protected final static int DEFAULT_GENERATOR_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
+    protected final static int DEFAULT_STREAM_WRITE_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
 
     /*
     /**********************************************************
@@ -373,12 +373,12 @@ public abstract class TokenStreamFactory
      * and this reuse only works within context of a single
      * factory instance.
      */
-    protected TokenStreamFactory(int formatParserFeatures, int formatGeneratorFeatures) {
+    protected TokenStreamFactory(int formatReadFeatures, int formatWriteFeatures) {
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-        _streamReadFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
-        _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
-        _formatReadFeatures = formatParserFeatures;
-        _formatWriteFeatures = formatGeneratorFeatures;
+        _streamReadFeatures = DEFAULT_STREAM_READ_FEATURE_FLAGS;
+        _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
+        _formatReadFeatures = formatReadFeatures;
+        _formatWriteFeatures = formatWriteFeatures;
     }
 
     /**
@@ -393,10 +393,10 @@ public abstract class TokenStreamFactory
     protected TokenStreamFactory(TSFBuilder<?,?> baseBuilder)
     {
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
-        _streamReadFeatures = baseBuilder.parserFeaturesMask();
-        _streamWriteFeatures = baseBuilder.generatorFeaturesMask();
-        _formatReadFeatures = baseBuilder.formatParserFeaturesMask();
-        _formatWriteFeatures = baseBuilder.formatGeneratorFeaturesMask();
+        _streamReadFeatures = baseBuilder.streamReadFeaturesMask();
+        _streamWriteFeatures = baseBuilder.streamWriteFeaturesMask();
+        _formatReadFeatures = baseBuilder.formatReadFeaturesMask();
+        _formatWriteFeatures = baseBuilder.formatWriteFeaturesMask();
     }
 
     /**
@@ -557,26 +557,26 @@ public abstract class TokenStreamFactory
     /**
      * @since 3.0
      */
-    public final int getParserFeatures() {
+    public final int getStreamReadFeatures() {
         return _streamReadFeatures;
     }
 
     /**
      * @since 3.0
      */
-    public final int getGeneratorFeatures() {
+    public final int getStreamWriteFeatures() {
         return _streamWriteFeatures;
     }
 
     /**
      * @since 3.0
      */
-    public int getFormatParserFeatures() { return _formatReadFeatures; }
+    public int getFormatReadFeatures() { return _formatReadFeatures; }
 
     /**
      * @since 3.0
      */
-    public int getFormatGeneratorFeatures() { return _formatWriteFeatures; }
+    public int getFormatWriteFeatures() { return _formatWriteFeatures; }
 
     /*
     /**********************************************************

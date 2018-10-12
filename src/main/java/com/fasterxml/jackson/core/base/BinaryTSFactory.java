@@ -11,8 +11,12 @@ import com.fasterxml.jackson.core.io.IOContext;
  * binary (non-textual) data formats.
  */
 @SuppressWarnings("resource")
-public abstract class BinaryTSFactory extends DecorableTSFactory
+public abstract class BinaryTSFactory
+    extends DecorableTSFactory
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     /*
     /**********************************************************
     /* Construction

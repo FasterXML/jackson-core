@@ -48,11 +48,11 @@ public abstract class JsonParserBase
      */
 
     protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException {
-        // as per [JACKSON-300]
+        // It is possible we allow all kinds of non-standard escapes...
         if (isEnabled(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
             return ch;
         }
-        // and [JACKSON-548]
+        // and if allowing single-quoted names, String values, single-quote needs to be escapable regardless
         if (ch == '\'' && isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
             return ch;
         }
@@ -66,7 +66,7 @@ public abstract class JsonParserBase
      * exception by enabling {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}.
      */
     protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
-        // JACKSON-208; possible to allow unquoted control chars:
+        // It is possible to allow unquoted control chars:
         if (!isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS) || i > INT_SPACE) {
             char c = (char) i;
             String msg = "Illegal unquoted character ("+_getCharDesc(c)+"): has to be escaped using backslash to be included in "+ctxtDesc;

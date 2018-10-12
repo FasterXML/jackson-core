@@ -160,12 +160,12 @@ public abstract class TokenStreamFactory
         /**
          * Set of {@link JsonParser.Feature}s enabled, as bitmask.
          */
-        protected int _parserFeatures;
+        protected int _streamReadFeatures;
 
         /**
          * Set of {@link JsonGenerator.Feature}s enabled, as bitmask.
          */
-        protected int _generatorFeatures;
+        protected int _streamWriteFeatures;
 
         /**
          * Set of format-specific read {@link FormatFeature}s enabled, as bitmask.
@@ -181,8 +181,8 @@ public abstract class TokenStreamFactory
 
         protected TSFBuilder(int formatPF, int formatGF) {
             _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-            _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
-            _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+            _streamReadFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
+            _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
             _formatReadFeatures = formatPF;
             _formatWriteFeatures = formatGF;
         }
@@ -197,15 +197,15 @@ public abstract class TokenStreamFactory
                 int parserFeatures, int generatorFeatures)
         {
             _factoryFeatures = factoryFeatures;
-            _parserFeatures = parserFeatures;
-            _generatorFeatures = generatorFeatures;
+            _streamReadFeatures = parserFeatures;
+            _streamWriteFeatures = generatorFeatures;
         }
 
         // // // Accessors
 
         public int factoryFeaturesMask() { return _factoryFeatures; }
-        public int parserFeaturesMask() { return _parserFeatures; }
-        public int generatorFeaturesMask() { return _generatorFeatures; }
+        public int parserFeaturesMask() { return _streamReadFeatures; }
+        public int generatorFeaturesMask() { return _streamWriteFeatures; }
 
         public int formatParserFeaturesMask() { return _formatReadFeatures; }
         public int formatGeneratorFeaturesMask() { return _formatWriteFeatures; }
@@ -229,27 +229,27 @@ public abstract class TokenStreamFactory
         // // // Parser features
 
         public B enable(JsonParser.Feature f) {
-            _parserFeatures |= f.getMask();
+            _streamReadFeatures |= f.getMask();
             return _this();
         }
 
         public B enable(JsonParser.Feature first, JsonParser.Feature... other) {
-            _parserFeatures |= first.getMask();
+            _streamReadFeatures |= first.getMask();
             for (JsonParser.Feature f : other) {
-                _parserFeatures |= f.getMask();
+                _streamReadFeatures |= f.getMask();
             }
             return _this();
         }
 
         public B disable(JsonParser.Feature f) {
-            _parserFeatures &= ~f.getMask();
+            _streamReadFeatures &= ~f.getMask();
             return _this();
         }
 
         public B disable(JsonParser.Feature first, JsonParser.Feature... other) {
-            _parserFeatures &= ~first.getMask();
+            _streamReadFeatures &= ~first.getMask();
             for (JsonParser.Feature f : other) {
-                _parserFeatures &= ~f.getMask();
+                _streamReadFeatures &= ~f.getMask();
             }
             return _this();
         }
@@ -261,27 +261,27 @@ public abstract class TokenStreamFactory
         // // // Generator features
 
         public B enable(JsonGenerator.Feature f) {
-            _generatorFeatures |= f.getMask();
+            _streamWriteFeatures |= f.getMask();
             return _this();
         }
 
         public B enable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
-            _generatorFeatures |= first.getMask();
+            _streamWriteFeatures |= first.getMask();
             for (JsonGenerator.Feature f : other) {
-                _generatorFeatures |= f.getMask();
+                _streamWriteFeatures |= f.getMask();
             }
             return _this();
         }
 
         public B disable(JsonGenerator.Feature f) {
-            _generatorFeatures &= ~f.getMask();
+            _streamWriteFeatures &= ~f.getMask();
             return _this();
         }
         
         public B disable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
-            _generatorFeatures &= ~first.getMask();
+            _streamWriteFeatures &= ~first.getMask();
             for (JsonGenerator.Feature f : other) {
-                _generatorFeatures &= ~f.getMask();
+                _streamWriteFeatures &= ~f.getMask();
             }
             return _this();
         }
@@ -340,22 +340,22 @@ public abstract class TokenStreamFactory
     /**
      * Currently enabled {@link JsonParser.Feature}s as a bitmask.
      */
-    protected final int _parserFeatures;
+    protected final int _streamReadFeatures;
 
     /**
      * Currently enabled {@link JsonGenerator.Feature}s as a bitmask.
      */
-    protected final int _generatorFeatures;
+    protected final int _streamWriteFeatures;
 
     /**
      * Set of format-specific read features enabled, as bitmask.
      */
-    protected final int _formatParserFeatures;
+    protected final int _formatReadFeatures;
 
     /**
      * Set of format-specific write features enabled, as bitmask.
      */
-    protected final int _formatGeneratorFeatures;
+    protected final int _formatWriteFeatures;
     
     /*
     /**********************************************************
@@ -375,10 +375,10 @@ public abstract class TokenStreamFactory
      */
     protected TokenStreamFactory(int formatParserFeatures, int formatGeneratorFeatures) {
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-        _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
-        _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
-        _formatParserFeatures = formatParserFeatures;
-        _formatGeneratorFeatures = formatGeneratorFeatures;
+        _streamReadFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
+        _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+        _formatReadFeatures = formatParserFeatures;
+        _formatWriteFeatures = formatGeneratorFeatures;
     }
 
     /**
@@ -393,10 +393,10 @@ public abstract class TokenStreamFactory
     protected TokenStreamFactory(TSFBuilder<?,?> baseBuilder)
     {
         _factoryFeatures = baseBuilder.factoryFeaturesMask();
-        _parserFeatures = baseBuilder.parserFeaturesMask();
-        _generatorFeatures = baseBuilder.generatorFeaturesMask();
-        _formatParserFeatures = baseBuilder.formatParserFeaturesMask();
-        _formatGeneratorFeatures = baseBuilder.formatGeneratorFeaturesMask();
+        _streamReadFeatures = baseBuilder.parserFeaturesMask();
+        _streamWriteFeatures = baseBuilder.generatorFeaturesMask();
+        _formatReadFeatures = baseBuilder.formatParserFeaturesMask();
+        _formatWriteFeatures = baseBuilder.formatGeneratorFeaturesMask();
     }
 
     /**
@@ -406,10 +406,10 @@ public abstract class TokenStreamFactory
     protected TokenStreamFactory(TokenStreamFactory src)
     {
         _factoryFeatures = src._factoryFeatures;
-        _parserFeatures = src._parserFeatures;
-        _generatorFeatures = src._generatorFeatures;
-        _formatParserFeatures = src._formatParserFeatures;
-        _formatGeneratorFeatures = src._formatGeneratorFeatures;
+        _streamReadFeatures = src._streamReadFeatures;
+        _streamWriteFeatures = src._streamWriteFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
+        _formatWriteFeatures = src._formatWriteFeatures;
     }
 
     /**
@@ -544,39 +544,39 @@ public abstract class TokenStreamFactory
      * Checked whether specified parser feature is enabled.
      */
     public final boolean isEnabled(JsonParser.Feature f) {
-        return (_parserFeatures & f.getMask()) != 0;
+        return (_streamReadFeatures & f.getMask()) != 0;
     }
 
     /**
      * Check whether specified generator feature is enabled.
      */
     public final boolean isEnabled(JsonGenerator.Feature f) {
-        return (_generatorFeatures & f.getMask()) != 0;
+        return (_streamWriteFeatures & f.getMask()) != 0;
     }
 
     /**
      * @since 3.0
      */
     public final int getParserFeatures() {
-        return _parserFeatures;
+        return _streamReadFeatures;
     }
 
     /**
      * @since 3.0
      */
     public final int getGeneratorFeatures() {
-        return _generatorFeatures;
+        return _streamWriteFeatures;
     }
 
     /**
      * @since 3.0
      */
-    public int getFormatParserFeatures() { return _formatParserFeatures; }
+    public int getFormatParserFeatures() { return _formatReadFeatures; }
 
     /**
      * @since 3.0
      */
-    public int getFormatGeneratorFeatures() { return _formatGeneratorFeatures; }
+    public int getFormatGeneratorFeatures() { return _formatWriteFeatures; }
 
     /*
     /**********************************************************

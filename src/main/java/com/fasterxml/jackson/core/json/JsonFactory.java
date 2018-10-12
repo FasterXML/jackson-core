@@ -210,14 +210,14 @@ public class JsonFactory
      * Checked whether specified parser feature is enabled.
      */
     public final boolean isEnabled(JsonReadFeature f) {
-        return (_formatParserFeatures & f.getMask()) != 0;
+        return (_formatReadFeatures & f.getMask()) != 0;
     }
 
     /**
      * Check whether specified generator feature is enabled.
      */
     public final boolean isEnabled(JsonWriteFeature f) {
-        return (_formatGeneratorFeatures & f.getMask()) != 0;
+        return (_formatWriteFeatures & f.getMask()) != 0;
     }
 
     /*
@@ -285,8 +285,8 @@ public class JsonFactory
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new NonBlockingJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_parserFeatures),
-                readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 can);
     }
 
@@ -308,8 +308,8 @@ public class JsonFactory
             InputStream in) throws IOException {
         return new ByteSourceJsonBootstrapper(ioCtxt, in)
                 .constructParser(readCtxt,
-                        readCtxt.getParserFeatures(_parserFeatures),
-                        readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                        readCtxt.getParserFeatures(_streamReadFeatures),
+                        readCtxt.getFormatReadFeatures(_formatReadFeatures),
                         _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
@@ -317,8 +317,8 @@ public class JsonFactory
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
             Reader r) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_parserFeatures),
-                readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 r,
                 _rootCharSymbols.makeChild(_factoryFeatures));
     }
@@ -328,8 +328,8 @@ public class JsonFactory
             char[] data, int offset, int len,
             boolean recyclable) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_parserFeatures),
-                readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 null,
                 _rootCharSymbols.makeChild(_factoryFeatures),
                 data, offset, offset+len, recyclable);
@@ -341,8 +341,8 @@ public class JsonFactory
     {
         return new ByteSourceJsonBootstrapper(ioCtxt, data, offset, len)
                 .constructParser(readCtxt,
-                        readCtxt.getParserFeatures(_parserFeatures),
-                        readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                        readCtxt.getParserFeatures(_streamReadFeatures),
+                        readCtxt.getFormatReadFeatures(_formatReadFeatures),
                        _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
 
@@ -355,8 +355,8 @@ public class JsonFactory
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new UTF8DataInputJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_parserFeatures),
-                readCtxt.getFormatReadFeatures(_formatParserFeatures),
+                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 input, can, firstByte);
     }
 
@@ -377,7 +377,7 @@ public class JsonFactory
         }
         // NOTE: JSON generator does not use schema; has no format-specific features
         return new WriterBasedJsonGenerator(writeCtxt, ioCtxt,
-                writeCtxt.getGeneratorFeatures(_generatorFeatures),
+                writeCtxt.getGeneratorFeatures(_streamWriteFeatures),
                 out,
                 rootSep, charEsc, writeCtxt.getPrettyPrinter());
     }
@@ -394,7 +394,7 @@ public class JsonFactory
         // NOTE: JSON generator does not use schema; has no format-specific features
 
         return new UTF8JsonGenerator(writeCtxt, ioCtxt,
-                writeCtxt.getGeneratorFeatures(_generatorFeatures),
+                writeCtxt.getGeneratorFeatures(_streamWriteFeatures),
                 out,
                 rootSep, charEsc, writeCtxt.getPrettyPrinter());
     }

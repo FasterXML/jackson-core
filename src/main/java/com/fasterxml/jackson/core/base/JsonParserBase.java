@@ -63,7 +63,7 @@ public abstract class JsonParserBase
     /**
      * Method called to report a problem with unquoted control character.
      * Note: it is possible to suppress some instances of
-     * exception by enabling {@link Feature#ALLOW_UNQUOTED_CONTROL_CHARS}.
+     * exception by enabling {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}.
      */
     protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
         // JACKSON-208; possible to allow unquoted control chars:

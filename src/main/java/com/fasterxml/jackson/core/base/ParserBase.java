@@ -826,7 +826,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _wrapError("Malformed numeric value '"+_textBuffer.contentsAsString()+"'", nex);
         }
     }
-    
+
     private void _parseSlowInt(int expType) throws IOException
     {
         String numStr = _textBuffer.contentsAsString();
@@ -843,6 +843,10 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberLong = Long.parseLong(numStr);
                 _numTypesValid = NR_LONG;
             } else {
+                // 16-Oct-2018, tatu: Need to catch "too big" early due to... issues
+                if ((expType == NR_INT) || (expType == NR_LONG)) {
+                    _reportTooLongInt(expType, numStr);
+                }
                 // nope, need the heavy guns... (rare case)
                 _numberBigInt = new BigInteger(numStr);
                 _numTypesValid = NR_BIGINT;
@@ -852,7 +856,17 @@ public abstract class ParserBase extends ParserMinimalBase
             _wrapError("Malformed numeric value '"+numStr+"'", nex);
         }
     }
-    
+
+    // @since 2.9.8
+    protected void _reportTooLongInt(int expType, String rawNum) throws IOException
+    {
+        String numDesc = (rawNum.length() > 1000)
+                ? String.format("[Integer with %d digits]", rawNum.length())
+                        : rawNum;
+        _reportError("Numeric value (%s) out of range of %s", numDesc,
+                (expType == NR_LONG) ? "long" : "int");
+    }
+
     /*
     /**********************************************************
     /* Numeric conversions

@@ -1,15 +1,16 @@
 package com.fasterxml.jackson.core.base64;
 
+import java.util.Random;
+
 import org.junit.Assert;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.Base64Variants;
 
 public class Base64CodecTest
-    extends com.fasterxml.jackson.core.BaseTest
-{
-    public void testVariantAccess()
-    {
-        for (Base64Variant var : new Base64Variant[] {
+        extends com.fasterxml.jackson.core.BaseTest {
+    public void testVariantAccess() {
+        for (Base64Variant var : new Base64Variant[]{
                 Base64Variants.MIME,
                 Base64Variants.MIME_NO_LINEFEEDS,
                 Base64Variants.MODIFIED_FOR_URL,
@@ -26,8 +27,7 @@ public class Base64CodecTest
         }
     }
 
-    public void testProps()
-    {
+    public void testProps() {
         Base64Variant std = Base64Variants.MIME;
         // let's verify basic props of std cocec
         assertEquals("MIME", std.getName());
@@ -40,8 +40,7 @@ public class Base64CodecTest
         assertEquals(76, std.getMaxLineLength());
     }
 
-    public void testCharEncoding() throws Exception
-    {
+    public void testCharEncoding() throws Exception {
         Base64Variant std = Base64Variants.MIME;
         assertEquals(Base64Variant.BASE64_VALUE_INVALID, std.decodeBase64Char('?'));
         assertEquals(Base64Variant.BASE64_VALUE_INVALID, std.decodeBase64Char((int) '?'));
@@ -50,15 +49,15 @@ public class Base64CodecTest
 
         assertEquals(Base64Variant.BASE64_VALUE_INVALID, std.decodeBase64Byte((byte) '?'));
         assertEquals(Base64Variant.BASE64_VALUE_INVALID, std.decodeBase64Byte((byte) 0xA0));
-        
+
         assertEquals(0, std.decodeBase64Char('A'));
         assertEquals(1, std.decodeBase64Char((int) 'B'));
-        assertEquals(2, std.decodeBase64Char((byte)'C'));
+        assertEquals(2, std.decodeBase64Char((byte) 'C'));
 
         assertEquals(0, std.decodeBase64Byte((byte) 'A'));
         assertEquals(1, std.decodeBase64Byte((byte) 'B'));
-        assertEquals(2, std.decodeBase64Byte((byte)'C'));
-        
+        assertEquals(2, std.decodeBase64Byte((byte) 'C'));
+
         assertEquals('/', std.encodeBase64BitsAsChar(63));
         assertEquals((byte) 'b', std.encodeBase64BitsAsByte(27));
 
@@ -74,21 +73,44 @@ public class Base64CodecTest
         Assert.assertArrayEquals(exp, act);
     }
 
-    public void testConvenienceMethods() throws Exception
-    {
+    public void testConvenienceMethods() throws Exception {
         Base64Variant std = Base64Variants.MIME;
 
-        byte[] input = new byte[] { 1, 2, 34, 127, -1 };
+        byte[] input = new byte[]{1, 2, 34, 127, -1};
         String encoded = std.encode(input, false);
-        byte[] decoded = std.decode(encoded);    
+        byte[] decoded = std.decode(encoded);
         Assert.assertArrayEquals(input, decoded);
 
         assertEquals(quote(encoded), std.encode(input, true));
 
         // [core#414]: check white-space allow too
-        decoded = std.decode("\n"+encoded);
+        decoded = std.decode("\n" + encoded);
         Assert.assertArrayEquals(input, decoded);
-        decoded = std.decode("   "+encoded);
+        decoded = std.decode("   " + encoded);
+        Assert.assertArrayEquals(input, decoded);
+        decoded = std.decode(encoded + "   ");
+        Assert.assertArrayEquals(input, decoded);
+        decoded = std.decode(encoded + "\n");
+        Assert.assertArrayEquals(input, decoded);
+    }
+
+
+    public void testEncodeDecodeBigArray() throws Exception {
+        Base64Variant std = Base64Variants.MIME;
+
+        byte[] input = new byte[500];
+        new Random().nextBytes(input);
+
+        String encoded = std.encode(input, false);
+        byte[] decoded = std.decode(encoded);
+        Assert.assertArrayEquals(input, decoded);
+
+        assertEquals(quote(encoded), std.encode(input, true));
+
+        // [core#414]: check white-space allow too
+        decoded = std.decode("\n" + encoded);
+        Assert.assertArrayEquals(input, decoded);
+        decoded = std.decode("   " + encoded);
         Assert.assertArrayEquals(input, decoded);
         decoded = std.decode(encoded + "   ");
         Assert.assertArrayEquals(input, decoded);
@@ -97,8 +119,7 @@ public class Base64CodecTest
     }
 
     @SuppressWarnings("unused")
-    public void testErrors() throws Exception
-    {
+    public void testErrors() throws Exception {
         try {
             Base64Variant b = new Base64Variant("foobar", "xyz", false, '!', 24);
             fail("Should not pass");

@@ -399,9 +399,13 @@ public final class Base64Variant
             b24 = (b24 << 8) | (((int) input[inputPtr++]) & 0xFF);
             encodeBase64Chunk(sb, b24);
             if (--chunksBeforeLF <= 0) {
-                // note: must quote in JSON value, so not really useful...
-                sb.append('\\');
-                sb.append('n');
+                if (addQuotes) {
+                    // note: must quote in JSON value, so not really useful...
+                    sb.append('\\');
+                    sb.append('n');
+                } else {
+                    sb.append('\n');
+                }
                 chunksBeforeLF = getMaxLineLength() >> 2;
             }
         }

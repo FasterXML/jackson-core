@@ -506,7 +506,7 @@ public abstract class BaseTest
      */
 
     protected static String quote(String str) {
-        return '"'+str+'"';
+        return '"'+str.replace("\n","\\n")+'"';
     }
 
     protected static String aposToQuotes(String json) {

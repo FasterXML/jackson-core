@@ -843,13 +843,18 @@ public abstract class ParserBase extends ParserMinimalBase
                 _numberLong = Long.parseLong(numStr);
                 _numTypesValid = NR_LONG;
             } else {
-                // 16-Oct-2018, tatu: Need to catch "too big" early due to... issues
+                // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
                 if ((expType == NR_INT) || (expType == NR_LONG)) {
                     _reportTooLongInt(expType, numStr);
                 }
-                // nope, need the heavy guns... (rare case)
-                _numberBigInt = new BigInteger(numStr);
-                _numTypesValid = NR_BIGINT;
+                if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
+                    _numberDouble = NumberInput.parseDouble(numStr);
+                    _numTypesValid = NR_DOUBLE;
+                } else {
+                    // nope, need the heavy guns... (rare case)
+                    _numberBigInt = new BigInteger(numStr);
+                    _numTypesValid = NR_BIGINT;
+                }
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
@@ -860,9 +865,16 @@ public abstract class ParserBase extends ParserMinimalBase
     // @since 2.9.8
     protected void _reportTooLongInt(int expType, String rawNum) throws IOException
     {
-        String numDesc = (rawNum.length() > 1000)
-                ? String.format("[Integer with %d digits]", rawNum.length())
-                        : rawNum;
+        int rawLen = rawNum.length();
+        final String numDesc;
+        if (rawLen < 1000) {
+            numDesc = rawNum;
+        } else {
+            if (rawNum.startsWith("-")) {
+                rawLen -= 1;
+            }
+            numDesc = String.format("[Integer with %d digits]", rawLen);
+        }
         _reportError("Numeric value (%s) out of range of %s", numDesc,
                 (expType == NR_LONG) ? "long" : "int");
     }

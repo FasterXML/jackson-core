@@ -19,8 +19,10 @@ JSON library.
 #467: Create `JsonReadFeature` to move JSON-specific `JsonParser.Feature`s to
 #480: `SerializableString` value can not directly render to Writer
  (requested by Philippe M)
+#484: Implement `UTF8JsonGenerator.writeRawValue(SerializableString)` (and
+  `writeRaw(..)`) more efficiently
 
-2.9.7 (not yet released)
+2.9.7 (19-Sep-2018)
 
 #476: Problem with `BufferRecycler` via async parser (or when sharing parser
  across threads)

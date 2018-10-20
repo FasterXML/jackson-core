@@ -32,7 +32,7 @@ public abstract class JsonGenerator
      */
     public enum Feature {
         // // Low-level I/O / content features
-        
+
         /**
          * Feature that determines whether generator will automatically
          * close underlying output target that is NOT owned by the
@@ -147,7 +147,6 @@ public abstract class JsonGenerator
          *<p>
          * Feature is disabled by default.
          */
-        // @Deprecated
         ESCAPE_NON_ASCII(false),
 
 // 23-Nov-2015, tatu: for [core#223], if and when it gets implemented
@@ -977,6 +976,7 @@ public abstract class JsonGenerator
      * to implement it in more efficient manner (especially if they
      * use UTF-8 encoding).
      */
+//    public abstract void writeRaw(SerializableString raw) throws IOException;
     public void writeRaw(SerializableString raw) throws IOException {
         writeRaw(raw.getValue());
     }

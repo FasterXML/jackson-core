@@ -85,8 +85,10 @@ public abstract class JsonGenerator
          * occurs when used straight from Javascript.
          *<p>
          * Feature is enabled by default (since it is required by JSON specification).
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#QUOTE_FIELD_NAMES} instead
          */
-        // @Deprecated
+        @Deprecated
         QUOTE_FIELD_NAMES(true),
 
         /**

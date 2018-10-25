@@ -92,14 +92,20 @@ public class JsonFactoryTest
     /**********************************************************************
      */
     
+    @SuppressWarnings("deprecation")
     public void testGeneratorFeatures() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertNull(f.getCodec());
 
-        f.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
+        f = JsonFactory.builder()
+                .configure(JsonWriteFeature.QUOTE_FIELD_NAMES, true)
+                .build();
+        // 24-Oct-2018, tatu: Until 3.x, we'll only have backwards compatible
         assertTrue(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
-        f.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
+        f = JsonFactory.builder()
+                .configure(JsonWriteFeature.QUOTE_FIELD_NAMES, false)
+                .build();
         assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
     }
 

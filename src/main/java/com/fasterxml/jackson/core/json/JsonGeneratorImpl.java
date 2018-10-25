@@ -98,6 +98,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
+    @SuppressWarnings("deprecation")
     public JsonGeneratorImpl(IOContext ctxt, int features, ObjectCodec codec)
     {
         super(features, codec);
@@ -126,6 +127,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
+    @SuppressWarnings("deprecation")
     @Override
     public JsonGenerator enable(Feature f) {
         super.enable(f);
@@ -135,6 +137,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return this;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public JsonGenerator disable(Feature f) {
         super.disable(f);
@@ -144,6 +147,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return this;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures) {
         super._checkStdFeatureChanges(newFeatureFlags, changedFeatures);

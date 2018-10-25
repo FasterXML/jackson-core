@@ -19,6 +19,7 @@ JSON library.
 #467: Create `JsonReadFeature` to move JSON-specific `JsonParser.Feature`s to
 #480: `SerializableString` value can not directly render to Writer
  (requested by Philippe M)
+#481: Create `JsonWriteFeature` to move JSON-specific `JsonGenerator.Feature`s to
 #484: Implement `UTF8JsonGenerator.writeRawValue(SerializableString)` (and
   `writeRaw(..)`) more efficiently
 

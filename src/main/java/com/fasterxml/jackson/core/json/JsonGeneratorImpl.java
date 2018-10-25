@@ -29,11 +29,18 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     /*
     /**********************************************************
-    /* Configuration, basic I/O
+    /* Configuration, basic I/O, features
     /**********************************************************
      */
 
-    final protected IOContext _ioContext;
+    protected final IOContext _ioContext;
+
+    /**
+     * Bit flag composed of bits that indicate which
+     * {@link com.fasterxml.jackson.core.json.JsonWriteFeature}s
+     * are enabled.
+     */
+    protected int _formatWriteFeatures;
 
     /*
     /**********************************************************
@@ -100,16 +107,18 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
-    public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt, int features,
+    public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt,
+            int streamWriteFeatures, int formatWriteFeatures,
             SerializableString rvs, CharacterEscapes charEsc, PrettyPrinter pp)
     {
-        super(writeCtxt, features);
+        super(writeCtxt, streamWriteFeatures);
         _ioContext = ctxt;
-        if (Feature.ESCAPE_NON_ASCII.enabledIn(features)) {
+        _formatWriteFeatures = formatWriteFeatures;
+        if (Feature.ESCAPE_NON_ASCII.enabledIn(streamWriteFeatures)) {
             // inlined `setHighestNonEscapedChar()`
             _maximumNonEscapedChar = 127;
         }
-        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
+        _cfgUnqNames = !JsonWriteFeature.QUOTE_FIELD_NAMES.enabledIn(formatWriteFeatures);
         _rootValueSeparator = rvs;
 
         _cfgPrettyPrinter = pp;
@@ -135,6 +144,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
+    @SuppressWarnings("deprecation")
     @Override
     public JsonGenerator enable(Feature f) {
         super.enable(f);
@@ -144,6 +154,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return this;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public JsonGenerator disable(Feature f) {
         super.disable(f);
@@ -153,6 +164,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return this;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures) {
         super._checkStdFeatureChanges(newFeatureFlags, changedFeatures);

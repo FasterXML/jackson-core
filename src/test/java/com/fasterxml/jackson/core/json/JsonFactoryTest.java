@@ -10,12 +10,12 @@ public class JsonFactoryTest
     public void testGeneratorFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .enable(JsonWriteFeature.QUOTE_FIELD_NAMES)
                 .build();
-        assertTrue(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
-        f = f.rebuild().configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false)
+        assertTrue(f.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
+        f = f.rebuild().configure(JsonWriteFeature.QUOTE_FIELD_NAMES, false)
                 .build();
-        assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
+        assertFalse(f.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
     }
 
     public void testFactoryFeatures() throws Exception
@@ -114,8 +114,6 @@ public class JsonFactoryTest
         file.delete();
     }
 
-    // #72
-    @SuppressWarnings("deprecation")
     public void testCopy() throws Exception
     {
         JsonFactory jf = new JsonFactory();

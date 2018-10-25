@@ -23,6 +23,7 @@ public enum JsonWriteFeature
      *<p>
      * Feature is enabled by default (since it is required by JSON specification).
      */
+    @SuppressWarnings("deprecation")
     QUOTE_FIELD_NAMES(true, JsonGenerator.Feature.QUOTE_FIELD_NAMES),
 
     /**

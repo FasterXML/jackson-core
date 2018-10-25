@@ -36,12 +36,12 @@ public class GeneratorFeaturesTest
         // by default, quoting should be enabled
         _testFieldNameQuoting(f, true);
         // can disable it
-        f = f.rebuild().disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+        f = f.rebuild().disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
                 .build();
         _testFieldNameQuoting(f, false);
         // and (re)enable:
         f = f.rebuild()
-                .enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .enable(JsonWriteFeature.QUOTE_FIELD_NAMES)
                 .build();
         _testFieldNameQuoting(f, true);
     }
@@ -213,7 +213,7 @@ public class GeneratorFeaturesTest
         // // Then with alternatively configured factory
 
         JsonFactory f2 = JsonFactory.builder()
-                .disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
+                .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
                 .build();
 
         _testFieldNameQuotingEnabled(f2, true, true, "{\"foo\":1}");
@@ -224,6 +224,7 @@ public class GeneratorFeaturesTest
         _testFieldNameQuotingEnabled(f2, false, false, "{foo:1}");
     }
 
+    @SuppressWarnings("deprecation")
     private void _testFieldNameQuotingEnabled(JsonFactory f, boolean useBytes,
             boolean useQuotes, String exp) throws IOException
     {

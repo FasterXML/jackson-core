@@ -114,10 +114,10 @@ public class UTF8JsonGenerator
      */
 
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
-            int features, OutputStream out,
+            int streamWriteFeatures, int formatWriteFeatures, OutputStream out,
             SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp)
     {
-        super(writeCtxt, ioCtxt, features, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc, pp);
         _outputStream = out;
         _bufferRecyclable = true;
         _outputBuffer = ioCtxt.allocWriteEncodingBuffer();
@@ -136,11 +136,11 @@ public class UTF8JsonGenerator
     }
 
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
-            int features, OutputStream out,
+            int streamWriteFeatures, int formatWriteFeatures, OutputStream out,
             SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
-        super(writeCtxt, ioCtxt, features, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc, pp);
         _outputStream = out;
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;

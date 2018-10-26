@@ -102,8 +102,10 @@ public abstract class JsonGenerator
          * output.
          *<p>
          * Feature is enabled by default.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_NAN_AS_STRINGS} instead
          */
-        // @Deprecated
+         @Deprecated
         QUOTE_NON_NUMERIC_NUMBERS(true),
 
         /**
@@ -404,9 +406,7 @@ public abstract class JsonGenerator
      * 
      * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
      */
-    public int getFormatFeatures() {
-        return 0;
-    }
+    public abstract int getFormatFeatures();
 
     /*
     /**********************************************************

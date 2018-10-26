@@ -50,14 +50,15 @@ public class GeneratorFeaturesTest
     {
         JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
+        assertTrue(f.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
         _testNonNumericQuoting(f, true);
         // can disable it
-        f = f.rebuild().disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
+        f = f.rebuild().disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
                 .build();
         _testNonNumericQuoting(f, false);
         // and (re)enable:
         f = f.rebuild()
-                .enable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
+                .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
                 .build();
         _testNonNumericQuoting(f, true);
     }
@@ -77,8 +78,6 @@ public class GeneratorFeaturesTest
                 .build();
         assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
                      _writeNumbers(f));
-
-        
     }
 
     public void testBigDecimalAsPlain() throws IOException

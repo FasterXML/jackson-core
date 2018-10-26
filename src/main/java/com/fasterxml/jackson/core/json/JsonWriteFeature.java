@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.*;
 
 /**
  * Token writer features specific to JSON backend.
- *
- * @since 2.10
  */
 public enum JsonWriteFeature
     implements FormatFeature
@@ -38,6 +36,7 @@ public enum JsonWriteFeature
      *<p>
      * Feature is enabled by default.
      */
+    @SuppressWarnings("deprecation")
     WRITE_NAN_AS_STRINGS(true, JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS),
 
     /**
@@ -103,12 +102,6 @@ public enum JsonWriteFeature
     final private int _mask;
 
     /**
-     * For backwards compatibility we may need to map to one of existing {@link JsonGenerator.Feature}s;
-     * if so, this is the feature to enable/disable.
-     */
-    final private JsonGenerator.Feature _mappedFeature;
-    
-    /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
      */
@@ -127,7 +120,6 @@ public enum JsonWriteFeature
             JsonGenerator.Feature  mapTo) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());
-        _mappedFeature = mapTo;
     }
 
     @Override
@@ -136,6 +128,4 @@ public enum JsonWriteFeature
     public int getMask() { return _mask; }
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
-
-    public JsonGenerator.Feature mappedFeature() { return _mappedFeature; }
 }

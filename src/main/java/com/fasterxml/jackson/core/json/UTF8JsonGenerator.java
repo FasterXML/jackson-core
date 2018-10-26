@@ -988,7 +988,7 @@ public class UTF8JsonGenerator
         }
     }
 
-    
+    @SuppressWarnings("deprecation")
     @Override
     public void writeNumber(double d) throws IOException
     {
@@ -1003,6 +1003,7 @@ public class UTF8JsonGenerator
         writeRaw(String.valueOf(d));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void writeNumber(float f) throws IOException
     {

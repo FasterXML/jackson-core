@@ -121,6 +121,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public int getGeneratorFeatures() { return delegate.getGeneratorFeatures(); }
 
+    @Override
+    public int getFormatFeatures() { return delegate.getFormatFeatures(); }
+    
     /*
     /**********************************************************
     /* Configuring generator

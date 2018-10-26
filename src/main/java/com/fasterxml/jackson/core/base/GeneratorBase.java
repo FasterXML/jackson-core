@@ -143,9 +143,11 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
-
     @Override public final boolean isEnabled(Feature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
     @Override public int getGeneratorFeatures() { return _streamWriteFeatures; }
+
+    @Override
+    public int getFormatFeatures() { return 0; }
 
     //public JsonGenerator configure(Feature f, boolean state) { }
 

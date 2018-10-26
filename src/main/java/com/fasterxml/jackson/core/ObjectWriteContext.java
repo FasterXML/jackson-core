@@ -31,7 +31,7 @@ public interface ObjectWriteContext
     public PrettyPrinter getPrettyPrinter();
     public SerializableString getRootValueSeparator(SerializableString defaultSeparator);
 
-    public int getGeneratorFeatures(int defaults);
+    public int getStreamWriteFeatures(int defaults);
     public int getFormatWriteFeatures(int defaults);
 
     public TokenStreamFactory getGeneratorFactory();
@@ -96,7 +96,7 @@ public interface ObjectWriteContext
         }
 
         @Override
-        public int getGeneratorFeatures(int defaults) {
+        public int getStreamWriteFeatures(int defaults) {
             return defaults;
         }
 

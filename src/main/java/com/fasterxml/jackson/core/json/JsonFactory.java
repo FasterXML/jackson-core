@@ -285,7 +285,7 @@ public class JsonFactory
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new NonBlockingJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 can);
     }
@@ -308,7 +308,7 @@ public class JsonFactory
             InputStream in) throws IOException {
         return new ByteSourceJsonBootstrapper(ioCtxt, in)
                 .constructParser(readCtxt,
-                        readCtxt.getParserFeatures(_streamReadFeatures),
+                        readCtxt.getStreamReadFeatures(_streamReadFeatures),
                         readCtxt.getFormatReadFeatures(_formatReadFeatures),
                         _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
@@ -317,7 +317,7 @@ public class JsonFactory
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
             Reader r) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 r,
                 _rootCharSymbols.makeChild(_factoryFeatures));
@@ -328,7 +328,7 @@ public class JsonFactory
             char[] data, int offset, int len,
             boolean recyclable) throws IOException {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 null,
                 _rootCharSymbols.makeChild(_factoryFeatures),
@@ -341,7 +341,7 @@ public class JsonFactory
     {
         return new ByteSourceJsonBootstrapper(ioCtxt, data, offset, len)
                 .constructParser(readCtxt,
-                        readCtxt.getParserFeatures(_streamReadFeatures),
+                        readCtxt.getStreamReadFeatures(_streamReadFeatures),
                         readCtxt.getFormatReadFeatures(_formatReadFeatures),
                        _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
     }
@@ -355,7 +355,7 @@ public class JsonFactory
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new UTF8DataInputJsonParser(readCtxt, ioCtxt,
-                readCtxt.getParserFeatures(_streamReadFeatures),
+                readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 input, can, firstByte);
     }

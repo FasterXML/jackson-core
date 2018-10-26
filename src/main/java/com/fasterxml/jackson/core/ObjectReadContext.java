@@ -28,7 +28,7 @@ public interface ObjectReadContext
 
     public FormatSchema getSchema();
 
-    public int getParserFeatures(int defaults);
+    public int getStreamReadFeatures(int defaults);
     public int getFormatReadFeatures(int defaults);
 
     public TokenStreamFactory getParserFactory();
@@ -102,7 +102,7 @@ public interface ObjectReadContext
         public FormatSchema getSchema() { return null; }
 
         @Override
-        public int getParserFeatures(int defaults) {
+        public int getStreamReadFeatures(int defaults) {
             return defaults;
         }
 

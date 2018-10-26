@@ -71,10 +71,14 @@ public class GeneratorFeaturesTest
         // by default, quoting should be enabled
         _testNonNumericQuoting(f, true);
         // can disable it
-        f.disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
+        f = JsonFactory.builder()
+                .disable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
         _testNonNumericQuoting(f, false);
         // and (re)enable:
-        f.enable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS);
+        f = JsonFactory.builder()
+                .enable(JsonWriteFeature.WRITE_NAN_AS_STRINGS)
+                .build();
         _testNonNumericQuoting(f, true);
     }
 

@@ -38,6 +38,7 @@ public enum JsonWriteFeature
      *<p>
      * Feature is enabled by default.
      */
+    @SuppressWarnings("deprecation")
     WRITE_NAN_AS_STRINGS(true, JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS),
 
     /**

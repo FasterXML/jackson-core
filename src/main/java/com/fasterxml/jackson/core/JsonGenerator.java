@@ -408,12 +408,10 @@ public abstract class JsonGenerator
      * @since 2.6
      */
     public JsonGenerator overrideFormatFeatures(int values, int mask) {
-        throw new IllegalArgumentException("No FormatFeatures defined for generator of type "+getClass().getName());
-        /*
-        int oldState = getFeatureMask();
-        int newState = (oldState & ~mask) | (values & mask);
-        return setFeatureMask(newState);
-        */
+        // 08-Oct-2018, tatu: For 2.10 we actually do get `JsonWriteFeature`s, although they
+        //    are (for 2.x only, not for 3.x) mapper to legacy settings. So do not freak out:
+//        throw new IllegalArgumentException("No FormatFeatures defined for generator of type "+getClass().getName());
+        return this;
     }
     
     /*

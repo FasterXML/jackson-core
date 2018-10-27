@@ -8,10 +8,8 @@ import com.fasterxml.jackson.core.*;
 public enum JsonWriteFeature
     implements FormatFeature
 {
-    // // // Support for non-standard data format constructs: comments
+    // // // Support for non-standard JSON constructs: quoting
 
-    // // Quoting-related features
-    
     /**
      * Feature that determines whether JSON Object field names are
      * quoted using double-quotes, as specified by JSON specification
@@ -21,8 +19,7 @@ public enum JsonWriteFeature
      *<p>
      * Feature is enabled by default (since it is required by JSON specification).
      */
-    @SuppressWarnings("deprecation")
-    QUOTE_FIELD_NAMES(true, JsonGenerator.Feature.QUOTE_FIELD_NAMES),
+    QUOTE_FIELD_NAMES(true),
 
     /**
      * Feature that determines whether "NaN" ("not a number", that is, not
@@ -36,9 +33,10 @@ public enum JsonWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    @SuppressWarnings("deprecation")
-    WRITE_NAN_AS_STRINGS(true, JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS),
+    WRITE_NAN_AS_STRINGS(true),
 
+    // // // Support for escaping variations
+    
     /**
      * Feature that specifies that all characters beyond 7-bit ASCII
      * range (i.e. code points of 128 and above) need to be output
@@ -54,8 +52,7 @@ public enum JsonWriteFeature
      *<p>
      * Feature is disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ESCAPE_NON_ASCII(false, JsonGenerator.Feature.ESCAPE_NON_ASCII),
+    ESCAPE_NON_ASCII(false),
 
 //23-Nov-2015, tatu: for [core#223], if and when it gets implemented
     /*
@@ -99,8 +96,7 @@ public enum JsonWriteFeature
         return flags;
     }
     
-    private JsonWriteFeature(boolean defaultState,
-            JsonGenerator.Feature  mapTo) {
+    private JsonWriteFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());
     }

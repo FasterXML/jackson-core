@@ -91,23 +91,6 @@ public abstract class JsonGenerator
         @Deprecated
         QUOTE_FIELD_NAMES(true),
 
-        /**
-         * Feature that determines whether "exceptional" (not real number)
-         * float/double values are output as quoted strings.
-         * The values checked are Double.Nan,
-         * Double.POSITIVE_INFINITY and Double.NEGATIVE_INIFINTY (and 
-         * associated Float values).
-         * If feature is disabled, these numbers are still output using
-         * associated literal values, resulting in non-conformant
-         * output.
-         *<p>
-         * Feature is enabled by default.
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_NAN_AS_STRINGS} instead
-         */
-        @Deprecated
-        QUOTE_NON_NUMERIC_NUMBERS(true),
-
         // // Character escaping features
         
         /**

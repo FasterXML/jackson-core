@@ -130,7 +130,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     /********************************************************
      */
 
-    @SuppressWarnings({ "resource", "deprecation" })
+    @SuppressWarnings({ "resource" })
     private void _testEscapeAboveAscii(boolean useStream) throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -154,14 +154,16 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         assertEquals("["+quote(VALUE)+"]", json);
 
         // And then with forced ASCII; first, values
-
+        f = f.rebuild()
+                .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
+                .build();
+        
         bytes = new ByteArrayOutputStream();
         if (useStream) {
             g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
             g = f.createGenerator(ObjectWriteContext.empty(),new OutputStreamWriter(bytes, "UTF-8"));
         }
-        g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartArray();
         g.writeString(VALUE);
         g.writeEndArray();
@@ -170,13 +172,15 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         assertEquals("["+quote("chars: [\\u00A0]/[\\u1234]")+"]", json);
 
         // and then keys
+        f = f.rebuild()
+                .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
+                .build();
         bytes = new ByteArrayOutputStream();
         if (useStream) {
             g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         } else {
             g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
         }
-        g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartObject();
         g.writeFieldName(KEY);
         g.writeBoolean(true);

@@ -75,30 +75,6 @@ public abstract class JsonGenerator
          */
         FLUSH_PASSED_TO_STREAM(true),
 
-        // // Quoting-related features
-        
-        // // Character escaping features
-        
-        /**
-         * Feature that specifies that all characters beyond 7-bit ASCII
-         * range (i.e. code points of 128 and above) need to be output
-         * using format-specific escapes (for JSON, backslash escapes),
-         * if format uses escaping mechanisms (which is generally true
-         * for textual formats but not for binary formats).
-         *<p>
-         * Note that this setting may not necessarily make sense for all
-         * data formats (for example, binary formats typically do not use
-         * any escaping mechanisms; and some textual formats do not have
-         * general-purpose escaping); if so, settings is simply ignored.
-         * Put another way, effects of this feature are data-format specific.
-         *<p>
-         * Feature is disabled by default.
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#ESCAPE_NON_ASCII} instead
-         */
-         @Deprecated
-        ESCAPE_NON_ASCII(false),
-
         // // Datatype coercion features
         
         /**

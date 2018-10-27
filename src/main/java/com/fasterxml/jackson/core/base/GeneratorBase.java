@@ -26,10 +26,8 @@ public abstract class GeneratorBase extends JsonGenerator
      * Set of feature masks related to features that need updates of other
      * local configuration or state.
      */
-    @SuppressWarnings("deprecation")
     protected final static int DERIVED_FEATURES_MASK =
             Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
-            | Feature.ESCAPE_NON_ASCII.getMask()
             | Feature.STRICT_DUPLICATE_DETECTION.getMask()
             ;
 
@@ -152,7 +150,6 @@ public abstract class GeneratorBase extends JsonGenerator
 
     //public JsonGenerator configure(Feature f, boolean state) { }
 
-    @SuppressWarnings("deprecation")
     @Override
     public JsonGenerator enable(Feature f) {
         final int mask = f.getMask();
@@ -161,8 +158,6 @@ public abstract class GeneratorBase extends JsonGenerator
             // why not switch? Requires addition of a generated class, alas
             if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = true;
-            } else if (f == Feature.ESCAPE_NON_ASCII) {
-                setHighestNonEscapedChar(127);
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
                 if (_outputContext.getDupDetector() == null) { // but only if disabled currently
                     _outputContext = _outputContext.withDupDetector(DupDetector.rootDetector(this));
@@ -172,7 +167,6 @@ public abstract class GeneratorBase extends JsonGenerator
         return this;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public JsonGenerator disable(Feature f) {
         final int mask = f.getMask();
@@ -180,8 +174,6 @@ public abstract class GeneratorBase extends JsonGenerator
         if ((mask & DERIVED_FEATURES_MASK) != 0) {
             if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = false;
-            } else if (f == Feature.ESCAPE_NON_ASCII) {
-                setHighestNonEscapedChar(0);
             } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
                 _outputContext = _outputContext.withDupDetector(null);
             }

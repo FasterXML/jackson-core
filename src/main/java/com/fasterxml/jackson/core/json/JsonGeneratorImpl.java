@@ -165,13 +165,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return this;
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures) {
-        super._checkStdFeatureChanges(newFeatureFlags, changedFeatures);
-        _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(newFeatureFlags);
-    }
-
     @Override
     public JsonGenerator setHighestNonEscapedChar(int charCode) {
         _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;

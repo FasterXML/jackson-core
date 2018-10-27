@@ -189,40 +189,6 @@ public abstract class GeneratorBase extends JsonGenerator
         return this;
     }
 
-    /**
-     * Helper method called to verify changes to standard features.
-     *
-     * @param newFeatureFlags Bitflag of standard features after they were changed
-     * @param changedFeatures Bitflag of standard features for which setting
-     *    did change
-     *
-     * @since 2.7
-     */
-    @SuppressWarnings("deprecation")
-    protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures)
-    {
-        if ((changedFeatures & DERIVED_FEATURES_MASK) == 0) {
-            return;
-        }
-        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(newFeatureFlags);
-        if (Feature.ESCAPE_NON_ASCII.enabledIn(changedFeatures)) {
-            if (Feature.ESCAPE_NON_ASCII.enabledIn(newFeatureFlags)) {
-                setHighestNonEscapedChar(127);
-            } else {
-                setHighestNonEscapedChar(0);
-            }
-        }
-        if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(changedFeatures)) {
-            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newFeatureFlags)) { // enabling
-                if (_outputContext.getDupDetector() == null) { // but only if disabled currently
-                    _outputContext = _outputContext.withDupDetector(DupDetector.rootDetector(this));
-                }
-            } else { // disabling
-                _outputContext = _outputContext.withDupDetector(null);
-            }
-        }
-    }
-
     @Override public JsonGenerator useDefaultPrettyPrinter() {
         // Should not override a pretty printer if one already assigned.
         if (getPrettyPrinter() != null) {

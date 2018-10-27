@@ -223,19 +223,23 @@ public class GeneratorFeaturesTest
         _testFieldNameQuotingEnabled(f2, false, false, "{foo:1}");
     }
 
-    @SuppressWarnings("deprecation")
     private void _testFieldNameQuotingEnabled(JsonFactory f, boolean useBytes,
             boolean useQuotes, String exp) throws IOException
     {
+        if (useQuotes) {
+            f = f.rebuild()
+                    .enable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+                    .build();
+        } else {
+            f = f.rebuild()
+                    .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+                    .build();
+        }
+
         ByteArrayOutputStream bytes = useBytes ? new ByteArrayOutputStream() : null;
         StringWriter sw = useBytes ? null : new StringWriter();
         JsonGenerator gen = useBytes ? f.createGenerator(ObjectWriteContext.empty(),bytes)
                 : f.createGenerator(ObjectWriteContext.empty(), sw);
-        if (useQuotes) {
-            gen.enable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
-        } else {
-            gen.disable(JsonGenerator.Feature.QUOTE_FIELD_NAMES);
-        }
 
         gen.writeStartObject();
         gen.writeFieldName("foo");

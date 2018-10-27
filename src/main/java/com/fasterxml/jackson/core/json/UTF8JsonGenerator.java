@@ -128,11 +128,6 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ioCtxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
-
-        // By default we use this feature to determine additional quoting
-        if (isEnabled(Feature.ESCAPE_NON_ASCII)) {
-            setHighestNonEscapedChar(127);
-        }
     }
 
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
@@ -988,13 +983,12 @@ public class UTF8JsonGenerator
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void writeNumber(double d) throws IOException
     {
         if (_cfgNumbersAsStrings ||
             (((Double.isNaN(d) || Double.isInfinite(d))
-                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_streamWriteFeatures)))) {
+                && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -1003,14 +997,13 @@ public class UTF8JsonGenerator
         writeRaw(String.valueOf(d));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void writeNumber(float f) throws IOException
     {
         if (_cfgNumbersAsStrings ||
             // [JACKSON-139]
             (((Float.isNaN(f) || Float.isInfinite(f))
-                && Feature.QUOTE_NON_NUMERIC_NUMBERS.enabledIn(_streamWriteFeatures)))) {
+                && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)))) {
             writeString(String.valueOf(f));
             return;
         }

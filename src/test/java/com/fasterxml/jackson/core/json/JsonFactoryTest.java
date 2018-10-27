@@ -97,18 +97,18 @@ public class JsonFactoryTest
         g.close();
 
         // Ok: first read file directly
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), file);
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        JsonParser p = f.createParser(ObjectReadContext.empty(), file);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
 
         // Then via URL:
-        jp = f.createParser(ObjectReadContext.empty(), file.toURI().toURL());
-        assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.END_OBJECT, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        p = f.createParser(ObjectReadContext.empty(), file.toURI().toURL());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
 
         // ok, delete once we are done
         file.delete();
@@ -116,27 +116,27 @@ public class JsonFactoryTest
 
     public void testCopy() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         // first, verify defaults
 
         // since 3.0:
-        assertFalse(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        assertFalse(jf.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertFalse(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
 
-        jf = jf.rebuild()
+        f = f.rebuild()
                 .enable(JsonFactory.Feature.INTERN_FIELD_NAMES)
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
-                .enable(JsonGenerator.Feature.ESCAPE_NON_ASCII)
+                .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
                 .build();
         // then change, verify that changes "stick"
-        assertTrue(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        assertTrue(jf.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
 
-        JsonFactory jf2 = jf.copy();
+        JsonFactory jf2 = f.copy();
         assertTrue(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
-        assertTrue(jf.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
     }
 }

@@ -114,7 +114,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         super(writeCtxt, streamWriteFeatures);
         _ioContext = ctxt;
         _formatWriteFeatures = formatWriteFeatures;
-        if (Feature.ESCAPE_NON_ASCII.enabledIn(streamWriteFeatures)) {
+        // By default we use this feature to determine additional quoting
+        if (JsonWriteFeature.ESCAPE_NON_ASCII.enabledIn(formatWriteFeatures)) {
             // inlined `setHighestNonEscapedChar()`
             _maximumNonEscapedChar = 127;
         }

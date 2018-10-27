@@ -783,13 +783,12 @@ public class WriterBasedJsonGenerator
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void writeNumber(double d) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-            // [JACKSON-139]
-                (isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS) && ((Double.isNaN(d) || Double.isInfinite(d))))) {
+                (JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)
+                        && ((Double.isNaN(d) || Double.isInfinite(d))))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -798,12 +797,12 @@ public class WriterBasedJsonGenerator
         writeRaw(String.valueOf(d));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void writeNumber(float f) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-                (isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS) && ((Float.isNaN(f) || Float.isInfinite(f))))) {
+                (JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)
+                        && ((Float.isNaN(f) || Float.isInfinite(f))))) {
             writeString(String.valueOf(f));
             return;
         }

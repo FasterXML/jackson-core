@@ -113,6 +113,7 @@ public class UTF8JsonGenerator
     /**********************************************************
      */
 
+    @SuppressWarnings("deprecation")
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out)
     {
@@ -135,7 +136,7 @@ public class UTF8JsonGenerator
             setHighestNonEscapedChar(127);
         }
     }
-    
+
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)

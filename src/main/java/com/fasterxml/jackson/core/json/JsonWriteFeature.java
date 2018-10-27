@@ -42,23 +42,6 @@ public enum JsonWriteFeature
     WRITE_NAN_AS_STRINGS(true, JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS),
 
     /**
-     * Feature that forces all Java numbers to be written as JSON strings.
-     * Default state is 'false', meaning that Java numbers are to
-     * be serialized using basic numeric serialization (as JSON
-     * numbers, integral or floating point). If enabled, all such
-     * numeric values are instead written out as JSON Strings.
-     *<p>
-     * One use case is to avoid problems with Javascript limitations:
-     * since Javascript standard specifies that all number handling
-     * should be done using 64-bit IEEE 754 floating point values,
-     * result being that some 64-bit integer values can not be
-     * accurately represent (as mantissa is only 51 bit wide).
-     *<p>
-     * Feature is disabled by default.
-     */
-    WRITE_NUMBERS_AS_STRINGS(false, JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
-
-    /**
      * Feature that specifies that all characters beyond 7-bit ASCII
      * range (i.e. code points of 128 and above) need to be output
      * using format-specific escapes (for JSON, backslash escapes),
@@ -73,11 +56,11 @@ public enum JsonWriteFeature
      *<p>
      * Feature is disabled by default.
      */
-//    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
     ESCAPE_NON_ASCII(false, JsonGenerator.Feature.ESCAPE_NON_ASCII),
 
 //23-Nov-2015, tatu: for [core#223], if and when it gets implemented
-    /**
+    /*
      * Feature that specifies handling of UTF-8 content that contains
      * characters beyond BMP (Basic Multilingual Plane), which are
      * represented in UCS-2 (Java internal character encoding) as two

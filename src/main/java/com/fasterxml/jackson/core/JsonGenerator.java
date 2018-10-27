@@ -108,35 +108,7 @@ public abstract class JsonGenerator
          @Deprecated
         QUOTE_NON_NUMERIC_NUMBERS(true),
 
-        /**
-         * Feature that forces all Java numbers to be written as JSON strings.
-         * Default state is 'false', meaning that Java numbers are to
-         * be serialized using basic numeric serialization (as JSON
-         * numbers, integral or floating point). If enabled, all such
-         * numeric values are instead written out as JSON Strings.
-         *<p>
-         * One use case is to avoid problems with Javascript limitations:
-         * since Javascript standard specifies that all number handling
-         * should be done using 64-bit IEEE 754 floating point values,
-         * result being that some 64-bit integer values can not be
-         * accurately represent (as mantissa is only 51 bit wide).
-         *<p>
-         * Feature is disabled by default.
-         */
-        // @Deprecated
-        WRITE_NUMBERS_AS_STRINGS(false),
-
-        /**
-         * Feature that determines whether {@link java.math.BigDecimal} entries are
-         * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
-         * values to be written using scientific notation.
-         *<p>
-         * Feature is disabled by default, so default output mode is used; this generally
-         * depends on how {@link BigDecimal} has been created.
-         * 
-         * @since 2.3
-         */
-        WRITE_BIGDECIMAL_AS_PLAIN(false),
+        // // Character escaping features
         
         /**
          * Feature that specifies that all characters beyond 7-bit ASCII
@@ -152,33 +124,50 @@ public abstract class JsonGenerator
          * Put another way, effects of this feature are data-format specific.
          *<p>
          * Feature is disabled by default.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#ESCAPE_NON_ASCII} instead
          */
+         @Deprecated
         ESCAPE_NON_ASCII(false),
 
-// 23-Nov-2015, tatu: for [core#223], if and when it gets implemented
+        // // Datatype coercion features
+        
         /**
-         * Feature that specifies handling of UTF-8 content that contains
-         * characters beyond BMP (Basic Multilingual Plane), which are
-         * represented in UCS-2 (Java internal character encoding) as two
-         * "surrogate" characters. If feature is enabled, these surrogate
-         * pairs are separately escaped using backslash escapes; if disabled,
-         * native output (4-byte UTF-8 sequence, or, with char-backed output
-         * targets, writing of surrogates as is which is typically converted
-         * by {@link java.io.Writer} into 4-byte UTF-8 sequence eventually)
-         * is used.
+         * Feature that forces all Java numbers to be written as Strings,
+         * even if the underlying data format has non-textual representation
+         * (which is the case for JSON as well as all binary formats).
+         * Default state is 'false', meaning that Java numbers are to
+         * be serialized using basic numeric serialization (as JSON
+         * numbers, integral or floating point, for example).
+         * If enabled, all such numeric values are instead written out as
+         * textual values (which for JSON means quoted in double-quotes).
          *<p>
-         * Note that the original JSON specification suggests use of escaping;
-         * but that this is not correct from standard UTF-8 handling perspective.
-         * Because of two competing goals, this feature was added to allow either
-         * behavior to be used, but defaulting to UTF-8 specification compliant
-         * mode.
+         * One use case is to avoid problems with Javascript limitations:
+         * since Javascript standard specifies that all number handling
+         * should be done using 64-bit IEEE 754 floating point values,
+         * result being that some 64-bit integer values can not be
+         * accurately represent (as mantissa is only 51 bit wide).
          *<p>
          * Feature is disabled by default.
-         *
-         * @since Xxx
          */
-//        ESCAPE_UTF8_SURROGATES(false),
-        
+        WRITE_NUMBERS_AS_STRINGS(false),
+
+        /**
+         * Feature that determines whether {@link java.math.BigDecimal} entries are
+         * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
+         * values to be written using scientific notation.
+         *<p>
+         * NOTE: only affects generators that serialize {@link java.math.BigDecimal}s
+         * using textual representation (textual formats but potentially some binary
+         * formats).
+         *<p>
+         * Feature is disabled by default, so default output mode is used; this generally
+         * depends on how {@link BigDecimal} has been created.
+         * 
+         * @since 2.3
+         */
+        WRITE_BIGDECIMAL_AS_PLAIN(false),
+
         // // Schema/Validity support features
 
         /**

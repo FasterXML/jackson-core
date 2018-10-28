@@ -8,12 +8,13 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>
+ * and {@link JsonReadFeature}
  * settings work as expected.
  */
-public class TestParserFeatures
+public class ReadFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    public void testDefaultSettings() throws Exception
+    public void testStreamReadFeatureDefaults() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
@@ -26,7 +27,7 @@ public class TestParserFeatures
         p.close();
     }
 
-    public void testDeprecatedDefaultSettings() throws Exception
+    public void testJsonReadFeatureDefaultSettings() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
@@ -40,8 +41,6 @@ public class TestParserFeatures
         _testQuotesRequired(false);
         _testQuotesRequired(true);
     }
-
-    // // Tests for [JACKSON-208], unquoted tabs:
 
     public void testTabsDefault() throws Exception
     {

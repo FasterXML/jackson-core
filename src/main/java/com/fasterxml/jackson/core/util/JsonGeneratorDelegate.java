@@ -119,10 +119,10 @@ public class JsonGeneratorDelegate extends JsonGenerator
     //public final JsonGenerator configure(Feature f, boolean state)
 
     @Override
-    public int getGeneratorFeatures() { return delegate.getGeneratorFeatures(); }
+    public int streamWriteFeatures() { return delegate.streamWriteFeatures(); }
 
     @Override
-    public int getFormatFeatures() { return delegate.getFormatFeatures(); }
+    public int formatWriteFeatures() { return delegate.formatWriteFeatures(); }
     
     /*
     /**********************************************************

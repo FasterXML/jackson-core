@@ -176,11 +176,11 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected ParserMinimalBase(ObjectReadContext readCtxt,
-            int parserFeatures)
+            int streamReadFeatures)
     {
         super();
         _objectReadContext = readCtxt;
-        _streamReadFeatures = parserFeatures;
+        _streamReadFeatures = streamReadFeatures;
     }
 
     /*
@@ -212,10 +212,10 @@ public abstract class ParserMinimalBase extends JsonParser
     public boolean isEnabled(Feature f) { return f.enabledIn(_streamReadFeatures); }
 
     @Override
-    public int getParserFeatures() { return _streamReadFeatures; }
+    public int streamReadFeatures() { return _streamReadFeatures; }
 
     @Override
-    public int getFormatFeatures() {
+    public int formatReadFeatures() {
         return 0;
     }
 

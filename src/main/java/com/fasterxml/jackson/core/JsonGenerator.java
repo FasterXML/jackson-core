@@ -333,16 +333,20 @@ public abstract class JsonGenerator
      * {@link JsonGenerator.Feature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link JsonGenerator.Feature}s.
+     *
+     * @since 3.0
      */
-    public abstract int getGeneratorFeatures();
+    public abstract int streamWriteFeatures();
 
     /**
      * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
      * on/off configuration settings.
      * 
      * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
+     *
+     * @since 3.0
      */
-    public abstract int getFormatFeatures();
+    public abstract int formatWriteFeatures();
 
     /*
     /**********************************************************

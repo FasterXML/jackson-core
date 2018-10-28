@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.*;
  * Set of basic unit tests for verifying that the basic generator
  * functionality works as expected.
  */
-public class GeneratorFeaturesTest
+public class StreamWriteFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();

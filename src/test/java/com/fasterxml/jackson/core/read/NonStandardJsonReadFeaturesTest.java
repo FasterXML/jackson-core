@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
-public class NonStandardParserFeaturesTest
+public class NonStandardJsonReadFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testDefaults() {

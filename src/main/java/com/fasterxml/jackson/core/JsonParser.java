@@ -499,15 +499,17 @@ public abstract class JsonParser
      *
      * @since 3.0
      */
-    public abstract int getParserFeatures();
+    public abstract int streamReadFeatures();
 
     /**
      * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
      * on/off configuration settings.
      * 
      * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
+     *
+     * @since 3.0
      */
-    public abstract int getFormatFeatures();
+    public abstract int formatReadFeatures();
 
     /*
     /**********************************************************************

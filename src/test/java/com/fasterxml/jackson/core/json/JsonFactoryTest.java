@@ -7,7 +7,18 @@ import com.fasterxml.jackson.core.*;
 public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    public void testGeneratorFeatures() throws Exception
+    public void testStreamWriteFeatures() throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .enable(JsonGenerator.Feature.IGNORE_UNKNOWN)
+                .build();
+        assertTrue(f.isEnabled(JsonGenerator.Feature.IGNORE_UNKNOWN));
+        f = f.rebuild().configure(JsonGenerator.Feature.IGNORE_UNKNOWN, false)
+                .build();
+        assertFalse(f.isEnabled(JsonGenerator.Feature.IGNORE_UNKNOWN));
+    }
+
+    public void testJsonWriteFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonWriteFeature.QUOTE_FIELD_NAMES)
@@ -17,7 +28,7 @@ public class JsonFactoryTest
                 .build();
         assertFalse(f.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
     }
-
+    
     public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()

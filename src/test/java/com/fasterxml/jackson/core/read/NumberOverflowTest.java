@@ -22,7 +22,7 @@ public class NumberOverflowTest
 
     private final static String BIG_POS_DOC = "["+BIG_POS_INTEGER+"]";
     private final static String BIG_NEG_DOC = "[ -"+BIG_POS_INTEGER+"]";
-    
+
     public void testSimpleLongOverflow() throws Exception
     {
         BigInteger below = BigInteger.valueOf(Long.MIN_VALUE);
@@ -53,13 +53,12 @@ public class NumberOverflowTest
                 verifyException(e, "out of range of long");
             }
             p.close();
-            
         }
     }
 
     // Note: only 4 cardinal types; `short`, `byte` and `char` use same code paths
     // Note: due to [jackson-core#493], we'll skip DataInput-backed parser
-    
+
     // [jackson-core#488]
     public void testMaliciousLongOverflow() throws Exception
     {

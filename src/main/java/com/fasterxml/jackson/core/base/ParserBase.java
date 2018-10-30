@@ -824,7 +824,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value '"+_textBuffer.contentsAsString()+"'", nex);
+            _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
         }
     }
 
@@ -859,23 +859,14 @@ public abstract class ParserBase extends ParserMinimalBase
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value '"+numStr+"'", nex);
+            _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
         }
     }
 
     // @since 2.9.8
     protected void _reportTooLongInt(int expType, String rawNum) throws IOException
     {
-        int rawLen = rawNum.length();
-        final String numDesc;
-        if (rawLen < 1000) {
-            numDesc = rawNum;
-        } else {
-            if (rawNum.startsWith("-")) {
-                rawLen -= 1;
-            }
-            numDesc = String.format("[Integer with %d digits]", rawLen);
-        }
+        final String numDesc = _longIntegerDesc(rawNum);
         _reportError("Numeric value (%s) out of range of %s", numDesc,
                 (expType == NR_LONG) ? "long" : "int");
     }

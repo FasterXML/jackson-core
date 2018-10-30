@@ -19,6 +19,8 @@ JSON library.
 #476: Problem with `BufferRecycler` via async parser (or when sharing parser
  across threads)
 #477: Exception while decoding Base64 value with escaped `=` character
+#488: Fail earlier on coercions from "too big" `BigInteger` into
+  fixed-size types (`int`, `long`, `short`)
 
 2.9.6 (12-Jun-2018)
 

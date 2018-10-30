@@ -23,11 +23,18 @@ JSON library.
 #484: Implement `UTF8JsonGenerator.writeRawValue(SerializableString)` (and
   `writeRaw(..)`) more efficiently
 
+2.9.8 (not yet released)
+
+#488: Fail earlier on coercions from "too big" `BigInteger` into
+  fixed-size types (`int`, `long`, `short`)
+
 2.9.7 (19-Sep-2018)
 
 #476: Problem with `BufferRecycler` via async parser (or when sharing parser
  across threads)
 #477: Exception while decoding Base64 value with escaped `=` character
+#488: Fail earlier on coercions from "too big" `BigInteger` into
+  fixed-size types (`int`, `long`, `short`)
 
 2.9.6 (12-Jun-2018)
 

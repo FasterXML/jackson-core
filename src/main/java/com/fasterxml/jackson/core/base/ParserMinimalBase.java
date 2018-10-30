@@ -668,12 +668,36 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected void reportOverflowInt() throws IOException {
         _reportError(String.format("Numeric value (%s) out of range of int (%d - %s)",
-                getText(), Integer.MIN_VALUE, Integer.MAX_VALUE));
+                _longIntegerDesc(getText()), Integer.MIN_VALUE, Integer.MAX_VALUE));
     }
-    
+
     protected void reportOverflowLong() throws IOException {
         _reportError(String.format("Numeric value (%s) out of range of long (%d - %s)",
-                getText(), Long.MIN_VALUE, Long.MAX_VALUE));
+                _longIntegerDesc(getText()), Long.MIN_VALUE, Long.MAX_VALUE));
+    }
+
+    // @since 2.9.8
+    protected String _longIntegerDesc(String rawNum) {
+        int rawLen = rawNum.length();
+        if (rawLen < 1000) {
+            return rawNum;
+        }
+        if (rawNum.startsWith("-")) {
+            rawLen -= 1;
+        }
+        return String.format("[Integer with %d digits]", rawLen);
+    }
+
+    // @since 2.9.8
+    protected String _longNumberDesc(String rawNum) {
+        int rawLen = rawNum.length();
+        if (rawLen < 1000) {
+            return rawNum;
+        }
+        if (rawNum.startsWith("-")) {
+            rawLen -= 1;
+        }
+        return String.format("[number with %d characters]", rawLen);
     }
 
     protected void _reportUnexpectedChar(int ch, String comment) throws JsonParseException

@@ -18,10 +18,6 @@ public class NonBlockingJsonParser
 {
     private final static int FEAT_MASK_TRAILING_COMMA = JsonReadFeature.ALLOW_TRAILING_COMMA.getMask();
     private final static int FEAT_MASK_ALLOW_MISSING = JsonReadFeature.ALLOW_MISSING_VALUES.getMask();
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = JsonReadFeature.ALLOW_SINGLE_QUOTES.getMask();
-    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = JsonReadFeature.ALLOW_JAVA_COMMENTS.getMask();
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = JsonReadFeature.ALLOW_YAML_COMMENTS.getMask();
 
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
@@ -909,7 +905,7 @@ public class NonBlockingJsonParser
             // been handled earlier
             break;
         case '\'':
-            if ((_formatReadFeatures & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
                 return _startAposString();
             }
             break;
@@ -956,7 +952,7 @@ public class NonBlockingJsonParser
 
     private final JsonToken _startSlashComment(int fromMinorState) throws IOException
     {
-        if ((_formatReadFeatures & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
 
@@ -980,7 +976,7 @@ public class NonBlockingJsonParser
     private final JsonToken _finishHashComment(int fromMinorState) throws IOException
     {
         // Could by-pass this check by refactoring, but for now simplest way...
-        if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
             _reportUnexpectedChar('#', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_YAML_COMMENTS' not enabled for parser)");
         }
         while (true) {
@@ -2060,16 +2056,15 @@ public class NonBlockingJsonParser
         // First: may allow single quotes
         switch (ch) {
         case '#':
-            // Careful, since this may alternatively be leading char of
-            // unquoted name...
-            if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) != 0) {
+            // Careful, since this may alternatively be leading char of unquoted name...
+            if (isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
                 return _finishHashComment(MINOR_FIELD_LEADING_WS);
             }
             break;
         case '/':
             return _startSlashComment(MINOR_FIELD_LEADING_WS);
         case '\'':
-            if ((_formatReadFeatures & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
                 return _finishAposName(0, 0, 0);
             }
             break;
@@ -2077,8 +2072,8 @@ public class NonBlockingJsonParser
             return _closeArrayScope();
         }
         // allow unquoted names if feature enabled:
-        if ((_formatReadFeatures & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
-         // !!! TODO: Decode UTF-8 characters properly...
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+            // !!! TODO: Decode UTF-8 characters properly...
 //            char c = (char) _decodeCharForError(ch);
             char c = (char) ch;
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");

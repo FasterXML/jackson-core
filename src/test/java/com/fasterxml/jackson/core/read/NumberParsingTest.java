@@ -283,7 +283,7 @@ public class NumberParsingTest
             /*int x =*/ p.getIntValue();
             fail("Expected an exception for overflow");
         } catch (Exception e) {
-            verifyException(e, "out of range of int");
+            verifyException(e, "out of range of `int`");
         }
         assertEquals(8100200300.0, p.getDoubleValue());
         assertEquals("8100200300", p.getText());

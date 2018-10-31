@@ -1014,10 +1014,10 @@ public abstract class JsonParser
     public byte getByteValue() throws IOException {
         int value = getIntValue();
         // So far so good: but does it fit?
-        // [JACKSON-804]: Let's actually allow range of [-128, 255], as those are uniquely mapped
-        //  (instead of just signed range of [-128, 127])
+        // Let's actually allow range of [-128, 255] instead of just signed range of [-128, 127]
+        // since "unsigned" usage quite common for bytes (but Java may use signed range, too)
         if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
-            throw _constructError("Numeric value ("+getText()+") out of range of Java byte");
+            throw _constructError("Numeric value (%s) out of range of `byte`", getText());
         }
         return (byte) value;
     }
@@ -1039,7 +1039,7 @@ public abstract class JsonParser
     {
         int value = getIntValue();
         if (value < MIN_SHORT_I || value > MAX_SHORT_I) {
-            throw _constructError("Numeric value ("+getText()+") out of range of Java short");
+            throw _constructError("Numeric value (%s) out of range of `short`", getText());
         }
         return (short) value;
     }
@@ -1523,6 +1523,16 @@ public abstract class JsonParser
             .withRequestPayload(_requestPayload);
     }
 
+    protected JsonParseException _constructError(String msg, Object arg) {
+        return new JsonParseException(this, String.format(msg, arg))
+            .withRequestPayload(_requestPayload);
+    }
+
+    protected JsonParseException _constructError(String msg, Object arg1, Object arg2) {
+        return new JsonParseException(this, String.format(msg, arg1, arg2))
+            .withRequestPayload(_requestPayload);
+    }
+    
     /**
      * Helper method to call for operations that are not supported by
      * parser implementation.

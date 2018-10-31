@@ -35,10 +35,6 @@ public class UTF8DataInputJsonParser
 {
     final static byte BYTE_LF = (byte) '\n';
 
-    private final static int FEAT_MASK_TRAILING_COMMA = JsonReadFeature.ALLOW_TRAILING_COMMA.getMask();
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = JsonReadFeature.ALLOW_JAVA_COMMENTS.getMask();
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = JsonReadFeature.ALLOW_YAML_COMMENTS.getMask();
-
     // This is the main input-code lookup table, fetched eagerly
     private final static int[] _icUTF8 = CharTypes.getInputCodeUtf8();
 
@@ -584,7 +580,7 @@ public class UTF8DataInputJsonParser
             i = _skipWS();
 
             // Was that a trailing comma?
-            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
                 if (i == INT_RBRACKET || i == INT_RCURLY) {
                     _closeScope(i);
                     return _currToken;
@@ -766,7 +762,7 @@ public class UTF8DataInputJsonParser
             i = _skipWS();
 
             // Was that a trailing comma?
-            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
                 if (i == INT_RBRACKET || i == INT_RCURLY) {
                     _closeScope(i);
                     return null;
@@ -2339,7 +2335,7 @@ public class UTF8DataInputJsonParser
 
     private final void _skipComment() throws IOException
     {
-        if ((_formatReadFeatures & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         int c = _inputData.readUnsignedByte();
@@ -2394,7 +2390,7 @@ public class UTF8DataInputJsonParser
 
     private final boolean _skipYAMLComment() throws IOException
     {
-        if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
             return false;
         }
         _skipLine();

@@ -20,12 +20,7 @@ public class ReaderBasedJsonParser
     extends JsonParserBase
 {
     private final static int FEAT_MASK_TRAILING_COMMA = JsonReadFeature.ALLOW_TRAILING_COMMA.getMask();
-
     private final static int FEAT_MASK_ALLOW_MISSING = JsonReadFeature.ALLOW_MISSING_VALUES.getMask();
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = JsonReadFeature.ALLOW_SINGLE_QUOTES.getMask();
-
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = JsonReadFeature.ALLOW_JAVA_COMMENTS.getMask();
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = JsonReadFeature.ALLOW_YAML_COMMENTS.getMask();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
@@ -450,9 +445,8 @@ public class ReaderBasedJsonParser
             } catch (IllegalArgumentException iae) {
                 throw _constructError("Failed to decode VALUE_STRING as base64 ("+b64variant+"): "+iae.getMessage());
             }
-            /* let's clear incomplete only now; allows for accessing other
-             * textual content in error cases
-             */
+            // let's clear incomplete only now; allows for accessing other
+            // textual content in error cases
             _tokenIncomplete = false;
         } else { // may actually require conversion...
             if (_binaryValue == null) {
@@ -540,7 +534,7 @@ public class ReaderBasedJsonParser
             // First branch: can get padding (-> 1 byte)
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
-                    // as per [JACKSON-631], could also just be 'missing'  padding
+                    // could also just be missing padding
                     if (ch == '"' && !b64variant.usesPadding()) {
                         decodedData >>= 4;
                         buffer[outputPtr++] = (byte) decodedData;
@@ -575,7 +569,7 @@ public class ReaderBasedJsonParser
             bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
-                    // as per [JACKSON-631], could also just be 'missing'  padding
+                    // as per could also just be missing padding
                     if (ch == '"' && !b64variant.usesPadding()) {
                         decodedData >>= 2;
                         buffer[outputPtr++] = (byte) (decodedData >> 8);
@@ -1742,7 +1736,7 @@ public class ReaderBasedJsonParser
     protected String _handleOddName(int i) throws IOException
     {
         // Allow single quotes?
-        if (i == '\'' && (_formatReadFeatures & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+        if (i == '\'' && isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
             return _parseAposName();
         }
         // Allow unquoted names if feature enabled:
@@ -1755,7 +1749,7 @@ public class ReaderBasedJsonParser
         // Also: first char must be a valid name char, but NOT be number
         boolean firstOk;
 
-        if (i < maxCode) { // identifier, or a number ([Issue#102])
+        if (i < maxCode) { // identifier, or a number ([jackson-core#102])
             firstOk = (codes[i] == 0);
         } else {
             firstOk = Character.isJavaIdentifierPart((char) i);
@@ -1836,15 +1830,14 @@ public class ReaderBasedJsonParser
              * Also, no separation to fast/slow parsing; we'll just do
              * one regular (~= slowish) parsing, to keep code simple
              */
-            if ((_formatReadFeatures & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
                 return _handleApos();
             }
             break;
         case ']':
-            /* 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
-             *   we may allow "missing values", that is, encountering a trailing
-             *   comma or closing marker where value would be expected
-             */
+            // 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
+            //   we may allow "missing values", that is, encountering a trailing
+            //   comma or closing marker where value would be expected
             if (!_parsingContext.inArray()) {
                 break;
             }
@@ -2401,7 +2394,7 @@ public class ReaderBasedJsonParser
 
     private void _skipComment() throws IOException
     {
-        if ((_formatReadFeatures & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -2451,7 +2444,7 @@ public class ReaderBasedJsonParser
 
     private boolean _skipYAMLComment() throws IOException
     {
-        if ((_formatReadFeatures & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
             return false;
         }
         _skipLine();

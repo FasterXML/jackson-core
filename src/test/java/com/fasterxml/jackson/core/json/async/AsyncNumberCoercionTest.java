@@ -73,7 +73,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of int");
+            verifyException(e, "out of range of `int`");
         }
         long small = -1L + Integer.MIN_VALUE;
         p = createParser(String.valueOf(small));
@@ -84,7 +84,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of int");
+            verifyException(e, "out of range of `int`");
         }
 
         // double -> error
@@ -95,7 +95,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of int");
+            verifyException(e, "out of range of `int`");
         }
         p = createParser(String.valueOf(small)+".0");
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
@@ -104,7 +104,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of int");
+            verifyException(e, "out of range of `int`");
         }
 
         // BigInteger -> error
@@ -115,7 +115,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of int");
+            verifyException(e, "out of range of `int`");
         }
         p = createParser(String.valueOf(small));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -124,7 +124,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of int");
+            verifyException(e, "out of range of `int`");
         }
     }
 
@@ -177,7 +177,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getLongValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of long");
+            verifyException(e, "out of range of `long`");
         }
         BigInteger small = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.TEN);
         p = createParser(String.valueOf(small));
@@ -187,7 +187,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getLongValue();
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "out of range of long");
+            verifyException(e, "out of range of `long`");
         }
     }
     

@@ -21,4 +21,5 @@ JSON library.
 #432: Add new `TreeNode` subtypes: `ArrayTreeNode`, `ObjectTreeNode`
 #433: Add Builder pattern for creating configured Stream factories
 #456: Add `JsonParser.readAsValue(ResolvedType)`
+#492: Ensure primitive type names in error message enclosed in backticks
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`

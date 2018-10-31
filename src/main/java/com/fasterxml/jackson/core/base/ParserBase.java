@@ -633,9 +633,8 @@ public abstract class ParserBase extends ParserMinimalBase
     public float getFloatValue() throws IOException
     {
         double value = getDoubleValue();
-        /* 22-Jan-2009, tatu: Bounds/range checks would be tricky
-         *   here, so let's not bother even trying...
-         */
+        // 22-Jan-2009, tatu: Bounds/range checks would be tricky
+        //   here, so let's not bother even trying...
         /*
         if (value < -Float.MAX_VALUE || value > MAX_FLOAT_D) {
             _reportError("Numeric value ("+getText()+") out of range of Java float");
@@ -816,7 +815,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected void _reportTooLongInt(int expType, String rawNum) throws IOException
     {
         final String numDesc = _longIntegerDesc(rawNum);
-        _reportError("Numeric value (%s) out of range of %s", numDesc,
+        _reportError("Numeric value (%s) out of range of `%s`", numDesc,
                 (expType == NR_LONG) ? "long" : "int");
     }
 
@@ -833,7 +832,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's verify it's lossless conversion by simple roundtrip
             int result = (int) _numberLong;
             if (((long) result) != _numberLong) {
-                _reportError("Numeric value ("+getText()+") out of range of int");
+                _reportError("Numeric value ("+getText()+") out of range of `int`");
             }
             _numberInt = result;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {

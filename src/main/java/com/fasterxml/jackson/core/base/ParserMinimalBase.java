@@ -667,16 +667,15 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected void reportOverflowInt() throws IOException {
-        _reportError(String.format("Numeric value (%s) out of range of int (%d - %s)",
-                _longIntegerDesc(getText()), Integer.MIN_VALUE, Integer.MAX_VALUE));
+        _reportError("Numeric value (%s) out of range of `int` (%d - %s)",
+                _longIntegerDesc(getText()), Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
     protected void reportOverflowLong() throws IOException {
-        _reportError(String.format("Numeric value (%s) out of range of long (%d - %s)",
-                _longIntegerDesc(getText()), Long.MIN_VALUE, Long.MAX_VALUE));
+        _reportError("Numeric value (%s) out of range of `long` (%d - %s)",
+                _longIntegerDesc(getText()), Long.MIN_VALUE, Long.MAX_VALUE);
     }
 
-    // @since 2.9.8
     protected String _longIntegerDesc(String rawNum) {
         int rawLen = rawNum.length();
         if (rawLen < 1000) {
@@ -688,7 +687,6 @@ public abstract class ParserMinimalBase extends JsonParser
         return String.format("[Integer with %d digits]", rawLen);
     }
 
-    // @since 2.9.8
     protected String _longNumberDesc(String rawNum) {
         int rawLen = rawNum.length();
         if (rawLen < 1000) {
@@ -771,6 +769,10 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final void _reportError(String msg, Object arg1, Object arg2) throws JsonParseException {
         throw _constructError(String.format(msg, arg1, arg2));
+    }
+
+    protected final void _reportError(String msg, Object arg1, Object arg2, Object arg3) throws JsonParseException {
+        throw _constructError(String.format(msg, arg1, arg2, arg3));
     }
 
     protected final void _wrapError(String msg, Throwable t) throws JsonParseException {

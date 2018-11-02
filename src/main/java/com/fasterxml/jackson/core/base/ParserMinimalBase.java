@@ -131,7 +131,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /**
      * Bit flag composed of bits that indicate which
-     * {@link com.fasterxml.jackson.core.StreamReaderFeature}s
+     * {@link com.fasterxml.jackson.core.StreamReadFeature}s
      * are enabled.
      */
     protected int _streamReadFeatures;

@@ -158,7 +158,7 @@ public abstract class TokenStreamFactory
         protected int _factoryFeatures;
 
         /**
-         * Set of {@link JsonParser.Feature}s enabled, as bitmask.
+         * Set of {@link StreamReadFeature}s enabled, as bitmask.
          */
         protected int _streamReadFeatures;
 

@@ -26,7 +26,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_TARGET(true, JsonGenerator.Feature.AUTO_CLOSE_TARGET),
+    AUTO_CLOSE_TARGET(true),
 
     /**
      * Feature that determines what happens when the generator is
@@ -38,7 +38,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_CONTENT(true, JsonGenerator.Feature.AUTO_CLOSE_CONTENT),
+    AUTO_CLOSE_CONTENT(true),
 
     /**
      * Feature that specifies that calls to {@link JsonGenerator#flush} will cause
@@ -51,7 +51,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    FLUSH_PASSED_TO_STREAM(true, JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM),
+    FLUSH_PASSED_TO_STREAM(true),
 
     // // Datatype coercion features
     
@@ -73,7 +73,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is disabled by default.
      */
-    WRITE_NUMBERS_AS_STRINGS(false, JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
+    WRITE_NUMBERS_AS_STRINGS(false),
 
     /**
      * Feature that determines whether {@link java.math.BigDecimal} entries are
@@ -87,7 +87,7 @@ public enum StreamWriteFeature
      * Feature is disabled by default, so default output mode is used; this generally
      * depends on how {@link BigDecimal} has been created.
      */
-    WRITE_BIGDECIMAL_AS_PLAIN(false, JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN),
+    WRITE_BIGDECIMAL_AS_PLAIN(false),
 
     // // Schema/Validity support features
 
@@ -104,7 +104,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is disabled by default.
      */
-    STRICT_DUPLICATE_DETECTION(false, JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION),
+    STRICT_DUPLICATE_DETECTION(false),
     
     /**
      * Feature that determines what to do if the underlying data format requires knowledge
@@ -124,7 +124,7 @@ public enum StreamWriteFeature
      * requires knowledge of all properties to output, attempts to write an unknown
      * property will result in a {@link JsonProcessingException}
      */
-    IGNORE_UNKNOWN(false, JsonGenerator.Feature.IGNORE_UNKNOWN),
+    IGNORE_UNKNOWN(false),
     ;
 
     /**
@@ -134,17 +134,9 @@ public enum StreamWriteFeature
 
     private final int _mask;
 
-    /**
-     * For backwards compatibility we may need to map to one of existing {@link JsonParser.Feature}s;
-     * if so, this is the feature to enable/disable.
-     */
-    final private JsonGenerator.Feature _mappedFeature;
-
-    private StreamWriteFeature(boolean defaultState,
-            JsonGenerator.Feature mappedTo) {
+    private StreamWriteFeature(boolean defaultState) {
         _mask = (1 << ordinal());
         _defaultState = defaultState;
-        _mappedFeature = mappedTo;
     }
 
     /**
@@ -165,6 +157,4 @@ public enum StreamWriteFeature
     public boolean enabledByDefault() { return _defaultState; }
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
     public int getMask() { return _mask; }
-
-    public JsonGenerator.Feature mappedFeature() { return _mappedFeature; }
 }

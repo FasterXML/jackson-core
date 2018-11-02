@@ -1125,7 +1125,7 @@ public class UTF8JsonGenerator
     {
         _flushBuffer();
         if (_outputStream != null) {
-            if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
+            if (isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM)) {
                 _outputStream.flush();
             }
         }
@@ -1136,12 +1136,8 @@ public class UTF8JsonGenerator
     {
         super.close();
 
-        /* 05-Dec-2008, tatu: To add [JACKSON-27], need to close open
-         *   scopes.
-         */
-        // First: let's see that we still have buffers...
         if ((_outputBuffer != null)
-            && isEnabled(Feature.AUTO_CLOSE_CONTENT)) {
+            && isEnabled(StreamWriteFeature.AUTO_CLOSE_CONTENT)) {
             while (true) {
                 TokenStreamContext ctxt = getOutputContext();
                 if (ctxt.inArray()) {
@@ -1156,16 +1152,15 @@ public class UTF8JsonGenerator
         _flushBuffer();
         _outputTail = 0; // just to ensure we don't think there's anything buffered
 
-        /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()
-         *   on the underlying Reader, unless we "own" it, or auto-closing
-         *   feature is enabled.
-         *   One downside: when using UTF8Writer, underlying buffer(s)
-         *   may not be properly recycled if we don't close the writer.
+        /* We are not to call close() on the underlying Reader, unless we "own" it,
+         * or auto-closing feature is enabled.
+         * One downside: when using UTF8Writer, underlying buffer(s)
+         * may not be properly recycled if we don't close the writer.
          */
         if (_outputStream != null) {
-            if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_TARGET)) {
+            if (_ioContext.isResourceManaged() || isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET)) {
                 _outputStream.close();
-            } else if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
+            } else if (isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM)) {
                 // If we can't close it, we should at least flush
                 _outputStream.flush();
             }

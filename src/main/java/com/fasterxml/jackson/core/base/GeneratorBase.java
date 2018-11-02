@@ -27,8 +27,8 @@ public abstract class GeneratorBase extends JsonGenerator
      * local configuration or state.
      */
     protected final static int DERIVED_FEATURES_MASK =
-            Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
-            | Feature.STRICT_DUPLICATE_DETECTION.getMask()
+            StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.getMask()
+            | StreamWriteFeature.STRICT_DUPLICATE_DETECTION.getMask()
             ;
 
     // // // Constants for validation messages (since 2.6)
@@ -64,7 +64,7 @@ public abstract class GeneratorBase extends JsonGenerator
 
     /**
      * Bit flag composed of bits that indicate which
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature}s
      * are enabled.
      */
     protected int _streamWriteFeatures;
@@ -72,7 +72,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Flag set to indicate that implicit conversion from number
      * to JSON String is needed (as per
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_NUMBERS_AS_STRINGS}).
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature#WRITE_NUMBERS_AS_STRINGS}).
      */
     protected boolean _cfgNumbersAsStrings;
 
@@ -105,10 +105,10 @@ public abstract class GeneratorBase extends JsonGenerator
         super();
         _objectWriteContext = writeCtxt;
         _streamWriteFeatures = features;
-        DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
+        DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _outputContext = JsonWriteContext.createRootContext(dups);
-        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
+        _cfgNumbersAsStrings = StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
     protected GeneratorBase(ObjectWriteContext writeCtxt, int features, JsonWriteContext ctxt) {
@@ -116,7 +116,7 @@ public abstract class GeneratorBase extends JsonGenerator
         _objectWriteContext = writeCtxt;
         _streamWriteFeatures = features;
         _outputContext = ctxt;
-        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
+        _cfgNumbersAsStrings = StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
     /**
@@ -142,7 +142,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
-    @Override public final boolean isEnabled(Feature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
+    @Override public final boolean isEnabled(StreamWriteFeature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
     @Override public int streamWriteFeatures() { return _streamWriteFeatures; }
 
     @Override
@@ -151,14 +151,14 @@ public abstract class GeneratorBase extends JsonGenerator
     //public JsonGenerator configure(Feature f, boolean state) { }
 
     @Override
-    public JsonGenerator enable(Feature f) {
+    public JsonGenerator enable(StreamWriteFeature f) {
         final int mask = f.getMask();
         _streamWriteFeatures |= mask;
         if ((mask & DERIVED_FEATURES_MASK) != 0) {
             // why not switch? Requires addition of a generated class, alas
-            if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
+            if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = true;
-            } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
+            } else if (f == StreamWriteFeature.STRICT_DUPLICATE_DETECTION) {
                 if (_outputContext.getDupDetector() == null) { // but only if disabled currently
                     _outputContext = _outputContext.withDupDetector(DupDetector.rootDetector(this));
                 }
@@ -168,13 +168,13 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     @Override
-    public JsonGenerator disable(Feature f) {
+    public JsonGenerator disable(StreamWriteFeature f) {
         final int mask = f.getMask();
         _streamWriteFeatures &= ~mask;
         if ((mask & DERIVED_FEATURES_MASK) != 0) {
-            if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
+            if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = false;
-            } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
+            } else if (f == StreamWriteFeature.STRICT_DUPLICATE_DETECTION) {
                 _outputContext = _outputContext.withDupDetector(null);
             }
         }
@@ -360,8 +360,6 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Overridable factory method called to instantiate an appropriate {@link PrettyPrinter}
      * for case of "just use the default one", when {@link #useDefaultPrettyPrinter()} is called.
-     *
-     * @since 2.6
      */
     protected PrettyPrinter _constructDefaultPrettyPrinter() {
         return new DefaultPrettyPrinter();
@@ -370,11 +368,9 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Helper method used to serialize a {@link java.math.BigDecimal} as a String,
      * for serialization, taking into account configuration settings
-     *
-     * @since 2.7.7
      */
     protected String _asString(BigDecimal value) throws IOException {
-        if (Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_streamWriteFeatures)) {
+        if (StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_streamWriteFeatures)) {
             // 24-Aug-2016, tatu: [core#315] prevent possible DoS vector
             int scale = value.scale();
             if ((scale < -MAX_BIG_DECIMAL_SCALE) || (scale > MAX_BIG_DECIMAL_SCALE)) {

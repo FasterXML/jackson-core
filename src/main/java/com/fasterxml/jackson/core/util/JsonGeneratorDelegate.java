@@ -101,19 +101,19 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public JsonGenerator enable(Feature f) {
+    public JsonGenerator enable(StreamWriteFeature f) {
         delegate.enable(f);
         return this;
     }
     
     @Override
-    public JsonGenerator disable(Feature f) {
+    public JsonGenerator disable(StreamWriteFeature f) {
         delegate.disable(f);
         return this;
     }
 
     @Override
-    public boolean isEnabled(Feature f) { return delegate.isEnabled(f); }
+    public boolean isEnabled(StreamWriteFeature f) { return delegate.isEnabled(f); }
 
     // final, can't override (and no need to)
     //public final JsonGenerator configure(Feature f, boolean state)

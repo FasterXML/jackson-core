@@ -18,8 +18,8 @@ public class StreamWriteFeaturesTest
     public void testConfigDefaults() throws IOException
     {
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), new StringWriter());
-        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
-        assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        assertFalse(g.isEnabled(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS));
+        assertFalse(g.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
 
         assertTrue(g.canOmitFields());
         assertFalse(g.canWriteBinaryNatively());
@@ -144,7 +144,7 @@ public class StreamWriteFeaturesTest
                     g = f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
                 }
                 if (asString) {
-                    g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+                    g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
                 }
 
                 // first, ok cases:
@@ -162,7 +162,7 @@ public class StreamWriteFeaturesTest
                         g = f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
                     }
                     if (asString) {
-                        g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+                        g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
                     }
                     try {
                         g.writeNumber(input);
@@ -256,7 +256,7 @@ public class StreamWriteFeaturesTest
         StringWriter w = new StringWriter();
 
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(),w);
-        g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+        g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
         g.writeNumber(123);
         g.close();
         assertEquals(quote("123"), w.toString());
@@ -264,8 +264,8 @@ public class StreamWriteFeaturesTest
         // but also the opposite
         w = new StringWriter();
         g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
-        g.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
-        g.disable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+        g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
+        g.disable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
         g.writeNumber(123);
         g.close();
         assertEquals("123", w.toString());

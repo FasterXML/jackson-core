@@ -47,7 +47,7 @@ public abstract class JsonParser
     public enum Feature {
 
         // // // Low-level I/O handling features:
-        
+
         /**
          * Feature that determines whether parser will automatically
          * close underlying input source that is NOT owned by the

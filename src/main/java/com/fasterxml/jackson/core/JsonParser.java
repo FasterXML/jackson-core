@@ -43,9 +43,8 @@ public abstract class JsonParser
      * Enumeration that defines all on/off features for parsers.
      */
     public enum Feature {
-        
         // // // Low-level I/O handling features:
-        
+
         /**
          * Feature that determines whether parser will automatically
          * close underlying input source that is NOT owned by the

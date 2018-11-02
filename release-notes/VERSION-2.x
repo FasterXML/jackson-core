@@ -22,6 +22,8 @@ JSON library.
 #481: Create `JsonWriteFeature` to move JSON-specific `JsonGenerator.Feature`s to
 #484: Implement `UTF8JsonGenerator.writeRawValue(SerializableString)` (and
   `writeRaw(..)`) more efficiently
+#495: Create `StreamReadFeature` to move non-json specific `JsonParser.Feature`s to
+#496: Create `StreamWriteFeature` to take over non-json-specific `JsonGenerator.Feature`s
 
 2.9.8 (not yet released)
 

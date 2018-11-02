@@ -129,7 +129,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * @since 2.9
      */
     protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
-    
+
     /*
     /**********************************************************
     /* Minimal generally useful state

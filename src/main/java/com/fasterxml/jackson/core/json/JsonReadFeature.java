@@ -3,7 +3,8 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.*;
 
 /**
- * Token reader features specific to JSON backend.
+ * Token reader (parser) features specific to JSON backend.
+ * Eventual replacement for JSON-specific {@link com.fasterxml.jackson.core.JsonParser.Feature}s.
  *
  * @since 2.10
  */

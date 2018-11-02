@@ -94,10 +94,10 @@ public class TestGeneratorClosing extends BaseTest
         JsonFactory f = new JsonFactory();
 
         // Check the default settings
-        assertTrue(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        assertTrue(f.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
         // then change
-        f = f.rebuild().disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
-        assertFalse(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
+        f = f.rebuild().disable(StreamWriteFeature.AUTO_CLOSE_TARGET).build();
+        assertFalse(f.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
         @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output);
@@ -113,7 +113,7 @@ public class TestGeneratorClosing extends BaseTest
     public void testCloseGenerator() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
+                .enable(StreamWriteFeature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
         MyWriter output = new MyWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output);
@@ -129,7 +129,7 @@ public class TestGeneratorClosing extends BaseTest
     public void testNoAutoCloseOutputStream() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET).build();
+                .disable(StreamWriteFeature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
         MyStream output = new MyStream();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output, JsonEncoding.UTF8);
@@ -145,7 +145,7 @@ public class TestGeneratorClosing extends BaseTest
     {
         JsonFactory f = new JsonFactory();
         // let's verify default setting, first:
-        assertTrue(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_CONTENT));
+        assertTrue(f.isEnabled(StreamWriteFeature.AUTO_CLOSE_CONTENT));
         StringWriter sw = new StringWriter();
 
         // First, test arrays:
@@ -166,7 +166,8 @@ public class TestGeneratorClosing extends BaseTest
         throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .disable(JsonGenerator.Feature.AUTO_CLOSE_CONTENT).build();
+                .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT)
+                .build();
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartArray();
@@ -187,7 +188,7 @@ public class TestGeneratorClosing extends BaseTest
     public void testAutoFlushOrNot() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        assertTrue(f.isEnabled(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM));
+        assertTrue(f.isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM));
         MyChars sw = new MyChars();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartArray();
@@ -209,7 +210,9 @@ public class TestGeneratorClosing extends BaseTest
         g.close();
 
         // then disable and we should not see flushing again...
-        f = f.rebuild().disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM).build();
+        f = f.rebuild()
+            .disable(StreamWriteFeature.FLUSH_PASSED_TO_STREAM)
+            .build();
         // first with a Writer
         sw = new MyChars();
         g = f.createGenerator(ObjectWriteContext.empty(), sw);

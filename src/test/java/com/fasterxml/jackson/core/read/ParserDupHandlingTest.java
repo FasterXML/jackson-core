@@ -24,7 +24,7 @@ public class ParserDupHandlingTest
     {
         // first: verify no problems if detection NOT enabled
         final JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
+        assertFalse(f.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
         for (String doc : DUP_DOCS) {
             _testSimpleDupsOk(doc, f, MODE_INPUT_STREAM);
             _testSimpleDupsOk(doc, f, MODE_INPUT_STREAM_THROTTLED);
@@ -35,39 +35,30 @@ public class ParserDupHandlingTest
 
     public void testSimpleDupsBytes() throws Exception
     {
-        JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
         for (String doc : DUP_DOCS) {
-            // First, with static setting
-            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM, "a", false);
-            // and then dynamic
-            _testSimpleDupsFail(doc, nonDupF, MODE_INPUT_STREAM, "a", true);
+            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM, "a");
 
-            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM_THROTTLED, "a", false);
-            _testSimpleDupsFail(doc, nonDupF, MODE_INPUT_STREAM_THROTTLED, "a", true);
+            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM_THROTTLED, "a");
         }
     }
 
     public void testSimpleDupsDataInput() throws Exception
     {
-        JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
         for (String doc : DUP_DOCS) {
-            _testSimpleDupsFail(doc, dupF, MODE_DATA_INPUT, "a", false);
-            _testSimpleDupsFail(doc, nonDupF, MODE_DATA_INPUT, "a", true);
+            _testSimpleDupsFail(doc, dupF, MODE_DATA_INPUT, "a");
         }
     }
     
     public void testSimpleDupsChars() throws Exception
     {
-        JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
         for (String doc : DUP_DOCS) {
-            _testSimpleDupsFail(doc, dupF, MODE_READER, "a", false);
-            _testSimpleDupsFail(doc, nonDupF, MODE_READER, "a", true);
+            _testSimpleDupsFail(doc, dupF, MODE_READER, "a");
         }
     }
     
@@ -101,12 +92,9 @@ public class ParserDupHandlingTest
     }
 
     private void _testSimpleDupsFail(final String doc, JsonFactory f,
-            int mode, String name, boolean lazily) throws Exception
+            int mode, String name) throws Exception
     {
         JsonParser p = createParser(f, mode, doc);
-        if (lazily) {
-            p.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
-        }
         JsonToken t = p.nextToken();
         assertNotNull(t);
         assertTrue(t.isStructStart());

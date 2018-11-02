@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 
 /**
  * Helper class used if
- * {@link com.fasterxml.jackson.core.JsonParser.Feature#STRICT_DUPLICATE_DETECTION}
+ * {@link com.fasterxml.jackson.core.StreamReadFeature#STRICT_DUPLICATE_DETECTION}
  * is enabled.
  * Optimized to try to limit memory usage and processing overhead for smallest
  * entries, but without adding trashing (immutable objects would achieve optimal
@@ -14,8 +14,6 @@ import com.fasterxml.jackson.core.*;
  * scopes with large number of entries). Another consideration is trying to limit
  * actual number of compiled classes as it contributes significantly to overall
  * jar size (due to linkage etc).
- * 
- * @since 2.3
  */
 public class DupDetector
 {

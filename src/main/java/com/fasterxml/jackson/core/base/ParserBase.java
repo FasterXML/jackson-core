@@ -232,7 +232,7 @@ public abstract class ParserBase extends ParserMinimalBase
         super(readCtxt, features);
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
-        DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
+        DupDetector dups = StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _parsingContext = JsonReadContext.createRootContext(dups);
     }
@@ -254,9 +254,9 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     @Override
-    public JsonParser enable(Feature f) {
+    public JsonParser enable(StreamReadFeature f) {
         _streamReadFeatures |= f.getMask();
-        if (f == Feature.STRICT_DUPLICATE_DETECTION) { // enabling dup detection?
+        if (f == StreamReadFeature.STRICT_DUPLICATE_DETECTION) { // enabling dup detection?
             if (_parsingContext.getDupDetector() == null) { // but only if disabled currently
                 _parsingContext = _parsingContext.withDupDetector(DupDetector.rootDetector(this));
             }
@@ -265,9 +265,9 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     @Override
-    public JsonParser disable(Feature f) {
+    public JsonParser disable(StreamReadFeature f) {
         _streamReadFeatures &= ~f.getMask();
-        if (f == Feature.STRICT_DUPLICATE_DETECTION) {
+        if (f == StreamReadFeature.STRICT_DUPLICATE_DETECTION) {
             _parsingContext = _parsingContext.withDupDetector(null);
         }
         return this;
@@ -1063,7 +1063,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * "source reference" when constructing {@link JsonLocation} instances.
      */
     protected Object _getSourceReference() {
-        if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_streamReadFeatures)) {
+        if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
             return _ioContext.getSourceReference();
         }
         return null;

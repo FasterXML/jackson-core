@@ -197,19 +197,19 @@ public abstract class ParserMinimalBase extends JsonParser
     // from base class:
 
     @Override
-    public JsonParser enable(Feature f) {
+    public JsonParser enable(StreamReadFeature f) {
         _streamReadFeatures |= f.getMask();
         return this;
     }
 
     @Override
-    public JsonParser disable(Feature f) {
+    public JsonParser disable(StreamReadFeature f) {
         _streamReadFeatures &= ~f.getMask();
         return this;
     }
 
     @Override
-    public boolean isEnabled(Feature f) { return f.enabledIn(_streamReadFeatures); }
+    public boolean isEnabled(StreamReadFeature f) { return f.enabledIn(_streamReadFeatures); }
 
     @Override
     public int streamReadFeatures() { return _streamReadFeatures; }

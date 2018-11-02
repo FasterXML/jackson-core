@@ -6,9 +6,8 @@ import java.math.BigDecimal;
 
 /**
  * Token writer (generator) features not-specific to any particular format backend.
- * Eventual replacement for non-JSON-specific {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s.
- *
- * @since 2.10
+ *<p>
+ * NOTE: Jackson 2.x contained these along with JSON-specific features in <code>JsonGenerator.Feature</code>.
  */
 public enum StreamWriteFeature
 {
@@ -39,10 +38,10 @@ public enum StreamWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_JSON_CONTENT(true, JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT),
+    AUTO_CLOSE_CONTENT(true, JsonGenerator.Feature.AUTO_CLOSE_CONTENT),
 
     /**
-s     * Feature that specifies that calls to {@link JsonGenerator#flush} will cause
+     * Feature that specifies that calls to {@link JsonGenerator#flush} will cause
      * matching <code>flush()</code> to underlying {@link OutputStream}
      * or {@link Writer}; if disabled this will not be done.
      * Main reason to disable this feature is to prevent flushing at

@@ -163,7 +163,7 @@ public abstract class TokenStreamFactory
         protected int _streamReadFeatures;
 
         /**
-         * Set of {@link JsonGenerator.Feature}s enabled, as bitmask.
+         * Set of {@link StreamWriteFeature}s enabled, as bitmask.
          */
         protected int _streamWriteFeatures;
 
@@ -232,65 +232,65 @@ public abstract class TokenStreamFactory
 
         // // // Parser features
 
-        public B enable(JsonParser.Feature f) {
+        public B enable(StreamReadFeature f) {
             _streamReadFeatures |= f.getMask();
             return _this();
         }
 
-        public B enable(JsonParser.Feature first, JsonParser.Feature... other) {
+        public B enable(StreamReadFeature first, StreamReadFeature... other) {
             _streamReadFeatures |= first.getMask();
-            for (JsonParser.Feature f : other) {
+            for (StreamReadFeature f : other) {
                 _streamReadFeatures |= f.getMask();
             }
             return _this();
         }
 
-        public B disable(JsonParser.Feature f) {
+        public B disable(StreamReadFeature f) {
             _streamReadFeatures &= ~f.getMask();
             return _this();
         }
 
-        public B disable(JsonParser.Feature first, JsonParser.Feature... other) {
+        public B disable(StreamReadFeature first, StreamReadFeature... other) {
             _streamReadFeatures &= ~first.getMask();
-            for (JsonParser.Feature f : other) {
+            for (StreamReadFeature f : other) {
                 _streamReadFeatures &= ~f.getMask();
             }
             return _this();
         }
 
-        public B configure(JsonParser.Feature f, boolean state) {
+        public B configure(StreamReadFeature f, boolean state) {
             return state ? enable(f) : disable(f);
         }
 
         // // // Generator features
 
-        public B enable(JsonGenerator.Feature f) {
+        public B enable(StreamWriteFeature f) {
             _streamWriteFeatures |= f.getMask();
             return _this();
         }
 
-        public B enable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+        public B enable(StreamWriteFeature first, StreamWriteFeature... other) {
             _streamWriteFeatures |= first.getMask();
-            for (JsonGenerator.Feature f : other) {
+            for (StreamWriteFeature f : other) {
                 _streamWriteFeatures |= f.getMask();
             }
             return _this();
         }
 
-        public B disable(JsonGenerator.Feature f) {
+        public B disable(StreamWriteFeature f) {
             _streamWriteFeatures &= ~f.getMask();
             return _this();
         }
         
-        public B disable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
+        public B disable(StreamWriteFeature first, StreamWriteFeature... other) {
             _streamWriteFeatures &= ~first.getMask();
-            for (JsonGenerator.Feature f : other) {
+            for (StreamWriteFeature f : other) {
                 _streamWriteFeatures &= ~f.getMask();
             }
             return _this();
         }
 
-        public B configure(JsonGenerator.Feature f, boolean state) {
+        public B configure(StreamWriteFeature f, boolean state) {
             return state ? enable(f) : disable(f);
         }
 
@@ -322,13 +322,13 @@ public abstract class TokenStreamFactory
      * Bitfield (set of flags) of all parser features that are enabled
      * by default.
      */
-    protected final static int DEFAULT_STREAM_READ_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
+    protected final static int DEFAULT_STREAM_READ_FEATURE_FLAGS = StreamReadFeature.collectDefaults();
     
     /**
      * Bitfield (set of flags) of all generator features that are enabled
      * by default.
      */
-    protected final static int DEFAULT_STREAM_WRITE_FEATURE_FLAGS = JsonGenerator.Feature.collectDefaults();
+    protected final static int DEFAULT_STREAM_WRITE_FEATURE_FLAGS = StreamWriteFeature.collectDefaults();
 
     /*
     /**********************************************************
@@ -342,12 +342,12 @@ public abstract class TokenStreamFactory
     protected final int _factoryFeatures;
     
     /**
-     * Currently enabled {@link JsonParser.Feature}s as a bitmask.
+     * Currently enabled {@link StreamReadFeature}s as a bitmask.
      */
     protected final int _streamReadFeatures;
 
     /**
-     * Currently enabled {@link JsonGenerator.Feature}s as a bitmask.
+     * Currently enabled {@link StreamWriteFeature}s as a bitmask.
      */
     protected final int _streamWriteFeatures;
 
@@ -547,14 +547,14 @@ public abstract class TokenStreamFactory
     /**
      * Checked whether specified parser feature is enabled.
      */
-    public final boolean isEnabled(JsonParser.Feature f) {
+    public final boolean isEnabled(StreamReadFeature f) {
         return (_streamReadFeatures & f.getMask()) != 0;
     }
 
     /**
      * Check whether specified generator feature is enabled.
      */
-    public final boolean isEnabled(JsonGenerator.Feature f) {
+    public final boolean isEnabled(StreamWriteFeature f) {
         return (_streamWriteFeatures & f.getMask()) != 0;
     }
 
@@ -666,7 +666,7 @@ public abstract class TokenStreamFactory
      * The input stream will <b>not be owned</b> by
      * the parser, it will still be managed (i.e. closed if
      * end-of-stream is reacher, or parser close method called)
-     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * if (and only if) {@link com.fasterxml.jackson.core.StreamReadFeature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *<p>
      *
@@ -688,7 +688,7 @@ public abstract class TokenStreamFactory
      * The read stream will <b>not be owned</b> by
      * the parser, it will still be managed (i.e. closed if
      * end-of-stream is reacher, or parser close method called)
-     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * if (and only if) {@link com.fasterxml.jackson.core.StreamReadFeature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *
      * @param r Reader to use for reading JSON content to parse
@@ -859,7 +859,7 @@ public abstract class TokenStreamFactory
      * so that generator will NOT close the output stream when
      * {@link JsonGenerator#close} is called (unless auto-closing
      * feature,
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET}
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET}
      * is enabled).
      * Using application needs to close it explicitly if this is the case.
      *
@@ -883,7 +883,7 @@ public abstract class TokenStreamFactory
      * so that generator will NOT close the output stream when
      * {@link JsonGenerator#close} is called (unless auto-closing
      * feature,
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET}
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET}
      * is enabled).
      * Using application needs to close it explicitly if this is the case.
      *
@@ -906,7 +906,7 @@ public abstract class TokenStreamFactory
      * so that generator will NOT close the Reader when
      * {@link JsonGenerator#close} is called (unless auto-closing
      * feature,
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
      *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
@@ -967,7 +967,7 @@ public abstract class TokenStreamFactory
      * so that generator will NOT close the output stream when
      * {@link JsonGenerator#close} is called (unless auto-closing
      * feature,
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET}
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET}
      * is enabled).
      * Using application needs to close it explicitly if this is the case.
      *<p>
@@ -1002,7 +1002,7 @@ public abstract class TokenStreamFactory
      * so that generator will NOT close the Reader when
      * {@link JsonGenerator#close} is called (unless auto-closing
      * feature,
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#AUTO_CLOSE_TARGET} is enabled).
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
      *
      * @param w Writer to use for writing JSON content 

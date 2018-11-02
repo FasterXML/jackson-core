@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.*;
 
 /**
  * Token reader (parser) features specific to JSON backend.
- * Eventual replacement for JSON-specific {@link com.fasterxml.jackson.core.JsonParser.Feature}s.
- *
- * @since 2.10
+ *<p>
+ * NOTE: Jackson 2.x had these mixed with non-JSON-specific features within
+ * <code>JsonParser.Feature</code> enumeration.
  */
 public enum JsonReadFeature
     implements FormatFeature

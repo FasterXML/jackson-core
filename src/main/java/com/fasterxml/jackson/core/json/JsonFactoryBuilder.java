@@ -42,7 +42,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
 
     public JsonFactoryBuilder enable(JsonReadFeature f) {
         _formatReadFeatures |= f.getMask();
-        return _this();
+        return this;
     }
 
     public JsonFactoryBuilder enable(JsonReadFeature first, JsonReadFeature... other) {
@@ -50,12 +50,12 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         for (JsonReadFeature f : other) {
             _formatReadFeatures |= f.getMask();
         }
-        return _this();
+        return this;
     }
 
     public JsonFactoryBuilder disable(JsonReadFeature f) {
         _formatReadFeatures &= ~f.getMask();
-        return _this();
+        return this;
     }
 
     public JsonFactoryBuilder disable(JsonReadFeature first, JsonReadFeature... other) {
@@ -63,7 +63,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         for (JsonReadFeature f : other) {
             _formatReadFeatures &= ~f.getMask();
         }
-        return _this();
+        return this;
     }
 
     public JsonFactoryBuilder configure(JsonReadFeature f, boolean state) {
@@ -74,7 +74,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
 
     public JsonFactoryBuilder enable(JsonWriteFeature f) {
         _formatWriteFeatures |= f.getMask();
-        return _this();
+        return this;
     }
 
     public JsonFactoryBuilder enable(JsonWriteFeature first, JsonWriteFeature... other) {
@@ -82,12 +82,12 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         for (JsonWriteFeature f : other) {
             _formatWriteFeatures |= f.getMask();
         }
-        return _this();
+        return this;
     }
 
     public JsonFactoryBuilder disable(JsonWriteFeature f) {
         _formatWriteFeatures &= ~f.getMask();
-        return _this();
+        return this;
     }
     
     public JsonFactoryBuilder disable(JsonWriteFeature first, JsonWriteFeature... other) {
@@ -95,7 +95,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         for (JsonWriteFeature f : other) {
             _formatWriteFeatures &= ~f.getMask();
         }
-        return _this();
+        return this;
     }
 
     public JsonFactoryBuilder configure(JsonWriteFeature f, boolean state) {

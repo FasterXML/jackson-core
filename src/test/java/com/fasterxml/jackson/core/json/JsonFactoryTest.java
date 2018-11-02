@@ -10,12 +10,12 @@ public class JsonFactoryTest
     public void testStreamWriteFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonGenerator.Feature.IGNORE_UNKNOWN)
+                .enable(StreamWriteFeature.IGNORE_UNKNOWN)
                 .build();
-        assertTrue(f.isEnabled(JsonGenerator.Feature.IGNORE_UNKNOWN));
-        f = f.rebuild().configure(JsonGenerator.Feature.IGNORE_UNKNOWN, false)
+        assertTrue(f.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
+        f = f.rebuild().configure(StreamWriteFeature.IGNORE_UNKNOWN, false)
                 .build();
-        assertFalse(f.isEnabled(JsonGenerator.Feature.IGNORE_UNKNOWN));
+        assertFalse(f.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
     }
 
     public void testJsonWriteFeatures() throws Exception

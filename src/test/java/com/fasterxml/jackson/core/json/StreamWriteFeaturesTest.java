@@ -74,7 +74,7 @@ public class StreamWriteFeaturesTest
         assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(f));        
 
         // but if overridden, quotes as Strings
-        f = f.rebuild().configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true)
+        f = f.rebuild().configure(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS, true)
                 .build();
         assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
                      _writeNumbers(f));
@@ -91,7 +91,7 @@ public class StreamWriteFeaturesTest
         g.close();
         assertEquals("1E+2", sw.toString());
 
-        f = f.rebuild().enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+        f = f.rebuild().enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
                 .build();
         sw = new StringWriter();
         g = f.createGenerator(ObjectWriteContext.empty(), sw);
@@ -104,8 +104,8 @@ public class StreamWriteFeaturesTest
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
-        f = f.rebuild().enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN,
-                JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS)
+        f = f.rebuild().enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN,
+                StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS)
                 .build();
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
@@ -125,7 +125,7 @@ public class StreamWriteFeaturesTest
     public void testTooBigBigDecimal() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
                 .build();
 
         // 24-Aug-2016, tatu: Initial check limits scale to [-9999,+9999]

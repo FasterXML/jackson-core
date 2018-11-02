@@ -17,7 +17,7 @@ public class ReadFeaturesTest
     public void testStreamReadFeatureDefaults() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertTrue(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
 
         JsonParser p = f.createParser(ObjectReadContext.empty(), new StringReader("{}"));
         _testDefaultSettings(p);

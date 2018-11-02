@@ -5,9 +5,8 @@ import java.io.Reader;
 
 /**
  * Token reader (parser) features not-specific to any particular format backend.
- * Eventual replacement for non-JSON-specific {@link com.fasterxml.jackson.core.JsonParser.Feature}s.
- *
- * @since 2.10
+ *<p>
+ * NOTE: Jackson 2.x contained these along with JSON-specific features in <code>JsonParser.Feature</code>.
  */
 public enum StreamReadFeature
 {
@@ -25,7 +24,7 @@ public enum StreamReadFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_SOURCE(true, JsonParser.Feature.AUTO_CLOSE_SOURCE),
+    AUTO_CLOSE_SOURCE(true),
 
     // // // Validity checks
     
@@ -43,7 +42,7 @@ public enum StreamReadFeature
      * due to having to store and check additional information: this typically
      * adds 20-30% to execution time for basic parsing.
      */
-    STRICT_DUPLICATE_DETECTION(false, JsonParser.Feature.STRICT_DUPLICATE_DETECTION),
+    STRICT_DUPLICATE_DETECTION(false),
 
     /**
      * Feature that determines what to do if the underlying data format requires knowledge
@@ -65,7 +64,7 @@ public enum StreamReadFeature
      * requires knowledge of all properties to output, attempts to read an unknown
      * property will result in a {@link JsonProcessingException}
      */
-    IGNORE_UNDEFINED(false, JsonParser.Feature.IGNORE_UNDEFINED),
+    IGNORE_UNDEFINED(false),
 
     // // // Other
 
@@ -86,7 +85,7 @@ public enum StreamReadFeature
      * and some or all of the source content may be included in {@link JsonLocation} information
      * constructed either when requested explicitly, or when needed for an exception.
      */
-    INCLUDE_SOURCE_IN_LOCATION(true, JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION),
+    INCLUDE_SOURCE_IN_LOCATION(true),
 
     ;
 
@@ -97,17 +96,9 @@ public enum StreamReadFeature
 
     private final int _mask;
 
-    /**
-     * For backwards compatibility we may need to map to one of existing {@link JsonParser.Feature}s;
-     * if so, this is the feature to enable/disable.
-     */
-    final private JsonParser.Feature _mappedFeature;
-
-    private StreamReadFeature(boolean defaultState,
-            JsonParser.Feature  mapTo) {
+    private StreamReadFeature(boolean defaultState) {
         _mask = (1 << ordinal());
         _defaultState = defaultState;
-        _mappedFeature = mapTo;
     }
 
     /**
@@ -128,6 +119,4 @@ public enum StreamReadFeature
     public boolean enabledByDefault() { return _defaultState; }
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
     public int getMask() { return _mask; }
-
-    public JsonParser.Feature mappedFeature() { return _mappedFeature; }
 }

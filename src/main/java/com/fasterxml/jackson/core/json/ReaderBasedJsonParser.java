@@ -176,7 +176,7 @@ public class ReaderBasedJsonParser
          *   means that buffer recycling won't work correctly.
          */
         if (_reader != null) {
-            if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_SOURCE)) {
+            if (_ioContext.isResourceManaged() || isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE)) {
                 _reader.close();
             }
             _reader = null;

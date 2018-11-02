@@ -144,7 +144,7 @@ public class TestGeneratorClosing extends BaseTest
     {
         JsonFactory f = new JsonFactory();
         // let's verify default setting, first:
-        assertTrue(f.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT));
+        assertTrue(f.isEnabled(StreamWriteFeature.AUTO_CLOSE_JSON_CONTENT));
         StringWriter sw = new StringWriter();
 
         // First, test arrays:
@@ -164,8 +164,9 @@ public class TestGeneratorClosing extends BaseTest
     public void testNoAutoCloseArraysAndObjects()
         throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        f.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+        JsonFactory f = JsonFactory.builder()
+                .disable(StreamWriteFeature.AUTO_CLOSE_JSON_CONTENT)
+                .build();
         StringWriter sw = new StringWriter();
         JsonGenerator jg = f.createGenerator(sw);
         jg.writeStartArray();
@@ -186,7 +187,7 @@ public class TestGeneratorClosing extends BaseTest
     public void testAutoFlushOrNot() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        assertTrue(f.isEnabled(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM));
+        assertTrue(f.isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM));
         MyChars sw = new MyChars();
         JsonGenerator jg = f.createGenerator(sw);
         jg.writeStartArray();
@@ -208,7 +209,9 @@ public class TestGeneratorClosing extends BaseTest
         jg.close();
 
         // then disable and we should not see flushing again...
-        f.disable(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM);
+        f = JsonFactory.builder()
+                .disable(StreamWriteFeature.FLUSH_PASSED_TO_STREAM)
+                .build();
         // first with a Writer
         sw = new MyChars();
         jg = f.createGenerator(sw);

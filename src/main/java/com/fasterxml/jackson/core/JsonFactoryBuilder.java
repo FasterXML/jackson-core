@@ -39,38 +39,33 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
 
     @Override
     public JsonFactoryBuilder enable(JsonReadFeature f) {
-        JsonParser.Feature old = f.mappedFeature();
-        if (old != null) {
-            enable(old);
-        }
-        return _this();
+        _legacyEnable(f.mappedFeature());
+        return this;
     }
 
     @Override
     public JsonFactoryBuilder enable(JsonReadFeature first, JsonReadFeature... other) {
+        _legacyEnable(first.mappedFeature());
         enable(first);
         for (JsonReadFeature f : other) {
-            enable(f);
+            _legacyEnable(f.mappedFeature());
         }
-        return _this();
+        return this;
     }
 
     @Override
     public JsonFactoryBuilder disable(JsonReadFeature f) {
-        JsonParser.Feature old = f.mappedFeature();
-        if (old != null) {
-            disable(old);
-        }
-        return _this();
+        _legacyDisable(f.mappedFeature());
+        return this;
     }
 
     @Override
     public JsonFactoryBuilder disable(JsonReadFeature first, JsonReadFeature... other) {
-        disable(first);
+        _legacyDisable(first.mappedFeature());
         for (JsonReadFeature f : other) {
-            disable(f);
+            _legacyEnable(f.mappedFeature());
         }
-        return _this();
+        return this;
     }
 
     @Override
@@ -84,36 +79,33 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
     public JsonFactoryBuilder enable(JsonWriteFeature f) {
         JsonGenerator.Feature old = f.mappedFeature();
         if (old != null) {
-            enable(old);
+            _legacyEnable(old);
         }
-        return _this();
+        return this;
     }
 
     @Override
     public JsonFactoryBuilder enable(JsonWriteFeature first, JsonWriteFeature... other) {
-        enable(first);
+        _legacyEnable(first.mappedFeature());
         for (JsonWriteFeature f : other) {
-            enable(f);
+            _legacyEnable(f.mappedFeature());
         }
-        return _this();
+        return this;
     }
 
     @Override
     public JsonFactoryBuilder disable(JsonWriteFeature f) {
-        JsonGenerator.Feature old = f.mappedFeature();
-        if (old != null) {
-            disable(old);
-        }
-        return _this();
+        _legacyDisable(f.mappedFeature());
+        return this;
     }
 
     @Override
     public JsonFactoryBuilder disable(JsonWriteFeature first, JsonWriteFeature... other) {
-        disable(first);
+        _legacyDisable(first.mappedFeature());
         for (JsonWriteFeature f : other) {
-            disable(f);
+            _legacyDisable(f.mappedFeature());
         }
-        return _this();
+        return this;
     }
 
     @Override

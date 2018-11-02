@@ -51,12 +51,12 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /**
      * Set of {@link JsonParser.Feature}s enabled, as bitmask.
      */
-    protected int _parserFeatures;
+    protected int _streamReadFeatures;
 
     /**
      * Set of {@link JsonGenerator.Feature}s enabled, as bitmask.
      */
-    protected int _generatorFeatures;
+    protected int _streamWriteFeatures;
 
     /*
     /**********************************************************************
@@ -84,8 +84,8 @@ public abstract class TSFBuilder<F extends JsonFactory,
 
     protected TSFBuilder() {
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
-        _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
-        _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
+        _streamReadFeatures = DEFAULT_PARSER_FEATURE_FLAGS;
+        _streamWriteFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;
         _inputDecorator = null;
         _outputDecorator = null;
     }
@@ -100,15 +100,15 @@ public abstract class TSFBuilder<F extends JsonFactory,
             int parserFeatures, int generatorFeatures)
     {
         _factoryFeatures = factoryFeatures;
-        _parserFeatures = parserFeatures;
-        _generatorFeatures = generatorFeatures;
+        _streamReadFeatures = parserFeatures;
+        _streamWriteFeatures = generatorFeatures;
     }
 
     // // // Accessors
 
     public int factoryFeaturesMask() { return _factoryFeatures; }
-    public int parserFeaturesMask() { return _parserFeatures; }
-    public int generatorFeaturesMask() { return _generatorFeatures; }
+    public int streamReadFeatures() { return _streamReadFeatures; }
+    public int streamWriteFeatures() { return _streamWriteFeatures; }
 
     public InputDecorator inputDecorator() { return _inputDecorator; }
     public OutputDecorator outputDecorator() { return _outputDecorator; }
@@ -129,72 +129,75 @@ public abstract class TSFBuilder<F extends JsonFactory,
         return state ? enable(f) : disable(f);
     }
 
-    // // // Parser features
+    // // // StreamReadFeatures (replacement of non-json-specific parser features)
 
-    public B enable(JsonParser.Feature f) {
-        _parserFeatures |= f.getMask();
+    public B enable(StreamReadFeature f) {
+        _streamReadFeatures |= f.mappedFeature().getMask();
         return _this();
     }
 
-    public B enable(JsonParser.Feature first, JsonParser.Feature... other) {
-        _parserFeatures |= first.getMask();
-        for (JsonParser.Feature f : other) {
-            _parserFeatures |= f.getMask();
+    public B enable(StreamReadFeature first, StreamReadFeature... other) {
+        _streamReadFeatures |= first.mappedFeature().getMask();
+        for (StreamReadFeature f : other) {
+            _streamReadFeatures |= f.mappedFeature().getMask();
         }
         return _this();
     }
 
-    public B disable(JsonParser.Feature f) {
-        _parserFeatures &= ~f.getMask();
+    public B disable(StreamReadFeature f) {
+        _streamReadFeatures &= ~f.mappedFeature().getMask();
         return _this();
     }
 
-    public B disable(JsonParser.Feature first, JsonParser.Feature... other) {
-        _parserFeatures &= ~first.getMask();
-        for (JsonParser.Feature f : other) {
-            _parserFeatures &= ~f.getMask();
+    public B disable(StreamReadFeature first, StreamReadFeature... other) {
+        _streamReadFeatures &= ~first.mappedFeature().getMask();
+        for (StreamReadFeature f : other) {
+            _streamReadFeatures &= ~f.mappedFeature().getMask();
         }
         return _this();
     }
 
-    public B configure(JsonParser.Feature f, boolean state) {
+    public B configure(StreamReadFeature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
 
-    // // // Generator features
+    // // // StreamWriteFeatures (replacement of non-json-specific generator features)
 
-    public B enable(JsonGenerator.Feature f) {
-        _generatorFeatures |= f.getMask();
+    public B enable(StreamWriteFeature f) {
+        _streamWriteFeatures |= f.mappedFeature().getMask();
         return _this();
     }
 
-    public B enable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
-        _generatorFeatures |= first.getMask();
-        for (JsonGenerator.Feature f : other) {
-            _generatorFeatures |= f.getMask();
+    public B enable(StreamWriteFeature first, StreamWriteFeature... other) {
+        _streamWriteFeatures |= first.mappedFeature().getMask();
+        for (StreamWriteFeature f : other) {
+            _streamWriteFeatures |= f.mappedFeature().getMask();
         }
         return _this();
     }
 
-    public B disable(JsonGenerator.Feature f) {
-        _generatorFeatures &= ~f.getMask();
+    public B disable(StreamWriteFeature f) {
+        _streamWriteFeatures &= ~f.mappedFeature().getMask();
         return _this();
     }
     
-    public B disable(JsonGenerator.Feature first, JsonGenerator.Feature... other) {
-        _generatorFeatures &= ~first.getMask();
-        for (JsonGenerator.Feature f : other) {
-            _generatorFeatures &= ~f.getMask();
+    public B disable(StreamWriteFeature first, StreamWriteFeature... other) {
+        _streamWriteFeatures &= ~first.mappedFeature().getMask();
+        for (StreamWriteFeature f : other) {
+            _streamWriteFeatures &= ~f.mappedFeature().getMask();
         }
         return _this();
     }
 
-    public B configure(JsonGenerator.Feature f, boolean state) {
+    public B configure(StreamWriteFeature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
 
     /* 26-Jun-2018, tatu: This should not be needed here, but due to 2.x limitations,
-     *   we do need to include it or require casting. So let's select lesser evil(s)
+     *   we do need to include it or require casting.
+     *   Specifically: since `JsonFactory` (and not `TokenStreamFactory`) is base class
+     *   for all backends, it can not expose JSON-specific builder, but this.
+     *   So let's select lesser evil(s).
      */
 
     // // // JSON-specific, reads
@@ -269,4 +272,20 @@ public abstract class TSFBuilder<F extends JsonFactory,
     // silly convenience cast method we need
     @SuppressWarnings("unchecked")
     protected final B _this() { return (B) this; }
+
+    // // // Support for subtypes
+
+    protected void _legacyEnable(JsonParser.Feature f) {
+        _streamReadFeatures |= f.getMask();
+    }
+    protected void _legacyDisable(JsonParser.Feature f) {
+        _streamReadFeatures &= ~f.getMask();
+    }
+
+    protected void _legacyEnable(JsonGenerator.Feature f) {
+        _streamWriteFeatures |= f.getMask();
+    }
+    protected void _legacyDisable(JsonGenerator.Feature f) {
+        _streamWriteFeatures &= ~f.getMask();
+    }
 }

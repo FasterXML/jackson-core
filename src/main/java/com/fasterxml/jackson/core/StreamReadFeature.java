@@ -25,7 +25,7 @@ public enum StreamReadFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_SOURCE(true, JsonParser.Feature.AUTO_CLOSE_SOURCE),
+    AUTO_CLOSE_SOURCE(JsonParser.Feature.AUTO_CLOSE_SOURCE),
 
     // // // Validity checks
     
@@ -43,7 +43,7 @@ public enum StreamReadFeature
      * due to having to store and check additional information: this typically
      * adds 20-30% to execution time for basic parsing.
      */
-    STRICT_DUPLICATE_DETECTION(false, JsonParser.Feature.STRICT_DUPLICATE_DETECTION),
+    STRICT_DUPLICATE_DETECTION(JsonParser.Feature.STRICT_DUPLICATE_DETECTION),
 
     /**
      * Feature that determines what to do if the underlying data format requires knowledge
@@ -65,7 +65,7 @@ public enum StreamReadFeature
      * requires knowledge of all properties to output, attempts to read an unknown
      * property will result in a {@link JsonProcessingException}
      */
-    IGNORE_UNDEFINED(false, JsonParser.Feature.IGNORE_UNDEFINED),
+    IGNORE_UNDEFINED(JsonParser.Feature.IGNORE_UNDEFINED),
 
     // // // Other
 
@@ -86,7 +86,7 @@ public enum StreamReadFeature
      * and some or all of the source content may be included in {@link JsonLocation} information
      * constructed either when requested explicitly, or when needed for an exception.
      */
-    INCLUDE_SOURCE_IN_LOCATION(true, JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION),
+    INCLUDE_SOURCE_IN_LOCATION(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION),
 
     ;
 
@@ -103,11 +103,11 @@ public enum StreamReadFeature
      */
     final private JsonParser.Feature _mappedFeature;
 
-    private StreamReadFeature(boolean defaultState,
-            JsonParser.Feature  mapTo) {
-        _mask = (1 << ordinal());
-        _defaultState = defaultState;
+    private StreamReadFeature(JsonParser.Feature mapTo) {
+        // only for 2.x, let's map everything to legacy feature:
         _mappedFeature = mapTo;
+        _mask = mapTo.getMask();
+        _defaultState = mapTo.enabledByDefault();
     }
 
     /**

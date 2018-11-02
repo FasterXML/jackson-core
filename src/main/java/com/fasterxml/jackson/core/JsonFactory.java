@@ -330,8 +330,8 @@ public class JsonFactory
     protected JsonFactory(TSFBuilder<?,?> b, boolean bogus) {
         _objectCodec = null;
         _factoryFeatures = b._factoryFeatures;
-        _parserFeatures = b._parserFeatures;
-        _generatorFeatures = b._generatorFeatures;
+        _parserFeatures = b._streamReadFeatures;
+        _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
     }
@@ -656,7 +656,7 @@ public class JsonFactory
     /* Configuration, parser configuration
     /**********************************************************
      */
-    
+
     /**
      * Method for enabling or disabling specified parser feature
      * (check {@link JsonParser.Feature} for list of features)
@@ -689,6 +689,13 @@ public class JsonFactory
     @Override
     public final boolean isEnabled(JsonParser.Feature f) {
         return (_parserFeatures & f.getMask()) != 0;
+    }
+
+    /**
+     * @since 2.10
+     */
+    public final boolean isEnabled(StreamReadFeature f) {
+        return (_parserFeatures & f.mappedFeature().getMask()) != 0;
     }
 
     /**
@@ -750,6 +757,13 @@ public class JsonFactory
         return (_generatorFeatures & f.getMask()) != 0;
     }
 
+    /**
+     * @since 2.10
+     */
+    public final boolean isEnabled(StreamWriteFeature f) {
+        return (_generatorFeatures & f.mappedFeature().getMask()) != 0;
+    }
+    
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.

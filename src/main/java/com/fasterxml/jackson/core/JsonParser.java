@@ -306,7 +306,7 @@ public abstract class JsonParser
           * @since 2.9
           */
          INCLUDE_SOURCE_IN_LOCATION(true),
-         
+        
          ;
 
         /**

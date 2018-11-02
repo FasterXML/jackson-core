@@ -212,8 +212,8 @@ public class JsonFactoryTest
         // then change, verify that changes "stick"
         jf = JsonFactory.builder()
                 .disable(JsonFactory.Feature.INTERN_FIELD_NAMES)
-                .enable(JsonParser.Feature.ALLOW_COMMENTS)
-                .enable(JsonGenerator.Feature.ESCAPE_NON_ASCII)
+                .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+                .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
                 .build();
         ObjectCodec codec = new BogusCodec();
         jf.setCodec(codec);

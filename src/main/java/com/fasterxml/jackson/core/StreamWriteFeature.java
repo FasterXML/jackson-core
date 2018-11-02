@@ -27,7 +27,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_TARGET(true, JsonGenerator.Feature.AUTO_CLOSE_TARGET),
+    AUTO_CLOSE_TARGET(JsonGenerator.Feature.AUTO_CLOSE_TARGET),
 
     /**
      * Feature that determines what happens when the generator is
@@ -39,7 +39,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_JSON_CONTENT(true, JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT),
+    AUTO_CLOSE_JSON_CONTENT(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT),
 
     /**
 s     * Feature that specifies that calls to {@link JsonGenerator#flush} will cause
@@ -52,7 +52,7 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      *<p>
      * Feature is enabled by default.
      */
-    FLUSH_PASSED_TO_STREAM(true, JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM),
+    FLUSH_PASSED_TO_STREAM(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM),
 
     // // Datatype coercion features
     
@@ -74,7 +74,7 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      *<p>
      * Feature is disabled by default.
      */
-    WRITE_NUMBERS_AS_STRINGS(false, JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
+    WRITE_NUMBERS_AS_STRINGS(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
 
     /**
      * Feature that determines whether {@link java.math.BigDecimal} entries are
@@ -88,7 +88,7 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      * Feature is disabled by default, so default output mode is used; this generally
      * depends on how {@link BigDecimal} has been created.
      */
-    WRITE_BIGDECIMAL_AS_PLAIN(false, JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN),
+    WRITE_BIGDECIMAL_AS_PLAIN(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN),
 
     // // Schema/Validity support features
 
@@ -105,7 +105,7 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      *<p>
      * Feature is disabled by default.
      */
-    STRICT_DUPLICATE_DETECTION(false, JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION),
+    STRICT_DUPLICATE_DETECTION(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION),
     
     /**
      * Feature that determines what to do if the underlying data format requires knowledge
@@ -125,7 +125,7 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      * requires knowledge of all properties to output, attempts to write an unknown
      * property will result in a {@link JsonProcessingException}
      */
-    IGNORE_UNKNOWN(false, JsonGenerator.Feature.IGNORE_UNKNOWN),
+    IGNORE_UNKNOWN(JsonGenerator.Feature.IGNORE_UNKNOWN),
     ;
 
     /**
@@ -141,11 +141,11 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      */
     final private JsonGenerator.Feature _mappedFeature;
 
-    private StreamWriteFeature(boolean defaultState,
-            JsonGenerator.Feature mappedTo) {
-        _mask = (1 << ordinal());
-        _defaultState = defaultState;
+    private StreamWriteFeature(JsonGenerator.Feature mappedTo) {
+        // only for 2.x, let's map everything to legacy feature:
         _mappedFeature = mappedTo;
+        _mask = mappedTo.getMask();
+        _defaultState = mappedTo.enabledByDefault();
     }
 
     /**

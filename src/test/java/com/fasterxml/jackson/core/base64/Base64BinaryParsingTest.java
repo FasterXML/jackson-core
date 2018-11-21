@@ -4,6 +4,8 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.io.*;
 
+import org.junit.Assert;
+
 import com.fasterxml.jackson.core.*;
 
 public class Base64BinaryParsingTest
@@ -115,7 +117,60 @@ public class Base64BinaryParsingTest
             p.close();
         }
     }
-    
+
+    public void testOkMissingPadding() throws IOException {
+        final byte[] DOC1 = new byte[] { (byte) 0xAD };
+        _testOkMissingPadding(DOC1, MODE_INPUT_STREAM);
+        _testOkMissingPadding(DOC1, MODE_INPUT_STREAM_THROTTLED);
+        _testOkMissingPadding(DOC1, MODE_READER);
+        _testOkMissingPadding(DOC1, MODE_DATA_INPUT);
+
+        final byte[] DOC2 = new byte[] { (byte) 0xAC, (byte) 0xDC };
+        _testOkMissingPadding(DOC2, MODE_INPUT_STREAM);
+        _testOkMissingPadding(DOC2, MODE_INPUT_STREAM_THROTTLED);
+        _testOkMissingPadding(DOC2, MODE_READER);
+        _testOkMissingPadding(DOC2, MODE_DATA_INPUT);
+    }
+
+    private void _testOkMissingPadding(byte[] input, int mode) throws IOException
+    {
+        final Base64Variant b64 = Base64Variants.MODIFIED_FOR_URL;
+        final String encoded = b64.encode(input, false);
+        JsonParser p = createParser(mode, quote(encoded));
+        // 1 byte -> 2 encoded chars; 2 bytes -> 3 encoded chars
+        assertEquals(input.length+1, encoded.length());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        byte[] actual = p.getBinaryValue(b64);
+        Assert.assertArrayEquals(input, actual);
+        p.close();
+    }
+
+    public void testFailDueToMissingPadding() throws IOException {
+        final String DOC1 = quote("fQ"); // 1 bytes, no padding
+        _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM);
+        _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM_THROTTLED);
+        _testFailDueToMissingPadding(DOC1, MODE_READER);
+        _testFailDueToMissingPadding(DOC1, MODE_DATA_INPUT);
+
+        final String DOC2 = quote("A/A"); // 2 bytes, no padding
+        _testFailDueToMissingPadding(DOC2, MODE_INPUT_STREAM);
+        _testFailDueToMissingPadding(DOC2, MODE_INPUT_STREAM_THROTTLED);
+        _testFailDueToMissingPadding(DOC2, MODE_READER);
+        _testFailDueToMissingPadding(DOC2, MODE_DATA_INPUT);
+    }
+
+    private void _testFailDueToMissingPadding(String doc, int mode) throws IOException {
+        JsonParser p = createParser(mode, doc);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        try {
+            /*byte[] b =*/ p.getBinaryValue(Base64Variants.MIME);
+            fail("Should not pass");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected end of base64-encoded String: base64 variant 'MIME' expects padding");
+        }
+        p.close();
+    }
+
     /*
     /**********************************************************
     /* Test helper methods
@@ -135,7 +190,7 @@ public class Base64BinaryParsingTest
                 Base64Variants.PEM
         };
 
-        JsonFactory jsonFactory = new JsonFactory();
+        JsonFactory jsonFactory = sharedStreamFactory();
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter chars = null;
         for (int len : LENS) {
@@ -198,7 +253,7 @@ public class Base64BinaryParsingTest
             139000
         };
 
-        JsonFactory jsonFactory = new JsonFactory();
+        JsonFactory jsonFactory = sharedStreamFactory();
         final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter chars = null;
 
@@ -277,7 +332,7 @@ public class Base64BinaryParsingTest
 
     private void _testInArray(int mode) throws IOException
     {
-        JsonFactory f = new JsonFactory();
+        JsonFactory f = sharedStreamFactory();
 
         final int entryCount = 7;
 

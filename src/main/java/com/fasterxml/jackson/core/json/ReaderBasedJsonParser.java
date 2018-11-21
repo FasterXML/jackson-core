@@ -539,6 +539,7 @@ public class ReaderBasedJsonParser
                         decodedData >>= 4;
                         buffer[outputPtr++] = (byte) decodedData;
                         if (b64variant.usesPadding()) {
+                            --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
                         break;
@@ -578,6 +579,7 @@ public class ReaderBasedJsonParser
                         buffer[outputPtr++] = (byte) (decodedData >> 8);
                         buffer[outputPtr++] = (byte) decodedData;
                         if (b64variant.usesPadding()) {
+                            --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
                         break;
@@ -1999,9 +2001,7 @@ public class ReaderBasedJsonParser
             } while (ptr < inputLen);
         }
 
-        /* Either ran out of input, or bumped into an escape
-         * sequence...
-         */
+        // Either ran out of input, or bumped into an escape sequence...
         _textBuffer.resetWithCopy(_inputBuffer, _inputPtr, (ptr-_inputPtr));
         _inputPtr = ptr;
         _finishString2();
@@ -2695,6 +2695,7 @@ public class ReaderBasedJsonParser
                         decodedData >>= 4;
                         builder.append(decodedData);
                         if (b64variant.usesPadding()) {
+                            --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
                         return builder.toByteArray();
@@ -2734,6 +2735,7 @@ public class ReaderBasedJsonParser
                         decodedData >>= 2;
                         builder.appendTwoBytes(decodedData);
                         if (b64variant.usesPadding()) {
+                            --_inputPtr; // to keep parser state bit more consistent
                             _handleBase64MissingPadding(b64variant);
                         }
                         return builder.toByteArray();

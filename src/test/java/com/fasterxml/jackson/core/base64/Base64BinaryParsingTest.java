@@ -161,13 +161,28 @@ public class Base64BinaryParsingTest
     }
 
     private void _testFailDueToMissingPadding(String doc, int mode) throws IOException {
+        final String EXP_EXCEPTION_MATCH = "Unexpected end of base64-encoded String: base64 variant 'MIME' expects padding";
+        
+        // First, without getting text value first:
         JsonParser p = createParser(mode, doc);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         try {
             /*byte[] b =*/ p.getBinaryValue(Base64Variants.MIME);
             fail("Should not pass");
         } catch (JsonParseException e) {
-            verifyException(e, "Unexpected end of base64-encoded String: base64 variant 'MIME' expects padding");
+            verifyException(e, EXP_EXCEPTION_MATCH);
+        }
+        p.close();
+
+        // second, access String first
+        p = createParser(mode, doc);
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        /*String str =*/ p.getText();
+        try {
+            /*byte[] b =*/ p.getBinaryValue(Base64Variants.MIME);
+            fail("Should not pass");
+        } catch (JsonParseException e) {
+            verifyException(e, EXP_EXCEPTION_MATCH);
         }
         p.close();
     }

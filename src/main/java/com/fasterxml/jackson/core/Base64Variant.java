@@ -593,7 +593,19 @@ public final class Base64Variant
     }
 
     protected void _reportBase64EOF() throws IllegalArgumentException {
-        throw new IllegalArgumentException("Unexpected end-of-String in base64 content");
+        throw new IllegalArgumentException(missingPaddingMessage());
     }
+
+    /**
+     * Helper method that will construct a message to use in exceptions for cases where input ends
+     * prematurely in place where padding would be expected.
+     *
+     * @since 2.10
+     */
+    public String missingPaddingMessage() {
+        return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end",
+                getName(), getPaddingChar());
+    }
+
 }
 

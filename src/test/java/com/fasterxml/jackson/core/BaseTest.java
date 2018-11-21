@@ -559,6 +559,16 @@ public abstract class BaseTest
         }
     }
 
+    // @since 2.9.7
+    protected JsonFactory sharedStreamFactory() {
+        return JSON_FACTORY;
+    }
+
+    // @since 2.9.7
+    protected JsonFactory newStreamFactory() {
+        return new JsonFactory();
+    }
+    
     protected String fieldNameFor(int index)
     {
         StringBuilder sb = new StringBuilder(16);

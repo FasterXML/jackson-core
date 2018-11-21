@@ -535,9 +535,12 @@ public class ReaderBasedJsonParser
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     // could also just be missing padding
-                    if (ch == '"' && !b64variant.usesPadding()) {
+                    if (ch == '"') {
                         decodedData >>= 4;
                         buffer[outputPtr++] = (byte) decodedData;
+                        if (b64variant.usesPadding()) {
+                            _handleBase64MissingPadding(b64variant);
+                        }
                         break;
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 2);
@@ -570,10 +573,13 @@ public class ReaderBasedJsonParser
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     // as per could also just be missing padding
-                    if (ch == '"' && !b64variant.usesPadding()) {
+                    if (ch == '"') {
                         decodedData >>= 2;
                         buffer[outputPtr++] = (byte) (decodedData >> 8);
                         buffer[outputPtr++] = (byte) decodedData;
+                        if (b64variant.usesPadding()) {
+                            _handleBase64MissingPadding(b64variant);
+                        }
                         break;
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 3);
@@ -2685,9 +2691,12 @@ public class ReaderBasedJsonParser
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     // as per [JACKSON-631], could also just be 'missing'  padding
-                    if (ch == '"' && !b64variant.usesPadding()) {
+                    if (ch == '"') {
                         decodedData >>= 4;
                         builder.append(decodedData);
+                        if (b64variant.usesPadding()) {
+                            _handleBase64MissingPadding(b64variant);
+                        }
                         return builder.toByteArray();
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 2);
@@ -2721,9 +2730,12 @@ public class ReaderBasedJsonParser
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     // as per [JACKSON-631], could also just be 'missing'  padding
-                    if (ch == '"' && !b64variant.usesPadding()) {
+                    if (ch == '"') {
                         decodedData >>= 2;
                         builder.appendTwoBytes(decodedData);
+                        if (b64variant.usesPadding()) {
+                            _handleBase64MissingPadding(b64variant);
+                        }
                         return builder.toByteArray();
                     }
                     bits = _decodeBase64Escape(b64variant, ch, 3);

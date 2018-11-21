@@ -1103,6 +1103,14 @@ public abstract class ParserBase extends ParserMinimalBase
         return new IllegalArgumentException(base);
     }
 
+    // since 2.9.8
+    protected void _handleBase64MissingPadding(Base64Variant b64variant) throws IOException
+    {
+        _reportError(
+"Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end",
+                b64variant.getName(), b64variant.getPaddingChar());
+    }
+
     /*
     /**********************************************************
     /* Internal/package methods: other

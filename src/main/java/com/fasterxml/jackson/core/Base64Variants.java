@@ -68,9 +68,7 @@ public final class Base64Variants
         // Replace plus with hyphen, slash with underscore (and no padding)
         sb.setCharAt(sb.indexOf("+"), '-');
         sb.setCharAt(sb.indexOf("/"), '_');
-        /* And finally, let's not split lines either, wouldn't work too
-         * well with URLs
-         */
+        // And finally, let's not split lines either, wouldn't work too well with URLs
         MODIFIED_FOR_URL = new Base64Variant("MODIFIED-FOR-URL", sb.toString(), false, Base64Variant.PADDING_CHAR_NONE, Integer.MAX_VALUE);
     }
 

@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion> 
+    <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <!-- For 2.9.2 and beyond, new parent pom; extends jackson-bom -->
@@ -19,14 +19,25 @@
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-core.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-core.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-core</url>    
+      <url>http://github.com/FasterXML/jackson-core</url>
     <tag>HEAD</tag>
   </scm>
 
   <properties>
-    <!-- 16-Sep-2016, tatu: Retain Java6/JDK1.6 compatibility for streaming for Jackson 2.x -->
-    <javac.src.version>1.6</javac.src.version>
-    <javac.target.version>1.6</javac.target.version>
+      <!-- With Jackson 2.9 we will require JDK 7 (except for annotations/streaming),
+         and new language features (diamond pattern) may be used.
+         JDK classes are still loaded dynamically since there isn't much downside
+         (small number of types); this allows use on JDK 6 platforms still (including
+         Android)
+      -->
+      <!-- TODO Remove JDK 11 Settings -->
+      <javac.src.version>1.11</javac.src.version>
+      <javac.target.version>1.11</javac.target.version>
+
+      <jdk.version>1.11</jdk.version>
+      <maven.compiler.source>1.11</maven.compiler.source>
+      <maven.compiler.target>1.11</maven.compiler.target>
+      <maven.compiler.release>11</maven.compiler.release>
 
     <!-- 04-May-2016, tatu: Bundle-plugin 3.x seems to require Java 7, so to
            build for Java 6 need to downgrade here to last working 2.x version

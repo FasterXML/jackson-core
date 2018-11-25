@@ -902,6 +902,7 @@ public class WriterBasedJsonGenerator
     /**********************************************************
      */
 
+    @SuppressWarnings("deprecation")
     @Override
     public void flush() throws IOException
     {
@@ -913,6 +914,7 @@ public class WriterBasedJsonGenerator
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void close() throws IOException
     {

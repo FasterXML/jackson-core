@@ -52,6 +52,7 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      *<p>
      * Feature is enabled by default.
      */
+    @SuppressWarnings("deprecation")
     FLUSH_PASSED_TO_STREAM(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM),
 
     // // Datatype coercion features

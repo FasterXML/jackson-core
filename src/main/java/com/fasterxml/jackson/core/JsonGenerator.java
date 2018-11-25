@@ -72,7 +72,10 @@ public abstract class JsonGenerator
          * party libraries).
          *<p>
          * Feature is enabled by default.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.StreamWriteFeature#FLUSH_PASSED_TO_STREAM} instead
          */
+        @Deprecated
         FLUSH_PASSED_TO_STREAM(true),
 
         // // Quoting-related features

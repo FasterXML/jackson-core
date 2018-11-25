@@ -87,6 +87,7 @@ public enum StreamReadFeature
      * and some or all of the source content may be included in {@link JsonLocation} information
      * constructed either when requested explicitly, or when needed for an exception.
      */
+    @SuppressWarnings("deprecation")
     INCLUDE_SOURCE_IN_LOCATION(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION),
 
     ;

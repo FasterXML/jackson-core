@@ -307,7 +307,10 @@ public abstract class JsonParser
           * constructed either when requested explicitly, or when needed for an exception.
           *
           * @since 2.9
+          *
+          * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.StreamReadFeature#INCLUDE_SOURCE_IN_LOCATION} instead
           */
+         @Deprecated
          INCLUDE_SOURCE_IN_LOCATION(true),
         
          ;

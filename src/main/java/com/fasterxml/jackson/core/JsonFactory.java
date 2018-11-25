@@ -908,7 +908,7 @@ public class JsonFactory
      * The input stream will <b>not be owned</b> by
      * the parser, it will still be managed (i.e. closed if
      * end-of-stream is reacher, or parser close method called)
-     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * if (and only if) {@link com.fasterxml.jackson.core.StreamReadFeature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *<p>
      *
@@ -935,7 +935,7 @@ public class JsonFactory
      * The read stream will <b>not be owned</b> by
      * the parser, it will still be managed (i.e. closed if
      * end-of-stream is reacher, or parser close method called)
-     * if (and only if) {@link com.fasterxml.jackson.core.JsonParser.Feature#AUTO_CLOSE_SOURCE}
+     * if (and only if) {@link com.fasterxml.jackson.core.StreamReadFeature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *
      * @param r Reader to use for reading JSON content to parse

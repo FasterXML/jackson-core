@@ -233,6 +233,7 @@ public class UTF8StreamJsonParser
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void _closeInput() throws IOException
     {

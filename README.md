@@ -45,11 +45,23 @@ Core jar is a functional OSGi bundle, with proper import/export declarations.
 
 Package has no external dependencies, except for testing (which uses `JUnit`).
 
+
+
 ## Non-Maven
 
 For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Wiki](../../wiki).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
+
+-----
+
+
+# JPMS Configuration
+This module is strictly defined and the module-info.java is attached with the [moditect](https://github.com/moditect/moditect) plugin
+
+This allows for transitive dependencies, and will not place this library in the Automatic Named Modules.
+
+This modules name is ```com.fasterxml.jackson.core```
 
 -----
 # Use it!

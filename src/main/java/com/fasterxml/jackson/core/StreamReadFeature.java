@@ -25,6 +25,7 @@ public enum StreamReadFeature
      *<p>
      * Feature is enabled by default.
      */
+    @SuppressWarnings("deprecation")
     AUTO_CLOSE_SOURCE(JsonParser.Feature.AUTO_CLOSE_SOURCE),
 
     // // // Validity checks

@@ -56,7 +56,10 @@ public abstract class JsonParser
          * is closed by a call to {@link JsonParser#close}.
          *<p>
          * Feature is enabled by default.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.StreamReadFeature#AUTO_CLOSE_SOURCE} instead
          */
+        @Deprecated
         AUTO_CLOSE_SOURCE(true),
 
         // // // Support for non-standard data format constructs

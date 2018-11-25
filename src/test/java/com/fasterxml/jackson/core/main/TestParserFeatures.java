@@ -15,7 +15,7 @@ public class TestParserFeatures
     public void testDefaultSettings() throws Exception
     {
         JsonFactory f = new JsonFactory();
-        assertTrue(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        assertTrue(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
 
         JsonParser p = f.createParser(new StringReader("{}"));
         _testDefaultSettings(p);
@@ -28,7 +28,7 @@ public class TestParserFeatures
     @SuppressWarnings("deprecation")
     public void testDeprecatedDefaultSettings() throws Exception
     {
-        JsonFactory f = new JsonFactory();
+        JsonFactory f = sharedStreamFactory();
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
         assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES));

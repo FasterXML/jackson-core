@@ -15,6 +15,7 @@ import java.util.*;
 @SuppressWarnings("resource")
 public class JsonParserTest extends BaseTest
 {
+    @SuppressWarnings("deprecation")
     public void testConfig() throws Exception
     {
         JsonParser p = createParserUsingReader("[ ]");

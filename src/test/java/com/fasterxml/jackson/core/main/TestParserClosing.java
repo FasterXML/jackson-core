@@ -25,12 +25,12 @@ public class TestParserClosing
     {
         final String DOC = "[ 1 ]";
 
-        JsonFactory f = new JsonFactory();
-
         // Check the default settings
-        assertTrue(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertTrue(sharedStreamFactory().isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
         // then change
-        f = f.rebuild().disable(StreamReadFeature.AUTO_CLOSE_SOURCE).build();
+        JsonFactory f = JsonFactory.builder()
+                .disable(StreamReadFeature.AUTO_CLOSE_SOURCE)
+                .build();
         assertFalse(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
         @SuppressWarnings("resource")
         MyReader input = new MyReader(DOC);

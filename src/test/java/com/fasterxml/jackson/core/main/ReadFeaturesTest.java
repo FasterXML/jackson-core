@@ -29,7 +29,7 @@ public class ReadFeaturesTest
 
     public void testJsonReadFeatureDefaultSettings() throws Exception
     {
-        JsonFactory f = new JsonFactory();
+        JsonFactory f = sharedStreamFactory();
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS));
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES));

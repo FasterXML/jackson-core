@@ -1,5 +1,3 @@
-import com.fasterxml.jackson.core.JsonFactory;
-
 module com.fasterxml.jackson.core {
 	exports com.fasterxml.jackson.core;
 
@@ -10,7 +8,4 @@ module com.fasterxml.jackson.core {
 	exports com.fasterxml.jackson.core.json  to com.fasterxml.jackson.databind;
 	exports com.fasterxml.jackson.core.filter to com.fasterxml.jackson.databind;
 	exports com.fasterxml.jackson.core.format  to com.fasterxml.jackson.databind;
-
-
-	provides JsonFactory with JsonFactory;
 }

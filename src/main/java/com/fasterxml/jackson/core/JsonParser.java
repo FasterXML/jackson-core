@@ -56,10 +56,7 @@ public abstract class JsonParser
          * is closed by a call to {@link JsonParser#close}.
          *<p>
          * Feature is enabled by default.
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.StreamReadFeature#AUTO_CLOSE_SOURCE} instead
          */
-        @Deprecated
         AUTO_CLOSE_SOURCE(true),
 
         // // // Support for non-standard data format constructs
@@ -75,10 +72,10 @@ public abstract class JsonParser
          * this is extensively used. As such, feature is
          * <b>disabled by default</b> for parsers and must be
          * explicitly enabled.
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_JAVA_COMMENTS} instead
+         *<p>
+         * NOTE: while not technically deprecated, since 2.10 recommended to use
+         * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_JAVA_COMMENTS} instead.
          */
-        @Deprecated
         ALLOW_COMMENTS(false),
 
         /**
@@ -92,12 +89,12 @@ public abstract class JsonParser
          * this is a non-standard feature. As such, feature is
          * <b>disabled by default</b> for parsers and must be
          * explicitly enabled.
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_YAML_COMMENTS} instead
+         *<p>
+         * NOTE: while not technically deprecated, since 2.10 recommended to use
+         * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_YAML_COMMENTS} instead.
          */
-        @Deprecated
         ALLOW_YAML_COMMENTS(false),
-        
+
         /**
          * Feature that determines whether parser will allow use
          * of unquoted field names (which is allowed by Javascript,
@@ -106,10 +103,10 @@ public abstract class JsonParser
          * Since JSON specification requires use of double quotes for
          * field names,
          * this is a non-standard feature, and as such disabled by default.
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNQUOTED_FIELD_NAMES} instead
+         *<p>
+         * NOTE: while not technically deprecated, since 2.10 recommended to use
+         * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNQUOTED_FIELD_NAMES} instead.
          */
-        @Deprecated
         ALLOW_UNQUOTED_FIELD_NAMES(false),
 
         /**
@@ -122,10 +119,10 @@ public abstract class JsonParser
          * Since JSON specification requires use of double quotes for
          * field names,
          * this is a non-standard feature, and as such disabled by default.
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_SINGLE_QUOTES} instead
+         *<p>
+         * NOTE: while not technically deprecated, since 2.10 recommended to use
+         * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_SINGLE_QUOTES} instead.
          */
-        @Deprecated
         ALLOW_SINGLE_QUOTES(false),
 
         /**
@@ -307,12 +304,9 @@ public abstract class JsonParser
           * constructed either when requested explicitly, or when needed for an exception.
           *
           * @since 2.9
-          *
-          * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.StreamReadFeature#INCLUDE_SOURCE_IN_LOCATION} instead
           */
-         @Deprecated
          INCLUDE_SOURCE_IN_LOCATION(true),
-        
+
          ;
 
         /**

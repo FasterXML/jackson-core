@@ -30,7 +30,6 @@ public class CommentParsingTest
      * Unit test for verifying that by default comments are not
      * recognized.
      */
-    @SuppressWarnings("deprecation")
     public void testDefaultSettings() throws Exception
     {
         JsonFactory jf = new JsonFactory();

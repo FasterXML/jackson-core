@@ -34,15 +34,16 @@ public enum StreamWriteFeature
      * closed while there are still unmatched
      * {@link JsonToken#START_ARRAY} or {@link JsonToken#START_OBJECT}
      * entries in output content. If enabled, such Array(s) and/or
-     * Object(s) are automatically closed; if disabled, nothing
-     * specific is done.
+     * Object(s) are automatically closed (that is, matching END_ token write
+     * call is made for all open scopes); if disabled, no additional
+     * write calls are made.
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_JSON_CONTENT(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT),
+    AUTO_CLOSE_CONTENT(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT),
 
     /**
-s     * Feature that specifies that calls to {@link JsonGenerator#flush} will cause
+     * Feature that specifies that calls to {@link JsonGenerator#flush} will cause
      * matching <code>flush()</code> to underlying {@link OutputStream}
      * or {@link Writer}; if disabled this will not be done.
      * Main reason to disable this feature is to prevent flushing at
@@ -52,7 +53,6 @@ s     * Feature that specifies that calls to {@link JsonGenerator#flush} will ca
      *<p>
      * Feature is enabled by default.
      */
-    @SuppressWarnings("deprecation")
     FLUSH_PASSED_TO_STREAM(JsonGenerator.Feature.FLUSH_PASSED_TO_STREAM),
 
     // // Datatype coercion features

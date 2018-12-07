@@ -144,7 +144,7 @@ public class TestGeneratorClosing extends BaseTest
     {
         JsonFactory f = new JsonFactory();
         // let's verify default setting, first:
-        assertTrue(f.isEnabled(StreamWriteFeature.AUTO_CLOSE_JSON_CONTENT));
+        assertTrue(f.isEnabled(StreamWriteFeature.AUTO_CLOSE_CONTENT));
         StringWriter sw = new StringWriter();
 
         // First, test arrays:
@@ -165,7 +165,7 @@ public class TestGeneratorClosing extends BaseTest
         throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .disable(StreamWriteFeature.AUTO_CLOSE_JSON_CONTENT)
+                .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT)
                 .build();
         StringWriter sw = new StringWriter();
         JsonGenerator jg = f.createGenerator(sw);

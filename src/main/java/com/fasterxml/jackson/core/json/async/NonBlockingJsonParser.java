@@ -21,13 +21,9 @@ public class NonBlockingJsonParser
     private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
 
     // This is the main input-code lookup table, fetched eagerly

@@ -19,7 +19,6 @@ public class TestParserClosing
      * automatic closing should occur, nor explicit one unless specific
      * forcing method is used.
      */
-    @SuppressWarnings("deprecation")
     public void testNoAutoCloseReader()
         throws Exception
     {

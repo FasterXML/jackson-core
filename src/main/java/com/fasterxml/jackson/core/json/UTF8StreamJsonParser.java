@@ -28,13 +28,9 @@ public class UTF8StreamJsonParser
     private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
 
     // This is the main input-code lookup table, fetched eagerly
@@ -233,7 +229,6 @@ public class UTF8StreamJsonParser
         return false;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void _closeInput() throws IOException
     {

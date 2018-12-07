@@ -1102,7 +1102,6 @@ public class UTF8JsonGenerator
     /**********************************************************
      */
 
-    @SuppressWarnings("deprecation")
     @Override
     public void flush() throws IOException
     {
@@ -1114,7 +1113,6 @@ public class UTF8JsonGenerator
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void close() throws IOException
     {

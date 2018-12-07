@@ -30,14 +30,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
 
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    @SuppressWarnings("deprecation")
     private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
@@ -198,7 +194,6 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         return _inputBuffer[_inputPtr++];
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void _closeInput() throws IOException {
         /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()

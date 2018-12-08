@@ -1,8 +1,6 @@
 language: java
-# core streaming still builds on jdk6 and above:
-# 05-Jan-2018, tatu: Not sure why, but travis build fails on jdk6 so leave it out
-jdk:
-  - openjdk7
+# 08-Dec-2018, tatu: While it should be possible to run core streaming on Java 6,
+#   build won't work with anything below Java 8 now
   - openjdk8
 
 # Below this line is configuration for deploying to the Sonatype OSS repo

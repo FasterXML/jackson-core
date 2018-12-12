@@ -566,7 +566,12 @@ public abstract class BaseTest
     protected JsonFactory newStreamFactory() {
         return new JsonFactory();
     }
-    
+
+    // @since 2.9.8
+    protected JsonFactoryBuilder streamFactoryBuilder() {
+        return (JsonFactoryBuilder) JsonFactory.builder();
+    }
+
     protected String fieldNameFor(int index)
     {
         StringBuilder sb = new StringBuilder(16);

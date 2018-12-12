@@ -159,4 +159,19 @@ public class TestDefaultPrettyPrinter extends BaseTest
         }
         return sw.toString();
     }
+
+    // [core#502]: Force sub-classes to reimplement `createInstance`
+    public void testInvalidSubClass() throws Exception
+    {
+        DefaultPrettyPrinter pp = new MyPrettyPrinter();
+        try {
+            pp.createInstance();
+            fail("Should not pass");
+        } catch (IllegalStateException e) {
+            verifyException(e, "does not override");
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class MyPrettyPrinter extends DefaultPrettyPrinter { }
 }

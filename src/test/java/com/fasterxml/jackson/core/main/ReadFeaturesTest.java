@@ -91,7 +91,7 @@ public class ReadFeaturesTest
 
     private void _testTabsDefault(boolean useStream) throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
+        JsonFactory f = streamFactoryBuilder()
                 .disable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS).build();
         // First, let's see that by default unquoted tabs are illegal
         String JSON = "[\"tab:\t\"]";
@@ -110,7 +110,7 @@ public class ReadFeaturesTest
 
     private void _testTabsEnabled(boolean useStream) throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
+        JsonFactory f = streamFactoryBuilder()
                 .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
                 .build();
         String FIELD = "a\tb";

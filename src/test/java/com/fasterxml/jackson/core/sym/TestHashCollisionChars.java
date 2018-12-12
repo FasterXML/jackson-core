@@ -54,7 +54,7 @@ public class TestHashCollisionChars
 
         // First: attempt with exceptions turned on; should catch an exception
 
-        JsonFactory f = JsonFactory.builder()
+        JsonFactory f = streamFactoryBuilder()
                 .enable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW)
                 .build();
         JsonParser p = f.createParser(ObjectReadContext.empty(), sb.toString());
@@ -70,7 +70,7 @@ public class TestHashCollisionChars
         p.close();
 
         // but then without feature, should pass
-        f = JsonFactory.builder()
+        f = streamFactoryBuilder()
                 .disable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW)
                 .build();
         p = f.createParser(ObjectReadContext.empty(), sb.toString());

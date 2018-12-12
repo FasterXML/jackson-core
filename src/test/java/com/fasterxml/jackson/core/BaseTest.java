@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 import com.fasterxml.jackson.core.util.Named;
@@ -559,16 +560,18 @@ public abstract class BaseTest
         }
     }
 
-    // @since 2.9.7
     protected JsonFactory sharedStreamFactory() {
         return JSON_FACTORY;
     }
 
-    // @since 2.9.7
     protected JsonFactory newStreamFactory() {
         return new JsonFactory();
     }
-    
+
+    protected JsonFactoryBuilder streamFactoryBuilder() {
+        return JsonFactory.builder();
+    }
+
     protected String fieldNameFor(int index)
     {
         StringBuilder sb = new StringBuilder(16);

@@ -27,7 +27,7 @@ JSON library.
 #496: Create `StreamWriteFeature` to take over non-json-specific `JsonGenerator.Feature`s
 #502: Make `DefaultPrettyPrinter.createInstance()` to fail for sub-classes
 
-2.9.8 (not yet released)
+2.9.8 (15-Dec-2018)
 
 #488: Fail earlier on coercions from "too big" `BigInteger` into
   fixed-size types (`int`, `long`, `short`)

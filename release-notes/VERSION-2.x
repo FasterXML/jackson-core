@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.8 (not yet released)
+2.9.8 (15-Dec-2018)
 
 #488: Fail earlier on coercions from "too big" `BigInteger` into
   fixed-size types (`int`, `long`, `short`)

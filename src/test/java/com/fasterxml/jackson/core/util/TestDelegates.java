@@ -29,7 +29,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
             return null;
         }
         @Override
-        public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) {
+        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) {
             return null;
         }
         @Override
@@ -42,7 +42,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         }
         @Override
         public <T> Iterator<T> readValues(JsonParser p,
-                TypeReference<?> valueTypeRef) throws IOException {
+                TypeReference<T> valueTypeRef) throws IOException {
             return null;
         }
         @Override

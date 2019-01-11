@@ -1793,7 +1793,7 @@ public abstract class JsonParser
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
      */
-    public <T> Iterator<T> readValuesAs(TypeReference<?> valueTypeRef) throws IOException {
+    public <T> Iterator<T> readValuesAs(TypeReference<T> valueTypeRef) throws IOException {
         return _codec().readValues(this, valueTypeRef);
     }
     

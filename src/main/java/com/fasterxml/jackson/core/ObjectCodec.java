@@ -56,7 +56,7 @@ public abstract class ObjectCodec
      * and specifically needs to be used if the root type is a 
      * parameterized (generic) container type.
      */
-    public abstract <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef)
+    public abstract <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef)
         throws IOException;
 
     /**
@@ -79,7 +79,7 @@ public abstract class ObjectCodec
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
      */
-    public abstract <T> Iterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef)
+    public abstract <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef)
         throws IOException;
     
     /**

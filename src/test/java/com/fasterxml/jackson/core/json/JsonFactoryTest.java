@@ -20,7 +20,7 @@ public class JsonFactoryTest
         }
 
         @Override
-        public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
             return null;
         }
 
@@ -35,7 +35,7 @@ public class JsonFactoryTest
         }
 
         @Override
-        public <T> Iterator<T> readValues(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+        public <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
             return null;
         }
 

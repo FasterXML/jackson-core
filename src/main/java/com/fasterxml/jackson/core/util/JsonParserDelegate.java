@@ -241,7 +241,7 @@ public class JsonParserDelegate extends JsonParser
     }
 
     @Override
-    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException {
+    public <T> T readValueAs(TypeReference<T> valueTypeRef) throws IOException {
         return delegate.readValueAs(valueTypeRef);
     }
 

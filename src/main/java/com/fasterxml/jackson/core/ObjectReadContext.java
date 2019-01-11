@@ -86,7 +86,7 @@ public interface ObjectReadContext
 
     public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException;
 
-    public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException;
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException;
 
     public <T> T readValue(JsonParser p, ResolvedType type) throws IOException;
 
@@ -143,7 +143,7 @@ public interface ObjectReadContext
         }
 
         @Override
-        public <T> T readValue(JsonParser p, TypeReference<?> valueTypeRef) throws IOException {
+        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
             return _reportUnsupportedOperation();
         }
 

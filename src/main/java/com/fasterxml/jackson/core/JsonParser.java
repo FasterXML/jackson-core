@@ -1366,7 +1366,7 @@ public abstract class JsonParser
      * (and for {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * stream is not advanced.
      */
-    public abstract <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException;
+    public abstract <T> T readValueAs(TypeReference<T> valueTypeRef) throws IOException;
 
     /**
      * @since 3.0

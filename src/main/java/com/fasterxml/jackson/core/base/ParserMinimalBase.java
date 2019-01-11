@@ -598,10 +598,9 @@ public abstract class ParserMinimalBase extends JsonParser
         return _objectReadContext.readValue(this, valueType);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException {
-        return (T) _objectReadContext.readValue(this, valueTypeRef);
+    public <T> T readValueAs(TypeReference<T> valueTypeRef) throws IOException {
+        return _objectReadContext.readValue(this, valueTypeRef);
     }
 
     @SuppressWarnings("unchecked")

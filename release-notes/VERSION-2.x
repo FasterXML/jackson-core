@@ -26,6 +26,7 @@ JSON library.
 #495: Create `StreamReadFeature` to move non-json specific `JsonParser.Feature`s to
 #496: Create `StreamWriteFeature` to take over non-json-specific `JsonGenerator.Feature`s
 #502: Make `DefaultPrettyPrinter.createInstance()` to fail for sub-classes
+#506: Add missing type parameter for `TypeReference` in `ObjectCodec`
 
 2.9.8 (15-Dec-2018)
 

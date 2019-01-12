@@ -3,6 +3,8 @@ package com.fasterxml.jackson.core.main;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.testsupport.ByteOutputStreamForTesting;
+import com.fasterxml.jackson.core.testsupport.StringWriterForTesting;
 
 import java.io.*;
 
@@ -20,70 +22,6 @@ import java.io.*;
  */
 public class TestGeneratorClosing extends BaseTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    final static class MyWriter extends StringWriter
-    {
-        boolean _isClosed = false;
-
-        public MyWriter() { }
-
-        @Override
-        public void close() throws IOException {
-            _isClosed = true;
-            super.close();
-        }
-        public boolean isClosed() { return _isClosed; }
-    }
-
-    final static class MyStream extends ByteArrayOutputStream
-    {
-        boolean _isClosed = false;
-
-        public MyStream() { }
-
-        @Override
-        public void close() throws IOException {
-            _isClosed = true;
-            super.close();
-        }
-        public boolean isClosed() { return _isClosed; }
-    }
-
-    static class MyBytes extends ByteArrayOutputStream
-    {
-        public int flushed = 0;
-
-        @Override
-        public void flush() throws IOException
-        {
-            ++flushed;
-            super.flush();
-        }
-    }
-
-    static class MyChars extends StringWriter
-    {
-        public int flushed = 0;
-
-        @Override
-        public void flush()
-        {
-            ++flushed;
-            super.flush();
-        }
-    }
-    
-    /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
-     */
-    
     /**
      * This unit test checks the default behaviour; with no auto-close, no
      * automatic closing should occur, nor explicit one unless specific
@@ -99,7 +37,7 @@ public class TestGeneratorClosing extends BaseTest
         f = f.rebuild().disable(StreamWriteFeature.AUTO_CLOSE_TARGET).build();
         assertFalse(f.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
         @SuppressWarnings("resource")
-        MyWriter output = new MyWriter();
+        StringWriterForTesting output = new StringWriterForTesting();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output);
 
         // shouldn't be closed to begin with...
@@ -115,7 +53,7 @@ public class TestGeneratorClosing extends BaseTest
         JsonFactory f = JsonFactory.builder()
                 .enable(StreamWriteFeature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
-        MyWriter output = new MyWriter();
+        StringWriterForTesting output = new StringWriterForTesting();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output);
 
         // shouldn't be closed to begin with...
@@ -131,7 +69,7 @@ public class TestGeneratorClosing extends BaseTest
         JsonFactory f = JsonFactory.builder()
                 .disable(StreamWriteFeature.AUTO_CLOSE_TARGET).build();
         @SuppressWarnings("resource")
-        MyStream output = new MyStream();
+        ByteOutputStreamForTesting output = new ByteOutputStreamForTesting();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), output, JsonEncoding.UTF8);
 
         assertFalse(output.isClosed());
@@ -183,29 +121,28 @@ public class TestGeneratorClosing extends BaseTest
         assertEquals("{", sw.toString());
     }
 
-    // [JACKSON-401]
     @SuppressWarnings("resource")
     public void testAutoFlushOrNot() throws Exception
     {
         JsonFactory f = new JsonFactory();
         assertTrue(f.isEnabled(StreamWriteFeature.FLUSH_PASSED_TO_STREAM));
-        MyChars sw = new MyChars();
+        StringWriterForTesting sw = new StringWriterForTesting();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartArray();
         g.writeEndArray();
-        assertEquals(0, sw.flushed);
+        assertEquals(0, sw.flushCount);
         g.flush();
-        assertEquals(1, sw.flushed);
+        assertEquals(1, sw.flushCount);
         g.close();
         
         // ditto with stream
-        MyBytes bytes = new MyBytes();
+        ByteOutputStreamForTesting bytes = new ByteOutputStreamForTesting();
         g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         g.writeStartArray();
         g.writeEndArray();
-        assertEquals(0, bytes.flushed);
+        assertEquals(0, bytes.flushCount);
         g.flush();
-        assertEquals(1, bytes.flushed);
+        assertEquals(1, bytes.flushCount);
         assertEquals(2, bytes.toByteArray().length);
         g.close();
 
@@ -214,24 +151,24 @@ public class TestGeneratorClosing extends BaseTest
             .disable(StreamWriteFeature.FLUSH_PASSED_TO_STREAM)
             .build();
         // first with a Writer
-        sw = new MyChars();
+        sw = new StringWriterForTesting();
         g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartArray();
         g.writeEndArray();
-        assertEquals(0, sw.flushed);
+        assertEquals(0, sw.flushCount);
         g.flush();
-        assertEquals(0, sw.flushed);
+        assertEquals(0, sw.flushCount);
         g.close();
         assertEquals("[]", sw.toString());
 
         // and then with OutputStream
-        bytes = new MyBytes();
+        bytes = new ByteOutputStreamForTesting();
         g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
         g.writeStartArray();
         g.writeEndArray();
-        assertEquals(0, bytes.flushed);
+        assertEquals(0, bytes.flushCount);
         g.flush();
-        assertEquals(0, bytes.flushed);
+        assertEquals(0, bytes.flushCount);
         g.close();
         assertEquals(2, bytes.toByteArray().length);
     }

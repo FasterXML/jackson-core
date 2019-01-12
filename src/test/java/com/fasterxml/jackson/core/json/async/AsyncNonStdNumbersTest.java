@@ -12,7 +12,6 @@ public class AsyncNonStdNumbersTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
-    @SuppressWarnings("deprecation")
     public void testDefaultsForAsync() throws Exception {
         assertFalse(DEFAULT_F.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }

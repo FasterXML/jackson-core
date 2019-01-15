@@ -25,7 +25,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * This is the default set of escape codes, over 7-bit ASCII range
      * (first 128 character codes), used for single-byte UTF-8 characters.
      */
-    protected final static int[] sOutputEscapes = CharTypes.get7BitOutputEscapes();
+    protected final static int[] DEFAULT_OUTPUT_ESCAPES = CharTypes.get7BitOutputEscapes();
 
     /*
     /**********************************************************
@@ -54,7 +54,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * character codes). Defined separately to make potentially
      * customizable
      */
-    protected int[] _outputEscapes = sOutputEscapes;
+    protected int[] _outputEscapes = DEFAULT_OUTPUT_ESCAPES;
 
     /**
      * Value between 128 (0x80) and 65535 (0xFFFF) that indicates highest
@@ -109,16 +109,19 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt,
             int streamWriteFeatures, int formatWriteFeatures,
-            SerializableString rvs, CharacterEscapes charEsc, PrettyPrinter pp)
+            SerializableString rvs, CharacterEscapes charEsc,
+            PrettyPrinter pp, int maxNonEscaped)
     {
         super(writeCtxt, streamWriteFeatures);
         _ioContext = ctxt;
         _formatWriteFeatures = formatWriteFeatures;
         // By default we use this feature to determine additional quoting
         if (JsonWriteFeature.ESCAPE_NON_ASCII.enabledIn(formatWriteFeatures)) {
-            // inlined `setHighestNonEscapedChar()`
-            _maximumNonEscapedChar = 127;
+            // note! Lowest effective value is 127 (0 is used as marker, but values
+            // from 1 through 126 have no effect different from 127), so:
+            maxNonEscaped = 127;
         }
+        _maximumNonEscapedChar = maxNonEscaped;
         _cfgUnqNames = !JsonWriteFeature.QUOTE_FIELD_NAMES.enabledIn(formatWriteFeatures);
         _rootValueSeparator = rvs;
 
@@ -152,7 +155,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     }
 
     @Override
-    public int getHighestEscapedChar() {
+    public int getHighestNonEscapedChar() {
         return _maximumNonEscapedChar;
     }
 
@@ -161,7 +164,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     {
         _characterEscapes = esc;
         if (esc == null) { // revert to standard escapes
-            _outputEscapes = sOutputEscapes;
+            _outputEscapes = DEFAULT_OUTPUT_ESCAPES;
         } else {
             _outputEscapes = esc.getEscapeCodesForAscii();
         }

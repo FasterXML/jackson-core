@@ -91,9 +91,10 @@ public class WriterBasedJsonGenerator
     public WriterBasedJsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures, Writer w,
             SerializableString rootValueSep, CharacterEscapes charEsc,
-            PrettyPrinter pp)
+            PrettyPrinter pp, int maxNonEscaped)
     {
-        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc,
+                pp, maxNonEscaped);
         _writer = w;
         _outputBuffer = ioCtxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;

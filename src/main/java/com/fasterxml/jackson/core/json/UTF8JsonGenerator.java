@@ -115,9 +115,11 @@ public class UTF8JsonGenerator
 
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures, OutputStream out,
-            SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp)
+            SerializableString rootValueSep, CharacterEscapes charEsc,
+            PrettyPrinter pp, int maxNonEscaped)
     {
-        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep,
+                charEsc, pp, maxNonEscaped);
         _outputStream = out;
         _bufferRecyclable = true;
         _outputBuffer = ioCtxt.allocWriteEncodingBuffer();
@@ -132,10 +134,12 @@ public class UTF8JsonGenerator
 
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures, OutputStream out,
-            SerializableString rootValueSep, CharacterEscapes charEsc, PrettyPrinter pp,
+            SerializableString rootValueSep, CharacterEscapes charEsc,
+            PrettyPrinter pp, int maxNonEscaped,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
-        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc, pp);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc,
+                pp, maxNonEscaped);
         _outputStream = out;
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;
@@ -1331,10 +1335,8 @@ public class UTF8JsonGenerator
         }
         _outputTail = outputPtr;
         if (offset < len) {
-            // [JACKSON-106]
             if (_characterEscapes != null) {
                 _writeCustomStringSegment2(cbuf, offset, len);
-            // [JACKSON-102]
             } else if (_maximumNonEscapedChar == 0) {
                 _writeStringSegment2(cbuf, offset, len);
             } else {

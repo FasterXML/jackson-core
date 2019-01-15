@@ -80,6 +80,14 @@ public class JsonFactory
      */
     protected final SerializableString _rootValueSeparator;
 
+    /**
+     * Optional threshold used for automatically escaping character above certain character
+     * code value: either {@code 0} to indicate that no threshold is specified, or value
+     * at or above 127 to indicate last character code that is NOT automatically escaped
+     * (but depends on other configuration rules for checking).
+     */
+    protected final int _maximumNonEscapedChar;
+
     /*
     /**********************************************************************
     /* Symbol table management
@@ -119,6 +127,7 @@ public class JsonFactory
         super(DEFAULT_JSON_PARSER_FEATURE_FLAGS, DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
         _characterEscapes = null;
+        _maximumNonEscapedChar = 0; // disabled
     }
 
     /**
@@ -131,6 +140,7 @@ public class JsonFactory
         _characterEscapes = src._characterEscapes;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
+        _maximumNonEscapedChar = src._maximumNonEscapedChar;
     }
 
     /**
@@ -143,6 +153,7 @@ public class JsonFactory
         super(b);
         _rootValueSeparator = b.rootValueSeparator();
         _characterEscapes = b.characterEscapes();
+        _maximumNonEscapedChar = b.highestNonEscapedChar();
     }
 
     @Override
@@ -375,12 +386,14 @@ public class JsonFactory
         if (charEsc == null) {
             charEsc = _characterEscapes;
         }
+        // 14-Jan-2019, tatu: Should we make this configurable via databind layer?
+        final int maxNonEscaped = _maximumNonEscapedChar;
         // NOTE: JSON generator does not use schema; has no format-specific features
         return new WriterBasedJsonGenerator(writeCtxt, ioCtxt,
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
                 writeCtxt.getFormatWriteFeatures(_formatWriteFeatures),
                 out,
-                rootSep, charEsc, writeCtxt.getPrettyPrinter());
+                rootSep, charEsc, writeCtxt.getPrettyPrinter(), maxNonEscaped);
     }
 
     @Override
@@ -392,13 +405,15 @@ public class JsonFactory
         if (charEsc == null) {
             charEsc = _characterEscapes;
         }
+        // 14-Jan-2019, tatu: Should we make this configurable via databind layer?
+        final int maxNonEscaped = _maximumNonEscapedChar;
         // NOTE: JSON generator does not use schema; has no format-specific features
 
         return new UTF8JsonGenerator(writeCtxt, ioCtxt,
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
                 writeCtxt.getFormatWriteFeatures(_formatWriteFeatures),
                 out,
-                rootSep, charEsc, writeCtxt.getPrettyPrinter());
+                rootSep, charEsc, writeCtxt.getPrettyPrinter(), maxNonEscaped);
     }
 
     /*

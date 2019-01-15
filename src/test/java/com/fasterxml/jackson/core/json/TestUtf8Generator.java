@@ -22,7 +22,8 @@ public class TestUtf8Generator extends BaseTest
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(new BufferRecycler(), bytes, true);
         JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
-                JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null);
+                JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
+                0);
                 
         String str = "Natuurlijk is alles gelukt en weer een tevreden klant\uD83D\uDE04";
         int length = 4000 - 38;

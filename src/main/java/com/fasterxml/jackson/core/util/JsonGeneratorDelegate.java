@@ -148,7 +148,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         return this; }
 
     @Override
-    public int getHighestEscapedChar() { return delegate.getHighestEscapedChar(); }
+    public int getHighestNonEscapedChar() { return delegate.getHighestNonEscapedChar(); }
 
     @Override
     public CharacterEscapes getCharacterEscapes() {  return delegate.getCharacterEscapes(); }

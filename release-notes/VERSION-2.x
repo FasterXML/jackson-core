@@ -17,6 +17,7 @@ JSON library.
 2.10.0 (not yet released)
 
 #433: Add Builder pattern for creating configured Stream factories
+#464: Add "maximum unescaped char" configuration option for `JsonFactory` via builder
 #467: Create `JsonReadFeature` to move JSON-specific `JsonParser.Feature`s to
 #480: `SerializableString` value can not directly render to Writer
  (requested by Philippe M)

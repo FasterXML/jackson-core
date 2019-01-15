@@ -134,7 +134,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     private void _testEscapeAboveAscii(boolean useStream) throws Exception
     {
         JsonFactory f = new JsonFactory();
-        final String VALUE = "chars: [\u00A0]/[\u1234]";
+        final String VALUE = "chars: [\u00A0]-[\u1234]";
         final String KEY = "fun:\u0088:\u3456";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
@@ -169,7 +169,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         g.writeEndArray();
         g.close();
         json = bytes.toString("UTF-8");
-        assertEquals("["+quote("chars: [\\u00A0]/[\\u1234]")+"]", json);
+        assertEquals("["+quote("chars: [\\u00A0]-[\\u1234]")+"]", json);
 
         // and then keys
         f = f.rebuild()
@@ -196,8 +196,8 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         JsonFactory f = JsonFactory.builder()
                 .characterEscapes(new MyEscapes())
                 .build();
-        final String STR_IN = "[abcd/"+((char) TWO_BYTE_ESCAPED)+"/"+((char) THREE_BYTE_ESCAPED)+"]";
-        final String STR_OUT = "[\\A\\u0062c[D]/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
+        final String STR_IN = "[abcd;"+((char) TWO_BYTE_ESCAPED)+";"+((char) THREE_BYTE_ESCAPED)+"]";
+        final String STR_OUT = "[\\A\\u0062c[D];"+TWO_BYTE_ESCAPED_STRING+";"+THREE_BYTE_ESCAPED_STRING+"]";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
         

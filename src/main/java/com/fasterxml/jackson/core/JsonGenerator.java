@@ -32,7 +32,7 @@ public abstract class JsonGenerator
     /* Construction, initialization
     /**********************************************************
      */
-    
+
     protected JsonGenerator() { }
 
     /*
@@ -40,7 +40,7 @@ public abstract class JsonGenerator
     /* Versioned
     /**********************************************************
      */
-    
+
     /**
      * Accessor for finding out version of the bundle that provided this generator instance.
      */

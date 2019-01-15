@@ -1318,10 +1318,8 @@ public class UTF8JsonGenerator
         }
         _outputTail = outputPtr;
         if (offset < len) {
-            // [JACKSON-106]
             if (_characterEscapes != null) {
                 _writeCustomStringSegment2(cbuf, offset, len);
-            // [JACKSON-102]
             } else if (_maximumNonEscapedChar == 0) {
                 _writeStringSegment2(cbuf, offset, len);
             } else {

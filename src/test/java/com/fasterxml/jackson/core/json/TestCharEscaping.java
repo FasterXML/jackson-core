@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 public class TestCharEscaping
     extends com.fasterxml.jackson.core.BaseTest
 {
-    // for [JACKSON-627]
     @SuppressWarnings("serial")
     private final static CharacterEscapes ESC_627 = new CharacterEscapes() {
         final int[] ascii = CharacterEscapes.standardAsciiEscapesForJSON();
@@ -132,7 +131,6 @@ public class TestCharEscaping
         jp.close();
     }
 
-    // for [JACKSON-627]
     public void testWriteLongCustomEscapes() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -150,7 +148,7 @@ public class TestCharEscaping
         jgen.close();
     }
 
-    // [Issue#116]
+    // [jackson-core#116]
     public void testEscapesForCharArrays() throws Exception {
         JsonFactory jf = new JsonFactory();
         StringWriter writer = new StringWriter();
@@ -160,5 +158,48 @@ public class TestCharEscaping
         jgen.close();
         assertEquals("\"\\u0000\"", writer.toString());
     }
-}
 
+    // [jackson-core#116]
+    public void testEscapeNonLatin1Chars() throws Exception {
+        _testEscapeNonLatin1ViaChars(false);
+    }
+
+    // [jackson-core#116]
+    public void testEscapeNonLatin1Bytes() throws Exception {
+        _testEscapeNonLatin1ViaChars(true);
+    }
+
+    private void _testEscapeNonLatin1ViaChars(boolean useBytes) throws Exception {
+        // NOTE! First one is outside latin-1, so escape; second one within, do NOT escape:
+        final String VALUE_IN = "Line\u2028feed, \u00D6l!";
+        final String VALUE_ESCAPED = "Line\\u2028feed, \u00D6l!";
+        final JsonFactory DEFAULT_F = new JsonFactory();
+
+        // First: with default settings, no auto-escaping
+        _testEscapeNonLatin1(DEFAULT_F, VALUE_IN, VALUE_IN, useBytes); // char
+
+        // Second: with escaping beyond Latin-1 range
+        final JsonFactory latinF = ((JsonFactoryBuilder)JsonFactory.builder())
+                .highestNonEscapedChar(255)
+                .build();
+        _testEscapeNonLatin1(latinF, VALUE_IN, VALUE_ESCAPED, useBytes);
+    }
+
+    private void _testEscapeNonLatin1(JsonFactory f, String valueIn, String expEncoded,
+            boolean useBytes) throws Exception
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        StringWriter sw = new StringWriter();
+        final JsonGenerator g = useBytes ? f.createGenerator(bytes, JsonEncoding.UTF8)
+                : f.createGenerator(sw);
+        g.writeStartArray();
+        g.writeString(valueIn);
+        g.writeEndArray();
+        g.close();
+
+        // Don't parse, as we want to verify actual escaping aspects
+
+        final String doc = useBytes ? bytes.toString("UTF-8") : sw.toString();
+        assertEquals("[\""+expEncoded+"\"]", doc);
+    }
+}

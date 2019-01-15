@@ -265,7 +265,17 @@ public class JsonFactory
      * @since 2.1
      */
     protected SerializableString _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
-    
+
+    /**
+     * Optional threshold used for automatically escaping character above certain character
+     * code value: either {@code 0} to indicate that no threshold is specified, or value
+     * at or above 127 to indicate last character code that is NOT automatically escaped
+     * (but depends on other configuration rules for checking).
+     *
+     * @since 2.10
+     */
+    protected int _maximumNonEscapedChar;
+
     /*
     /**********************************************************
     /* Construction
@@ -301,11 +311,7 @@ public class JsonFactory
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
         _rootValueSeparator = src._rootValueSeparator;
-        
-        /* 27-Apr-2013, tatu: How about symbol table; should we try to
-         *   reuse shared symbol tables? Could be more efficient that way;
-         *   although can slightly add to concurrency overhead.
-         */
+        _maximumNonEscapedChar = src._maximumNonEscapedChar;
     }
 
     /**
@@ -317,6 +323,7 @@ public class JsonFactory
         this(b, false);
         _characterEscapes = b._characterEscapes;
         _rootValueSeparator = b._rootValueSeparator;
+        _maximumNonEscapedChar = b._maximumNonEscapedChar;
     }
 
     /**
@@ -334,6 +341,8 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
+        // NOTE: missing _maximumNonEscapedChar since that's only in JsonFactoryBuilder
+        _maximumNonEscapedChar = 0;
     }
     
     /**
@@ -1524,6 +1533,9 @@ public class JsonFactory
     {
         WriterBasedJsonGenerator gen = new WriterBasedJsonGenerator(ctxt,
                 _generatorFeatures, _objectCodec, out);
+        if (_maximumNonEscapedChar > 0) {
+            gen.setHighestNonEscapedChar(_maximumNonEscapedChar);
+        }
         if (_characterEscapes != null) {
             gen.setCharacterEscapes(_characterEscapes);
         }
@@ -1547,6 +1559,9 @@ public class JsonFactory
     protected JsonGenerator _createUTF8Generator(OutputStream out, IOContext ctxt) throws IOException {
         UTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt,
                 _generatorFeatures, _objectCodec, out);
+        if (_maximumNonEscapedChar > 0) {
+            gen.setHighestNonEscapedChar(_maximumNonEscapedChar);
+        }
         if (_characterEscapes != null) {
             gen.setCharacterEscapes(_characterEscapes);
         }

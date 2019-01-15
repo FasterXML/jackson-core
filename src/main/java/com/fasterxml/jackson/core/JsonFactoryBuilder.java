@@ -18,15 +18,19 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
 
     protected SerializableString _rootValueSeparator;
 
+    protected int _maximumNonEscapedChar;
+
     public JsonFactoryBuilder() {
         super();
         _rootValueSeparator = JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR;
+        _maximumNonEscapedChar = 0;
     }
 
     public JsonFactoryBuilder(JsonFactory base) {
         super(base);
         _characterEscapes = base.getCharacterEscapes();
         _rootValueSeparator = base._rootValueSeparator;
+        _maximumNonEscapedChar = base._maximumNonEscapedChar;
     }
 
     /*
@@ -112,8 +116,8 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
     public JsonFactoryBuilder configure(JsonWriteFeature f, boolean state) {
         return state ? enable(f) : disable(f);
     }
-    
-    // // // JSON-specific helper objects
+
+    // // // JSON-specific helper objects, settings
     
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
@@ -135,7 +139,7 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
         _rootValueSeparator = (sep == null) ? null : new SerializedString(sep);
         return this;
     }
-    
+
     /**
      * Method that allows overriding String used for separating root-level
      * JSON values (default is single space character)
@@ -148,8 +152,34 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
         return this;
     }
 
+    /**
+     * Method that allows specifying threshold beyond which all characters are
+     * automatically escaped (without checking possible custom escaping settings
+     * a la {@link #characterEscapes}: for example, to force escaping of all non-ASCII
+     * characters (set to 127), or all non-Latin-1 character (set to 255).
+     * Default setting is "disabled", specified by passing value of {@code 0} (or
+     * negative numbers).
+     *<p>
+     * NOTE! Lowest value (aside from marker 0) is 127: for ASCII range, other checks apply
+     * and this threshold is ignored.
+     * 
+     * @param maxNonEscaped Highest character code that is NOT automatically escaped; if
+     *    positive value above 0, or 0 to indicate that no automatic escaping is applied
+     *    beside from what JSON specification requires (and possible custom escape settings).
+     *    Values between 1 and 127 are all taken to behave as if 127 is specified: that is,
+     *    no automatic escaping is applied in ASCII range.
+     */
+    public JsonFactoryBuilder highestNonEscapedChar(int maxNonEscaped) {
+        _maximumNonEscapedChar = (maxNonEscaped <= 0) ? 0 : Math.max(127, maxNonEscaped);
+        return this;
+    }
+
+    // // // Accessors for JSON-specific settings
+    
     public CharacterEscapes characterEscapes() { return _characterEscapes; }
     public SerializableString rootValueSeparator() { return _rootValueSeparator; }
+
+    public int highestNonEscapedChar() { return _maximumNonEscapedChar; }
 
     @Override
     public JsonFactory build() {

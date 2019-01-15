@@ -511,7 +511,7 @@ public abstract class JsonGenerator
      * simply return 0.
      * 
      * @return Currently active limitation for highest non-escaped character,
-     *   if defined; or -1 to indicate no additional escaping is performed.
+     *   if defined; or 0 to indicate no additional escaping is performed.
      */
     public int getHighestEscapedChar() { return 0; }
 

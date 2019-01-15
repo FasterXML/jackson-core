@@ -109,7 +109,7 @@ public abstract class JsonGenerator
         QUOTE_NON_NUMERIC_NUMBERS(true),
 
         // // Character escaping features
-        
+
         /**
          * Feature that specifies that all characters beyond 7-bit ASCII
          * range (i.e. code points of 128 and above) need to be output
@@ -127,11 +127,11 @@ public abstract class JsonGenerator
          *
          * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#ESCAPE_NON_ASCII} instead
          */
-         @Deprecated
+        @Deprecated
         ESCAPE_NON_ASCII(false),
 
         // // Datatype coercion features
-        
+
         /**
          * Feature that forces all Java numbers to be written as Strings,
          * even if the underlying data format has non-textual representation

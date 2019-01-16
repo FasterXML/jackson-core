@@ -5,6 +5,7 @@
 
 package com.fasterxml.jackson.core;
 
+import com.fasterxml.jackson.core.exc.JsonReadException;
 import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
@@ -12,25 +13,13 @@ import com.fasterxml.jackson.core.util.RequestPayload;
  * (content that does not conform to JSON syntax as per specification)
  * is encountered.
  */
-public class JsonParseException extends JsonProcessingException {
+public class JsonParseException extends JsonReadException
+{
     private static final long serialVersionUID = 2L; // 2.7
-
-    // transient since 2.7.4
-    protected transient JsonParser _processor;
-
-    /**
-     * Optional payload that can be assigned to pass along for error reporting
-     * or handling purposes. Core streaming parser implementations DO NOT
-     * initialize this; it is up to using applications and frameworks to
-     * populate it.
-     *
-     * @since 2.8
-     */
-    protected RequestPayload _requestPayload;
 
     @Deprecated // since 2.7
     public JsonParseException(String msg, JsonLocation loc) {
-        super(msg, loc);
+        super(msg, loc, null);
     }
 
     @Deprecated // since 2.7
@@ -46,24 +35,21 @@ public class JsonParseException extends JsonProcessingException {
      * @since 2.7
      */
     public JsonParseException(JsonParser p, String msg) {
-        super(msg, (p == null) ? null : p.getCurrentLocation());
-        _processor = p;
+        super(p, msg);
     }
 
     /**
      * @since 2.7
      */
     public JsonParseException(JsonParser p, String msg, Throwable root) {
-        super(msg, (p == null) ? null : p.getCurrentLocation(), root);
-        _processor = p;
+        super(p, msg, root);
     }
 
     /**
      * @since 2.7
      */
     public JsonParseException(JsonParser p, String msg, JsonLocation loc) {
-        super(msg, loc);
-        _processor = p;
+        super(p, msg, loc);
     }
 
     /**
@@ -71,7 +57,6 @@ public class JsonParseException extends JsonProcessingException {
      */
     public JsonParseException(JsonParser p, String msg, JsonLocation loc, Throwable root) {
         super(msg, loc, root);
-        _processor = p;
     }
 
     /**
@@ -82,6 +67,7 @@ public class JsonParseException extends JsonProcessingException {
      *
      * @since 2.7
      */
+    @Override
     public JsonParseException withParser(JsonParser p) {
         _processor = p;
         return this;
@@ -95,49 +81,33 @@ public class JsonParseException extends JsonProcessingException {
      *
      * @since 2.8
      */
+    @Override
     public JsonParseException withRequestPayload(RequestPayload p) {
         _requestPayload = p;
         return this;
     }
-    
+
+    // NOTE: overloaded in 2.10 just to retain binary compatibility with 2.9 (remove from 3.0)
     @Override
     public JsonParser getProcessor() {
-        return _processor;
+        return super.getProcessor();
     }
 
-    /**
-     * Method that may be called to find payload that was being parsed, if
-     * one was specified for parser that threw this Exception.
-     *
-     * @return request body, if payload was specified; `null` otherwise
-     *
-     * @since 2.8
-     */
+    // NOTE: overloaded in 2.10 just to retain binary compatibility with 2.9 (remove from 3.0)
+    @Override
     public RequestPayload getRequestPayload() {
-        return _requestPayload;
+        return super.getRequestPayload();
     }
 
-    /**
-     * The method returns the String representation of the request payload if
-     * one was specified for parser that threw this Exception.
-     * 
-     * @return request body as String, if payload was specified; `null` otherwise
-     * 
-     * @since 2.8
-     */
+    // NOTE: overloaded in 2.10 just to retain binary compatibility with 2.9 (remove from 3.0)
+    @Override
     public String getRequestPayloadAsString() {
-        return (_requestPayload != null) ? _requestPayload.toString() : null;
+        return super.getRequestPayloadAsString();
     }
     
-    /**
-     * Overriding the getMessage() to include the request body
-     */
+    // NOTE: overloaded in 2.10 just to retain binary compatibility with 2.9 (remove from 3.0)
     @Override 
     public String getMessage() {
-        String msg = super.getMessage();
-        if (_requestPayload != null) {
-            msg +=  "\nRequest payload : " + _requestPayload.toString();
-        }
-        return msg;
+        return super.getMessage();
     }
 }

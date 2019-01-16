@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.util.RequestPayload;
  *
  * @since 2.10
  */
-public abstract class JsonReadException
+public abstract class StreamReadException
     extends JsonProcessingException
 {
     final static long serialVersionUID = 1L;
@@ -24,22 +24,22 @@ public abstract class JsonReadException
      */
     protected RequestPayload _requestPayload;
 
-    public JsonReadException(JsonParser p, String msg) {
+    public StreamReadException(JsonParser p, String msg) {
         super(msg, (p == null) ? null : p.getCurrentLocation());
         _processor = p;
     }
 
-    public JsonReadException(JsonParser p, String msg, Throwable root) {
+    public StreamReadException(JsonParser p, String msg, Throwable root) {
         super(msg, (p == null) ? null : p.getCurrentLocation(), root);
         _processor = p;
     }
 
-    public JsonReadException(JsonParser p, String msg, JsonLocation loc) {
+    public StreamReadException(JsonParser p, String msg, JsonLocation loc) {
         super(msg, loc, null);
         _processor = p;
     }
 
-    protected JsonReadException(String msg, JsonLocation loc, Throwable rootCause) {
+    protected StreamReadException(String msg, JsonLocation loc, Throwable rootCause) {
         super(msg);
         if (rootCause != null) {
             initCause(rootCause);
@@ -53,7 +53,7 @@ public abstract class JsonReadException
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
      */
-    public abstract JsonReadException withParser(JsonParser p);
+    public abstract StreamReadException withParser(JsonParser p);
 
     /**
      * Fluent method that may be used to assign payload to this exception,
@@ -61,7 +61,7 @@ public abstract class JsonReadException
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
      */
-    public abstract JsonReadException withRequestPayload(RequestPayload p);
+    public abstract StreamReadException withRequestPayload(RequestPayload p);
     
     @Override
     public JsonParser getProcessor() {

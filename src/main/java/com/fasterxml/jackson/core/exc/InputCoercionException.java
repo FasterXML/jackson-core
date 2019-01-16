@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.util.RequestPayload;
  *
  * @since 2.10
  */
-public class InputCoercionException extends JsonReadException {
+public class InputCoercionException extends StreamReadException {
     private static final long serialVersionUID = 1L;
 
     /**

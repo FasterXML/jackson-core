@@ -5,7 +5,7 @@
 
 package com.fasterxml.jackson.core;
 
-import com.fasterxml.jackson.core.exc.JsonReadException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.util.RequestPayload;
  * (content that does not conform to JSON syntax as per specification)
  * is encountered.
  */
-public class JsonParseException extends JsonReadException
+public class JsonParseException extends StreamReadException
 {
     private static final long serialVersionUID = 2L; // 2.7
 

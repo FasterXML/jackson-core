@@ -156,6 +156,10 @@ Doug Roper (htmldoug@github)
     exception if not enough input
   (2.9.6)
 
+Alexander Eyers-Taylor (aeyerstaylor@github)
+  * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com
+  (2.9.9)
+
 Philippe Marschall (marschall@github)
   * Requested #480: `SerializableString` value can not directly render to Writer
   (2.10.0)

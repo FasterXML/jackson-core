@@ -1,13 +1,16 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 public class NonStandardUnquotedNamesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory UNQUOTED_FIELDS_F = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+            .build();
+
     public void testSimpleUnquotedBytes() throws Exception {
         _testSimpleUnquoted(MODE_INPUT_STREAM);
         _testSimpleUnquoted(MODE_INPUT_STREAM_THROTTLED);
@@ -17,7 +20,7 @@ public class NonStandardUnquotedNamesTest
     public void testSimpleUnquotedChars() throws Exception {
         _testSimpleUnquoted(MODE_READER);
     }
-    
+
     public void testLargeUnquoted() throws Exception
     {
         _testLargeUnquoted(MODE_INPUT_STREAM);
@@ -26,12 +29,36 @@ public class NonStandardUnquotedNamesTest
         _testLargeUnquoted(MODE_READER);
     }
 
+    // [core#510]: ArrayIndexOutOfBounds
+    public void testUnquotedIssue510() throws Exception
+    {
+        // NOTE! Requires longer input buffer to trigger longer codepath
+        char[] fullChars = new char[4001];
+        for (int i = 0; i < 3998; i++) {
+             fullChars[i] = ' ';
+        }
+        fullChars[3998] = '{';
+        fullChars[3999] = 'a';
+        fullChars[4000] = 256;
+
+        JsonParser p = UNQUOTED_FIELDS_F.createParser(ObjectReadContext.empty(),
+                new java.io.StringReader(new String(fullChars)));
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Should not pass");
+        } catch (JsonParseException e) {
+            ; // should fail here
+        }
+        p.close();
+    }
+
     /*
     /****************************************************************
     /* Secondary test methods
     /****************************************************************
      */
-
+    
     private void _testLargeUnquoted(int mode) throws Exception
     {
         StringBuilder sb = new StringBuilder(5000);
@@ -52,10 +79,7 @@ public class NonStandardUnquotedNamesTest
         }
         sb.append("]");
         String JSON = sb.toString();
-        final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
-                .build();
-        JsonParser p = createParser(f, mode, JSON);
+        JsonParser p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < REPS; ++i) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -70,12 +94,8 @@ public class NonStandardUnquotedNamesTest
 
     private void _testSimpleUnquoted(int mode) throws Exception
     {
-        final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
-                .build();
-
         String JSON = "{ a : 1, _foo:true, $:\"money!\", \" \":null }";
-        JsonParser p = createParser(f, mode, JSON);
+        JsonParser p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
@@ -101,7 +121,7 @@ public class NonStandardUnquotedNamesTest
         // Another thing, as per [Issue#102]: numbers
 
         JSON = "{ 123:true,4:false }";
-        p = createParser(f, mode, JSON);
+        p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());

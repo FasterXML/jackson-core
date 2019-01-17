@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 
 public class NumberCoercionTest extends BaseTest
 {
@@ -66,8 +67,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getIntValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of int");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Integer.TYPE, e.getTargetType());
             }
             long small = -1L + Integer.MIN_VALUE;
             p = createParser(mode, String.valueOf(small));
@@ -77,8 +80,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getIntValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of int");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Integer.TYPE, e.getTargetType());
             }
 
             // double -> error
@@ -88,8 +93,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getIntValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of int");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Integer.TYPE, e.getTargetType());
             }
             p = createParser(mode, String.valueOf(small)+".0");
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
@@ -97,8 +104,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getIntValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of int");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Integer.TYPE, e.getTargetType());
             }
 
             // BigInteger -> error
@@ -108,8 +117,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getIntValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of int");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Integer.TYPE, e.getTargetType());
             }
             p = createParser(mode, String.valueOf(small));
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -117,8 +128,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getIntValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of int");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Integer.TYPE, e.getTargetType());
             }
         }
     }
@@ -175,8 +188,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getLongValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of long");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Long.TYPE, e.getTargetType());
             }
             BigInteger small = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.TEN);
             p = createParser(mode, String.valueOf(small));
@@ -185,8 +200,10 @@ public class NumberCoercionTest extends BaseTest
             try {
                 p.getLongValue();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (InputCoercionException e) {
                 verifyException(e, "out of range of long");
+                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+                assertEquals(Long.TYPE, e.getTargetType());
             }
         }
     }

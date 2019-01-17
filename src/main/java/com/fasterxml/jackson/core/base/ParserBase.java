@@ -846,7 +846,7 @@ public abstract class ParserBase extends ParserMinimalBase
             } else {
                 // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
                 if ((expType == NR_INT) || (expType == NR_LONG)) {
-                    _reportTooLongInt(expType, numStr);
+                    _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
                     _numberDouble = NumberInput.parseDouble(numStr);
@@ -864,11 +864,13 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     // @since 2.9.8
-    protected void _reportTooLongInt(int expType, String rawNum) throws IOException
+    protected void _reportTooLongIntegral(int expType, String rawNum) throws IOException
     {
-        final String numDesc = _longIntegerDesc(rawNum);
-        _reportError("Numeric value (%s) out of range of %s", numDesc,
-                (expType == NR_LONG) ? "long" : "int");
+        if (expType == NR_INT) {
+            reportOverflowInt(rawNum);
+        } else {
+            reportOverflowLong(rawNum);
+        }
     }
 
     /*
@@ -884,7 +886,7 @@ public abstract class ParserBase extends ParserMinimalBase
             // Let's verify it's lossless conversion by simple roundtrip
             int result = (int) _numberLong;
             if (((long) result) != _numberLong) {
-                _reportError("Numeric value ("+getText()+") out of range of int");
+                reportOverflowInt(getText(), currentToken());
             }
             _numberInt = result;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {

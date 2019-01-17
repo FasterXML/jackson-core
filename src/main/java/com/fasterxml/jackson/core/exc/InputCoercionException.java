@@ -30,8 +30,8 @@ public class InputCoercionException extends StreamReadException {
      * sets processor (accessible via {@link #getProcessor()}) to
      * specified parser.
      */
-    public InputCoercionException(JsonParser p, JsonToken inputType, Class<?> targetType,
-            String msg) {
+    public InputCoercionException(JsonParser p, String msg,
+            JsonToken inputType, Class<?> targetType) {
         super(p, msg);
         _inputType = inputType;
         _targetType = targetType;

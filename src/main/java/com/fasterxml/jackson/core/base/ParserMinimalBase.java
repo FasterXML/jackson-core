@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -540,18 +541,64 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportError(msg);
     }
 
+    /**
+     * Method called to throw an exception for input token that looks like a number
+     * based on first character(s), but is not valid according to rules of format.
+     * In case of JSON this also includes invalid forms like positive sign and
+     * leading zeroes.
+     */
     protected void reportInvalidNumber(String msg) throws JsonParseException {
         _reportError("Invalid numeric value: "+msg);
     }
 
+    /**
+     * Method called to throw an exception for integral (not floating point) input
+     * token with value outside of Java signed 32-bit range when requested as {@link int}.
+     * Result will be {@link InputCoercionException} being thrown.
+     */
     protected void reportOverflowInt() throws IOException {
-        _reportError(String.format("Numeric value (%s) out of range of int (%d - %s)",
-                _longIntegerDesc(getText()), Integer.MIN_VALUE, Integer.MAX_VALUE));
+        reportOverflowInt(getText());
     }
 
+    // @since 2.10
+    protected void reportOverflowInt(String numDesc) throws IOException {
+        reportOverflowInt(numDesc, JsonToken.VALUE_NUMBER_INT);
+    }
+
+    // @since 2.10
+    protected void reportOverflowInt(String numDesc, JsonToken inputType) throws IOException {
+        _reportInputCoercion(String.format("Numeric value (%s) out of range of int (%d - %s)",
+                _longIntegerDesc(numDesc), Integer.MIN_VALUE, Integer.MAX_VALUE),
+                inputType, Integer.TYPE);
+    }
+
+    /**
+     * Method called to throw an exception for integral (not floating point) input
+     * token with value outside of Java signed 64-bit range when requested as {@link long}.
+     * Result will be {@link InputCoercionException} being thrown.
+     */
     protected void reportOverflowLong() throws IOException {
-        _reportError(String.format("Numeric value (%s) out of range of long (%d - %s)",
-                _longIntegerDesc(getText()), Long.MIN_VALUE, Long.MAX_VALUE));
+        reportOverflowLong(getText());
+    }
+
+    // @since 2.10
+    protected void reportOverflowLong(String numDesc) throws IOException {
+        reportOverflowLong(numDesc, JsonToken.VALUE_NUMBER_INT);
+    }
+
+    // @since 2.10
+    protected void reportOverflowLong(String numDesc, JsonToken inputType) throws IOException {
+        _reportInputCoercion(String.format("Numeric value (%s) out of range of long (%d - %s)",
+                _longIntegerDesc(numDesc), Long.MIN_VALUE, Long.MAX_VALUE),
+                inputType, Long.TYPE);
+    }
+
+    /**
+     * @since 2.10
+     */
+    protected void _reportInputCoercion(String msg, JsonToken inputType, Class<?> targetType)
+            throws InputCoercionException {
+        throw new InputCoercionException(this, msg, inputType, targetType);
     }
 
     // @since 2.9.8

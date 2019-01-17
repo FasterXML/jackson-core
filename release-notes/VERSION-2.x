@@ -35,6 +35,8 @@ JSON library.
 
 #488: Fail earlier on coercions from "too big" `BigInteger` into
   fixed-size types (`int`, `long`, `short`)
+#510: Fix ArrayIndexOutofBoundsException found by LGTM.com
+ (reported by Alexander E-T)
 - Improve exception message for missing Base64 padding (see databind#2183)
 
 2.9.7 (19-Sep-2018)

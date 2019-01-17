@@ -1960,7 +1960,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             char c = _inputBuffer[_inputPtr];
             int i = (int) c;
-            if (i <= maxCode) {
+            if (i < maxCode) {
                 if (codes[i] != 0) {
                     break;
                 }

@@ -155,4 +155,7 @@ Doug Roper (htmldoug@github)
   * Suggested #463: Ensure that `skipChildren()` of non-blocking `JsonParser` will throw
     exception if not enough input
   (2.9.6)
- 
+
+Alexander Eyers-Taylor (aeyerstaylor@github)
+  * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com
+  (2.9.9)

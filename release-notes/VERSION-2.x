@@ -28,6 +28,8 @@ JSON library.
 #496: Create `StreamWriteFeature` to take over non-json-specific `JsonGenerator.Feature`s
 #502: Make `DefaultPrettyPrinter.createInstance()` to fail for sub-classes
 #506: Add missing type parameter for `TypeReference` in `ObjectCodec`
+#508: Add new exception type `InputCoercionException` to be used for failed coercions
+  like overflow for `int`
 
 2.9.8 (15-Dec-2018)
 

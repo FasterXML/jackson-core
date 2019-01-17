@@ -8,6 +8,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
@@ -126,8 +127,10 @@ public class NumberParsingTest
         // Should get an exception if trying to convert to int 
         try {
             p.getIntValue();
-        } catch (JsonParseException pe) {
-            verifyException(pe, "out of range");
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range");
+            assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+            assertEquals(Integer.TYPE, e.getTargetType());
         }
         assertEquals((double) EXP_L, p.getDoubleValue());
         assertEquals(BigDecimal.valueOf((long) EXP_L), p.getDecimalValue());
@@ -282,7 +285,7 @@ public class NumberParsingTest
         try {
             /*int x =*/ p.getIntValue();
             fail("Expected an exception for overflow");
-        } catch (Exception e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "out of range of `int`");
         }
         assertEquals(8100200300.0, p.getDoubleValue());

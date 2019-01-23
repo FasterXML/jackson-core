@@ -89,7 +89,7 @@ public class JsonParserSequence extends JsonParserDelegate
             p.add(second);
         }
         return new JsonParserSequence(checkForExistingToken,
-                p.toArray(new JsonParser[p.size()]));
+                p.toArray(new JsonParser[0]));
     }
 
     @SuppressWarnings("resource")

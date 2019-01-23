@@ -168,7 +168,7 @@ public final class BinaryNameMatcher
             SimpleNameMatcher base)
     {
         int sz = _findSize(symbols.size());
-        String[] lookup = symbols.toArray(new String[symbols.size()]);
+        String[] lookup = symbols.toArray(new String[0]);
         BinaryNameMatcher matcher = new BinaryNameMatcher(base, lookup, sz);
         for (String name : symbols) {
             matcher.addName(name);

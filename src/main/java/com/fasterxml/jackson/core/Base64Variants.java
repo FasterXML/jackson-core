@@ -29,10 +29,7 @@ public final class Base64Variants
      * it is <b>not</b> the default for Jackson: no-linefeeds alternative
      * is because of JSON requirement of escaping all linefeeds.
      */
-    public final static Base64Variant MIME;
-    static {
-        MIME = new Base64Variant("MIME", STD_BASE64_ALPHABET, true, '=', 76);
-    }
+    public final static Base64Variant MIME = new Base64Variant("MIME", STD_BASE64_ALPHABET, true, '=', 76);
 
     /**
      * Slightly non-standard modification of {@link #MIME} which does not
@@ -40,10 +37,7 @@ public final class Base64Variants
      * wouldn't work well (possibly in attributes), or for minor space savings
      * (save 1 linefeed per 76 data chars, ie. ~1.4% savings).
      */
-    public final static Base64Variant MIME_NO_LINEFEEDS;
-    static {
-        MIME_NO_LINEFEEDS = new Base64Variant(MIME, "MIME-NO-LINEFEEDS", Integer.MAX_VALUE);
-    }
+    public final static Base64Variant MIME_NO_LINEFEEDS = new Base64Variant(MIME, "MIME-NO-LINEFEEDS", Integer.MAX_VALUE);
 
     /**
      * This variant is the one that predates {@link #MIME}: it is otherwise

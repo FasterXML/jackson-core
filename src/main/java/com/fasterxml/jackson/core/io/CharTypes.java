@@ -74,7 +74,7 @@ public final class CharTypes
     static {
         final int[] table = new int[256];
         // Default is "not a name char", mark ones that are
-        Arrays.fill(table, 0, 33, -1);
+        Arrays.fill(table, -1);
         // Assume rules with JS same as Java (change if/as needed)
         for (int i = 33; i < 256; ++i) {
             if (Character.isJavaIdentifierPart((char) i)) {

@@ -991,8 +991,8 @@ public class UTF8JsonGenerator
     public void writeNumber(double d) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-            (((Double.isNaN(d) || Double.isInfinite(d))
-                && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)))) {
+            (NumberOutput.notFinite(d)
+                    && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -1005,9 +1005,8 @@ public class UTF8JsonGenerator
     public void writeNumber(float f) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-            // [JACKSON-139]
-            (((Float.isNaN(f) || Float.isInfinite(f))
-                && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)))) {
+            (NumberOutput.notFinite(f)
+                    && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
             writeString(String.valueOf(f));
             return;
         }

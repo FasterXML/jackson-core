@@ -267,6 +267,36 @@ public final class NumberOutput
 
     /*
     /**********************************************************
+    /* Other convenience methods
+    /**********************************************************
+     */
+
+    /**
+     * Helper method to verify whether given {@code double} value is finite
+     * (regular rational number} or not (NaN or Infinity).
+     *
+     * @return True if number is NOT finite (is Infinity or NaN); false otherwise
+     *
+     * Since 2.10
+     */
+    public static boolean notFinite(double value) {
+        return !Double.isFinite(value);
+    }
+
+    /**
+     * Helper method to verify whether given {@code float} value is finite
+     * (regular rational number} or not (NaN or Infinity).
+     *
+     * @return True if number is NOT finite (is Infinity or NaN); false otherwise
+     *
+     * Since 2.10
+     */
+    public static boolean notFinite(float value) {
+        return !Float.isFinite(value);
+    }
+
+    /*
+    /**********************************************************
     /* Internal helper methods
     /**********************************************************
      */

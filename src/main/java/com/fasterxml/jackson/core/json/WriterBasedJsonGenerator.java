@@ -788,8 +788,7 @@ public class WriterBasedJsonGenerator
     public void writeNumber(double d) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-                (JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)
-                        && ((Double.isNaN(d) || Double.isInfinite(d))))) {
+                (NumberOutput.notFinite(d) && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -802,8 +801,7 @@ public class WriterBasedJsonGenerator
     public void writeNumber(float f) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-                (JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures)
-                        && ((Float.isNaN(f) || Float.isInfinite(f))))) {
+                (NumberOutput.notFinite(f) && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
             writeString(String.valueOf(f));
             return;
         }

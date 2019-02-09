@@ -42,8 +42,7 @@ public final class CharTypes
      */
     private final static int[] sInputCodesUTF8;
     static {
-        final int[] table = new int[sInputCodes.length];
-        System.arraycopy(sInputCodes, 0, table, 0, 128);
+        final int[] table = Arrays.copyOf(sInputCodes, sInputCodes.length);
         for (int c = 128; c < 256; ++c) {
             int code;
 
@@ -99,9 +98,8 @@ public final class CharTypes
      */
     private final static int[] sInputCodesUtf8JsNames;
     static {
-        final int[] table = new int[256];
         // start with 8-bit JS names
-        System.arraycopy(sInputCodesJsNames, 0, table, 0, 128);
+        final int[] table = Arrays.copyOf(sInputCodesJsNames, sInputCodesJsNames.length);
         Arrays.fill(table, 128, 128, 0);
         sInputCodesUtf8JsNames = table;
     }

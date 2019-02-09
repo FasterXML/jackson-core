@@ -700,7 +700,7 @@ public final class TextBuffer
     
     public char[] finishCurrentSegment() {
         if (_segments == null) {
-            _segments = new ArrayList<char[]>(10);
+            _segments = new ArrayList<char[]>(4);
         }
         _hasSegments = true;
         _segments.add(_currentSegment);
@@ -806,7 +806,7 @@ public final class TextBuffer
     {
         // First, let's move current segment to segment list:
         if (_segments == null) {
-            _segments = new ArrayList<char[]>(10);
+            _segments = new ArrayList<char[]>(4);
         }
         char[] curr = _currentSegment;
         _hasSegments = true;

@@ -174,13 +174,9 @@ public final class NumberInput
         if (alen < cmpLen) return true;
         if (alen > cmpLen) return false;
 
-        // could perhaps just use String.compareTo()?
-        for (int i = 0; i < cmpLen; ++i) {
-            int diff = s.charAt(i) - cmp.charAt(i);
-            if (diff != 0) {
-                return (diff < 0);
-            }
-        }
+        // use String.compareTo() as it is a JVM intrinsic
+        int diff = s.compareTo(cmp);
+        if (diff != 0) return (diff < 0);
         return true;
     }
 
@@ -200,7 +196,7 @@ public final class NumberInput
             char c = s.charAt(0);
             if (c == '+') { // for plus, actually physically remove
                 s = s.substring(1);
-                len = s.length();
+                --len;
             } else if (c == '-') { // minus, just skip for checks, must retain
                 ++i;
             }
@@ -238,7 +234,7 @@ public final class NumberInput
             char c = s.charAt(0);
             if (c == '+') { // for plus, actually physically remove
                 s = s.substring(1);
-                len = s.length();
+                --len;
             } else if (c == '-') { // minus, just skip for checks, must retain
                 ++i;
             }

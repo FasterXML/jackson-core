@@ -763,8 +763,7 @@ public class WriterBasedJsonGenerator
     public void writeNumber(double d) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-            // [JACKSON-139]
-                (isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS) && ((Double.isNaN(d) || Double.isInfinite(d))))) {
+                (NumberOutput.notFinite(d) && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS))) {
             writeString(String.valueOf(d));
             return;
         }
@@ -778,7 +777,7 @@ public class WriterBasedJsonGenerator
     public void writeNumber(float f) throws IOException
     {
         if (_cfgNumbersAsStrings ||
-                (isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS) && ((Float.isNaN(f) || Float.isInfinite(f))))) {
+                (NumberOutput.notFinite(f) && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS))) {
             writeString(String.valueOf(f));
             return;
         }

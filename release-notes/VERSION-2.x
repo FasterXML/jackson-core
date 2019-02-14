@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.9.9 (not yet released)
+
+#516: _inputPtr off-by-one in UTF8StreamJsonParser._parseNumber2()
+ (reported by Henrik G)
+
 2.9.8 (15-Dec-2018)
 
 #488: Fail earlier on coercions from "too big" `BigInteger` into

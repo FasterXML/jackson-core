@@ -160,6 +160,10 @@ Alexander Eyers-Taylor (aeyerstaylor@github)
   * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com
   (2.9.9)
 
+Henrik Gustafsson (gsson@github)
+  * Reported #516: _inputPtr off-by-one in UTF8StreamJsonParser._parseNumber2()
+  (2.9.9)
+
 Philippe Marschall (marschall@github)
   * Requested #480: `SerializableString` value can not directly render to Writer
   (2.10.0)

@@ -17,6 +17,8 @@ JSON library.
 2.8.11.1 (not yet released)
 
 #460: Failing to link `ObjectCodec` with `JsonFactory` copy constructor
+#516: _inputPtr off-by-one in UTF8StreamJsonParser._parseNumber2()
+ (reported by Henrik G)
 
 2.8.11 (23-Dec-2017)
 

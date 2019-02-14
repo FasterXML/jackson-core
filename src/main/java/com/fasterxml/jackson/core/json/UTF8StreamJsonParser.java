@@ -1521,7 +1521,7 @@ public class UTF8StreamJsonParser
         _textBuffer.setCurrentLength(outPtr);
         // As per #105, need separating space between root values; check here
         if (_parsingContext.inRoot()) {
-            _verifyRootSpace(_inputBuffer[_inputPtr++] & 0xFF);
+            _verifyRootSpace(_inputBuffer[_inputPtr] & 0xFF);
         }
 
         // And there we have it!

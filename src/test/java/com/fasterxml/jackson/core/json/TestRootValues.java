@@ -79,7 +79,7 @@ public class TestRootValues
         _testSimpleWrites(true);
     }
 
-    public void _testSimpleWrites(boolean useStream) throws Exception
+    private void _testSimpleWrites(boolean useStream) throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         StringWriter w = new StringWriter();
@@ -101,5 +101,103 @@ public class TestRootValues
         // and verify
         String json = useStream ? out.toString("UTF-8") : w.toString();
         assertEquals("123 \"abc\" true", json);
+    }
+
+    // [core#516]: Off-by-one read problem
+    public void testRootOffsetIssue516Bytes() throws Exception
+    {
+        // InputStream that forces _parseNumber2 to be invoked.
+        final InputStream in = new Issue516InputStream(new byte[][] {
+            "1234".getBytes("UTF-8"),
+            "5 true".getBytes("UTF-8")
+        });
+
+        JsonParser parser = JSON_F.createParser(in);
+        assertEquals(12345, parser.nextIntValue(0));
+
+        // Fails with com.fasterxml.jackson.core.JsonParseException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')
+        assertTrue(parser.nextBooleanValue());
+
+        parser.close();
+        in.close();
+    }
+
+    // [core#516]: Off-by-one read problem
+    public void testRootOffsetIssue516Chars() throws Exception
+    {
+        // InputStream that forces _parseNumber2 to be invoked.
+        final Reader in = new Issue516Reader(new char[][] {
+            "1234".toCharArray(), "5 true".toCharArray()
+        });
+
+        JsonParser parser = JSON_F.createParser(in);
+        assertEquals(12345, parser.nextIntValue(0));
+
+        // Fails with com.fasterxml.jackson.core.JsonParseException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')
+        assertTrue(parser.nextBooleanValue());
+
+        parser.close();
+        in.close();
+    }
+
+    static class Issue516InputStream extends InputStream
+    {
+        private final byte[][] reads;
+        private int currentRead;
+
+        public Issue516InputStream(byte[][] reads) {
+            this.reads = reads;
+            this.currentRead = 0;
+        }
+
+        @Override
+        public int read() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+    
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (currentRead >= reads.length) {
+                return -1;
+            }
+            byte[] bytes = reads[currentRead++];
+            if (len < bytes.length) {
+                throw new IllegalArgumentException();
+            }
+            System.arraycopy(bytes, 0, b, off, bytes.length);
+            return bytes.length;
+        }
+    }
+
+    static class Issue516Reader extends Reader
+    {
+        private final char[][] reads;
+        private int currentRead;
+
+        public Issue516Reader(char[][] reads) {
+            this.reads = reads;
+            this.currentRead = 0;
+        }
+
+        @Override
+        public void close() { }
+
+        @Override
+        public int read() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+    
+        @Override
+        public int read(char[] b, int off, int len) throws IOException {
+            if (currentRead >= reads.length) {
+                return -1;
+            }
+            char[] bytes = reads[currentRead++];
+            if (len < bytes.length) {
+                throw new IllegalArgumentException();
+            }
+            System.arraycopy(bytes, 0, b, off, bytes.length);
+            return bytes.length;
+        }
     }
 }

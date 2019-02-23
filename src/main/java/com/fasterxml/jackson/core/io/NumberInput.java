@@ -27,30 +27,25 @@ public final class NumberInput
      */
     public static int parseInt(char[] ch, int off, int len)
     {
-        int num = ch[off] - '0';
-
-        if (len > 4) {
-            num = (num * 10) + (ch[++off] - '0');
-            num = (num * 10) + (ch[++off] - '0');
-            num = (num * 10) + (ch[++off] - '0');
-            num = (num * 10) + (ch[++off] - '0');
-            len -= 4;
-            if (len > 4) {
-                num = (num * 10) + (ch[++off] - '0');
-                num = (num * 10) + (ch[++off] - '0');
-                num = (num * 10) + (ch[++off] - '0');
-                num = (num * 10) + (ch[++off] - '0');
-                return num;
-            }
-        }
-        if (len > 1) {
-            num = (num * 10) + (ch[++off] - '0');
-            if (len > 2) {
-                num = (num * 10) + (ch[++off] - '0');
-                if (len > 3) {
-                    num = (num * 10) + (ch[++off] - '0');
-                }
-            }
+        int num = ch[off + len - 1] - '0';
+        
+        switch(len) {
+        case 9: 
+          num += (ch[off++] - '0') * 100000000;
+        case 8: 
+          num += (ch[off++] - '0') * 10000000;
+        case 7: 
+          num += (ch[off++] - '0') * 1000000;
+        case 6: 
+          num += (ch[off++] - '0') * 100000;
+        case 5: 
+          num += (ch[off++] - '0') * 10000;
+        case 4: 
+          num += (ch[off++] - '0') * 1000;
+        case 3: 
+          num += (ch[off++] - '0') * 100;
+        case 2: 
+          num += (ch[off] - '0') * 10;
         }
         return num;
     }

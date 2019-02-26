@@ -66,11 +66,11 @@ public final class NumberOutput
         }
 
         if (v < MILLION) { // at most 2 triplets...
+            if (v < 10) {
+                b[off] = (char) ('0' + v);
+                return off+1;
+            }
             if (v < 1000) {
-                if (v < 10) {
-                    b[off] = (char) ('0' + v);
-                    return off+1;
-                }
                 return _leading3(v, b, off);
             }
             int thousands = v / 1000;

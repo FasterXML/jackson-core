@@ -37,13 +37,6 @@ public final class NumberOutput
         }
     }
 
-    private final static String[] sSmallIntStrs = new String[] {
-        "0","1","2","3","4","5","6","7","8","9","10"
-    };
-    private final static String[] sSmallIntStrs2 = new String[] {
-        "-1","-2","-3","-4","-5","-6","-7","-8","-9","-10"
-    };
-
     /*
     /**********************************************************
     /* Efficient serialization methods using raw buffers
@@ -221,48 +214,6 @@ public final class NumberOutput
             off = _outputFullBillion((int) upper, b, off);
         }
         return _outputFullBillion((int) v, b, off);
-    }
-
-    /*
-    /**********************************************************
-    /* Convenience serialization methods
-    /**********************************************************
-     */
-
-    /* !!! 05-Aug-2008, tatus: Any ways to further optimize
-     *   these? (or need: only called by diagnostics methods?)
-     */
-    public static String toString(int v)
-    {
-        // Lookup table for small values
-        if (v < sSmallIntStrs.length) {
-            if (v >= 0) {
-                return sSmallIntStrs[v];
-            }
-            int v2 = -v - 1;
-            if (v2 < sSmallIntStrs2.length) {
-                return sSmallIntStrs2[v2];
-            }
-        }
-        return Integer.toString(v);
-    }
-
-    public static String toString(long v) {
-        if (v <= Integer.MAX_VALUE && v >= Integer.MIN_VALUE) {
-            return toString((int) v);
-        }
-        return Long.toString(v);
-    }
-
-    public static String toString(double v) {
-        return Double.toString(v);
-    }
-
-    /**
-     * @since 2.6.0
-     */
-    public static String toString(float v) {
-        return Float.toString(v);
     }
 
     /*

@@ -71,7 +71,7 @@ public class TestNumberPrinting
         if (!exp.equals(act)) {
             assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
         }
-        String alt = NumberOutput.toString(value);
+        String alt = Integer.toString(value);
         if (!exp.equals(alt)) {
             assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+")", exp, act);
         }
@@ -85,7 +85,7 @@ public class TestNumberPrinting
         if (!exp.equals(act)) {
             assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
         }
-        String alt = NumberOutput.toString(value);
+        String alt = Long.toString(value);
         if (!exp.equals(alt)) {
             assertEquals("Expected conversion (exp '"+exp+"', len "+exp.length()+"; act len "+act.length()+"; number index "+index+")", exp, act);
         }

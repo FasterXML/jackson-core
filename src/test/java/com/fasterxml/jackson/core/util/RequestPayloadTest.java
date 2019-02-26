@@ -4,6 +4,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import java.nio.charset.IllegalCharsetNameException;
+
 /**
  * Unit tests for class {@link RequestPayload}.
  *
@@ -30,11 +32,9 @@ public class RequestPayloadTest
     assertEquals("", requestPayload.getRawPayload());
   }
 
-  @Test
+  @Test(expected = IllegalCharsetNameException.class)
   public void testCreateTaking2ArgumentsAndCallsGetRawPayload() {
     byte[] byteArray = new byte[5];
     RequestPayload requestPayload = new RequestPayload(byteArray, "/ _ \" €");
-
-    assertSame(byteArray, requestPayload.getRawPayload());
   }
 }

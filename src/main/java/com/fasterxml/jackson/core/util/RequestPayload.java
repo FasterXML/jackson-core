@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Container object used to contain optional information on content
@@ -22,14 +23,21 @@ public class RequestPayload
     protected CharSequence _payloadAsText;
 
     // Charset if the request payload is set in bytes
-    protected String _charset;
+    protected Charset _charset;
 
+    @Deprecated
     public RequestPayload(byte[] bytes, String charset) {
+        this(bytes, (Charset) null);
+        _charset = (charset == null || charset.isEmpty()) ?
+            StandardCharsets.UTF_8 : Charset.forName(charset);
+    }
+
+    public RequestPayload(byte[] bytes, Charset charset) {
         if (bytes == null) {
             throw new IllegalArgumentException();
         }
         _payloadAsBytes = bytes;
-        _charset = (charset == null || charset.isEmpty()) ? "UTF-8" : charset;
+        _charset = charset;
     }
 
     public RequestPayload(CharSequence str) {
@@ -56,11 +64,7 @@ public class RequestPayload
     @Override
     public String toString() {
         if (_payloadAsBytes != null) {
-            try {
-                return new String(_payloadAsBytes, _charset);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return new String(_payloadAsBytes, _charset);
         }
         return _payloadAsText.toString();
     }

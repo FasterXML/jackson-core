@@ -8,6 +8,7 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.json.JsonFactory;
@@ -131,13 +132,21 @@ public abstract class JsonParser
     public void setRequestPayloadOnError(RequestPayload payload) {
         _requestPayload = payload;
     }
-    
+
     /**
      * Sets the byte[] request payload and the charset
      */
+     @Deprecated
      public void setRequestPayloadOnError(byte[] payload, String charset) {
          _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
      }
+
+     /**
+      * Sets the byte[] request payload and the charset
+      */
+      public void setRequestPayloadOnError(byte[] payload, Charset charset) {
+          _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
+      }
 
      /**
      * Sets the String request payload

@@ -833,7 +833,7 @@ public final class TextBuffer
         // Do we use shared array?
         if (_inputStart >= 0) {
             final int len = _inputLen;
-            if (len < 1) {
+            if (len == 0) {
                 return NO_CHARS;
             }
             final int start = _inputStart;
@@ -844,7 +844,7 @@ public final class TextBuffer
         }
         // nope, not shared
         int size = size();
-        if (size < 1) {
+        if (size == 0) {
             return NO_CHARS;
         }
         int offset = 0;

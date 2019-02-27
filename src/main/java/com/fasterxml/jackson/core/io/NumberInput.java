@@ -27,7 +27,7 @@ public final class NumberInput
      */
     public static int parseInt(char[] ch, int off, int len)
     {
-    	int num = ch[off + len - 1] - '0';
+        int num = ch[off + len - 1] - '0';
     	
         switch(len) {
         case 9: 

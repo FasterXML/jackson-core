@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.base64;
 
+import java.util.Arrays;
+
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;
@@ -76,7 +78,7 @@ public class Base64CodecTest
 
     public void testConvenienceMethods() throws Exception
     {
-        Base64Variant std = Base64Variants.MIME;
+        final Base64Variant std = Base64Variants.MIME;
 
         byte[] input = new byte[] { 1, 2, 34, 127, -1 };
         String encoded = std.encode(input, false);
@@ -94,6 +96,32 @@ public class Base64CodecTest
         Assert.assertArrayEquals(input, decoded);
         decoded = std.decode(encoded + "\n");
         Assert.assertArrayEquals(input, decoded);
+    }
+
+    public void testConvenienceMethodWithLFs() throws Exception
+    {
+        final Base64Variant std = Base64Variants.MIME;
+
+        final int length = 100;
+        final byte[] data = new byte[length];
+        Arrays.fill(data, (byte) 1);
+
+        final StringBuilder sb = new StringBuilder(140);
+        for (int i = 0; i < 100/3; ++i) {
+            sb.append("AQEB");
+            if (sb.length() == 76) {
+                sb.append("##");
+            }
+        }
+        sb.append("AQ==");
+        final String exp = sb.toString();
+        
+        // first, JSON standard
+        assertEquals(exp.replace("##", "\\n"), std.encode(data, false));
+
+        // then with custom linefeed
+
+        assertEquals(exp.replace("##", "<%>"), std.encode(data, false, "<%>"));
     }
 
     @SuppressWarnings("unused")

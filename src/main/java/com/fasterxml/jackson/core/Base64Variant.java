@@ -88,7 +88,7 @@ public final class Base64Variant
     private final transient boolean _usesPadding;
 
     /**
-     * Characted used for padding, if any ({@link #PADDING_CHAR_NONE} if not).
+     * Character used for padding, if any ({@link #PADDING_CHAR_NONE} if not).
      */
     private final transient char _paddingChar;
     
@@ -367,21 +367,17 @@ public final class Base64Variant
 
     /**
      * Convenience method for converting given byte array as base64 encoded String
-     * using this variant's settings,
-     * optionally enclosed in double-quotes.
+     * using this variant's settings, optionally enclosed in double-quotes.
+     * Linefeeds added, if needed, are expressed as 2-character JSON (and Java source)
+     * escape sequence of backslash + `n`.
      * 
      * @param input Byte array to encode
      * @param addQuotes Whether to surround resulting value in double quotes or not
      */
     public String encode(byte[] input, boolean addQuotes)
     {
-        int inputEnd = input.length;
-        StringBuilder sb;
-        {
-            // let's approximate... 33% overhead, ~= 3/8 (0.375)
-            int outputLen = inputEnd + (inputEnd >> 2) + (inputEnd >> 3);
-            sb = new StringBuilder(outputLen);
-        }
+        final int inputEnd = input.length;
+        final StringBuilder sb = new StringBuilder(inputEnd + (inputEnd >> 2) + (inputEnd >> 3));
         if (addQuotes) {
             sb.append('"');
         }
@@ -423,12 +419,60 @@ public final class Base64Variant
     }
 
     /**
+     * Convenience method for converting given byte array as base64 encoded String
+     * using this variant's settings, optionally enclosed in double-quotes.
+     * Linefeed character to use is passed explicitly.
+     * 
+     * @param input Byte array to encode
+     * @param addQuotes Whether to surround resulting value in double quotes or not
+     *
+     * @since 2.10
+     */
+    public String encode(byte[] input, boolean addQuotes, String linefeed)
+    {
+        final int inputEnd = input.length;
+        final StringBuilder sb = new StringBuilder(inputEnd + (inputEnd >> 2) + (inputEnd >> 3));
+        if (addQuotes) {
+            sb.append('"');
+        }
+
+        int chunksBeforeLF = getMaxLineLength() >> 2;
+
+        int inputPtr = 0;
+        int safeInputEnd = inputEnd-3;
+
+        while (inputPtr <= safeInputEnd) {
+            int b24 = ((int) input[inputPtr++]) << 8;
+            b24 |= ((int) input[inputPtr++]) & 0xFF;
+            b24 = (b24 << 8) | (((int) input[inputPtr++]) & 0xFF);
+            encodeBase64Chunk(sb, b24);
+            if (--chunksBeforeLF <= 0) {
+                sb.append(linefeed);
+                chunksBeforeLF = getMaxLineLength() >> 2;
+            }
+        }
+        int inputLeft = inputEnd - inputPtr;
+        if (inputLeft > 0) {
+            int b24 = ((int) input[inputPtr++]) << 16;
+            if (inputLeft == 2) {
+                b24 |= (((int) input[inputPtr++]) & 0xFF) << 8;
+            }
+            encodeBase64Partial(sb, b24, inputLeft);
+        }
+
+        if (addQuotes) {
+            sb.append('"');
+        }
+        return sb.toString();
+    }
+
+    /**
      * Convenience method for decoding contents of a Base64-encoded String,
      * using this variant's settings.
-     * 
+     *
      * @param input
-     * 
-     * @since 2.2.3
+     *
+     * @since 2.3
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */

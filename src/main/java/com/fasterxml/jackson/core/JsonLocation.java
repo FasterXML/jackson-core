@@ -5,7 +5,7 @@
 
 package com.fasterxml.jackson.core;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Object that encapsulates Location information used for reporting
@@ -198,7 +198,7 @@ public class JsonLocation
         } else if (srcRef instanceof byte[]) {
             byte[] b = (byte[]) srcRef;
             int maxLen = Math.min(b.length, MAX_CONTENT_SNIPPET);
-            _append(sb, new String(b, 0, maxLen, Charset.forName("UTF-8")));
+            _append(sb, new String(b, 0, maxLen, StandardCharsets.UTF_8));
             len = b.length - maxLen;
             charStr = " bytes";
         } else {

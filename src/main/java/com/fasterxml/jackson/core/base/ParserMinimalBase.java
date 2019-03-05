@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.base;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
@@ -829,18 +830,10 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected static byte[] _asciiBytes(String str) {
-        byte[] b = new byte[str.length()];
-        for (int i = 0, len = str.length(); i < len; ++i) {
-            b[i] = (byte) str.charAt(i);
-        }
-        return b;
+        return str.getBytes(StandardCharsets.US_ASCII);
     }
 
     protected static String _ascii(byte[] b) {
-        try {
-            return new String(b, "US-ASCII");
-        } catch (IOException e) { // never occurs
-            throw new RuntimeException(e);
-        }
+        return new String(b, StandardCharsets.US_ASCII);
     }
 }

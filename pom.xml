@@ -23,15 +23,16 @@
   </scm>
 
   <properties>
-    <!-- 16-Sep-2016, tatu: Retain Java6/JDK1.6 compatibility for streaming for Jackson 2.x -->
+    <!-- 04-Mar-2019, tatu: Retain Java6/JDK1.6 compatibility for annotations for Jackson 2.x,
+             but use Moditect to get JDK9+ module info support; need newer bundle plugin as well
+      -->
     <javac.src.version>1.6</javac.src.version>
     <javac.target.version>1.6</javac.target.version>
 
-    <!-- 04-May-2016, tatu: Bundle-plugin 3.x seems to require Java 7, so to
-           build for Java 6 need to downgrade here to last working 2.x version
-          (2.5.4 had some issues wrt shading)
-      -->
-    <version.plugin.bundle>2.5.3</version.plugin.bundle>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
+
+    <version.plugin.bundle>3.2.0</version.plugin.bundle>
 
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
@@ -94,6 +95,30 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
+      </plugin>
+
+      <!--  04-Mar-2019, tatu: Add rudimentary JDK9+ module info. To build with JDK 8
+             will have to use `moduleInfoFile` which is crappy but anything else requires
+             JDK 9+. With Jackson 3.0 will upgrade.
+        -->
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-module-infos</id>
+            <phase>package</phase>
+            <goals>
+              <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+              <overwriteExistingFiles>true</overwriteExistingFiles>
+              <module>
+                <moduleInfoFile>src/moditect/module-info.java</moduleInfoFile>
+              </module>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

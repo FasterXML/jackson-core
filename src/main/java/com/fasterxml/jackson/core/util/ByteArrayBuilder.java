@@ -41,7 +41,7 @@ public final class ByteArrayBuilder extends OutputStream
 
     // Optional buffer recycler instance that we can use for allocating the first block.
     private final BufferRecycler _bufferRecycler;
-    private final LinkedList<byte[]> _pastBlocks = new LinkedList<byte[]>();
+    private final List<byte[]> _pastBlocks = new ArrayList<byte[]>();
     
     // Number of bytes within byte arrays in {@link _pastBlocks}.
     private int _pastLen;
@@ -61,9 +61,7 @@ public final class ByteArrayBuilder extends OutputStream
         _pastLen = 0;
         _currBlockPtr = 0;
 
-        if (!_pastBlocks.isEmpty()) {
-            _pastBlocks.clear();
-        }
+        _pastBlocks.clear();
     }
 
     /**

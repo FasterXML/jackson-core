@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
+import java.nio.charset.StandardCharsets;
+
 import com.fasterxml.jackson.core.*;
 
 public class RequestPayloadOnExceptionTest extends BaseTest
@@ -55,7 +57,7 @@ public class RequestPayloadOnExceptionTest extends BaseTest
     private void testRequestPayloadAsBytesOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        p.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
+        p.setRequestPayloadOnError(doc.getBytes(), StandardCharsets.UTF_8);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();
@@ -85,7 +87,7 @@ public class RequestPayloadOnExceptionTest extends BaseTest
     private void testRawRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        p.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
+        p.setRequestPayloadOnError(doc.getBytes(), StandardCharsets.UTF_8);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();
@@ -113,7 +115,7 @@ public class RequestPayloadOnExceptionTest extends BaseTest
     private void testNullRequestPayloadOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        p.setRequestPayloadOnError(null, "UTF-8");
+        p.setRequestPayloadOnError(null, StandardCharsets.UTF_8);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();
@@ -127,7 +129,7 @@ public class RequestPayloadOnExceptionTest extends BaseTest
     private void testNullCharsetOnParseExceptionInternal(boolean isStream, String value) throws Exception {
         final String doc = "{ \"key1\" : " + value + " }";
         JsonParser p = isStream ? createParserUsingStream(doc, "UTF-8") : createParserUsingReader(doc);
-        p.setRequestPayloadOnError(doc.getBytes(), "UTF-8");
+        p.setRequestPayloadOnError(doc.getBytes(), StandardCharsets.UTF_8);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             p.nextToken();

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Container object used to contain optional information on content
@@ -24,13 +23,6 @@ public class RequestPayload
 
     // Charset if the request payload is set in bytes
     protected Charset _charset;
-
-    @Deprecated
-    public RequestPayload(byte[] bytes, String charset) {
-        this(bytes, (Charset) null);
-        _charset = (charset == null || charset.isEmpty()) ?
-            StandardCharsets.UTF_8 : Charset.forName(charset);
-    }
 
     public RequestPayload(byte[] bytes, Charset charset) {
         if (bytes == null) {

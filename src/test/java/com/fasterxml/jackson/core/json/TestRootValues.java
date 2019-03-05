@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 
@@ -108,11 +109,11 @@ public class TestRootValues
     {
         // InputStream that forces _parseNumber2 to be invoked.
         final InputStream in = new Issue516InputStream(new byte[][] {
-            "1234".getBytes("UTF-8"),
-            "5 true".getBytes("UTF-8")
+            "1234".getBytes(StandardCharsets.UTF_8),
+            "5 true".getBytes(StandardCharsets.UTF_8)
         });
 
-        JsonParser parser = JSON_F.createParser(in);
+        JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(), in);
         assertEquals(12345, parser.nextIntValue(0));
 
         // Fails with com.fasterxml.jackson.core.JsonParseException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')
@@ -130,7 +131,7 @@ public class TestRootValues
             "1234".toCharArray(), "5 true".toCharArray()
         });
 
-        JsonParser parser = JSON_F.createParser(in);
+        JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(), in);
         assertEquals(12345, parser.nextIntValue(0));
 
         // Fails with com.fasterxml.jackson.core.JsonParseException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')

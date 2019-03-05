@@ -134,14 +134,6 @@ public abstract class JsonParser
     }
 
     /**
-     * Sets the byte[] request payload and the charset
-     */
-     @Deprecated
-     public void setRequestPayloadOnError(byte[] payload, String charset) {
-         _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
-     }
-
-     /**
       * Sets the byte[] request payload and the charset
       */
       public void setRequestPayloadOnError(byte[] payload, Charset charset) {

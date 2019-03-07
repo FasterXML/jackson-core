@@ -2,6 +2,7 @@ language: java
 # 08-Dec-2018, tatu: While it should be possible to run core streaming on Java 6,
 #   build won't work with anything below Java 8 now
   - openjdk8
+  - oraclejdk11
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
 # http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html

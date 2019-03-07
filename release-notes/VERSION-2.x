@@ -30,6 +30,7 @@ JSON library.
 #506: Add missing type parameter for `TypeReference` in `ObjectCodec`
 #508: Add new exception type `InputCoercionException` to be used for failed coercions
   like overflow for `int`
+#527: Add simple module-info for JDK9+, using Moditect
 
 2.9.9 (not yet released)
 

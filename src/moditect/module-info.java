@@ -3,6 +3,7 @@ module com.fasterxml.jackson.core {
     //    So, for 2.x core need to make sure we manually include everything.
     //    Worse, there is only syntactic validation, not contents, so we can both miss
     //    AND add bogus packages.
+    //    However: at least syntax is verified; and this works with JKD8
     exports com.fasterxml.jackson.core;
     exports com.fasterxml.jackson.core.async;
     exports com.fasterxml.jackson.core.base;

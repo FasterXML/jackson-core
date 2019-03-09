@@ -49,26 +49,13 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <configuration>
-            <source>${javac.src.version}</source>
-            <target>${javac.target.version}</target>
-	    <additionalparam>-Xdoclint:none</additionalparam>
-            <encoding>UTF-8</encoding>
-            <maxmemory>512m</maxmemory>
-            <links>
-              <link>https://docs.oracle.com/javase/8/docs/api/</link>
-            </links>
-          </configuration>
-          <executions>
-            <execution>
-              <id>attach-javadocs</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-          </executions>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <links combine.children="append">
+            <link>http://fasterxml.github.com/jackson-annotations/javadoc/3.0</link>
+            <link>http://fasterxml.github.com/jackson-core/javadoc/3.0</link>
+          </links>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -96,27 +83,11 @@ com.fasterxml.jackson.core.*;version=${project.version}
       </plugin>
 
       <!--  04-Mar-2019, tatu: Add rudimentary JDK9+ module info. To build with JDK 8
-             will have to use `moduleInfoFile` which is crappy but anything else requires
-             JDK 9+. With Jackson 3.0 will upgrade.
+             will have to use `moduleInfoFile` as anything else requires JDK 9+
         -->
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-module-infos</id>
-            <phase>package</phase>
-            <goals>
-              <goal>add-module-info</goal>
-            </goals>
-            <configuration>
-              <overwriteExistingFiles>true</overwriteExistingFiles>
-              <module>
-                <moduleInfoFile>src/moditect/module-info.java</moduleInfoFile>
-              </module>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

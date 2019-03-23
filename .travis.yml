@@ -1,8 +1,7 @@
 language: java
-# core streaming now requires Java 8
+# core streaming now requires Java 8; only test on LTS versions (skip 9, 10)
 jdk:
   - openjdk8
-  - oraclejdk9
   - oraclejdk11
 
 # Below this line is configuration for deploying to the Sonatype OSS repo

@@ -167,3 +167,8 @@ Henrik Gustafsson (gsson@github)
 Philippe Marschall (marschall@github)
   * Requested #480: `SerializableString` value can not directly render to Writer
   (2.10.0)
+
+David Nault (dnault@github)
+  * Reported #531: Non-blocking parser reports incorrect locations when fed with
+   non-zero offset
+  (2.10.0)

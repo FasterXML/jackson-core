@@ -31,8 +31,6 @@ JSON library.
 #508: Add new exception type `InputCoercionException` to be used for failed coercions
   like overflow for `int`
 #527: Add simple module-info for JDK9+, using Moditect
-#531: Non-blocking parser reports incorrect locations when fed with non-zero offset
- (reported by David N)
 
 2.9.9 (not yet released)
 

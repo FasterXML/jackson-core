@@ -18,6 +18,8 @@ JSON library.
 
 #516: _inputPtr off-by-one in UTF8StreamJsonParser._parseNumber2()
  (reported by Henrik G)
+#531: Non-blocking parser reports incorrect locations when fed with non-zero offset
+ (reported by David N)
 
 2.9.8 (15-Dec-2018)
 

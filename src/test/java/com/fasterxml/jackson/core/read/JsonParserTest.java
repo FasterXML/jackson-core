@@ -432,15 +432,9 @@ public class JsonParserTest extends BaseTest
 
         JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), input);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        // should also have skipped first 3 bytes of BOM; but do we have offset available?
-        /* 08-Oct-2013, tatu: Alas, due to [core#111], we have to omit BOM in calculations
-         *   as we do not know what the offset is due to -- may need to revisit, if this
-         *   discrepancy becomes an issue. For now it just means that BOM is considered
-         *   "out of stream" (not part of input).
-         */
+
         JsonLocation loc = p.getTokenLocation();
-        // so if BOM was consider in-stream (part of input), this should expect 3:
-        assertEquals(0, loc.getByteOffset());
+        assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
@@ -449,7 +443,7 @@ public class JsonParserTest extends BaseTest
         p = JSON_FACTORY.createParser(ObjectReadContext.empty(),
                 new MockDataInput(input));
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
-        // same BOM, but DataInput is more restrctive so can skip but offsets
+        // same BOM, but DataInput is more restrictive so can skip but offsets
         // are not reliable...
         loc = p.getTokenLocation();
         assertNotNull(loc);

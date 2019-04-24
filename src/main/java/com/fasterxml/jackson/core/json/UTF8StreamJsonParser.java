@@ -119,10 +119,21 @@ public class UTF8StreamJsonParser
      */
 
     public UTF8StreamJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+                                int stdFeatures, int formatReadFeatures,
+                                InputStream in,
+                                ByteQuadsCanonicalizer sym,
+                                byte[] inputBuffer, int start, int end,
+                                boolean bufferRecyclable)
+    {
+        this(readCtxt, ctxt, stdFeatures, formatReadFeatures, in, sym,
+                inputBuffer, start, end, 0, bufferRecyclable);
+    }
+
+    public UTF8StreamJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int stdFeatures, int formatReadFeatures,
             InputStream in,
             ByteQuadsCanonicalizer sym,
-            byte[] inputBuffer, int start, int end,
+            byte[] inputBuffer, int start, int end, int bytesPreProcessed,
             boolean bufferRecyclable)
     {
         super(readCtxt, ctxt, stdFeatures, formatReadFeatures);
@@ -131,9 +142,9 @@ public class UTF8StreamJsonParser
         _inputBuffer = inputBuffer;
         _inputPtr = start;
         _inputEnd = end;
-        _currInputRowStart = start;
+        _currInputRowStart = start - bytesPreProcessed;
         // If we have offset, need to omit that from byte offset, so:
-        _currInputProcessed = -start;
+        _currInputProcessed = -start + bytesPreProcessed;
         _bufferRecyclable = bufferRecyclable;
     }
 

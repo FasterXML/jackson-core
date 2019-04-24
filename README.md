@@ -10,10 +10,11 @@ It is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE
 For additional/alternative licensing questions, please contact `info@fasterxml.com`: affordable commercial licenses available for use cases like Android app development.
 
 Alternate data format implementations (like
-[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),
+[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/smile),
 [XML](https://github.com/FasterXML/jackson-dataformat-xml),
-[CSV](https://github.com/FasterXML/jackson-dataformat-csv))
-and [CBOR](https://github.com/FasterXML/jackson-dataformat-cbor)
+[CSV](https://github.com/FasterXML/jackson-dataformats-text/tree/master/csv),
+[Protobuf](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/protobuf),
+and [CBOR](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/cbor))
 also build on this base package, implementing the core interfaces,
 making it possible to use standard [data-binding package](https://github.com/FasterXML/jackson-databind) regardless of underlying data format.
 

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 // For checking [databind#533]
 public class LocationOffsets533Test extends com.fasterxml.jackson.core.BaseTest
@@ -15,7 +16,7 @@ public class LocationOffsets533Test extends com.fasterxml.jackson.core.BaseTest
         byte[] b = "   { }  ".getBytes("UTF-8");
 
         // and then peel them off
-        p = JSON_F.createParser(/*ObjectReadContext.empty(),*/ b);
+        p = JSON_F.createParser(ObjectReadContext.empty(), b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         loc = p.getTokenLocation();
@@ -42,7 +43,7 @@ public class LocationOffsets533Test extends com.fasterxml.jackson.core.BaseTest
         byte[] b = withUtf8Bom("{ }".getBytes());
 
         // and then peel them off
-        p = JSON_F.createParser(/*ObjectReadContext.empty(),*/ b);
+        p = JSON_F.createParser(ObjectReadContext.empty(), b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         loc = p.getTokenLocation();
@@ -68,7 +69,7 @@ public class LocationOffsets533Test extends com.fasterxml.jackson.core.BaseTest
         byte[] b = withUtf8Bom("   { }".getBytes());
 
         // and then peel them off
-        p = JSON_F.createParser(/*ObjectReadContext.empty(),*/ b);
+        p = JSON_F.createParser(ObjectReadContext.empty(), b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         loc = p.getTokenLocation();
@@ -94,7 +95,7 @@ public class LocationOffsets533Test extends com.fasterxml.jackson.core.BaseTest
         byte[] b = withUtf8Bom("   { }".getBytes());
 
         // and then peel them off
-        p = JSON_F.createParser(/*ObjectReadContext.empty(),*/ b);
+        p = JSON_F.createParser(ObjectReadContext.empty(), b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         loc = p.getTokenLocation();

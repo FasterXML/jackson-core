@@ -41,8 +41,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
-    <!-- usually above is fine for Automatic Module Name, but not here: -->
-    <jdk.module.name>com.fasterxml.jackson.core</jdk.module.name>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

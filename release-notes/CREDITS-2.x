@@ -172,3 +172,8 @@ David Nault (dnault@github)
   * Reported #531: Non-blocking parser reports incorrect locations when fed with
    non-zero offset
   (2.10.0)
+
+Fabien Renaud (fabienrenaud@github)
+  * Reported, contributed fix fir #533: UTF-8 BOM not accounted for in
+    `JsonLocation.getByteOffset()`
+  (2.10.0)

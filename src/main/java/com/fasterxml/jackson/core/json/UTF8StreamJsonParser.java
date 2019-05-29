@@ -118,6 +118,9 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
+    // 28-May-2019, tatu: Obsolete wrt [core#533] remove once verifying no dataformat
+    //   module calls it.
+    /*
     public UTF8StreamJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
                                 int stdFeatures, int formatReadFeatures,
                                 InputStream in,
@@ -128,6 +131,7 @@ public class UTF8StreamJsonParser
         this(readCtxt, ctxt, stdFeatures, formatReadFeatures, in, sym,
                 inputBuffer, start, end, 0, bufferRecyclable);
     }
+    */
 
     public UTF8StreamJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int stdFeatures, int formatReadFeatures,

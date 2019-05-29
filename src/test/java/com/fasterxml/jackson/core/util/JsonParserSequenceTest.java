@@ -49,7 +49,7 @@ public class JsonParserSequenceTest extends BaseTest
         UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(ObjectReadContext.empty(),
                 ioContext,
                 0, 0, byteArrayInputStream, ByteQuadsCanonicalizer.createRoot(),
-                byteArray, -1, (byte) 9, true);
+                byteArray, -1, (byte) 9, 0, true);
         JsonParserDelegate jsonParserDelegate = new JsonParserDelegate(jsonParserArray[0]);
         JsonParserSequence jsonParserSequence = JsonParserSequence.createFlattened(true, uTF8StreamJsonParser, jsonParserDelegate);
         JsonParserSequence jsonParserSequenceTwo = (JsonParserSequence) jsonParserSequence.skipChildren();

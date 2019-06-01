@@ -22,6 +22,12 @@ public class UTF32Reader extends Reader
 
     protected InputStream _in;
 
+    /**
+     * Whether underlying {@link InputStream} (if any) should be closed when this
+     * {@code Reader} is closed or not.
+     */
+    private final boolean _autoClose;
+
     protected byte[] _buffer;
 
     protected int _ptr;
@@ -54,9 +60,11 @@ public class UTF32Reader extends Reader
     /**********************************************************
      */
 
-    public UTF32Reader(IOContext ctxt, InputStream in, byte[] buf, int ptr, int len, boolean isBigEndian) {
+    public UTF32Reader(IOContext ctxt, InputStream in, boolean autoClose,
+            byte[] buf, int ptr, int len, boolean isBigEndian) {
         _context = ctxt;
         _in = in;
+        _autoClose = autoClose;
         _buffer = buf;
         _ptr = ptr;
         _length = len;
@@ -76,8 +84,10 @@ public class UTF32Reader extends Reader
 
         if (in != null) {
             _in = null;
+            if (_autoClose) {
+                in.close();
+            }
             freeBuffers();
-            in.close();
         }
     }
 

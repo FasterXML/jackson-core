@@ -91,7 +91,8 @@ public final class ByteSourceJsonBootstrapper
         _bufferRecyclable = true;
     }
 
-    public ByteSourceJsonBootstrapper(IOContext ctxt, byte[] inputBuffer, int inputStart, int inputLen) {
+    public ByteSourceJsonBootstrapper(IOContext ctxt,
+            byte[] inputBuffer, int inputStart, int inputLen) {
         _context = ctxt;
         _in = null;
         _inputBuffer = inputBuffer;
@@ -231,8 +232,15 @@ public final class ByteSourceJsonBootstrapper
                 return new InputStreamReader(in, enc.getJavaName());
             }
         case 32:
-            return new UTF32Reader(_context, _in, _inputBuffer, _inputPtr, _inputEnd,
-                    _context.getEncoding().isBigEndian());
+            {
+                // 01-Jun-2019. tatu: Should determine like so in future:
+// final boolean autoClose = _context.isResourceManaged() || isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE);
+                // ... but for now, do what 2.x did:
+                final boolean autoClose = true;
+                return new UTF32Reader(_context, _in, autoClose,
+                        _inputBuffer, _inputPtr, _inputEnd,
+                        _context.getEncoding().isBigEndian());
+            }
         }
         throw new RuntimeException("Internal error"); // should never get here
     }

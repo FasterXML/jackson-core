@@ -76,10 +76,18 @@ public final class JsonStringEncoder
     /* Public API
     /**********************************************************
      */
+    /**
+     * Method that will quote text contents from a String using JSON
+     * standard quoting, and return results as a character array
+     */
+    public char[] quoteAsString(String input)
+    {
+        return quoteAsString((CharSequence) input);
+    }
 
     /**
-     * Method that will quote text contents using JSON standard quoting,
-     * and return results as a character array
+     * Method that will quote text contents from a CharSequence using
+     * JSON standard quoting, and return results as a character array
      */
     public char[] quoteAsString(CharSequence input)
     {
@@ -138,8 +146,18 @@ public final class JsonStringEncoder
     }
 
     /**
-     * Method that will quote text contents using JSON standard quoting,
-     * and append results to a supplied {@link StringBuilder}.
+     * Method that will quote text contents from a String using JSON
+     * standard quoting, and append results to a supplied {@link StringBuilder}.
+     * Use this variant if you have e.g. a {@link StringBuilder} and want to avoid superfluous copying of it.
+     */
+    public void quoteAsString(String input, StringBuilder output)
+    {
+        return quoteAsString((CharSequence) input, output);
+    }
+
+    /**
+     * Method that will quote text contents from a CharSequence using
+     * JSON standard quoting, and append results to a supplied {@link StringBuilder}.
      * Use this variant if you have e.g. a {@link StringBuilder} and want to avoid superfluous copying of it.
      */
     public void quoteAsString(CharSequence input, StringBuilder output)
@@ -175,6 +193,15 @@ public final class JsonStringEncoder
 
     /**
      * Will quote given JSON String value using standard quoting, encode
+     * results as UTF-8, and return result as a byte array.
+     */
+    public byte[] quoteAsUTF8(String text)
+    {
+        return quoteAsUTF8((CharSequence) text);
+    }
+
+    /**
+     * Will quote given JSON CharSequence value using standard quoting, encode
      * results as UTF-8, and return result as a byte array.
      */
     @SuppressWarnings("resource")

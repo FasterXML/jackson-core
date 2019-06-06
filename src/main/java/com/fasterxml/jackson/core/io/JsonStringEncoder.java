@@ -81,7 +81,7 @@ public final class JsonStringEncoder
      * Method that will quote text contents using JSON standard quoting,
      * and return results as a character array
      */
-    public char[] quoteAsString(String input)
+    public char[] quoteAsString(CharSequence input)
     {
         TextBuffer textBuffer = _text;
         if (textBuffer == null) {
@@ -178,7 +178,7 @@ public final class JsonStringEncoder
      * results as UTF-8, and return result as a byte array.
      */
     @SuppressWarnings("resource")
-    public byte[] quoteAsUTF8(String text)
+    public byte[] quoteAsUTF8(CharSequence text)
     {
         ByteArrayBuilder bb = _bytes;
         if (bb == null) {
@@ -275,7 +275,7 @@ public final class JsonStringEncoder
      * resulting byte array.
      */
     @SuppressWarnings("resource")
-    public byte[] encodeAsUTF8(String text)
+    public byte[] encodeAsUTF8(CharSequence text)
     {
         ByteArrayBuilder byteBuilder = _bytes;
         if (byteBuilder == null) {

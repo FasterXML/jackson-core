@@ -34,10 +34,10 @@ public final class TextBuffer
     final static int MIN_SEGMENT_LEN = 1000;
     
     /**
-     * Let's limit maximum segment length to something sensible
-     * like 256k
+     * Let's limit maximum segment length to something sensible.
+     * For 2.10, let's limit to using 64kc chunks (128 kB) -- was 256kC/512kB up to 2.9
      */
-    final static int MAX_SEGMENT_LEN = 0x40000;
+    final static int MAX_SEGMENT_LEN = 0x10000;
     
     /*
     /**********************************************************

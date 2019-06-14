@@ -33,6 +33,7 @@ JSON library.
 #527: Add simple module-info for JDK9+, using Moditect
 #533: UTF-8 BOM not accounted for in JsonLocation.getByteOffset()
  (contributed by Fabien R)
+#539: Reduce max size of recycled byte[]/char[] blocks by `TextBuffer`, `ByteArrayBuilder`
 
 2.9.9 (16-May-2019)
 

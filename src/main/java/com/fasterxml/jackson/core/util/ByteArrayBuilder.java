@@ -33,10 +33,10 @@ public final class ByteArrayBuilder extends OutputStream
     // Size of the first block we will allocate.
     private final static int INITIAL_BLOCK_SIZE = 500;
     
-    // Maximum block size we will use for individual non-aggregated
-    // blocks. Let's limit to using 256k chunks.
-    private final static int MAX_BLOCK_SIZE = (1 << 18);
-    
+    // Maximum block size we will use for individual non-aggregated blocks.
+    // For 2.10, let's limit to using 128k chunks (was 256k up to 2.9)
+    private final static int MAX_BLOCK_SIZE = (1 << 17);
+
     final static int DEFAULT_BLOCK_ARRAY_SIZE = 40;
 
     // Optional buffer recycler instance that we can use for allocating the first block.

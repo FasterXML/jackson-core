@@ -35,12 +35,38 @@ public class BufferRecycler
      */
     public final static int BYTE_BASE64_CODEC_BUFFER = 3;
 
-    public final static int CHAR_TOKEN_BUFFER = 0;  // Tokenizable input
-    public final static int CHAR_CONCAT_BUFFER = 1; // concatenated output
-    public final static int CHAR_TEXT_BUFFER = 2; // Text content from input
-    public final static int CHAR_NAME_COPY_BUFFER = 3; // Temporary buffer for getting name characters
+    /**
+     * Buffer used as input buffer for tokenization for character-based parsers.
+     */
+    public final static int CHAR_TOKEN_BUFFER = 0;
 
-    // Buffer lengths, defined in 2.4 (smaller before that)
+    /**
+     * Buffer used by generators; for byte-backed generators for buffering of
+     * {@link String} values to output (before encoding into UTF-8),
+     * and for char-backed generators as actual concatenation buffer.
+     */
+    public final static int CHAR_CONCAT_BUFFER = 1;
+
+    /**
+     * Used through {@link TextBuffer}: directly by parsers (to concatenate
+     * String values)
+     *  and indirectly via
+     * {@link com.fasterxml.jackson.core.io.SegmentedStringWriter}
+     * when serializing (databind level {@code ObjectMapper} and
+     * {@code ObjectWriter}). In both cases used as segments (and not for whole value),
+     * but may result in retention of larger chunks for big content
+     * (long text values during parsing; bigger output documents for generation).
+     */
+    public final static int CHAR_TEXT_BUFFER = 2;
+
+    /**
+     * For parsers, temporary buffer into which {@code char[]} for names is copied
+     * when requested as such; for {@code WriterBasedGenerator} used for buffering
+     * during {@code writeString(Reader)} operation (not commonly used).
+     */
+    public final static int CHAR_NAME_COPY_BUFFER = 3;
+
+    // Buffer lengths
 
     private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 2000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };

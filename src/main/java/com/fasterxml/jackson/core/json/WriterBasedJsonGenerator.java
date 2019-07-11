@@ -80,7 +80,7 @@ public class WriterBasedJsonGenerator
      * Intermediate buffer in which characters of a String are copied
      * before being encoded.
      */
-    protected char[] _charBuffer;
+    protected char[] _copyBuffer;
 
     /*
     /**********************************************************
@@ -422,13 +422,13 @@ public class WriterBasedJsonGenerator
             _reportError("null reader");
         }
         int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
-        final char[] buf = _allocateCopyBuffer();
         //Add leading quote
         if ((_outputTail + len) >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
 
+        final char[] buf = _allocateCopyBuffer();
         //read
         while (toRead > 0) {
             int toReadNow = Math.min(toRead, buf.length);
@@ -982,9 +982,9 @@ public class WriterBasedJsonGenerator
             _outputBuffer = null;
             _ioContext.releaseConcatBuffer(buf);
         }
-        buf = _charBuffer;
+        buf = _copyBuffer;
         if (buf != null) {
-            _charBuffer = null;
+            _copyBuffer = null;
             _ioContext.releaseNameCopyBuffer(buf);
         }
     }
@@ -1968,14 +1968,11 @@ public class WriterBasedJsonGenerator
         return buf;
     }
 
-    /**
-     * @since 2.9
-     */
     private char[] _allocateCopyBuffer() {
-        if (_charBuffer == null) {
-            _charBuffer = _ioContext.allocNameCopyBuffer(2000);
+        if (_copyBuffer == null) {
+            _copyBuffer = _ioContext.allocNameCopyBuffer(2000);
         }
-        return _charBuffer;
+        return _copyBuffer;
     }
 
     protected void _flushBuffer() throws IOException

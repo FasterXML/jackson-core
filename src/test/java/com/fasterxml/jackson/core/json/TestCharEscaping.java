@@ -37,6 +37,8 @@ public class TestCharEscaping
     /**********************************************************
       */
 
+    private final static JsonFactory JSON_F = new JsonFactory();
+
     public void testMissingEscaping()
         throws Exception
     {
@@ -150,13 +152,26 @@ public class TestCharEscaping
 
     // [jackson-core#116]
     public void testEscapesForCharArrays() throws Exception {
-        JsonFactory jf = new JsonFactory();
         StringWriter writer = new StringWriter();
-        JsonGenerator jgen = jf.createGenerator(writer);
+        JsonGenerator jgen = JSON_F.createGenerator(writer);
         // must call #writeString(char[],int,int) and not #writeString(String)
         jgen.writeString(new char[] { '\0' }, 0, 1);
         jgen.close();
         assertEquals("\"\\u0000\"", writer.toString());
+    }
+
+    // [jackson-core#540]
+    public void testInvalidEscape() throws Exception {
+        JsonParser p = JSON_F.createParser(quote("\\u\u0080...").getBytes("UTF-8"));
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        // this is where we should get proper exception
+        try {
+            p.getText();
+            fail("Should not pass");
+        } catch (JsonParseException e) {
+            verifyException(e, "Unexpected character");
+        }
+        p.close();
     }
 
     // [jackson-core#116]

@@ -163,3 +163,8 @@ Alexander Eyers-Taylor (aeyerstaylor@github)
 Henrik Gustafsson (gsson@github)
   * Reported #516: _inputPtr off-by-one in UTF8StreamJsonParser._parseNumber2()
   (2.9.9)
+
+Alex Rebert (alpire@github)
+  * Reported #540, suggested fix: UTF8StreamJsonParser: fix byte to int conversion for
+    malformed escapes
+  (2.9.10)

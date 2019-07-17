@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.9.10 (not yet released)
+
+#540: UTF8StreamJsonParser: fix byte to int conversion for malformed escapes
+ (Alex R)
+
 2.9.9 (16-May-2019)
 
 #516: _inputPtr off-by-one in UTF8StreamJsonParser._parseNumber2()

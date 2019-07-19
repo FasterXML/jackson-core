@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0 (not yet released)
+2.10.0.pr1 (19-Jul-2019)
 
 #433: Add Builder pattern for creating configured Stream factories
 #464: Add "maximum unescaped char" configuration option for `JsonFactory` via builder

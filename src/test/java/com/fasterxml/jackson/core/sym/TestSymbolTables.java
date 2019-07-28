@@ -22,6 +22,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         for (int i = 0; i < COUNT; ++i) {
             String id = fieldNameFor(i);
             char[] ch = id.toCharArray();
+
             symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(id));
         }
 
@@ -36,6 +37,9 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         assertEquals(3431, symbols.collisionCount());
 
         assertEquals(6, symbols.maxCollisionLength());
+
+        // and final validation
+        symbols.verifyInternalConsistency();
     }
 
     public void testSyntheticWithBytesNew() throws IOException
@@ -83,6 +87,9 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
                         symbolsC.calcHash(name));
                 assertNotNull(str);
             }
+            // validate further, just to make sure
+            symbolsC.verifyInternalConsistency();
+
             symbolsC.release();
             exp += 250;
             if (exp > CharsToNameCanonicalizer.MAX_ENTRIES_FOR_REUSE) {
@@ -90,6 +97,8 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             }
             assertEquals(exp, symbolsCRoot.size());
         }
+
+        // Note: can not validate root instance, is not set up same way
     }
 
     // Since 2.6
@@ -122,9 +131,9 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
             }
             assertEquals(exp, symbolsBRoot.size());
         }
-        /* 05-Feb-2015, tatu: Fragile, but it is important to ensure that collision
-         *   rates are not accidentally increased...
-         */
+
+        // 05-Feb-2015, tatu: Fragile, but it is important to ensure that collision
+        //   rates are not accidentally increased...
         assertEquals(6250, symbolsB.size());
         assertEquals(4761, symbolsB.primaryCount()); // 80% primary hit rate
         assertEquals(1190, symbolsB.secondaryCount()); // 13% secondary

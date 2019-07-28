@@ -33,7 +33,7 @@ public class TestHashCollisionChars
         "@~~", "A_~", "A`_", "Aa@", "Ab!", "B@~", // "BA_", "BB@", "BC!", "C!~"
     };
     */
-    
+
     public void testReaderCollisions() throws Exception
     {
         StringBuilder sb = new StringBuilder();
@@ -113,7 +113,7 @@ public class TestHashCollisionChars
      * Helper class to use for generating substrings to use for substring
      * substitution collisions.
      */
-    public static class CollisionGenerator
+    static class CollisionGenerator
     {
         /* JDK uses 31, but Jackson `CharsToNameCanonicalizer.HASH_MULT`,
          * which for 2.3 is 33.

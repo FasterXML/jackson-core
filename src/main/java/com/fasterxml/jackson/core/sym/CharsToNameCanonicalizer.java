@@ -481,9 +481,8 @@ public final class CharsToNameCanonicalizer
             _hashShared = false;
         } else if (_size >= _sizeThreshold) { // Need to expand?
             rehash();
-            /* Need to recalc hash; rare occurence (index mask has been
-             * recalculated as part of rehash)
-             */
+            // Need to recalc hash; rare occurence (index mask has been
+             // recalculated as part of rehash)
             index = _hashToIndex(calcHash(buffer, start, len));
         }
 
@@ -604,7 +603,7 @@ public final class CharsToNameCanonicalizer
      * entries.
      */
     private void rehash() {
-        int size = _symbols.length;
+        final int size = _symbols.length;
         int newSize = size + size;
 
         /* 12-Mar-2010, tatu: Let's actually limit maximum size we are
@@ -624,8 +623,8 @@ public final class CharsToNameCanonicalizer
             return;
         }
 
-        String[] oldSyms = _symbols;
-        Bucket[] oldBuckets = _buckets;
+        final String[] oldSyms = _symbols;
+        final Bucket[] oldBuckets = _buckets;
         _symbols = new String[newSize];
         _buckets = new Bucket[newSize >> 1];
         // Let's update index mask, threshold, now (needed for rehashing)
@@ -653,8 +652,8 @@ public final class CharsToNameCanonicalizer
             }
         }
 
-        size >>= 1;
-        for (int i = 0; i < size; ++i) {
+        final int bucketSize = (size >> 1);
+        for (int i = 0; i < bucketSize; ++i) {
             Bucket b = oldBuckets[i];
             while (b != null) {
                 ++count;
@@ -687,6 +686,36 @@ public final class CharsToNameCanonicalizer
     protected void reportTooManyCollisions(int maxLen) {
         throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
+    }
+
+    // since 2.10, for tests only
+    /**
+     * Diagnostics method that will verify that internal data structures are consistent;
+     * not meant as user-facing method but only for test suites and possible troubleshooting.
+     *
+     * @since 2.10
+     */
+    protected void verifyInternalConsistency() {
+        int count = 0;
+        final int size = _symbols.length;
+
+        for (int i = 0; i < size; ++i) {
+            String symbol = _symbols[i];
+            if (symbol != null) {
+                ++count;
+            }
+        }
+
+        final int bucketSize = (size >> 1);
+        for (int i = 0; i < bucketSize; ++i) {
+            for (Bucket b = _buckets[i]; b != null; b = b.next) {
+                ++count;
+            }
+        }
+        if (count != _size) {
+            throw new IllegalStateException(String.format("Internal error: expected internal size %d vs calculated count %d",
+                    _size, count));
+        }
     }
 
     // For debugging, comment out

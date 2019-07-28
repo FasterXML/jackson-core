@@ -78,14 +78,12 @@ public final class CharsToNameCanonicalizer
     /**
      * Also: to thwart attacks based on hash collisions (which may or may not
      * be cheap to calculate), we will need to detect "too long"
-     * collision chains. Let's start with static value of 255 entries
+     * collision chains. Let's start with static value of 100 entries
      * for the longest legal chain.
      *<p>
      * Note: longest chain we have been able to produce without malicious
      * intent has been 38 (with "com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
      * our setting should be reasonable here.
-     *<p>
-     * Also note that value was lowered from 255 (2.3 and earlier) to 100 for 2.4
      * 
      * @since 2.1
      */
@@ -475,9 +473,8 @@ public final class CharsToNameCanonicalizer
             _hashShared = false;
         } else if (_size >= _sizeThreshold) { // Need to expand?
             rehash();
-            /* Need to recalc hash; rare occurence (index mask has been
-             * recalculated as part of rehash)
-             */
+            // Need to recalc hash; rare occurrence (index mask has been
+             // recalculated as part of rehash)
             index = _hashToIndex(calcHash(buffer, start, len));
         }
 
@@ -496,7 +493,7 @@ public final class CharsToNameCanonicalizer
             if (collLen > MAX_COLL_CHAIN_LENGTH) {
                 // 23-May-2014, tatu: Instead of throwing an exception right away,
                 //    let's handle in bit smarter way.
-                _handleSpillOverflow(bix, newB);
+                _handleSpillOverflow(bix, newB, index);
             } else {
                 _buckets[bix] = newB;
                 _longestCollisionList = Math.max(collLen, _longestCollisionList);
@@ -505,27 +502,36 @@ public final class CharsToNameCanonicalizer
         return newSymbol;
     }
 
-    private void _handleSpillOverflow(int bindex, Bucket newBucket)
+    /**
+     * Method called when an overflow bucket has hit the maximum expected length:
+     * this may be a case of DoS attack. Deal with it based on settings by either
+     * clearing up bucket (to avoid indefinite expansion) or throwing exception.
+     * Currently the first overflow for any single bucket DOES NOT throw an exception,
+     * only second time (per symbol table instance)
+     */
+    private void _handleSpillOverflow(int bucketIndex, Bucket newBucket, int mainIndex)
     {
         if (_overflows == null) {
             _overflows = new BitSet();
-            _overflows.set(bindex);
+            _overflows.set(bucketIndex);
         } else {
-            if (_overflows.get(bindex)) {
-                // Has happened once already, so not a coincident...
+            if (_overflows.get(bucketIndex)) {
+                // Has happened once already for this bucket index, so probably not coincidental...
                 if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_flags)) {
                     reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
                 }
-                // but even if we don't fail, we will stop canonicalizing:
+                // but even if we don't fail, we will stop canonicalizing as safety measure
+                // (so as not to cause problems with PermGen)
                 _canonicalize = false;
             } else {
-                _overflows.set(bindex);
+                _overflows.set(bucketIndex);
             }
         }
+
         // regardless, if we get this far, clear up the bucket, adjust size appropriately.
-        _symbols[bindex + bindex] = newBucket.symbol;
-        _buckets[bindex] = null;
-        // newBucket contains new symbol; but we wil 
+        _symbols[mainIndex] = newBucket.symbol;
+        _buckets[bucketIndex] = null;
+        // newBucket contains new symbol; but we will
         _size -= (newBucket.length);
         // we could calculate longest; but for now just mark as invalid
         _longestCollisionList = -1;
@@ -598,7 +604,7 @@ public final class CharsToNameCanonicalizer
      * entries.
      */
     private void rehash() {
-        int size = _symbols.length;
+        final int size = _symbols.length;
         int newSize = size + size;
 
         // 12-Mar-2010, tatu: Let's actually limit maximum size we are
@@ -617,8 +623,8 @@ public final class CharsToNameCanonicalizer
             return;
         }
 
-        String[] oldSyms = _symbols;
-        Bucket[] oldBuckets = _buckets;
+        final String[] oldSyms = _symbols;
+        final Bucket[] oldBuckets = _buckets;
         _symbols = new String[newSize];
         _buckets = new Bucket[newSize >> 1];
         // Let's update index mask, threshold, now (needed for rehashing)
@@ -646,8 +652,8 @@ public final class CharsToNameCanonicalizer
             }
         }
 
-        size >>= 1;
-        for (int i = 0; i < size; ++i) {
+        final int bucketSize = (size >> 1);
+        for (int i = 0; i < bucketSize; ++i) {
             Bucket b = oldBuckets[i];
             while (b != null) {
                 ++count;
@@ -677,6 +683,36 @@ public final class CharsToNameCanonicalizer
     protected void reportTooManyCollisions(int maxLen) {
         throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
+    }
+
+    // since 2.10, for tests only
+    /**
+     * Diagnostics method that will verify that internal data structures are consistent;
+     * not meant as user-facing method but only for test suites and possible troubleshooting.
+     *
+     * @since 2.10
+     */
+    protected void verifyInternalConsistency() {
+        int count = 0;
+        final int size = _symbols.length;
+
+        for (int i = 0; i < size; ++i) {
+            String symbol = _symbols[i];
+            if (symbol != null) {
+                ++count;
+            }
+        }
+
+        final int bucketSize = (size >> 1);
+        for (int i = 0; i < bucketSize; ++i) {
+            for (Bucket b = _buckets[i]; b != null; b = b.next) {
+                ++count;
+            }
+        }
+        if (count != _size) {
+            throw new IllegalStateException(String.format("Internal error: expected internal size %d vs calculated count %d",
+                    _size, count));
+        }
     }
 
     // For debugging, comment out

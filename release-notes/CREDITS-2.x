@@ -168,6 +168,9 @@ Alex Rebert (alpire@github)
   * Reported #540, suggested fix: UTF8StreamJsonParser: fix byte to int conversion for
     malformed escapes
   (2.9.10)
+  * Reported #547: `CharsToNameCanonicalizer`: Internal error on `SymbolTable.rehash()` with high
+   number of hash collisions
+  (2.10.0)
 
 Philippe Marschall (marschall@github)
   * Requested #480: `SerializableString` value can not directly render to Writer

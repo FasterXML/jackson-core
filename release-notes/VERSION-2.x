@@ -34,6 +34,9 @@ JSON library.
 #533: UTF-8 BOM not accounted for in JsonLocation.getByteOffset()
  (contributed by Fabien R)
 #539: Reduce max size of recycled byte[]/char[] blocks by `TextBuffer`, `ByteArrayBuilder`
+#547: `CharsToNameCanonicalizer`: Internal error on `SymbolTable.rehash()` with high
+  number of hash collisions
+ (reported by Alex R)
 
 2.9.10 (not yet released)
 

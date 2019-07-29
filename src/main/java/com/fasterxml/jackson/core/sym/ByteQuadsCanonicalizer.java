@@ -16,7 +16,7 @@ public final class ByteQuadsCanonicalizer
 {
     /**
      * Initial size of the primary hash area. Each entry consumes 4 ints (16 bytes),
-     * and secondary area is same as primary; so default size will use 2kB of memory_tertiaryStart
+     * and secondary area is same as primary; so default size will use 2kB of memory
      * (plus 64x4 or 64x8 (256/512 bytes) for references to Strings, and Strings
      * themselves).
      */
@@ -25,7 +25,6 @@ public final class ByteQuadsCanonicalizer
 
     /**
      * Let's not expand symbol tables past some maximum size;
-     * this should protected against OOMEs caused by large documents
      * with unique (~= random) names.
      * Size is in 
      */
@@ -165,7 +164,7 @@ public final class ByteQuadsCanonicalizer
 
     /**
      * Offset within {@link #_hashArea} that follows main slots and contains
-     * quads for longer names (13 bytes or longers), and points to the
+     * quads for longer names (13 bytes or longer), and points to the
      * first available int that may be used for appending quads of the next
      * long name.
      * Note that long name area follows immediately after the fixed-size
@@ -313,7 +312,8 @@ public final class ByteQuadsCanonicalizer
     public void release()
     {
         // we will try to merge if child table has new entries
-        if (_parent != null && maybeDirty()) {
+        // 28-Jul-2019, tatu: From [core#548]: do not share if immediate rehash needed
+        if ((_parent != null) && maybeDirty() && !_needRehash) {
             _parent.mergeChild(new TableInfo(this));
             // Let's also mark this instance as dirty, so that just in
             // case release was too early, there's no corruption of possibly shared data.

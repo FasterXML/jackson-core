@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.sym;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
 
@@ -118,6 +119,49 @@ public class TestByteBasedSymbols
         JsonParser p = jsonF.createParser(stringBuilder.toString().getBytes("UTF-8"));
         while (p.nextToken() != null) { }
         p.close();
+    }
+
+    // [core#548]
+    public void testQuadsIssue548()
+    {
+        Random r = new Random(42);
+        ByteQuadsCanonicalizer root = ByteQuadsCanonicalizer.createRoot();
+        ByteQuadsCanonicalizer canon = root.makeChild(JsonFactory.Feature.collectDefaults());
+
+        int n_collisions = 25;
+        int[] collisions = new int[n_collisions];
+
+        // generate collisions
+        {
+            int maybe = r.nextInt();
+            int hash = canon.calcHash(maybe);
+            int target = ((hash & (2048-1)) << 2);
+
+            for (int i = 0; i < collisions.length; ) {
+                maybe = r.nextInt();
+                hash = canon.calcHash(maybe);
+                int offset = ((hash & (2048-1)) << 2);
+
+                if (offset == target) {
+                    collisions[i++] = maybe;
+                }
+            }
+        }
+
+        // fill spillover area until _needRehash is true.
+        for(int i = 0; i < 22 ; i++) {
+            canon.addName(Integer.toString(i), collisions[i]);
+        }
+        // canon._needRehash is now true, since the spillover is full
+
+        // release table to update tableinfo with canon's data
+        canon.release();
+
+        // new table pulls data from new tableinfo, that has a full spillover, but set _needRehash to false
+        canon = root.makeChild(JsonFactory.Feature.collectDefaults());
+
+        // canon._needRehash == false, so this will try to add another item to the spillover area, even though it is full
+        canon.addName(Integer.toString(22), collisions[22]);
     }
 
     /*

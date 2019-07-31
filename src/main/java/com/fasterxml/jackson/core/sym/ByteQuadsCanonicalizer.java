@@ -11,6 +11,18 @@ import com.fasterxml.jackson.core.util.InternCache;
  * memory access due to flattening of name quad data.
  * Performance improvement modest for simple JSON document data binding (maybe 3%),
  * but should help more for larger symbol tables, or for binary formats like Smile.
+ *<p>
+ * Hash area is divided into 4 sections:
+ *<ol>
+ * <li>Primary area (1/2 of total size), direct match from hash (LSB)</li>
+ * <li>Secondary area (1/4 of total size), match from {@code hash (LSB) >> 1}</li>
+ * <li>Tertiary area (1/8 of total size), match from {@code hash (LSB) >> 2}</li>
+ * <li>Spill-over area (remaining 1/8) with linear scan, insertion order</li>
+ * <li></li>
+ * </ol>
+ * and within every area, entries are 4 {@code int}s, where 1 - 3 ints contain 1 - 12
+ * UTF-8 encoded bytes of name (null-padded), and last int is offset in
+ * {@code _names} that contains actual name Strings.
  */
 public final class ByteQuadsCanonicalizer
 {
@@ -172,12 +184,6 @@ public final class ByteQuadsCanonicalizer
      */
     private int _longNameOffset;
 
-    /**
-     * This flag is set if, after adding a new entry, it is deemed
-     * that a rehash is warranted if any more entries are to be added.
-     */
-    private transient boolean _needRehash;
-
     /*
     /**********************************************************
     /* Sharing, versioning
@@ -262,7 +268,6 @@ public final class ByteQuadsCanonicalizer
         _longNameOffset = state.longNameOffset;
 
         // and then set other state to reflect sharing status
-        _needRehash = false;
         _hashShared = true;
     }
 
@@ -313,7 +318,7 @@ public final class ByteQuadsCanonicalizer
     {
         // we will try to merge if child table has new entries
         // 28-Jul-2019, tatu: From [core#548]: do not share if immediate rehash needed
-        if ((_parent != null) && maybeDirty() && !_needRehash) {
+        if ((_parent != null) && maybeDirty()) {
             _parent.mergeChild(new TableInfo(this));
             // Let's also mark this instance as dirty, so that just in
             // case release was too early, there's no corruption of possibly shared data.
@@ -764,7 +769,6 @@ public final class ByteQuadsCanonicalizer
         _hashArea[offset+3] = 1;
         _names[offset >> 2] = name;
         ++_count;
-        _verifyNeedForRehash();
         return name;
     }
 
@@ -780,7 +784,6 @@ public final class ByteQuadsCanonicalizer
         _hashArea[offset+3] = 2;
         _names[offset >> 2] = name;
         ++_count;
-        _verifyNeedForRehash();
         return name;
     }
 
@@ -796,7 +799,6 @@ public final class ByteQuadsCanonicalizer
         _hashArea[offset+3] = 3;
         _names[offset >> 2] = name;
         ++_count;
-        _verifyNeedForRehash();
         return name;
     }
 
@@ -845,19 +847,7 @@ public final class ByteQuadsCanonicalizer
 
         // and finally; see if we really should rehash.
         ++_count;
-        _verifyNeedForRehash();
         return name;
-    }
-
-    private void _verifyNeedForRehash() {
-        // Yes if above 80%, or above 50% AND have ~1% spill-overs
-        if (_count > (_hashSize >> 1)) { // over 50%
-            int spillCount = (_spilloverEnd - _spilloverStart()) >> 2;
-            if ((spillCount > (1 + _count >> 7))
-                    || (_count > (_hashSize * 0.80))) {
-                _needRehash = true;
-            }
-        }
     }
 
     private void _verifySharing()
@@ -866,12 +856,6 @@ public final class ByteQuadsCanonicalizer
             _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);
             _names = Arrays.copyOf(_names, _names.length);
             _hashShared = false;
-            // 09-Sep-2015, tatu: As per [jackson-core#216], also need to ensure
-            //    we rehash as needed, as need-rehash flag is not copied from parent
-            _verifyNeedForRehash();
-        }
-        if (_needRehash) {
-            rehash();
         }
     }
 
@@ -880,14 +864,20 @@ public final class ByteQuadsCanonicalizer
      */
     private int _findOffsetForAdd(int hash)
     {
-        // first, check the primary:
+        // first, check the primary: if slot found, no need for resize
         int offset = _calcOffset(hash);
         final int[] hashArea = _hashArea;
         if (hashArea[offset+3] == 0) {
 //System.err.printf(" PRImary slot #%d, hash %X\n", (offset>>2), hash & 0x7F);
             return offset;
         }
-        // then secondary
+
+        // Otherwise let's see if we are due resize():
+        if (_checkNeedForRehash()) {
+            return _resizeAndFindOffsetForAdd(hash);
+        }
+
+        // If not, proceed with secondary slot
         int offset2 = _secondaryStart + ((offset >> 3) << 2);
         if (hashArea[offset2+3] == 0) {
 //System.err.printf(" SECondary slot #%d (start x%X), hash %X\n",(offset >> 3), _secondaryStart, (hash & 0x7F));
@@ -921,13 +911,52 @@ public final class ByteQuadsCanonicalizer
             if (_failOnDoS) {
                 _reportTooManyCollisions();
             }
-            // and if we didn't fail, we'll simply force rehash for next add
-            // (which, in turn, may double up or nuke contents, depending on size etc)
-            _needRehash = true;
+            return _resizeAndFindOffsetForAdd(hash);
         }
         return offset;
     }
 
+    // @since 2.10
+    private int _resizeAndFindOffsetForAdd(int hash)
+    {
+        // First things first: we need to resize+rehash (or, if too big, nuke contents)
+        rehash();
+        
+        // Copy of main _findOffsetForAdd except for checks to resize: can not be needed
+        int offset = _calcOffset(hash);
+        final int[] hashArea = _hashArea;
+        if (hashArea[offset+3] == 0) {
+            return offset;
+        }
+        int offset2 = _secondaryStart + ((offset >> 3) << 2);
+        if (hashArea[offset2+3] == 0) {
+            return offset2;
+        }
+        offset2 = _tertiaryStart + ((offset >> (_tertiaryShift + 2)) << _tertiaryShift);
+        final int bucketSize = (1 << _tertiaryShift);
+        for (int end = offset2 + bucketSize; offset2 < end; offset2 += 4) {
+            if (hashArea[offset2+3] == 0) {
+                return offset2;
+            }
+        }
+        offset = _spilloverEnd;
+        _spilloverEnd += 4;
+        return offset;
+    }
+
+    // Helper method for checking if we should simply rehash() before add
+    private boolean _checkNeedForRehash() {
+        // Yes if above 80%, or above 50% AND have ~1% spill-overs
+        if (_count > (_hashSize >> 1)) { // over 50%
+            int spillCount = (_spilloverEnd - _spilloverStart()) >> 2;
+            if ((spillCount > (1 + _count >> 7))
+                    || (_count > (_hashSize * 0.80))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private int _appendLongName(int[] quads, int qlen)
     {
         int start = _longNameOffset;
@@ -1055,7 +1084,6 @@ public final class ByteQuadsCanonicalizer
 
     private void rehash()
     {
-        _needRehash = false;
         // Note: since we'll make copies, no need to unshare, can just mark as such:
         _hashShared = false;
 

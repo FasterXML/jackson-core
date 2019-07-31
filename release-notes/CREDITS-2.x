@@ -171,6 +171,8 @@ Alex Rebert (alpire@github)
   * Reported #547: `CharsToNameCanonicalizer`: Internal error on `SymbolTable.rehash()` with high
    number of hash collisions
   (2.10.0)
+  * Reported #548: ByteQuadsCanonicalizer: ArrayIndexOutOfBoundsException in addName
+  (2.10.0)
 
 Philippe Marschall (marschall@github)
   * Requested #480: `SerializableString` value can not directly render to Writer

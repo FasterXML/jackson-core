@@ -37,6 +37,8 @@ JSON library.
 #547: `CharsToNameCanonicalizer`: Internal error on `SymbolTable.rehash()` with high
   number of hash collisions
  (reported by Alex R)
+#548: ByteQuadsCanonicalizer: ArrayIndexOutOfBoundsException in addName
+ (reported by Alex R)
 
 2.9.10 (not yet released)
 

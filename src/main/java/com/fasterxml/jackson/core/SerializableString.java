@@ -130,6 +130,29 @@ public interface SerializableString
 
     /*
     /**********************************************************
+    /* Helper methods for appending decorated byte/char sequences
+    /* (since 2.10)
+    /**********************************************************
+     */
+
+    /**
+     * Method that will try to append quoted characters of this String, enclosed in
+     * specified {@code quoteChar} bytes. If there is enough space, append succeeds
+     * and the new offset after appended content is returned; otherwise -1 is returned
+     * to indicate failure.
+     *<p>
+     * NOTE: will <b>NOT</> verify that there is enough space for value as
+     * well as surrounding quote bytes.
+     *
+     * @since 2.10
+     *
+     * @return Offset AFTER String and surrounding quotes have been appended,
+     *    if (and only if) append succeeds
+     */
+    int appendStringValueUTF8(byte[] buffer, int offset, byte quoteChar);
+
+    /*
+    /**********************************************************
     /* Helper methods for writing out byte sequences
     /**********************************************************
      */

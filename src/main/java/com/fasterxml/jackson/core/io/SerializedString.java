@@ -195,6 +195,51 @@ public class SerializedString
         return length;
     }
 
+    /*
+    /**********************************************************************
+    /* Helper methods for appending decorated byte/char sequences
+    /* (since 2.10)
+    /**********************************************************************
+     */
+
+    /**
+     * Method that will try to append quoted characters of this String, enclosed in
+     * specified {@code quoteChar} bytes. If there is enough space, append succeeds
+     * and the new offset after appended content is returned; otherwise -1 is returned
+     * to indicate failure.
+     *<p>
+     * NOTE: will <b>NOT</> verify that there is enough space for value as
+     * well as surrounding quote bytes.
+     *
+     * @since 2.10
+     *
+     * @return Offset AFTER String and surrounding quotes have been appended,
+     *    if (and only if) append succeeds
+     */
+    @Override
+    public int appendStringValueUTF8(byte[] buffer, int offset, byte quoteChar) {
+        byte[] result = _quotedUTF8Ref;
+        if (result == null) {
+            result = BufferRecyclers.quoteAsJsonUTF8(_value);
+            _quotedUTF8Ref = result;
+        }
+        final int length = result.length;
+        final int offsetAfter = offset + length + 2;
+        if (offsetAfter > buffer.length) {
+            return -1;
+        }
+        buffer[offset++] = quoteChar;
+        System.arraycopy(result, 0, buffer, offset, length);
+        buffer[offset++] = quoteChar;
+        return offset;
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for writing out byte sequences
+    /**********************************************************************
+     */
+
     @Override
     public int writeQuotedUTF8(OutputStream out) throws IOException {
         byte[] result = _quotedUTF8Ref;

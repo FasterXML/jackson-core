@@ -230,6 +230,7 @@ public class SerializedString
         }
         buffer[offset++] = quoteChar;
         System.arraycopy(result, 0, buffer, offset, length);
+        offset += length;
         buffer[offset++] = quoteChar;
         return offset;
     }

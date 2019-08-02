@@ -248,16 +248,21 @@ public class UTF8JsonGenerator
             _writeUnq(name);
             return;
         }
+        int newTail = name.appendStringValueUTF8(_outputBuffer, _outputTail, _quoteChar);
+        if (newTail < 0) { // couldn't append, bit longer processing
+            _writeNameSlower(name);
+            return;
+        }
+        _outputTail = newTail;
+    }
+
+    private final void _writeNameSlower(SerializableString name) throws IOException
+    {
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
-        int len = name.appendQuotedUTF8(_outputBuffer, _outputTail);
-        if (len < 0) { // couldn't append, bit longer processing
-            _writeBytes(name.asQuotedUTF8());
-        } else {
-            _outputTail += len;
-        }
+        _writeBytes(name.asQuotedUTF8());
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }

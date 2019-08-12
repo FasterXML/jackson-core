@@ -53,7 +53,7 @@ public class UTF8JsonGenerator
      * @since 2.8
      */
     protected byte _quoteChar = '"'; // TODO: make configurable
-    
+
     /*
     /**********************************************************
     /* Output buffering

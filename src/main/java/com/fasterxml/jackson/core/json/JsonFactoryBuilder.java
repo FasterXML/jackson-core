@@ -20,11 +20,19 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
 
     protected int _maximumNonEscapedChar;
 
+    /**
+     * Character used for quoting field names (if field name quoting has not
+     * been disabled with {@link JsonWriteFeature#QUOTE_FIELD_NAMES})
+     * and JSON String values.
+     */
+    protected char _quoteChar = JsonFactory.DEFAULT_QUOTE_CHAR;
+
     public JsonFactoryBuilder() {
         super(JsonFactory.DEFAULT_JSON_PARSER_FEATURE_FLAGS,
                 JsonFactory.DEFAULT_JSON_GENERATOR_FEATURE_FLAGS);
         _rootValueSeparator = JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR;
         _maximumNonEscapedChar = 0;
+        _quoteChar = JsonFactory.DEFAULT_QUOTE_CHAR;
     }
 
     public JsonFactoryBuilder(JsonFactory base) {
@@ -32,6 +40,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         _characterEscapes = base._characterEscapes;
         _rootValueSeparator = base._rootValueSeparator;
         _maximumNonEscapedChar = base._maximumNonEscapedChar;
+        _quoteChar = base._quoteChar;
     }
 
     /*
@@ -149,8 +158,9 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
      * Default setting is "disabled", specified by passing value of {@code 0} (or
      * negative numbers).
      *<p>
-     * NOTE! Lowest value (aside from marker 0) is 127: for ASCII range, other checks apply
-     * and this threshold is ignored.
+     * NOTE! Lowest legal value (aside from marker 0) is 127: for ASCII range, other checks apply
+     * and this threshold is ignored. If value between [1, 126] is specified, 127 will be
+     * used instead.
      * 
      * @param maxNonEscaped Highest character code that is NOT automatically escaped; if
      *    positive value above 0, or 0 to indicate that no automatic escaping is applied
@@ -163,12 +173,30 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
         return this;
     }
 
+    /**
+     * Method that allows specifying an alternate
+     * character used for quoting field names (if field name quoting has not
+     * been disabled with {@link JsonWriteFeature#QUOTE_FIELD_NAMES})
+     * and JSON String values.
+     *<p>
+     * Default value is double-quote ({@code "}); typical alternative is
+     * single-quote/apostrophe ({@code '}).
+     *
+     * @param ch Character to use for quoting field names and JSON String values.
+     */
+    public JsonFactoryBuilder quoteChar(char ch) {
+        _quoteChar = ch;
+        return this;
+    }
+
     // // // Accessors for JSON-specific settings
     
     public CharacterEscapes characterEscapes() { return _characterEscapes; }
     public SerializableString rootValueSeparator() { return _rootValueSeparator; }
 
     public int highestNonEscapedChar() { return _maximumNonEscapedChar; }
+
+    public char quoteChar() { return _quoteChar; }
 
     @Override
     public JsonFactory build() {

@@ -39,7 +39,7 @@ public class JsonFactory
     /* Constants
     /**********************************************************************
      */
-    
+
     /**
      * Name used to identify JSON format
      * (and returned by {@link #getFormatName()}
@@ -47,18 +47,20 @@ public class JsonFactory
     public final static String FORMAT_NAME_JSON = "JSON";
 
     /**
-     * Bitfield (set of flags) of all parser features that are enabled
+     * Bit field (set of flags) of all parser features that are enabled
      * by default.
      */
     final static int DEFAULT_JSON_PARSER_FEATURE_FLAGS = JsonReadFeature.collectDefaults();
 
     /**
-     * Bitfield (set of flags) of all generator features that are enabled
+     * Bit field (set of flags) of all generator features that are enabled
      * by default.
      */
     final static int DEFAULT_JSON_GENERATOR_FEATURE_FLAGS = JsonWriteFeature.collectDefaults();
 
     public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
+
+    public final static char DEFAULT_QUOTE_CHAR = '"';
 
     /*
     /**********************************************************************
@@ -88,6 +90,13 @@ public class JsonFactory
      */
     protected final int _maximumNonEscapedChar;
 
+    /**
+     * Character used for quoting field names (if field name quoting has not
+     * been disabled with {@link JsonWriteFeature#QUOTE_FIELD_NAMES})
+     * and JSON String values.
+     */
+    protected final char _quoteChar;
+
     /*
     /**********************************************************************
     /* Symbol table management
@@ -112,7 +121,7 @@ public class JsonFactory
     /* Construction
     /**********************************************************************
      */
-    
+
     /**
      * Default constructor used to create factory instances.
      * Creation of a factory instance is a light-weight operation,
@@ -128,6 +137,7 @@ public class JsonFactory
         _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;
         _characterEscapes = null;
         _maximumNonEscapedChar = 0; // disabled
+        _quoteChar = DEFAULT_QUOTE_CHAR;
     }
 
     /**
@@ -141,6 +151,7 @@ public class JsonFactory
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
         _maximumNonEscapedChar = src._maximumNonEscapedChar;
+        _quoteChar = src._quoteChar;
     }
 
     /**
@@ -154,6 +165,7 @@ public class JsonFactory
         _rootValueSeparator = b.rootValueSeparator();
         _characterEscapes = b.characterEscapes();
         _maximumNonEscapedChar = b.highestNonEscapedChar();
+        _quoteChar = b.quoteChar();
     }
 
     @Override

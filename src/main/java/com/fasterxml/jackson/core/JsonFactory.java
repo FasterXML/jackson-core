@@ -178,6 +178,11 @@ public class JsonFactory
 
     public final static SerializableString DEFAULT_ROOT_VALUE_SEPARATOR = DefaultPrettyPrinter.DEFAULT_ROOT_VALUE_SEPARATOR;
 
+    /**
+     * @since 2.10
+     */
+    public final static char DEFAULT_QUOTE_CHAR = '"';
+
     /*
     /**********************************************************
     /* Buffer, symbol table management
@@ -276,6 +281,13 @@ public class JsonFactory
      */
     protected int _maximumNonEscapedChar;
 
+    /**
+     * Character used for quoting field names (if field name quoting has not
+     * been disabled with {@link JsonWriteFeature#QUOTE_FIELD_NAMES})
+     * and JSON String values.
+     */
+    protected final char _quoteChar;
+
     /*
     /**********************************************************
     /* Construction
@@ -294,7 +306,10 @@ public class JsonFactory
      */
     public JsonFactory() { this((ObjectCodec) null); }
 
-    public JsonFactory(ObjectCodec oc) { _objectCodec = oc; }
+    public JsonFactory(ObjectCodec oc) {
+        _objectCodec = oc;
+        _quoteChar = DEFAULT_QUOTE_CHAR;
+    }
 
     /**
      * Constructor used when copy()ing a factory instance.
@@ -304,14 +319,19 @@ public class JsonFactory
     protected JsonFactory(JsonFactory src, ObjectCodec codec)
     {
         _objectCodec = codec;
+
+        // General
         _factoryFeatures = src._factoryFeatures;
         _parserFeatures = src._parserFeatures;
         _generatorFeatures = src._generatorFeatures;
-        _characterEscapes = src._characterEscapes;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
+
+        // JSON-specific
+        _characterEscapes = src._characterEscapes;
         _rootValueSeparator = src._rootValueSeparator;
         _maximumNonEscapedChar = src._maximumNonEscapedChar;
+        _quoteChar = src._quoteChar;
     }
 
     /**
@@ -320,10 +340,20 @@ public class JsonFactory
      * @since 2.10
      */
     public JsonFactory(JsonFactoryBuilder b) {
-        this(b, false);
+        _objectCodec = null;
+
+        // General
+        _factoryFeatures = b._factoryFeatures;
+        _parserFeatures = b._streamReadFeatures;
+        _generatorFeatures = b._streamWriteFeatures;
+        _inputDecorator = b._inputDecorator;
+        _outputDecorator = b._outputDecorator;
+
+        // JSON-specific
         _characterEscapes = b._characterEscapes;
         _rootValueSeparator = b._rootValueSeparator;
         _maximumNonEscapedChar = b._maximumNonEscapedChar;
+        _quoteChar = b._quoteChar;
     }
 
     /**
@@ -336,15 +366,20 @@ public class JsonFactory
      */
     protected JsonFactory(TSFBuilder<?,?> b, boolean bogus) {
         _objectCodec = null;
+
         _factoryFeatures = b._factoryFeatures;
         _parserFeatures = b._streamReadFeatures;
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
-        // NOTE: missing _maximumNonEscapedChar since that's only in JsonFactoryBuilder
+
+        // JSON-specific: need to assign even if not really used
+        _characterEscapes = null;
+        _rootValueSeparator = null;
         _maximumNonEscapedChar = 0;
+        _quoteChar = DEFAULT_QUOTE_CHAR;
     }
-    
+
     /**
      * Method that allows construction of differently configured factory, starting
      * with settings of this factory.
@@ -1698,7 +1733,7 @@ public class JsonFactory
         return new IOContext(recycler, srcRef, false);
     }
 
-/*
+    /*
     /**********************************************************
     /* Internal helper methods
     /**********************************************************

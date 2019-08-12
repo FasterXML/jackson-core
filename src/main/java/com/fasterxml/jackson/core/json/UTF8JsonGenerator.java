@@ -113,12 +113,17 @@ public class UTF8JsonGenerator
     /**********************************************************
      */
 
+    /**
+     * @since 2.10
+     */
     @SuppressWarnings("deprecation")
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
-            OutputStream out)
+            OutputStream out, char quoteChar)
     {
         super(ctxt, features, codec);
         _outputStream = out;
+        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+
         _bufferRecyclable = true;
         _outputBuffer = ctxt.allocWriteEncodingBuffer();
         _outputEnd = _outputBuffer.length;
@@ -137,13 +142,18 @@ public class UTF8JsonGenerator
         }
     }
 
+    /**
+     * @since 2.10
+     */
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
-            OutputStream out,
+            OutputStream out, char quoteChar,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
         
         super(ctxt, features, codec);
         _outputStream = out;
+        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;
         _outputBuffer = outputBuffer;
@@ -154,12 +164,27 @@ public class UTF8JsonGenerator
         _charBufferLength = _charBuffer.length;
     }
 
+    @Deprecated // since 2.10
+    public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
+            OutputStream out) {
+        this(ctxt, features, codec, out, JsonFactory.DEFAULT_QUOTE_CHAR);
+    }
+
+    @Deprecated // since 2.10
+    public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
+            OutputStream out,
+            byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
+    {
+        this(ctxt, features, codec, out, JsonFactory.DEFAULT_QUOTE_CHAR,
+                outputBuffer, outputOffset, bufferRecyclable);
+    }
+
     /*
     /**********************************************************
     /* Overridden configuration methods
     /**********************************************************
      */
-    
+
     @Override
     public Object getOutputTarget() {
         return _outputStream;

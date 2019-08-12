@@ -20,7 +20,7 @@ public class TestUtf8Generator extends BaseTest
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(new BufferRecycler(), bytes, true);
-        JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes);
+        JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
         String str = "Natuurlijk is alles gelukt en weer een tevreden klant\uD83D\uDE04";
         int length = 4000 - 38;
 

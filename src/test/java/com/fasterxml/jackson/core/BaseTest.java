@@ -302,7 +302,7 @@ public abstract class BaseTest
     
     /*
     /**********************************************************
-    /* Parser/generator construction
+    /* Parser construction
     /**********************************************************
      */
 
@@ -398,10 +398,32 @@ public abstract class BaseTest
 
     /*
     /**********************************************************
+    /* Generator construction
+    /**********************************************************
+     */
+
+    protected JsonGenerator createGenerator(OutputStream out) throws IOException {
+        return createGenerator(JSON_FACTORY, out);
+    }
+
+    protected JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) throws IOException {
+        return f.createGenerator(out);
+    }
+
+    protected JsonGenerator createGenerator(Writer w) throws IOException {
+        return createGenerator(JSON_FACTORY, w);
+    }
+
+    protected JsonGenerator createGenerator(TokenStreamFactory f, Writer w) throws IOException {
+        return f.createGenerator(w);
+    }
+
+    /*
+    /**********************************************************
     /* Helper read/write methods
     /**********************************************************
      */
-    
+
     protected void writeJsonDoc(JsonFactory f, String doc, Writer w) throws IOException
     {
         writeJsonDoc(f, doc, f.createGenerator(w));

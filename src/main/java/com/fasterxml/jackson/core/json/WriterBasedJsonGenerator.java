@@ -92,13 +92,25 @@ public class WriterBasedJsonGenerator
     /**********************************************************
      */
 
+    @Deprecated // since 2.10
     public WriterBasedJsonGenerator(IOContext ctxt, int features,
-            ObjectCodec codec, Writer w)
+            ObjectCodec codec, Writer w) {
+        this(ctxt, features, codec, w, JsonFactory.DEFAULT_QUOTE_CHAR);
+    }
+
+    /**
+     * @since 2.10
+     */
+    public WriterBasedJsonGenerator(IOContext ctxt, int features,
+            ObjectCodec codec, Writer w,
+            char quoteChar)
+    
     {
         super(ctxt, features, codec);
         _writer = w;
         _outputBuffer = ctxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
+        _quoteChar = quoteChar;
     }
 
     /*

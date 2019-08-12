@@ -1567,7 +1567,7 @@ public class JsonFactory
     protected JsonGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException
     {
         WriterBasedJsonGenerator gen = new WriterBasedJsonGenerator(ctxt,
-                _generatorFeatures, _objectCodec, out);
+                _generatorFeatures, _objectCodec, out, _quoteChar);
         if (_maximumNonEscapedChar > 0) {
             gen.setHighestNonEscapedChar(_maximumNonEscapedChar);
         }
@@ -1593,7 +1593,7 @@ public class JsonFactory
      */
     protected JsonGenerator _createUTF8Generator(OutputStream out, IOContext ctxt) throws IOException {
         UTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt,
-                _generatorFeatures, _objectCodec, out);
+                _generatorFeatures, _objectCodec, out, _quoteChar);
         if (_maximumNonEscapedChar > 0) {
             gen.setHighestNonEscapedChar(_maximumNonEscapedChar);
         }

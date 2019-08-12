@@ -31,7 +31,7 @@ public interface SerializableString
     
     /**
      * Returns length of the (unquoted) String as characters.
-     * Functionally equvalent to:
+     * Functionally equivalent to:
      *<pre>
      *   getValue().length();
      *</pre>

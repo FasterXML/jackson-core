@@ -50,7 +50,7 @@ public class UTF8JsonGenerator
      * Character used for quoting JSON Object property names
      * and String values.
      */
-    protected byte _quoteChar;
+    final protected byte _quoteChar;
 
     /*
     /**********************************************************

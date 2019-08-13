@@ -70,7 +70,8 @@ public class Base64VariantTest extends BaseTest {
                 ':',
                 ':');
 
-        assertFalse(base64Variant.equals(new BufferRecycler()));
+        Object bogus = new BufferRecycler();
+        assertFalse(base64Variant.equals(bogus));
         assertTrue(base64Variant.equals(base64Variant));
 
     }

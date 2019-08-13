@@ -90,15 +90,18 @@ public class WriterBasedJsonGenerator
 
     public WriterBasedJsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures, Writer w,
-            SerializableString rootValueSep, CharacterEscapes charEsc,
-            PrettyPrinter pp, int maxNonEscaped, char quoteChar)
+            SerializableString rootValueSep, PrettyPrinter pp,
+            CharacterEscapes charEsc, int maxNonEscaped, char quoteChar)
     {
-        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc,
-                pp, maxNonEscaped);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, pp,
+                charEsc, maxNonEscaped);
         _writer = w;
         _outputBuffer = ioCtxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
         _quoteChar = quoteChar;
+        if (quoteChar != '"') { // since 2.10
+            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        }
     }
 
     /*

@@ -57,6 +57,16 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected int[] _outputEscapes = DEFAULT_OUTPUT_ESCAPES;
 
     /**
+     * Definition of custom character escapes to use for generators created
+     * by this factory, if any. If null, standard data format specific
+     * escapes are used.
+     *<p>
+     * NOTE: although typically set during construction (in constructor),
+     * can not be made final in 3.0 due to some edge use cases (JSONP support).
+     */
+    protected CharacterEscapes _characterEscapes;
+
+    /**
      * Value between 128 (0x80) and 65535 (0xFFFF) that indicates highest
      * Unicode code point that will not need escaping; or 0 to indicate
      * that all characters can be represented without escaping.
@@ -66,16 +76,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * NOTE: not all sub-classes make use of this setting.
      */
     protected int _maximumNonEscapedChar;
-
-    /**
-     * Definition of custom character escapes to use for generators created
-     * by this factory, if any. If null, standard data format specific
-     * escapes are used.
-     *<p>
-     * NOTE: although typically set during construction (in constructor),
-     * can not be made final in 3.0 due to some edge use cases (JSONP support).
-     */
-    protected CharacterEscapes _characterEscapes;
     
     /*
     /**********************************************************
@@ -109,8 +109,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt,
             int streamWriteFeatures, int formatWriteFeatures,
-            SerializableString rvs, CharacterEscapes charEsc,
-            PrettyPrinter pp, int maxNonEscaped)
+            SerializableString rootValueSeparator, PrettyPrinter pp,
+            CharacterEscapes charEsc, int maxNonEscaped)
     {
         super(writeCtxt, streamWriteFeatures);
         _ioContext = ctxt;
@@ -123,7 +123,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         }
         _maximumNonEscapedChar = maxNonEscaped;
         _cfgUnqNames = !JsonWriteFeature.QUOTE_FIELD_NAMES.enabledIn(formatWriteFeatures);
-        _rootValueSeparator = rvs;
+        _rootValueSeparator = rootValueSeparator;
 
         _cfgPrettyPrinter = pp;
         // 03-Oct-2017, tatu: Not clean (shouldn't call non-static methods from ctor),

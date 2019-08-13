@@ -116,10 +116,13 @@ public class UTF8JsonGenerator
             SerializableString rootValueSep, CharacterEscapes charEsc,
             PrettyPrinter pp, int maxNonEscaped, char quoteChar)
     {
-        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep,
-                charEsc, pp, maxNonEscaped);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures,
+                rootValueSep, pp, charEsc, maxNonEscaped);
         _outputStream = out;
-        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+        _quoteChar = (byte) quoteChar;
+        if (quoteChar != '"') { // since 2.10
+            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        }
 
         _bufferRecyclable = true;
         _outputBuffer = ioCtxt.allocWriteEncodingBuffer();
@@ -138,10 +141,13 @@ public class UTF8JsonGenerator
             PrettyPrinter pp, int maxNonEscaped, char quoteChar,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
-        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc,
-                pp, maxNonEscaped);
+        super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures,
+                rootValueSep, pp, charEsc, maxNonEscaped);
         _outputStream = out;
-        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+        _quoteChar = (byte) quoteChar;
+        if (quoteChar != '"') { // since 2.10
+            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        }
 
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;

@@ -400,12 +400,12 @@ public class JsonFactory
         }
         // 14-Jan-2019, tatu: Should we make this configurable via databind layer?
         final int maxNonEscaped = _maximumNonEscapedChar;
-        // NOTE: JSON generator does not use schema; has no format-specific features
+        // NOTE: JSON generator does not use schema
         return new WriterBasedJsonGenerator(writeCtxt, ioCtxt,
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
                 writeCtxt.getFormatWriteFeatures(_formatWriteFeatures),
                 out,
-                rootSep, charEsc, writeCtxt.getPrettyPrinter(), maxNonEscaped, _quoteChar);
+                rootSep, writeCtxt.getPrettyPrinter(), charEsc, maxNonEscaped, _quoteChar);
     }
 
     @Override
@@ -419,7 +419,7 @@ public class JsonFactory
         }
         // 14-Jan-2019, tatu: Should we make this configurable via databind layer?
         final int maxNonEscaped = _maximumNonEscapedChar;
-        // NOTE: JSON generator does not use schema; has no format-specific features
+        // NOTE: JSON generator does not use schema
 
         return new UTF8JsonGenerator(writeCtxt, ioCtxt,
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),

@@ -159,9 +159,7 @@ public final class CharTypes
             // 04-Mar-2011, tatu: Used to use "-(i + 1)", replaced with constant
             table[i] = CharacterEscapes.ESCAPE_STANDARD;
         }
-        /* Others (and some within that range too) have explicit shorter
-         * sequences
-         */
+        // Others (and some within that range too) have explicit shorter sequences
         table['"'] = '"';
         table['\\'] = '\\';
         // Escaping of slash is optional, so let's not add it
@@ -208,6 +206,17 @@ public final class CharTypes
      */
     public static int[] get7BitOutputEscapes() { return sOutputEscapes128; }
 
+    /**
+     * Alternative to {@link #get7BitOutputEscapes()} when a non-standard quote character
+     * is used.
+     */
+    public static int[] get7BitOutputEscapes(int quoteChar) {
+        if (quoteChar == '"') {
+            return sOutputEscapes128;
+        }
+        return AltEscapes.instance.escapesFor(quoteChar);
+    }
+
     public static int charToHex(int ch)
     {
         return (ch > 127) ? -1 : sHexValues[ch];
@@ -252,6 +261,26 @@ public final class CharTypes
 
     public static byte[] copyHexBytes() {
         return (byte[]) HB.clone();
+    }
+
+    // @since 2.10
+    private static class AltEscapes {
+        public final static AltEscapes instance = new AltEscapes();
+
+        private int[][] _altEscapes = new int[128][];
+
+        public int[] escapesFor(int quoteChar) {
+            int[] esc = _altEscapes[quoteChar];
+            if (esc == null) {
+                esc = Arrays.copyOf(sOutputEscapes128, 128);
+                // Only add escape setting if character does not already have it
+                if (esc[quoteChar] == 0) {
+                    esc[quoteChar] = CharacterEscapes.ESCAPE_STANDARD;
+                }
+                _altEscapes[quoteChar] = esc;
+            }
+            return esc;
+        }
     }
 }
 

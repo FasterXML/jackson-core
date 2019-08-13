@@ -109,6 +109,9 @@ public class WriterBasedJsonGenerator
         _outputBuffer = ctxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
         _quoteChar = quoteChar;
+        if (quoteChar != '"') { // since 2.10
+            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        }
     }
 
     /*

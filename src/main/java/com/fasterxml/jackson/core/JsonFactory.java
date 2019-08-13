@@ -202,8 +202,8 @@ public class JsonFactory
      *<p>
      * TODO: should clean up this; looks messy having 2 alternatives
      * with not very clear differences.
-     * 
-     * @since 2.6.0
+     *
+     * @since 2.6
      */
     protected final transient ByteQuadsCanonicalizer _byteSymbolCanonicalizer = ByteQuadsCanonicalizer.createRoot();
 

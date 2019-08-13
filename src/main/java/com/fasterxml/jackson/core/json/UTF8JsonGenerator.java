@@ -122,7 +122,10 @@ public class UTF8JsonGenerator
     {
         super(ctxt, features, codec);
         _outputStream = out;
-        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+        _quoteChar = (byte) quoteChar;
+        if (quoteChar != '"') { // since 2.10
+            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        }
 
         _bufferRecyclable = true;
         _outputBuffer = ctxt.allocWriteEncodingBuffer();
@@ -152,7 +155,10 @@ public class UTF8JsonGenerator
         
         super(ctxt, features, codec);
         _outputStream = out;
-        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+        _quoteChar = (byte) quoteChar;
+        if (quoteChar != '"') { // since 2.10
+            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        }
 
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;

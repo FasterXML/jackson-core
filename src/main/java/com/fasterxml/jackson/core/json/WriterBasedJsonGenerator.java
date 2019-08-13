@@ -33,7 +33,7 @@ public class WriterBasedJsonGenerator
      * Character used for quoting JSON Object property names
      * and String values.
      */
-    protected char _quoteChar = '"'; // TODO: make configurable
+    final protected char _quoteChar;
 
     /*
     /**********************************************************
@@ -91,13 +91,14 @@ public class WriterBasedJsonGenerator
     public WriterBasedJsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures, Writer w,
             SerializableString rootValueSep, CharacterEscapes charEsc,
-            PrettyPrinter pp, int maxNonEscaped)
+            PrettyPrinter pp, int maxNonEscaped, char quoteChar)
     {
         super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc,
                 pp, maxNonEscaped);
         _writer = w;
         _outputBuffer = ioCtxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
+        _quoteChar = quoteChar;
     }
 
     /*

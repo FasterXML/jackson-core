@@ -49,10 +49,8 @@ public class UTF8JsonGenerator
     /**
      * Character used for quoting JSON Object property names
      * and String values.
-     *
-     * @since 2.8
      */
-    protected byte _quoteChar = '"'; // TODO: make configurable
+    protected byte _quoteChar;
 
     /*
     /**********************************************************
@@ -116,11 +114,13 @@ public class UTF8JsonGenerator
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures, OutputStream out,
             SerializableString rootValueSep, CharacterEscapes charEsc,
-            PrettyPrinter pp, int maxNonEscaped)
+            PrettyPrinter pp, int maxNonEscaped, char quoteChar)
     {
         super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep,
                 charEsc, pp, maxNonEscaped);
         _outputStream = out;
+        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+
         _bufferRecyclable = true;
         _outputBuffer = ioCtxt.allocWriteEncodingBuffer();
         _outputEnd = _outputBuffer.length;
@@ -135,12 +135,14 @@ public class UTF8JsonGenerator
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
             int streamWriteFeatures, int formatWriteFeatures, OutputStream out,
             SerializableString rootValueSep, CharacterEscapes charEsc,
-            PrettyPrinter pp, int maxNonEscaped,
+            PrettyPrinter pp, int maxNonEscaped, char quoteChar,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
     {
         super(writeCtxt, ioCtxt, streamWriteFeatures, formatWriteFeatures, rootValueSep, charEsc,
                 pp, maxNonEscaped);
         _outputStream = out;
+        _quoteChar = (byte) quoteChar; // TODO: validate/truncate 
+
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;
         _outputBuffer = outputBuffer;
@@ -156,7 +158,7 @@ public class UTF8JsonGenerator
     /* Overridden configuration methods
     /**********************************************************
      */
-    
+
     @Override
     public Object getOutputTarget() {
         return _outputStream;

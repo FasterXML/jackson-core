@@ -405,7 +405,7 @@ public class JsonFactory
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
                 writeCtxt.getFormatWriteFeatures(_formatWriteFeatures),
                 out,
-                rootSep, charEsc, writeCtxt.getPrettyPrinter(), maxNonEscaped);
+                rootSep, charEsc, writeCtxt.getPrettyPrinter(), maxNonEscaped, _quoteChar);
     }
 
     @Override
@@ -425,7 +425,7 @@ public class JsonFactory
                 writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
                 writeCtxt.getFormatWriteFeatures(_formatWriteFeatures),
                 out,
-                rootSep, charEsc, writeCtxt.getPrettyPrinter(), maxNonEscaped);
+                rootSep, charEsc, writeCtxt.getPrettyPrinter(), maxNonEscaped, _quoteChar);
     }
 
     /*

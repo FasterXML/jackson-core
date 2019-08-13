@@ -120,9 +120,6 @@ public class UTF8JsonGenerator
                 rootValueSep, pp, charEsc, maxNonEscaped);
         _outputStream = out;
         _quoteChar = (byte) quoteChar;
-        if (quoteChar != '"') { // since 2.10
-            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
-        }
 
         _bufferRecyclable = true;
         _outputBuffer = ioCtxt.allocWriteEncodingBuffer();
@@ -133,6 +130,8 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = _outputEnd >> 3;
         _charBuffer = ioCtxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
+
+        setCharacterEscapes(charEsc);
     }
 
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
@@ -145,9 +144,6 @@ public class UTF8JsonGenerator
                 rootValueSep, pp, charEsc, maxNonEscaped);
         _outputStream = out;
         _quoteChar = (byte) quoteChar;
-        if (quoteChar != '"') { // since 2.10
-            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
-        }
 
         _bufferRecyclable = bufferRecyclable;
         _outputTail = outputOffset;
@@ -157,8 +153,23 @@ public class UTF8JsonGenerator
         _outputMaxContiguous = (_outputEnd >> 3);
         _charBuffer = ioCtxt.allocConcatBuffer();
         _charBufferLength = _charBuffer.length;
+
+        setCharacterEscapes(charEsc);
     }
 
+    @Override
+    public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
+    {
+        _characterEscapes = esc;
+        if (esc == null) {
+            _outputEscapes =  (_quoteChar == '"') ? DEFAULT_OUTPUT_ESCAPES
+                    : CharTypes.get7BitOutputEscapes(_quoteChar);
+        } else {
+            _outputEscapes = esc.getEscapeCodesForAscii();
+        }
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* Overridden configuration methods

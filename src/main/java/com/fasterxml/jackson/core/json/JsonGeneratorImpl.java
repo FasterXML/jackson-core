@@ -160,16 +160,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     }
 
     @Override
-    public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
-    {
-        _characterEscapes = esc;
-        if (esc == null) { // revert to standard escapes
-            _outputEscapes = DEFAULT_OUTPUT_ESCAPES;
-        } else {
-            _outputEscapes = esc.getEscapeCodesForAscii();
-        }
-        return this;
-    }
+    public abstract JsonGenerator setCharacterEscapes(CharacterEscapes esc);
 
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s

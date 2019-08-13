@@ -394,6 +394,8 @@ public class JsonFactory
             IOContext ioCtxt, Writer out) throws IOException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
+        // May get Character-Escape overrides from context; if not, use factory's own
+        // (which default to `null`)
         CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();
         if (charEsc == null) {
             charEsc = _characterEscapes;
@@ -413,6 +415,8 @@ public class JsonFactory
             IOContext ioCtxt, OutputStream out) throws IOException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
+        // May get Character-Escape overrides from context; if not, use factory's own
+        // (which default to `null`)
         CharacterEscapes charEsc = writeCtxt.getCharacterEscapes();
         if (charEsc == null) {
             charEsc = _characterEscapes;

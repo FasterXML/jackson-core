@@ -99,9 +99,20 @@ public class WriterBasedJsonGenerator
         _outputBuffer = ioCtxt.allocConcatBuffer();
         _outputEnd = _outputBuffer.length;
         _quoteChar = quoteChar;
-        if (quoteChar != '"') { // since 2.10
-            _outputEscapes = CharTypes.get7BitOutputEscapes(quoteChar);
+        setCharacterEscapes(charEsc);
+    }
+
+    @Override
+    public JsonGenerator setCharacterEscapes(CharacterEscapes esc)
+    {
+        _characterEscapes = esc;
+        if (esc == null) {
+            _outputEscapes =  (_quoteChar == '"') ? DEFAULT_OUTPUT_ESCAPES
+                    : CharTypes.get7BitOutputEscapes(_quoteChar);
+        } else {
+            _outputEscapes = esc.getEscapeCodesForAscii();
         }
+        return this;
     }
 
     /*

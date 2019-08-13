@@ -32,10 +32,8 @@ public class WriterBasedJsonGenerator
     /**
      * Character used for quoting JSON Object property names
      * and String values.
-     *
-     * @since 2.8
      */
-    protected char _quoteChar = '"'; // TODO: make configurable
+    protected char _quoteChar;
 
     /*
     /**********************************************************

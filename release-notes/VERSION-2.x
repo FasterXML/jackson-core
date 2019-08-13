@@ -39,6 +39,7 @@ JSON library.
  (reported by Alex R)
 #548: ByteQuadsCanonicalizer: ArrayIndexOutOfBoundsException in addName
  (reported by Alex R)
+#549: Add configurability of "quote character" for JSON factory
 
 2.9.10 (not yet released)
 

@@ -185,6 +185,13 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
      * @param ch Character to use for quoting field names and JSON String values.
      */
     public JsonFactoryBuilder quoteChar(char ch) {
+        // 12-Aug-2019, tatu: Due to implementation details, escaping characters beyond
+        //    7-bit ASCII set has deep overhead so let's limit set. If we absolutely
+        //    must it is possible of course, but leads to problems combining with
+        //    custom escaping aspects.
+        if (ch > 0x7F) {
+            throw new IllegalArgumentException("Can only use Unicode characters up to 0x7F as quote characters");
+        }
         _quoteChar = ch;
         return this;
     }

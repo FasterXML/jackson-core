@@ -12,6 +12,18 @@ public class CustomQuoteCharTest
             .quoteChar('\'')
             .build();
 
+    // Only ASCII range supported as of 2.10
+    public void testInvalidQuote() throws Exception
+    {
+        try {
+            streamFactoryBuilder()
+                .quoteChar('\u00A0');
+            fail("Should not allow quote character outside ASCII range");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Can only use Unicode characters up to 0x7F");
+        }
+    }
+    
     public void testBasicAposWithCharBased() throws Exception
     {
         StringWriter w;

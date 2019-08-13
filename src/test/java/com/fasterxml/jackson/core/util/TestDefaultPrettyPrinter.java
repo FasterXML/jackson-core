@@ -85,13 +85,18 @@ public class TestDefaultPrettyPrinter extends BaseTest
 
     public void testRootSeparator() throws IOException
     {
-        DefaultPrettyPrinter pp = new DefaultPrettyPrinter()
-            .withRootSeparator("|");
         final String EXP = "1|2|3";
 
+        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() {
+                return new DefaultPrettyPrinter()
+                    .withRootSeparator("|");
+            }
+        };
+        
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
-        gen.setPrettyPrinter(pp);
+        JsonGenerator gen = JSON_F.createGenerator(ppContext, sw);
 
         gen.writeNumber(1);
         gen.writeNumber(2);
@@ -100,8 +105,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, sw.toString());
 
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
-        gen.setPrettyPrinter(pp);
+        gen = JSON_F.createGenerator(ppContext, bytes);
 
         gen.writeNumber(1);
         gen.writeNumber(2);
@@ -110,13 +114,19 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals(EXP, bytes.toString("UTF-8"));
 
         // Also: let's try removing separator altogether
-        pp = pp.withRootSeparator((String) null)
-                .withArrayIndenter(null)
-                .withObjectIndenter(null)
-                .withoutSpacesInObjectEntries();
+        ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() {
+                return new DefaultPrettyPrinter()
+                        .withRootSeparator((String) null)
+                        .withArrayIndenter(null)
+                        .withObjectIndenter(null)
+                        .withoutSpacesInObjectEntries();
+            }
+        };
+        
         sw = new StringWriter();
-        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
-        gen.setPrettyPrinter(pp);
+        gen = JSON_F.createGenerator(ppContext, sw);
 
         gen.writeNumber(1);
         gen.writeStartArray();
@@ -131,22 +141,27 @@ public class TestDefaultPrettyPrinter extends BaseTest
         assertEquals("1[2]{\"a\":3}", sw.toString());
     }
     
-    private String _printTestData(PrettyPrinter pp, boolean useBytes) throws IOException
+    private String _printTestData(final PrettyPrinter pp, boolean useBytes) throws IOException
     {
         JsonGenerator gen;
         StringWriter sw;
         ByteArrayOutputStream bytes;
 
+        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() { return pp; }
+        };
+        
         if (useBytes) {
             sw = null;
             bytes = new ByteArrayOutputStream();
-            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
+            gen = JSON_F.createGenerator(ppContext, bytes);
         } else {
             sw = new StringWriter();
             bytes = null;
-            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+            gen = JSON_F.createGenerator(ppContext, sw);
         }
-        gen.setPrettyPrinter(pp);
+
         gen.writeStartObject();
         gen.writeFieldName("name");
         gen.writeString("John Doe");

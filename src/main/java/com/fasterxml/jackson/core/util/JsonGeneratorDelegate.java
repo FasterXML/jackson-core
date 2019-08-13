@@ -131,19 +131,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
       */
 
     @Override
-    public JsonGenerator setPrettyPrinter(PrettyPrinter pp) {
-        delegate.setPrettyPrinter(pp);
-        return this;
-    }
-
-    @Override
-    public PrettyPrinter getPrettyPrinter() { return delegate.getPrettyPrinter(); }
-    
-    @Override
-    public JsonGenerator useDefaultPrettyPrinter() { delegate.useDefaultPrettyPrinter();
-        return this; }
-
-    @Override
     public JsonGenerator setHighestNonEscapedChar(int charCode) { delegate.setHighestNonEscapedChar(charCode);
         return this; }
 

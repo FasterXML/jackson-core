@@ -181,14 +181,6 @@ public abstract class GeneratorBase extends JsonGenerator
         return this;
     }
 
-    @Override public JsonGenerator useDefaultPrettyPrinter() {
-        // Should not override a pretty printer if one already assigned.
-        if (getPrettyPrinter() != null) {
-            return this;
-        }
-        return setPrettyPrinter(_constructDefaultPrettyPrinter());
-    }
-
     /*
     /**********************************************************
     /* Public API, accessors

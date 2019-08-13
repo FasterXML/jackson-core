@@ -230,42 +230,10 @@ public abstract class JsonGenerator
     public FormatSchema getSchema() { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, other configuration
-    /**********************************************************
+    /**********************************************************************
       */
-
-    /**
-     * Method for setting a custom pretty printer, which is usually
-     * used to add indentation for improved human readability.
-     * By default, generator does not do pretty printing.
-     *<p>
-     * To use the default pretty printer that comes with core
-     * Jackson distribution, call {@link #useDefaultPrettyPrinter}
-     * instead.
-     *
-     * @return Generator itself (this), to allow chaining
-     */
-    public JsonGenerator setPrettyPrinter(PrettyPrinter pp) {
-        return _reportUnsupportedOperation();
-    }
-
-    /**
-     * Accessor for checking whether this generator has a configured
-     * {@link PrettyPrinter}; returns it if so, null if none configured.
-     */
-    public PrettyPrinter getPrettyPrinter() {
-        return null;
-    }
-    
-    /**
-     * Convenience method for enabling pretty-printing using
-     * the default pretty printer
-     * ({@link com.fasterxml.jackson.core.util.DefaultPrettyPrinter}).
-     *
-     * @return Generator itself (this), to allow chaining
-     */
-    public abstract JsonGenerator useDefaultPrettyPrinter();
 
     /**
      * Method that can be called to request that generator escapes

@@ -171,17 +171,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         return _characterEscapes;
     }
 
-    @Override
-    public JsonGenerator setPrettyPrinter(PrettyPrinter pp) {
-        _cfgPrettyPrinter = pp;
-        return this;
-    }
-
-    @Override
-    public PrettyPrinter getPrettyPrinter() {
-        return _cfgPrettyPrinter;
-    }
-    
     /*
     /**********************************************************
     /* Partial API

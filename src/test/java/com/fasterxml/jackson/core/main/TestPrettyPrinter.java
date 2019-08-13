@@ -49,9 +49,14 @@ public class TestPrettyPrinter
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? f.createGenerator(ObjectWriteContext.empty(), bytes)
-                    : f.createGenerator(ObjectWriteContext.empty(), sw);
-            gen.setPrettyPrinter(new CountPrinter());
+
+            ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+                @Override
+                public PrettyPrinter getPrettyPrinter() { return new CountPrinter(); }
+            };
+            
+            JsonGenerator gen = useBytes ? f.createGenerator(ppContext, bytes)
+                    : f.createGenerator(ppContext, sw);
             gen.writeStartObject();
             gen.writeFieldName("x");
             gen.writeStartObject();
@@ -76,9 +81,13 @@ public class TestPrettyPrinter
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? f.createGenerator(ObjectWriteContext.empty(), bytes)
-                    : f.createGenerator(ObjectWriteContext.empty(), sw);
-            gen.setPrettyPrinter(new CountPrinter());
+            ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+                @Override
+                public PrettyPrinter getPrettyPrinter() { return new CountPrinter(); }
+            };
+
+            JsonGenerator gen = useBytes ? f.createGenerator(ppContext, bytes)
+                    : f.createGenerator(ppContext, sw);
             gen.writeStartArray();
             gen.writeNumber(6);
             gen.writeStartArray();
@@ -93,38 +102,38 @@ public class TestPrettyPrinter
             assertEquals(EXP, json);
         }
     }
-    
-    public void testSimpleDocWithDefault() throws Exception
-    {
-        StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
-        gen.useDefaultPrettyPrinter();
-        _verifyPrettyPrinter(gen, sw);
-        gen.close();
-    }
 
     @SuppressWarnings("resource")
     public void testSimpleDocWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         // first with standard minimal
-        gen.setPrettyPrinter(new MinimalPrettyPrinter());
+        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() { return new MinimalPrettyPrinter(); }
+        };
+        JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
         String docStr = _verifyPrettyPrinter(gen, sw);
         // which should have no linefeeds, tabs
         assertEquals(-1, docStr.indexOf('\n'));
         assertEquals(-1, docStr.indexOf('\t'));
 
         // And then with slightly customized variant
-        gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
-        gen.setPrettyPrinter(new MinimalPrettyPrinter() {
+        ppContext = new ObjectWriteContext.Base() {
             @Override
-            // use TAB between array values
-            public void beforeArrayValues(JsonGenerator jg) throws IOException, JsonGenerationException
-            {
-                jg.writeRaw("\t");
+            public PrettyPrinter getPrettyPrinter() {
+                return new MinimalPrettyPrinter() {
+                    @Override
+                    // use TAB between array values
+                    public void beforeArrayValues(JsonGenerator jg) throws IOException, JsonGenerationException
+                    {
+                        jg.writeRaw("\t");
+                    }
+                };
             }
-        });
+        };
+
+        gen = new JsonFactory().createGenerator(ppContext, sw);
         docStr = _verifyPrettyPrinter(gen, sw);
         assertEquals(-1, docStr.indexOf('\n'));
         assertTrue(docStr.indexOf('\t') >= 0);
@@ -161,11 +170,17 @@ public class TestPrettyPrinter
     public void testCustomSeparatorsWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
-        gen.setPrettyPrinter(new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
-                .withObjectFieldValueSeparator('=')
-                .withObjectEntrySeparator(';')
-                .withArrayValueSeparator('|')));
+        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() {
+                return new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
+                        .withObjectFieldValueSeparator('=')
+                        .withObjectEntrySeparator(';')
+                        .withArrayValueSeparator('|'));
+            }
+        };
+
+        JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
         _writeTestDocument(gen);
         gen.close();
         assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", sw.toString());
@@ -174,12 +189,17 @@ public class TestPrettyPrinter
     public void testCustomSeparatorsWithPP() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
-        gen.setPrettyPrinter(new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
-                .withObjectFieldValueSeparator('=')
-                .withObjectEntrySeparator(';')
-                .withArrayValueSeparator('|')));
-
+        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() {
+                return new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
+                        .withObjectFieldValueSeparator('=')
+                        .withObjectEntrySeparator(';')
+                        .withArrayValueSeparator('|'));
+            }
+        };
+        
+        JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
         _writeTestDocument(gen);
         gen.close();
         assertEquals("[ 3| \"abc\"| [ true ]| {" + DefaultIndenter.SYS_LF +
@@ -191,12 +211,18 @@ public class TestPrettyPrinter
     public void testCustomSeparatorsWithPPWithoutSpaces() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
-        gen.setPrettyPrinter(new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
-                .withObjectFieldValueSeparator('=')
-                .withObjectEntrySeparator(';')
-                .withArrayValueSeparator('|'))
-            .withoutSpacesInObjectEntries());
+        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() {
+                return new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
+                        .withObjectFieldValueSeparator('=')
+                        .withObjectEntrySeparator(';')
+                        .withArrayValueSeparator('|'))
+                    .withoutSpacesInObjectEntries();
+            }
+        };
+
+        JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
 
         _writeTestDocument(gen);
         gen.close();
@@ -269,8 +295,13 @@ public class TestPrettyPrinter
     protected String _generateRoot(TokenStreamFactory f, PrettyPrinter pp) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
-        gen.setPrettyPrinter(pp);
+        ObjectWriteContext ppContext = new ObjectWriteContext.Base() {
+            @Override
+            public PrettyPrinter getPrettyPrinter() {
+                return pp;
+            }
+        };
+        JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
         gen.writeStartObject();
         gen.writeEndObject();
         gen.writeStartObject();

@@ -209,12 +209,12 @@ public abstract class GeneratorBase extends JsonGenerator
     public void writeStartObject(Object forValue) throws IOException
     {
         writeStartObject();
-        if ((_outputContext != null) && (forValue != null)) {
-            _outputContext.setCurrentValue(forValue);
+        if (forValue != null) {
+            setCurrentValue(forValue);
         }
     }
 
-/*
+    /*
     /**********************************************************
     /* Public API, write methods, textual
     /**********************************************************

@@ -160,10 +160,6 @@ public abstract class GeneratorBase extends JsonGenerator
             // why not switch? Requires addition of a generated class, alas
             if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = true;
-            } else if (f == StreamWriteFeature.STRICT_DUPLICATE_DETECTION) {
-                if (_outputContext.getDupDetector() == null) { // but only if disabled currently
-                    _outputContext = _outputContext.withDupDetector(DupDetector.rootDetector(this));
-                }
             }
         }
         return this;
@@ -176,8 +172,6 @@ public abstract class GeneratorBase extends JsonGenerator
         if ((mask & DERIVED_FEATURES_MASK) != 0) {
             if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
                 _cfgNumbersAsStrings = false;
-            } else if (f == StreamWriteFeature.STRICT_DUPLICATE_DETECTION) {
-                _outputContext = _outputContext.withDupDetector(null);
             }
         }
         return this;

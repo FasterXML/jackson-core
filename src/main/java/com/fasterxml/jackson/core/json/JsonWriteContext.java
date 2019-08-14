@@ -29,9 +29,8 @@ public class JsonWriteContext extends JsonStreamContext
 
     /*
     /**********************************************************
-    /* Simple instance reuse slots; speed up things
-    /* a bit (10-15%) for docs with lots of small
-    /* arrays/objects
+    /* Simple instance reuse slots; speed up things a bit (10-15%)
+    /* for docs with lots of small arrays/objects
     /**********************************************************
      */
 

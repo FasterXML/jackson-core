@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.core.base;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.DupDetector;
-import com.fasterxml.jackson.core.json.JsonWriteContext;
-import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 import java.io.IOException;
@@ -49,9 +46,9 @@ public abstract class GeneratorBase extends JsonGenerator
     protected final static int MAX_BIG_DECIMAL_SCALE = 9999;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -77,16 +74,10 @@ public abstract class GeneratorBase extends JsonGenerator
     protected boolean _cfgNumbersAsStrings;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * Object that keeps track of the current contextual state
-     * of the generator.
-     */
-    protected JsonWriteContext _outputContext;
 
     /**
      * Flag that indicates whether generator is closed or not. Gets
@@ -96,52 +87,27 @@ public abstract class GeneratorBase extends JsonGenerator
     protected boolean _closed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected GeneratorBase(ObjectWriteContext writeCtxt, int features) {
         super();
         _objectWriteContext = writeCtxt;
         _streamWriteFeatures = features;
+        /*
         DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _outputContext = JsonWriteContext.createRootContext(dups);
+        */
         _cfgNumbersAsStrings = StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
-    }
-
-    protected GeneratorBase(ObjectWriteContext writeCtxt, int features, JsonWriteContext ctxt) {
-        super();
-        _objectWriteContext = writeCtxt;
-        _streamWriteFeatures = features;
-        _outputContext = ctxt;
-        _cfgNumbersAsStrings = StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
-    }
-
-    /**
-     * Implemented with standard version number detection algorithm, typically using
-     * a simple generated class, with information extracted from Maven project file
-     * during build.
-     */
-    @Override public Version version() { return PackageVersion.VERSION; }
-
-    @Override
-    public Object getCurrentValue() {
-        return _outputContext.getCurrentValue();
-    }
-
-    @Override
-    public void setCurrentValue(Object v) {
-        if (_outputContext != null) {
-            _outputContext.setCurrentValue(v);
-        }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public final boolean isEnabled(StreamWriteFeature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
@@ -149,8 +115,6 @@ public abstract class GeneratorBase extends JsonGenerator
 
     @Override
     public int formatWriteFeatures() { return 0; }
-
-    //public JsonGenerator configure(Feature f, boolean state) { }
 
     @Override
     public JsonGenerator enable(StreamWriteFeature f) {
@@ -178,18 +142,22 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public TokenStreamContext getOutputContext() { return _outputContext; }
+    // public Object getCurrentValue();
+    // public void setCurrentValue(Object v);
+
+    // public TokenStreamContext getOutputContext();
+
     @Override public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, structural
-    /**********************************************************
+    /**********************************************************************
      */
 
     //public void writeStartArray() throws IOException
@@ -200,8 +168,8 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override
     public void writeStartArray(Object forValue, int size) throws IOException {
         writeStartArray(size);
-        if ((_outputContext != null) && (forValue != null)) {
-            _outputContext.setCurrentValue(forValue);
+        if (forValue != null) {
+            setCurrentValue(forValue);
         }
     }
 
@@ -215,9 +183,9 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, textual
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public void writeFieldName(SerializableString name) throws IOException {
@@ -267,9 +235,9 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, primitive
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Not implemented at this level, added as placeholders
@@ -285,9 +253,9 @@ public abstract class GeneratorBase extends JsonGenerator
     */
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, POJOs, trees
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -314,9 +282,9 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, low-level output handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public abstract void flush() throws IOException;
@@ -324,9 +292,9 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public boolean isClosed() { return _closed; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Package methods for this, sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -372,9 +340,9 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* UTF-8 related helper method(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final int _decodeSurrogate(int surr1, int surr2) throws IOException

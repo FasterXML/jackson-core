@@ -169,7 +169,7 @@ public class UTF8JsonGenerator
         }
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Overridden configuration methods
@@ -189,7 +189,7 @@ public class UTF8JsonGenerator
 
     /*
     /**********************************************************
-    /* Overridden methods
+    /* Overridden write methods
     /**********************************************************
      */
 

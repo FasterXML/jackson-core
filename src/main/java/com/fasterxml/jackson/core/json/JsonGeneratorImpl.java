@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * Intermediate base class shared by JSON-backed generators
@@ -16,9 +15,9 @@ import com.fasterxml.jackson.core.util.VersionUtil;
 public abstract class JsonGeneratorImpl extends GeneratorBase
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constants
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -28,9 +27,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected final static int[] DEFAULT_OUTPUT_ESCAPES = CharTypes.get7BitOutputEscapes();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, basic I/O, features
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final IOContext _ioContext;
@@ -43,9 +42,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected int _formatWriteFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, output escaping
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -76,11 +75,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * NOTE: not all sub-classes make use of this setting.
      */
     protected int _maximumNonEscapedChar;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -102,9 +101,21 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected PrettyPrinter _cfgPrettyPrinter;
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Output state
+    /**********************************************************************
+     */
+
+    /**
+     * Object that keeps track of the current contextual state
+     * of the generator.
+     */
+    protected JsonWriteContext _outputContext;
+
+    /*
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt,
@@ -126,26 +137,28 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         _rootValueSeparator = rootValueSeparator;
 
         _cfgPrettyPrinter = pp;
+
+        DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
+                ? DupDetector.rootDetector(this) : null;
+        _outputContext = JsonWriteContext.createRootContext(dups);
+
         // 03-Oct-2017, tatu: Not clean (shouldn't call non-static methods from ctor),
         //    but for now best way to avoid code duplication
         setCharacterEscapes(charEsc);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Versioned
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override
-    public Version version() {
-        return VersionUtil.versionFor(getClass());
-    }
+    @Override public Version version() { return PackageVersion.VERSION; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden configuration methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -172,9 +185,30 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Overridden output state handling methods
+    /**********************************************************************
+     */
+    
+    @Override
+    public final TokenStreamContext getOutputContext() { return _outputContext; }
+
+    @Override
+    public final Object getCurrentValue() {
+        return _outputContext.getCurrentValue();
+    }
+
+    @Override
+    public final void setCurrentValue(Object v) {
+        if (_outputContext != null) {
+            _outputContext.setCurrentValue(v);
+        }
+    }
+    
+    /*
+    /**********************************************************************
     /* Partial API
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // Overrides just to make things final, to possibly help with inlining
@@ -187,9 +221,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _verifyPrettyValueWrite(String typeMsg, int status) throws IOException

@@ -200,7 +200,7 @@ public class UTF8JsonGenerator
             _writePPFieldName(name);
             return;
         }
-        final int status = _outputContext.writeFieldName(name);
+        final int status = _tokenWriteContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -250,7 +250,7 @@ public class UTF8JsonGenerator
             _writePPFieldName(name);
             return;
         }
-        final int status = _outputContext.writeFieldName(name.getValue());
+        final int status = _tokenWriteContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -299,7 +299,7 @@ public class UTF8JsonGenerator
     public final void writeStartArray() throws IOException
     {
         _verifyValueWrite("start an array");
-        _outputContext = _outputContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -314,7 +314,7 @@ public class UTF8JsonGenerator
     public final void writeStartArray(int len) throws IOException
     {
         _verifyValueWrite("start an array");
-        _outputContext = _outputContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -329,7 +329,7 @@ public class UTF8JsonGenerator
     public final void writeStartArray(Object forValue, int len) throws IOException
     {
         _verifyValueWrite("start an array");
-        _outputContext = _outputContext.createChildArrayContext(forValue);
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -343,25 +343,25 @@ public class UTF8JsonGenerator
     @Override
     public final void writeEndArray() throws IOException
     {
-        if (!_outputContext.inArray()) {
-            _reportError("Current context not Array but "+_outputContext.typeDesc());
+        if (!_tokenWriteContext.inArray()) {
+            _reportError("Current context not Array but "+_tokenWriteContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndArray(this, _outputContext.getEntryCount());
+            _cfgPrettyPrinter.writeEndArray(this, _tokenWriteContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = BYTE_RBRACKET;
         }
-        _outputContext = _outputContext.clearAndGetParent();
+        _tokenWriteContext = _tokenWriteContext.clearAndGetParent();
     }
 
     @Override
     public final void writeStartObject() throws IOException
     {
         _verifyValueWrite("start an object");
-        _outputContext = _outputContext.createChildObjectContext();
+        _tokenWriteContext = _tokenWriteContext.createChildObjectContext();
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -376,8 +376,8 @@ public class UTF8JsonGenerator
     public void writeStartObject(Object forValue) throws IOException
     {
         _verifyValueWrite("start an object");
-        JsonWriteContext ctxt = _outputContext.createChildObjectContext(forValue);
-        _outputContext = ctxt;
+        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext(forValue);
+        _tokenWriteContext = ctxt;
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -391,18 +391,18 @@ public class UTF8JsonGenerator
     @Override
     public final void writeEndObject() throws IOException
     {
-        if (!_outputContext.inObject()) {
-            _reportError("Current context not Object but "+_outputContext.typeDesc());
+        if (!_tokenWriteContext.inObject()) {
+            _reportError("Current context not Object but "+_tokenWriteContext.typeDesc());
         }
         if (_cfgPrettyPrinter != null) {
-            _cfgPrettyPrinter.writeEndObject(this, _outputContext.getEntryCount());
+            _cfgPrettyPrinter.writeEndObject(this, _tokenWriteContext.getEntryCount());
         } else {
             if (_outputTail >= _outputEnd) {
                 _flushBuffer();
             }
             _outputBuffer[_outputTail++] = BYTE_RCURLY;
         }
-        _outputContext = _outputContext.clearAndGetParent();
+        _tokenWriteContext = _tokenWriteContext.clearAndGetParent();
     }
 
     /**
@@ -411,7 +411,7 @@ public class UTF8JsonGenerator
      */
     protected final void _writePPFieldName(String name) throws IOException
     {
-        int status = _outputContext.writeFieldName(name);
+        int status = _tokenWriteContext.writeFieldName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -451,7 +451,7 @@ public class UTF8JsonGenerator
 
     protected final void _writePPFieldName(SerializableString name) throws IOException
     {
-        final int status = _outputContext.writeFieldName(name.getValue());
+        final int status = _tokenWriteContext.writeFieldName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -1101,7 +1101,7 @@ public class UTF8JsonGenerator
     @Override
     protected final void _verifyValueWrite(String typeMsg) throws IOException
     {
-        final int status = _outputContext.writeValue();
+        final int status = _tokenWriteContext.writeValue();
         if (_cfgPrettyPrinter != null) {
             // Otherwise, pretty printer knows what to do...
             _verifyPrettyValueWrite(typeMsg, status);

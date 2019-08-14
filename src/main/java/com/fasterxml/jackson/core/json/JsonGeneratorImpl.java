@@ -83,6 +83,13 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      */
 
     /**
+     * Object that handles pretty-printing (usually additional
+     * white space to make results more human-readable) during
+     * output. If null, no pretty-printing is done.
+     */
+    protected PrettyPrinter _cfgPrettyPrinter;
+
+    /**
      * Separator to use, if any, between root-level values.
      */
     protected final SerializableString _rootValueSeparator;
@@ -94,11 +101,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected boolean _cfgUnqNames;
 
     /**
-     * Object that handles pretty-printing (usually additional
-     * white space to make results more human-readable) during
-     * output. If null, no pretty-printing is done.
+     * Flag set to indicate that implicit conversion from number
+     * to JSON String is needed (as per
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature#WRITE_NUMBERS_AS_STRINGS}).
      */
-    protected PrettyPrinter _cfgPrettyPrinter;
+    protected boolean _cfgNumbersAsStrings;
 
     /*
     /**********************************************************************
@@ -109,7 +116,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**
      * Object that keeps track of the current contextual state of the generator.
      */
-    protected JsonWriteContext _outputContext;
+    protected JsonWriteContext _tokenWriteContext;
 
     /*
     /**********************************************************************
@@ -133,13 +140,14 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         }
         _maximumNonEscapedChar = maxNonEscaped;
         _cfgUnqNames = !JsonWriteFeature.QUOTE_FIELD_NAMES.enabledIn(formatWriteFeatures);
+        _cfgNumbersAsStrings = StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(streamWriteFeatures);
         _rootValueSeparator = rootValueSeparator;
 
         _cfgPrettyPrinter = pp;
 
         final DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
                 ? DupDetector.rootDetector(this) : null;
-        _outputContext = JsonWriteContext.createRootContext(dups);
+        _tokenWriteContext = JsonWriteContext.createRootContext(dups);
 
         // 03-Oct-2017, tatu: Not clean (shouldn't call non-static methods from ctor),
         //    but for now best way to avoid code duplication
@@ -160,6 +168,29 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************************
      */
 
+    @Override
+    public JsonGenerator enable(StreamWriteFeature f) {
+        super.enable(f);
+        if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
+            _cfgNumbersAsStrings = true;
+        }
+        return this;
+    }
+
+    @Override
+    public JsonGenerator disable(StreamWriteFeature f) {
+        super.disable(f);
+        if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
+            _cfgNumbersAsStrings = false;
+        }
+        return this;
+    }
+
+    @Override
+    public int formatWriteFeatures() {
+        return _formatWriteFeatures;
+    }
+    
     @Override
     public JsonGenerator setHighestNonEscapedChar(int charCode) {
         _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;
@@ -190,16 +221,16 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      */
     
     @Override
-    public final TokenStreamContext getOutputContext() { return _outputContext; }
+    public final TokenStreamContext getOutputContext() { return _tokenWriteContext; }
 
     @Override
     public final Object getCurrentValue() {
-        return _outputContext.getCurrentValue();
+        return _tokenWriteContext.getCurrentValue();
     }
 
     @Override
     public final void setCurrentValue(Object v) {
-        _outputContext.setCurrentValue(v);
+        _tokenWriteContext.setCurrentValue(v);
     }
 
     /*
@@ -238,9 +269,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
             break;
         case JsonWriteContext.STATUS_OK_AS_IS:
             // First entry, but of which context?
-            if (_outputContext.inArray()) {
+            if (_tokenWriteContext.inArray()) {
                 _cfgPrettyPrinter.beforeArrayValues(this);
-            } else if (_outputContext.inObject()) {
+            } else if (_tokenWriteContext.inObject()) {
                 _cfgPrettyPrinter.beforeObjectEntries(this);
             }
             break;
@@ -256,6 +287,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected void _reportCantWriteValueExpectName(String typeMsg) throws IOException
     {
         _reportError(String.format("Can not %s, expecting field name (context: %s)",
-                typeMsg, _outputContext.typeDesc()));
+                typeMsg, _tokenWriteContext.typeDesc()));
     }
 }

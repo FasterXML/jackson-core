@@ -19,16 +19,7 @@ public abstract class GeneratorBase extends JsonGenerator
     public final static int SURR2_FIRST = 0xDC00;
     public final static int SURR2_LAST = 0xDFFF;
 
-    /**
-     * Set of feature masks related to features that need updates of other
-     * local configuration or state.
-     */
-    protected final static int DERIVED_FEATURES_MASK =
-            StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.getMask()
-            | StreamWriteFeature.STRICT_DUPLICATE_DETECTION.getMask()
-            ;
-
-    // // // Constants for validation messages (since 2.6)
+    // // // Constants for validation messages
 
     protected final static String WRITE_BINARY = "write a binary value";
     protected final static String WRITE_BOOLEAN = "write a boolean value";
@@ -66,13 +57,6 @@ public abstract class GeneratorBase extends JsonGenerator
      */
     protected int _streamWriteFeatures;
 
-    /**
-     * Flag set to indicate that implicit conversion from number
-     * to JSON String is needed (as per
-     * {@link com.fasterxml.jackson.core.StreamWriteFeature#WRITE_NUMBERS_AS_STRINGS}).
-     */
-    protected boolean _cfgNumbersAsStrings;
-
     /*
     /**********************************************************************
     /* State
@@ -92,16 +76,10 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    protected GeneratorBase(ObjectWriteContext writeCtxt, int features) {
+    protected GeneratorBase(ObjectWriteContext writeCtxt, int streamWriteFeatures) {
         super();
         _objectWriteContext = writeCtxt;
-        _streamWriteFeatures = features;
-        /*
-        DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
-                ? DupDetector.rootDetector(this) : null;
-        _outputContext = JsonWriteContext.createRootContext(dups);
-        */
-        _cfgNumbersAsStrings = StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
+        _streamWriteFeatures = streamWriteFeatures;
     }
 
     /*
@@ -113,31 +91,17 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override public final boolean isEnabled(StreamWriteFeature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
     @Override public int streamWriteFeatures() { return _streamWriteFeatures; }
 
-    @Override
-    public int formatWriteFeatures() { return 0; }
+    // public int formatWriteFeatures();
 
     @Override
     public JsonGenerator enable(StreamWriteFeature f) {
-        final int mask = f.getMask();
-        _streamWriteFeatures |= mask;
-        if ((mask & DERIVED_FEATURES_MASK) != 0) {
-            // why not switch? Requires addition of a generated class, alas
-            if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
-                _cfgNumbersAsStrings = true;
-            }
-        }
+        _streamWriteFeatures |= f.getMask();
         return this;
     }
 
     @Override
     public JsonGenerator disable(StreamWriteFeature f) {
-        final int mask = f.getMask();
-        _streamWriteFeatures &= ~mask;
-        if ((mask & DERIVED_FEATURES_MASK) != 0) {
-            if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
-                _cfgNumbersAsStrings = false;
-            }
-        }
+        _streamWriteFeatures &= ~f.getMask();
         return this;
     }
 
@@ -168,18 +132,14 @@ public abstract class GeneratorBase extends JsonGenerator
     @Override
     public void writeStartArray(Object forValue, int size) throws IOException {
         writeStartArray(size);
-        if (forValue != null) {
-            setCurrentValue(forValue);
-        }
+        setCurrentValue(forValue);
     }
 
     @Override
     public void writeStartObject(Object forValue) throws IOException
     {
         writeStartObject();
-        if (forValue != null) {
-            setCurrentValue(forValue);
-        }
+        setCurrentValue(forValue);
     }
 
     /*

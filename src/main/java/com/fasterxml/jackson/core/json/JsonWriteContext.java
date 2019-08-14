@@ -73,12 +73,34 @@ public class JsonWriteContext extends JsonStreamContext
         _index = -1;
     }
 
+    /* @since 2.10 */
+    protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups,
+            Object currValue) {
+        super();
+        _type = type;
+        _parent = parent;
+        _dups = dups;
+        _index = -1;
+        _currentValue = currValue;
+    }
+
     protected JsonWriteContext reset(int type) {
         _type = type;
         _index = -1;
         _currentName = null;
         _gotName = false;
         _currentValue = null;
+        if (_dups != null) { _dups.reset(); }
+        return this;
+    }
+
+    /* @since 2.10 */
+    protected JsonWriteContext reset(int type, Object currValue) {
+        _type = type;
+        _index = -1;
+        _currentName = null;
+        _gotName = false;
+        _currentValue = currValue;
         if (_dups != null) { _dups.reset(); }
         return this;
     }
@@ -117,19 +139,43 @@ public class JsonWriteContext extends JsonStreamContext
     public JsonWriteContext createChildArrayContext() {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this, (_dups == null) ? null : _dups.child());
+            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this,
+                    (_dups == null) ? null : _dups.child());
             return ctxt;
         }
         return ctxt.reset(TYPE_ARRAY);
     }
 
+    /* @since 2.10 */
+    public JsonWriteContext createChildArrayContext(Object currValue) {
+        JsonWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this,
+                    (_dups == null) ? null : _dups.child(), currValue);
+            return ctxt;
+        }
+        return ctxt.reset(TYPE_ARRAY, currValue);
+    }
+
     public JsonWriteContext createChildObjectContext() {
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this, (_dups == null) ? null : _dups.child());
+            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this,
+                    (_dups == null) ? null : _dups.child());
             return ctxt;
         }
         return ctxt.reset(TYPE_OBJECT);
+    }
+
+    /* @since 2.10 */
+    public JsonWriteContext createChildObjectContext(Object currValue) {
+        JsonWriteContext ctxt = _child;
+        if (ctxt == null) {
+            _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this,
+                    (_dups == null) ? null : _dups.child(), currValue);
+            return ctxt;
+        }
+        return ctxt.reset(TYPE_OBJECT, currValue);
     }
 
     @Override public final JsonWriteContext getParent() { return _parent; }
@@ -152,7 +198,7 @@ public class JsonWriteContext extends JsonStreamContext
         // could also clear the current name, but seems cheap enough to leave?
         return _parent;
     }
-    
+
     public DupDetector getDupDetector() {
         return _dups;
     }

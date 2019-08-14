@@ -755,7 +755,7 @@ public abstract class JsonGenerator
     public abstract void writeEndArray() throws IOException;
 
     /**
-     * Method for writing starting marker of a JSON Object value
+     * Method for writing starting marker of an Object value
      * (character '{'; plus possible white space decoration
      * if pretty-printing is enabled).
      *<p>
@@ -766,10 +766,9 @@ public abstract class JsonGenerator
     public abstract void writeStartObject() throws IOException;
 
     /**
-     * Method for writing starting marker of a JSON Object value
-     * (character '{'; plus possible white space decoration
-     * if pretty-printing is enabled), to represent Java given
-     * as the argument. Argument is offered as metadata, but more
+     * Method for writing starting marker of an Object value
+     * to represent the given Java Object value.
+     * Argument is offered as metadata, but more
      * importantly it should be assigned as the "current value"
      * for the Object content that gets constructed and initialized.
      *<p>
@@ -777,7 +776,7 @@ public abstract class JsonGenerator
      * are allowed: meaning everywhere except for when
      * a field name is expected.
      *
-     * @since 2.8.
+     * @since 2.8
      */
     public void writeStartObject(Object forValue) throws IOException
     {
@@ -786,7 +785,29 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Method for writing closing marker of a JSON Object value
+     * Method for writing starting marker of an Object value
+     * to represent the given Java Object value.
+     * Argument is offered as metadata, but more
+     * importantly it should be assigned as the "current value"
+     * for the Object content that gets constructed and initialized.
+     * In addition, caller knows number of key/value pairs ("properties")
+     * that will get written for the Object value: this is relevant for
+     * some format backends (but not, as an example, for JSON).
+     *<p>
+     * Object values can be written in any context where values
+     * are allowed: meaning everywhere except for when
+     * a field name is expected.
+     *
+     * @since 2.10
+     */
+    public void writeStartObject(Object forValue, int size) throws IOException
+    {
+        writeStartObject();
+        setCurrentValue(forValue);
+    }
+
+    /**
+     * Method for writing closing marker of an Object value
      * (character '}'; plus possible white space decoration
      * if pretty-printing is enabled).
      *<p>
@@ -1691,7 +1712,7 @@ public abstract class JsonGenerator
 
     /**
      * Convenience method for outputting a field entry ("member")
-     * (that will contain a JSON Object value), and the START_OBJECT marker.
+     * (that will contain an Object value), and the START_OBJECT marker.
      * Equivalent to:
      *<pre>
      *  writeFieldName(fieldName);

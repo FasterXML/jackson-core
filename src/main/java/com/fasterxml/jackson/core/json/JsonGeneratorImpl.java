@@ -107,8 +107,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      */
 
     /**
-     * Object that keeps track of the current contextual state
-     * of the generator.
+     * Object that keeps track of the current contextual state of the generator.
      */
     protected JsonWriteContext _outputContext;
 
@@ -138,7 +137,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
         _cfgPrettyPrinter = pp;
 
-        DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
+        final DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
                 ? DupDetector.rootDetector(this) : null;
         _outputContext = JsonWriteContext.createRootContext(dups);
 
@@ -200,11 +199,9 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     @Override
     public final void setCurrentValue(Object v) {
-        if (_outputContext != null) {
-            _outputContext.setCurrentValue(v);
-        }
+        _outputContext.setCurrentValue(v);
     }
-    
+
     /*
     /**********************************************************************
     /* Partial API

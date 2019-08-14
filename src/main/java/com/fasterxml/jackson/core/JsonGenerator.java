@@ -119,10 +119,7 @@ public abstract class JsonGenerator
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
      */
-    public Object getCurrentValue() {
-        TokenStreamContext ctxt = getOutputContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
+    public abstract Object getCurrentValue();
 
     /**
      * Helper method, usually equivalent to:
@@ -130,12 +127,7 @@ public abstract class JsonGenerator
      *   getOutputContext().setCurrentValue(v);
      *</code>
      */
-    public void setCurrentValue(Object v) {
-        TokenStreamContext ctxt = getOutputContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
-    }
+    public abstract void setCurrentValue(Object v);
 
     /*
     /**********************************************************

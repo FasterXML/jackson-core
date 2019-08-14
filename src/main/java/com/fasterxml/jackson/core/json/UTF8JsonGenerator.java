@@ -210,9 +210,6 @@ public class UTF8JsonGenerator
             }
             _outputBuffer[_outputTail++] = BYTE_COMMA;
         }
-        /* To support [JACKSON-46], we'll do this:
-         * (Question: should quoting of spaces (etc) still be enabled?)
-         */
         if (_cfgUnqNames) {
             _writeStringSegments(name, false);
             return;
@@ -299,7 +296,7 @@ public class UTF8JsonGenerator
     public final void writeStartArray() throws IOException
     {
         _verifyValueWrite("start an array");
-        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -311,10 +308,10 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public final void writeStartArray(int len) throws IOException
+    public final void writeStartArray(int size) throws IOException
     {
         _verifyValueWrite("start an array");
-        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -361,7 +358,7 @@ public class UTF8JsonGenerator
     public final void writeStartObject() throws IOException
     {
         _verifyValueWrite("start an object");
-        _tokenWriteContext = _tokenWriteContext.createChildObjectContext();
+        _tokenWriteContext = _tokenWriteContext.createChildObjectContext(null);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -387,7 +384,7 @@ public class UTF8JsonGenerator
             _outputBuffer[_outputTail++] = '{';
         }
     }
-    
+
     @Override
     public final void writeEndObject() throws IOException
     {

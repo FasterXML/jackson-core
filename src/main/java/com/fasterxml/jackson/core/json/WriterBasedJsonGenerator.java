@@ -248,7 +248,7 @@ public class WriterBasedJsonGenerator
     public void writeStartArray() throws IOException
     {
         _verifyValueWrite("start an array");
-        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -260,10 +260,10 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeStartArray(int len) throws IOException
+    public void writeStartArray(int size) throws IOException
     {
         _verifyValueWrite("start an array");
-        _tokenWriteContext = _tokenWriteContext.createChildArrayContext();
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -274,7 +274,7 @@ public class WriterBasedJsonGenerator
         }
     }
 
-    @Override
+@Override
     public void writeStartArray(Object forValue, int len) throws IOException
     {
         _verifyValueWrite("start an array");
@@ -307,11 +307,10 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeStartObject(Object forValue) throws IOException
+    public void writeStartObject() throws IOException
     {
         _verifyValueWrite("start an object");
-        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext(forValue);
-        _tokenWriteContext = ctxt;
+        _tokenWriteContext = _tokenWriteContext.createChildObjectContext(null);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {
@@ -321,12 +320,13 @@ public class WriterBasedJsonGenerator
             _outputBuffer[_outputTail++] = '{';
         }
     }
-    
+
     @Override
-    public void writeStartObject() throws IOException
+    public void writeStartObject(Object forValue) throws IOException
     {
         _verifyValueWrite("start an object");
-        _tokenWriteContext = _tokenWriteContext.createChildObjectContext();
+        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext(forValue);
+        _tokenWriteContext = ctxt;
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartObject(this);
         } else {

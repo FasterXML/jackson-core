@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.0.pr2
+
+#517: Add `JsonGenerator.writeStartObject(Object, int)` (needed by CBOR, maybe Avro)
+#549: Add configurability of "quote character" for JSON factory
+
 2.10.0.pr1 (19-Jul-2019)
 
 #433: Add Builder pattern for creating configured Stream factories
@@ -39,7 +44,6 @@ JSON library.
  (reported by Alex R)
 #548: ByteQuadsCanonicalizer: ArrayIndexOutOfBoundsException in addName
  (reported by Alex R)
-#549: Add configurability of "quote character" for JSON factory
 
 2.9.10 (not yet released)
 

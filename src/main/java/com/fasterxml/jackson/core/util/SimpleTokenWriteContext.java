@@ -69,7 +69,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     private SimpleTokenWriteContext reset(int type, Object currentValue) {
         _type = type;
         _index = -1;
-        // as long as _gotFieldId false, current name/id can be left as-is
+        _currentName = null;
         _gotFieldId = false;
         _currentValue = currentValue;
         if (_dups != null) { _dups.reset(); }
@@ -129,10 +129,10 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     
     @Override public final SimpleTokenWriteContext getParent() { return _parent; }
     @Override public final String currentName() {
-        if (_gotFieldId) {
-            return _currentName;
-        }
-        return null;
+        // 15-Aug-2019, tatu: Should NOT check this status because otherwise name
+        //    in parent context is not accessible after new structured scope started
+//        if (_gotFieldId) { ... }
+        return _currentName;
     }
 
     @Override public boolean hasCurrentName() { return _gotFieldId; }

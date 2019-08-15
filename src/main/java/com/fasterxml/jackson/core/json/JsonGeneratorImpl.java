@@ -264,6 +264,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         writeString(value);
     }
 
+    @Override
     public void writeFieldId(long id) throws IOException {
         writeFieldName(Long.toString(id));
     }

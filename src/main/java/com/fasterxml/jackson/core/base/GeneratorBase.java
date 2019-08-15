@@ -131,15 +131,13 @@ public abstract class GeneratorBase extends JsonGenerator
 
     @Override
     public void writeStartArray(Object forValue, int size) throws IOException {
-        writeStartArray(size);
-        setCurrentValue(forValue);
+        writeStartArray(forValue);
     }
 
     @Override
-    public void writeStartObject(Object forValue) throws IOException
+    public void writeStartObject(Object forValue, int size) throws IOException
     {
-        writeStartObject();
-        setCurrentValue(forValue);
+        writeStartObject(forValue);
     }
 
     /*

@@ -235,7 +235,23 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     /*
     /**********************************************************************
-    /* Partial API
+    /* Partial API, structural
+    /**********************************************************************
+     */
+
+    @Override
+    public void writeStartArray(Object currentValue, int size) throws IOException {
+        writeStartArray(currentValue);
+    }
+
+    @Override
+    public void writeStartObject(Object currentValue, int size) throws IOException {
+        writeStartObject(currentValue);
+    }
+
+    /*
+    /**********************************************************************
+    /* Partial API, field names, name+value
     /**********************************************************************
      */
 
@@ -246,6 +262,10 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     {
         writeFieldName(fieldName);
         writeString(value);
+    }
+
+    public void writeFieldId(long id) throws IOException {
+        writeFieldName(Long.toString(id));
     }
 
     /*

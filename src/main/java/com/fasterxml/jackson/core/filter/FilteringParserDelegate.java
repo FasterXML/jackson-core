@@ -276,7 +276,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         case ID_START_ARRAY:
             f = _itemFilter;
             if (f == TokenFilter.INCLUDE_ALL) {
-                _headContext = _headContext.createChildArrayContext(f, true);
+                _headContext = _headContext.createChildArrayContext(f, null, true);
                 return (_currToken = t);
             }
             if (f == null) { // does this occur?
@@ -294,10 +294,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
             _itemFilter = f;
             if (f == TokenFilter.INCLUDE_ALL) {
-                _headContext = _headContext.createChildArrayContext(f, true);
+                _headContext = _headContext.createChildArrayContext(f, null, true);
                 return (_currToken = t);
             }
-            _headContext = _headContext.createChildArrayContext(f, false);
+            _headContext = _headContext.createChildArrayContext(f, null, false);
             
             // Also: only need buffering if parent path to be included
             if (_includePath) {
@@ -312,7 +312,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         case ID_START_OBJECT:
             f = _itemFilter;
             if (f == TokenFilter.INCLUDE_ALL) {
-                _headContext = _headContext.createChildObjectContext(f, true);
+                _headContext = _headContext.createChildObjectContext(f, null, true);
                 return (_currToken = t);
             }
             if (f == null) { // does this occur?
@@ -330,10 +330,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
             _itemFilter = f;
             if (f == TokenFilter.INCLUDE_ALL) {
-                _headContext = _headContext.createChildObjectContext(f, true);
+                _headContext = _headContext.createChildObjectContext(f, null, true);
                 return (_currToken = t);
             }
-            _headContext = _headContext.createChildObjectContext(f, false);
+            _headContext = _headContext.createChildObjectContext(f, null, false);
             // Also: only need buffering if parent path to be included
             if (_includePath) {
                 t = _nextTokenWithBuffering(_headContext);
@@ -446,7 +446,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             case ID_START_ARRAY:
                 f = _itemFilter;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildArrayContext(f, true);
+                    _headContext = _headContext.createChildArrayContext(f, null, true);
                     return (_currToken = t);
                 }
                 if (f == null) { // does this occur?
@@ -464,10 +464,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildArrayContext(f, true);
+                    _headContext = _headContext.createChildArrayContext(f, null, true);
                     return (_currToken = t);
                 }
-                _headContext = _headContext.createChildArrayContext(f, false);
+                _headContext = _headContext.createChildArrayContext(f, null, false);
                 // but if we didn't figure it out yet, need to buffer possible events
                 if (_includePath) {
                     t = _nextTokenWithBuffering(_headContext);
@@ -481,7 +481,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             case ID_START_OBJECT:
                 f = _itemFilter;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildObjectContext(f, true);
+                    _headContext = _headContext.createChildObjectContext(f, null, true);
                     return (_currToken = t);
                 }
                 if (f == null) { // does this occur?
@@ -499,10 +499,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildObjectContext(f, true);
+                    _headContext = _headContext.createChildObjectContext(f, null, true);
                     return (_currToken = t);
                 }
-                _headContext = _headContext.createChildObjectContext(f, false);
+                _headContext = _headContext.createChildObjectContext(f, null, false);
                 if (_includePath) {
                     t = _nextTokenWithBuffering(_headContext);
                     if (t != null) {
@@ -614,16 +614,16 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildArrayContext(f, true);
+                    _headContext = _headContext.createChildArrayContext(f, null, true);
                     return _nextBuffered(buffRoot);
                 }
-                _headContext = _headContext.createChildArrayContext(f, false);
+                _headContext = _headContext.createChildArrayContext(f, null, false);
                 continue main_loop;
 
             case ID_START_OBJECT:
                 f = _itemFilter;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildObjectContext(f, true);
+                    _headContext = _headContext.createChildObjectContext(f, null, true);
                     return t;
                 }
                 if (f == null) { // does this occur?
@@ -641,10 +641,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
-                    _headContext = _headContext.createChildObjectContext(f, true);
+                    _headContext = _headContext.createChildObjectContext(f, null, true);
                     return _nextBuffered(buffRoot);
                 }
-                _headContext = _headContext.createChildObjectContext(f, false);
+                _headContext = _headContext.createChildObjectContext(f, null, false);
                 continue main_loop;
 
             case ID_END_ARRAY:

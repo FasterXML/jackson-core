@@ -308,10 +308,10 @@ public class UTF8JsonGenerator
     }
 
     @Override
-    public final void writeStartArray(int size) throws IOException
+    public final void writeStartArray(Object forValue) throws IOException
     {
         _verifyValueWrite("start an array");
-        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
+        _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -321,7 +321,7 @@ public class UTF8JsonGenerator
             _outputBuffer[_outputTail++] = BYTE_LBRACKET;
         }
     }
-
+    
     @Override
     public final void writeStartArray(Object forValue, int len) throws IOException
     {
@@ -336,7 +336,7 @@ public class UTF8JsonGenerator
             _outputBuffer[_outputTail++] = BYTE_LBRACKET;
         }
     }
-    
+
     @Override
     public final void writeEndArray() throws IOException
     {
@@ -371,6 +371,22 @@ public class UTF8JsonGenerator
 
     @Override 
     public void writeStartObject(Object forValue) throws IOException
+    {
+        _verifyValueWrite("start an object");
+        JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext(forValue);
+        _tokenWriteContext = ctxt;
+        if (_cfgPrettyPrinter != null) {
+            _cfgPrettyPrinter.writeStartObject(this);
+        } else {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = '{';
+        }
+    }
+
+    @Override 
+    public void writeStartObject(Object forValue, int size) throws IOException
     {
         _verifyValueWrite("start an object");
         JsonWriteContext ctxt = _tokenWriteContext.createChildObjectContext(forValue);

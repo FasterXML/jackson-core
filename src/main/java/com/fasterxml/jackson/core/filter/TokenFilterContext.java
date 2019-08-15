@@ -40,6 +40,11 @@ public class TokenFilterContext extends TokenStreamContext
     protected String _currentName;
 
     /**
+     * @since 3.0
+     */
+    protected Object _currentValue;
+
+    /**
      * Filter to use for items in this state (for properties of Objects,
      * elements of Arrays, and root-level values of root context)
      */
@@ -66,23 +71,25 @@ public class TokenFilterContext extends TokenStreamContext
      */
 
     protected TokenFilterContext(int type, TokenFilterContext parent,
-            TokenFilter filter, boolean startHandled)
+            TokenFilter filter, Object currValue, boolean startHandled)
     {
         super();
         _type = type;
         _parent = parent;
         _filter = filter;
         _index = -1;
+        _currentValue = currValue;
         _startHandled = startHandled;
         _needToHandleName = false;
     }
 
     protected TokenFilterContext reset(int type,
-            TokenFilter filter, boolean startWritten)
+            TokenFilter filter, Object currValue, boolean startWritten)
     {
         _type = type;
         _filter = filter;
         _index = -1;
+        _currentValue = currValue;
         _currentName = null;
         _startHandled = startWritten;
         _needToHandleName = false;
@@ -97,25 +104,27 @@ public class TokenFilterContext extends TokenStreamContext
 
     public static TokenFilterContext createRootContext(TokenFilter filter) {
         // true -> since we have no start/end marker, consider start handled
-        return new TokenFilterContext(TYPE_ROOT, null, filter, true);
+        return new TokenFilterContext(TYPE_ROOT, null, filter, null, true);
     }
 
-    public TokenFilterContext createChildArrayContext(TokenFilter filter, boolean writeStart) {
+    public TokenFilterContext createChildArrayContext(TokenFilter filter, Object currentValue,
+            boolean writeStart) {
         TokenFilterContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new TokenFilterContext(TYPE_ARRAY, this, filter, writeStart);
+            _child = ctxt = new TokenFilterContext(TYPE_ARRAY, this, filter, currentValue, writeStart);
             return ctxt;
         }
-        return ctxt.reset(TYPE_ARRAY, filter, writeStart);
+        return ctxt.reset(TYPE_ARRAY, filter, currentValue, writeStart);
     }
 
-    public TokenFilterContext createChildObjectContext(TokenFilter filter, boolean writeStart) {
+    public TokenFilterContext createChildObjectContext(TokenFilter filter, Object currentValue,
+            boolean writeStart) {
         TokenFilterContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new TokenFilterContext(TYPE_OBJECT, this, filter, writeStart);
+            _child = ctxt = new TokenFilterContext(TYPE_OBJECT, this, filter, currentValue, writeStart);
             return ctxt;
         }
-        return ctxt.reset(TYPE_OBJECT, filter, writeStart);
+        return ctxt.reset(TYPE_OBJECT, filter, currentValue, writeStart);
     }
 
     /*
@@ -268,7 +277,7 @@ public class TokenFilterContext extends TokenStreamContext
      */
 
     @Override
-    public Object getCurrentValue() { return null; }
+    public Object getCurrentValue() { return _currentValue; }
 
     @Override
     public void setCurrentValue(Object v) { }

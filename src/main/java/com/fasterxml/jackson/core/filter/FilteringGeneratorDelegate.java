@@ -135,18 +135,18 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     {
         // First things first: whole-sale skipping easy
         if (_itemFilter == null) {
-            _filterContext = _filterContext.createChildArrayContext(null, false);
+            _filterContext = _filterContext.createChildArrayContext(null, null, false);
             return;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) { // include the whole sub-tree?
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, null, true);
             delegate.writeStartArray();
             return;
         }
         // Ok; regular checking state then
         _itemFilter = _filterContext.checkValue(_itemFilter);
         if (_itemFilter == null) {
-            _filterContext = _filterContext.createChildArrayContext(null, false);
+            _filterContext = _filterContext.createChildArrayContext(null, null, false);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
@@ -154,28 +154,28 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, null, true);
             delegate.writeStartArray();
         } else {
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, null, false);
         }
     }
-        
+
     @Override
-    public void writeStartArray(int size) throws IOException
+    public void writeStartArray(Object currValue) throws IOException
     {
         if (_itemFilter == null) {
-            _filterContext = _filterContext.createChildArrayContext(null, false);
+            _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
             return;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
-            delegate.writeStartArray(size);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
+            delegate.writeStartArray(currValue);
             return;
         }
         _itemFilter = _filterContext.checkValue(_itemFilter);
         if (_itemFilter == null) {
-            _filterContext = _filterContext.createChildArrayContext(null, false);
+            _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
             return;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
@@ -183,10 +183,39 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
-            delegate.writeStartArray(size);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
+            delegate.writeStartArray(currValue);
         } else {
-            _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, false);
+        }
+    }
+    
+    @Override
+    public void writeStartArray(Object currValue, int size) throws IOException
+    {
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
+            return;
+        }
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
+            delegate.writeStartArray(currValue, size);
+            return;
+        }
+        _itemFilter = _filterContext.checkValue(_itemFilter);
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
+            return;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            _itemFilter = _itemFilter.filterStartArray();
+        }
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
+            delegate.writeStartArray(currValue, size);
+        } else {
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, false);
         }
     }
     
@@ -204,11 +233,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeStartObject() throws IOException
     {
         if (_itemFilter == null) {
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, false);
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, null, false);
             return;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, true);
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, null, true);
             delegate.writeStartObject();
             return;
         }
@@ -223,23 +252,23 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (f == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildObjectContext(f, true);
+            _filterContext = _filterContext.createChildObjectContext(f, null, true);
             delegate.writeStartObject();
         } else { // filter out
-            _filterContext = _filterContext.createChildObjectContext(f, false);
+            _filterContext = _filterContext.createChildObjectContext(f, null, false);
         }
     }
-    
+
     @Override
-    public void writeStartObject(Object forValue) throws IOException
+    public void writeStartObject(Object currValue) throws IOException
     {
         if (_itemFilter == null) {
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, false);
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
             return;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
-            _filterContext = _filterContext.createChildObjectContext(_itemFilter, true);
-            delegate.writeStartObject(forValue);
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, true);
+            delegate.writeStartObject(currValue);
             return;
         }
 
@@ -253,10 +282,40 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (f == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
-            _filterContext = _filterContext.createChildObjectContext(f, true);
-            delegate.writeStartObject(forValue);
+            _filterContext = _filterContext.createChildObjectContext(f, currValue, true);
+            delegate.writeStartObject(currValue);
         } else { // filter out
-            _filterContext = _filterContext.createChildObjectContext(f, false);
+            _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
+        }
+    }
+
+    @Override
+    public void writeStartObject(Object currValue, int size) throws IOException
+    {
+        if (_itemFilter == null) {
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
+            return;
+        }
+        if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, true);
+            delegate.writeStartObject(currValue, size);
+            return;
+        }
+
+        TokenFilter f = _filterContext.checkValue(_itemFilter);
+        if (f == null) {
+            return;
+        }
+
+        if (f != TokenFilter.INCLUDE_ALL) {
+            f = f.filterStartObject();
+        }
+        if (f == TokenFilter.INCLUDE_ALL) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildObjectContext(f, currValue, true);
+            delegate.writeStartObject(currValue, size);
+        } else { // filter out
+            _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
         }
     }
 

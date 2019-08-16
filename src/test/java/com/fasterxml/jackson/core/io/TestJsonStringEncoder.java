@@ -15,9 +15,9 @@ public class TestJsonStringEncoder
     public void testQuoteAsString() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();
-        char[] result = encoder.quoteAsString("foobar");
+        char[] result = encoder.quoteAsCharArray("foobar");
         assertArrayEquals("foobar".toCharArray(), result);
-        result = encoder.quoteAsString("\"x\"");
+        result = encoder.quoteAsCharArray("\"x\"");
         assertArrayEquals("\\\"x\\\"".toCharArray(), result);
     }
 
@@ -47,7 +47,7 @@ public class TestJsonStringEncoder
         }
         String input = sb.toString();
         String exp = sb2.toString();
-        char[] result = encoder.quoteAsString(input);
+        char[] result = encoder.quoteAsCharArray(input);
         assertEquals(2*input.length(), result.length);
         assertEquals(exp, new String(result));
         

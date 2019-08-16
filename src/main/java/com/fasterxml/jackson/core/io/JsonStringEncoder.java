@@ -81,13 +81,17 @@ public final class JsonStringEncoder
      * Method that will quote text contents using JSON standard quoting,
      * and return results as a character array
      */
-    public char[] quoteAsString(String input)
+    public char[] quoteAsCharArray(CharSequence input0)
     {
         TextBuffer textBuffer = _text;
         if (textBuffer == null) {
-            // no allocator; can add if we must, shouldn't need to
             _text = textBuffer = new TextBuffer(null);
         }
+        if (!(input0 instanceof String)) {
+            return _quoteAsCharArray(input0, textBuffer);
+        }
+
+        final String input = (String) input0;
         char[] outputBuffer = textBuffer.emptyAndGetCurrentSegment();
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;
@@ -115,10 +119,8 @@ public final class JsonStringEncoder
             // something to escape; 2 or 6-char variant? 
             char d = input.charAt(inPtr++);
             int escCode = escCodes[d];
-            int length = (escCode < 0)
-                    ? _appendNumeric(d, _qbuf)
-                    : _appendNamed(escCode, _qbuf);
-                    ;
+            int length = (escCode < 0) ? _appendNumeric(d, _qbuf)
+                   : _appendNamed(escCode, _qbuf);
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
@@ -137,22 +139,9 @@ public final class JsonStringEncoder
         return textBuffer.contentsAsArray();
     }
 
-    /**
-     * Overloaded variant of {@link #quoteAsString(String)}.
-     *
-     * @since 2.10
-     */
-    public char[] quoteAsString(CharSequence input)
+    private char[] _quoteAsCharArray(final CharSequence input,
+            final TextBuffer textBuffer)
     {
-        // 15-Aug-2019, tatu: Optimize common case as JIT can't get rid of overhead otherwise
-        if (input instanceof String) {
-            return quoteAsString((String) input);
-        }
-
-        TextBuffer textBuffer = _text;
-        if (textBuffer == null) {
-            _text = textBuffer = new TextBuffer(null);
-        }
         char[] outputBuffer = textBuffer.emptyAndGetCurrentSegment();
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;
@@ -179,10 +168,8 @@ public final class JsonStringEncoder
             }
             char d = input.charAt(inPtr++);
             int escCode = escCodes[d];
-            int length = (escCode < 0)
-                    ? _appendNumeric(d, _qbuf)
+            int length = (escCode < 0) ? _appendNumeric(d, _qbuf)
                     : _appendNamed(escCode, _qbuf);
-                    ;
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {

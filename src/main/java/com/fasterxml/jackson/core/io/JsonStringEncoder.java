@@ -138,6 +138,70 @@ public final class JsonStringEncoder
     }
 
     /**
+     * Overloaded variant of {@link #quoteAsString(String)}.
+     *
+     * @since 2.10
+     */
+    public char[] quoteAsString(CharSequence input)
+    {
+        // 15-Aug-2019, tatu: Optimize common case as JIT can't get rid of overhead otherwise
+        if (input instanceof String) {
+            return quoteAsString((String) input);
+        }
+
+        TextBuffer textBuffer = _text;
+        if (textBuffer == null) {
+            _text = textBuffer = new TextBuffer(null);
+        }
+        char[] outputBuffer = textBuffer.emptyAndGetCurrentSegment();
+        final int[] escCodes = CharTypes.get7BitOutputEscapes();
+        final int escCodeCount = escCodes.length;
+        int inPtr = 0;
+        final int inputLen = input.length();
+        int outPtr = 0;
+ 
+        outer:
+        while (inPtr < inputLen) {
+            tight_loop:
+            while (true) {
+                char c = input.charAt(inPtr);
+                if (c < escCodeCount && escCodes[c] != 0) {
+                    break tight_loop;
+                }
+                if (outPtr >= outputBuffer.length) {
+                    outputBuffer = textBuffer.finishCurrentSegment();
+                    outPtr = 0;
+                }
+                outputBuffer[outPtr++] = c;
+                if (++inPtr >= inputLen) {
+                    break outer;
+                }
+            }
+            char d = input.charAt(inPtr++);
+            int escCode = escCodes[d];
+            int length = (escCode < 0)
+                    ? _appendNumeric(d, _qbuf)
+                    : _appendNamed(escCode, _qbuf);
+                    ;
+            if ((outPtr + length) > outputBuffer.length) {
+                int first = outputBuffer.length - outPtr;
+                if (first > 0) {
+                    System.arraycopy(_qbuf, 0, outputBuffer, outPtr, first);
+                }
+                outputBuffer = textBuffer.finishCurrentSegment();
+                int second = length - first;
+                System.arraycopy(_qbuf, first, outputBuffer, 0, second);
+                outPtr = second;
+            } else {
+                System.arraycopy(_qbuf, 0, outputBuffer, outPtr, length);
+                outPtr += length;
+            }
+        }
+        textBuffer.setCurrentLength(outPtr);
+        return textBuffer.contentsAsArray();
+    }
+    
+    /**
      * Method that will quote text contents using JSON standard quoting,
      * and append results to a supplied {@link StringBuilder}.
      * Use this variant if you have e.g. a {@link StringBuilder} and want to avoid superfluous copying of it.
@@ -170,7 +234,6 @@ public final class JsonStringEncoder
             int length = (escCode < 0)
                     ? _appendNumeric(d, _qbuf)
                     : _appendNamed(escCode, _qbuf);
-                    ;
             output.append(_qbuf, 0, length);
         }
     }

@@ -18,7 +18,7 @@ public class StreamWriteFeaturesTest
     public void testConfigDefaults() throws IOException
     {
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), new StringWriter());
-        assertFalse(g.isEnabled(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS));
+        assertFalse(((JsonGeneratorBase) g).isEnabled(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS));
         assertFalse(g.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
 
         assertTrue(g.canOmitFields());
@@ -74,7 +74,7 @@ public class StreamWriteFeaturesTest
         assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(f));        
 
         // but if overridden, quotes as Strings
-        f = f.rebuild().configure(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS, true)
+        f = f.rebuild().configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS, true)
                 .build();
         assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
                      _writeNumbers(f));
@@ -104,8 +104,8 @@ public class StreamWriteFeaturesTest
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
-        f = f.rebuild().enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN,
-                StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS)
+        f = f.rebuild().enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .enable(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS)
                 .build();
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
@@ -124,27 +124,23 @@ public class StreamWriteFeaturesTest
     // [core#315]
     public void testTooBigBigDecimal() throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
-                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
-                .build();
-
         // 24-Aug-2016, tatu: Initial check limits scale to [-9999,+9999]
         BigDecimal BIG = new BigDecimal("1E+9999");
         BigDecimal TOO_BIG = new BigDecimal("1E+10000");
         BigDecimal SMALL = new BigDecimal("1E-9999");
         BigDecimal TOO_SMALL = new BigDecimal("1E-10000");
 
-        for (boolean useBytes : new boolean[] { false, true } ) {
-            for (boolean asString : new boolean[] { false, true } ) {
+        for (boolean asString : new boolean[] { false, true } ) {
+            for (boolean useBytes : new boolean[] { false, true } ) {
+                JsonFactory f = JsonFactory.builder()
+                        .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                        .configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS, asString)
+                        .build();
                 JsonGenerator g;
-                
                 if (useBytes) {
                     g = f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream());
                 } else {
                     g = f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
-                }
-                if (asString) {
-                    g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
                 }
 
                 // first, ok cases:
@@ -160,9 +156,6 @@ public class StreamWriteFeaturesTest
                         g = f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream());
                     } else {
                         g = f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
-                    }
-                    if (asString) {
-                        g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
                     }
                     try {
                         g.writeNumber(input);
@@ -251,6 +244,7 @@ public class StreamWriteFeaturesTest
         assertEquals(exp, json);
     }
 
+    /*
     public void testChangeOnGenerator() throws IOException
     {
         StringWriter w = new StringWriter();
@@ -270,6 +264,7 @@ public class StreamWriteFeaturesTest
         g.close();
         assertEquals("123", w.toString());
     }
+    */
 
     /*
     /**********************************************************

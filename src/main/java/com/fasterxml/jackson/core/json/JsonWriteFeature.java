@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.*;
 public enum JsonWriteFeature
     implements FormatFeature
 {
-    // // // Support for non-standard JSON constructs: quoting
-
+    // // // Support for non-standard JSON constructs: Quoting/escaping
+    
     /**
      * Feature that determines whether JSON Object field names are
      * quoted using double-quotes, as specified by JSON specification
@@ -37,6 +37,24 @@ public enum JsonWriteFeature
 
     // // // Support for escaping variations
     
+    /**
+     * Feature that forces all regular number values to be written as JSON Strings,
+     * instead of as JSON Numbers.
+     * Default state is 'false', meaning that Java numbers are to
+     * be serialized using basic numeric representation but
+     * if enabled all such numeric values are instead written out as
+     * JSON Strings instead.
+     *<p>
+     * One use case is to avoid problems with Javascript limitations:
+     * since Javascript standard specifies that all number handling
+     * should be done using 64-bit IEEE 754 floating point values,
+     * result being that some 64-bit integer values can not be
+     * accurately represent (as mantissa is only 51 bit wide).
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_NUMBERS_AS_STRINGS(false),
+
     /**
      * Feature that specifies that all characters beyond 7-bit ASCII
      * range (i.e. code points of 128 and above) need to be output

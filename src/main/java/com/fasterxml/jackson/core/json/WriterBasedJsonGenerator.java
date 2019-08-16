@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.io.NumberOutput;
  * which handles character encoding.
  */
 public class WriterBasedJsonGenerator
-    extends JsonGeneratorImpl
+    extends JsonGeneratorBase
 {
     final protected static int SHORT_WRITE = 32;
 

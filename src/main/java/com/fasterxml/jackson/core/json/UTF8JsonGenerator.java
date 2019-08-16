@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberOutput;
 
 public class UTF8JsonGenerator
-    extends JsonGeneratorImpl
+    extends JsonGeneratorBase
 {
     private final static byte BYTE_u = (byte) 'u';
 

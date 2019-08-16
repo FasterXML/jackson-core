@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.io.IOContext;
  * Intermediate base class shared by JSON-backed generators
  * like {@link UTF8JsonGenerator} and {@link WriterBasedJsonGenerator}.
  */
-public abstract class JsonGeneratorImpl extends GeneratorBase
+public abstract class JsonGeneratorBase extends GeneratorBase
 {
     /*
     /**********************************************************************
@@ -124,7 +124,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************************
      */
 
-    public JsonGeneratorImpl(ObjectWriteContext writeCtxt, IOContext ctxt,
+    public JsonGeneratorBase(ObjectWriteContext writeCtxt, IOContext ctxt,
             int streamWriteFeatures, int formatWriteFeatures,
             SerializableString rootValueSeparator, PrettyPrinter pp,
             CharacterEscapes charEsc, int maxNonEscaped)
@@ -140,7 +140,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         }
         _maximumNonEscapedChar = maxNonEscaped;
         _cfgUnqNames = !JsonWriteFeature.QUOTE_FIELD_NAMES.enabledIn(formatWriteFeatures);
-        _cfgNumbersAsStrings = StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(streamWriteFeatures);
+        _cfgNumbersAsStrings = JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(formatWriteFeatures);
         _rootValueSeparator = rootValueSeparator;
 
         _cfgPrettyPrinter = pp;
@@ -156,36 +156,20 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     /*
     /**********************************************************************
-    /* Versioned
+    /* Versioned, accessors
     /**********************************************************************
      */
 
     @Override public Version version() { return PackageVersion.VERSION; }
 
+    public boolean isEnabled(JsonWriteFeature f) { return f.enabledIn(_formatWriteFeatures); }
+    
     /*
     /**********************************************************************
     /* Overridden configuration methods
     /**********************************************************************
      */
-
-    @Override
-    public JsonGenerator enable(StreamWriteFeature f) {
-        super.enable(f);
-        if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
-            _cfgNumbersAsStrings = true;
-        }
-        return this;
-    }
-
-    @Override
-    public JsonGenerator disable(StreamWriteFeature f) {
-        super.disable(f);
-        if (f == StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS) {
-            _cfgNumbersAsStrings = false;
-        }
-        return this;
-    }
-
+    
     @Override
     public int formatWriteFeatures() {
         return _formatWriteFeatures;

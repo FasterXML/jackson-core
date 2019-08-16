@@ -54,26 +54,6 @@ public enum StreamWriteFeature
     FLUSH_PASSED_TO_STREAM(true),
 
     // // Datatype coercion features
-    
-    /**
-     * Feature that forces all Java numbers to be written as Strings,
-     * even if the underlying data format has non-textual representation
-     * (which is the case for JSON as well as all binary formats).
-     * Default state is 'false', meaning that Java numbers are to
-     * be serialized using basic numeric serialization (as JSON
-     * numbers, integral or floating point, for example).
-     * If enabled, all such numeric values are instead written out as
-     * textual values (which for JSON means quoted in double-quotes).
-     *<p>
-     * One use case is to avoid problems with Javascript limitations:
-     * since Javascript standard specifies that all number handling
-     * should be done using 64-bit IEEE 754 floating point values,
-     * result being that some 64-bit integer values can not be
-     * accurately represent (as mantissa is only 51 bit wide).
-     *<p>
-     * Feature is disabled by default.
-     */
-    WRITE_NUMBERS_AS_STRINGS(false),
 
     /**
      * Feature that determines whether {@link java.math.BigDecimal} entries are

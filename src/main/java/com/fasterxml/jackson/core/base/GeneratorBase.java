@@ -101,6 +101,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************
      */
 
+    @SuppressWarnings("deprecation")
     protected GeneratorBase(int features, ObjectCodec codec) {
         super();
         _features = features;
@@ -114,6 +115,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * @since 2.5
      */
+    @SuppressWarnings("deprecation")
     protected GeneratorBase(int features, ObjectCodec codec, JsonWriteContext ctxt) {
         super();
         _features = features;

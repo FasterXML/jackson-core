@@ -149,7 +149,10 @@ public abstract class JsonGenerator
          * accurately represent (as mantissa is only 51 bit wide).
          *<p>
          * Feature is disabled by default.
+         *
+         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_NUMBERS_AS_STRINGS} instead
          */
+        @Deprecated
         WRITE_NUMBERS_AS_STRINGS(false),
 
         /**
@@ -324,6 +327,13 @@ public abstract class JsonGenerator
      * Check {@link Feature} for list of available features.
      */
     public abstract boolean isEnabled(Feature f);
+
+    /**
+     * @since 2.10
+     */
+    public boolean isEnabled(StreamWriteFeature f) {
+        return isEnabled(f.mappedFeature());
+    }
 
     /**
      * Bulk access method for getting state of all standard (non-dataformat-specific)

@@ -714,6 +714,13 @@ public abstract class JsonParser
     public boolean isEnabled(Feature f) { return f.enabledIn(_features); }
 
     /**
+     * Method for checking whether specified {@link Feature} is enabled.
+     *
+     * @since 2.10
+     */
+    public boolean isEnabled(StreamReadFeature f) { return f.mappedFeature().enabledIn(_features); }
+    
+    /**
      * Bulk access method for getting state of all standard {@link Feature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link Feature}s.

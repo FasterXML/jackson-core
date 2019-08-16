@@ -15,11 +15,14 @@ public class GeneratorFeaturesTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
+    @SuppressWarnings("deprecation")
     public void testConfigDefaults() throws IOException
     {
         JsonGenerator g = JSON_F.createGenerator(new StringWriter());
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
+
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        assertFalse(g.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
 
         assertTrue(g.canOmitFields());
         assertFalse(g.canWriteBinaryNatively());
@@ -40,11 +43,13 @@ public class GeneratorFeaturesTest
         g.overrideStdFeatures(mask, mask);
         assertTrue(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
         assertTrue(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        assertTrue(g.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
 
         // and for now, also test straight override
         g.setFeatureMask(0);
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS));
         assertFalse(g.isEnabled(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN));
+        assertFalse(g.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
         g.close();
     }
 
@@ -93,7 +98,9 @@ public class GeneratorFeaturesTest
         assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(f));        
 
         // but if overridden, quotes as Strings
-        f.configure(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS, true);
+        f = JsonFactory.builder()
+                .enable(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS)
+                .build();
         assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
                      _writeNumbers(f));
 
@@ -121,10 +128,11 @@ public class GeneratorFeaturesTest
 
     public void testBigDecimalAsPlainString() throws Exception
     {
-        JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
-        f.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        f.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);
+        JsonFactory f = JsonFactory.builder()
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .enable(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS)
+                .build();
 
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(sw);
@@ -141,6 +149,7 @@ public class GeneratorFeaturesTest
     }
 
     // [core#315]
+    @SuppressWarnings("deprecation")
     public void testTooBigBigDecimal() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -264,6 +273,7 @@ public class GeneratorFeaturesTest
         assertEquals(exp, json);
     }
 
+    @SuppressWarnings("deprecation")
     public void testChangeOnGenerator() throws IOException
     {
         StringWriter w = new StringWriter();

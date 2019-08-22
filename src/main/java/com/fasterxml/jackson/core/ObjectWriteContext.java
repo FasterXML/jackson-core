@@ -28,7 +28,16 @@ public interface ObjectWriteContext
     public FormatSchema getSchema();
 
     public CharacterEscapes getCharacterEscapes();
+
+    /**
+     * Accessor for getting {@link PrettyPrinter} instance to use for a new generator.
+     * Note that this MUST BE thread-safe instance: that is, if pretty printer is stateful,
+     * a new unshared instance needs to be returned -- caller will NOT try to make
+     * a copy of {@link com.fasterxml.jackson.core.util.Instantiatable} printers, context
+     * must do that.
+     */
     public PrettyPrinter getPrettyPrinter();
+
     public SerializableString getRootValueSeparator(SerializableString defaultSeparator);
 
     public int getStreamWriteFeatures(int defaults);

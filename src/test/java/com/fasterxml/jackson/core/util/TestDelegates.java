@@ -48,7 +48,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         public boolean isEmbeddedValue() {
             return false;
         }
-        
+
         @Override
         public boolean isArray() {
             return false;
@@ -56,6 +56,11 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         @Override
         public boolean isObject() {
+            return false;
+        }
+
+        @Override
+        public boolean isNull() {
             return false;
         }
 

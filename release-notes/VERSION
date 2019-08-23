@@ -28,3 +28,4 @@ JSON library.
 #496: Create `StreamWriteFeature` to take over non-json-specific `JsonGenerator.Feature`s
 #551: Remove `JsonGenerator.setPrettyPrinter()` from 3.0
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
+- Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods

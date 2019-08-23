@@ -101,6 +101,14 @@ public interface TreeNode
     boolean isObject();
 
     /**
+     * Method that returns true if this node is a node that represents
+     * logical {@code null} value.
+     *
+     * @since 3.0
+     */
+    boolean isNull();
+
+    /**
      * Method that returns true if this node represents an embedded
      * "foreign" (or perhaps native?) object (like POJO), not represented
      * as regular content. Such nodes are used to pass information that

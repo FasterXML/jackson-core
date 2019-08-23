@@ -16,4 +16,6 @@ public abstract class TreeCodec
     public abstract ArrayTreeNode createArrayNode();
     public abstract ObjectTreeNode createObjectNode();
     public abstract JsonParser treeAsTokens(TreeNode node);
+
+    public abstract TreeNode missingNode();
 }

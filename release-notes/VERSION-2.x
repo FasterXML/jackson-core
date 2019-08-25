@@ -18,6 +18,7 @@ JSON library.
 
 #517: Add `JsonGenerator.writeStartObject(Object, int)` (needed by CBOR, maybe Avro)
 #549: Add configurability of "quote character" for JSON factory
+- Rewrite `JsonGenerator.copyCurrentStructure()` to remove recursion)
 
 2.10.0.pr1 (19-Jul-2019)
 

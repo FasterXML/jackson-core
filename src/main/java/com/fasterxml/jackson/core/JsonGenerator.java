@@ -1799,11 +1799,8 @@ public abstract class JsonGenerator
     public void copyCurrentEvent(JsonParser p) throws IOException
     {
         JsonToken t = p.currentToken();
-        // sanity check; what to do?
-        if (t == null) {
-            _reportError("No current event to copy");
-        }
-        switch (t.id()) {
+        final int token = (t == null) ? ID_NOT_AVAILABLE : t.id();
+        switch (token) {
         case ID_NOT_AVAILABLE:
             _reportError("No current event to copy");
             break; // never gets here
@@ -1866,7 +1863,7 @@ public abstract class JsonGenerator
             writeObject(p.getEmbeddedObject());
             break;
         default:
-            _throwInternal();
+            throw new IllegalStateException("Internal error: unknown current token, "+t);
         }
     }
 
@@ -1903,34 +1900,113 @@ public abstract class JsonGenerator
     public void copyCurrentStructure(JsonParser p) throws IOException
     {
         JsonToken t = p.currentToken();
-        if (t == null) {
-            _reportError("No current event to copy");
-        }
         // Let's handle field-name separately first
-        int id = t.id();
+        int id = (t == null) ? ID_NOT_AVAILABLE : t.id();
         if (id == ID_FIELD_NAME) {
             writeFieldName(p.getCurrentName());
             t = p.nextToken();
-            id = t.id();
+            id = (t == null) ? ID_NOT_AVAILABLE : t.id();
             // fall-through to copy the associated value
         }
         switch (id) {
         case ID_START_OBJECT:
             writeStartObject();
-            while (p.nextToken() != JsonToken.END_OBJECT) {
-                copyCurrentStructure(p);
-            }
-            writeEndObject();
-            break;
+            _copyContents(p);
+            return;
         case ID_START_ARRAY:
             writeStartArray();
-            while (p.nextToken() != JsonToken.END_ARRAY) {
-                copyCurrentStructure(p);
-            }
-            writeEndArray();
-            break;
+            _copyContents(p);
+            return;
+
         default:
             copyCurrentEvent(p);
+        }
+    }
+
+    /**
+     * @since 2.10
+     */
+    protected void _copyContents(JsonParser p) throws IOException
+    {
+        int depth = 1;
+        JsonToken t;
+
+        // Mostly copied from `copyCurrentEvent()`, but with added nesting counts
+        while ((t = p.nextToken()) != null) {
+            switch (t.id()) {
+            case ID_FIELD_NAME:
+                writeFieldName(p.getCurrentName());
+                break;
+
+            case ID_START_ARRAY:
+                writeStartArray();
+                ++depth;
+                break;
+
+            case ID_START_OBJECT:
+                writeStartObject();
+                ++depth;
+                break;
+
+            case ID_END_ARRAY:
+                writeEndArray();
+                if (--depth == 0) {
+                    return;
+                }
+                break;
+            case ID_END_OBJECT:
+                writeEndObject();
+                if (--depth == 0) {
+                    return;
+                }
+                break;
+
+            case ID_STRING:
+                if (p.hasTextCharacters()) {
+                    writeString(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
+                } else {
+                    writeString(p.getText());
+                }
+                break;
+            case ID_NUMBER_INT:
+            {
+                NumberType n = p.getNumberType();
+                if (n == NumberType.INT) {
+                    writeNumber(p.getIntValue());
+                } else if (n == NumberType.BIG_INTEGER) {
+                    writeNumber(p.getBigIntegerValue());
+                } else {
+                    writeNumber(p.getLongValue());
+                }
+                break;
+            }
+            case ID_NUMBER_FLOAT:
+            {
+                NumberType n = p.getNumberType();
+                if (n == NumberType.BIG_DECIMAL) {
+                    writeNumber(p.getDecimalValue());
+                } else if (n == NumberType.FLOAT) {
+                    writeNumber(p.getFloatValue());
+                } else {
+                    writeNumber(p.getDoubleValue());
+                }
+                break;
+            }
+            case ID_TRUE:
+                writeBoolean(true);
+                break;
+            case ID_FALSE:
+                writeBoolean(false);
+                break;
+            case ID_NULL:
+                writeNull();
+                break;
+            case ID_EMBEDDED_OBJECT:
+                writeObject(p.getEmbeddedObject());
+                break;
+            default:
+                throw new IllegalStateException("Internal error: unknown current token, "+t);
+            }
         }
     }
 

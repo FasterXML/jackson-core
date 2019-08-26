@@ -1911,11 +1911,11 @@ public abstract class JsonGenerator
         switch (id) {
         case ID_START_OBJECT:
             writeStartObject();
-            _copyContents(p);
+            _copyCurrentContents(p);
             return;
         case ID_START_ARRAY:
             writeStartArray();
-            _copyContents(p);
+            _copyCurrentContents(p);
             return;
 
         default:
@@ -1926,7 +1926,7 @@ public abstract class JsonGenerator
     /**
      * @since 2.10
      */
-    protected void _copyContents(JsonParser p) throws IOException
+    protected void _copyCurrentContents(JsonParser p) throws IOException
     {
         int depth = 1;
         JsonToken t;

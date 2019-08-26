@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.util.BufferRecyclers;
+import java.lang.ref.SoftReference;
+
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -11,12 +12,15 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  * Note that methods in here are somewhat optimized, but not ridiculously so.
  * Reason is that conversion method results are expected to be cached so that
  * these methods will not be hot spots during normal operation.
- *<p>
- * NOTE: starting with 2.9.3, access to most functionality should go through
- * {@link BufferRecyclers} and NOT directly through this class.
  */
 public final class JsonStringEncoder
 {
+    /*
+    /**********************************************************************
+    /* Constants
+    /**********************************************************************
+     */
+
     private final static char[] HC = CharTypes.copyHexChars();
 
     private final static byte[] HB = CharTypes.copyHexBytes();
@@ -26,9 +30,27 @@ public final class JsonStringEncoder
     private final static int SURR2_FIRST = 0xDC00;
     private final static int SURR2_LAST = 0xDFFF;
 
+    // @since 2.10 Default to shorter buffer (500) than ByteArrayBuilder usually
+    private final static int INITIAL_BYTE_BUFFER_SIZE = 200;
+
 //    private final static int INT_BACKSLASH = '\\';
 //    private final static int INT_U = 'u';
 //    private final static int INT_0 = '0';
+
+    /*
+    /**********************************************************************
+    /* Caching
+    /**********************************************************************
+     */
+
+    final protected static ThreadLocal<SoftReference<JsonStringEncoder>> _encoderRef
+        = new ThreadLocal<SoftReference<JsonStringEncoder>>();
+
+    /*
+    /**********************************************************************
+    /* State
+    /**********************************************************************
+     */
 
     /**
      * Lazily constructed text buffer used to produce JSON encoded Strings
@@ -46,35 +68,39 @@ public final class JsonStringEncoder
      * Temporary buffer used for composing quote/escape sequences
      */
     protected final char[] _qbuf;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, instance access
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     public JsonStringEncoder() {
         _qbuf = new char[6];
         _qbuf[0] = '\\';
         _qbuf[2] = '0';
         _qbuf[3] = '0';
     }
-    
+
     /**
      * Factory method for getting an instance; this is either recycled per-thread instance,
      * or a newly constructed one.
-     *
-     * @deprecated Since 2.9.2 use {@link BufferRecyclers#getJsonStringEncoder()} instead
      */
-    @Deprecated
     public static JsonStringEncoder getInstance() {
-        return BufferRecyclers.getJsonStringEncoder();
+        SoftReference<JsonStringEncoder> ref = _encoderRef.get();
+        JsonStringEncoder enc = (ref == null) ? null : ref.get();
+
+        if (enc == null) {
+            enc = new JsonStringEncoder();
+            _encoderRef.set(new SoftReference<JsonStringEncoder>(enc));
+        }
+        return enc;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -200,7 +226,7 @@ public final class JsonStringEncoder
         textBuffer.setCurrentLength(outPtr);
         return textBuffer.contentsAsArray();
     }
-    
+
     /**
      * Method that will quote text contents using JSON standard quoting,
      * and append results to a supplied {@link StringBuilder}.
@@ -248,7 +274,7 @@ public final class JsonStringEncoder
         ByteArrayBuilder bb = _bytes;
         if (bb == null) {
             // no allocator; can add if we must, shouldn't need to
-            _bytes = bb = new ByteArrayBuilder(null);
+            _bytes = bb = new ByteArrayBuilder(null, INITIAL_BYTE_BUFFER_SIZE);
         }
         int inputPtr = 0;
         int inputEnd = text.length();
@@ -334,7 +360,7 @@ public final class JsonStringEncoder
         }
         return _bytes.completeAndCoalesce(outputPtr);
     }
-    
+
     /**
      * Will encode given String as UTF-8 (without any quoting), return
      * resulting byte array.
@@ -345,14 +371,14 @@ public final class JsonStringEncoder
         ByteArrayBuilder byteBuilder = _bytes;
         if (byteBuilder == null) {
             // no allocator; can add if we must, shouldn't need to
-            _bytes = byteBuilder = new ByteArrayBuilder(null);
+            _bytes = byteBuilder = new ByteArrayBuilder(null, INITIAL_BYTE_BUFFER_SIZE);
         }
         int inputPtr = 0;
         int inputEnd = text.length();
         int outputPtr = 0;
         byte[] outputBuffer = byteBuilder.resetAndGetFirstSegment();
         int outputEnd = outputBuffer.length;
-        
+
         main_loop:
         while (inputPtr < inputEnd) {
             int c = text.charAt(inputPtr++);
@@ -425,11 +451,11 @@ public final class JsonStringEncoder
         }
         return _bytes.completeAndCoalesce(outputPtr);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private int _appendNumeric(int value, char[] qbuf) {

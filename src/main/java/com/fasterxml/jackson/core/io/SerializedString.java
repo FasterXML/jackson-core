@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.core.SerializableString;
-import com.fasterxml.jackson.core.util.BufferRecyclers;
 
 /**
  * String token that can lazily serialize String contained and then reuse that
@@ -55,9 +54,9 @@ public class SerializedString
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializable overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -79,9 +78,9 @@ public class SerializedString
     }
 
     /*
-    /**********************************************************
-    /* API
-    /**********************************************************
+    /**********************************************************************
+    /* Basic API
+    /**********************************************************************
      */
 
     @Override
@@ -92,71 +91,61 @@ public class SerializedString
      */
     @Override
     public final int charLength() { return _value.length(); }
-    
+
+    /**
+     * Accessor for accessing value that has been quoted (escaped) using JSON
+     * quoting rules (using backslash-prefixed codes) into a char array.
+     */
     @Override
     public final char[] asQuotedChars() {
         char[] result = _quotedChars;
         if (result == null) {
-            result = BufferRecyclers.quoteAsJsonText(_value);
+            result = JsonStringEncoder.getInstance().quoteAsCharArray(_value);
             _quotedChars = result;
         }
         return result;
     }
 
     /**
-     * Accessor for accessing value as is (without JSON quoting)
-     * encoded using UTF-8 encoding.
-     */
-    @Override
-    public final byte[] asUnquotedUTF8() {
-        byte[] result = _unquotedUTF8Ref;
-        if (result == null) {
-            result = BufferRecyclers.encodeAsUTF8(_value);
-            _unquotedUTF8Ref  = result;
-        }
-        return result;
-    }
-
-    /**
-     * Accessor for accessing value that has been quoted using JSON
-     * quoting rules, and encoded using UTF-8 encoding.
+     * Accessor for accessing value that has been quoted (escaped) using JSON
+     * quoting rules (using backslash-prefixed codes), and encoded using
+     * UTF-8 encoding into a byte array.
      */
     @Override
     public final byte[] asQuotedUTF8() {
         byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = BufferRecyclers.quoteAsJsonUTF8(_value);
+            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
             _quotedUTF8Ref = result;
         }
         return result;
     }
 
-    /*
-    /**********************************************************
-    /* Additional 2.0 methods for appending/writing contents
-    /**********************************************************
+    /**
+     * Accessor for accessing value as is (without JSON quoting (ecaping))
+     * encoded as UTF-8 byte array.
      */
-
     @Override
-    public int appendQuotedUTF8(byte[] buffer, int offset) {
-        byte[] result = _quotedUTF8Ref;
+    public final byte[] asUnquotedUTF8() {
+        byte[] result = _unquotedUTF8Ref;
         if (result == null) {
-            result = BufferRecyclers.quoteAsJsonUTF8(_value);
-            _quotedUTF8Ref = result;
+            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
+            _unquotedUTF8Ref  = result;
         }
-        final int length = result.length;
-        if ((offset + length) > buffer.length) {
-            return -1;
-        }
-        System.arraycopy(result, 0, buffer, offset, length);
-        return length;
+        return result;
     }
+
+    /*
+    /**********************************************************************
+    /* Additional methods for appending/writing contents
+    /**********************************************************************
+     */
 
     @Override
     public int appendQuoted(char[] buffer, int offset) {
         char[] result = _quotedChars;
         if (result == null) {
-            result = BufferRecyclers.quoteAsJsonText(_value);
+            result = JsonStringEncoder.getInstance().quoteAsCharArray(_value);
             _quotedChars = result;
         }
         final int length = result.length;
@@ -168,11 +157,11 @@ public class SerializedString
     }
 
     @Override
-    public int appendUnquotedUTF8(byte[] buffer, int offset) {
-        byte[] result = _unquotedUTF8Ref;
+    public int appendQuotedUTF8(byte[] buffer, int offset) {
+        byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = BufferRecyclers.encodeAsUTF8(_value);
-            _unquotedUTF8Ref  = result;
+            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
+            _quotedUTF8Ref = result;
         }
         final int length = result.length;
         if ((offset + length) > buffer.length) {
@@ -194,10 +183,25 @@ public class SerializedString
     }
 
     @Override
+    public int appendUnquotedUTF8(byte[] buffer, int offset) {
+        byte[] result = _unquotedUTF8Ref;
+        if (result == null) {
+            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
+            _unquotedUTF8Ref  = result;
+        }
+        final int length = result.length;
+        if ((offset + length) > buffer.length) {
+            return -1;
+        }
+        System.arraycopy(result, 0, buffer, offset, length);
+        return length;
+    }
+
+    @Override
     public int writeQuotedUTF8(OutputStream out) throws IOException {
         byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = BufferRecyclers.quoteAsJsonUTF8(_value);
+            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
             _quotedUTF8Ref = result;
         }
         final int length = result.length;
@@ -209,7 +213,7 @@ public class SerializedString
     public int writeUnquotedUTF8(OutputStream out) throws IOException {
         byte[] result = _unquotedUTF8Ref;
         if (result == null) {
-            result = BufferRecyclers.encodeAsUTF8(_value);
+            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
             _unquotedUTF8Ref  = result;
         }
         final int length = result.length;
@@ -221,7 +225,7 @@ public class SerializedString
     public int putQuotedUTF8(ByteBuffer buffer) {
         byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = BufferRecyclers.quoteAsJsonUTF8(_value);
+            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
             _quotedUTF8Ref = result;
         }
         final int length = result.length;
@@ -236,7 +240,7 @@ public class SerializedString
     public int putUnquotedUTF8(ByteBuffer buffer) {
         byte[] result = _unquotedUTF8Ref;
         if (result == null) {
-            result = BufferRecyclers.encodeAsUTF8(_value);
+            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
             _unquotedUTF8Ref  = result;
         }
         final int length = result.length;
@@ -247,11 +251,10 @@ public class SerializedString
         return length;
     }
 
-    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

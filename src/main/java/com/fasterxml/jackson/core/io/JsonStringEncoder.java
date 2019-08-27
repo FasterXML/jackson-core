@@ -58,11 +58,6 @@ public final class JsonStringEncoder
      * (quoted and unquoted)
      */
     protected ByteArrayBuilder _bytes;
-    
-    /**
-     * Temporary buffer used for composing quote/escape sequences
-     */
-    protected final char[] _qbuf;
 
     /*
     /**********************************************************************
@@ -70,12 +65,7 @@ public final class JsonStringEncoder
     /**********************************************************************
      */
 
-    public JsonStringEncoder() {
-        _qbuf = new char[6];
-        _qbuf[0] = '\\';
-        _qbuf[2] = '0';
-        _qbuf[3] = '0';
-    }
+    public JsonStringEncoder() { }
 
     /**
      * Factory method for getting an instance; this is either recycled per-thread instance,
@@ -104,14 +94,15 @@ public final class JsonStringEncoder
      */
     public char[] quoteAsString(String input)
     {
-        TextBuffer textBuffer = null;
         char[] outputBuffer = new char[100];
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;
         int inPtr = 0;
         final int inputLen = input.length();
+        TextBuffer textBuffer = null;
         int outPtr = 0;
- 
+        char[] qbuf = null;
+
         outer:
         while (inPtr < inputLen) {
             tight_loop:
@@ -133,26 +124,29 @@ public final class JsonStringEncoder
                 }
             }
             // something to escape; 2 or 6-char variant? 
+            if (qbuf == null) {
+                qbuf = _qbuf();
+            }
             char d = input.charAt(inPtr++);
             int escCode = escCodes[d];
             int length = (escCode < 0)
-                    ? _appendNumeric(d, _qbuf)
-                    : _appendNamed(escCode, _qbuf);
+                    ? _appendNumeric(d, qbuf)
+                    : _appendNamed(escCode, qbuf);
                     ;
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
-                    System.arraycopy(_qbuf, 0, outputBuffer, outPtr, first);
+                    System.arraycopy(qbuf, 0, outputBuffer, outPtr, first);
                 }
                 if (textBuffer == null) {
                     textBuffer = TextBuffer.fromInitial(outputBuffer);
                 }
                 outputBuffer = textBuffer.finishCurrentSegment();
                 int second = length - first;
-                System.arraycopy(_qbuf, first, outputBuffer, 0, second);
+                System.arraycopy(qbuf, first, outputBuffer, 0, second);
                 outPtr = second;
             } else {
-                System.arraycopy(_qbuf, 0, outputBuffer, outPtr, length);
+                System.arraycopy(qbuf, 0, outputBuffer, outPtr, length);
                 outPtr += length;
             }
         }
@@ -184,6 +178,7 @@ public final class JsonStringEncoder
         int inPtr = 0;
         final int inputLen = input.length();
         int outPtr = 0;
+        char[] qbuf = null;
  
         outer:
         while (inPtr < inputLen) {
@@ -206,26 +201,29 @@ public final class JsonStringEncoder
                 }
             }
             // something to escape; 2 or 6-char variant? 
+            if (qbuf == null) {
+                qbuf = _qbuf();
+            }
             char d = input.charAt(inPtr++);
             int escCode = escCodes[d];
             int length = (escCode < 0)
-                    ? _appendNumeric(d, _qbuf)
-                    : _appendNamed(escCode, _qbuf);
+                    ? _appendNumeric(d, qbuf)
+                    : _appendNamed(escCode, qbuf);
                     ;
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
-                    System.arraycopy(_qbuf, 0, outputBuffer, outPtr, first);
+                    System.arraycopy(qbuf, 0, outputBuffer, outPtr, first);
                 }
                 if (textBuffer == null) {
                     textBuffer = TextBuffer.fromInitial(outputBuffer);
                 }
                 outputBuffer = textBuffer.finishCurrentSegment();
                 int second = length - first;
-                System.arraycopy(_qbuf, first, outputBuffer, 0, second);
+                System.arraycopy(qbuf, first, outputBuffer, 0, second);
                 outPtr = second;
             } else {
-                System.arraycopy(_qbuf, 0, outputBuffer, outPtr, length);
+                System.arraycopy(qbuf, 0, outputBuffer, outPtr, length);
                 outPtr += length;
             }
         }
@@ -250,6 +248,7 @@ public final class JsonStringEncoder
         final int escCodeCount = escCodes.length;
         int inPtr = 0;
         final int inputLen = input.length();
+        char[] qbuf = null;
 
         outer:
         while (inPtr < inputLen) {
@@ -265,12 +264,15 @@ public final class JsonStringEncoder
                 }
             }
             // something to escape; 2 or 6-char variant?
+            if (qbuf == null) {
+                qbuf = _qbuf();
+            }
             char d = input.charAt(inPtr++);
             int escCode = escCodes[d];
             int length = (escCode < 0)
-                    ? _appendNumeric(d, _qbuf)
-                    : _appendNamed(escCode, _qbuf);
-            output.append(_qbuf, 0, length);
+                    ? _appendNumeric(d, qbuf)
+                    : _appendNamed(escCode, qbuf);
+            output.append(qbuf, 0, length);
         }
     }
 
@@ -467,6 +469,14 @@ public final class JsonStringEncoder
     /* Internal methods
     /**********************************************************************
      */
+
+    private char[] _qbuf() {
+        char[] qbuf = new char[6];
+        qbuf[0] = '\\';
+        qbuf[2] = '0';
+        qbuf[3] = '0';
+        return qbuf;
+    }
 
     private int _appendNumeric(int value, char[] qbuf) {
         qbuf[1] = 'u';

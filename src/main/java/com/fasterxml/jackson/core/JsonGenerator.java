@@ -1502,9 +1502,6 @@ public abstract class JsonGenerator
         }
     }
 
-    /**
-     * @since 2.10
-     */
     protected void _copyCurrentContents(JsonParser p) throws IOException
     {
         int depth = 1;
@@ -1514,7 +1511,7 @@ public abstract class JsonGenerator
         while ((t = p.nextToken()) != null) {
             switch (t.id()) {
             case ID_FIELD_NAME:
-                writeFieldName(p.getCurrentName());
+                writeFieldName(p.currentName());
                 break;
 
             case ID_START_ARRAY:

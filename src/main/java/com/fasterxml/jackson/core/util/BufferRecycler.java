@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
+import java.util.concurrent.atomic.AtomicReferenceArray;
+
 /**
  * This is a small utility class, whose main functionality is to allow
  * simple reuse of raw byte/char buffers. It is usually used through
@@ -7,6 +9,9 @@ package com.fasterxml.jackson.core.util;
  * instance of this class through a <code>SoftReference</code>. The
  * end result is a low-overhead GC-cleanable recycling: hopefully
  * ideal for use by stream readers.
+ *<p>
+ * Rewritten in 2.10 to be thread-safe (see [jackson-core#479] for details),
+ * to not rely on {@code ThreadLocal} access.
  */
 public class BufferRecycler
 {
@@ -70,16 +75,19 @@ public class BufferRecycler
 
     private final static int[] BYTE_BUFFER_LENGTHS = new int[] { 8000, 8000, 2000, 2000 };
     private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };
-    
-    final protected byte[][] _byteBuffers;
-    final protected char[][] _charBuffers;
+
+    // Note: changed from simple array in 2.10:
+    protected final AtomicReferenceArray<byte[]> _byteBuffers;
+
+    // Note: changed from simple array in 2.10:
+    protected final AtomicReferenceArray<char[]> _charBuffers;
 
     /*
     /**********************************************************
     /* Construction
     /**********************************************************
      */
-    
+
     /**
      * Default constructor used for creating instances of this default
      * implementation.
@@ -95,8 +103,8 @@ public class BufferRecycler
      * @since 2.4
      */
     protected BufferRecycler(int bbCount, int cbCount) {
-        _byteBuffers = new byte[bbCount][];
-        _charBuffers = new char[cbCount][];
+        _byteBuffers = new AtomicReferenceArray<byte[]>(bbCount);
+        _charBuffers = new AtomicReferenceArray<char[]>(cbCount);
     }
 
     /*
@@ -117,17 +125,15 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        byte[] buffer = _byteBuffers[ix];
+        byte[] buffer = _byteBuffers.getAndSet(ix, null);
         if (buffer == null || buffer.length < minSize) {
             buffer = balloc(minSize);
-        } else {
-            _byteBuffers[ix] = null;
         }
         return buffer;
     }
 
     public void releaseByteBuffer(int ix, byte[] buffer) {
-        _byteBuffers[ix] = buffer;
+        _byteBuffers.set(ix, buffer);
     }
 
     /*
@@ -145,17 +151,15 @@ public class BufferRecycler
         if (minSize < DEF_SIZE) {
             minSize = DEF_SIZE;
         }
-        char[] buffer = _charBuffers[ix];
+        char[] buffer = _charBuffers.getAndSet(ix, null);
         if (buffer == null || buffer.length < minSize) {
             buffer = calloc(minSize);
-        } else {
-            _charBuffers[ix] = null;
         }
         return buffer;
     }
 
     public void releaseCharBuffer(int ix, char[] buffer) {
-        _charBuffers[ix] = buffer;
+        _charBuffers.set(ix, buffer);
     }
 
     /*
@@ -171,7 +175,7 @@ public class BufferRecycler
     protected int charBufferLength(int ix) {
         return CHAR_BUFFER_LENGTHS[ix];
     }
-    
+
     /*
     /**********************************************************
     /* Actual allocations separated for easier debugging/profiling

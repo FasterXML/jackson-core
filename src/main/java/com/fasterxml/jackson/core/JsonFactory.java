@@ -1727,10 +1727,9 @@ public class JsonFactory
      * @since 2.9.7
      */
     protected IOContext _createNonBlockingContext(Object srcRef) {
-        // [jackson-core#476]: disable buffer recycling for 2.9 to avoid concurrency issues;
-        // easiest done by just constructing private "recycler":
-        BufferRecycler recycler = new BufferRecycler();
-        return new IOContext(recycler, srcRef, false);
+        // [jackson-core#479]: allow recycling for non-blocking parser again
+        // now that access is thread-safe
+        return new IOContext(_getBufferRecycler(), srcRef, false);
     }
 
     /*

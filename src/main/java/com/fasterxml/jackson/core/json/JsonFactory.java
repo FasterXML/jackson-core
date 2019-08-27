@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.sym.BinaryNameMatcher;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
-import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Named;
 

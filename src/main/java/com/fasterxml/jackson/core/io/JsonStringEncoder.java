@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.io;
 
-import java.lang.ref.SoftReference;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -31,33 +30,8 @@ public final class JsonStringEncoder
     private final static int SURR2_FIRST = 0xDC00;
     private final static int SURR2_LAST = 0xDFFF;
 
-    // @since 2.10 Default to shorter buffer (500) than ByteArrayBuilder usually
+    private final static int INITIAL_CHAR_BUFFER_SIZE = 120;
     private final static int INITIAL_BYTE_BUFFER_SIZE = 200;
-
-//    private final static int INT_BACKSLASH = '\\';
-//    private final static int INT_U = 'u';
-//    private final static int INT_0 = '0';
-
-    /*
-    /**********************************************************************
-    /* Caching
-    /**********************************************************************
-     */
-
-    final protected static ThreadLocal<SoftReference<JsonStringEncoder>> _encoderRef
-        = new ThreadLocal<SoftReference<JsonStringEncoder>>();
-
-    /*
-    /**********************************************************************
-    /* State
-    /**********************************************************************
-     */
-
-    /**
-     * Lazily-constructed builder used for UTF-8 encoding of text values
-     * (quoted and unquoted)
-     */
-    protected ByteArrayBuilder _bytes;
 
     /*
     /**********************************************************************
@@ -65,6 +39,9 @@ public final class JsonStringEncoder
     /**********************************************************************
      */
 
+    // Since 2.10 we have stateless singleton and NO fancy ThreadLocal/SofRef caching!!!
+    private final static JsonStringEncoder instance = new JsonStringEncoder();
+    
     public JsonStringEncoder() { }
 
     /**
@@ -72,14 +49,7 @@ public final class JsonStringEncoder
      * or a newly constructed one.
      */
     public static JsonStringEncoder getInstance() {
-        SoftReference<JsonStringEncoder> ref = _encoderRef.get();
-        JsonStringEncoder enc = (ref == null) ? null : ref.get();
-
-        if (enc == null) {
-            enc = new JsonStringEncoder();
-            _encoderRef.set(new SoftReference<JsonStringEncoder>(enc));
-        }
-        return enc;
+        return instance;
     }
 
     /*
@@ -94,7 +64,7 @@ public final class JsonStringEncoder
      */
     public char[] quoteAsCharArray(CharSequence input)
     {
-        char[] outputBuffer = new char[100];
+        char[] outputBuffer = new char[INITIAL_CHAR_BUFFER_SIZE];
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;
         int inPtr = 0;
@@ -131,6 +101,7 @@ public final class JsonStringEncoder
             int escCode = escCodes[d];
             int length = (escCode < 0) ? _appendNumeric(d, qbuf)
                    : _appendNamed(escCode, qbuf);
+
             if ((outPtr + length) > outputBuffer.length) {
                 int first = outputBuffer.length - outPtr;
                 if (first > 0) {
@@ -202,15 +173,11 @@ public final class JsonStringEncoder
     @SuppressWarnings("resource")
     public byte[] quoteAsUTF8(CharSequence text)
     {
-        ByteArrayBuilder bb = _bytes;
-        if (bb == null) {
-            // no allocator; can add if we must, shouldn't need to
-            _bytes = bb = new ByteArrayBuilder(null, INITIAL_BYTE_BUFFER_SIZE);
-        }
         int inputPtr = 0;
         int inputEnd = text.length();
         int outputPtr = 0;
-        byte[] outputBuffer = bb.resetAndGetFirstSegment();
+        byte[] outputBuffer = new byte[INITIAL_BYTE_BUFFER_SIZE];
+        ByteArrayBuilder bb = null;
         
         main:
         while (inputPtr < inputEnd) {
@@ -223,6 +190,9 @@ public final class JsonStringEncoder
                     break inner_loop;
                 }
                 if (outputPtr >= outputBuffer.length) {
+                    if (bb == null) {
+                        bb = ByteArrayBuilder.fromInitial(outputBuffer, outputPtr);
+                    }
                     outputBuffer = bb.finishCurrentSegment();
                     outputPtr = 0;
                 }
@@ -230,7 +200,10 @@ public final class JsonStringEncoder
                 if (++inputPtr >= inputEnd) {
                     break main;
                 }
-            }                
+            }
+            if (bb == null) {
+                bb = ByteArrayBuilder.fromInitial(outputBuffer, outputPtr);
+            }
             if (outputPtr >= outputBuffer.length) {
                 outputBuffer = bb.finishCurrentSegment();
                 outputPtr = 0;
@@ -289,7 +262,10 @@ public final class JsonStringEncoder
             }
             outputBuffer[outputPtr++] = (byte) ch;
         }
-        return _bytes.completeAndCoalesce(outputPtr);
+        if (bb == null) {
+            return Arrays.copyOfRange(outputBuffer, 0, outputPtr);
+        }
+        return bb.completeAndCoalesce(outputPtr);
     }
 
     /**
@@ -299,16 +275,12 @@ public final class JsonStringEncoder
     @SuppressWarnings("resource")
     public byte[] encodeAsUTF8(CharSequence text)
     {
-        ByteArrayBuilder byteBuilder = _bytes;
-        if (byteBuilder == null) {
-            // no allocator; can add if we must, shouldn't need to
-            _bytes = byteBuilder = new ByteArrayBuilder(null, INITIAL_BYTE_BUFFER_SIZE);
-        }
         int inputPtr = 0;
         int inputEnd = text.length();
         int outputPtr = 0;
-        byte[] outputBuffer = byteBuilder.resetAndGetFirstSegment();
+        byte[] outputBuffer = new byte[INITIAL_BYTE_BUFFER_SIZE];
         int outputEnd = outputBuffer.length;
+        ByteArrayBuilder bb = null;
 
         main_loop:
         while (inputPtr < inputEnd) {
@@ -317,7 +289,10 @@ public final class JsonStringEncoder
             // first tight loop for ascii
             while (c <= 0x7F) {
                 if (outputPtr >= outputEnd) {
-                    outputBuffer = byteBuilder.finishCurrentSegment();
+                    if (bb == null) {
+                        bb = ByteArrayBuilder.fromInitial(outputBuffer, outputPtr);
+                    }
+                    outputBuffer = bb.finishCurrentSegment();
                     outputEnd = outputBuffer.length;
                     outputPtr = 0;
                 }
@@ -329,8 +304,11 @@ public final class JsonStringEncoder
             }
 
             // then multi-byte...
+            if (bb == null) {
+                bb = ByteArrayBuilder.fromInitial(outputBuffer, outputPtr);
+            }
             if (outputPtr >= outputEnd) {
-                outputBuffer = byteBuilder.finishCurrentSegment();
+                outputBuffer = bb.finishCurrentSegment();
                 outputEnd = outputBuffer.length;
                 outputPtr = 0;
             }
@@ -341,7 +319,7 @@ public final class JsonStringEncoder
                 if (c < SURR1_FIRST || c > SURR2_LAST) { // nope
                     outputBuffer[outputPtr++] = (byte) (0xe0 | (c >> 12));
                     if (outputPtr >= outputEnd) {
-                        outputBuffer = byteBuilder.finishCurrentSegment();
+                        outputBuffer = bb.finishCurrentSegment();
                         outputEnd = outputBuffer.length;
                         outputPtr = 0;
                     }
@@ -360,13 +338,13 @@ public final class JsonStringEncoder
                     }
                     outputBuffer[outputPtr++] = (byte) (0xf0 | (c >> 18));
                     if (outputPtr >= outputEnd) {
-                        outputBuffer = byteBuilder.finishCurrentSegment();
+                        outputBuffer = bb.finishCurrentSegment();
                         outputEnd = outputBuffer.length;
                         outputPtr = 0;
                     }
                     outputBuffer[outputPtr++] = (byte) (0x80 | ((c >> 12) & 0x3f));
                     if (outputPtr >= outputEnd) {
-                        outputBuffer = byteBuilder.finishCurrentSegment();
+                        outputBuffer = bb.finishCurrentSegment();
                         outputEnd = outputBuffer.length;
                         outputPtr = 0;
                     }
@@ -374,13 +352,16 @@ public final class JsonStringEncoder
                 }
             }
             if (outputPtr >= outputEnd) {
-                outputBuffer = byteBuilder.finishCurrentSegment();
+                outputBuffer = bb.finishCurrentSegment();
                 outputEnd = outputBuffer.length;
                 outputPtr = 0;
             }
             outputBuffer[outputPtr++] = (byte) (0x80 | (c & 0x3f));
         }
-        return _bytes.completeAndCoalesce(outputPtr);
+        if (bb == null) {
+            return Arrays.copyOfRange(outputBuffer, 0, outputPtr);
+        }
+        return bb.completeAndCoalesce(outputPtr);
     }
 
     /*

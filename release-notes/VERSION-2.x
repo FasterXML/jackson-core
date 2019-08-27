@@ -18,6 +18,9 @@ JSON library.
 
 #540: UTF8StreamJsonParser: fix byte to int conversion for malformed escapes
  (Alex R)
+#556: 'IndexOutOfBoundsException' in UTF8JsonGenerator.writeString(Reader, len)
+  when using a negative length
+ (reported by jacob-alan-ward@github)
 
 2.9.9 (16-May-2019)
 

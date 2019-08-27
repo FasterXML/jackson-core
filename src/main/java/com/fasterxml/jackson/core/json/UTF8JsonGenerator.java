@@ -475,13 +475,13 @@ public class UTF8JsonGenerator
 
         final char[] buf = _charBuffer;
 
-        //Add leading quote
-        if ((_outputTail + len) >= _outputEnd) {
+        // Add leading quote
+        if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
 
-        //read
+        // read
         while (toRead > 0){
             int toReadNow = Math.min(toRead, buf.length);
             int numRead = reader.read(buf, 0, toReadNow);
@@ -496,8 +496,8 @@ public class UTF8JsonGenerator
             toRead -= numRead;
         }
 
-        //Add trailing quote
-        if ((_outputTail + len) >= _outputEnd) {
+        // Add trailing quote
+        if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;

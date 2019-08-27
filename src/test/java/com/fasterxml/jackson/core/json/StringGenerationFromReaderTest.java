@@ -2,7 +2,9 @@ package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Random;
@@ -273,5 +275,32 @@ public class StringGenerationFromReaderTest
         }
         assertEquals(JsonToken.END_ARRAY, p.currentToken());
         p.close();
+    }
+
+    // [jackson-core#556]
+    public void testIssue556() throws Exception
+    {
+        StringBuilder sb = new StringBuilder(8000);
+        sb.append('"');
+        for (int i = 0; i < 7988; i++) {
+             sb.append("a");
+        }
+        sb.append('"');
+        byte[] bytes = sb.toString().getBytes("UTF-8");
+
+        StringWriter w = new StringWriter(9000);
+        JsonGenerator g = FACTORY.createGenerator(new ByteArrayOutputStream());
+
+        g.writeStartArray();
+        _write556(g, sb.toString());
+        _write556(g, "b");
+        _write556(g, "c");
+        g.writeEndArray();
+        g.close();
+    }
+
+    private void _write556(JsonGenerator g, String value) throws Exception
+    {
+        g.writeString(new StringReader(value), -1);
     }
 }

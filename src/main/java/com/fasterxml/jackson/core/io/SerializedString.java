@@ -19,6 +19,8 @@ public class SerializedString
 {
     private static final long serialVersionUID = 1L;
 
+    private static final JsonStringEncoder JSON_ENCODER = JsonStringEncoder.getInstance();
+    
     protected final String _value;
 
     /* 13-Dec-2010, tatu: Whether use volatile or not is actually an important
@@ -102,8 +104,7 @@ public class SerializedString
     public final char[] asQuotedChars() {
         char[] result = _quotedChars;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().quoteAsString(_value);
-            _quotedChars = result;
+            _quotedChars = result = JSON_ENCODER.quoteAsString(_value);
         }
         return result;
     }
@@ -117,8 +118,7 @@ public class SerializedString
     public final byte[] asQuotedUTF8() {
         byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
-            _quotedUTF8Ref = result;
+            _quotedUTF8Ref = result = JSON_ENCODER.quoteAsUTF8(_value);
         }
         return result;
     }
@@ -131,8 +131,7 @@ public class SerializedString
     public final byte[] asUnquotedUTF8() {
         byte[] result = _unquotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
-            _unquotedUTF8Ref  = result;
+            _unquotedUTF8Ref = result = JSON_ENCODER.encodeAsUTF8(_value);
         }
         return result;
     }
@@ -147,8 +146,7 @@ public class SerializedString
     public int appendQuoted(char[] buffer, int offset) {
         char[] result = _quotedChars;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().quoteAsString(_value);
-            _quotedChars = result;
+            _quotedChars = result = JSON_ENCODER.quoteAsString(_value);
         }
         final int length = result.length;
         if ((offset + length) > buffer.length) {
@@ -162,8 +160,7 @@ public class SerializedString
     public int appendQuotedUTF8(byte[] buffer, int offset) {
         byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
-            _quotedUTF8Ref = result;
+            _quotedUTF8Ref = result = JSON_ENCODER.quoteAsUTF8(_value);
         }
         final int length = result.length;
         if ((offset + length) > buffer.length) {
@@ -188,8 +185,7 @@ public class SerializedString
     public int appendUnquotedUTF8(byte[] buffer, int offset) {
         byte[] result = _unquotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
-            _unquotedUTF8Ref  = result;
+            _unquotedUTF8Ref = result = JSON_ENCODER.encodeAsUTF8(_value);
         }
         final int length = result.length;
         if ((offset + length) > buffer.length) {
@@ -203,8 +199,7 @@ public class SerializedString
     public int writeQuotedUTF8(OutputStream out) throws IOException {
         byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
-            _quotedUTF8Ref = result;
+            _quotedUTF8Ref = result = JSON_ENCODER.quoteAsUTF8(_value);
         }
         final int length = result.length;
         out.write(result, 0, length);
@@ -215,8 +210,7 @@ public class SerializedString
     public int writeUnquotedUTF8(OutputStream out) throws IOException {
         byte[] result = _unquotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
-            _unquotedUTF8Ref  = result;
+            _unquotedUTF8Ref = result = JSON_ENCODER.encodeAsUTF8(_value);
         }
         final int length = result.length;
         out.write(result, 0, length);
@@ -227,8 +221,7 @@ public class SerializedString
     public int putQuotedUTF8(ByteBuffer buffer) {
         byte[] result = _quotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().quoteAsUTF8(_value);
-            _quotedUTF8Ref = result;
+            _quotedUTF8Ref = result = JSON_ENCODER.quoteAsUTF8(_value);
         }
         final int length = result.length;
         if (length > buffer.remaining()) {
@@ -242,8 +235,7 @@ public class SerializedString
     public int putUnquotedUTF8(ByteBuffer buffer) {
         byte[] result = _unquotedUTF8Ref;
         if (result == null) {
-            result = JsonStringEncoder.getInstance().encodeAsUTF8(_value);
-            _unquotedUTF8Ref  = result;
+            _unquotedUTF8Ref = result = JSON_ENCODER.encodeAsUTF8(_value);
         }
         final int length = result.length;
         if (length > buffer.remaining()) {

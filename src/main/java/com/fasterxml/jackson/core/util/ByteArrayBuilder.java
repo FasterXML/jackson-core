@@ -57,6 +57,16 @@ public final class ByteArrayBuilder extends OutputStream
         _currBlock = (br == null) ? new byte[firstBlockSize] : br.allocByteBuffer(BufferRecycler.BYTE_WRITE_CONCAT_BUFFER);
     }
 
+    private ByteArrayBuilder(BufferRecycler br, byte[] initialBlock, int initialLen) {
+        _bufferRecycler = null;
+        _currBlock = initialBlock;
+        _currBlockPtr = initialLen;
+    }
+
+    public static ByteArrayBuilder fromInitial(byte[] initialBlock, int length) {
+        return new ByteArrayBuilder(null, initialBlock, length);
+    }
+    
     public void reset() {
         _pastLen = 0;
         _currBlockPtr = 0;

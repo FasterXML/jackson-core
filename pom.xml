@@ -55,6 +55,28 @@ com.fasterxml.jackson.core.*;version=${project.version}
 
   <build>
     <plugins>
+
+      <!-- 26-Aug-2019, tatu: JaCoCo for code coverage -->
+      <plugin>
+	<groupId>org.jacoco</groupId>
+	<artifactId>jacoco-maven-plugin</artifactId>
+	<version>0.8.4</version>
+	<executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Important: enable enforcer plug-in: -->
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>

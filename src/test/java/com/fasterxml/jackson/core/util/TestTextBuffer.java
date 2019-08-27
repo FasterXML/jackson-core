@@ -102,10 +102,11 @@ public class TestTextBuffer
     public void testGetCurrentSegment() {
         TextBuffer textBuffer = new TextBuffer(null);
         textBuffer.emptyAndGetCurrentSegment();
-        textBuffer.setCurrentAndReturn(1000);
+        // 26-Aug-2019, tatu: Value depends on "minimum segment size":
+        textBuffer.setCurrentAndReturn(500);
         textBuffer.getCurrentSegment();
 
-        assertEquals(1000, textBuffer.size());
+        assertEquals(500, textBuffer.size());
     }
 
     public void testAppendTakingTwoAndThreeInts() {

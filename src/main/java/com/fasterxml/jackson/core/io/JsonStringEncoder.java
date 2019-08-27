@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
 import java.lang.ref.SoftReference;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
@@ -53,12 +54,6 @@ public final class JsonStringEncoder
      */
 
     /**
-     * Lazily constructed text buffer used to produce JSON encoded Strings
-     * as characters (without UTF-8 encoding)
-     */
-    protected TextBuffer _text;
-
-    /**
      * Lazily-constructed builder used for UTF-8 encoding of text values
      * (quoted and unquoted)
      */
@@ -109,12 +104,8 @@ public final class JsonStringEncoder
      */
     public char[] quoteAsString(String input)
     {
-        TextBuffer textBuffer = _text;
-        if (textBuffer == null) {
-            // no allocator; can add if we must, shouldn't need to
-            _text = textBuffer = new TextBuffer(null);
-        }
-        char[] outputBuffer = textBuffer.emptyAndGetCurrentSegment();
+        TextBuffer textBuffer = null;
+        char[] outputBuffer = new char[100];
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;
         int inPtr = 0;
@@ -130,6 +121,9 @@ public final class JsonStringEncoder
                     break tight_loop;
                 }
                 if (outPtr >= outputBuffer.length) {
+                    if (textBuffer == null) {
+                        textBuffer = TextBuffer.fromInitial(outputBuffer);
+                    }
                     outputBuffer = textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -150,6 +144,9 @@ public final class JsonStringEncoder
                 if (first > 0) {
                     System.arraycopy(_qbuf, 0, outputBuffer, outPtr, first);
                 }
+                if (textBuffer == null) {
+                    textBuffer = TextBuffer.fromInitial(outputBuffer);
+                }
                 outputBuffer = textBuffer.finishCurrentSegment();
                 int second = length - first;
                 System.arraycopy(_qbuf, first, outputBuffer, 0, second);
@@ -158,6 +155,10 @@ public final class JsonStringEncoder
                 System.arraycopy(_qbuf, 0, outputBuffer, outPtr, length);
                 outPtr += length;
             }
+        }
+
+        if (textBuffer == null) {
+            return Arrays.copyOfRange(outputBuffer, 0, outPtr);
         }
         textBuffer.setCurrentLength(outPtr);
         return textBuffer.contentsAsArray();
@@ -175,11 +176,9 @@ public final class JsonStringEncoder
             return quoteAsString((String) input);
         }
 
-        TextBuffer textBuffer = _text;
-        if (textBuffer == null) {
-            _text = textBuffer = new TextBuffer(null);
-        }
-        char[] outputBuffer = textBuffer.emptyAndGetCurrentSegment();
+        TextBuffer textBuffer = null;
+
+        char[] outputBuffer = new char[100];
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;
         int inPtr = 0;
@@ -195,6 +194,9 @@ public final class JsonStringEncoder
                     break tight_loop;
                 }
                 if (outPtr >= outputBuffer.length) {
+                    if (textBuffer == null) {
+                        textBuffer = TextBuffer.fromInitial(outputBuffer);
+                    }
                     outputBuffer = textBuffer.finishCurrentSegment();
                     outPtr = 0;
                 }
@@ -203,6 +205,7 @@ public final class JsonStringEncoder
                     break outer;
                 }
             }
+            // something to escape; 2 or 6-char variant? 
             char d = input.charAt(inPtr++);
             int escCode = escCodes[d];
             int length = (escCode < 0)
@@ -214,6 +217,9 @@ public final class JsonStringEncoder
                 if (first > 0) {
                     System.arraycopy(_qbuf, 0, outputBuffer, outPtr, first);
                 }
+                if (textBuffer == null) {
+                    textBuffer = TextBuffer.fromInitial(outputBuffer);
+                }
                 outputBuffer = textBuffer.finishCurrentSegment();
                 int second = length - first;
                 System.arraycopy(_qbuf, first, outputBuffer, 0, second);
@@ -222,6 +228,10 @@ public final class JsonStringEncoder
                 System.arraycopy(_qbuf, 0, outputBuffer, outPtr, length);
                 outPtr += length;
             }
+        }
+
+        if (textBuffer == null) {
+            return Arrays.copyOfRange(outputBuffer, 0, outPtr);
         }
         textBuffer.setCurrentLength(outPtr);
         return textBuffer.contentsAsArray();

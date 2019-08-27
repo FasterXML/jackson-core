@@ -30,9 +30,11 @@ public final class TextBuffer
 
     /**
      * Let's start with sizable but not huge buffer, will grow as necessary
+     *<p>
+     * Reduced from 1000 down to 500 in 2.10.
      */
-    final static int MIN_SEGMENT_LEN = 1000;
-    
+    final static int MIN_SEGMENT_LEN = 500;
+
     /**
      * Let's limit maximum segment length to something sensible.
      * For 2.10, let's limit to using 64kc chunks (128 kB) -- was 256kC/512kB up to 2.9
@@ -120,6 +122,26 @@ public final class TextBuffer
 
     public TextBuffer(BufferRecycler allocator) {
         _allocator = allocator;
+    }
+
+    /**
+     * @since 2.10
+     */
+    protected TextBuffer(BufferRecycler allocator, char[] initialSegment) {
+        _allocator = allocator;
+        _currentSegment = initialSegment;
+        _currentSize = initialSegment.length;
+        _inputStart = -1;
+    }
+
+    /**
+     * Factory method for constructing an instance with no allocator, and
+     * with initial full segment.
+     *
+     * @since 2.10
+     */
+    public static TextBuffer fromInitial(char[] initialSegment) {
+        return new TextBuffer(null, initialSegment);
     }
 
     /**

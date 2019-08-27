@@ -16,6 +16,8 @@ JSON library.
 
 2.10.0.pr2
 
+#479: Improve thread-safety of buffer recycling to enable recycling again
+ for async parsing
 #517: Add `JsonGenerator.writeStartObject(Object, int)` (needed by CBOR, maybe Avro)
 #549: Add configurability of "quote character" for JSON factory
 - Rewrite `JsonGenerator.copyCurrentStructure()` to remove recursion)

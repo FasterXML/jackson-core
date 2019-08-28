@@ -76,6 +76,16 @@ public class JsonFactoryTest
         public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JsonProcessingException {
             return null;
         }
+
+        @Override
+        public TreeNode missingNode() {
+            return null;
+        }
+
+        @Override
+        public TreeNode nullNode() {
+            return null;
+        }
     }
 
     // for testing [core#460]

@@ -74,6 +74,15 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
             return null;
         }
         @Override
+        public TreeNode missingNode() {
+            return null;
+        }
+
+        @Override
+        public TreeNode nullNode() {
+            return null;
+        }
+        @Override
         public JsonParser treeAsTokens(TreeNode n) {
             return null;
         }

@@ -286,9 +286,6 @@ public class StringGenerationFromReaderTest
              sb.append("a");
         }
         sb.append('"');
-        byte[] bytes = sb.toString().getBytes("UTF-8");
-
-        StringWriter w = new StringWriter(9000);
         JsonGenerator g = FACTORY.createGenerator(new ByteArrayOutputStream());
 
         g.writeStartArray();

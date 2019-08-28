@@ -2,11 +2,7 @@ package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Random;
 
 /**

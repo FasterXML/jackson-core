@@ -82,12 +82,41 @@ public class TestJsonPointer extends BaseTest
 
     public void testEmpty()
     {
+        assertSame(JsonPointer.EMPTY, JsonPointer.empty());
+        assertSame(JsonPointer.EMPTY, JsonPointer.compile(""));
+    }
+    
+    public void testEmptyName()
+    {
         // note: this is acceptable, to match property in '{"":3}', for example
         // and NOT same as what empty point, "", is.
         JsonPointer ptr = JsonPointer.compile("/");
         assertNotNull(ptr);
         assertNotSame(JsonPointer.EMPTY, ptr);
+        
         assertEquals("/", ptr.toString());
+    }
+
+    // mostly for test coverage, really...
+    public void testEquality() {
+        assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/")));
+
+        assertEquals(JsonPointer.compile("/foo/3"), JsonPointer.compile("/foo/3"));
+        assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/12")));
+        assertFalse(JsonPointer.compile("/12").equals(JsonPointer.empty()));
+
+        // expr != String
+        assertFalse(JsonPointer.empty().equals("/"));
+    }
+
+    public void testProperties() {
+        assertTrue(JsonPointer.compile("/foo").mayMatchProperty());
+        assertFalse(JsonPointer.compile("/foo").mayMatchElement());
+
+        assertTrue(JsonPointer.compile("/12").mayMatchElement());
+        // Interestingly enough, since Json Pointer is just String, could
+        // ALSO match property with name "12"
+        assertTrue(JsonPointer.compile("/12").mayMatchProperty());
     }
 
     public void testAppend()

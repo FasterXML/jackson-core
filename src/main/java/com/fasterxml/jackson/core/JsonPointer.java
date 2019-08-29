@@ -138,6 +138,17 @@ public class JsonPointer
     public static JsonPointer valueOf(String input) { return compile(input); }
 
     /**
+     * Accessor for an "empty" expression, that is, one you can get by
+     * calling {@link #compile} with "" (empty String).
+     *<p>
+     * NOTE: this is different from expression for {@code "/"} which would
+     * instead match Object node property with empty String ("") as name.
+     *
+     * @since 2.10
+     */
+    public static JsonPointer empty() { return EMPTY; }
+
+    /**
      * Factory method that will construct a pointer instance that describes
      * path to location given {@link JsonStreamContext} points to.
      *
@@ -248,7 +259,17 @@ public class JsonPointer
     public boolean matches() { return _nextSegment == null; }
     public String getMatchingProperty() { return _matchingPropertyName; }
     public int getMatchingIndex() { return _matchingElementIndex; }
+
+    /**
+     * @return True if the root selector matches property name (that is, could
+     * match field value of JSON Object node)
+     */
     public boolean mayMatchProperty() { return _matchingPropertyName != null; }
+
+    /**
+     * @return True if the root selector matches element index (that is, could
+     * match an element of JSON Array node)
+     */
     public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 
     /**

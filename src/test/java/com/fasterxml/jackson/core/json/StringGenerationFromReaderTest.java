@@ -2,11 +2,7 @@ package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Random;
 
 /**
@@ -286,9 +282,6 @@ public class StringGenerationFromReaderTest
              sb.append("a");
         }
         sb.append('"');
-        byte[] bytes = sb.toString().getBytes("UTF-8");
-
-        StringWriter w = new StringWriter(9000);
         JsonGenerator g = FACTORY.createGenerator(new ByteArrayOutputStream());
 
         g.writeStartArray();

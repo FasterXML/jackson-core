@@ -290,7 +290,7 @@ public abstract class JsonGenerator
 
     /**
      * Method that can be used to verify that given schema can be used with
-     * this generator (using {@link #setSchema}).
+     * this generator.
      * 
      * @param schema Schema to check
      * 

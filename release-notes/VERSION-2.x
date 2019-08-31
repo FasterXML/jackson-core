@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0.pr2
+2.10.0.pr2 (31-Aug-2019)
 
 #479: Improve thread-safety of buffer recycling to enable recycling again
  for async parsing

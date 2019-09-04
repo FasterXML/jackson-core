@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0.pr2
+2.10.0.pr2 (31-Aug-2019)
 
 #479: Improve thread-safety of buffer recycling to enable recycling again
  for async parsing
@@ -52,7 +52,7 @@ JSON library.
 2.9.10 (not yet released)
 
 #540: UTF8StreamJsonParser: fix byte to int conversion for malformed escapes
- (Alex R)
+ (reported by Alex R and Sam S)
 #556: 'IndexOutOfBoundsException' in UTF8JsonGenerator.writeString(Reader, len)
   when using a negative length
  (reported by jacob-alan-ward@github)

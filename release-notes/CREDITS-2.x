@@ -174,6 +174,10 @@ Alex Rebert (alpire@github)
   * Reported #548: ByteQuadsCanonicalizer: ArrayIndexOutOfBoundsException in addName
   (2.10.0)
 
+Sam Smith (Oracle Security Researcher)
+  * Reported #540 (concurrently with Alex R, before fix was included)
+  (2.9.10)
+
 Philippe Marschall (marschall@github)
   * Requested #480: `SerializableString` value can not directly render to Writer
   (2.10.0)

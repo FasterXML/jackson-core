@@ -168,3 +168,6 @@ Alex Rebert (alpire@github)
   * Reported #540, suggested fix: UTF8StreamJsonParser: fix byte to int conversion for
     malformed escapes
   (2.9.10)
+
+Sam Smith (Oracle Security Researcher)
+  * Reported #540 (concurrently with Alex R, before fix was included)

@@ -1,15 +1,28 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.*;
-
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectReadContext;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
-import com.fasterxml.jackson.core.util.*;
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
-import static com.fasterxml.jackson.core.JsonTokenId.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+
+import static com.fasterxml.jackson.core.JsonTokenId.ID_FIELD_NAME;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_NUMBER_FLOAT;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_NUMBER_INT;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_STRING;
 
 /**
  * This is a concrete implementation of {@link JsonParser}, which is
@@ -185,14 +198,6 @@ public class UTF8StreamJsonParser
     {
         final int bufSize = _inputEnd;
 
-        _currInputProcessed += _inputEnd;
-        _currInputRowStart -= _inputEnd;
-
-        // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
-        //   this increase to avoid "moving" name-offset, resulting most likely
-        //   in negative value, which is fine as combine value remains unchanged.
-        _nameStartOffset -= bufSize;
-
         if (_inputStream != null) {
             int space = _inputBuffer.length;
             if (space == 0) { // only occurs when we've been closed
@@ -203,6 +208,15 @@ public class UTF8StreamJsonParser
             if (count > 0) {
                 _inputPtr = 0;
                 _inputEnd = count;
+
+                _currInputProcessed += _inputEnd;
+                _currInputRowStart -= _inputEnd;
+
+                // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
+                //   this increase to avoid "moving" name-offset, resulting most likely
+                //   in negative value, which is fine as combine value remains unchanged.
+                _nameStartOffset -= bufSize;
+
                 return true;
             }
             // End of input

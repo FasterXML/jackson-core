@@ -1,14 +1,30 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.*;
-
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectReadContext;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.core.util.*;
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.TextBuffer;
 
-import static com.fasterxml.jackson.core.JsonTokenId.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+
+import static com.fasterxml.jackson.core.JsonTokenId.ID_FALSE;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_FIELD_NAME;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_NUMBER_FLOAT;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_NUMBER_INT;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_STRING;
+import static com.fasterxml.jackson.core.JsonTokenId.ID_TRUE;
 
 /**
  * This is a concrete implementation of {@link JsonParser}, which is
@@ -217,19 +233,19 @@ public class ReaderBasedJsonParser
     {
         final int bufSize = _inputEnd;
 
-        _currInputProcessed += bufSize;
-        _currInputRowStart -= bufSize;
-
-        // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
-        //   this increase to avoid "moving" name-offset, resulting most likely
-        //   in negative value, which is fine as combine value remains unchanged.
-        _nameStartOffset -= bufSize;
-
         if (_reader != null) {
             int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
             if (count > 0) {
                 _inputPtr = 0;
                 _inputEnd = count;
+                _currInputProcessed += bufSize;
+                _currInputRowStart -= bufSize;
+
+                // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
+                //   this increase to avoid "moving" name-offset, resulting most likely
+                //   in negative value, which is fine as combine value remains unchanged.
+                _nameStartOffset -= bufSize;
+
                 return true;
             }
             // End of input

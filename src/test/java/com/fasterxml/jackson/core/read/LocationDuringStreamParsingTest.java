@@ -1,39 +1,44 @@
 package com.fasterxml.jackson.core.read;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Set of tests that checks getCurrentLocation() and getTokenLocation() are as expected during
  * parsing.
  */
-public class LocationDuringStreamParsingTest extends BaseTest {
-    public void testLocationAtEndOfParse() throws Exception {
+public class LocationDuringStreamParsingTest extends BaseTest
+{
+    public void testLocationAtEndOfParse() throws Exception
+    {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
             testLocationAtEndOfParse(test);
         }
     }
 
-    public void testInitialLocation() throws Exception {
+    public void testInitialLocation() throws Exception
+    {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
             testInitialLocation(test);
         }
     }
 
-    public void testTokenLocations() throws Exception {
+    public void testTokenLocations() throws Exception
+    {
         for (LocationTestCase test : LocationTestCase.values()) {
             //System.out.println(test.name());
             testTokenLocations(test);
         }
     }
 
-    private void testLocationAtEndOfParse(LocationTestCase test) throws Exception {
+    private void testLocationAtEndOfParse(LocationTestCase test) throws Exception
+    {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
         while (p.nextToken() != null) {
             p.nextToken();
@@ -42,7 +47,8 @@ public class LocationDuringStreamParsingTest extends BaseTest {
         p.close();
     }
 
-    private void testInitialLocation(LocationTestCase test) throws Exception {
+    private void testInitialLocation(LocationTestCase test) throws Exception
+    {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
         JsonLocation loc = p.getCurrentLocation();
         p.close();
@@ -50,7 +56,8 @@ public class LocationDuringStreamParsingTest extends BaseTest {
         assertLocation(loc, at(1, 1, 0));
     }
 
-    private void testTokenLocations(LocationTestCase test) throws Exception {
+    private void testTokenLocations(LocationTestCase test) throws Exception
+    {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
         int i = 0;
         while (p.nextToken() != null) {
@@ -61,15 +68,18 @@ public class LocationDuringStreamParsingTest extends BaseTest {
         p.close();
     }
 
-    private void assertCurrentLocation(JsonParser p, LocData loc) {
+    private void assertCurrentLocation(JsonParser p, LocData loc)
+    {
         assertLocation(p.getCurrentLocation(), loc);
     }
 
-    private void assertTokenLocation(JsonParser p, LocData loc) {
+    private void assertTokenLocation(JsonParser p, LocData loc)
+    {
         assertLocation(p.getTokenLocation(), loc);
     }
 
-    private void assertLocation(JsonLocation pLoc, LocData loc) {
+    private void assertLocation(JsonLocation pLoc, LocData loc)
+    {
         String expected = String.format("(%d, %d, %d)",
                 loc.lineNumber, loc.columnNumber, loc.offset);
         String actual = String.format("(%d, %d, %d)", pLoc.getLineNr(), pLoc.getColumnNr(),
@@ -77,19 +87,22 @@ public class LocationDuringStreamParsingTest extends BaseTest {
         assertEquals(expected, actual);
     }
 
-    private static class LocData {
+    private static class LocData
+    {
         private long lineNumber;
         private long columnNumber;
         private long offset;
 
-        LocData(long lineNumber, long columnNumber, long offset) {
+        LocData(long lineNumber, long columnNumber, long offset)
+        {
             this.lineNumber = lineNumber;
             this.columnNumber = columnNumber;
             this.offset = offset;
         }
     }
 
-    private static LocData at(long lineNumber, long columnNumber, long offset) {
+    private static LocData at(long lineNumber, long columnNumber, long offset)
+    {
         return new LocData(lineNumber, columnNumber, offset);
     }
 
@@ -97,7 +110,8 @@ public class LocationDuringStreamParsingTest extends BaseTest {
      * Adapted liberally from https://github.com/leadpony/jsonp-test-suite, also
      * released under the Apache License v2.
      */
-    enum LocationTestCase {
+    enum LocationTestCase
+    {
         SIMPLE_VALUE("42", at(1, 1, 0), at(1, 3, 2)),
 
         SIMPLE_VALUE_WITH_PADDING("   1337  ", at(1, 4, 3), at(1, 10, 9)),
@@ -191,12 +205,14 @@ public class LocationDuringStreamParsingTest extends BaseTest {
         final String json;
         final List<LocData> locations;
 
-        LocationTestCase(String json, LocData... locations) {
+        LocationTestCase(String json, LocData... locations)
+        {
             this.json = json;
             this.locations = Arrays.asList(locations);
         }
 
-        LocData getFinalLocation() {
+        LocData getFinalLocation()
+        {
             return locations.get(locations.size() - 1);
         }
     }

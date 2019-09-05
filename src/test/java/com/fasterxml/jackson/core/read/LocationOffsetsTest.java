@@ -1,8 +1,7 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
 
-// NOTE: just a stub so for, fill me!
 public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
 {
     final JsonFactory JSON_F = new JsonFactory();

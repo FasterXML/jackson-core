@@ -103,13 +103,13 @@ public class LocationDuringStreamParsingTest extends BaseTest {
         SIMPLE_VALUE_WITH_PADDING("   1337  ", at(1, 4, 3), at(1, 10, 9)),
 
         SIMPLE_VALUE_WITH_MULTIBYTE_CHARS("\"Правда\"",
-                at(1,1,0),
-                at(1,15,14) // one byte for each ", two for each Cyrillic char
+                at(1, 1, 0),
+                at(1, 15, 14) // one byte for each ", two for each Cyrillic char
         ),
 
         SIMPLE_VALUE_INCLUDING_SURROGATE_PAIR_CHARS("\"a П \uD83D\uDE01\"",
-                at(1,1,0),
-                at(1,12,11) // one byte for each ", a and space; two for П, four for smiley emoji
+                at(1, 1, 0),
+                at(1, 12, 11) // one byte for each ", a and space; two for П, four for smiley emoji
         ),
 
         ARRAY_IN_ONE_LINE("[\"hello\",42,true]",
@@ -185,7 +185,8 @@ public class LocationDuringStreamParsingTest extends BaseTest {
                 at(3, 14, 38), // 42
                 at(4, 1, 42), // }
                 at(4, 2, 43) // end of input
-        ),;
+        ),
+        ;
 
         final String json;
         final List<LocData> locations;

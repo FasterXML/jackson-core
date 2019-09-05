@@ -282,7 +282,8 @@ public class StringGenerationFromReaderTest
              sb.append("a");
         }
         sb.append('"');
-        JsonGenerator g = FACTORY.createGenerator(new ByteArrayOutputStream());
+        JsonGenerator g = FACTORY.createGenerator(ObjectWriteContext.empty(),
+                new ByteArrayOutputStream());
 
         g.writeStartArray();
         _write556(g, sb.toString());

@@ -1,6 +1,7 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 // Tests mostly for [core#229]
 public class LocationInArrayTest extends com.fasterxml.jackson.core.BaseTest

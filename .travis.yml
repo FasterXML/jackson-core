@@ -1,8 +1,6 @@
 language: java
 # core streaming still builds on jdk6 and above:
-# 05-Jan-2018, tatu: Not sure why, but travis build fails on jdk6 so leave it out
 jdk:
-  - openjdk7
   - openjdk8
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
@@ -15,12 +13,6 @@ branches:
   only:
     - master
     - "2.9"
-
-# to make jdk6 work, as per: https://github.com/travis-ci/travis-ci/issues/8199
-addons:
-  apt:
-    packages:
-      - openjdk-6-jdk
 
 env:
   global:

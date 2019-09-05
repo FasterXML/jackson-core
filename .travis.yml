@@ -1,7 +1,6 @@
 language: java
-# core streaming still builds on jdk6 and above:
+# core streaming still builds on jdk6 and above; but not on Travis so...
 jdk:
-  - openjdk6
   - openjdk8
 
 # Below this line is configuration for deploying to the Sonatype OSS repo

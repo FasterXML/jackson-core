@@ -22,6 +22,7 @@ JSON library.
 #549: Add configurability of "quote character" for JSON factory
 - Rewrite `JsonGenerator.copyCurrentStructure()` to remove recursion)
 - Add `missingNode()`, `nullNode()` in `TreeCodec`
+- Add `JsonParserDelegate.delegate()` methods
 
 2.10.0.pr1 (19-Jul-2019)
 

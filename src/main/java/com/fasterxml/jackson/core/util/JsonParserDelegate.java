@@ -237,4 +237,17 @@ public class JsonParserDelegate extends JsonParser
     @Override public boolean canReadTypeId() { return delegate.canReadTypeId(); }
     @Override public Object getObjectId() throws IOException { return delegate.getObjectId(); }
     @Override public Object getTypeId() throws IOException { return delegate.getTypeId(); }
+
+    /*
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for getting the immediate {@link JsonParser} this parser delegates calls to.
+     *
+     * @since 2.10
+     */
+    public JsonParser delegate() { return delegate; }
 }

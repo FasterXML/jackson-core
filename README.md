@@ -74,8 +74,6 @@ Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](https:
 JsonFactory factory = objectMapper.getFactory();
 ```
 
-More information can be found from [Streaming API](../../../jackson-docs/wiki/JacksonStreamingApi).
-
 ## Usage, simple reading
 
 All reading is by using `JsonParser` (or its sub-classes, in case of data formats other than JSON),
@@ -109,6 +107,4 @@ Note that the main differences compared to 1.0 core jar are:
 * Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
 * [Jackson Github Hub](https://github.com/FasterXML/jackson) has links to all official Jackson components
 * [Jackson Github Doc](https://github.com/FasterXML/jackson-docs) is the hub for official Jackson documentation
-* [FasterXML Jackson Project Wiki](https://github.com/FasterXML/jackson/wiki/) has additional documentation (especially for older Jackson versions)
-
 

@@ -965,22 +965,28 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * @return Description to use as "valid tokens" in an exception message about
-     *    invalid (unrecognized) token
+     *    invalid (unrecognized) JSON token: called when parser finds something that
+     *    looks like unquoted textual token
      *
      * @since 2.10
      */
     protected String _validJsonTokenList() throws IOException {
-        return "('null', 'true', 'false' or NaN)";
+        return _validJsonValueList();
     }
 
     /**
      * @return Description to use as "valid JSON values" in an exception message about
-     *    invalid (unrecognized) JSON value
+     *    invalid (unrecognized) JSON value: called when parser finds something that
+     *    does not look like a value or separator.
      *
      * @since 2.10
      */
+    @SuppressWarnings("deprecation")
     protected String _validJsonValueList() throws IOException {
-        return "(number, String, array, object, 'true', 'false' or 'null')";
+        if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
+            return "(JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')";
+        }
+        return "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
     }
 
     /*

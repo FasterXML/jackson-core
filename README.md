@@ -21,6 +21,7 @@ making it possible to use standard [data-binding package](https://github.com/Fas
 Project contains versions 2.0 and above: source code for earlier (1.x) versions can be found from
 [Jackson-1](../../../jackson-1) github repo.
 
+## Status
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-core.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)

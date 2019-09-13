@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.base;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -1059,13 +1058,5 @@ public abstract class ParserBase extends ParserMinimalBase
             return _ioContext.getSourceReference();
         }
         return null;
-    }
-
-    protected static int[] growArrayBy(int[] arr, int more)
-    {
-        if (arr == null) {
-            return new int[more];
-        }
-        return Arrays.copyOf(arr, arr.length + more);
     }
 }

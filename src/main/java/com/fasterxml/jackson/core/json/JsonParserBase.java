@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
@@ -22,9 +23,9 @@ public abstract class JsonParserBase
     protected int _formatReadFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonParserBase(ObjectReadContext readCtxt,
@@ -34,9 +35,9 @@ public abstract class JsonParserBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public Version version() { return PackageVersion.VERSION; }
@@ -44,9 +45,9 @@ public abstract class JsonParserBase
     public boolean isEnabled(JsonReadFeature f) { return f.enabledIn(_formatReadFeatures); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal/package methods: Error reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException {
@@ -107,5 +108,19 @@ public abstract class JsonParserBase
             return "(JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')";
         }
         return "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
+    }
+
+    /*
+    /**********************************************************************
+    /* Internal/package methods: Other
+    /**********************************************************************
+     */
+
+    protected static int[] growArrayBy(int[] arr, int more)
+    {
+        if (arr == null) {
+            return new int[more];
+        }
+        return Arrays.copyOf(arr, arr.length + more);
     }
 }

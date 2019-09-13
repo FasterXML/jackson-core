@@ -20,7 +20,7 @@ public class TestMaxErrorSize
 
     public void testLongErrorMessageReader() throws Exception
     {
-_testLongErrorMessage(MODE_READER);
+        _testLongErrorMessage(MODE_READER);
     }
 
     private void _testLongErrorMessage(int mode) throws Exception
@@ -36,9 +36,10 @@ _testLongErrorMessage(MODE_READER);
             fail("Expected an exception for unrecognized token");
         } catch (JsonParseException jpe) {
         	String msg = jpe.getMessage();
-        	final String expectedPrefix = "Unrecognized token '";
-        	final String expectedSuffix = "...': was expecting ('true', 'false' or 'null')";
-        	assertTrue(msg.startsWith(expectedPrefix));
+          final String expectedPrefix = "Unrecognized token '";
+          final String expectedSuffix = "...': was expecting";
+        	verifyException(jpe,  expectedPrefix);
+          verifyException(jpe,  expectedSuffix);
         	assertTrue(msg.contains(expectedSuffix));
           int tokenLen = msg.indexOf (expectedSuffix) - expectedPrefix.length();
         	assertEquals(EXPECTED_MAX_TOKEN_LEN, tokenLen);
@@ -65,10 +66,10 @@ _testLongErrorMessage(MODE_READER);
         } catch (JsonParseException jpe) {
             String msg = jpe.getMessage();
             final String expectedPrefix = "Unrecognized token '";
-            final String expectedSuffix = "': was expecting ('true', 'false' or 'null')";
-            assertTrue(msg.startsWith(expectedPrefix));
-            assertTrue(msg.contains(expectedSuffix));
-            int tokenLen = msg.indexOf (expectedSuffix) - expectedPrefix.length();
+            final String expectedSuffix = "': was expecting";
+            verifyException(jpe,  expectedPrefix);
+            verifyException(jpe,  expectedSuffix);
+            int tokenLen = msg.indexOf(expectedSuffix) - expectedPrefix.length();
             assertEquals(DOC.length(), tokenLen);
         }
         jp.close();

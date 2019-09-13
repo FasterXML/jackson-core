@@ -2024,10 +2024,10 @@ public class UTF8DataInputJsonParser
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(c)) {
-            _reportInvalidToken(c, ""+((char) c), "('true', 'false' or 'null')");
+            _reportInvalidToken(c, ""+((char) c), _validJsonTokenList());
         }
         // but if it doesn't look like a token:
-        _reportUnexpectedChar(c, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
+        _reportUnexpectedChar(c, "expected a valid value "+_validJsonValueList());
         return null;
     }
 
@@ -2636,7 +2636,7 @@ public class UTF8DataInputJsonParser
 
     protected void _reportInvalidToken(int ch, String matchedPart) throws IOException
      {
-         _reportInvalidToken(ch, matchedPart, "'null', 'true', 'false' or NaN");
+         _reportInvalidToken(ch, matchedPart, _validJsonTokenList());
      }
 
     protected void _reportInvalidToken(int ch, String matchedPart, String msg)

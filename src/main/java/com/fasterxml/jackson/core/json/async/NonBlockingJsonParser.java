@@ -918,7 +918,7 @@ public class NonBlockingJsonParser
             return _finishNonStdToken(NON_STD_TOKEN_INFINITY, 1);
         }
         // !!! TODO: maybe try to collect more information for better diagnostics
-        _reportUnexpectedChar(ch, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
+        _reportUnexpectedChar(ch, "expected a valid value "+_validJsonValueList());
         return null;
     }
 
@@ -1262,10 +1262,10 @@ public class NonBlockingJsonParser
     {
         // !!! TODO: Include non-standard ones if enabled
         _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
-                "'null', 'true' or 'false'");
+                _validJsonTokenList());
         return JsonToken.NOT_AVAILABLE; // never gets here
     }
-    
+
     /*
     /**********************************************************************
     /* Second-level decoding, Number decoding

@@ -1879,10 +1879,10 @@ public class ReaderBasedJsonParser
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(i)) {
-            _reportInvalidToken(""+((char) i), "('true', 'false' or 'null')");
+            _reportInvalidToken(""+((char) i), _validJsonTokenList());
         }
         // but if it doesn't look like a token:
-        _reportUnexpectedChar(i, "expected a valid value (number, String, array, object, 'true', 'false' or 'null')");
+        _reportUnexpectedChar(i, "expected a valid value "+_validJsonValueList());
         return null;
     }
 
@@ -2810,7 +2810,7 @@ public class ReaderBasedJsonParser
      */
 
     protected void _reportInvalidToken(String matchedPart) throws IOException {
-        _reportInvalidToken(matchedPart, "'null', 'true', 'false' or NaN");
+        _reportInvalidToken(matchedPart, _validJsonTokenList());
     }
 
     protected void _reportInvalidToken(String matchedPart, String msg) throws IOException

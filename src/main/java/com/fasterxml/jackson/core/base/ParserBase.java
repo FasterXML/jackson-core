@@ -930,16 +930,13 @@ public abstract class ParserBase extends ParserMinimalBase
     
     protected void convertNumberToBigDecimal() throws IOException
     {
-        /* 05-Aug-2008, tatus: Important note: this MUST start with
-         *   more accurate representations, since we don't know which
-         *   value is the original one (others get generated when
-         *   requested)
-         */
-    
+        // 05-Aug-2008, tatus: Important note: this MUST start with more
+        //   accurate representations, since we don't know which value is
+        //   the original one (others get generated when requested)
+
         if ((_numTypesValid & NR_DOUBLE) != 0) {
-            /* Let's actually parse from String representation, to avoid
-             * rounding errors that non-decimal floating operations could incur
-             */
+            // Let's actually parse from String representation, to avoid
+            // rounding errors that non-decimal floating operations could incur
             _numberBigDecimal = NumberInput.parseBigDecimal(getText());
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_numberBigInt);
@@ -964,6 +961,26 @@ public abstract class ParserBase extends ParserMinimalBase
         _reportError(String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
                 (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));
+    }
+
+    /**
+     * @return Description to use as "valid tokens" in an exception message about
+     *    invalid (unrecognized) token
+     *
+     * @since 2.10
+     */
+    protected String _validJsonTokenList() throws IOException {
+        return "('null', 'true', 'false' or NaN)";
+    }
+
+    /**
+     * @return Description to use as "valid JSON values" in an exception message about
+     *    invalid (unrecognized) JSON value
+     *
+     * @since 2.10
+     */
+    protected String _validJsonValueList() throws IOException {
+        return "(number, String, array, object, 'true', 'false' or 'null')";
     }
 
     /*

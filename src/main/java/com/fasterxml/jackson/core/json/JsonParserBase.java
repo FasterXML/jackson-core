@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -60,6 +62,14 @@ public abstract class JsonParserBase
         return ch;
     }
 
+    // Promoted from `ParserBase` in 3.0
+    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
+        JsonReadContext ctxt = getParsingContext();
+        _reportError(String.format(
+                "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
+                (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));
+    }
+
     /**
      * Method called to report a problem with unquoted control character.
      * Note: it is possible to suppress some instances of
@@ -72,5 +82,30 @@ public abstract class JsonParserBase
             String msg = "Illegal unquoted character ("+_getCharDesc(c)+"): has to be escaped using backslash to be included in "+ctxtDesc;
             _reportError(msg);
         }
+    }
+
+    /**
+     * @return Description to use as "valid tokens" in an exception message about
+     *    invalid (unrecognized) JSON token: called when parser finds something that
+     *    looks like unquoted textual token
+     *
+     * @since 2.10
+     */
+    protected String _validJsonTokenList() throws IOException {
+        return _validJsonValueList();
+    }
+
+    /**
+     * @return Description to use as "valid JSON values" in an exception message about
+     *    invalid (unrecognized) JSON value: called when parser finds something that
+     *    does not look like a value or separator.
+     *
+     * @since 2.10
+     */
+    protected String _validJsonValueList() throws IOException {
+        if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
+            return "(JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')";
+        }
+        return "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
     }
 }

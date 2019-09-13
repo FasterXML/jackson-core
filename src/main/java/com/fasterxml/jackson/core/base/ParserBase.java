@@ -952,45 +952,6 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /*
     /**********************************************************
-    /* Internal/package methods: Error reporting
-    /**********************************************************
-     */
-
-    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
-        JsonReadContext ctxt = getParsingContext();
-        _reportError(String.format(
-                "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
-                (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));
-    }
-
-    /**
-     * @return Description to use as "valid tokens" in an exception message about
-     *    invalid (unrecognized) JSON token: called when parser finds something that
-     *    looks like unquoted textual token
-     *
-     * @since 2.10
-     */
-    protected String _validJsonTokenList() throws IOException {
-        return _validJsonValueList();
-    }
-
-    /**
-     * @return Description to use as "valid JSON values" in an exception message about
-     *    invalid (unrecognized) JSON value: called when parser finds something that
-     *    does not look like a value or separator.
-     *
-     * @since 2.10
-     */
-    @SuppressWarnings("deprecation")
-    protected String _validJsonValueList() throws IOException {
-        if (isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
-            return "(JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')";
-        }
-        return "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')";
-    }
-
-    /*
-    /**********************************************************
     /* Base64 handling support
     /**********************************************************
      */

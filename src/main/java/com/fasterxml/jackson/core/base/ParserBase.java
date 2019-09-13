@@ -1047,6 +1047,26 @@ public abstract class ParserBase extends ParserMinimalBase
         }
     }
 
+    /**
+     * @return Description to use as "valid tokens" in an exception message about
+     *    invalid (unrecognized) token
+     *
+     * @since 2.10
+     */
+    protected String _validJsonTokenList() throws IOException {
+        return "('null', 'true', 'false' or NaN)";
+    }
+
+    /**
+     * @return Description to use as "valid JSON values" in an exception message about
+     *    invalid (unrecognized) JSON value
+     *
+     * @since 2.10
+     */
+    protected String _validJsonValueList() throws IOException {
+        return "(number, String, array, object, 'true', 'false' or 'null')";
+    }
+
     /*
     /**********************************************************
     /* Base64 handling support

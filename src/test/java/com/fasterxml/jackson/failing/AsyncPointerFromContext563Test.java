@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 
-public class AsyncPointerFromContext562Test extends AsyncTestBase
+public class AsyncPointerFromContext563Test extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testViaNonBlockingParser() throws Exception
+    // [core#563]
+    public void testPointerWithAsyncParser() throws Exception
     {
         JsonParser p = JSON_F.createNonBlockingByteArrayParser();
         final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"

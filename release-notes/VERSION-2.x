@@ -14,13 +14,16 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0.pr2 (31-Aug-2019)
+2.10.0.pr3 (16-Sep-2019)
 
 #479: Improve thread-safety of buffer recycling to enable recycling again
  for async parsing
+#561: Misleading exception for unquoted String parsing
+
+2.10.0.pr2 (31-Aug-2019)
+
 #517: Add `JsonGenerator.writeStartObject(Object, int)` (needed by CBOR, maybe Avro)
 #549: Add configurability of "quote character" for JSON factory
-#561: Misleading exception for unquoted String parsing
 - Rewrite `JsonGenerator.copyCurrentStructure()` to remove recursion)
 - Add `missingNode()`, `nullNode()` in `TreeCodec`
 - Add `JsonParserDelegate.delegate()` methods

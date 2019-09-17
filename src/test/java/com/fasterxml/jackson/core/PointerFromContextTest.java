@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.core;
 
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 
 public class PointerFromContextTest extends BaseTest
 {
@@ -19,7 +21,20 @@ public class PointerFromContextTest extends BaseTest
         final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), SIMPLE);
+        testParser(p);
+    }
 
+    public void testViaNonBlockingParser() throws Exception
+    {
+        JsonParser p = JSON_F.createNonBlockingByteArrayParser(ObjectReadContext.empty());
+        final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
+                +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
+        byte[] SIMPLE_BYTES = SIMPLE.getBytes(StandardCharsets.UTF_8);
+        ((NonBlockingJsonParser) p).feedInput(SIMPLE_BYTES, 0, SIMPLE_BYTES.length);
+        testParser(p);
+    }
+
+    private void testParser(JsonParser p) throws Exception {
         // by default should just get "empty"
         assertSame(JsonPointer.EMPTY, p.getParsingContext().pathAsPointer());
 

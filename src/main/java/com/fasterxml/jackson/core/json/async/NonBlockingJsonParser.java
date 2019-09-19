@@ -601,6 +601,9 @@ public class NonBlockingJsonParser
             }
         }
         _updateTokenLocation();
+        // 17-Sep-2019, tatu: [core#563] Need to call this to update index within array
+        _parsingContext.expectComma();
+
         if (ch == INT_QUOTE) {
             return _startString();
         }
@@ -635,11 +638,11 @@ public class NonBlockingJsonParser
             return _startTrueToken();
         case '[':
             return _startArrayScope();
-        case ']':
+        case INT_RBRACKET:
             return _closeArrayScope();
         case '{':
             return _startObjectScope();
-        case '}':
+        case INT_RCURLY:
             return _closeObjectScope();
         default:
         }
@@ -675,6 +678,10 @@ public class NonBlockingJsonParser
             }
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
+
+        // 17-Sep-2019, tatu: [core#563] Need to call this to update index within array
+        _parsingContext.expectComma();
+
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
             _minorState = MINOR_VALUE_WS_AFTER_COMMA;
@@ -721,7 +728,7 @@ public class NonBlockingJsonParser
             return _startTrueToken();
         case '[':
             return _startArrayScope();
-        case ']':
+        case INT_RBRACKET:
             // Was that a trailing comma?
             if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 return _closeArrayScope();
@@ -729,7 +736,7 @@ public class NonBlockingJsonParser
             break;
         case '{':
             return _startObjectScope();
-        case '}':
+        case INT_RCURLY:
             // Was that a trailing comma?
             if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 return _closeObjectScope();
@@ -865,7 +872,7 @@ public class NonBlockingJsonParser
             return _startTrueToken();
         case '[':
             return _startArrayScope();
-        case ']':
+        case INT_RBRACKET:
             // Was that a trailing comma?
             if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 return _closeArrayScope();
@@ -873,7 +880,7 @@ public class NonBlockingJsonParser
             break;
         case '{':
             return _startObjectScope();
-        case '}':
+        case INT_RCURLY:
             // Was that a trailing comma?
             if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 return _closeObjectScope();
@@ -887,7 +894,7 @@ public class NonBlockingJsonParser
     protected JsonToken _startUnexpectedValue(boolean leadingComma, int ch) throws IOException
     {
         switch (ch) {
-        case ']':
+        case INT_RBRACKET:
             if (!_parsingContext.inArray()) {
                 break;
             }
@@ -901,7 +908,7 @@ public class NonBlockingJsonParser
                 return _valueComplete(JsonToken.VALUE_NULL);
             }
             // fall through
-        case '}':
+        case INT_RCURLY:
             // Error: neither is valid at this point; valid closers have
             // been handled earlier
             break;
@@ -2069,7 +2076,7 @@ public class NonBlockingJsonParser
                 return _finishAposName(0, 0, 0);
             }
             break;
-        case ']': // for better error reporting...
+        case INT_RBRACKET: // for better error reporting...
             return _closeArrayScope();
         }
         // allow unquoted names if feature enabled:

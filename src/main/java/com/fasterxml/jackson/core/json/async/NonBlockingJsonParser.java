@@ -602,6 +602,9 @@ public class NonBlockingJsonParser
             }
         }
         _updateTokenLocation();
+        // 17-Sep-2019, tatu: [core#563] Need to call this to update index within array
+        _parsingContext.expectComma();
+
         if (ch == INT_QUOTE) {
             return _startString();
         }

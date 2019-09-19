@@ -7,6 +7,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.core.JsonToken;
 
 public abstract class AsyncReaderWrapper
@@ -52,6 +53,10 @@ public abstract class AsyncReaderWrapper
     public JsonParser parser() { return _streamReader; }
 
     public abstract JsonToken nextToken() throws IOException;
+
+    public JsonStreamContext getParsingContext() {
+        return _streamReader.getParsingContext();
+    }
 
     public int getIntValue() throws IOException { return _streamReader.getIntValue(); }
     public long getLongValue() throws IOException { return _streamReader.getLongValue(); }

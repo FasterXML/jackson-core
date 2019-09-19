@@ -1,8 +1,8 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.json.async;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncPointerFromContext563Test extends AsyncTestBase
 {
@@ -11,11 +11,23 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
     // [core#563]
     public void testPointerWithAsyncParser() throws Exception
     {
-        JsonParser p = JSON_F.createNonBlockingByteArrayParser();
         final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
         byte[] SIMPLE_BYTES = SIMPLE.getBytes("UTF-8");
-        ((NonBlockingJsonParser) p).feedInput(SIMPLE_BYTES, 0, SIMPLE_BYTES.length);
+
+        _testPointerWithAsyncParser(SIMPLE_BYTES, 0, 1000);
+        _testPointerWithAsyncParser(SIMPLE_BYTES, 0, 7);
+        _testPointerWithAsyncParser(SIMPLE_BYTES, 0, 3);
+        _testPointerWithAsyncParser(SIMPLE_BYTES, 0, 2);
+        _testPointerWithAsyncParser(SIMPLE_BYTES, 0, 1);
+
+        _testPointerWithAsyncParser(SIMPLE_BYTES, 20, 5);
+        _testPointerWithAsyncParser(SIMPLE_BYTES, 14, 1);
+    }
+
+    public void _testPointerWithAsyncParser(byte[] doc, int offset, int readSize) throws Exception
+    {
+        AsyncReaderWrapper p = asyncForBytes(JSON_F, readSize, doc, offset);
 
         // by default should just get "empty"
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
@@ -23,6 +35,8 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
         // let's just traverse, then:
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
+
+        assertEquals("", p.getParsingContext().pathAsPointer().toString());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken()); // a
         assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
@@ -92,8 +106,8 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
 
+        // note: wrapper maps to `null`, plain async-parser would give NOT_AVAILABLE
         assertNull(p.nextToken());
         p.close();
- 
     }
 }

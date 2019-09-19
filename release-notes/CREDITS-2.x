@@ -155,7 +155,7 @@ Doug Roper (htmldoug@github)
   * Suggested #463: Ensure that `skipChildren()` of non-blocking `JsonParser` will throw
     exception if not enough input
   (2.9.6)
-  * Contributed test for #563: Async parser does not keep track of Array context properly
+  * Reported, Contributed test for #563: Async parser does not keep track of Array context properly
   (2.10.0)
 
 Alexander Eyers-Taylor (aeyerstaylor@github)

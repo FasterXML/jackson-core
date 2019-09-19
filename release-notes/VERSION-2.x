@@ -16,9 +16,10 @@ JSON library.
 
 2.10.0.pr3 (16-Sep-2019)
 
-#479: Improve thread-safety of buffer recycling to enable recycling again
- for async parsing
+#479: Improve thread-safety of buffer recycling
 #561: Misleading exception for unquoted String parsing
+#563: Async parser does not keep track of Array context properly
+ (reported by Doug R)
 
 2.10.0.pr2 (31-Aug-2019)
 

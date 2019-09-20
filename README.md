@@ -91,6 +91,16 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 -----
 
+## Support
+
+Full explanation of support can	be found from [Main Jackson Portal](../../../jackson) but basically 2 types
+of support are available:
+
+* Community support via	mailing	lists, Gitter forum, Github issues
+* Optional Commercial Support is available via [Tidelift Subscriptions](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme)
+
+-----
+
 # Further reading
 
 ## Differences from Jackson 1.x

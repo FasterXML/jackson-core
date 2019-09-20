@@ -7,8 +7,8 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.JsonStreamContext;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.TokenStreamContext;
 
 public abstract class AsyncReaderWrapper
 {
@@ -54,7 +54,7 @@ public abstract class AsyncReaderWrapper
 
     public abstract JsonToken nextToken() throws IOException;
 
-    public JsonStreamContext getParsingContext() {
+    public TokenStreamContext getParsingContext() {
         return _streamReader.getParsingContext();
     }
 

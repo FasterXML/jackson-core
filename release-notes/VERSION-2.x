@@ -14,26 +14,12 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0.pr3 (16-Sep-2019)
-
-#479: Improve thread-safety of buffer recycling
-#561: Misleading exception for unquoted String parsing
-#563: Async parser does not keep track of Array context properly
- (reported by Doug R)
-
-2.10.0.pr2 (31-Aug-2019)
-
-#517: Add `JsonGenerator.writeStartObject(Object, int)` (needed by CBOR, maybe Avro)
-#549: Add configurability of "quote character" for JSON factory
-- Rewrite `JsonGenerator.copyCurrentStructure()` to remove recursion)
-- Add `missingNode()`, `nullNode()` in `TreeCodec`
-- Add `JsonParserDelegate.delegate()` methods
-
-2.10.0.pr1 (19-Jul-2019)
+2.10.0 (26-Sep-2019)
 
 #433: Add Builder pattern for creating configured Stream factories
 #464: Add "maximum unescaped char" configuration option for `JsonFactory` via builder
 #467: Create `JsonReadFeature` to move JSON-specific `JsonParser.Feature`s to
+#479: Improve thread-safety of buffer recycling
 #480: `SerializableString` value can not directly render to Writer
  (requested by Philippe M)
 #481: Create `JsonWriteFeature` to move JSON-specific `JsonGenerator.Feature`s to
@@ -45,6 +31,7 @@ JSON library.
 #506: Add missing type parameter for `TypeReference` in `ObjectCodec`
 #508: Add new exception type `InputCoercionException` to be used for failed coercions
   like overflow for `int`
+#517: Add `JsonGenerator.writeStartObject(Object, int)` (needed by CBOR, maybe Avro)
 #527: Add simple module-info for JDK9+, using Moditect
 #533: UTF-8 BOM not accounted for in JsonLocation.getByteOffset()
  (contributed by Fabien R)
@@ -54,8 +41,15 @@ JSON library.
  (reported by Alex R)
 #548: ByteQuadsCanonicalizer: ArrayIndexOutOfBoundsException in addName
  (reported by Alex R)
+#549: Add configurability of "quote character" for JSON factory
+#561: Misleading exception for unquoted String parsing
+#563: Async parser does not keep track of Array context properly
+ (reported by Doug R)
+- Rewrite `JsonGenerator.copyCurrentStructure()` to remove recursion)
+- Add `missingNode()`, `nullNode()` in `TreeCodec`
+- Add `JsonParserDelegate.delegate()` methods
 
-2.9.10 (not yet released)
+2.9.10 (21-Sep-2019)
 
 #540: UTF8StreamJsonParser: fix byte to int conversion for malformed escapes
  (reported by Alex R and Sam S)

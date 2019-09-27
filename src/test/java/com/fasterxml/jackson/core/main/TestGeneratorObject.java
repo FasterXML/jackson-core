@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.*;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Set of basic unit tests for verifying that the Object write methods
@@ -113,14 +114,18 @@ public class TestGeneratorObject
         JsonGenerator gen = new JsonFactory().createGenerator(sw);
         gen.writeStartObject();
 
-        final BigDecimal dec = new BigDecimal("0.1");
         final String TEXT = "\"some\nString!\"";
 
         gen.writeNullField("null");
         gen.writeBooleanField("bt", true);
         gen.writeBooleanField("bf", false);
-        gen.writeNumberField("int", -1289);
-        gen.writeNumberField("dec", dec);
+        gen.writeNumberField("short", (short) -12345);
+        gen.writeNumberField("int", Integer.MIN_VALUE + 1707);
+        gen.writeNumberField("long", Integer.MIN_VALUE - 1707L);
+        gen.writeNumberField("big", BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.valueOf(1707)));
+        gen.writeNumberField("float", 17.07F);
+        gen.writeNumberField("double", 17.07);
+        gen.writeNumberField("dec", new BigDecimal("0.1"));
 
         gen.writeObjectFieldStart("ob");
         gen.writeStringField("str", TEXT);
@@ -139,23 +144,59 @@ public class TestGeneratorObject
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("null", jp.getText());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
+
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("bt", jp.getText());
         assertEquals(JsonToken.VALUE_TRUE, jp.nextToken());
+
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("bf", jp.getText());
         assertEquals(JsonToken.VALUE_FALSE, jp.nextToken());
+
+        //Short parsed as int
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("short", jp.getText());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(JsonParser.NumberType.INT, jp.getNumberType());
+
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("int", jp.getText());
         assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(JsonParser.NumberType.INT, jp.getNumberType());
+
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("long", jp.getText());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(JsonParser.NumberType.LONG, jp.getNumberType());
+
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("big", jp.getText());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(JsonParser.NumberType.BIG_INTEGER, jp.getNumberType());
+
+        //All floating point types parsed as double
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("float", jp.getText());
+        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
+        assertEquals(JsonParser.NumberType.DOUBLE, jp.getNumberType());
+
+        //All floating point types parsed as double
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("double", jp.getText());
+        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
+        assertEquals(JsonParser.NumberType.DOUBLE, jp.getNumberType());
+
+        //All floating point types parsed as double
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("dec", jp.getText());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
+        assertEquals(JsonParser.NumberType.DOUBLE, jp.getNumberType());
 
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("ob", jp.getText());
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+
         assertEquals("str", jp.getText());
         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals(TEXT, getAndVerifyText(jp));
@@ -182,7 +223,8 @@ public class TestGeneratorObject
         gen.writeStartObject();
 
         gen.writeStringField("str", null);
-        gen.writeNumberField("num", null);
+        gen.writeNumberField("big", (BigInteger) null);
+        gen.writeNumberField("dec", (BigDecimal) null);
         gen.writeObjectField("obj", null);
 
         gen.writeEndObject();
@@ -197,7 +239,12 @@ public class TestGeneratorObject
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("num", jp.getCurrentName());
+
+        assertEquals("big", jp.currentName());
+        assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
+
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("dec", jp.currentName());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());

@@ -16,7 +16,8 @@ JSON library.
 
 2.11.0 (not yet released)
 
--
+#565: Synchronize variants of `JsonGenerator#writeNumberField` with `JsonGenerator#writeNumber`
+ (contributed by valery1707@github)
 
 2.10.1 (not yet released)
 

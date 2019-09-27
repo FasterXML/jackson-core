@@ -1646,8 +1646,23 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @since 2.11
      */
-    public final void writeNumberField(String fieldName, int value) throws IOException {
+    public void writeNumberField(String fieldName, short value) throws IOException {
+        writeFieldName(fieldName);
+        writeNumber(value);
+    }
+
+    /**
+     * Convenience method for outputting a field entry ("member")
+     * that has the specified numeric value. Equivalent to:
+     *<pre>
+     *  writeFieldName(fieldName);
+     *  writeNumber(value);
+     *</pre>
+     */
+    public void writeNumberField(String fieldName, int value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1672,8 +1687,10 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @since 2.11
      */
-    public final void writeNumberField(String fieldName, double value) throws IOException {
+    public void writeNumberField(String fieldName, BigInteger value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1687,6 +1704,19 @@ public abstract class JsonGenerator
      *</pre>
      */
     public final void writeNumberField(String fieldName, float value) throws IOException {
+        writeFieldName(fieldName);
+        writeNumber(value);
+    }
+
+    /**
+     * Convenience method for outputting a field entry ("member")
+     * that has the specified numeric value. Equivalent to:
+     *<pre>
+     *  writeFieldName(fieldName);
+     *  writeNumber(value);
+     *</pre>
+     */
+    public void writeNumberField(String fieldName, double value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }

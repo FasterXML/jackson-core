@@ -67,12 +67,6 @@ public enum JsonWriteFeature
      * if format uses escaping mechanisms (which is generally true
      * for textual formats but not for binary formats).
      *<p>
-     * Note that this setting may not necessarily make sense for all
-     * data formats (for example, binary formats typically do not use
-     * any escaping mechanisms; and some textual formats do not have
-     * general-purpose escaping); if so, settings is simply ignored.
-     * Put another way, effects of this feature are data-format specific.
-     *<p>
      * Feature is disabled by default.
      */
     @SuppressWarnings("deprecation")

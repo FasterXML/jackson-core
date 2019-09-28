@@ -48,7 +48,6 @@ public enum JsonReadFeature
      * of single quotes (apostrophe, character '\'') for
      * quoting Strings (names and String values). If so,
      * this is in addition to other acceptable markers.
-     * but not by JSON specification).
      *<p>
      * Since JSON specification requires use of double quotes for
      * field names,

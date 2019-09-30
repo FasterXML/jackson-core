@@ -906,7 +906,7 @@ public abstract class JsonGenerator
             throw new IllegalArgumentException("null array");
         }
         _verifyOffsets(array.length, offset, length);
-        writeStartArray();
+        writeStartArray(array);
         for (int i = offset, end = offset+length; i < end; ++i) {
             writeNumber(array[i]);
         }
@@ -930,7 +930,7 @@ public abstract class JsonGenerator
             throw new IllegalArgumentException("null array");
         }
         _verifyOffsets(array.length, offset, length);
-        writeStartArray();
+        writeStartArray(array);
         for (int i = offset, end = offset+length; i < end; ++i) {
             writeNumber(array[i]);
         }
@@ -954,7 +954,7 @@ public abstract class JsonGenerator
             throw new IllegalArgumentException("null array");
         }
         _verifyOffsets(array.length, offset, length);
-        writeStartArray();
+        writeStartArray(array);
         for (int i = offset, end = offset+length; i < end; ++i) {
             writeNumber(array[i]);
         }

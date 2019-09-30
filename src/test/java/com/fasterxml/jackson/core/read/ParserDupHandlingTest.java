@@ -35,8 +35,9 @@ public class ParserDupHandlingTest
     public void testSimpleDupsBytes() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
-        JsonFactory dupF = new JsonFactory();
-        dupF.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        JsonFactory dupF = JsonFactory.builder()
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                .build();
         for (String doc : DUP_DOCS) {
             // First, with static setting
             _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM, "a", false);
@@ -51,8 +52,9 @@ public class ParserDupHandlingTest
     public void testSimpleDupsDataInput() throws Exception
     {
         JsonFactory nonDupF = new JsonFactory();
-        JsonFactory dupF = new JsonFactory();
-        dupF.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        JsonFactory dupF = JsonFactory.builder()
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                .build();
         for (String doc : DUP_DOCS) {
             _testSimpleDupsFail(doc, dupF, MODE_DATA_INPUT, "a", false);
             _testSimpleDupsFail(doc, nonDupF, MODE_DATA_INPUT, "a", true);

@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.1 (not yet released)
+
+#455: Jackson reports wrong locations for JsonEOFException
+ (reported by wastevenson@github, fix contributed by Todd O'B
+
 2.10.0 (26-Sep-2019)
 
 #433: Add Builder pattern for creating configured Stream factories

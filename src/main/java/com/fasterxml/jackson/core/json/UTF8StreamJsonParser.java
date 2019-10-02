@@ -211,15 +211,6 @@ public class UTF8StreamJsonParser
     protected final boolean _loadMore() throws IOException
     {
         final int bufSize = _inputEnd;
-
-        _currInputProcessed += _inputEnd;
-        _currInputRowStart -= _inputEnd;
-
-        // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
-        //   this increase to avoid "moving" name-offset, resulting most likely
-        //   in negative value, which is fine as combine value remains unchanged.
-        _nameStartOffset -= bufSize;
-
         if (_inputStream != null) {
             int space = _inputBuffer.length;
             if (space == 0) { // only occurs when we've been closed
@@ -230,6 +221,15 @@ public class UTF8StreamJsonParser
             if (count > 0) {
                 _inputPtr = 0;
                 _inputEnd = count;
+
+                _currInputProcessed += _inputEnd;
+                _currInputRowStart -= _inputEnd;
+
+                // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
+                //   this increase to avoid "moving" name-offset, resulting most likely
+                //   in negative value, which is fine as combine value remains unchanged.
+                _nameStartOffset -= bufSize;
+
                 return true;
             }
             // End of input

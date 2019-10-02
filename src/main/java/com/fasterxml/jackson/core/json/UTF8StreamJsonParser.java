@@ -184,7 +184,6 @@ public class UTF8StreamJsonParser
     protected final boolean _loadMore() throws IOException
     {
         final int bufSize = _inputEnd;
-
         if (_inputStream != null) {
             int space = _inputBuffer.length;
             if (space == 0) { // only occurs when we've been closed

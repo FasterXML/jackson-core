@@ -193,3 +193,7 @@ Fabien Renaud (fabienrenaud@github)
   * Reported, contributed fix fir #533: UTF-8 BOM not accounted for in
     `JsonLocation.getByteOffset()`
   (2.10.0)
+
+Todd O'Bryan (toddobryan@github)
+  * Contributed fix fox #455: Jackson reports wrong locations for JsonEOFException
+  (2.10.1)

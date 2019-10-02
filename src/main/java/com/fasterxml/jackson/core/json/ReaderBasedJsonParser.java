@@ -217,19 +217,20 @@ public class ReaderBasedJsonParser
     {
         final int bufSize = _inputEnd;
 
-        _currInputProcessed += bufSize;
-        _currInputRowStart -= bufSize;
-
-        // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
-        //   this increase to avoid "moving" name-offset, resulting most likely
-        //   in negative value, which is fine as combine value remains unchanged.
-        _nameStartOffset -= bufSize;
-
         if (_reader != null) {
             int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
             if (count > 0) {
                 _inputPtr = 0;
                 _inputEnd = count;
+
+                _currInputProcessed += bufSize;
+                _currInputRowStart -= bufSize;
+
+                // 26-Nov-2015, tatu: Since name-offset requires it too, must offset
+                //   this increase to avoid "moving" name-offset, resulting most likely
+                //   in negative value, which is fine as combine value remains unchanged.
+                _nameStartOffset -= bufSize;
+
                 return true;
             }
             // End of input

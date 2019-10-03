@@ -18,6 +18,8 @@ JSON library.
 
 #455: Jackson reports wrong locations for JsonEOFException
  (reported by wastevenson@github, fix contributed by Todd O'B
+#567: Add `uses` for `ObjectCodec` in module-info
+ (reported by Marc M)
 
 2.10.0 (26-Sep-2019)
 

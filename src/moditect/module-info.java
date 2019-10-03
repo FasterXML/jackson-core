@@ -17,4 +17,7 @@ module com.fasterxml.jackson.core {
     exports com.fasterxml.jackson.core.sym;
     exports com.fasterxml.jackson.core.type;
     exports com.fasterxml.jackson.core.util;
+
+    // 03-Oct-2019, tatu: [core#567] Add self-use to avoid warnings
+    uses com.fasterxml.jackson.core.ObjectCodec;
 }

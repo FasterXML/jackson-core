@@ -1598,6 +1598,10 @@ public abstract class JsonGenerator
     /**********************************************************
      */
 
+    // 04-Oct-2019, tatu: Reminder: these are defined final specifically to
+    //    remember NOT to override in delegating sub-classes (and not for
+    //    presumed performance benefits, which rarely materialize)
+
     /**
      * Convenience method for outputting a field entry ("member")
      * that contains specified data in base64-encoded form.
@@ -1799,6 +1803,8 @@ public abstract class JsonGenerator
         writeObject(pojo);
     }
 
+    // // // But this method does need to be delegate so...
+    
     /**
      * Method called to indicate that a property in this position was
      * skipped. It is usually only called for generators that return

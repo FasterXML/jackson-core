@@ -239,16 +239,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /**********************************************************************
      */
 
-    // // Overrides just to make things final, to possibly help with inlining
-    
-    @Override
-    public final void writeStringField(String fieldName, String value) throws IOException
-    {
-        writeFieldName(fieldName);
-        writeString(value);
-    }
-
-    @Override
+   @Override
     public void writeFieldId(long id) throws IOException {
         writeFieldName(Long.toString(id));
     }

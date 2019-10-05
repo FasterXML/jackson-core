@@ -197,3 +197,8 @@ Fabien Renaud (fabienrenaud@github)
 Todd O'Bryan (toddobryan@github)
   * Contributed fix fox #455: Jackson reports wrong locations for JsonEOFException
   (2.10.1)
+
+Valery (valery1707@github)
+  * Contributed #565: Synchronize variants of `JsonGenerator#writeNumberField`
+   with `JsonGenerator#writeNumber`
+  (2.11.0)

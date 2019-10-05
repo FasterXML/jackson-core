@@ -1282,7 +1282,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, double value) throws IOException {
+    public void writeNumberField(String fieldName, float value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1295,7 +1295,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, float value) throws IOException {
+    public void writeNumberField(String fieldName, double value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }

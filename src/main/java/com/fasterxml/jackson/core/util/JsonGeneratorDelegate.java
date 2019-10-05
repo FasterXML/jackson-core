@@ -310,7 +310,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override
     public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException { return delegate.writeBinary(b64variant, data, dataLength); }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, other value types
@@ -349,31 +349,48 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     /*
     /**********************************************************
-    /* Overridden field methods
+    /* Public API, convenience field-write methods
     /**********************************************************
      */
 
-    @Override
-    public void writeOmittedField(String fieldName) throws IOException { delegate.writeOmittedField(fieldName); }
+    // 04-Oct-2019, tatu: Reminder: these should NOT be delegated, unless matching
+    //    methods in `FilteringGeneratorDelegate` are re-defined to "split" calls again
+
+//    public void writeBinaryField(String fieldName, byte[] data) throws IOException {
+//    public void writeBooleanField(String fieldName, boolean value) throws IOException {
+//    public void writeNullField(String fieldName) throws IOException {
+//    public void writeStringField(String fieldName, String value) throws IOException {
+//    public void writeNumberField(String fieldName, short value) throws IOException {
+
+//    public void writeArrayFieldStart(String fieldName) throws IOException {
+//    public void writeObjectFieldStart(String fieldName) throws IOException {
+//    public void writeObjectField(String fieldName, Object pojo) throws IOException {
+
+    // Sole exception being this method as it is not a "combo" method
     
+    @Override
+    public void writeOmittedField(String fieldName) throws IOException {
+        delegate.writeOmittedField(fieldName);
+    }
+
     /*
     /**********************************************************
     /* Public API, write methods, Native Ids
     /**********************************************************
      */
-    
+
     @Override
     public void writeObjectId(Object id) throws IOException { delegate.writeObjectId(id); }
 
     @Override
     public void writeObjectRef(Object id) throws IOException { delegate.writeObjectRef(id); }
-    
+
     @Override
     public void writeTypeId(Object id) throws IOException { delegate.writeTypeId(id); }
 
     @Override
     public void writeEmbeddedObject(Object object) throws IOException { delegate.writeEmbeddedObject(object); }
-    
+
     /*
     /**********************************************************
     /* Public API, write methods, serializing Java objects

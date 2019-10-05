@@ -194,21 +194,6 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
 
     /*
     /**********************************************************
-    /* Partial API
-    /**********************************************************
-     */
-
-    // // Overrides just to make things final, to possibly help with inlining
-    
-    @Override
-    public final void writeStringField(String fieldName, String value) throws IOException
-    {
-        writeFieldName(fieldName);
-        writeString(value);
-    }
-
-    /*
-    /**********************************************************
     /* Shared helper methods
     /**********************************************************
      */

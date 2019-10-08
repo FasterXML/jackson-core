@@ -1194,7 +1194,7 @@ public abstract class JsonGenerator
      *  writeBinary(value);
      *</pre>
      */
-    public void writeBinaryField(String fieldName, byte[] data) throws IOException {
+    public final void writeBinaryField(String fieldName, byte[] data) throws IOException {
         writeFieldName(fieldName);
         writeBinary(data);
     }
@@ -1207,7 +1207,7 @@ public abstract class JsonGenerator
      *  writeBoolean(value);
      *</pre>
      */
-    public void writeBooleanField(String fieldName, boolean value) throws IOException {
+    public final void writeBooleanField(String fieldName, boolean value) throws IOException {
         writeFieldName(fieldName);
         writeBoolean(value);
     }
@@ -1220,7 +1220,7 @@ public abstract class JsonGenerator
      *  writeNull();
      *</pre>
      */
-    public void writeNullField(String fieldName) throws IOException {
+    public final void writeNullField(String fieldName) throws IOException {
         writeFieldName(fieldName);
         writeNull();
     }
@@ -1235,7 +1235,7 @@ public abstract class JsonGenerator
      *<p>
      * Note: many performance-sensitive implementations override this method
      */
-    public void writeStringField(String fieldName, String value) throws IOException {
+    public final void writeStringField(String fieldName, String value) throws IOException {
         writeFieldName(fieldName);
         writeString(value);
     }
@@ -1248,7 +1248,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, short value) throws IOException {
+    public final void writeNumberField(String fieldName, short value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1261,7 +1261,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, int value) throws IOException {
+    public final void writeNumberField(String fieldName, int value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1274,7 +1274,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, long value) throws IOException {
+    public final void writeNumberField(String fieldName, long value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1287,7 +1287,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, BigInteger value) throws IOException {
+    public final void writeNumberField(String fieldName, BigInteger value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1300,7 +1300,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, float value) throws IOException {
+    public final void writeNumberField(String fieldName, float value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1313,7 +1313,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, double value) throws IOException {
+    public final void writeNumberField(String fieldName, double value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1327,7 +1327,7 @@ public abstract class JsonGenerator
      *  writeNumber(value);
      *</pre>
      */
-    public void writeNumberField(String fieldName, BigDecimal value) throws IOException {
+    public final void writeNumberField(String fieldName, BigDecimal value) throws IOException {
         writeFieldName(fieldName);
         writeNumber(value);
     }
@@ -1345,7 +1345,7 @@ public abstract class JsonGenerator
      * (by calling {#link #writeEndArray}) after writing all values
      * of the value Array.
      */
-    public void writeArrayFieldStart(String fieldName) throws IOException {
+    public final void writeArrayFieldStart(String fieldName) throws IOException {
         writeFieldName(fieldName);
         writeStartArray();
     }
@@ -1363,7 +1363,7 @@ public abstract class JsonGenerator
      * (by calling {#link #writeEndObject}) after writing all
      * entries of the value Object.
      */
-    public void writeObjectFieldStart(String fieldName) throws IOException {
+    public final void writeObjectFieldStart(String fieldName) throws IOException {
         writeFieldName(fieldName);
         writeStartObject();
     }
@@ -1377,7 +1377,7 @@ public abstract class JsonGenerator
      *  writeObject(pojo);
      *</pre>
      */
-    public void writeObjectField(String fieldName, Object pojo) throws IOException {
+    public final void writeObjectField(String fieldName, Object pojo) throws IOException {
         writeFieldName(fieldName);
         writeObject(pojo);
     }

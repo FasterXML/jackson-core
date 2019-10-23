@@ -40,6 +40,23 @@ public class BasicGeneratorFilteringTest extends BaseTest
         protected boolean _includeScalar() { return false; }
     }
 
+    static class StrictNameMatchFilter extends TokenFilter
+    {
+        private final Set<String> _names;
+
+        public StrictNameMatchFilter(String... names) {
+            _names = new HashSet<String>(Arrays.asList(names));
+        }
+
+        @Override
+        public TokenFilter includeProperty(String name) {
+            if (_names.contains(name)) {
+                return TokenFilter.INCLUDE_ALL;
+            }
+            return null;
+        }
+    }
+
     static class IndexMatchFilter extends TokenFilter
     {
         private final BitSet _indices;
@@ -294,9 +311,9 @@ public class BasicGeneratorFilteringTest extends BaseTest
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("invalid"),
                 true, true, true);
-        final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':4}},'b0':false}";
+        final String JSON = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{}"), w.toString());
+        assertEquals(aposToQuotes("{'root':{'b':{}}}"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -310,7 +327,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[%s,%s,%s]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("[{},{},{}]"), w.toString());
+        assertEquals(aposToQuotes("[{'root':{'b':{}}},{'root':{'b':{}}},{'root':{'b':{}}}]"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -320,6 +337,47 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("invalid"),
+                true, true, true);
+        final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
+        final String JSON = String.format("[[%s],[%s],[%s]]", object, object, object);
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("[[{'root':{'b':{}}}],[{'root':{'b':{}}}],[{'root':{'b':{}}}]]"), w.toString());
+        assertEquals(0, gen.getMatchCount());
+    }
+
+    public void testNoMatchFilteringWithPath4() throws Exception
+    {
+        StringWriter w = new StringWriter();
+
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new StrictNameMatchFilter("invalid"),
+                true, true, true);
+        final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':4}},'b0':false}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{}"), w.toString());
+        assertEquals(0, gen.getMatchCount());
+    }
+
+    public void testNoMatchFilteringWithPath5() throws Exception
+    {
+        StringWriter w = new StringWriter();
+
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new StrictNameMatchFilter("invalid"),
+                true, true, true);
+        final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
+        final String JSON = String.format("[%s,%s,%s]", object, object, object);
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("[{},{},{}]"), w.toString());
+        assertEquals(0, gen.getMatchCount());
+    }
+
+    public void testNoMatchFilteringWithPath6() throws Exception
+    {
+        StringWriter w = new StringWriter();
+
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new StrictNameMatchFilter("invalid"),
                 true, true, true);
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[[%s],[%s],[%s]]", object, object, object);

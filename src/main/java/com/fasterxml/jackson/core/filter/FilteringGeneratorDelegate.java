@@ -184,7 +184,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
         } else if (_itemFilter != null && _writeEmptyObjectsAndArrays) {
-            _checkParentPath();
+            _ensureFieldNameWritten();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
         } else {
@@ -217,7 +217,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
         } else if (_itemFilter != null && _writeEmptyObjectsAndArrays) {
-            _checkParentPath();
+            _ensureFieldNameWritten();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
         } else {
@@ -261,7 +261,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
         } else if (f != null && _writeEmptyObjectsAndArrays) {
-            _checkParentPath();
+            _ensureFieldNameWritten();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
         } else { // filter out
@@ -295,7 +295,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
         } else if (f != null && _writeEmptyObjectsAndArrays) {
-            _checkParentPath();
+            _ensureFieldNameWritten();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
         } else { // filter out
@@ -396,7 +396,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeString(value);
     }
 
@@ -418,7 +418,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeString(text, offset, len);
     }
 
@@ -439,7 +439,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeString(value);
     }
 
@@ -570,7 +570,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -591,7 +591,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -612,7 +612,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -633,7 +633,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -654,7 +654,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -675,7 +675,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -696,7 +696,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -738,7 +738,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeBoolean(v);
     }
 
@@ -759,7 +759,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNull();
     }
 
@@ -879,6 +879,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /* Helper methods
     /**********************************************************
      */
+
+    protected void _ensureFieldNameWritten() throws IOException
+    {
+        _filterContext.ensureFieldNameWritten(delegate);
+    }
 
     protected void _checkParentPath() throws IOException
     {

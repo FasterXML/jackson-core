@@ -148,6 +148,17 @@ public class TokenFilterContext extends JsonStreamContext
     }
 
     /**
+     * Method called to ensure that field name, if present, has been written
+     */
+    public void ensureFieldNameWritten(JsonGenerator gen) throws IOException
+    {
+        if (_needToHandleName) {
+            _needToHandleName = false;
+            gen.writeFieldName(_currentName);
+        }
+    }
+
+    /**
      * Method called to ensure that parent path from root is written up to
      * and including this node.
      */

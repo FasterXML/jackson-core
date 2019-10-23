@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.core.json;
 
-import com.fasterxml.jackson.core.*;
+import java.io.ByteArrayOutputStream;
+
+import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
+import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate.PathWriteMode;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
-
-import java.io.ByteArrayOutputStream;
 
 public class TestUtf8Generator extends BaseTest
 {
@@ -73,9 +78,8 @@ public class TestUtf8Generator extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(g,
                 new JsonPointerBasedFilter("/escapes"),
-                true, // includePath
-                false, // multipleMatches
-                false // writeEmptyObjectsAndArrays
+                PathWriteMode.LAZY,
+                false // multipleMatches
         );
 
         //final String JSON = "{'a':123,'array':[1,2],'escapes':'\b\t\f\n\r\"foo\"\u0000'}";

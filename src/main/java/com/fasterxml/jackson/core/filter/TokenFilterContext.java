@@ -186,35 +186,6 @@ public class TokenFilterContext extends JsonStreamContext
         }
     }
 
-    /**
-     * Variant of {@link #writePath(JsonGenerator)} called when all we
-     * need is immediately surrounding Object. Method typically called
-     * when including a single property but not including full path
-     * to root.
-     */
-    public void writeImmediatePath(JsonGenerator gen) throws IOException
-    {
-        if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
-            return;
-        }
-        if (_startHandled) {
-            // even if Object started, need to start leaf-level name
-            if (_needToHandleName) {
-                gen.writeFieldName(_currentName);
-            }
-        } else {
-            _startHandled = true;
-            if (_type == TYPE_OBJECT) {
-                gen.writeStartObject();
-                if (_needToHandleName) {
-                    gen.writeFieldName(_currentName);
-                }
-            } else if (_type == TYPE_ARRAY) {
-                gen.writeStartArray();
-            }
-        }
-    }
-
     private void _writePath(JsonGenerator gen) throws IOException
     {
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {

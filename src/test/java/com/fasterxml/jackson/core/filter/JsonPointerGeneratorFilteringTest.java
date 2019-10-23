@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.*;
+import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate.PathWriteMode;
 
 @SuppressWarnings("resource")
 public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.core.BaseTest
@@ -13,82 +15,82 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
 
     public void testSimplePropertyWithPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/c", true, "{'c':{'d':{'a':true}}}");
-        _assert(SIMPLE_INPUT, "/c/d", true, "{'c':{'d':{'a':true}}}");
-        _assert(SIMPLE_INPUT, "/c/d/a", true, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c", PathWriteMode.LAZY, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c/d", PathWriteMode.LAZY, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c/d/a", PathWriteMode.LAZY, "{'c':{'d':{'a':true}}}");
 
-        _assert(SIMPLE_INPUT, "/c/d/a", true, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c/d/a", PathWriteMode.LAZY, "{'c':{'d':{'a':true}}}");
         
-        _assert(SIMPLE_INPUT, "/a", true, "{'a':1}");
-        _assert(SIMPLE_INPUT, "/d", true, "{'d':null}");
+        _assert(SIMPLE_INPUT, "/a", PathWriteMode.LAZY, "{'a':1}");
+        _assert(SIMPLE_INPUT, "/d", PathWriteMode.LAZY, "{'d':null}");
 
         // and then non-match
-        _assert(SIMPLE_INPUT, "/x", true, "");
+        _assert(SIMPLE_INPUT, "/x", PathWriteMode.LAZY, "");
     }
     
     public void testSimplePropertyWithoutPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/c", false, "{'d':{'a':true}}");
-        _assert(SIMPLE_INPUT, "/c/d", false, "{'a':true}");
-        _assert(SIMPLE_INPUT, "/c/d/a", false, "true");
+        _assert(SIMPLE_INPUT, "/c", PathWriteMode.NONE, "{'d':{'a':true}}");
+        _assert(SIMPLE_INPUT, "/c/d", PathWriteMode.NONE, "{'a':true}");
+        _assert(SIMPLE_INPUT, "/c/d/a", PathWriteMode.NONE, "true");
         
-        _assert(SIMPLE_INPUT, "/a", false, "1");
-        _assert(SIMPLE_INPUT, "/d", false, "null");
+        _assert(SIMPLE_INPUT, "/a", PathWriteMode.NONE, "1");
+        _assert(SIMPLE_INPUT, "/d", PathWriteMode.NONE, "null");
 
         // and then non-match
-        _assert(SIMPLE_INPUT, "/x", false, "");
+        _assert(SIMPLE_INPUT, "/x", PathWriteMode.NONE, "");
     }
 
     public void testArrayElementWithPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/b", true, "{'b':[1,2,3]}");
-        _assert(SIMPLE_INPUT, "/b/1", true, "{'b':[2]}");
-        _assert(SIMPLE_INPUT, "/b/2", true, "{'b':[3]}");
+        _assert(SIMPLE_INPUT, "/b", PathWriteMode.LAZY, "{'b':[1,2,3]}");
+        _assert(SIMPLE_INPUT, "/b/1", PathWriteMode.LAZY, "{'b':[2]}");
+        _assert(SIMPLE_INPUT, "/b/2", PathWriteMode.LAZY, "{'b':[3]}");
         
         // and then non-match
-        _assert(SIMPLE_INPUT, "/b/8", true, "");
+        _assert(SIMPLE_INPUT, "/b/8", PathWriteMode.LAZY, "");
     }
 
     public void testArrayNestedWithPath() throws Exception
     {
-        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", true, "{'a':[{'b':3}]}");
-        _assert("[true,[1]]", "/0", true, "[true]");
-        _assert("[true,[1]]", "/1", true, "[[1]]");
-        _assert("[true,[1,2,[true],3],0]", "/0", true, "[true]");
-        _assert("[true,[1,2,[true],3],0]", "/1", true, "[[1,2,[true],3]]");
+        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", PathWriteMode.LAZY, "{'a':[{'b':3}]}");
+        _assert("[true,[1]]", "/0", PathWriteMode.LAZY, "[true]");
+        _assert("[true,[1]]", "/1", PathWriteMode.LAZY, "[[1]]");
+        _assert("[true,[1,2,[true],3],0]", "/0", PathWriteMode.LAZY, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/1", PathWriteMode.LAZY, "[[1,2,[true],3]]");
 
-        _assert("[true,[1,2,[true],3],0]", "/1/2", true, "[[[true]]]");
-        _assert("[true,[1,2,[true],3],0]", "/1/2/0", true, "[[[true]]]");
-        _assert("[true,[1,2,[true],3],0]", "/1/3/0", true, "");
+        _assert("[true,[1,2,[true],3],0]", "/1/2", PathWriteMode.LAZY, "[[[true]]]");
+        _assert("[true,[1,2,[true],3],0]", "/1/2/0", PathWriteMode.LAZY, "[[[true]]]");
+        _assert("[true,[1,2,[true],3],0]", "/1/3/0", PathWriteMode.LAZY, "");
     }
 
     public void testArrayNestedWithoutPath() throws Exception
     {
-        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", false, "3");
-        _assert("[true,[1,2,[true],3],0]", "/0", false, "true");
-        _assert("[true,[1,2,[true],3],0]", "/1", false,
+        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", PathWriteMode.NONE, "3");
+        _assert("[true,[1,2,[true],3],0]", "/0", PathWriteMode.NONE, "true");
+        _assert("[true,[1,2,[true],3],0]", "/1", PathWriteMode.NONE,
                 "[1,2,[true],3]");
 
-        _assert("[true,[1,2,[true],3],0]", "/1/2", false, "[true]");
-        _assert("[true,[1,2,[true],3],0]", "/1/2/0", false, "true");
-        _assert("[true,[1,2,[true],3],0]", "/1/3/0", false, "");
+        _assert("[true,[1,2,[true],3],0]", "/1/2", PathWriteMode.NONE, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/1/2/0", PathWriteMode.NONE, "true");
+        _assert("[true,[1,2,[true],3],0]", "/1/3/0", PathWriteMode.NONE, "");
     }
     
 //    final String SIMPLE_INPUT = aposToQuotes("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
     
     public void testArrayElementWithoutPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/b", false, "[1,2,3]");
-        _assert(SIMPLE_INPUT, "/b/1", false, "2");
-        _assert(SIMPLE_INPUT, "/b/2", false, "3");
+        _assert(SIMPLE_INPUT, "/b", PathWriteMode.NONE, "[1,2,3]");
+        _assert(SIMPLE_INPUT, "/b/1", PathWriteMode.NONE, "2");
+        _assert(SIMPLE_INPUT, "/b/2", PathWriteMode.NONE, "3");
 
-        _assert(SIMPLE_INPUT, "/b/8", false, "");
+        _assert(SIMPLE_INPUT, "/b/8", PathWriteMode.NONE, "");
 
         // and then non-match
-        _assert(SIMPLE_INPUT, "/x", false, "");
+        _assert(SIMPLE_INPUT, "/x", PathWriteMode.NONE, "");
     }
 
-    private void _assert(String input, String pathExpr, boolean includeParent, String exp)
+    private void _assert(String input, String pathExpr, PathWriteMode pathWriteMode, String exp)
         throws Exception
     {
         StringWriter w = new StringWriter();
@@ -96,7 +98,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         JsonGenerator g0 = JSON_F.createGenerator(w);
         FilteringGeneratorDelegate g = new FilteringGeneratorDelegate(g0,
                 new JsonPointerBasedFilter(pathExpr),
-                includeParent, false, false);
+                pathWriteMode, false);
 
         try {
             writeJsonDoc(JSON_F, input, g);

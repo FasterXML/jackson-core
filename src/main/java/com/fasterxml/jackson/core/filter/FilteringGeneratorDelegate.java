@@ -46,6 +46,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
     protected boolean _includePath;
 
+    /**
+     * Flag that determines whether empty objects and arrays will be written
+     * or omitted
+     */
+    protected boolean _writeEmptyObjectsAndArrays;
+
     /* NOTE: this feature is included in the first version (2.6), but
      * there is no public API to enable it, yet, since there isn't an
      * actual use case. But it seemed possible need could arise, which
@@ -89,8 +95,15 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
+    @Deprecated
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
             boolean includePath, boolean allowMultipleMatches)
+    {
+        this(d, f, includePath, allowMultipleMatches, false);
+    }
+
+    public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
+            boolean includePath, boolean allowMultipleMatches, boolean writeEmptyObjectsAndArrays)
     {
         // By default, do NOT delegate copy methods
         super(d, false);
@@ -100,6 +113,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         _filterContext = TokenFilterContext.createRootContext(f);
         _includePath = includePath;
         _allowMultipleMatches = allowMultipleMatches;
+        _writeEmptyObjectsAndArrays = writeEmptyObjectsAndArrays;
     }
 
     /*
@@ -169,6 +183,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
+        } else if (_itemFilter != null && _writeEmptyObjectsAndArrays) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            delegate.writeStartArray();
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
         }
@@ -195,6 +213,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _itemFilter = _itemFilter.filterStartArray();
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            delegate.writeStartArray(size);
+        } else if (_itemFilter != null && _writeEmptyObjectsAndArrays) {
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
@@ -238,6 +260,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
+        } else if (f != null && _writeEmptyObjectsAndArrays) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildObjectContext(f, true);
+            delegate.writeStartObject();
         } else { // filter out
             _filterContext = _filterContext.createChildObjectContext(f, false);
         }
@@ -265,6 +291,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             f = f.filterStartObject();
         }
         if (f == TokenFilter.INCLUDE_ALL) {
+            _checkParentPath();
+            _filterContext = _filterContext.createChildObjectContext(f, true);
+            delegate.writeStartObject(forValue);
+        } else if (f != null && _writeEmptyObjectsAndArrays) {
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
@@ -316,6 +346,27 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             return;
         }
         state = state.includeProperty(name.getValue());
+        _itemFilter = state;
+        if (state == TokenFilter.INCLUDE_ALL) {
+            _checkPropertyParentPath();
+        }
+    }
+
+    @Override
+    public void writeFieldId(long id) throws IOException
+    {
+        String idString = Long.toString(id);
+        TokenFilter state = _filterContext.setFieldName(idString);
+        if (state == null) {
+            _itemFilter = null;
+            return;
+        }
+        if (state == TokenFilter.INCLUDE_ALL) {
+            _itemFilter = state;
+            delegate.writeFieldId(id);
+            return;
+        }
+        state = state.includeProperty(idString);
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {
             _checkPropertyParentPath();

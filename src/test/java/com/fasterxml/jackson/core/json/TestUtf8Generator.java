@@ -74,7 +74,8 @@ public class TestUtf8Generator extends BaseTest
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(g,
                 new JsonPointerBasedFilter("/escapes"),
                 true, // includePath
-                false // multipleMatches
+                false, // multipleMatches
+                false // writeEmptyObjectsAndArrays
         );
 
         //final String JSON = "{'a':123,'array':[1,2],'escapes':'\b\t\f\n\r\"foo\"\u0000'}";

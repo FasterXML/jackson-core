@@ -98,7 +98,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         JsonGenerator g0 = JSON_F.createGenerator(w);
         FilteringGeneratorDelegate g = new FilteringGeneratorDelegate(g0,
                 new JsonPointerBasedFilter(pathExpr),
-            tokenInclusion, false);
+                tokenInclusion, false);
 
         try {
             writeJsonDoc(JSON_F, input, g);

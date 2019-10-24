@@ -190,7 +190,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
         } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.NON_NULL) {
-            _checkParentPath(false /* match */);
+            _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
         } else {
@@ -223,7 +223,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
         } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.NON_NULL) {
-            _checkParentPath(false /* match */);
+            _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
         } else {
@@ -267,7 +267,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
         } else if (f != null && _tokenInclusion == TokenInclusion.NON_NULL) {
-            _checkParentPath(false /* match */);
+            _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
         } else { // filter out
@@ -301,7 +301,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
         } else if (f != null && _tokenInclusion == TokenInclusion.NON_NULL) {
-            _checkParentPath(false /* match */);
+            _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
         } else { // filter out
@@ -891,9 +891,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         _checkParentPath(true);
     }
 
-    protected void _checkParentPath(boolean match) throws IOException
+    protected void  _checkParentPath(boolean isMatch) throws IOException
     {
-        if (match) {
+        if (isMatch) {
             ++_matchCount;
         }
         // only need to construct path if parent wasn't written
@@ -904,7 +904,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext.ensureFieldNameWritten(delegate);
         }
         // also: if no multiple matches desired, short-cut checks
-        if (match && !_allowMultipleMatches) {
+        if (isMatch && !_allowMultipleMatches) {
             // Mark parents as "skip" so that further check calls are not made
             _filterContext.skipParentChecks();
         }

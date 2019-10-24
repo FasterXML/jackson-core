@@ -36,7 +36,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
          * Tokens will be included if any non-null filter is returned.
          * The exception is if a field name returns a non-null filter,
          * but the field value returns a null filter. In this case the
-         * field name will also be omitted.
+         * field name and value will both be omitted.
          */
         NON_NULL
     }

@@ -38,7 +38,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
          * but the field value returns a null filter. In this case the
          * field name and value will both be omitted.
          */
-        NON_NULL
+        INCLUDE_NON_NULL
     }
 
     /*
@@ -189,7 +189,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
-        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.NON_NULL) {
+        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
@@ -222,7 +222,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
-        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.NON_NULL) {
+        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
@@ -266,7 +266,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
-        } else if (f != null && _tokenInclusion == TokenInclusion.NON_NULL) {
+        } else if (f != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
@@ -300,7 +300,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
-        } else if (f != null && _tokenInclusion == TokenInclusion.NON_NULL) {
+        } else if (f != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
@@ -899,7 +899,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         // only need to construct path if parent wasn't written
         if (_tokenInclusion == TokenInclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
-        } else if (_tokenInclusion == TokenInclusion.NON_NULL) {
+        } else if (_tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
             // path has already been written, except for maybe field name
             _filterContext.ensureFieldNameWritten(delegate);
         }
@@ -920,7 +920,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         ++_matchCount;
         if (_tokenInclusion == TokenInclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
-        } else if (_tokenInclusion == TokenInclusion.NON_NULL) {
+        } else if (_tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
             // path has already been written, except for maybe field name
             _filterContext.ensureFieldNameWritten(delegate);
         }

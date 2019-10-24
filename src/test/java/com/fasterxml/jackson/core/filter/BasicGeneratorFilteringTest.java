@@ -322,7 +322,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("invalid"),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String JSON = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'root':{'b':{}}}"), w.toString());
@@ -335,7 +335,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("invalid"),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[%s,%s,%s]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
@@ -349,7 +349,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NameMatchFilter("invalid"),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[[%s],[%s],[%s]]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
@@ -363,7 +363,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new StrictNameMatchFilter("invalid"),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':4}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{}"), w.toString());
@@ -376,7 +376,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new StrictNameMatchFilter("invalid"),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[%s,%s,%s]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
@@ -390,7 +390,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new StrictNameMatchFilter("invalid"),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[[%s],[%s],[%s]]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
@@ -404,7 +404,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NoArraysFilter(),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String JSON = "{'root':['a'],'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'b0':false}"), w.toString());
@@ -417,7 +417,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
                 new NoObjectsFilter(),
-                TokenInclusion.NON_NULL, true);
+                TokenInclusion.INCLUDE_NON_NULL, true);
         final String JSON = "['a',{'root':{'b':{'value':4}},'b0':false}]";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("['a']"), w.toString());

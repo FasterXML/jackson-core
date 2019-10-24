@@ -17,8 +17,28 @@ import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
  */
 public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 {
-    public enum PathWriteMode {
-        NONE, LAZY, EAGER
+    /**
+     * Enumeration that controls how TokenFilter return values are interpreted
+     *
+     * @since 2.11
+     */
+    public enum TokenInclusion {
+        /**
+         * Tokens will only be included if the filter returns TokenFilter.INCLUDE_ALL
+         */
+        ONLY_INCLUDE_ALL,
+        /**
+         * When TokenFilter.INCLUDE_ALL is returned, the corresponding token will
+         * be included as well as enclosing tokens up to the root
+         */
+        INCLUDE_ALL_AND_PATH,
+        /**
+         * Tokens will be included if any non-null filter is returned.
+         * The exception is if a field name returns a non-null filter,
+         * but the field value returns a null filter. In this case the
+         * field name will also be omitted.
+         */
+        NON_NULL
     }
 
     /*
@@ -48,7 +68,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * done and only explicitly included entries are output; if `true` then
      * path from main level down to match is also included as necessary.
      */
-    protected PathWriteMode _pathWriteMode;
+    protected TokenInclusion _tokenInclusion;
 
     /*
     /**********************************************************
@@ -86,11 +106,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
             boolean includePath, boolean allowMultipleMatches)
     {
-        this(d, f, includePath ? PathWriteMode.LAZY : PathWriteMode.NONE, allowMultipleMatches);
+        this(d, f, includePath ? TokenInclusion.INCLUDE_ALL_AND_PATH : TokenInclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
     }
 
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
-            PathWriteMode pathWriteMode, boolean allowMultipleMatches)
+            TokenInclusion tokenInclusion, boolean allowMultipleMatches)
     {
         // By default, do NOT delegate copy methods
         super(d, false);
@@ -98,7 +118,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         // and this is the currently active filter for root values
         _itemFilter = f;
         _filterContext = TokenFilterContext.createRootContext(f);
-        _pathWriteMode = pathWriteMode;
+        _tokenInclusion = tokenInclusion;
         _allowMultipleMatches = allowMultipleMatches;
     }
 
@@ -169,7 +189,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
-        } else if (_itemFilter != null && _pathWriteMode == PathWriteMode.EAGER) {
+        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.NON_NULL) {
             _checkParentPath(false /* match */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
@@ -202,7 +222,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
-        } else if (_itemFilter != null && _pathWriteMode == PathWriteMode.EAGER) {
+        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.NON_NULL) {
             _checkParentPath(false /* match */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
@@ -246,7 +266,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
-        } else if (f != null && _pathWriteMode == PathWriteMode.EAGER) {
+        } else if (f != null && _tokenInclusion == TokenInclusion.NON_NULL) {
             _checkParentPath(false /* match */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
@@ -280,7 +300,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
-        } else if (f != null && _pathWriteMode == PathWriteMode.EAGER) {
+        } else if (f != null && _tokenInclusion == TokenInclusion.NON_NULL) {
             _checkParentPath(false /* match */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
@@ -877,9 +897,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             ++_matchCount;
         }
         // only need to construct path if parent wasn't written
-        if (_pathWriteMode == PathWriteMode.LAZY) {
+        if (_tokenInclusion == TokenInclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
-        } else if (_pathWriteMode == PathWriteMode.EAGER) {
+        } else if (_tokenInclusion == TokenInclusion.NON_NULL) {
+            // path has already been written, except for maybe field name
             _filterContext.ensureFieldNameWritten(delegate);
         }
         // also: if no multiple matches desired, short-cut checks
@@ -897,9 +918,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     protected void _checkPropertyParentPath() throws IOException
     {
         ++_matchCount;
-        if (_pathWriteMode == PathWriteMode.LAZY) {
+        if (_tokenInclusion == TokenInclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
-        } else if (_pathWriteMode == PathWriteMode.EAGER) {
+        } else if (_tokenInclusion == TokenInclusion.NON_NULL) {
+            // path has already been written, except for maybe field name
             _filterContext.ensureFieldNameWritten(delegate);
         }
 

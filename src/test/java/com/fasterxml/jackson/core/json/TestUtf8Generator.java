@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
-import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate.TokenInclusion;
+import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate.TokenFilterInclusion;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.BufferRecycler;
@@ -78,7 +78,7 @@ public class TestUtf8Generator extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(g,
                 new JsonPointerBasedFilter("/escapes"),
-                TokenInclusion.INCLUDE_ALL_AND_PATH,
+                TokenFilterInclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
 

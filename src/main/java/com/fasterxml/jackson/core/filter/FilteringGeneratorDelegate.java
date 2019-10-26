@@ -22,7 +22,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      *
      * @since 2.11
      */
-    public enum TokenInclusion {
+    public enum TokenFilterInclusion {
         /**
          * Tokens will only be included if the filter returns TokenFilter.INCLUDE_ALL
          */
@@ -68,7 +68,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * done and only explicitly included entries are output; if `true` then
      * path from main level down to match is also included as necessary.
      */
-    protected TokenInclusion _tokenInclusion;
+    protected TokenFilterInclusion _tokenFilterInclusion;
 
     /*
     /**********************************************************
@@ -106,11 +106,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
             boolean includePath, boolean allowMultipleMatches)
     {
-        this(d, f, includePath ? TokenInclusion.INCLUDE_ALL_AND_PATH : TokenInclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
+        this(d, f, includePath ? TokenFilterInclusion.INCLUDE_ALL_AND_PATH : TokenFilterInclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
     }
 
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
-            TokenInclusion tokenInclusion, boolean allowMultipleMatches)
+            TokenFilterInclusion tokenFilterInclusion, boolean allowMultipleMatches)
     {
         // By default, do NOT delegate copy methods
         super(d, false);
@@ -118,7 +118,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         // and this is the currently active filter for root values
         _itemFilter = f;
         _filterContext = TokenFilterContext.createRootContext(f);
-        _tokenInclusion = tokenInclusion;
+        _tokenFilterInclusion = tokenFilterInclusion;
         _allowMultipleMatches = allowMultipleMatches;
     }
 
@@ -189,7 +189,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
-        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
+        } else if (_itemFilter != null && _tokenFilterInclusion == TokenFilterInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
@@ -222,7 +222,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
-        } else if (_itemFilter != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
+        } else if (_itemFilter != null && _tokenFilterInclusion == TokenFilterInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
@@ -266,7 +266,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
-        } else if (f != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
+        } else if (f != null && _tokenFilterInclusion == TokenFilterInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
@@ -300,7 +300,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
-        } else if (f != null && _tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
+        } else if (f != null && _tokenFilterInclusion == TokenFilterInclusion.INCLUDE_NON_NULL) {
             _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
@@ -897,9 +897,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             ++_matchCount;
         }
         // only need to construct path if parent wasn't written
-        if (_tokenInclusion == TokenInclusion.INCLUDE_ALL_AND_PATH) {
+        if (_tokenFilterInclusion == TokenFilterInclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
-        } else if (_tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
+        } else if (_tokenFilterInclusion == TokenFilterInclusion.INCLUDE_NON_NULL) {
             // path has already been written, except for maybe field name
             _filterContext.ensureFieldNameWritten(delegate);
         }
@@ -918,9 +918,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     protected void _checkPropertyParentPath() throws IOException
     {
         ++_matchCount;
-        if (_tokenInclusion == TokenInclusion.INCLUDE_ALL_AND_PATH) {
+        if (_tokenFilterInclusion == TokenFilterInclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
-        } else if (_tokenInclusion == TokenInclusion.INCLUDE_NON_NULL) {
+        } else if (_tokenFilterInclusion == TokenFilterInclusion.INCLUDE_NON_NULL) {
             // path has already been written, except for maybe field name
             _filterContext.ensureFieldNameWritten(delegate);
         }

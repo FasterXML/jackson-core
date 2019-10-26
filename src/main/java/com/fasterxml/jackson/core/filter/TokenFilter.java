@@ -16,6 +16,30 @@ import com.fasterxml.jackson.core.JsonParser;
 public class TokenFilter
 {
 
+    /**
+     * Enumeration that controls how TokenFilter return values are interpreted
+     *
+     * @since 2.11
+     */
+    public enum Inclusion {
+        /**
+         * Tokens will only be included if the filter returns TokenFilter.INCLUDE_ALL
+         */
+        ONLY_INCLUDE_ALL,
+        /**
+         * When TokenFilter.INCLUDE_ALL is returned, the corresponding token will
+         * be included as well as enclosing tokens up to the root
+         */
+        INCLUDE_ALL_AND_PATH,
+        /**
+         * Tokens will be included if any non-null filter is returned.
+         * The exception is if a field name returns a non-null filter,
+         * but the field value returns a null filter. In this case the
+         * field name and value will both be omitted.
+         */
+        INCLUDE_NON_NULL
+    }
+
     // // Marker values
 
     /**

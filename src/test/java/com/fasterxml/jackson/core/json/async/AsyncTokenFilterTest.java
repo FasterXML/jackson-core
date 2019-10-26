@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 // [core#462], [core#463]
 public class AsyncTokenFilterTest extends AsyncTestBase
@@ -33,7 +34,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     {
         NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nonBlockingParser,
-                TOKEN_FILTER, true, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
         nonBlockingParser.feedInput(INPUT_BYTES, 0, INPUT_BYTES.length);
         int expectedIdx = 0;
         while (expectedIdx < EXPECTED_TOKENS.length) {
@@ -54,7 +55,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         NonBlockingJsonParser nbParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
         @SuppressWarnings("resource")
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
-                TOKEN_FILTER, true, true);
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
         nbParser.feedInput(INPUT_BYTES, 0, 5);
 
         assertToken(JsonToken.START_OBJECT, nbParser.nextToken());

@@ -55,19 +55,14 @@ public class SimpleTokenReadContext extends TokenStreamContext
 
     protected void reset(int type, int lineNr, int colNr) {
         _type = type;
-        _index = -1;
+        _currentValue = null;
         _lineNr = lineNr;
         _columnNr = colNr;
+        _index = -1;
         _currentName = null;
-        _currentValue = null;
         if (_dups != null) {
             _dups.reset();
         }
-    }
-
-    public SimpleTokenReadContext withDupDetector(DupDetector dups) {
-        _dups = dups;
-        return this;
     }
 
     @Override
@@ -91,9 +86,9 @@ public class SimpleTokenReadContext extends TokenStreamContext
     }
 
     public static SimpleTokenReadContext createRootContext(DupDetector dups) {
-        return new SimpleTokenReadContext(TYPE_ROOT, null, dups, 1, 0);
+        return createRootContext(1, 0, dups);
     }
-
+    
     public SimpleTokenReadContext createChildArrayContext(int lineNr, int colNr) {
         SimpleTokenReadContext ctxt = _childToRecycle;
         if (ctxt == null) {
@@ -168,9 +163,13 @@ public class SimpleTokenReadContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    public boolean expectComma() {
-        int ix = ++_index; // starts from -1
-        return (_type != TYPE_ROOT && ix > 0);
+    /**
+     * Method to call to advance index within current context: to be called
+     * when a new token found within current context (field name for objects,
+     * value for root and array contexts)
+     */
+    public int valueRead() {
+        return ++_index; // starts from -1
     }
 
     public void setCurrentName(String name) throws JsonProcessingException {

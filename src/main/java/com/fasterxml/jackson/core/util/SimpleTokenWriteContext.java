@@ -22,18 +22,18 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     protected DupDetector _dups;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple instance reuse slots; speed up things a bit (10-15%)
     /* for docs with lots of small arrays/objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected SimpleTokenWriteContext _childToRecycle;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information (minus source reference)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

@@ -28,18 +28,18 @@ public class JsonWriteContext extends TokenStreamContext
     protected DupDetector _dups;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple instance reuse slots; speed up things a bit (10-15%)
     /* for docs with lots of small arrays/objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonWriteContext _child;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information (minus source reference)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -57,9 +57,9 @@ public class JsonWriteContext extends TokenStreamContext
     protected boolean _gotName;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups,
@@ -96,11 +96,11 @@ public class JsonWriteContext extends TokenStreamContext
     public void setCurrentValue(Object v) {
         _currentValue = v;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static JsonWriteContext createRootContext(DupDetector dd) {

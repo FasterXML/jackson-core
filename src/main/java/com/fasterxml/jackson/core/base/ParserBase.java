@@ -7,8 +7,6 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberInput;
-import com.fasterxml.jackson.core.json.DupDetector;
-import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -20,9 +18,9 @@ import com.fasterxml.jackson.core.util.TextBuffer;
 public abstract class ParserBase extends ParserMinimalBase
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Generic I/O state
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -39,9 +37,9 @@ public abstract class ParserBase extends ParserMinimalBase
     protected boolean _closed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Current input data
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Note: type of actual buffer depends on sub-class, can't include
@@ -57,9 +55,9 @@ public abstract class ParserBase extends ParserMinimalBase
     protected int _inputEnd;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Current input location information
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -83,10 +81,10 @@ public abstract class ParserBase extends ParserMinimalBase
     protected int _currInputRowStart;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Information about starting location of event
     /* Reader is pointing to; updated on-demand
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // // Location info at point when current token was started
@@ -110,17 +108,11 @@ public abstract class ParserBase extends ParserMinimalBase
     protected int _tokenInputCol;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parsing state
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * Information about parser context, context in which
-     * the next token is to be parsed (root, array, object).
-     */
-    protected JsonReadContext _parsingContext;
-    
     /**
      * Secondary token related to the next token after current one;
      * used if its type is known. This may be value token that
@@ -129,9 +121,9 @@ public abstract class ParserBase extends ParserMinimalBase
     protected JsonToken _nextToken;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Buffer(s) for local name(s) and text content
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -221,9 +213,9 @@ public abstract class ParserBase extends ParserMinimalBase
     protected int _expLength;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected ParserBase(ObjectReadContext readCtxt,
@@ -231,10 +223,10 @@ public abstract class ParserBase extends ParserMinimalBase
         super(readCtxt, features);
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
-        DupDetector dups = StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
-                ? DupDetector.rootDetector(this) : null;
-        _parsingContext = JsonReadContext.createRootContext(dups);
     }
+
+    /*
+    @Override public JsonReadContext getParsingContext() { return _parsingContext; }
 
     @Override
     public Object getCurrentValue() {
@@ -245,13 +237,15 @@ public abstract class ParserBase extends ParserMinimalBase
     public void setCurrentValue(Object v) {
         _parsingContext.setCurrentValue(v);
     }
-    
+    */
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides for Feature handling
-    /**********************************************************
+    /**********************************************************************
      */
 
+    /*
     @Override
     public JsonParser enable(StreamReadFeature f) {
         _streamReadFeatures |= f.getMask();
@@ -271,17 +265,19 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return this;
     }
+    */
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonParser impl
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
      * Method that can be called to get the name associated with
      * the current event.
      */
+    /*
     @Override public String currentName() throws IOException {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
@@ -307,6 +303,7 @@ public abstract class ParserBase extends ParserMinimalBase
             throw new IllegalStateException(e);
         }
     }
+    */
 
     @Override public void close() throws IOException {
         if (!_closed) {
@@ -324,7 +321,6 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     @Override public boolean isClosed() { return _closed; }
-    @Override public JsonReadContext getParsingContext() { return _parsingContext; }
 
     /**
      * Method that return the <b>starting</b> location of the current
@@ -352,9 +348,9 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, text and similar
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -380,9 +376,9 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public low-level accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public long getTokenCharacterOffset() { return _tokenInputTotal; }
@@ -394,17 +390,17 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract methods for sub-classes to implement
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected abstract void _closeInput() throws IOException;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level reading, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -421,7 +417,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _ioContext.releaseNameCopyBuffer(buf);
         }
     }
-    
+
     /**
      * Method called when an EOF is encountered between tokens.
      * If so, it may be a legitimate EOF, but only iff there
@@ -429,28 +425,26 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     @Override
     protected void _handleEOF() throws JsonParseException {
-        if (!_parsingContext.inRoot()) {
-            String marker = _parsingContext.inArray() ? "Array" : "Object";
+        TokenStreamContext parsingContext = getParsingContext();
+        if ((parsingContext != null) && !parsingContext.inRoot()) {
+            String marker = parsingContext.inArray() ? "Array" : "Object";
             _reportInvalidEOF(String.format(
                     ": expected close marker for %s (start marker at %s)",
                     marker,
-                    _parsingContext.getStartLocation(_getSourceReference())),
+                    parsingContext.getStartLocation(_getSourceReference())),
                     null);
         }
     }
 
-    /**
-     * @since 2.4
-     */
     protected final int _eofAsNextChar() throws JsonParseException {
         _handleEOF();
         return -1;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal/package methods: shared/reusable builders
-    /**********************************************************
+    /**********************************************************************
      */
     
     public ByteArrayBuilder _getByteArrayBuilder()
@@ -464,9 +458,9 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
-    /* Methods from former JsonNumericParserBase
-    /**********************************************************
+    /**********************************************************************
+    /* Methods related to number handling
+    /**********************************************************************
      */
 
     // // // Life-cycle of number-parsing
@@ -520,9 +514,9 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Numeric accessors of public API
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -671,9 +665,9 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Conversion from textual to numeric representation
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -729,9 +723,6 @@ public abstract class ParserBase extends ParserMinimalBase
         _reportError("Current token (%s) not numeric, can not use numeric value accessors", _currToken);
     }
 
-    /**
-     * @since 2.6
-     */
     protected int _parseIntValue() throws IOException
     {
         // Inlined variant of: _parseNumericValue(NR_INT)
@@ -821,9 +812,9 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Numeric conversions
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void convertNumberToInt() throws IOException
@@ -1037,16 +1028,15 @@ public abstract class ParserBase extends ParserMinimalBase
         return new IllegalArgumentException(base);
     }
 
-    // since 2.9.8
     protected void _handleBase64MissingPadding(Base64Variant b64variant) throws IOException
     {
         _reportError(b64variant.missingPaddingMessage());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal/package methods: other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

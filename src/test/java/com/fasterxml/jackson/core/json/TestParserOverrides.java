@@ -25,11 +25,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     public void testCurrentName() throws Exception
     {
         JsonFactory jf = new JsonFactory();
-
-        
         _testCurrentName(jf, false);
-
-        
         _testCurrentName(jf, true);
     }
 
@@ -75,8 +71,8 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         assertEquals("first", jp.currentName());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals("first", jp.currentName()); // still the same...
-        jp.overrideCurrentName("foobar");
-        assertEquals("foobar", jp.currentName()); // but not any more!
+//        jp.overrideCurrentName("foobar");
+//        assertEquals("foobar", jp.currentName()); // but not any more!
 
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("second", jp.currentName());
@@ -90,7 +86,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         // should retain overrides, too
-        assertEquals("foobar", jp.currentName());
+//        assertEquals("foobar", jp.currentName());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.clearCurrentToken();

@@ -22,6 +22,12 @@ public abstract class JsonParserBase
      */
     protected int _formatReadFeatures;
 
+    /**
+     * Information about parser context, context in which
+     * the next token is to be parsed (root, array, object).
+     */
+    protected JsonReadContext _parsingContext;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -32,17 +38,63 @@ public abstract class JsonParserBase
             IOContext ctxt, int streamReadFeatures, int formatReadFeatures) {
         super(readCtxt, ctxt, streamReadFeatures);
         _formatReadFeatures = formatReadFeatures;
+        DupDetector dups = StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamReadFeatures)
+                ? DupDetector.rootDetector(this) : null;
+        _parsingContext = JsonReadContext.createRootContext(dups);
     }
 
     /*
     /**********************************************************************
-    /* Accessors
+    /* Versioned
     /**********************************************************************
      */
 
     @Override public Version version() { return PackageVersion.VERSION; }
 
+    /*
+    /**********************************************************************
+    /* ParserBase method implementions
+    /**********************************************************************
+     */
+
     public boolean isEnabled(JsonReadFeature f) { return f.enabledIn(_formatReadFeatures); }
+
+    @Override public TokenStreamContext getParsingContext() { return _parsingContext; }
+
+    @Override
+    public Object getCurrentValue() {
+        return _parsingContext.getCurrentValue();
+    }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        _parsingContext.setCurrentValue(v);
+    }
+
+    /**
+     * Method that can be called to get the name associated with
+     * the current event.
+     */
+    @Override public String currentName() throws IOException {
+        // [JACKSON-395]: start markers require information from parent
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            JsonReadContext parent = _parsingContext.getParent();
+            if (parent != null) {
+                return parent.currentName();
+            }
+        }
+        return _parsingContext.currentName();
+    }
+/*
+    @Override public void overrideCurrentName(String name) throws IOException {
+        // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
+        JsonReadContext ctxt = _parsingContext;
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            ctxt = ctxt.getParent();
+        }
+        ctxt.setCurrentName(name);
+    }
+    */
 
     /*
     /**********************************************************************
@@ -65,7 +117,7 @@ public abstract class JsonParserBase
 
     // Promoted from `ParserBase` in 3.0
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
-        JsonReadContext ctxt = getParsingContext();
+        TokenStreamContext ctxt = getParsingContext();
         _reportError(String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
                 (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));

@@ -65,9 +65,9 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int[] NO_INTS = new int[0];
     
     /*
-    /**********************************************************
-    /* Constants and fields of former 'JsonNumericParserBase'
-    /**********************************************************
+    /**********************************************************************
+    /* Constants and fields wrt number handling
+    /**********************************************************************
      */
 
     protected final static int NR_UNKNOWN = 0;
@@ -114,9 +114,9 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static double MAX_INT_D = (double) Integer.MAX_VALUE;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Misc other constants
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -126,9 +126,9 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Minimal configuration state
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -139,9 +139,9 @@ public abstract class ParserMinimalBase extends JsonParser
     protected int _streamReadFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Minimal generally useful state
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -168,9 +168,9 @@ public abstract class ParserMinimalBase extends JsonParser
     protected JsonToken _lastClearedToken;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected ParserMinimalBase(ObjectReadContext readCtxt) {
@@ -186,9 +186,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration overrides if any
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -222,9 +222,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonParser impl: open / close
-    /**********************************************************
+    /**********************************************************************
      */
 
     //public JsonToken getCurrentToken()
@@ -234,9 +234,9 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public abstract boolean isClosed();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonParser impl: basic state access
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public abstract TokenStreamContext getParsingContext();
@@ -253,9 +253,9 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public abstract String currentName() throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonParser impl: basic stream iteration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public abstract JsonToken nextToken() throws IOException;
@@ -310,10 +310,8 @@ public abstract class ParserMinimalBase extends JsonParser
             JsonToken t = nextToken();
             if (t == null) {
                 _handleEOF();
-                /* given constraints, above should never return;
-                 * however, FindBugs doesn't know about it and
-                 * complains... so let's add dummy break here
-                 */
+                // given constraints, above should never return; however, FindBugs
+                // doesn't know about it and complains... so let's add dummy break here
                 return this;
             }
             if (t.isStructStart()) {
@@ -333,9 +331,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonParser impl: stream iteration, field names
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -374,9 +372,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token state overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public void clearCurrentToken() {
@@ -388,32 +386,32 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override public JsonToken getLastClearedToken() { return _lastClearedToken; }
 
-    @Override public abstract void overrideCurrentName(String name);
-    
+//    @Override public abstract void overrideCurrentName(String name);
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, text
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public abstract String getText() throws IOException;
-    @Override public abstract char[] getTextCharacters() throws IOException;
-    @Override public abstract boolean hasTextCharacters();
-    @Override public abstract int getTextLength() throws IOException;
-    @Override public abstract int getTextOffset() throws IOException;  
+//    @Override public abstract String getText() throws IOException;
+//    @Override public abstract char[] getTextCharacters() throws IOException;
+//    @Override public abstract boolean hasTextCharacters();
+//    @Override public abstract int getTextLength() throws IOException;
+//    @Override public abstract int getTextOffset() throws IOException;  
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, binary
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public abstract byte[] getBinaryValue(Base64Variant b64variant) throws IOException;
+//    @Override public abstract byte[] getBinaryValue(Base64Variant b64variant) throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access with conversion/coercion
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -590,9 +588,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Databind callbacks
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -616,11 +614,11 @@ public abstract class ParserMinimalBase extends JsonParser
     public <T extends TreeNode> T readValueAsTree() throws IOException {
         return (T) _objectReadContext.readTree(this);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods: Base64 decoding
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -637,9 +635,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Coercion helper methods (overridable)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -650,9 +648,9 @@ public abstract class ParserMinimalBase extends JsonParser
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Error reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
@@ -784,9 +782,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Error reporting, generic
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final static String _getCharDesc(int ch)

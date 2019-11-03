@@ -46,9 +46,9 @@ public class JsonParserDelegate extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -74,9 +74,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public Object getInputSource() { return delegate.getInputSource(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Capability introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public boolean canParseAsync() { return delegate.canParseAsync(); }
@@ -84,18 +84,18 @@ public class JsonParserDelegate extends JsonParser
     @Override public NonBlockingInputFeeder getNonBlockingInputFeeder() { return delegate.getNonBlockingInputFeeder(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Closeable impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public void close() throws IOException { delegate.close(); }
     @Override public boolean isClosed() { return delegate.isClosed(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken currentToken() { return delegate.currentToken(); }
@@ -113,19 +113,23 @@ public class JsonParserDelegate extends JsonParser
     @Override public boolean isNaN() throws IOException { return delegate.isNaN(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token state overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public void clearCurrentToken() { delegate.clearCurrentToken(); }
     @Override public JsonToken getLastClearedToken() { return delegate.getLastClearedToken(); }
-    @Override public void overrideCurrentName(String name) { delegate.overrideCurrentName(name); }
+    /*
+    @Override public void overrideCurrentName(String name) throws IOException {
+        delegate.overrideCurrentName(name);
+    }
+    */
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, iteration over token stream
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
@@ -150,9 +154,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public int currentFieldName(FieldNameMatcher matcher) throws IOException { return delegate.currentFieldName(matcher); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, text
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public String getText() throws IOException { return delegate.getText();  }
@@ -163,9 +167,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public int getText(Writer writer) throws IOException, UnsupportedOperationException { return delegate.getText(writer);  }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, numeric
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -202,9 +206,9 @@ public class JsonParserDelegate extends JsonParser
     public Number getNumberValue() throws IOException { return delegate.getNumberValue(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, coercion/conversion
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override public int getValueAsInt() throws IOException { return delegate.getValueAsInt(); }
@@ -217,11 +221,11 @@ public class JsonParserDelegate extends JsonParser
     @Override public boolean getValueAsBoolean(boolean defaultValue) throws IOException { return delegate.getValueAsBoolean(defaultValue); }
     @Override public String getValueAsString() throws IOException { return delegate.getValueAsString(); }
     @Override public String getValueAsString(String defaultValue) throws IOException { return delegate.getValueAsString(defaultValue); }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token values, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public Object getEmbeddedObject() throws IOException { return delegate.getEmbeddedObject(); }
@@ -230,9 +234,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, databind callbacks via `ObjectReadContext`
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -256,9 +260,9 @@ public class JsonParserDelegate extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, Native Ids (type, object)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public boolean canReadObjectId() { return delegate.canReadObjectId(); }
@@ -267,15 +271,13 @@ public class JsonParserDelegate extends JsonParser
     @Override public Object getTypeId() throws IOException { return delegate.getTypeId(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Accessor for getting the immediate {@link JsonParser} this parser delegates calls to.
-     *
-     * @since 2.10
      */
     public JsonParser delegate() { return delegate; }
 }

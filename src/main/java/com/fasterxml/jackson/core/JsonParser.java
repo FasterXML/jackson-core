@@ -725,19 +725,6 @@ public abstract class JsonParser
      * or if parser has been closed.
      */
     public abstract JsonToken getLastClearedToken();
-    
-    /**
-     * Method that can be used to change what is considered to be
-     * the current (field) name.
-     * May be needed to support non-JSON data formats or unusual binding
-     * conventions; not needed for typical processing.
-     *<p>
-     * Note that use of this method should only be done as sort of last
-     * resort, as it is a work-around for regular operation.
-     * 
-     * @param name Name to use as the current name; may be null.
-     */
-    public abstract void overrideCurrentName(String name);
 
     /*
     /**********************************************************************

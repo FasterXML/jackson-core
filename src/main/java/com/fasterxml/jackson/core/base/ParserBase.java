@@ -213,20 +213,6 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /*
-    @Override public JsonReadContext getParsingContext() { return _parsingContext; }
-
-    @Override
-    public Object getCurrentValue() {
-        return _parsingContext.getCurrentValue();
-    }
-
-    @Override
-    public void setCurrentValue(Object v) {
-        _parsingContext.setCurrentValue(v);
-    }
-    */
-
-    /*
     /**********************************************************************
     /* Overrides for Feature handling
     /**********************************************************************
@@ -259,7 +245,21 @@ public abstract class ParserBase extends ParserMinimalBase
     /* JsonParser impl
     /**********************************************************************
      */
-    
+
+    @Override
+    public void setCurrentValue(Object v) {
+        TokenStreamContext ctxt = getParsingContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
+    }
+
+    @Override
+    public Object getCurrentValue() {
+        TokenStreamContext ctxt = getParsingContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
     /**
      * Method that can be called to get the name associated with
      * the current event.
@@ -274,21 +274,6 @@ public abstract class ParserBase extends ParserMinimalBase
             }
         }
         return _parsingContext.currentName();
-    }
-
-    @Override public void overrideCurrentName(String name) {
-        // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
-        JsonReadContext ctxt = _parsingContext;
-        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-            ctxt = ctxt.getParent();
-        }
-        // 24-Sep-2013, tatu: Unfortunate, but since we did not expose exceptions,
-        //  need to wrap this here
-        try {
-            ctxt.setCurrentName(name);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
     */
 

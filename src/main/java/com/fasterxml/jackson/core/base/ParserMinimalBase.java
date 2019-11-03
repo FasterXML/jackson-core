@@ -223,35 +223,15 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************************
-    /* JsonParser impl: current value
-    /**********************************************************************
-     */
-
-    @Override
-    public void setCurrentValue(Object v) {
-        TokenStreamContext ctxt = getParsingContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
-    }
-
-    @Override
-    public Object getCurrentValue() {
-        TokenStreamContext ctxt = getParsingContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
-
-    /*
-    /**********************************************************************
     /* JsonParser impl: open / close
     /**********************************************************************
      */
 
-    //public JsonToken getCurrentToken()
-    //public boolean hasCurrentToken()
-
-    @Override public abstract void close() throws IOException;
-    @Override public abstract boolean isClosed();
+    // public JsonToken getCurrentToken()
+    // public boolean hasCurrentToken()
+  
+    // public abstract void close() throws IOException;
+    // public abstract boolean isClosed();
 
     /*
     /**********************************************************************
@@ -259,18 +239,17 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    @Override public abstract TokenStreamContext getParsingContext();
+    // public abstract TokenStreamContext getParsingContext();
 
-//  public abstract JsonLocation getTokenLocation();
-
-//  public abstract JsonLocation getCurrentLocation();
+    //  public abstract JsonLocation getTokenLocation();
+    //  public abstract JsonLocation getCurrentLocation();
 
     /**
      * Method sub-classes need to implement
      */
     protected abstract void _handleEOF() throws JsonParseException;
     
-    @Override public abstract String currentName() throws IOException;
+    // public abstract String currentName() throws IOException;
 
     /*
     /**********************************************************************
@@ -278,7 +257,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    @Override public abstract JsonToken nextToken() throws IOException;
+    // public abstract JsonToken nextToken() throws IOException;
 
     @Override public void finishToken() throws IOException { ; /* nothing */ }
 

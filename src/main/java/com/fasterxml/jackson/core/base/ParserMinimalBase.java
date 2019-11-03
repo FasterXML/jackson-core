@@ -223,6 +223,26 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************************
+    /* JsonParser impl: current value
+    /**********************************************************************
+     */
+
+    @Override
+    public void setCurrentValue(Object v) {
+        TokenStreamContext ctxt = getParsingContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
+    }
+
+    @Override
+    public Object getCurrentValue() {
+        TokenStreamContext ctxt = getParsingContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /*
+    /**********************************************************************
     /* JsonParser impl: open / close
     /**********************************************************************
      */

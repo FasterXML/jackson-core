@@ -55,11 +55,30 @@ public abstract class JsonParser
 
     /*
     /**********************************************************************
-    /* Construction, configuration, initialization
+    /* Life-cycle
     /**********************************************************************
      */
 
     protected JsonParser() { }
+
+    /*
+    /**********************************************************************
+    /* Versioned
+    /**********************************************************************
+     */
+
+    /**
+     * Accessor for getting version of the core package, given a parser instance.
+     * Left for sub-classes to implement.
+     */
+    @Override
+    public abstract Version version();
+
+    /*
+    /**********************************************************************
+    /* Public API: basic context access
+    /**********************************************************************
+     */
 
     /**
      * Accessor for context object provided by higher-level databinding
@@ -73,7 +92,38 @@ public abstract class JsonParser
      * @since 3.0
      */
     public abstract ObjectReadContext getObjectReadContext();
-    
+
+    /**
+     * Method that can be used to access current parsing context reader
+     * is in. There are 3 different types: root, array and object contexts,
+     * with slightly different available information. Contexts are
+     * hierarchically nested, and can be used for example for figuring
+     * out part of the input document that correspond to specific
+     * array or object (for highlighting purposes, or error reporting).
+     * Contexts can also be used for simple xpath-like matching of
+     * input, if so desired.
+     */
+    public abstract TokenStreamContext getParsingContext();
+
+    /*
+    /**********************************************************************
+    /* Public API, input source, location access
+    /**********************************************************************
+     */
+
+    /**
+     * Method that return the <b>starting</b> location of the current
+     * token; that is, position of the first character from input
+     * that starts the current token.
+     */
+    public abstract JsonLocation getTokenLocation();
+
+    /**
+     * Method that returns location of the last processed character;
+     * usually for error reporting purposes.
+     */
+    public abstract JsonLocation getCurrentLocation();
+
     /**
      * Method that can be used to get access to object that is used
      * to access input being parsed; this is usually either
@@ -96,7 +146,7 @@ public abstract class JsonParser
     /* Attaching additional metadata
     /**********************************************************************
      */
-    
+
     /**
      * Helper method, usually equivalent to:
      *<code>
@@ -108,10 +158,7 @@ public abstract class JsonParser
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
      */
-    public Object getCurrentValue() {
-        TokenStreamContext ctxt = getParsingContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
+    public abstract Object getCurrentValue();
 
     /**
      * Helper method, usually equivalent to:
@@ -119,12 +166,13 @@ public abstract class JsonParser
      *   getParsingContext().setCurrentValue(v);
      *</code>
      */
-    public void setCurrentValue(Object v) {
-        TokenStreamContext ctxt = getParsingContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
-    }
+    public abstract void setCurrentValue(Object v);
+
+    /*
+    /**********************************************************************
+    /* Attaching additional metadata
+    /**********************************************************************
+     */
 
     /**
      * Sets the payload to be passed if {@link JsonParseException} is thrown.
@@ -165,7 +213,7 @@ public abstract class JsonParser
 
     /*
     /**********************************************************************
-    /* Format support
+    /* Schema support
     /**********************************************************************
      */
 
@@ -235,19 +283,6 @@ public abstract class JsonParser
 
     /*
     /**********************************************************************
-    /* Versioned
-    /**********************************************************************
-     */
-    
-    /**
-     * Accessor for getting version of the core package, given a parser instance.
-     * Left for sub-classes to implement.
-     */
-    @Override
-    public abstract Version version();
-    
-    /*
-    /**********************************************************************
     /* Closeable implementation
     /**********************************************************************
      */
@@ -279,37 +314,6 @@ public abstract class JsonParser
      * end of input.
      */
     public abstract boolean isClosed();
-
-    /*
-    /**********************************************************************
-    /* Public API, simple location, context accessors
-    /**********************************************************************
-     */
-
-    /**
-     * Method that can be used to access current parsing context reader
-     * is in. There are 3 different types: root, array and object contexts,
-     * with slightly different available information. Contexts are
-     * hierarchically nested, and can be used for example for figuring
-     * out part of the input document that correspond to specific
-     * array or object (for highlighting purposes, or error reporting).
-     * Contexts can also be used for simple xpath-like matching of
-     * input, if so desired.
-     */
-    public abstract TokenStreamContext getParsingContext();
-
-    /**
-     * Method that return the <b>starting</b> location of the current
-     * token; that is, position of the first character from input
-     * that starts the current token.
-     */
-    public abstract JsonLocation getTokenLocation();
-
-    /**
-     * Method that returns location of the last processed character;
-     * usually for error reporting purposes.
-     */
-    public abstract JsonLocation getCurrentLocation();
 
     /*
     /**********************************************************************

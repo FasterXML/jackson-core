@@ -109,19 +109,6 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /*
     /**********************************************************************
-    /* Parsing state
-    /**********************************************************************
-     */
-
-    /**
-     * Secondary token related to the next token after current one;
-     * used if its type is known. This may be value token that
-     * follows FIELD_NAME, for example.
-     */
-    protected JsonToken _nextToken;
-
-    /*
-    /**********************************************************************
     /* Buffer(s) for local name(s) and text content
     /**********************************************************************
      */

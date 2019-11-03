@@ -16,17 +16,35 @@ import com.fasterxml.jackson.core.json.PackageVersion;
 public abstract class JsonParserBase
     extends ParserBase
 {
+    /*
+    /**********************************************************************
+    /* JSON-specific configuration
+    /**********************************************************************
+     */
+
     /**
-     * Bit flag composed of bits that indicate which
-     * {@link JsonReadFeature}s are enabled.
+     * Bit flag for {@link JsonReadFeature}s that are enabled.
      */
     protected int _formatReadFeatures;
+
+    /*
+    /**********************************************************************
+    /* Parsing state
+    /**********************************************************************
+     */
 
     /**
      * Information about parser context, context in which
      * the next token is to be parsed (root, array, object).
      */
     protected JsonReadContext _parsingContext;
+
+    /**
+     * Secondary token related to the next token after current one;
+     * used if its type is known. This may be value token that
+     * follows FIELD_NAME, for example.
+     */
+    protected JsonToken _nextToken;
 
     /*
     /**********************************************************************

@@ -283,30 +283,8 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override public boolean isClosed() { return _closed; }
 
-    /**
-     * Method that return the <b>starting</b> location of the current
-     * token; that is, position of the first character from input
-     * that starts the current token.
-     */
-    @Override
-    public JsonLocation getTokenLocation() {
-        return new JsonLocation(_getSourceReference(),
-                -1L, getTokenCharacterOffset(), // bytes, chars
-                getTokenLineNr(),
-                getTokenColumnNr());
-    }
-
-    /**
-     * Method that returns location of the last processed character;
-     * usually for error reporting purposes
-     */
-    @Override
-    public JsonLocation getCurrentLocation() {
-        int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_getSourceReference(),
-                -1L, _currInputProcessed + _inputPtr, // bytes, chars
-                _currInputRow, col);
-    }
+//    public JsonLocation getTokenLocation()
+//   public JsonLocation getCurrentLocation()
 
     /*
     /**********************************************************************
@@ -635,7 +613,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected abstract void _parseNumericValue(int expType) throws IOException;
 
     protected abstract int _parseIntValue() throws IOException;
-    
+
     /*
     /**********************************************************************
     /* Numeric conversions

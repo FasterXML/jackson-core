@@ -397,19 +397,7 @@ public class UTF8StreamJsonParser
             switch (_currToken.id()) {
                 
             case ID_FIELD_NAME:
-                if (!_nameCopied) {
-                    String name = _parsingContext.currentName();
-                    int nameLen = name.length();
-                    if (_nameCopyBuffer == null) {
-                        _nameCopyBuffer = _ioContext.allocNameCopyBuffer(nameLen);
-                    } else if (_nameCopyBuffer.length < nameLen) {
-                        _nameCopyBuffer = new char[nameLen];
-                    }
-                    name.getChars(0, nameLen, _nameCopyBuffer, 0);
-                    _nameCopied = true;
-                }
-                return _nameCopyBuffer;
-    
+                return currentFieldNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;

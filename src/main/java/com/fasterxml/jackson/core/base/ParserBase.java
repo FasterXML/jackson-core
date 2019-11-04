@@ -121,20 +121,6 @@ public abstract class ParserBase extends ParserMinimalBase
     protected final TextBuffer _textBuffer;
 
     /**
-     * Temporary buffer that is needed if field name is accessed
-     * using {@link #getTextCharacters} method (instead of String
-     * returning alternatives)
-     */
-    protected char[] _nameCopyBuffer;
-
-    /**
-     * Flag set to indicate whether the field name is available
-     * from the name copy buffer or not (in addition to its String
-     * representation  being available via read context)
-     */
-    protected boolean _nameCopied;
-
-    /**
      * ByteArrayBuilder is needed if 'getBinaryValue' is called. If so,
      * we better reuse it for remainder of content.
      */
@@ -148,8 +134,11 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected byte[] _binaryValue;
 
-    // Numeric value holders: multiple fields used for
-    // for efficiency
+    /*
+    /**********************************************************************
+    /* Numeric value state; multiple fields used for efficiency
+    /**********************************************************************
+     */
 
     /**
      * Bitfield that indicates which numeric representations
@@ -327,8 +316,6 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override
     public boolean hasTextCharacters() {
-        if (_currToken == JsonToken.VALUE_STRING) { return true; } // usually true        
-        if (_currToken == JsonToken.FIELD_NAME) { return _nameCopied; }
         return false;
     }
 
@@ -383,11 +370,6 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected void _releaseBuffers() throws IOException {
         _textBuffer.releaseBuffers();
-        char[] buf = _nameCopyBuffer;
-        if (buf != null) {
-            _nameCopyBuffer = null;
-            _ioContext.releaseNameCopyBuffer(buf);
-        }
     }
 
     /**

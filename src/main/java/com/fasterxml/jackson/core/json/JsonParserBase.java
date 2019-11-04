@@ -16,6 +16,8 @@ import com.fasterxml.jackson.core.json.PackageVersion;
 public abstract class JsonParserBase
     extends ParserBase
 {
+    private final static char[] NO_CHARS = new char[0];
+    
     /*
     /**********************************************************************
     /* JSON-specific configuration
@@ -48,6 +50,26 @@ public abstract class JsonParserBase
 
     /*
     /**********************************************************************
+    /* Helper buffer recycling
+    /**********************************************************************
+     */
+
+    /**
+     * Temporary buffer that is needed if field name is accessed
+     * using {@link #getTextCharacters} method (instead of String
+     * returning alternatives)
+     */
+    private char[] _nameCopyBuffer = NO_CHARS;
+
+    /**
+     * Flag set to indicate whether the field name is available
+     * from the name copy buffer or not (in addition to its String
+     * representation  being available via read context)
+     */
+    protected boolean _nameCopied;
+
+    /*
+    /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
@@ -71,11 +93,9 @@ public abstract class JsonParserBase
 
     /*
     /**********************************************************************
-    /* ParserBase method implementions
+    /* ParserBase method implementions/overrides
     /**********************************************************************
      */
-
-    public boolean isEnabled(JsonReadFeature f) { return f.enabledIn(_formatReadFeatures); }
 
     @Override public TokenStreamContext getParsingContext() { return _parsingContext; }
 
@@ -103,16 +123,55 @@ public abstract class JsonParserBase
         }
         return _parsingContext.currentName();
     }
-/*
-    @Override public void overrideCurrentName(String name) throws IOException {
-        // Simple, but need to look for START_OBJECT/ARRAY's "off-by-one" thing:
-        JsonReadContext ctxt = _parsingContext;
-        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-            ctxt = ctxt.getParent();
+
+    @Override
+    public boolean hasTextCharacters() {
+        if (_currToken == JsonToken.VALUE_STRING) { return true; } // usually true        
+        if (_currToken == JsonToken.FIELD_NAME) { return _nameCopied; }
+        return false;
+    }
+
+    // 03-Nov-2019, tatu: Will not recycle "name copy buffer" any more as it seems
+    //   unlikely to be of much real benefit
+    /*
+    @Override
+    protected void _releaseBuffers() throws IOException {
+        super._releaseBuffers();
+        char[] buf = _nameCopyBuffer;
+        if (buf != null) {
+            _nameCopyBuffer = null;
+            _ioContext.releaseNameCopyBuffer(buf);
         }
-        ctxt.setCurrentName(name);
     }
     */
+
+    /*
+    /**********************************************************************
+    /* Internal/package methods: config access
+    /**********************************************************************
+     */
+
+    public boolean isEnabled(JsonReadFeature f) { return f.enabledIn(_formatReadFeatures); }
+
+    /*
+    /**********************************************************************
+    /* Internal/package methods: buffer handling
+    /**********************************************************************
+     */
+
+    protected char[] currentFieldNameInBuffer() {
+        if (_nameCopied) {
+            return _nameCopyBuffer;
+        }
+        final String name = _parsingContext.currentName();
+        final int nameLen = name.length();
+        if (_nameCopyBuffer.length < nameLen) {
+            _nameCopyBuffer = new char[Math.max(32, nameLen)];
+        }
+        name.getChars(0, nameLen, _nameCopyBuffer, 0);
+        _nameCopied = true;
+        return _nameCopyBuffer;
+    }
 
     /*
     /**********************************************************************

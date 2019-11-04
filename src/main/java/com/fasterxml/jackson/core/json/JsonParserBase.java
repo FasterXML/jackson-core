@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.PackageVersion;
 
 /**
@@ -144,6 +146,145 @@ public abstract class JsonParserBase
         }
     }
     */
+
+    /*
+    /**********************************************************************
+    /* Numeric parsing method implementations
+    /**********************************************************************
+     */
+
+    @Override
+    protected void _parseNumericValue(int expType) throws IOException
+    {
+        // Int or float?
+        if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            int len = _intLength;
+            // First: optimization for simple int
+            if (len <= 9) { 
+                int i = _textBuffer.contentsAsInt(_numberNegative);
+                _numberInt = i;
+                _numTypesValid = NR_INT;
+                return;
+            }
+            if (len <= 18) { // definitely fits AND is easy to parse using 2 int parse calls
+                long l = _textBuffer.contentsAsLong(_numberNegative);
+                // Might still fit in int, need to check
+                if (len == 10) {
+                    if (_numberNegative) {
+                        if (l >= MIN_INT_L) {
+                            _numberInt = (int) l;
+                            _numTypesValid = NR_INT;
+                            return;
+                        }
+                    } else {
+                        if (l <= MAX_INT_L) {
+                            _numberInt = (int) l;
+                            _numTypesValid = NR_INT;
+                            return;
+                        }
+                    }
+                }
+                _numberLong = l;
+                _numTypesValid = NR_LONG;
+                return;
+            }
+            _parseSlowInt(expType);
+            return;
+        }
+        if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
+            _parseSlowFloat(expType);
+            return;
+        }
+        _reportError("Current token (%s) not numeric, can not use numeric value accessors", _currToken);
+    }
+
+    @Override
+    protected int _parseIntValue() throws IOException
+    {
+        // Inlined variant of: _parseNumericValue(NR_INT)
+        if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            if (_intLength <= 9) {
+                int i = _textBuffer.contentsAsInt(_numberNegative);
+                _numberInt = i;
+                _numTypesValid = NR_INT;
+                return i;
+            }
+        }
+        // if not optimizable, use more generic
+        _parseNumericValue(NR_INT);
+        if ((_numTypesValid & NR_INT) == 0) {
+            convertNumberToInt();
+        }
+        return _numberInt;
+    }
+
+    private void _parseSlowFloat(int expType) throws IOException
+    {
+        /* Nope: floating point. Here we need to be careful to get
+         * optimal parsing strategy: choice is between accurate but
+         * slow (BigDecimal) and lossy but fast (Double). For now
+         * let's only use BD when explicitly requested -- it can
+         * still be constructed correctly at any point since we do
+         * retain textual representation
+         */
+        try {
+            if (expType == NR_BIGDECIMAL) {
+                _numberBigDecimal = _textBuffer.contentsAsDecimal();
+                _numTypesValid = NR_BIGDECIMAL;
+            } else {
+                // Otherwise double has to do
+                _numberDouble = _textBuffer.contentsAsDouble();
+                _numTypesValid = NR_DOUBLE;
+            }
+        } catch (NumberFormatException nex) {
+            // Can this ever occur? Due to overflow, maybe?
+            _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
+        }
+    }
+
+    private void _parseSlowInt(int expType) throws IOException
+    {
+        String numStr = _textBuffer.contentsAsString();
+        try {
+            int len = _intLength;
+            char[] buf = _textBuffer.getTextBuffer();
+            int offset = _textBuffer.getTextOffset();
+            if (_numberNegative) {
+                ++offset;
+            }
+            // Some long cases still...
+            if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
+                // Probably faster to construct a String, call parse, than to use BigInteger
+                _numberLong = Long.parseLong(numStr);
+                _numTypesValid = NR_LONG;
+            } else {
+                // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
+                if ((expType == NR_INT) || (expType == NR_LONG)) {
+                    _reportTooLongIntegral(expType, numStr);
+                }
+                if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
+                    _numberDouble = NumberInput.parseDouble(numStr);
+                    _numTypesValid = NR_DOUBLE;
+                } else {
+                    // nope, need the heavy guns... (rare case)
+                    _numberBigInt = new BigInteger(numStr);
+                    _numTypesValid = NR_BIGINT;
+                }
+            }
+        } catch (NumberFormatException nex) {
+            // Can this ever occur? Due to overflow, maybe?
+            _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
+        }
+    }
+
+    protected void _reportTooLongIntegral(int expType, String rawNum) throws IOException
+    {
+        if (expType == NR_INT) {
+            reportOverflowInt(rawNum);
+        } else {
+            reportOverflowLong(rawNum);
+        }
+    }
 
     /*
     /**********************************************************************

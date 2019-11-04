@@ -401,7 +401,7 @@ public abstract class ParserBase extends ParserMinimalBase
     /**********************************************************************
      */
 
-    public ByteArrayBuilder _getByteArrayBuilder()
+    protected ByteArrayBuilder _getByteArrayBuilder()
     {
         if (_byteArrayBuilder == null) {
             _byteArrayBuilder = new ByteArrayBuilder();

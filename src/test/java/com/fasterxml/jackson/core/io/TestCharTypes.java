@@ -20,4 +20,12 @@ public class TestCharTypes
             assertEquals(expected, actual);
         }
     }
+
+    public void testHexOutOfRange()
+    {
+        final int[] inputs = {0, -1, 1, 129, -129};
+        for (int input : inputs) {
+            assertEquals(-1, CharTypes.charToHex(input));
+        }
+    }
 }

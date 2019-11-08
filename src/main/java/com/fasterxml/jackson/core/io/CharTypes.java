@@ -172,11 +172,13 @@ public final class CharTypes
     }
 
     /**
-     * Lookup table for the first 128 Unicode characters (7-bit ASCII)
+     * Lookup table for the first 256 Unicode characters (ASCII / UTF-8)
      * range. For actual hex digits, contains corresponding value;
      * for others -1.
+     *<p>
+     * NOTE: before 2.10.1, was of size 128, extended for simpler handling
      */
-    private final static int[] sHexValues = new int[128];
+    private final static int[] sHexValues = new int[256];
     static {
         Arrays.fill(sHexValues, -1);
         for (int i = 0; i < 10; ++i) {
@@ -219,7 +221,9 @@ public final class CharTypes
 
     public static int charToHex(int ch)
     {
-        return (ch > 127) ? -1 : sHexValues[ch];
+        // 08-Nov-2019, tatu: As per [core#540] and [core#578], changed to
+        //   force masking here so caller need not do that.
+        return sHexValues[ch & 0xFF];
     }
 
     public static void appendQuoted(StringBuilder sb, String content)

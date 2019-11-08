@@ -219,7 +219,7 @@ public final class CharTypes
 
     public static int charToHex(int ch)
     {
-        return (ch > 127) ? -1 : sHexValues[ch];
+        return (ch < 0 || ch > 127) ? -1 : sHexValues[ch];
     }
 
     public static void appendQuoted(StringBuilder sb, String content)

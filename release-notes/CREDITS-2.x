@@ -116,9 +116,12 @@ Arnaud Roger (arnaudroger@github)
   * Contributed #359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
    (2.8.8)
 
-Wil Selwood (wselwood@github)
+
+Emily Selwood (emilyselwood@github)
   * Reported #382: ArrayIndexOutOfBoundsException from UTF32Reader.read on invalid input
    (2.8.9)
+  * Reported #578: Array index out of bounds in hex lookup
+   (2.10.1)
 
 Alex Yursha (AlexYursha@github)
   * Contributed #312: Add `JsonProcessingException.clearLocation()` to allow clearing

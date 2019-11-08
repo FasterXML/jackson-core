@@ -3589,10 +3589,10 @@ public class UTF8StreamJsonParser
                     _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
                 }
             }
-            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            int ch = _inputBuffer[_inputPtr++];
             int digit = CharTypes.charToHex(ch);
             if (digit < 0) {
-                _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
         }

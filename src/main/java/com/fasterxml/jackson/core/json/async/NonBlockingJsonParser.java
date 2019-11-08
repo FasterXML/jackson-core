@@ -2352,7 +2352,7 @@ public class NonBlockingJsonParser
         while (true) {
             int digit = CharTypes.charToHex(c);
             if (digit < 0) {
-                _reportUnexpectedChar(c, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(c & 0xFF, "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
             if (++bytesRead == 4) {

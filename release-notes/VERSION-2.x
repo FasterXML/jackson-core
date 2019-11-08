@@ -25,6 +25,8 @@ JSON library.
  (reported by wastevenson@github, fix contributed by Todd O'B
 #567: Add `uses` for `ObjectCodec` in module-info
  (reported by Marc M)
+#578: Array index out of bounds in hex lookup
+ (reported by Emily S)
 
 2.10.0 (26-Sep-2019)
 

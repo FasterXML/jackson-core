@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.1 (not yet released)
+2.10.1 (09-Nov-2019)
 
 #455: Jackson reports wrong locations for JsonEOFException
  (reported by wastevenson@github, fix contributed by Todd O'B

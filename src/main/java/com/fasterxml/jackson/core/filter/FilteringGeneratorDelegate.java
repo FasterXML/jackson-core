@@ -505,7 +505,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeRawValue(String text) throws IOException
     {
         if (_checkRawValueWrite()) {
-            delegate.writeRaw(text);
+            delegate.writeRawValue(text);
         }
     }
 
@@ -513,7 +513,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeRawValue(String text, int offset, int len) throws IOException
     {
         if (_checkRawValueWrite()) {
-            delegate.writeRaw(text, offset, len);
+            delegate.writeRawValue(text, offset, len);
         }
     }
 
@@ -521,7 +521,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeRawValue(char[] text, int offset, int len) throws IOException
     {
         if (_checkRawValueWrite()) {
-            delegate.writeRaw(text, offset, len);
+            delegate.writeRawValue(text, offset, len);
         }
     }
 

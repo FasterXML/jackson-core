@@ -115,6 +115,9 @@ Alessio Soldano (asoldano@github)
 Arnaud Roger (arnaudroger@github)
   * Contributed #359: FilteringGeneratorDelegate does not override writeStartObject(Object forValue)
    (2.8.8)
+  * Reported, contributed fix for #580: FilteringGeneratorDelegate writeRawValue delegate
+   to `writeRaw()` instead of `writeRawValue()`
+   (2.10.2)
 
 
 Emily Selwood (emilyselwood@github)

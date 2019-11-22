@@ -19,7 +19,13 @@ JSON library.
 #565: Synchronize variants of `JsonGenerator#writeNumberField` with `JsonGenerator#writeNumber`
  (contributed by valery1707@github)
 
-2.10.1 (not yet released)
+2.10.2 (not yet released)
+
+#580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`
+  instead of `writeRawValue()`
+ (reported by Arnaud R)
+
+2.10.1 (09-Nov-2019)
 
 #455: Jackson reports wrong locations for JsonEOFException
  (reported by wastevenson@github, fix contributed by Todd O'B

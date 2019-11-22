@@ -14,6 +14,12 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.2 (not yet released)
+
+#580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`
+  instead of `writeRawValue()`
+ (reported by Arnaud R)
+
 2.10.1 (09-Nov-2019)
 
 #455: Jackson reports wrong locations for JsonEOFException

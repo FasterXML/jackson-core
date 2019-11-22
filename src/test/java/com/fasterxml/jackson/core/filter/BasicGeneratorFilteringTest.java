@@ -337,4 +337,20 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.close();
         assertEquals(aposToQuotes("{'field1':{},'field2':'val2'}"), w.toString());
     }
+
+    // [core#580]
+    public void testRawValueDelegation() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                TokenFilter.INCLUDE_ALL, true, true);
+
+        gen.writeStartArray();
+        gen.writeRawValue(new char[] { '1'}, 0, 1);
+        gen.writeRawValue(new char[] { '2'}, 0, 1);
+        gen.writeEndArray();
+
+        gen.close();
+        assertEquals("[1,2]", w.toString());
+    }
 }

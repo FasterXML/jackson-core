@@ -1,11 +1,10 @@
 language: java
-# core streaming now requires Java 8; only test on LTS versions (skip 9, 10)
 jdk:
   - openjdk8
   - oraclejdk11
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
-# http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html
+# https://knowm.org/configure-travis-ci-to-deploy-snapshots/
 before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
 after_success:
   - "mvn deploy --settings target/travis/settings.xml"
@@ -15,7 +14,6 @@ branches:
   only:
     - master
     - "3.0"
-    - "2.10"
 
 env:
   global:

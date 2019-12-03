@@ -189,7 +189,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, false);
         }
     }
-    
+
     @Override
     public void writeStartArray(Object currValue, int size) throws IOException
     {
@@ -218,7 +218,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, false);
         }
     }
-    
+
     @Override
     public void writeEndArray() throws IOException
     {
@@ -366,6 +366,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (state == TokenFilter.INCLUDE_ALL) {
             _checkPropertyParentPath();
         }
+    }
+
+    // 02-Dec-2019, tatu: Not sure what else to do... so use default impl from base class
+    @Override
+    public void writeFieldId(long id) throws IOException {
+        writeFieldName(Long.toString(id));
     }
 
     /*

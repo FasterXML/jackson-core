@@ -24,6 +24,8 @@ JSON library.
 #580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`
   instead of `writeRawValue()`
  (reported by Arnaud R)
+#582: `FilteringGeneratorDelegate` bug when filtering arrays (in 2.10.1)
+ (reported by alarribeau@github)
 
 2.10.1 (09-Nov-2019)
 

@@ -115,7 +115,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
     public void testArrayFiltering582WithoutObject() throws IOException {
         _testArrayFiltering582(0);
     }
-    
+
     public void testArrayFiltering582WithoutSize() throws IOException {
         _testArrayFiltering582(1);
     }
@@ -123,7 +123,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
     public void testArrayFiltering582WithSize() throws IOException {
         _testArrayFiltering582(2);
     }
-    
+
     private void _testArrayFiltering582(int mode) throws IOException
     {
          StringWriter output = new StringWriter();
@@ -151,19 +151,4 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
 
          assertEquals("", output.toString());
     }
-
-    /*
-    // for [core#582]: regression wrt array filtering
-    public void arrayFilterOut_workaroundFix() throws IOException {
-         
-         StringWriter output = new StringWriter();
-         JsonGenerator jg = new JsonFactory().createGenerator(output);
-         
-         FilteringGeneratorDelegate filteringGeneratorDelegate = new FixedFilteringGeneratorDelegate(jg, new JsonPointerBasedFilter("/noMatch"), true, true);
-         
-         new ObjectMapper().writeValue(filteringGeneratorDelegate, ARRAY_WRAPPER);
-         
-         Assert.assertEquals("", output.toString());
-    }
-    */
 }

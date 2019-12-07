@@ -8,6 +8,7 @@ import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
@@ -608,8 +609,9 @@ public abstract class TokenStreamFactory
      *
      * @param matches Names to match, including both primary names and possible aliases
      */
-    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
-        return SimpleNameMatcher.constructCaseInsensitive(matches, alreadyInterned);
+    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
+            Locale locale) {
+        return SimpleNameMatcher.constructCaseInsensitive(matches, alreadyInterned, locale);
     }
 
     /*

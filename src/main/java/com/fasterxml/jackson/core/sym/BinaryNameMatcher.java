@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.sym;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.sym.SimpleNameMatcher;
 import com.fasterxml.jackson.core.util.Named;
@@ -158,10 +159,10 @@ public final class BinaryNameMatcher
     }
 
     public static BinaryNameMatcher constructCaseInsensitive(List<Named> fields,
-            boolean alreadyInterned)
+            boolean alreadyInterned, Locale locale)
     {
         final List<String> names = FieldNameMatcher.stringsFromNames(fields, alreadyInterned);
-        return _construct(names, SimpleNameMatcher.constructCaseInsensitive(names));
+        return _construct(names, SimpleNameMatcher.constructCaseInsensitive(names, locale));
     }
 
     private static BinaryNameMatcher _construct(List<String> symbols,

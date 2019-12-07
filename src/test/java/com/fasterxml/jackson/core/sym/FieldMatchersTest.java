@@ -83,7 +83,8 @@ public class FieldMatchersTest extends BaseTest
 
     private void _testCaseInsensitive(List<String> names)
     {
-        FieldNameMatcher matcher = SimpleNameMatcher.constructCaseInsensitive(named(names), true);
+        final Locale locale = new Locale("en", "US");
+        FieldNameMatcher matcher = SimpleNameMatcher.constructCaseInsensitive(named(names), true, locale);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
             if (name != null) {

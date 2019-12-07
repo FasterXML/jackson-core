@@ -6,6 +6,7 @@ package com.fasterxml.jackson.core.json;
 
 import java.io.*;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.TextualTSFactory;
@@ -440,7 +441,8 @@ public class JsonFactory
     }
 
     @Override
-    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
-        return BinaryNameMatcher.constructCaseInsensitive(matches, alreadyInterned);
+    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
+            Locale locale) {
+        return BinaryNameMatcher.constructCaseInsensitive(matches, alreadyInterned, locale);
     }
 }

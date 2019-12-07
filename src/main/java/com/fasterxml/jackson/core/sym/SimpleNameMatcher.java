@@ -82,12 +82,13 @@ public class SimpleNameMatcher
     }
 
     public static SimpleNameMatcher constructCaseInsensitive(List<Named> fields,
-            boolean alreadyInterned)
-    {
-        return constructCaseInsensitive(stringsFromNames(fields, alreadyInterned));
+            boolean alreadyInterned, Locale locale) {
+        return constructCaseInsensitive(stringsFromNames(fields, alreadyInterned),
+                locale);
     }
 
-    public static SimpleNameMatcher constructCaseInsensitive(List<String> names)
+    public static SimpleNameMatcher constructCaseInsensitive(List<String> names,
+            Locale locale)
     {
         return new SimpleNameMatcher(SimpleNameMatcher.construct(names),
                 SimpleNameMatcher.construct(_lc(names)));

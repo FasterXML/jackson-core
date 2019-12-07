@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.read;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -20,7 +21,8 @@ public class NextNameWithMatcherTest
     private final List<Named> FIELDS_1 = namedFromStrings(NAMES_1);
 
     private final FieldNameMatcher MATCHER_CS_1 = JSON_F.constructFieldNameMatcher(FIELDS_1, true);
-    private final FieldNameMatcher MATCHER_CI_1 = JSON_F.constructCIFieldNameMatcher(FIELDS_1, true);
+    private final FieldNameMatcher MATCHER_CI_1 = JSON_F.constructCIFieldNameMatcher(FIELDS_1, true,
+            new Locale("en", "US"));
 
     private final String DOC_1 = aposToQuotes(
             "{ 'a' : 4, 'enabled' : true, 'longerName' : 'Billy-Bob Burger', 'extra' : [ 0], 'otherStuff3' : 0.25 }"

@@ -343,7 +343,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testRawValueDelegation() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 TokenFilter.INCLUDE_ALL, true, true);
 
         gen.writeStartArray();

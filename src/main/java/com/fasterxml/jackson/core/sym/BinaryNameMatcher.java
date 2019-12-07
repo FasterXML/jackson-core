@@ -145,8 +145,7 @@ public final class BinaryNameMatcher
     /**********************************************************
      */
 
-    public static BinaryNameMatcher constructFrom(List<Named> fields,
-            boolean alreadyInterned)
+    public static BinaryNameMatcher constructFrom(List<Named> fields, boolean alreadyInterned)
     {
         return construct(stringsFromNames(fields, alreadyInterned));
     }
@@ -155,14 +154,14 @@ public final class BinaryNameMatcher
     {
         // Two-step process: since we need backup string-based lookup (when matching
         // current name, buffered etc etc), start with that
-        return _construct(symbols, SimpleNameMatcher.construct(symbols));
+        return _construct(symbols, SimpleNameMatcher.construct(null, symbols));
     }
 
-    public static BinaryNameMatcher constructCaseInsensitive(List<Named> fields,
-            boolean alreadyInterned, Locale locale)
+    public static BinaryNameMatcher constructCaseInsensitive(Locale locale,
+            List<Named> fields, boolean alreadyInterned)
     {
         final List<String> names = FieldNameMatcher.stringsFromNames(fields, alreadyInterned);
-        return _construct(names, SimpleNameMatcher.constructCaseInsensitive(names, locale));
+        return _construct(names, SimpleNameMatcher.constructCaseInsensitive(locale, names));
     }
 
     private static BinaryNameMatcher _construct(List<String> symbols,

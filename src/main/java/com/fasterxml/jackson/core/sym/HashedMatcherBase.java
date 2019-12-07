@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.sym;
 
+import java.util.Locale;
+
 /**
  * Intermediate base class for matchers that use hash-array based approach
  * with Strings.
@@ -25,21 +27,21 @@ public abstract class HashedMatcherBase
     /**********************************************************************
      */
     
-    protected HashedMatcherBase(String[] names, int[] offsets, int mask,
+    protected HashedMatcherBase(Locale locale, String[] names, int[] offsets, int mask,
             FieldNameMatcher backup, String[] nameLookup)
     {
-        super(backup, nameLookup);
+        super(locale, backup, nameLookup);
         _names = names;
         _offsets = offsets;
         _mask = mask;
     }
 
     protected HashedMatcherBase(HashedMatcherBase base, String[] nameLookup) {
-        this(base._names, base._offsets, base._mask, base._backupMatcher, nameLookup);
+        this(base._locale, base._names, base._offsets, base._mask, base._backupMatcher, nameLookup);
     }
 
     protected HashedMatcherBase(HashedMatcherBase base, FieldNameMatcher fallback) {
-        this(base._names, base._offsets, base._mask, fallback, base._nameLookup);
+        this(base._locale, base._names, base._offsets, base._mask, fallback, base._nameLookup);
     }
 
     /*

@@ -443,6 +443,6 @@ public class JsonFactory
     @Override
     public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
-        return BinaryNameMatcher.constructCaseInsensitive(matches, alreadyInterned, locale);
+        return BinaryNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned);
     }
 }

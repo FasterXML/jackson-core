@@ -599,7 +599,7 @@ public abstract class TokenStreamFactory
     public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
         // 15-Nov-2017, tatu: Base implementation that is likely to work fine for
         //    most if not all implementations as it is more difficult to optimize
-        return SimpleNameMatcher.constructFrom(matches, alreadyInterned);
+        return SimpleNameMatcher.constructFrom(null, matches, alreadyInterned);
     }
 
     /**
@@ -611,7 +611,7 @@ public abstract class TokenStreamFactory
      */
     public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
-        return SimpleNameMatcher.constructCaseInsensitive(matches, alreadyInterned, locale);
+        return SimpleNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned);
     }
 
     /*

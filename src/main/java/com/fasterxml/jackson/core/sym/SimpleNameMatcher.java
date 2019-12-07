@@ -15,8 +15,8 @@ public class SimpleNameMatcher
 {
     private static final long serialVersionUID = 1L;
 
-    private SimpleNameMatcher(String[] names, int[] offsets, int mask) {
-        super(names, offsets, mask, null, null);
+    private SimpleNameMatcher(Locale locale, String[] names, int[] offsets, int mask) {
+        super(locale, names, offsets, mask, null, null);
     }
 
     protected SimpleNameMatcher(SimpleNameMatcher base, String[] nameLookup) {
@@ -31,12 +31,16 @@ public class SimpleNameMatcher
      * Factory method for constructing case-sensitive matcher that only supports
      * matching from `String`.
      */
-    public static SimpleNameMatcher constructFrom(List<Named> fields,
-            boolean alreadyInterned) {
-        return construct(stringsFromNames(fields, alreadyInterned));
+    public static SimpleNameMatcher constructFrom(Locale locale,
+            List<Named> fields, boolean alreadyInterned) {
+        return construct(locale, stringsFromNames(fields, alreadyInterned));
     }
 
-    public static SimpleNameMatcher construct(List<String> fieldNames)
+    /**
+     * Factory method for constructing case-sensitive matcher that only supports
+     * matching from `String`.
+     */
+    public static SimpleNameMatcher construct(Locale locale, List<String> fieldNames)
     {
         final int fieldCount = fieldNames.size();
         final int hashSize = _findSize(fieldCount);
@@ -78,20 +82,19 @@ public class SimpleNameMatcher
             offsets[spillPtr] = i;
             ++spillPtr;
         }
-        return new SimpleNameMatcher(names, offsets, mask);
+        return new SimpleNameMatcher(locale, names, offsets, mask);
     }
 
-    public static SimpleNameMatcher constructCaseInsensitive(List<Named> fields,
-            boolean alreadyInterned, Locale locale) {
-        return constructCaseInsensitive(stringsFromNames(fields, alreadyInterned),
-                locale);
+    public static SimpleNameMatcher constructCaseInsensitive(Locale locale,
+            List<Named> fields, boolean alreadyInterned) {
+        return constructCaseInsensitive(locale, stringsFromNames(fields, alreadyInterned));
     }
 
-    public static SimpleNameMatcher constructCaseInsensitive(List<String> names,
-            Locale locale)
+    public static SimpleNameMatcher constructCaseInsensitive(Locale locale,
+            List<String> names)
     {
-        return new SimpleNameMatcher(SimpleNameMatcher.construct(names),
-                SimpleNameMatcher.construct(_lc(names)));
+        return new SimpleNameMatcher(SimpleNameMatcher.construct(locale, names),
+                SimpleNameMatcher.construct(locale, _lc(locale, names)));
     }
 
     // // // Not implemented by this matcher, but not an error to call (caller won't know)

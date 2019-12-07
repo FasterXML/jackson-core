@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.sym;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
@@ -46,14 +47,22 @@ public abstract class FieldNameMatcher
 
     protected final FieldNameMatcher _backupMatcher;
 
+    /**
+     * Since case-handling is Locale-specific in some (rare) cases, need to hold
+     * on to configured Locale.
+     */
+    protected final Locale _locale;
+
     /*
     /**********************************************************************
     /* Construction
     /**********************************************************************
      */
 
-    protected FieldNameMatcher(FieldNameMatcher backup, String[] nameLookup)
+    protected FieldNameMatcher(Locale locale,
+            FieldNameMatcher backup, String[] nameLookup)
     {
+        _locale = locale;
         _backupMatcher = backup;
         _nameLookup = nameLookup;
     }
@@ -116,7 +125,7 @@ public abstract class FieldNameMatcher
         //   key does not change; thing being that we are now using secondary index,
         //   contents of which MAY be different from primary one. Specifically, if original
         //   keys are not all lower-case, we would induce a miss if skipping lookup here.
-        return _backupMatcher.matchName(toMatch.toLowerCase());
+        return _backupMatcher.matchName(toMatch.toLowerCase(_locale));
     }
 
     /*
@@ -165,10 +174,10 @@ public abstract class FieldNameMatcher
         return alreadyInterned ? name : INTERNER.intern(name);
     }
 
-    protected static List<String> _lc(List<String> src) {
+    protected static List<String> _lc(Locale locale, List<String> src) {
         List<String> lcd = new ArrayList<>(src.size());
         for (String n : src) {
-            lcd.add((n == null) ? null : n.toLowerCase());
+            lcd.add((n == null) ? null : n.toLowerCase(locale));
         }
         return lcd;
     }

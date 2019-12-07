@@ -81,7 +81,7 @@ public class TextualNameHashTest extends BaseTest
 
     private void _testSpillEfficiency(List<String> names,
             int expSecondary, int expSpills) {
-        SimpleNameMatcher matcher = SimpleNameMatcher.construct(names);
+        SimpleNameMatcher matcher = SimpleNameMatcher.construct(null, names);
         int sec = matcher.secondaryCount();
         int spills = matcher.spillCount();
 

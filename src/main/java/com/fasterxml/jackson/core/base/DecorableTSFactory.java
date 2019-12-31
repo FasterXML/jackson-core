@@ -81,13 +81,13 @@ public abstract class DecorableTSFactory
      * Optional helper object that may decorate input sources, to do
      * additional processing on input during parsing.
      */
-    protected InputDecorator _inputDecorator;
+    protected final InputDecorator _inputDecorator;
 
     /**
      * Optional helper object that may decorate output object, to do
      * additional processing on output during content generation.
      */
-    protected OutputDecorator _outputDecorator;
+    protected final OutputDecorator _outputDecorator;
 
     /*
     /**********************************************************
@@ -97,6 +97,8 @@ public abstract class DecorableTSFactory
     
     protected DecorableTSFactory(int formatPF, int formatGF) {
         super(formatPF, formatGF);
+        _inputDecorator = null;
+        _outputDecorator = null;
     }
 
     /**
@@ -130,19 +132,23 @@ public abstract class DecorableTSFactory
         return _outputDecorator;
     }
 
+    /*
     public DecorableTSFactory setOutputDecorator(OutputDecorator d) {
         _outputDecorator = d;
         return this;
     }
+    */
 
     public InputDecorator getInputDecorator() {
         return _inputDecorator;
     }
 
+    /*
     public DecorableTSFactory setInputDecorator(InputDecorator d) {
         _inputDecorator = d;
         return this;
     }
+    */
 
     /*
     /**********************************************************

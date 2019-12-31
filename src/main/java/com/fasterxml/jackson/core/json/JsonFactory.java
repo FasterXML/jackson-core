@@ -148,8 +148,6 @@ public class JsonFactory
         super(src);
         _rootValueSeparator = src._rootValueSeparator;
         _characterEscapes = src._characterEscapes;
-        _inputDecorator = src._inputDecorator;
-        _outputDecorator = src._outputDecorator;
         _maximumNonEscapedChar = src._maximumNonEscapedChar;
         _quoteChar = src._quoteChar;
     }

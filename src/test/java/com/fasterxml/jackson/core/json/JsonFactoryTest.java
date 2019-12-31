@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 
 public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -122,7 +123,7 @@ public class JsonFactoryTest
             p.close();
         }
     }
-    
+
     public void testJsonWithFiles() throws Exception
     {
         File file = File.createTempFile("jackson-test", null);
@@ -131,7 +132,7 @@ public class JsonFactoryTest
         JsonFactory f = new JsonFactory();
 
         // First: create file via generator.. and use an odd encoding
-        JsonGenerator g = f.createGenerator( ObjectWriteContext.empty(), file, JsonEncoding.UTF16_LE);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), file, JsonEncoding.UTF16_LE);
         g.writeStartObject();
         g.writeRaw("   ");
         g.writeEndObject();
@@ -179,5 +180,24 @@ public class JsonFactoryTest
         assertTrue(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
+    }
+
+    public void testRootValues() throws Exception
+    {
+        assertEquals(" ", JSON_F.getRootValueSeparator());
+        JsonFactoryBuilder b = JsonFactory.builder()
+                .rootValueSeparator("/");
+        assertEquals(new SerializedString("/"), b.rootValueSeparator());
+        JsonFactory f = b.build();
+        assertEquals("/", f.getRootValueSeparator());
+
+        // but also test it is used
+        StringWriter w = new StringWriter();
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), w);
+        g.writeNumber(1);
+        g.writeNumber(2);
+        g.writeNumber(3);
+        g.close();
+        assertEquals("1/2/3", w.toString());
     }
 }

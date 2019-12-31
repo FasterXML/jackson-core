@@ -74,27 +74,41 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         JsonFactory f = JsonFactory.builder()
                 .inputDecorator(new SimpleInputDecorator())
                 .build();
-        JsonParser jp;
+        JsonParser p;
         // first test with Reader
-        jp = f.createParser(ObjectReadContext.empty(), new StringReader("{ }"));
+        p = f.createParser(ObjectReadContext.empty(), new StringReader("{ }"));
         // should be overridden;
-        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(789, jp.getIntValue());
-        jp.close();
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(789, p.getIntValue());
+        p.close();
 
         // similarly with InputStream
-        jp = f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream("[ ]".getBytes("UTF-8")));
+        p = f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream("[ ]".getBytes("UTF-8")));
         // should be overridden;
-        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(123, jp.getIntValue());
-        jp.close();
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(123, p.getIntValue());
+        p.close();
 
         // and with raw bytes
-        jp = f.createParser(ObjectReadContext.empty(), "[ ]".getBytes("UTF-8"));
+        final byte[] bytes = "[ ]".getBytes("UTF-8");
+        p = f.createParser(ObjectReadContext.empty(), bytes);
         // should be overridden;
-        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(456, jp.getIntValue());
-        jp.close();
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(456, p.getIntValue());
+        p.close();
+
+        // also diff method has diff code path so try both:
+        p = f.createParser(ObjectReadContext.empty(), bytes, 0, bytes.length);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(456, p.getIntValue());
+        p.close();
+
+        // and also char[]
+        final char[] chars = "  [ ]".toCharArray();
+        p = f.createParser(ObjectReadContext.empty(), chars, 0, chars.length);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(789, p.getIntValue());
+        p.close();
     }
 
     public void testOutputDecoration() throws IOException

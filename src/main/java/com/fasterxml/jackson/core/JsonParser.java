@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
@@ -891,7 +892,9 @@ public abstract class JsonParser
         // Let's actually allow range of [-128, 255] instead of just signed range of [-128, 127]
         // since "unsigned" usage quite common for bytes (but Java may use signed range, too)
         if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
-            throw _constructError("Numeric value (%s) out of range of `byte`", getText());
+            throw new InputCoercionException(this,
+                    String.format("Numeric value (%s) out of range of `byte`", getText()),
+                    JsonToken.VALUE_NUMBER_INT, Byte.TYPE);
         }
         return (byte) value;
     }
@@ -913,7 +916,9 @@ public abstract class JsonParser
     {
         int value = getIntValue();
         if (value < MIN_SHORT_I || value > MAX_SHORT_I) {
-            throw _constructError("Numeric value (%s) out of range of `short`", getText());
+            throw new InputCoercionException(this,
+                    String.format("Numeric value (%s) out of range of `short`", getText()),
+                    JsonToken.VALUE_NUMBER_INT, Short.TYPE);
         }
         return (short) value;
     }
@@ -1406,7 +1411,12 @@ public abstract class JsonParser
         return new JsonParseException(this, String.format(msg, arg1, arg2))
             .withRequestPayload(_requestPayload);
     }
-    
+
+    protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
+        return new InputCoercionException(this, msg, inputType, targetType)
+            .withRequestPayload(_requestPayload);
+    }
+
     /**
      * Helper method to call for operations that are not supported by
      * parser implementation.

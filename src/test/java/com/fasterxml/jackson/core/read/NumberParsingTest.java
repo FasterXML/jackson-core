@@ -72,6 +72,31 @@ public class NumberParsingTest
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
         assertEquals(""+EXP_I, p.getText());
 
+        if (((short) EXP_I) == EXP_I) {
+            assertEquals((short) EXP_I, p.getShortValue());
+            if (((byte) EXP_I) == EXP_I) {
+                assertEquals((byte) EXP_I, p.getByteValue());
+            } else {
+                // verify overflow
+                try {
+                    p.getByteValue();
+                    fail("Should get exception for non-byte value "+EXP_I);
+                } catch (InputCoercionException e) {
+                    verifyException(e, "Numeric value");
+                    verifyException(e, "out of range");
+                }
+            }
+        } else {
+            // verify overflow
+            try {
+                p.getShortValue();
+                fail("Should get exception for non-short value "+EXP_I);
+            } catch (InputCoercionException e) {
+                verifyException(e, "Numeric value");
+                verifyException(e, "out of range");
+            }
+        }
+
         assertEquals(EXP_I, p.getIntValue());
         assertEquals(EXP_I, p.getValueAsInt(EXP_I + 3));
         assertEquals(EXP_I, p.getValueAsInt());

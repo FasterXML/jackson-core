@@ -669,7 +669,6 @@ public abstract class ParserMinimalBase extends JsonParser
     protected void reportInvalidNumber(String msg) throws JsonParseException {
         _reportError("Invalid numeric value: "+msg);
     }
-
     /**
      * Method called to throw an exception for integral (not floating point) input
      * token with value outside of Java signed 32-bit range when requested as {code int}.
@@ -684,7 +683,8 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected void reportOverflowInt(String numDesc, JsonToken inputType) throws IOException {
-        _reportInputCoercion(String.format("Numeric value (%s) out of range of `int` (%d - %s)",
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `int` (%d - %s)",
                 _longIntegerDesc(numDesc), Integer.MIN_VALUE, Integer.MAX_VALUE),
                 inputType, Integer.TYPE);
     }
@@ -705,14 +705,10 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // @since 2.10
     protected void reportOverflowLong(String numDesc, JsonToken inputType) throws IOException {
-        _reportInputCoercion(String.format("Numeric value (%s) out of range of `long` (%d - %s)",
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `long` (%d - %s)",
                 _longIntegerDesc(numDesc), Long.MIN_VALUE, Long.MAX_VALUE),
                 inputType, Long.TYPE);
-    }
-
-    protected void _reportInputCoercion(String msg, JsonToken inputType, Class<?> targetType)
-            throws InputCoercionException {
-        throw new InputCoercionException(this, msg, inputType, targetType);
     }
 
     protected String _longIntegerDesc(String rawNum) {

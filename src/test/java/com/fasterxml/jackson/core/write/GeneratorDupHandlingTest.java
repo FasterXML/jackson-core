@@ -1,10 +1,10 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.write;
 
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 
-public class TestGeneratorDupHandling
+public class GeneratorDupHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testSimpleDupsEagerlyBytes() throws Exception {

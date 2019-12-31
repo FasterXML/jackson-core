@@ -2143,10 +2143,9 @@ public abstract class JsonGenerator
      */
     protected void _writeSimpleObject(Object value)  throws IOException
     {
-        /* 31-Dec-2009, tatu: Actually, we could just handle some basic
-         *    types even without codec. This can improve interoperability,
-         *    and specifically help with TokenBuffer.
-         */
+        // 31-Dec-2009, tatu: Actually, we could just handle some basic
+        //    types even without codec. This can improve interoperability,
+        //    and specifically help with TokenBuffer.
         if (value == null) {
             writeNull();
             return;

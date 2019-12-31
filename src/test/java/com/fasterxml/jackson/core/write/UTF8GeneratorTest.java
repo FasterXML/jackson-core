@@ -1,14 +1,15 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 import java.io.ByteArrayOutputStream;
 
-public class TestUtf8Generator extends BaseTest
+public class UTF8GeneratorTest extends BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.write;
 
 import java.io.*;
 import java.util.Random;
@@ -6,7 +6,7 @@ import java.util.Random;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-public class TestGeneratorWithSerializedString
+public class SerializedStringWriteTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     final static String NAME_WITH_QUOTES = "\"name\"";

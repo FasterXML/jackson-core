@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.json;
+package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.*;
 

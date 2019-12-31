@@ -20,7 +20,7 @@ import java.io.*;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-public class GeneratorClosingTest extends BaseTest
+public class GeneratorCloseTest extends BaseTest
 {
     /**
      * This unit test checks the default behaviour; with no auto-close, no

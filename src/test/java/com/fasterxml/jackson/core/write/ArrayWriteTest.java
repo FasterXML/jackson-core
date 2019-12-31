@@ -9,7 +9,7 @@ import java.io.*;
  * Set of basic unit tests for verifying that the Array write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class GeneratorArrayTest
+public class ArrayWriteTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testEmptyArrayWrite()

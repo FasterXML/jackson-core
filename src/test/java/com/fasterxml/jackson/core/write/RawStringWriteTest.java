@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
-public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
+public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
 {
     /**
      * Unit test for "JsonGenerator.writeRawUTF8String()"

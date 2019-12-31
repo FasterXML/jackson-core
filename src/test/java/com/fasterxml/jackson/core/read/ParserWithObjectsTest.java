@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.read;
 
 import java.io.*;
 
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
  * Unit tests for verifying that object mapping functionality can
  * be accessed using JsonParser.
  */
-public class TestParserWithObjects
+public class ParserWithObjectsTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     /*

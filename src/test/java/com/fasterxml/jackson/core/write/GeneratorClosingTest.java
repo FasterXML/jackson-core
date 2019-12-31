@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.write;
 
 
 import com.fasterxml.jackson.core.*;
@@ -20,7 +20,7 @@ import java.io.*;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-public class TestGeneratorClosing extends BaseTest
+public class GeneratorClosingTest extends BaseTest
 {
     /**
      * This unit test checks the default behaviour; with no auto-close, no

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.write;
 
 
 import com.fasterxml.jackson.core.*;
@@ -10,7 +10,7 @@ import java.io.*;
  * Set of basic unit tests for verifying that copy-through methods
  * of {@link JsonGenerator} work as expected.
  */
-public class TestGeneratorCopy
+public class GeneratorCopyTest
     extends BaseTest
 {
     public void testCopyRootTokens()

@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
-import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
@@ -28,13 +27,6 @@ import com.fasterxml.jackson.core.util.RequestPayload;
 public abstract class JsonParser
     implements Closeable, Versioned
 {
-    private final static int MIN_BYTE_I = (int) Byte.MIN_VALUE;
-    // Allow range up to and including 255, to support signed AND unsigned bytes
-    private final static int MAX_BYTE_I = (int) 255;
-
-    private final static int MIN_SHORT_I = (int) Short.MIN_VALUE;
-    private final static int MAX_SHORT_I = (int) Short.MAX_VALUE;
-
     /**
      * Enumeration of possible "native" (optimal) types that can be
      * used for numbers.
@@ -886,18 +878,7 @@ public abstract class JsonParser
      * Java byte, a {@link JsonParseException}
      * will be thrown to indicate numeric overflow/underflow.
      */
-    public byte getByteValue() throws IOException {
-        int value = getIntValue();
-        // So far so good: but does it fit?
-        // Let's actually allow range of [-128, 255] instead of just signed range of [-128, 127]
-        // since "unsigned" usage quite common for bytes (but Java may use signed range, too)
-        if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
-            throw new InputCoercionException(this,
-                    String.format("Numeric value (%s) out of range of `byte`", getText()),
-                    JsonToken.VALUE_NUMBER_INT, Byte.TYPE);
-        }
-        return (byte) value;
-    }
+    public abstract byte getByteValue() throws IOException;
 
     /**
      * Numeric accessor that can be called when the current
@@ -912,16 +893,7 @@ public abstract class JsonParser
      * Java short, a {@link JsonParseException}
      * will be thrown to indicate numeric overflow/underflow.
      */
-    public short getShortValue() throws IOException
-    {
-        int value = getIntValue();
-        if (value < MIN_SHORT_I || value > MAX_SHORT_I) {
-            throw new InputCoercionException(this,
-                    String.format("Numeric value (%s) out of range of `short`", getText()),
-                    JsonToken.VALUE_NUMBER_INT, Short.TYPE);
-        }
-        return (short) value;
-    }
+    public abstract short getShortValue() throws IOException;
 
     /**
      * Numeric accessor that can be called when the current
@@ -1018,14 +990,7 @@ public abstract class JsonParser
      * outside of range of Java long, a {@link JsonParseException}
      * may be thrown to indicate numeric overflow/underflow.
      */
-    public boolean getBooleanValue() throws IOException {
-        JsonToken t = currentToken();
-        if (t == JsonToken.VALUE_TRUE) return true;
-        if (t == JsonToken.VALUE_FALSE) return false;
-        throw new JsonParseException(this,
-            String.format("Current token (%s) not of boolean type", t))
-                .withRequestPayload(_requestPayload);
-    }
+    public abstract boolean getBooleanValue() throws IOException;
 
     /**
      * Accessor that can be called if (and only if) the current token
@@ -1394,6 +1359,14 @@ public abstract class JsonParser
      */
 
     /**
+     * Helper method to call for operations that are not supported by
+     * parser implementation.
+     */
+    protected void _reportUnsupportedOperation() {
+        throw new UnsupportedOperationException("Operation not supported by parser of type "+getClass().getName());
+    }
+
+    /**
      * Helper method for constructing {@link JsonParseException}s
      * based on current state of the parser
      */
@@ -1412,16 +1385,7 @@ public abstract class JsonParser
             .withRequestPayload(_requestPayload);
     }
 
-    protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
-        return new InputCoercionException(this, msg, inputType, targetType)
-            .withRequestPayload(_requestPayload);
-    }
-
-    /**
-     * Helper method to call for operations that are not supported by
-     * parser implementation.
-     */
-    protected void _reportUnsupportedOperation() {
-        throw new UnsupportedOperationException("Operation not supported by parser of type "+getClass().getName());
+    protected final JsonParseException _constructError(String msg, Throwable t) {
+        return new JsonParseException(this, msg, t);
     }
 }

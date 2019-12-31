@@ -102,6 +102,13 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static BigDecimal BD_MIN_INT = new BigDecimal(BI_MIN_INT);
     protected final static BigDecimal BD_MAX_INT = new BigDecimal(BI_MAX_INT);
 
+    protected final static int MIN_BYTE_I = (int) Byte.MIN_VALUE;
+    // Allow range up to and including 255, to support signed AND unsigned bytes
+    protected final static int MAX_BYTE_I = (int) 255;
+
+    protected final static int MIN_SHORT_I = (int) Short.MIN_VALUE;
+    protected final static int MAX_SHORT_I = (int) Short.MAX_VALUE;
+    
     protected final static long MIN_INT_L = (long) Integer.MIN_VALUE;
     protected final static long MAX_INT_L = (long) Integer.MAX_VALUE;
 
@@ -414,6 +421,16 @@ public abstract class ParserMinimalBase extends JsonParser
      */
 
     @Override
+    public boolean getBooleanValue() throws IOException {
+        JsonToken t = currentToken();
+        if (t == JsonToken.VALUE_TRUE) return true;
+        if (t == JsonToken.VALUE_FALSE) return false;
+        throw new JsonParseException(this,
+            String.format("Current token (%s) not of boolean type", t))
+                .withRequestPayload(_requestPayload);
+    }
+
+    @Override
     public boolean getValueAsBoolean(boolean defaultValue) throws IOException
     {
         JsonToken t = _currToken;
@@ -448,6 +465,28 @@ public abstract class ParserMinimalBase extends JsonParser
             }
         }
         return defaultValue;
+    }
+
+    @Override
+    public byte getByteValue() throws IOException {
+        int value = getIntValue();
+        // So far so good: but does it fit?
+        // Let's actually allow range of [-128, 255] instead of just signed range of [-128, 127]
+        // since "unsigned" usage quite common for bytes (but Java may use signed range, too)
+        if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
+            reportOverflowByte(getText(), currentToken());
+        }
+        return (byte) value;
+    }
+
+    @Override
+    public short getShortValue() throws IOException
+    {
+        int value = getIntValue();
+        if (value < MIN_SHORT_I || value > MAX_SHORT_I) {
+            reportOverflowShort(getText(), currentToken());
+        }
+        return (short) value;
     }
 
     @Override
@@ -648,7 +687,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************************
-    /* Error reporting
+    /* Error reporting, numeric conversion/parsing issues
     /**********************************************************************
      */
 
@@ -659,7 +698,6 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         _reportError(msg);
     }
-
     /**
      * Method called to throw an exception for input token that looks like a number
      * based on first character(s), but is not valid according to rules of format.
@@ -669,6 +707,21 @@ public abstract class ParserMinimalBase extends JsonParser
     protected void reportInvalidNumber(String msg) throws JsonParseException {
         _reportError("Invalid numeric value: "+msg);
     }
+
+    protected void reportOverflowByte(String numDesc, JsonToken inputType) throws IOException {
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `byte` (%d - %s)",
+                _longIntegerDesc(numDesc), MIN_BYTE_I, MAX_BYTE_I),
+                inputType, Byte.TYPE);
+    }
+
+    protected void reportOverflowShort(String numDesc, JsonToken inputType) throws IOException {
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `short` (%d - %s)",
+                _longIntegerDesc(numDesc), MIN_SHORT_I, MAX_SHORT_I),
+                inputType, Short.TYPE);
+    }
+
     /**
      * Method called to throw an exception for integral (not floating point) input
      * token with value outside of Java signed 32-bit range when requested as {code int}.
@@ -679,7 +732,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected void reportOverflowInt(String numDesc) throws IOException {
-        reportOverflowInt(numDesc, JsonToken.VALUE_NUMBER_INT);
+        reportOverflowInt(numDesc, currentToken());
     }
 
     protected void reportOverflowInt(String numDesc, JsonToken inputType) throws IOException {
@@ -698,12 +751,10 @@ public abstract class ParserMinimalBase extends JsonParser
         reportOverflowLong(getText());
     }
 
-    // @since 2.10
     protected void reportOverflowLong(String numDesc) throws IOException {
         reportOverflowLong(numDesc, JsonToken.VALUE_NUMBER_INT);
     }
 
-    // @since 2.10
     protected void reportOverflowLong(String numDesc, JsonToken inputType) throws IOException {
         throw _constructInputCoercion(String.format(
                 "Numeric value (%s) out of range of `long` (%d - %s)",
@@ -733,6 +784,12 @@ public abstract class ParserMinimalBase extends JsonParser
         return String.format("[number with %d characters]", rawLen);
     }
 
+    /*
+    /**********************************************************************
+    /* Error reporting, EOF, unexpected chars/content
+    /**********************************************************************
+     */
+    
     protected void _reportUnexpectedChar(int ch, String comment) throws JsonParseException
     {
         if (ch < 0) { // sanity check
@@ -776,12 +833,6 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportError(msg);
     }
 
-    /*
-    /**********************************************************************
-    /* Error reporting, generic
-    /**********************************************************************
-     */
-
     protected final static String _getCharDesc(int ch)
     {
         char c = (char) ch;
@@ -793,6 +844,12 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         return "'"+c+"' (code "+ch+")";
     }
+
+    /*
+    /**********************************************************************
+    /* Error reporting, generic
+    /**********************************************************************
+     */
 
     protected final void _reportError(String msg) throws JsonParseException {
         throw _constructError(msg);
@@ -818,10 +875,11 @@ public abstract class ParserMinimalBase extends JsonParser
         VersionUtil.throwInternal();
     }
 
-    protected final JsonParseException _constructError(String msg, Throwable t) {
-        return new JsonParseException(this, msg, t);
+    protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
+        return new InputCoercionException(this, msg, inputType, targetType)
+            .withRequestPayload(_requestPayload);
     }
-
+    
     protected static byte[] _asciiBytes(String str) {
         return str.getBytes(StandardCharsets.US_ASCII);
     }

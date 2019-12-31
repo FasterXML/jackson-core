@@ -100,7 +100,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             fail("Should not pass");
         } catch (InputCoercionException e) {
             verifyException(e, "out of range of `int`");
-            assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
         p = createParser(String.valueOf(small)+".0");
@@ -111,7 +111,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             fail("Should not pass");
         } catch (InputCoercionException e) {
             verifyException(e, "out of range of `int`");
-            assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
 

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.*;
 
@@ -8,7 +8,7 @@ import java.io.*;
  * Set of basic unit tests for verifying that the Array write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class TestGeneratorArray
+public class GeneratorArrayTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testEmptyArrayWrite()

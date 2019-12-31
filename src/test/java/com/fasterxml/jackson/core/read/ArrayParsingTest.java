@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
  * Set of additional unit for verifying array parsing, specifically
  * edge cases.
  */
-public class TestArrayParsing
+public class ArrayParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testValidEmpty() throws Exception

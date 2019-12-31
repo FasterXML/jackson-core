@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.read;
 
 import static org.junit.Assert.*;
 
@@ -11,7 +11,7 @@ import java.io.*;
  * the underlying source occurs as expected and specified
  * by documentation.
  */
-public class TestParserClosing
+public class ParserClosingTest
     extends BaseTest
 {
     /**

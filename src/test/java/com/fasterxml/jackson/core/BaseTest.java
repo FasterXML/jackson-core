@@ -180,6 +180,10 @@ public abstract class BaseTest
         if (!p.hasCurrentToken()) {
             p.nextToken();
         }
+        // first basic check, mostly for test coverage
+        assertNull(p.getTypeId());
+        assertNull(p.getObjectId());
+
         assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Image'

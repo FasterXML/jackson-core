@@ -13,7 +13,7 @@ import java.util.*;
  * functionality works as expected.
  */
 @SuppressWarnings("resource")
-public class JsonParserTest extends BaseTest
+public class SimpleParserTest extends BaseTest
 {
     public void testConfig() throws Exception
     {
@@ -626,7 +626,6 @@ public class JsonParserTest extends BaseTest
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
         assertEquals("a", parser.getCurrentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
-        
         Writer writer = new StringWriter();
         int len = parser.getText(writer);
         String resultString = writer.toString();

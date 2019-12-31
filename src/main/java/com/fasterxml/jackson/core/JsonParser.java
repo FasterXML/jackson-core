@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.RequestPayload;
 
@@ -1300,7 +1301,9 @@ public abstract class JsonParser
         // [JACKSON-804]: Let's actually allow range of [-128, 255], as those are uniquely mapped
         //  (instead of just signed range of [-128, 127])
         if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
-            throw _constructError("Numeric value ("+getText()+") out of range of Java byte");
+            throw new InputCoercionException(this,
+                    String.format("Numeric value (%s) out of range of Java byte", getText()),
+                    JsonToken.VALUE_NUMBER_INT, Byte.TYPE);
         }
         return (byte) value;
     }
@@ -1322,7 +1325,9 @@ public abstract class JsonParser
     {
         int value = getIntValue();
         if (value < MIN_SHORT_I || value > MAX_SHORT_I) {
-            throw _constructError("Numeric value ("+getText()+") out of range of Java short");
+            throw new InputCoercionException(this,
+                    String.format("Numeric value (%s) out of range of Java short", getText()),
+                    JsonToken.VALUE_NUMBER_INT, Short.TYPE);
         }
         return (short) value;
     }

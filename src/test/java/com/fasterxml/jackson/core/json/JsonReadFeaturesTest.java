@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.read;
+package com.fasterxml.jackson.core.json;
 
 import java.io.*;
 
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
  * and {@link JsonReadFeature}
  * settings work as expected.
  */
-public class ReadFeaturesTest
+public class JsonReadFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testStreamReadFeatureDefaults() throws Exception

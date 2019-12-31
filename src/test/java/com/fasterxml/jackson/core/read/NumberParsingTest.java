@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class NumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory FACTORY = new JsonFactory();
+    private final TokenStreamFactory FACTORY = sharedStreamFactory();
 
     /*
     /**********************************************************************
@@ -370,7 +370,7 @@ public class NumberParsingTest
           arr[i + 3] = '-';
           arr[i + 4] = '1';
           CharArrayReader r = new CharArrayReader(arr, 0, i+5);
-          JsonParser p = FACTORY.createParser(r);
+          JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), r);
           assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
           p.close();
         }
@@ -387,7 +387,7 @@ public class NumberParsingTest
             arr[i + 3] = '-';
             arr[i + 4] = '1';
             ByteArrayInputStream in = new ByteArrayInputStream(arr, 0, i+5);
-            JsonParser p = FACTORY.createParser(in);
+            JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), in);
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             p.close();
         }

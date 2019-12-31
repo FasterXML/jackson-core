@@ -7,6 +7,22 @@ import com.fasterxml.jackson.core.*;
 public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    static class BogusSchema implements FormatSchema
+    {
+        @Override
+        public String getSchemaType() {
+            return "test";
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
+    final JsonFactory JSON_F = sharedStreamFactory();
+
     public void testStreamWriteFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -46,6 +62,20 @@ public class JsonFactoryTest
         f = f.rebuild().disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
                 .build();
         assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
+
+        assertFalse(f.canHandleBinaryNatively());
+    }
+
+    public void testFactoryMisc() throws Exception
+    {
+        assertNull(JSON_F.getInputDecorator());
+        assertNull(JSON_F.getOutputDecorator());
+
+        assertFalse(JSON_F.canUseSchema(null));
+        assertFalse(JSON_F.canUseSchema(new BogusSchema()));
+
+        assertEquals(JsonReadFeature.class, JSON_F.getFormatReadFeatureType());
+        assertEquals(JsonWriteFeature.class, JSON_F.getFormatWriteFeatureType());
     }
 
     // for [core#189]: verify that it's ok to disable recycling

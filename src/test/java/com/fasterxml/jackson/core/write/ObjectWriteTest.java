@@ -227,6 +227,7 @@ public class ObjectWriteTest
         gen.writeNumberField("big", (BigInteger) null);
         gen.writeNumberField("dec", (BigDecimal) null);
         gen.writeObjectField("obj", null);
+        gen.writeBinaryField("bin", new byte[] { 1, 2 });
 
         gen.writeEndObject();
         gen.close();
@@ -251,6 +252,12 @@ public class ObjectWriteTest
         assertEquals("obj", jp.currentName());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("bin", jp.currentName());
+        // no native binary indicator in JSON, so:
+        assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
+        assertEquals("AQI=", jp.getText());
+        
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
         jp.close();
     }

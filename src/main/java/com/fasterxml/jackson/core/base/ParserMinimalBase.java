@@ -752,7 +752,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected void reportOverflowLong(String numDesc) throws IOException {
-        reportOverflowLong(numDesc, JsonToken.VALUE_NUMBER_INT);
+        reportOverflowLong(numDesc, currentToken());
     }
 
     protected void reportOverflowLong(String numDesc, JsonToken inputType) throws IOException {

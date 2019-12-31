@@ -202,7 +202,7 @@ public class JsonFactoryTest
             p.close();
         }
     }
-    
+
     public void testJsonWithFiles() throws Exception
     {
         File file = File.createTempFile("jackson-test", null);
@@ -270,5 +270,22 @@ public class JsonFactoryTest
         // However: real copy constructor SHOULD copy it
         JsonFactory jf3 = new CustomFactory(jf, codec);
         assertSame(codec, jf3.getCodec());
+    }
+
+    public void testRootValues() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        assertEquals(" ", f.getRootValueSeparator());
+        f.setRootValueSeparator("/");
+        assertEquals("/", f.getRootValueSeparator());
+
+        // but also test it is used
+        StringWriter w = new StringWriter();
+        JsonGenerator g = f.createGenerator(w);
+        g.writeNumber(1);
+        g.writeNumber(2);
+        g.writeNumber(3);
+        g.close();
+        assertEquals("1/2/3", w.toString());
     }
 }

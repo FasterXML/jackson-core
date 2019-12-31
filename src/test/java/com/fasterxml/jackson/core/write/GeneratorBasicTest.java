@@ -13,7 +13,7 @@ import java.math.BigInteger;
 public class GeneratorBasicTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final TokenStreamFactory JSON_F = newStreamFactory();
 
     // // // First, tests for primitive (non-structured) values
 

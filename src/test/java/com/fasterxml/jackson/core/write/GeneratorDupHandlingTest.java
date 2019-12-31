@@ -8,14 +8,14 @@ public class GeneratorDupHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testSimpleDupsEagerlyBytes() throws Exception {
-        _testSimpleDups(true, new JsonFactory());
+        _testSimpleDups(true, newStreamFactory());
     }
     public void testSimpleDupsEagerlyChars() throws Exception {
-        _testSimpleDups(false, new JsonFactory());
+        _testSimpleDups(false, newStreamFactory());
     }
 
     @SuppressWarnings("resource")
-    protected void _testSimpleDups(boolean useStream, JsonFactory f)
+    protected void _testSimpleDups(boolean useStream, TokenStreamFactory f)
             throws Exception
     {
         // First: fine, when not checking
@@ -44,7 +44,7 @@ public class GeneratorDupHandlingTest
         }
     }
 
-    protected JsonGenerator _generator(JsonFactory f, boolean useStream) throws IOException
+    protected JsonGenerator _generator(TokenStreamFactory f, boolean useStream) throws IOException
     {
         return useStream ?
                 f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream())

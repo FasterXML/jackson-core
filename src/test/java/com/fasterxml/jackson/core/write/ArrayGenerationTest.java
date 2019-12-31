@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.*;
  */
 public class ArrayGenerationTest extends BaseTest
 {
-    private final JsonFactory FACTORY = new JsonFactory();
+    private final TokenStreamFactory FACTORY = newStreamFactory();
     
     public void testIntArray() throws Exception
     {

@@ -15,7 +15,7 @@ public class SerializedStringWriteTest
     final static String VALUE_WITH_QUOTES = "\"Value\"";
     final static String VALUE2 = _generateLongName(9000);
     
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final TokenStreamFactory JSON_F = newStreamFactory();
     
     private final SerializedString quotedName = new SerializedString(NAME_WITH_QUOTES);
     private final SerializedString latin1Name = new SerializedString(NAME_WITH_LATIN1);

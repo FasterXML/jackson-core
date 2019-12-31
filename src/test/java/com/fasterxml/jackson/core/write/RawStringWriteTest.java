@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-public class TestRawStringWriting extends com.fasterxml.jackson.core.BaseTest
+public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
 {
     /**
      * Unit test for "JsonGenerator.writeRawUTF8String()"

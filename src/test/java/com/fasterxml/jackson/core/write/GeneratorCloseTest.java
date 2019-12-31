@@ -18,7 +18,7 @@ import java.io.*;
  * <code>JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT</code>
  * are tested.
  */
-public class GeneratorClosingTest extends BaseTest
+public class GeneratorCloseTest extends BaseTest
 {
     /*
     /**********************************************************

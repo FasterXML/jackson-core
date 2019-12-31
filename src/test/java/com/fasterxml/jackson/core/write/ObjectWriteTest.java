@@ -10,7 +10,7 @@ import java.math.BigInteger;
  * Set of basic unit tests for verifying that the Object write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class TestGeneratorObject
+public class ObjectWriteTest
     extends BaseTest
 {
     public void testEmptyObjectWrite()

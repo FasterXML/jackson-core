@@ -13,7 +13,7 @@ import java.io.*;
  * option of generator works correctly
  */
 @SuppressWarnings("serial")
-public class TestPrettyPrinter
+public class PrettyPrinterTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     static class CountPrinter extends MinimalPrettyPrinter

@@ -277,10 +277,22 @@ public class BasicGeneratorFilteringTest extends BaseTest
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 new NameMatchFilter("value"),
                 true, true);
-        final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':4}},'b0':false}";
+        final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':4}}}"), w.toString());
+        assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':'abc'}}}"), w.toString());
         assertEquals(2, gen.getMatchCount());
+    }
+
+    public void testMultipleMatchFilteringWithPath4() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new NameMatchFilter("b0"),
+                true, true);
+        final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'b0':false}"), w.toString());
+        assertEquals(1, gen.getMatchCount());
     }
 
     public void testIndexMatchWithPath1() throws Exception
@@ -289,7 +301,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 new IndexMatchFilter(1),
                 true, true);
-        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':'abc'},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'array':[2]}"), w.toString());
 
@@ -308,10 +320,38 @@ public class BasicGeneratorFilteringTest extends BaseTest
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 new IndexMatchFilter(0,1),
                 true, true);
-        final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
+        String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'array':[1,2]}"), w.toString());
         assertEquals(2, gen.getMatchCount());
+        gen.close();
+
+        w = new StringWriter();
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new IndexMatchFilter(1, 3, 5),
+                true, true);
+        JSON = "{'a':123,'misc':[1,2, null, true, false, 'abc', 123],'ob':null,'b':true}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'misc':[2,true,'abc']}"), w.toString());
+        assertEquals(3, gen.getMatchCount());
+
+        w = new StringWriter();
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new IndexMatchFilter(2,6),
+                true, true);
+        JSON = "{'misc':[1,2, null, 0.25, false, 'abc', 11234567890]}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'misc':[null,11234567890]}"), w.toString());
+        assertEquals(2, gen.getMatchCount());
+
+        w = new StringWriter();
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+                new IndexMatchFilter(1),
+                true, true);
+        JSON = "{'misc':[1,0.25,11234567890]}";
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'misc':[0.25]}"), w.toString());
+        assertEquals(1, gen.getMatchCount());
     }
 
     public void testWriteStartObjectWithObject() throws Exception
@@ -324,7 +364,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         String value = "val";
 
-        gen.writeStartObject(new Object());
+        gen.writeStartObject(new Object(), 2);
         gen.writeFieldName("field1");
         {
             gen.writeStartObject(value);
@@ -332,11 +372,11 @@ public class BasicGeneratorFilteringTest extends BaseTest
         }
 
         gen.writeFieldName("field2");
-        gen.writeString("val2");
+        gen.writeNumber(new BigDecimal("1.0"));
 
         gen.writeEndObject();
         gen.close();
-        assertEquals(aposToQuotes("{'field1':{},'field2':'val2'}"), w.toString());
+        assertEquals(aposToQuotes("{'field1':{},'field2':1.0}"), w.toString());
     }
 
     // [core#580]
@@ -348,10 +388,14 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         gen.writeStartArray();
         gen.writeRawValue(new char[] { '1'}, 0, 1);
-        gen.writeRawValue(new char[] { '2'}, 0, 1);
+        gen.writeRawValue("123", 2, 1);
+        gen.writeRaw(',');
+        gen.writeRaw("/* comment");
+        gen.writeRaw("... */".toCharArray(), 3, 3);
+        gen.writeRaw(" ,42", 1, 3);
         gen.writeEndArray();
 
         gen.close();
-        assertEquals("[1,2]", w.toString());
+        assertEquals("[1,3,/* comment */,42]", w.toString());
     }
 }

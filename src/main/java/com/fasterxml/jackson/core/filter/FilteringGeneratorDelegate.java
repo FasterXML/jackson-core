@@ -479,7 +479,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     public void writeRaw(String text, int offset, int len) throws IOException
     {
         if (_checkRawValueWrite()) {
-            delegate.writeRaw(text);
+            delegate.writeRaw(text, offset, len);
         }
     }
 

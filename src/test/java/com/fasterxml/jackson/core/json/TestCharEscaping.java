@@ -154,23 +154,6 @@ public class TestCharEscaping
         jp.close();
     }
 
-    public void testWriteLongCustomEscapes() throws Exception
-    {
-        JsonFactory jf = new JsonFactory();
-        jf.setCharacterEscapes(ESC_627); // must set to trigger bug
-        StringBuilder longString = new StringBuilder();
-        while (longString.length() < 2000) {
-          longString.append("\u65e5\u672c\u8a9e");
-        }
-
-        StringWriter writer = new StringWriter();
-        // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
-        JsonGenerator jgen = jf.createGenerator(writer);
-        jgen.setHighestNonEscapedChar(127); // must set to trigger bug
-        jgen.writeString(longString.toString());
-        jgen.close();
-    }
-
     // [jackson-core#116]
     public void testEscapesForCharArrays() throws Exception {
         StringWriter writer = new StringWriter();
@@ -246,5 +229,30 @@ public class TestCharEscaping
 
         final String doc = useBytes ? bytes.toString("UTF-8") : sw.toString();
         assertEquals("[\""+expEncoded+"\"]", doc);
+    }
+
+    /*
+    /**********************************************************
+    /* Test wrt CharacterEscapes
+    /**********************************************************
+      */
+
+    public void testWriteLongCustomEscapes() throws Exception
+    {
+        JsonFactory jf = ((JsonFactoryBuilder)JsonFactory.builder())
+                .characterEscapes(ESC_627)
+                .build();
+
+        StringBuilder longString = new StringBuilder();
+        while (longString.length() < 2000) {
+            longString.append("\u65e5\u672c\u8a9e");
+        }
+
+        StringWriter writer = new StringWriter();
+        // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
+        JsonGenerator gen = jf.createGenerator(writer);
+        gen.setHighestNonEscapedChar(127); // must set to trigger bug
+        gen.writeString(longString.toString());
+        gen.close();
     }
 }

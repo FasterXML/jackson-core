@@ -1072,6 +1072,16 @@ public class UTF8JsonGenerator
         }
     }
 
+    @Override
+    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws IOException {
+        _verifyValueWrite(WRITE_NUMBER);
+        if (_cfgNumbersAsStrings) {
+            _writeQuotedRaw(encodedValueBuffer, offset, length);
+        } else {
+            writeRaw(encodedValueBuffer, offset, length);
+        }
+    }
+
     private final void _writeQuotedRaw(String value) throws IOException
     {
         if (_outputTail >= _outputEnd) {
@@ -1084,7 +1094,20 @@ public class UTF8JsonGenerator
         }
         _outputBuffer[_outputTail++] = _quoteChar;
     }
-    
+
+    private void _writeQuotedRaw(char[] text, int offset, int length) throws IOException
+    {
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+        writeRaw(text, offset, length);
+        if (_outputTail >= _outputEnd) {
+            _flushBuffer();
+        }
+        _outputBuffer[_outputTail++] = _quoteChar;
+    }
+
     @Override
     public void writeBoolean(boolean state) throws IOException
     {

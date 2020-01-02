@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = sharedStreamFactory();
+
     /**
      * Unit test for "JsonGenerator.writeRawUTF8String()"
      */
@@ -19,8 +21,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
         // Let's create set of Strings to output; no ctrl chars as we do raw
         List<byte[]> strings = generateStrings(new Random(28), 750000, false);
         ByteArrayOutputStream out = new ByteArrayOutputStream(16000);
-        JsonFactory f = new JsonFactory();
-        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         g.writeStartArray();
         for (byte[] str : strings) {
             g.writeRawUTF8String(str, 0, str.length);
@@ -30,7 +31,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
         byte[] json = out.toByteArray();
         
         // Ok: let's verify that stuff was written out ok
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), json);
+        JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         for (byte[] inputBytes : strings) {
             assertToken(JsonToken.VALUE_STRING, jp.nextToken());
@@ -52,8 +53,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
         // Let's create set of Strings to output; do include control chars too:
         List<byte[]> strings = generateStrings(new Random(28), 720000, true);
         ByteArrayOutputStream out = new ByteArrayOutputStream(16000);
-        JsonFactory f = new JsonFactory();
-        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         g.writeStartArray();
 
         for (byte[] str : strings) {
@@ -65,7 +65,7 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
         byte[] json = out.toByteArray();
         
         // Ok: let's verify that stuff was written out ok
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), json);
+        JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         for (byte[] inputBytes : strings) {
             assertToken(JsonToken.VALUE_STRING, jp.nextToken());
@@ -81,13 +81,11 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
 
     public void testWriteRawWithSerializable() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        
-        _testWithRaw(f, true);
-        _testWithRaw(f, false);
+        _testWriteRawWithSerializable(JSON_F, true);
+        _testWriteRawWithSerializable(JSON_F, false);
     }
     
-    private void _testWithRaw(JsonFactory f, boolean useBytes) throws Exception
+    private void _testWriteRawWithSerializable(JsonFactory f, boolean useBytes) throws Exception
     {
         JsonGenerator g;
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -119,13 +117,13 @@ public class RawStringWriteTest extends com.fasterxml.jackson.core.BaseTest
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-    
+
     private List<byte[]> generateStrings(Random rnd, int totalLength, boolean includeCtrlChars)
         throws IOException
     {

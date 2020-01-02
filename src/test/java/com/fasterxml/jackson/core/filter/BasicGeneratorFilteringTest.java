@@ -347,10 +347,13 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         gen.writeStartArray();
         gen.writeRawValue(new char[] { '1'}, 0, 1);
-        gen.writeRawValue(new char[] { '2'}, 0, 1);
+        gen.writeRawValue("123", 2, 1);
+        gen.writeRaw(',');
+        gen.writeRaw("/* comment */");
+        gen.writeRaw(" ,42", 1, 3);
         gen.writeEndArray();
 
         gen.close();
-        assertEquals("[1,2]", w.toString());
+        assertEquals("[1,3,/* comment */,42]", w.toString());
     }
 }

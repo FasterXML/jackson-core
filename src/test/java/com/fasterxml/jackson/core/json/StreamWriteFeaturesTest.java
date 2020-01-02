@@ -71,13 +71,16 @@ public class StreamWriteFeaturesTest
     {
         JsonFactory f = new JsonFactory();
         // by default should output numbers as-is:
-        assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(f));        
+        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1]", _writeNumbers(f, false));        
+        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1]", _writeNumbers(f, true));        
 
         // but if overridden, quotes as Strings
         f = f.rebuild().configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS, true)
                 .build();
-        assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
-                     _writeNumbers(f));
+        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
+                     _writeNumbers(f, false));
+        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
+                _writeNumbers(f, true));
     }
 
     public void testBigDecimalAsPlain() throws IOException
@@ -170,14 +173,21 @@ public class StreamWriteFeaturesTest
         }
     }
 
-    private String _writeNumbers(JsonFactory f) throws IOException
+    private String _writeNumbers(JsonFactory f, boolean useBytes) throws IOException
     {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter sw = new StringWriter();
-        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator g;
+        if (useBytes) {
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes);
+        } else {
+            g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        }
     
         g.writeStartArray();
         g.writeNumber(1);
         g.writeNumber(2L);
+        g.writeNumber((short) 3);
         g.writeNumber(1.25);
         g.writeNumber(2.25f);
         g.writeNumber(BigInteger.valueOf(3001));
@@ -186,7 +196,7 @@ public class StreamWriteFeaturesTest
         g.writeEndArray();
         g.close();
 
-        return sw.toString();
+        return useBytes ? bytes.toString("UTF-8") : sw.toString();
     }
 
     // for [core#246]

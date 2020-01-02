@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
@@ -38,18 +39,19 @@ public class PrettyPrinterTest
     /* Test methods
     /**********************************************************
      */
-    
+
+    private final JsonFactory JSON_F = sharedStreamFactory();
+
     public void testObjectCount() throws Exception
     {
         final String EXP = "{\"x\":{\"a\":1,\"b\":2(2)}(1)}";
-        final JsonFactory jf = new JsonFactory();
 
         for (int i = 0; i < 2; ++i) {
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? jf.createGenerator(bytes)
-                    : jf.createGenerator(sw);
+            JsonGenerator gen = useBytes ? JSON_F.createGenerator(bytes)
+                    : JSON_F.createGenerator(sw);
             gen.setPrettyPrinter(new CountPrinter());
             gen.writeStartObject();
             gen.writeFieldName("x");
@@ -68,15 +70,13 @@ public class PrettyPrinterTest
     public void testArrayCount() throws Exception
     {
         final String EXP = "[6,[1,2,9(3)](2)]";
-        
-        final JsonFactory jf = new JsonFactory();
 
         for (int i = 0; i < 2; ++i) {
             boolean useBytes = (i > 0);
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = useBytes ? jf.createGenerator(bytes)
-                    : jf.createGenerator(sw);
+            JsonGenerator gen = useBytes ? JSON_F.createGenerator(bytes)
+                    : JSON_F.createGenerator(sw);
             gen.setPrettyPrinter(new CountPrinter());
             gen.writeStartArray();
             gen.writeNumber(6);
@@ -96,7 +96,7 @@ public class PrettyPrinterTest
     public void testSimpleDocWithDefault() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(sw);
         gen.useDefaultPrettyPrinter();
         _verifyPrettyPrinter(gen, sw);
         gen.close();
@@ -106,7 +106,7 @@ public class PrettyPrinterTest
     public void testSimpleDocWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(sw);
         // first with standard minimal
         gen.setPrettyPrinter(new MinimalPrettyPrinter());
         String docStr = _verifyPrettyPrinter(gen, sw);
@@ -130,16 +130,15 @@ public class PrettyPrinterTest
         gen.close();
     }
 
-    // [Issue#26]
+    // [core#26]
     public void testCustomRootSeparatorWithPP() throws Exception
     {
-        JsonFactory jf = new JsonFactory();
         // first, no pretty-printing (will still separate root values with a space!)
-        assertEquals("{} {} []", _generateRoot(jf, null));
+        assertEquals("{} {} []", _generateRoot(JSON_F, null));
         // First with default pretty printer, default configs:
-        assertEquals("{ } { } [ ]", _generateRoot(jf, new DefaultPrettyPrinter()));
+        assertEquals("{ } { } [ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter()));
         // then custom:
-        assertEquals("{ }|{ }|[ ]", _generateRoot(jf, new DefaultPrettyPrinter("|")));
+        assertEquals("{ }|{ }|[ ]", _generateRoot(JSON_F, new DefaultPrettyPrinter("|")));
     }
 
     // Alternative solution for [jackson-core#26]
@@ -261,7 +260,8 @@ public class PrettyPrinterTest
         gen.writeStartObject();
         gen.writeFieldName("f");
         gen.writeNull();
-        gen.writeFieldName("f2");
+        // for better test coverage also use alt method
+        gen.writeFieldName(new SerializedString("f2"));
         gen.writeNull();
         gen.writeEndObject();
 
@@ -272,7 +272,7 @@ public class PrettyPrinterTest
     protected String _generateRoot(JsonFactory jf, PrettyPrinter pp) throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(sw);
         gen.setPrettyPrinter(pp);
         gen.writeStartObject();
         gen.writeEndObject();

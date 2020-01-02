@@ -178,11 +178,18 @@ public class PrettyPrinterTest
                         .withArrayValueSeparator('|'));
             }
         };
-
-        JsonGenerator gen = new JsonFactory().createGenerator(ppContext, sw);
+        JsonGenerator gen = JSON_F.createGenerator(ppContext, sw);
         _writeTestDocument(gen);
         gen.close();
         assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", sw.toString());
+
+        // and with byte-backed too
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        gen = JSON_F.createGenerator(ppContext, bytes);
+        _writeTestDocument(gen);
+        gen.close();
+
+        assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", bytes.toString("UTF-8"));
     }
 
     public void testCustomSeparatorsWithPP() throws Exception

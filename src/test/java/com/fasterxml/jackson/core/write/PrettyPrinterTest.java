@@ -159,16 +159,29 @@ public class PrettyPrinterTest
     public void testCustomSeparatorsWithMinimal() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(sw);
         gen.setPrettyPrinter(new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
                 .withObjectFieldValueSeparator('=')
                 .withObjectEntrySeparator(';')
                 .withArrayValueSeparator('|')));
 
         _writeTestDocument(gen);
+        gen.close();
 
         assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", sw.toString());
+
+        // and with byte-backed too
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        gen = JSON_F.createGenerator(bytes);
+        gen.setPrettyPrinter(new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
+                .withObjectFieldValueSeparator('=')
+                .withObjectEntrySeparator(';')
+                .withArrayValueSeparator('|')));
+
+        _writeTestDocument(gen);
         gen.close();
+
+        assertEquals("[3|\"abc\"|[true]|{\"f\"=null;\"f2\"=null}]", bytes.toString("UTF-8"));
     }
 
     public void testCustomSeparatorsWithPP() throws Exception

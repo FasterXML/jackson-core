@@ -127,17 +127,29 @@ public class GeneratorBasicTest
     
     // // Then root-level output testing
 
-     public void testRootIntsWrite()
-         throws Exception
-     {
+    public void testRootIntsWrite() throws Exception {
+        _testRootIntsWrite(false);
+        _testRootIntsWrite(true);
+    }
+
+    private void _testRootIntsWrite(boolean useBytes) throws Exception
+    {
          StringWriter sw = new StringWriter();
-         JsonGenerator gen = JSON_F.createGenerator(sw);
+         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+         JsonGenerator gen;
+         
+         if (useBytes) {
+             gen = JSON_F.createGenerator(bytes);
+         } else {
+             gen = JSON_F.createGenerator(sw);
+         }
+
          gen.writeNumber(1);
-         gen.writeNumber(2);
+         gen.writeNumber((short) 2); // for test coverage
          gen.writeNumber(-13);
          gen.close();
 
-         String docStr = sw.toString();
+         String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
 
          try {
              JsonParser jp = createParserUsingReader(docStr);
@@ -154,25 +166,40 @@ public class GeneratorBasicTest
      }
     
     // Convenience methods
-    
-    public void testFieldValueWrites()
-         throws Exception
-     {
-         StringWriter sw = new StringWriter();
-         JsonGenerator gen = JSON_F.createGenerator(sw);
-         gen.writeStartObject();
-         gen.writeNumberField("short", (short) 3);
-         gen.writeNumberField("int", 3);
-         gen.writeNumberField("long", 3L);
-         gen.writeNumberField("big", new BigInteger("1707"));
-         gen.writeNumberField("double", 0.25);
-         gen.writeNumberField("float", -0.25f);
-         gen.writeNumberField("decimal", new BigDecimal("17.07"));
-         gen.writeEndObject();
-         gen.close();
 
-         assertEquals("{\"short\":3,\"int\":3,\"long\":3,\"big\":1707,\"double\":0.25,\"float\":-0.25,\"decimal\":17.07}", sw.toString().trim());
-     }
+    public void testFieldValueWrites() throws Exception {
+        _testFieldValueWrites(false);
+        _testFieldValueWrites(true);
+    }
+
+    public void _testFieldValueWrites(boolean useBytes) throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        JsonGenerator gen;
+        
+        if (useBytes) {
+            gen = JSON_F.createGenerator(bytes);
+        } else {
+            gen = JSON_F.createGenerator(sw);
+        }
+
+        gen.writeStartObject();
+        gen.writeNumberField("short", (short) 3);
+        gen.writeNumberField("int", 3);
+        gen.writeNumberField("long", 3L);
+        gen.writeNumberField("big", new BigInteger("1707"));
+        gen.writeNumberField("double", 0.25);
+        gen.writeNumberField("float", -0.25f);
+        gen.writeNumberField("decimal", new BigDecimal("17.07"));
+        gen.writeEndObject();
+        gen.close();
+
+        String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
+        
+        assertEquals("{\"short\":3,\"int\":3,\"long\":3,\"big\":1707,\"double\":0.25,\"float\":-0.25,\"decimal\":17.07}",
+                docStr.trim());
+    }
 
     /**
      * Test to verify that output context actually contains useful information

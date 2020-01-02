@@ -69,33 +69,39 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
      */
     public void testAboveAsciiEscapeWithReader() throws Exception
     {
-        _testEscapeAboveAscii(false); // reader
+        _testEscapeAboveAscii(false, false); // reader
+        _testEscapeAboveAscii(false, true);
     }
 
     public void testAboveAsciiEscapeWithUTF8Stream() throws Exception
     {
-        _testEscapeAboveAscii(true); // stream (utf-8)
+        _testEscapeAboveAscii(true, false); // stream (utf-8)
+        _testEscapeAboveAscii(true, true);
     }
 
     // // // Tests for [JACKSON-106]
 
     public void testEscapeCustomWithReader() throws Exception
     {
-        _testEscapeCustom(false); // reader
+        _testEscapeCustom(false, false); // reader
+        _testEscapeCustom(false, true);
     }
 
     public void testEscapeCustomWithUTF8Stream() throws Exception
     {
-        _testEscapeCustom(true); // stream (utf-8)
+        _testEscapeCustom(true, false); // stream (utf-8)
+        _testEscapeCustom(true, true);
     }
 
     public void testJsonpEscapes() throws Exception {
-        _testJsonpEscapes(false);
-        _testJsonpEscapes(true);
+        _testJsonpEscapes(false, false);
+        _testJsonpEscapes(false, true);
+        _testJsonpEscapes(true, false);
+        _testJsonpEscapes(true, true);
     }
 
     @SuppressWarnings("resource")
-    private void _testJsonpEscapes(boolean useStream) throws Exception
+    private void _testJsonpEscapes(boolean useStream, boolean stringAsChars) throws Exception
     {
         JsonFactory f = new JsonFactory();
         f.setCharacterEscapes(JsonpCharacterEscapes.instance());
@@ -112,7 +118,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         final String INPUT_VALUE = String.format(VALUE_TEMPLATE, "\u2028", "\u2029");
 
         g.writeStartArray();
-        g.writeString(INPUT_VALUE);
+        _writeString(g, INPUT_VALUE, stringAsChars);
         g.writeEndArray();
         g.close();
 
@@ -129,7 +135,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
      */
 
     @SuppressWarnings({ "resource", "deprecation" })
-    private void _testEscapeAboveAscii(boolean useStream) throws Exception
+    private void _testEscapeAboveAscii(boolean useStream, boolean stringAsChars) throws Exception
     {
         JsonFactory f = new JsonFactory();
         final String VALUE = "chars: [\u00A0]/[\u1234]";
@@ -144,7 +150,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
             g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartArray();
-        g.writeString(VALUE);
+        _writeString(g, VALUE, stringAsChars);
         g.writeEndArray();
         g.close();
         String json = bytes.toString("UTF-8");
@@ -161,7 +167,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         }
         g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartArray();
-        g.writeString(VALUE);
+        _writeString(g, VALUE, stringAsChars);
         g.writeEndArray();
         g.close();
         json = bytes.toString("UTF-8");
@@ -185,7 +191,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     }
 
     @SuppressWarnings("resource")
-    private void _testEscapeCustom(boolean useStream) throws Exception
+    private void _testEscapeCustom(boolean useStream, boolean stringAsChars) throws Exception
     {
         JsonFactory f = new JsonFactory().setCharacterEscapes(new MyEscapes());
         final String STR_IN = "[abcd/"+((char) TWO_BYTE_ESCAPED)+"/"+((char) THREE_BYTE_ESCAPED)+"]";
@@ -200,10 +206,21 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
             g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartObject();
-        g.writeStringField(STR_IN, STR_IN);
+        g.writeFieldName(STR_IN);
+        _writeString(g, STR_IN, stringAsChars);
         g.writeEndObject();
         g.close();
         String json = bytes.toString("UTF-8");
         assertEquals("{"+quote(STR_OUT)+":"+quote(STR_OUT)+"}", json);
+    }
+
+    private void _writeString(JsonGenerator g, String str, boolean stringAsChars) throws Exception
+    {
+        if (stringAsChars) {
+            g.writeString(str);
+        } else {
+            char[] ch = str.toCharArray();
+            g.writeString(ch, 0, ch.length);
+        }
     }
 }

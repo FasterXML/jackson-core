@@ -723,6 +723,27 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
+    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws IOException, UnsupportedOperationException
+    {
+        if (_itemFilter == null) {
+            return;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
+                return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                if (!state.includeRawValue()) { // close enough?
+                    return;
+                }
+            }
+            _checkParentPath();
+        }
+        delegate.writeNumber(encodedValueBuffer, offset, length);
+    }
+
+    @Override
     public void writeBoolean(boolean v) throws IOException
     {
         if (_itemFilter == null) {

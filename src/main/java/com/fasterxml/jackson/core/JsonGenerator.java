@@ -957,6 +957,30 @@ public abstract class JsonGenerator
      */
     public abstract void writeNumber(String encodedValue) throws IOException;
 
+
+    /**
+     * Write method that can be used for custom numeric types that can
+     * not be (easily?) converted to "standard" Java number types.
+     * Because numbers are not surrounded by double quotes, regular
+     * {@link #writeString} method can not be used; nor
+     * {@link #writeRaw} because that does not properly handle
+     * value separators needed in Array or Object contexts.
+     *<p>
+     * Note: because of lack of type safety, some generator
+     * implementations may not be able to implement this
+     * method. For example, if a binary JSON format is used,
+     * it may require type information for encoding; similarly
+     * for generator-wrappers around Java objects or JSON nodes.
+     * If implementation does not implement this method,
+     * it needs to throw {@link UnsupportedOperationException}.
+     *
+     * @throws UnsupportedOperationException If underlying data format does not
+     *   support numbers serialized textually AND if generator is not allowed
+     *   to just output a String instead (Schema-based formats may require actual
+     *   number, for example)
+     */
+    public abstract void writeNumber(char[] encodedValueBuffer, int offset, int length) throws IOException;
+
     /*
     /**********************************************************************
     /* Public API, write methods, other value types

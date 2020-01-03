@@ -20,7 +20,9 @@ public class UTF8NamesParseTest
          * necessary to try out various combinations...
          */
         "b", "A\u00D8", "abc", "c3p0",
-        "12345", "......", "Long\u00FAer",
+        "12345",
+        "......",
+        "Long\u00FAer",
         "Latin1-fully-\u00BE-develop\u00A8d",
         "Some very long name, ridiculously long actually to see that buffer expansion works: \u00BF?"
     };
@@ -28,7 +30,13 @@ public class UTF8NamesParseTest
     final static String[] UTF8_3BYTE_STRINGS = new String[] {
         "\uC823?", "A\u400F", "1\u1234?",
         "Ab123\u4034",
-        "Even-longer:\uC023"
+        "Long \uC023 ish",
+        "Bit longer:\uC023",
+        "Even-longer:\uC023",
+        "Yet bit longer \uC023",
+        "Even more \uC023 longer",
+        "\uC023 Possibly ridiculous",
+        "But \uC023 this takes the cake",
     };
 
     public void testEmptyName() throws Exception

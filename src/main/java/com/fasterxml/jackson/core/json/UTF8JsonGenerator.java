@@ -1720,11 +1720,11 @@ public class UTF8JsonGenerator
         return (outputPtr + len);
     }
     
-    private final int _handleLongCustomEscape(byte[] outputBuffer, int outputPtr, int outputEnd, byte[] raw,
-            int remainingChars)
+    private final int _handleLongCustomEscape(byte[] outputBuffer, int outputPtr, int outputEnd,
+            byte[] raw, int remainingChars)
         throws IOException, JsonGenerationException
     {
-        int len = raw.length;
+        final int len = raw.length;
         if ((outputPtr + len) > outputEnd) {
             _outputTail = outputPtr;
             _flushBuffer();
@@ -1733,11 +1733,12 @@ public class UTF8JsonGenerator
                 _outputStream.write(raw, 0, len);
                 return outputPtr;
             }
-            System.arraycopy(raw, 0, outputBuffer, outputPtr, len);
-            outputPtr += len;
         }
+        System.arraycopy(raw, 0, outputBuffer, outputPtr, len);
+        outputPtr += len;
         // but is the invariant still obeyed? If not, flush once more
         if ((outputPtr +  6 * remainingChars) > outputEnd) {
+            _outputTail = outputPtr;
             _flushBuffer();
             return _outputTail;
         }

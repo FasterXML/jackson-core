@@ -470,12 +470,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override
     public String getValueAsString() throws IOException {
-        if (_currToken == JsonToken.VALUE_STRING) {
-            return getText();
-        }
-        if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
-        }
+        // sub-classes tend to override so...
         return getValueAsString(null);
     }
     
@@ -734,6 +729,7 @@ public abstract class ParserMinimalBase extends JsonParser
         return new JsonParseException(this, msg, t);
     }
 
+    @Deprecated // since 2.11
     protected static byte[] _asciiBytes(String str) {
         byte[] b = new byte[str.length()];
         for (int i = 0, len = str.length(); i < len; ++i) {
@@ -742,6 +738,7 @@ public abstract class ParserMinimalBase extends JsonParser
         return b;
     }
 
+    @Deprecated // since 2.11
     protected static String _ascii(byte[] b) {
         try {
             return new String(b, "US-ASCII");

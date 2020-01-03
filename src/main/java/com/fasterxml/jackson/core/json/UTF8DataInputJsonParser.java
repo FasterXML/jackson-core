@@ -674,10 +674,9 @@ public class UTF8DataInputJsonParser
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
             return (_currToken = _parseNegNumber());
-            /* Should we have separate handling for plus? Although
-             * it is not allowed per se, it may be erroneously used,
-             * and could be indicated by a more specific error message.
-             */
+            // Should we have separate handling for plus? Although it is not allowed
+            // per se, it may be erroneously used, and could be indicated by a more
+            // specific error message.
         case '0':
         case '1':
         case '2':
@@ -2794,12 +2793,25 @@ public class UTF8DataInputJsonParser
 
     @Override
     public JsonLocation getTokenLocation() {
+        // 03-Jan-2020, tatu: Should probably track this, similar to how
+        //   streaming parsers do it, but... not done yet
+
+//        if (_currToken == JsonToken.FIELD_NAME) {
+//           return new JsonLocation(_getSourceReference(),
+//                    -1L, -1L, _nameStartRow, _nameStartCol);
+//        }
+
+        // No column tracking since we do not have pointers, DataInput has no offset
+        
         return new JsonLocation(_getSourceReference(), -1L, -1L, _tokenInputRow, -1);
     }
 
     @Override
     public JsonLocation getCurrentLocation() {
-        return new JsonLocation(_getSourceReference(), -1L, -1L, _currInputRow, -1);
+        // No column tracking since we do not have pointers, DataInput has no offset
+        final int col = -1;
+        return new JsonLocation(_getSourceReference(), -1L, -1L,
+                _currInputRow, col);
     }
 
     /*

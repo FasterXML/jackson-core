@@ -2770,7 +2770,7 @@ public class ReaderBasedJsonParser
 
     @Override
     public JsonLocation getCurrentLocation() {
-        int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        final int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_getSourceReference(),
                 -1L, _currInputProcessed + _inputPtr,
                 _currInputRow, col);

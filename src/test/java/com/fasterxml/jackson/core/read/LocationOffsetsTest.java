@@ -105,6 +105,45 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p.close();
     }
 
+    public void testWithLazyStringReadStreaming() throws Exception
+    {
+        _testWithLazyStringRead(MODE_READER);
+        _testWithLazyStringRead(MODE_INPUT_STREAM);
+    }
+
+    public void testWithLazyStringReadDataInput() throws Exception
+    {
+        // DataInput-backed reader does not track column, so can not
+        // verify much; but force finishToken() regardless
+        JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "[\"text\"]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(1, p.getCurrentLocation().getLineNr());
+        p.finishToken();
+        assertEquals("text", p.getText());
+        p.close();
+    }
+
+    private void _testWithLazyStringRead(int readMode) throws Exception
+    {
+        JsonParser p = createParser(JSON_F, readMode, "[\"text\"]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        // initially location pointing to first character
+        assertEquals(3, p.getCurrentLocation().getColumnNr());
+        p.finishToken();
+        // but will move once we force reading
+        assertEquals(8, p.getCurrentLocation().getColumnNr());
+        // and no change if we call again (but is ok to call)
+        p.finishToken();
+        assertEquals(8, p.getCurrentLocation().getColumnNr());
+
+        // also just for fun, verify content
+        assertEquals("text", p.getText());
+        assertEquals(8, p.getCurrentLocation().getColumnNr());
+        p.close();
+    }
+    
     // for [core#533]
     public void testUtf8Bom() throws Exception
     {

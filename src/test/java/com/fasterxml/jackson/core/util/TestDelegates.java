@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import static org.junit.Assert.assertArrayEquals;
+
 public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 {
     static class POJO {
@@ -188,17 +190,66 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     {
         final String TOKEN ="foo";
 
-        JsonParser parser = JSON_F.createParser("[ 1, true, null, { } ]");
+        JsonParser parser = JSON_F.createParser("[ 1, true, null, { \"a\": \"foo\" }, \"AQI=\" ]");
         JsonParserDelegate del = new JsonParserDelegate(parser);
-        
+
+        // Basic capabilities for parser:
+        assertFalse(del.canParseAsync());
+        assertFalse(del.canReadObjectId());
+        assertFalse(del.canReadTypeId());
+        assertFalse(del.requiresCustomCodec());
+        assertEquals(parser.version(), del.version());
+
+        // configuration
+        assertFalse(del.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(del.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
+        assertSame(parser, del.delegate());
+        assertNull(del.getSchema());
+
+        // initial state
         assertNull(del.currentToken());
+        assertFalse(del.hasCurrentToken());
+        assertFalse(del.hasTextCharacters());
+        assertNull(del.getCurrentValue());
+        assertNull(del.getCurrentName());
+
         assertToken(JsonToken.START_ARRAY, del.nextToken());
+        assertEquals(JsonTokenId.ID_START_ARRAY, del.currentTokenId());
+        assertTrue(del.hasToken(JsonToken.START_ARRAY));
+        assertFalse(del.hasToken(JsonToken.START_OBJECT));
+        assertTrue(del.hasTokenId(JsonTokenId.ID_START_ARRAY));
+        assertFalse(del.hasTokenId(JsonTokenId.ID_START_OBJECT));
+        assertTrue(del.isExpectedStartArrayToken());
+        assertFalse(del.isExpectedStartObjectToken());
         assertEquals("[", del.getText());
+        assertNotNull(del.getParsingContext());
+        assertSame(parser.getParsingContext(), del.getParsingContext());
+
         assertToken(JsonToken.VALUE_NUMBER_INT, del.nextToken());
         assertEquals(1, del.getIntValue());
-
+        assertEquals(1, del.getValueAsInt());
+        assertEquals(1, del.getValueAsInt(3));
+        assertEquals(1L, del.getValueAsLong());
+        assertEquals(1L, del.getValueAsLong(3L));
+        assertEquals(1L, del.getLongValue());
+        assertEquals(1d, del.getValueAsDouble());
+        assertEquals(1d, del.getValueAsDouble(0.25));
+        assertEquals(1d, del.getDoubleValue());
+        assertTrue(del.getValueAsBoolean());
+        assertTrue(del.getValueAsBoolean(false));
+        assertEquals((byte)1, del.getByteValue());
+        assertEquals((short)1, del.getShortValue());
+        assertEquals(1f, del.getFloatValue());
+        assertFalse(del.isNaN());
+        assertEquals(NumberType.INT, del.getNumberType());
+        assertEquals(Integer.valueOf(1), del.getNumberValue());
+        assertNull(del.getEmbeddedObject());
+        
         assertToken(JsonToken.VALUE_TRUE, del.nextToken());
         assertTrue(del.getBooleanValue());
+        assertEquals(parser.getCurrentLocation(), del.getCurrentLocation());
+        assertNull(del.getTypeId());
+        assertNull(del.getObjectId());
 
         assertToken(JsonToken.VALUE_NULL, del.nextToken());
         assertNull(del.getCurrentValue());
@@ -207,9 +258,19 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertToken(JsonToken.START_OBJECT, del.nextToken());
         assertNull(del.getCurrentValue());
 
+        assertToken(JsonToken.FIELD_NAME, del.nextToken());
+        assertEquals("a", del.getCurrentName());
+
+        assertToken(JsonToken.VALUE_STRING, del.nextToken());
+        assertTrue(del.hasTextCharacters());
+        assertEquals("foo", del.getText());
+        
         assertToken(JsonToken.END_OBJECT, del.nextToken());
         assertEquals(TOKEN, del.getCurrentValue());
 
+        assertToken(JsonToken.VALUE_STRING, del.nextToken());
+        assertArrayEquals(new byte[] { 1, 2 }, del.getBinaryValue());
+        
         assertToken(JsonToken.END_ARRAY, del.nextToken());
 
         del.close();

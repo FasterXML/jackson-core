@@ -211,11 +211,10 @@ public abstract class JsonGenerator
      */
     /*
     public void setSchema(FormatSchema schema) {
-        String schemaType = (schema == null) ? "NULL" : schema.getSchemaType();
-        throw new UnsupportedOperationException("Generator of type "+getClass().getName()+" does not support schema of type '"
-                +schemaType+"'");
+        throw new UnsupportedOperationException(String.format(
+                "Generator of type %s does not support schema of type '%s'",
+                getClass().getName(), schemaType);
     }
-    */
 
     /**
      * Method for accessing Schema that this parser uses, if any.

@@ -6,19 +6,12 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class NonStandardParserFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory STD_F = sharedStreamFactory();
+
     @SuppressWarnings("deprecation")
     public void testDefaults() {
-        JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
-    }
-
-    public void testNonStandardNameChars() throws Exception
-    {
-        _testNonStandardNameChars(MODE_INPUT_STREAM);
-        _testNonStandardNameChars(MODE_INPUT_STREAM_THROTTLED);
-        _testNonStandardNameChars(MODE_DATA_INPUT);
-        _testNonStandardNameChars(MODE_READER);
+        assertFalse(STD_F.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
+        assertFalse(STD_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
     public void testNonStandardAnyCharQuoting() throws Exception
@@ -66,52 +59,12 @@ public class NonStandardParserFeaturesTest
     /* Secondary test methods
     /****************************************************************
      */
-    
-    private void _testNonStandardNameChars(int mode) throws Exception
-    {
-        final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
-                .build();
-        String JSON = "{ @type : \"mytype\", #color : 123, *error* : true, "
-            +" hyphen-ated : \"yes\", me+my : null"
-            +"}";
-        JsonParser p = createParser(f, mode, JSON);
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("@type", p.getText());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("mytype", p.getText());
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("#color", p.getText());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(123, p.getIntValue());
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("*error*", p.getText());
-        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("hyphen-ated", p.getText());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("yes", p.getText());
-
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("me+my", p.getText());
-        assertToken(JsonToken.VALUE_NULL, p.nextToken());
-    
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        p.close();
-    }
 
     private void _testNonStandarBackslashQuoting(int mode) throws Exception
     {
         // first: verify that we get an exception
-        JsonFactory f = new JsonFactory();
         final String JSON = quote("\\'");
-        JsonParser p = createParser(f, mode, JSON);
+        JsonParser p = createParser(STD_F, mode, JSON);
         try {      
             p.nextToken();
             p.getText();
@@ -122,7 +75,7 @@ public class NonStandardParserFeaturesTest
             p.close();
         }
         // and then verify it's ok...
-        f = f.rebuild()
+        JsonFactory f = JsonFactory.builder()
                 .configure(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER, true)
                 .build();
         p = createParser(f, mode, JSON);
@@ -134,12 +87,11 @@ public class NonStandardParserFeaturesTest
     private void _testLeadingZeroes(int mode, boolean appendSpace) throws Exception
     {
         // first: verify that we get an exception
-        JsonFactory f = new JsonFactory();
         String JSON = "00003";
         if (appendSpace) {
             JSON += " ";
         }
-        JsonParser p = createParser(f, mode, JSON);
+        JsonParser p = createParser(STD_F, mode, JSON);
         try {      
             p.nextToken();
             p.getText();
@@ -151,7 +103,7 @@ public class NonStandardParserFeaturesTest
         }
 
         // and then verify it's ok when enabled
-        f = JsonFactory.builder()
+        JsonFactory f = JsonFactory.builder()
                 .configure(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS, true)
                 .build();
         p = createParser(f, mode, JSON);
@@ -177,10 +129,9 @@ public class NonStandardParserFeaturesTest
     private void _testAllowNaN(int mode) throws Exception
     {
         final String JSON = "[ NaN]";
-        JsonFactory f = new JsonFactory();
 
         // without enabling, should get an exception
-        JsonParser p = createParser(f, mode, JSON);
+        JsonParser p = createParser(STD_F, mode, JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             p.nextToken();
@@ -192,7 +143,7 @@ public class NonStandardParserFeaturesTest
         }
 
         // we can enable it dynamically (impl detail)
-        f = JsonFactory.builder()
+        JsonFactory f = JsonFactory.builder()
                 .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
                 .build();
         p = createParser(f, mode, JSON);
@@ -215,9 +166,6 @@ public class NonStandardParserFeaturesTest
         p.close();
 
         // finally, should also work with skipping
-        f = JsonFactory.builder()
-                .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
-                .build();
         p = createParser(f, mode, JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
@@ -228,10 +176,9 @@ public class NonStandardParserFeaturesTest
     private void _testAllowInf(int mode) throws Exception
     {
         final String JSON = "[ -INF, +INF, +Infinity, Infinity, -Infinity ]";
-        JsonFactory f = new JsonFactory();
 
         // without enabling, should get an exception
-        JsonParser p = createParser(f, mode, JSON);
+        JsonParser p = createParser(STD_F, mode, JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             p.nextToken();
@@ -241,7 +188,8 @@ public class NonStandardParserFeaturesTest
         } finally {
             p.close();
         }
-        f = JsonFactory.builder()
+
+        JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
         p = createParser(f, mode, JSON);
@@ -280,10 +228,7 @@ public class NonStandardParserFeaturesTest
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 
-        // finally, should also work with skipping
-        f = JsonFactory.builder()
-                .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
-                .build();
+        // should also work with skipping
         p = createParser(f, mode, JSON);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());

@@ -17,7 +17,7 @@ public class UTF8NamesParseTest
     final static String[] UTF8_2BYTE_STRINGS = new String[] {
         // This may look funny, but UTF8 scanner has fairly elaborate decoding
         // machinery, and it is indeed necessary to try out various combinations...
-        "b", "A\u00D8", "abc", "c3p0",
+        "b", "\u00d8", "A\u00D8", "ab\u00D8d", "abc\u00d8", "c3p0",
         "1234\u00C75",
         "......",
         "Long\u00FAer",
@@ -26,7 +26,7 @@ public class UTF8NamesParseTest
     };
 
     final static String[] UTF8_3BYTE_STRINGS = new String[] {
-        "\uC823?", "A\u400F", "1\u1234?",
+        "\uC823?", "A\u400F", "1\u1234?", "ab\u1234d",
         "Ab123\u4034",
         "Long \uC023 ish",
         "Bit longer:\uC023",

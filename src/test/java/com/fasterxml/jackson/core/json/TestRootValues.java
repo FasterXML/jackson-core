@@ -71,76 +71,80 @@ public class TestRootValues
 
     /*
     /**********************************************************
-    /* Test methods
+    /* Test methods, reads
     /**********************************************************
      */
 
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testSimpleNumbers() throws Exception
-    {
-        _testSimpleNumbers(false);
-        _testSimpleNumbers(true);
+    public void testSimpleNumbers() throws Exception {
+        // DataInput can not detect EOF so:
+        _testSimpleNumbers(MODE_INPUT_STREAM);
+        _testSimpleNumbers(MODE_INPUT_STREAM_THROTTLED);
+        _testSimpleNumbers(MODE_READER);
     }
 
-    private void _testSimpleNumbers(boolean useStream) throws Exception
+    private void _testSimpleNumbers(int mode) throws Exception
     {
         final String DOC = "1 2\t3\r4\n5\r\n6\r\n   7";
-        JsonParser jp = useStream ?
-                createParserUsingStream(JSON_F, DOC, "UTF-8")
-                : createParserUsingReader(JSON_F, DOC);
+        JsonParser p = createParser(mode, DOC);
         for (int i = 1; i <= 7; ++i) {
-            assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-            assertEquals(i, jp.getIntValue());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(i, p.getIntValue());
         }
-        assertNull(jp.nextToken());
-        jp.close();
+        assertNull(p.nextToken());
+        p.close();
     }
 
     public void testBrokenNumber() throws Exception
     {
-        _testBrokenNumber(false);
-        _testBrokenNumber(true);
+        _testBrokenNumber(MODE_INPUT_STREAM);
+        _testBrokenNumber(MODE_INPUT_STREAM_THROTTLED);
+        _testBrokenNumber(MODE_READER);
+        // I think DataInput _SHOULD_ be able to detect, fail, but for now...
+//        _testBrokenNumber(MODE_DATA_INPUT);
     }
 
-    private void _testBrokenNumber(boolean useStream) throws Exception
+    private void _testBrokenNumber(int mode) throws Exception
     {
-    	JsonFactory f = new JsonFactory();
         final String DOC = "14:89:FD:D3:E7:8C";
-        JsonParser p = useStream ?
-                createParserUsingStream(f, DOC, "UTF-8")
-                : createParserUsingReader(f, DOC);
+        JsonParser p = createParser(mode, DOC);
         // Should fail, right away
         try {
-        	p.nextToken();
-        	fail("Ought to fail! Instead, got token: "+p.currentToken());
+            p.nextToken();
+            fail("Ought to fail! Instead, got token: "+p.currentToken());
         } catch (JsonParseException e) {
-        	verifyException(e, "unexpected character");
+            verifyException(e, "unexpected character");
         }
         p.close();
     }
-    
-    public void testSimpleBooleans() throws Exception
-    {
-        _testSimpleBooleans(false);
-        _testSimpleBooleans(true);
+
+    public void testSimpleBooleans() throws Exception {
+        // can't do DataInput so
+        _testSimpleBooleans(MODE_INPUT_STREAM);
+        _testSimpleBooleans(MODE_INPUT_STREAM_THROTTLED);
+        _testSimpleBooleans(MODE_READER);
     }
 
-    private void _testSimpleBooleans(boolean useStream) throws Exception
+    private void _testSimpleBooleans(int mode) throws Exception
     {
         final String DOC = "true false\ttrue\rfalse\ntrue\r\nfalse\r\n   true";
-        JsonParser jp = useStream ?
-                createParserUsingStream(JSON_F, DOC, "UTF-8")
-                : createParserUsingReader(JSON_F, DOC);
+        JsonParser p = createParser(mode, DOC);
         boolean exp = true;
         for (int i = 1; i <= 7; ++i) {
-            assertToken(exp ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, jp.nextToken());
+            assertToken(exp ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, p.nextToken());
             exp = !exp;
         }
-        assertNull(jp.nextToken());
-        jp.close();
+        assertNull(p.nextToken());
+        p.close();
     }
 
+    /*
+    /**********************************************************
+    /* Test methods, writes
+    /**********************************************************
+     */
+    
     public void testSimpleWrites() throws Exception
     {
         _testSimpleWrites(false);
@@ -171,6 +175,12 @@ public class TestRootValues
         assertEquals("123 \"abc\" true", json);
     }
 
+    /*
+    /**********************************************************
+    /* Test methods, other
+    /**********************************************************
+     */
+    
     // [core#516]: Off-by-one read problem
     public void testRootOffsetIssue516Bytes() throws Exception
     {

@@ -7,7 +7,74 @@ import com.fasterxml.jackson.core.*;
 public class TestRootValues
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    static class Issue516InputStream extends InputStream
+    {
+        private final byte[][] reads;
+        private int currentRead;
+
+        public Issue516InputStream(byte[][] reads) {
+            this.reads = reads;
+            this.currentRead = 0;
+        }
+
+        @Override
+        public int read() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+    
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (currentRead >= reads.length) {
+                return -1;
+            }
+            byte[] bytes = reads[currentRead++];
+            if (len < bytes.length) {
+                throw new IllegalArgumentException();
+            }
+            System.arraycopy(bytes, 0, b, off, bytes.length);
+            return bytes.length;
+        }
+    }
+
+    static class Issue516Reader extends Reader
+    {
+        private final char[][] reads;
+        private int currentRead;
+
+        public Issue516Reader(char[][] reads) {
+            this.reads = reads;
+            this.currentRead = 0;
+        }
+
+        @Override
+        public void close() { }
+
+        @Override
+        public int read() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+    
+        @Override
+        public int read(char[] b, int off, int len) throws IOException {
+            if (currentRead >= reads.length) {
+                return -1;
+            }
+            char[] bytes = reads[currentRead++];
+            if (len < bytes.length) {
+                throw new IllegalArgumentException();
+            }
+            System.arraycopy(bytes, 0, b, off, bytes.length);
+            return bytes.length;
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
+    private final JsonFactory JSON_F = sharedStreamFactory();
 
     public void testSimpleNumbers() throws Exception
     {
@@ -138,66 +205,5 @@ public class TestRootValues
 
         parser.close();
         in.close();
-    }
-
-    static class Issue516InputStream extends InputStream
-    {
-        private final byte[][] reads;
-        private int currentRead;
-
-        public Issue516InputStream(byte[][] reads) {
-            this.reads = reads;
-            this.currentRead = 0;
-        }
-
-        @Override
-        public int read() throws IOException {
-            throw new UnsupportedOperationException();
-        }
-    
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            if (currentRead >= reads.length) {
-                return -1;
-            }
-            byte[] bytes = reads[currentRead++];
-            if (len < bytes.length) {
-                throw new IllegalArgumentException();
-            }
-            System.arraycopy(bytes, 0, b, off, bytes.length);
-            return bytes.length;
-        }
-    }
-
-    static class Issue516Reader extends Reader
-    {
-        private final char[][] reads;
-        private int currentRead;
-
-        public Issue516Reader(char[][] reads) {
-            this.reads = reads;
-            this.currentRead = 0;
-        }
-
-        @Override
-        public void close() { }
-
-        @Override
-        public int read() throws IOException {
-            throw new UnsupportedOperationException();
-        }
-    
-        @Override
-        public int read(char[] b, int off, int len) throws IOException {
-            if (currentRead >= reads.length) {
-                return -1;
-            }
-            char[] bytes = reads[currentRead++];
-            if (len < bytes.length) {
-                throw new IllegalArgumentException();
-            }
-            System.arraycopy(bytes, 0, b, off, bytes.length);
-            return bytes.length;
-        }
     }
 }

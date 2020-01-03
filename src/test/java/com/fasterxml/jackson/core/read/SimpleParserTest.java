@@ -480,71 +480,6 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    // [core#142]
-    public void testHandlingOfInvalidSpaceByteStream() throws Exception {
-        _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
-        _testHandlingOfInvalidSpaceFromResource(true);
-    }
-    
-    // [core#142]
-    public void testHandlingOfInvalidSpaceChars() throws Exception {
-        _testHandlingOfInvalidSpace(MODE_READER);
-        _testHandlingOfInvalidSpaceFromResource(false);
-    }
-
-    // [core#142]
-    public void testHandlingOfInvalidSpaceDataInput() throws Exception {
-        _testHandlingOfInvalidSpace(MODE_DATA_INPUT);
-    }
-    
-    private void _testHandlingOfInvalidSpace(int mode) throws Exception
-    {
-        final String JSON = "{ \u00A0 \"a\":1}";
-
-        JsonParser p = createParser(mode, JSON);
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        try {
-            p.nextToken();
-            fail("Should have failed");
-        } catch (JsonParseException e) {
-            verifyException(e, "unexpected character");
-            // and correct error code
-            verifyException(e, "code 160");
-        }
-        p.close();
-    }
-
-    private void _testHandlingOfInvalidSpaceFromResource(boolean useStream) throws Exception
-    {
-        InputStream in = getClass().getResourceAsStream("/test_0xA0.json");
-        JsonParser p = useStream
-                ? JSON_FACTORY.createParser(in)
-                : JSON_FACTORY.createParser(new InputStreamReader(in, "UTF-8"));
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        try {
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("request", p.getCurrentName());
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("mac", p.getCurrentName());
-            assertToken(JsonToken.VALUE_STRING, p.nextToken());
-            assertNotNull(p.getText());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
-            assertEquals("data", p.getCurrentName());
-            assertToken(JsonToken.START_OBJECT, p.nextToken());
-
-            // ... and from there on, just loop
-            
-            while (p.nextToken()  != null) { }
-            fail("Should have failed");
-        } catch (JsonParseException e) {
-            verifyException(e, "unexpected character");
-            // and correct error code
-            verifyException(e, "code 160");
-        }
-        p.close();
-    }
-
     public void testGetValueAsTextBytes() throws Exception
     {
         _testGetValueAsText(MODE_INPUT_STREAM, false);
@@ -661,6 +596,77 @@ public class SimpleParserTest extends BaseTest
         assertEquals(len, resultString.length());
         assertEquals(longText, resultString);
         parser.close();
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for Invalid input
+    /**********************************************************
+     */
+
+    // [core#142]
+    public void testHandlingOfInvalidSpaceByteStream() throws Exception {
+        _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
+        _testHandlingOfInvalidSpaceFromResource(true);
+    }
+    
+    // [core#142]
+    public void testHandlingOfInvalidSpaceChars() throws Exception {
+        _testHandlingOfInvalidSpace(MODE_READER);
+        _testHandlingOfInvalidSpaceFromResource(false);
+    }
+
+    // [core#142]
+    public void testHandlingOfInvalidSpaceDataInput() throws Exception {
+        _testHandlingOfInvalidSpace(MODE_DATA_INPUT);
+    }
+
+    private void _testHandlingOfInvalidSpace(int mode) throws Exception
+    {
+        final String JSON = "{ \u00A0 \"a\":1}";
+
+        JsonParser p = createParser(mode, JSON);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Should have failed");
+        } catch (JsonParseException e) {
+            verifyException(e, "unexpected character");
+            // and correct error code
+            verifyException(e, "code 160");
+        }
+        p.close();
+    }
+
+    private void _testHandlingOfInvalidSpaceFromResource(boolean useStream) throws Exception
+    {
+        InputStream in = getClass().getResourceAsStream("/test_0xA0.json");
+        JsonParser p = useStream
+                ? JSON_FACTORY.createParser(in)
+                : JSON_FACTORY.createParser(new InputStreamReader(in, "UTF-8"));
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        try {
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("request", p.getCurrentName());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("mac", p.getCurrentName());
+            assertToken(JsonToken.VALUE_STRING, p.nextToken());
+            assertNotNull(p.getText());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("data", p.getCurrentName());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+            // ... and from there on, just loop
+            
+            while (p.nextToken()  != null) { }
+            fail("Should have failed");
+        } catch (JsonParseException e) {
+            verifyException(e, "unexpected character");
+            // and correct error code
+            verifyException(e, "code 160");
+        }
+        p.close();
     }
 
     /*

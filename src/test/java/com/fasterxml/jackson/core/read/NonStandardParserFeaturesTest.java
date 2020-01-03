@@ -27,7 +27,10 @@ public class NonStandardParserFeaturesTest
         _testSingleQuotesEnabled(MODE_INPUT_STREAM_THROTTLED);
         _testSingleQuotesEnabled(MODE_DATA_INPUT);
         _testSingleQuotesEnabled(MODE_READER);
+    }
 
+    public void testSingleQuotesEscaped() throws Exception
+    {
         _testSingleQuotesEscaped(MODE_INPUT_STREAM);
         _testSingleQuotesEscaped(MODE_INPUT_STREAM_THROTTLED);
         _testSingleQuotesEscaped(MODE_DATA_INPUT);
@@ -123,16 +126,15 @@ public class NonStandardParserFeaturesTest
     }
 
     /**
-     * Test to verify optional handling of
-     * single quotes, to allow handling invalid (but, alas, common)
-     * JSON.
+     * Test to verify optional handling of single quotes,
+     * to allow handling invalid (but, alas, common) JSON.
      */
     private void _testSingleQuotesEnabled(int mode) throws Exception
     {
         JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
                 .build();
-        String JSON = "{ 'a' : 1, \"foobar\": 'b', '_abcde1234':'d', '\"' : '\"\"', '':'' }";
+        String JSON = "{ 'a' : 1, \"foobar\": 'b', '_abc\\u00A0e\\'23\\'':'d\\'foo\\'', '\"' : '\"\"', '':'' }";
         JsonParser p = createParser(f, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -146,9 +148,9 @@ public class NonStandardParserFeaturesTest
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("b", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("_abcde1234", p.getText());
+        assertEquals("_abc\u00A0e'23'", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("d", p.getText());
+        assertEquals("d'foo'", p.getText());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("\"", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());

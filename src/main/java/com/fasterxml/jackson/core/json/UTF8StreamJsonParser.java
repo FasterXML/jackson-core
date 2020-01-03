@@ -2292,7 +2292,7 @@ public class UTF8StreamJsonParser
                 } else if ((ch & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
                     ch &= 0x07;
                     needed = 3;
-                } else { // 5- and 6-byte chars not valid xml chars
+                } else { // 5- and 6-byte chars not valid json chars
                     _reportInvalidInitial(ch);
                     needed = ch = 1; // never really gets this far
                 }

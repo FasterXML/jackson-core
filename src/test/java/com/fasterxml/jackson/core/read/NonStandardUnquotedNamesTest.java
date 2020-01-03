@@ -58,7 +58,51 @@ public class NonStandardUnquotedNamesTest
     /* Secondary test methods
     /****************************************************************
      */
+
+    public void testNonStandardNameChars() throws Exception
+    {
+        _testNonStandardNameChars(MODE_INPUT_STREAM);
+        _testNonStandardNameChars(MODE_INPUT_STREAM_THROTTLED);
+        _testNonStandardNameChars(MODE_DATA_INPUT);
+        _testNonStandardNameChars(MODE_READER);
+    }
     
+    private void _testNonStandardNameChars(int mode) throws Exception
+    {
+        String JSON = "{ @type : \"mytype\", #color : 123, *error* : true, "
+            +" hyphen-ated : \"yes\", me+my : null"
+            +"}";
+        JsonParser p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("@type", p.getText());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("mytype", p.getText());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("#color", p.getText());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(123, p.getIntValue());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("*error*", p.getText());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("hyphen-ated", p.getText());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("yes", p.getText());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("me+my", p.getText());
+        assertToken(JsonToken.VALUE_NULL, p.nextToken());
+    
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
+    }
+
     private void _testLargeUnquoted(int mode) throws Exception
     {
         StringBuilder sb = new StringBuilder(5000);

@@ -181,11 +181,11 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         }
         g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartArray();
-        _writeString(g, VALUE, stringAsChars);
+        _writeString(g, VALUE+"\\", stringAsChars);
         g.writeEndArray();
         g.close();
         json = bytes.toString("UTF-8");
-        assertEquals("["+quote("chars: [\\u00A0]/[\\u1234]")+"]", json);
+        assertEquals("["+quote("chars: [\\u00A0]/[\\u1234]\\\\")+"]", json);
 
         // and then keys
         bytes = new ByteArrayOutputStream();
@@ -196,12 +196,12 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         }
         g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartObject();
-        g.writeFieldName(KEY);
+        g.writeFieldName(KEY+"\\");
         g.writeBoolean(true);
         g.writeEndObject();
         g.close();
         json = bytes.toString("UTF-8");
-        assertEquals("{"+quote("fun:\\u0088:\\u3456")+":true}", json);
+        assertEquals("{"+quote("fun:\\u0088:\\u3456\\\\")+":true}", json);
     }
 
     @SuppressWarnings("resource")

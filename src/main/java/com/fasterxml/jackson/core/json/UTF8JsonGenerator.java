@@ -1500,7 +1500,6 @@ public class UTF8JsonGenerator
         if ((_outputTail +  6 * (end - offset)) > _outputEnd) {
             _flushBuffer();
         }
-    
         int outputPtr = _outputTail;
     
         final byte[] outputBuffer = _outputBuffer;

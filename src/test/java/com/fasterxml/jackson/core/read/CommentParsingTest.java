@@ -14,11 +14,11 @@ public class CommentParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     final static String DOC_WITH_SLASHSTAR_COMMENT =
-        "[ /* comment:\n ends here */ 1 /* one more ok to have \"unquoted\"  */ ]"
+        "[ /* comment:\n ends here */ 1 /* one more ok to have \"unquoted\" and non-ascii: \u3456 \u00A0  */ ]"
         ;
 
     final static String DOC_WITH_SLASHSLASH_COMMENT =
-        "[ // comment...\n 1 \r  // one more, not array: []   \n ]"
+        "[ // comment...\n 1 \r  // one more, not array: [] \u00A0 & \u3456  \n ]"
         ;
 
     /*

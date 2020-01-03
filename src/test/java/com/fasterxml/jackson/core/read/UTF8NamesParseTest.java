@@ -15,12 +15,10 @@ public class UTF8NamesParseTest
     extends BaseTest
 {
     final static String[] UTF8_2BYTE_STRINGS = new String[] {
-        /* This may look funny, but UTF8 scanner has fairly
-         * elaborate decoding machinery, and it is indeed
-         * necessary to try out various combinations...
-         */
+        // This may look funny, but UTF8 scanner has fairly elaborate decoding
+        // machinery, and it is indeed necessary to try out various combinations...
         "b", "A\u00D8", "abc", "c3p0",
-        "12345",
+        "1234\u00C75",
         "......",
         "Long\u00FAer",
         "Latin1-fully-\u00BE-develop\u00A8d",
@@ -32,9 +30,9 @@ public class UTF8NamesParseTest
         "Ab123\u4034",
         "Long \uC023 ish",
         "Bit longer:\uC023",
-        "Even-longer:\uC023",
+        "Even-longer:\u3456",
         "Yet bit longer \uC023",
-        "Even more \uC023 longer",
+        "Even more \u3456 longer",
         "\uC023 Possibly ridiculous",
         "But \uC023 this takes the cake",
     };
@@ -198,23 +196,43 @@ public class UTF8NamesParseTest
             sb.append((char) c);
         }
 
+        final String VALUE = sb.toString();
         ByteArrayOutputStream bout = new ByteArrayOutputStream(len + (len >> 2));
         OutputStreamWriter out = new OutputStreamWriter(bout, "UTF-8");
         out.write("[\"");
-        String VALUE = sb.toString();
         out.write(VALUE);
         out.write("\"]");
         out.close();
 
-        byte[] data = bout.toByteArray();
-
-        JsonParser p = createParser(mode, data);
+        JsonParser p = createParser(mode, bout.toByteArray());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         String act = p.getText();
 
         assertEquals(VALUE.length(), act.length());
         assertEquals(VALUE, act);
+        p.close();
+
+        // But how about as key
+        bout = new ByteArrayOutputStream(len + (len >> 2));
+        out = new OutputStreamWriter(bout, "UTF-8");
+        out.write("{\"");
+        out.write(VALUE);
+        out.write("\":42}");
+        out.close();
+
+        p = createParser(mode, bout.toByteArray());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+
+        act = p.getText();
+        assertEquals(VALUE.length(), act.length());
+        assertEquals(VALUE, act);
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(42, p.getIntValue());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        
         p.close();
     }
 

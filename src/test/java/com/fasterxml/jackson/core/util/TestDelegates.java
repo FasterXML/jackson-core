@@ -146,7 +146,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertFalse(del.hasCurrentToken());
         assertFalse(del.hasTextCharacters());
         assertNull(del.getCurrentValue());
-        assertNull(del.getCurrentName());
+        assertNull(del.currentName());
 
         assertToken(JsonToken.START_ARRAY, del.nextToken());
         assertEquals(JsonTokenId.ID_START_ARRAY, del.currentTokenId());
@@ -194,7 +194,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertNull(del.getCurrentValue());
 
         assertToken(JsonToken.FIELD_NAME, del.nextToken());
-        assertEquals("a", del.getCurrentName());
+        assertEquals("a", del.currentName());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertTrue(del.hasTextCharacters());
@@ -281,7 +281,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     public void testGeneratorDelegateArrays() throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         final Object MARKER = new Object();
@@ -301,7 +301,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     public void testGeneratorDelegateComments() throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         final Object MARKER = new Object();
@@ -324,9 +324,9 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
     public void testDelegateCopyMethods() throws IOException
     {
-        JsonParser p = JSON_F.createParser("[123,[true,false]]");
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "[123,[true,false]]");
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());

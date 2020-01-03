@@ -40,7 +40,7 @@ public class TestCharEscaping
     private final static JsonFactory JSON_F = new JsonFactory();
 
     public void testMissingEscaping() throws Exception {
-        for (int mode : ALL_TEXT_MODES) {
+        for (int mode : ALL_MODES) {
             _testMissingEscaping(mode);
         }
     }
@@ -68,7 +68,7 @@ public class TestCharEscaping
     }
 
     public void testSimpleEscaping() throws Exception {
-        for (int mode : ALL_TEXT_MODES) {
+        for (int mode : ALL_MODES) {
             _testSimpleEscaping(mode);
         }
     }
@@ -85,35 +85,57 @@ public class TestCharEscaping
         assertEquals("LF=\n", jp.getText());
         jp.close();
 
-
-        /* Note: must split Strings, so that javac won't try to handle
-         * escape and inline null char
-         */
-        DOC = "[\"NULL:\\u0000!\"]";
-
-        jp = createParserUsingReader(DOC);
+        // Note: must split Strings, so that javac won't try to handle
+        // escape and inline null char
+        jp = createParser(JSON_F, readMode, "[\"NULL:\\u0000!\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("NULL:\0!", jp.getText());
         jp.close();
 
         // Then just a single char escaping
-        jp = createParserUsingReader("[\"\\u0123\"]");
+        jp = createParser(JSON_F, readMode, "[\"\\u0123\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("\u0123", jp.getText());
         jp.close();
 
         // And then double sequence
-        jp = createParserUsingReader("[\"\\u0041\\u0043\"]");
+        jp = createParser(JSON_F, readMode, "[\"\\u0041\\u0043\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("AC", jp.getText());
         jp.close();
     }
 
+    public void testSimpleNameEscaping() throws Exception {
+        for (int mode : ALL_MODES) {
+            _testSimpleNameEscaping(mode);
+        }
+    }
+
+    private void _testSimpleNameEscaping(int readMode) throws Exception
+    {
+        // test to try to tease out various edge conditions
+        for (int i = 0; i < 16; ++i) {
+            final String base = "1234567890abcdef".substring(0, i);
+            final String inputKey = quote(base + "\\\"");
+            final String expKey = base + "\"";
+            // note: append spaces so there's no buffer boundary issue
+            JsonParser p = createParser(JSON_F, readMode, "{"+inputKey+" : 123456789}       ");
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals(expKey, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(123456789, p.getIntValue());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            p.close();
+
+        }
+    }
+    
     public void testInvalid() throws Exception {
-        for (int mode : ALL_TEXT_MODES) {
+        for (int mode : ALL_MODES) {
             _testInvalid(mode);
         }
     }
@@ -139,7 +161,7 @@ public class TestCharEscaping
      * (non-BMP characters must be escaped using two 4-digit sequences)
      */
     public void test8DigitSequence() throws Exception {
-        for (int mode : ALL_TEXT_MODES) {
+        for (int mode : ALL_MODES) {
             _test8DigitSequence(mode);
         }
     }
@@ -166,7 +188,7 @@ public class TestCharEscaping
 
     // [jackson-core#540]
     public void testInvalidEscape() throws Exception {
-        for (int mode : ALL_TEXT_MODES) {
+        for (int mode : ALL_MODES) {
             _testInvalidEscape(mode);
         }
     }

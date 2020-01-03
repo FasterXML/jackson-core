@@ -9,6 +9,10 @@ public class NonStandardJsonReadFeaturesTest
 {
     private final JsonFactory STD_F = sharedStreamFactory();
 
+    private final JsonFactory LEADING_ZERO_F = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
+            .build();
+
     public void testDefaults() {
         JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS));
@@ -99,15 +103,22 @@ public class NonStandardJsonReadFeaturesTest
             fail("Should have thrown an exception for doc <"+JSON+">");
         } catch (JsonParseException e) {
             verifyException(e, "invalid numeric value");
-        } finally {
-            p.close();
         }
+        p.close();
 
+        // but not just as root value
+        p = createParser(STD_F, mode, "[ -000 ]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {      
+            p.nextToken();
+            fail("Should have thrown an exception for doc <"+JSON+">");
+        } catch (JsonParseException e) {
+            verifyException(e, "invalid numeric value");
+        }
+        p.close();
+        
         // and then verify it's ok when enabled
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
-                .build();
-        p = createParser(f, mode, JSON);
+        p = createParser(LEADING_ZERO_F, mode, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
         assertEquals("3", p.getText());
@@ -118,13 +129,23 @@ public class NonStandardJsonReadFeaturesTest
         if (appendSpace) {
             JSON += " ";
         }
-        p = createParser(f, mode, JSON);
+        p = createParser(LEADING_ZERO_F, mode, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(String.valueOf(Integer.MAX_VALUE), p.getText());
         assertEquals(Integer.MAX_VALUE, p.getIntValue());
         Number nr = p.getNumberValue();
         assertSame(Integer.class, nr.getClass());
         p.close();
+
+        // and also check non-root "long zero"
+        p = createParser(LEADING_ZERO_F, mode, "[000]");
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(0, p.getIntValue());
+        // 03-Jan-2020, tatu: Actually not 100% sure if we ought to retain invalid
+        //   representation or not? Won't, for now:
+        assertEquals("0", p.getText());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
     }
 
     private void _testAllowNaN(int mode) throws Exception

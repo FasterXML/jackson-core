@@ -27,11 +27,13 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     static class MyEscapes extends CharacterEscapes
     {
         private final int[] _asciiEscapes;
+        private final SerializedString _customRepl;
 
-        public MyEscapes() {
+        public MyEscapes(String custom) {
+            _customRepl = new SerializedString(custom);
             _asciiEscapes = standardAsciiEscapesForJSON();
             _asciiEscapes['a'] = 'A'; // to basically give us "\A"
-            _asciiEscapes['b'] = CharacterEscapes.ESCAPE_STANDARD; // too force "\u0062"
+            _asciiEscapes['b'] = CharacterEscapes.ESCAPE_STANDARD; // to force "\u0062"
             _asciiEscapes['d'] = CharacterEscapes.ESCAPE_CUSTOM;
         }
         
@@ -44,7 +46,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         public SerializableString getEscapeSequence(int ch)
         {
             if (ch == 'd') {
-                return new SerializedString("[D]");
+                return _customRepl;
             }
             if (ch == TWO_BYTE_ESCAPED) {
                 return TWO_BYTE_ESCAPED_STRING;
@@ -55,7 +57,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
             return null;
         }
     }
-    
+
     /*
     /********************************************************
     /* Unit tests
@@ -83,14 +85,26 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
     public void testEscapeCustomWithReader() throws Exception
     {
-        _testEscapeCustom(false, false); // reader
-        _testEscapeCustom(false, true);
+        _testEscapeCustom(false, false, "[x]"); // reader
+        _testEscapeCustom(false, true, "[x]");
+
+        // and with longer (above 6 characters)
+        _testEscapeCustom(false, false, "[abcde]");
+        _testEscapeCustom(false, true, "[12345]");
+        _testEscapeCustom(false, false, "[xxyyzz4321]");
+        _testEscapeCustom(false, true, "[zzyyxx1234]");
     }
 
     public void testEscapeCustomWithUTF8Stream() throws Exception
     {
-        _testEscapeCustom(true, false); // stream (utf-8)
-        _testEscapeCustom(true, true);
+        _testEscapeCustom(true, false, "[x]"); // stream (utf-8)
+        _testEscapeCustom(true, true, "[x]");
+
+        // and with longer (above 6 characters)
+        _testEscapeCustom(true, false, "[12345]");
+        _testEscapeCustom(true, true, "[abcde]");
+        _testEscapeCustom(true, false, "[abcdefghiz]");
+        _testEscapeCustom(true, true, "[123456789ABCDEF]");
     }
 
     public void testJsonpEscapes() throws Exception {
@@ -191,11 +205,12 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     }
 
     @SuppressWarnings("resource")
-    private void _testEscapeCustom(boolean useStream, boolean stringAsChars) throws Exception
+    private void _testEscapeCustom(boolean useStream, boolean stringAsChars,
+            String customRepl) throws Exception
     {
-        JsonFactory f = new JsonFactory().setCharacterEscapes(new MyEscapes());
+        JsonFactory f = new JsonFactory().setCharacterEscapes(new MyEscapes(customRepl));
         final String STR_IN = "[abcd/"+((char) TWO_BYTE_ESCAPED)+"/"+((char) THREE_BYTE_ESCAPED)+"]";
-        final String STR_OUT = "[\\A\\u0062c[D]/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
+        final String STR_OUT = "[\\A\\u0062c"+customRepl+"/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
         

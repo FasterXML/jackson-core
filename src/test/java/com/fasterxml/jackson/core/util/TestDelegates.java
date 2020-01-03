@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core.util;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
@@ -11,6 +13,14 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 {
+    static class BogusSchema implements FormatSchema
+    {
+        @Override
+        public String getSchemaType() {
+            return "test";
+        }
+    }
+
     static class POJO {
         public int x = 3;
     }
@@ -228,6 +238,8 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertFalse(del.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
         assertSame(g0, del.delegate());
 
+        assertFalse(del.canUseSchema(new BogusSchema()));
+
         // initial state
         assertNull(del.getSchema());
         
@@ -236,6 +248,9 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertEquals(1, del.getOutputBuffered());
 
         del.writeNumber(13);
+        del.writeNumber(BigInteger.ONE);
+        del.writeNumber(new BigDecimal(0.5));
+        del.writeNumber("137");
         del.writeNull();
         del.writeBoolean(false);
         del.writeString("foo");
@@ -244,7 +259,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertNull(del.getCurrentValue());
         del.setCurrentValue(TOKEN);
 
-        del.writeStartObject();
+        del.writeStartObject(null, 0);
         assertNull(del.getCurrentValue());
         del.writeEndObject();
         assertEquals(TOKEN, del.getCurrentValue());
@@ -258,11 +273,77 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         del.close();
         assertTrue(del.isClosed());        
         assertTrue(g0.isClosed());        
-        assertEquals("[13,null,false,\"foo\",{},[]]", sw.toString());
+        assertEquals("[13,1,0.5,137,null,false,\"foo\",{},[]]", sw.toString());
 
         g0.close();
     }
 
+    public void testGeneratorDelegateArrays() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        final Object MARKER = new Object();
+        del.writeStartArray(MARKER);
+        assertSame(MARKER, del.getCurrentValue());
+
+        del.writeArray(new int[] { 1, 2, 3 }, 0, 3);
+        del.writeArray(new long[] { 1, 123456, 2 }, 1, 1);
+        del.writeArray(new double[] { 0.25, 0.5, 0.75 }, 0, 2);
+
+        del.close();
+        assertEquals("[[1,2,3],[123456],[0.25,0.5]]", sw.toString());
+
+        g0.close();
+    }
+    
+    public void testGeneratorDelegateComments() throws IOException
+    {
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        final Object MARKER = new Object();
+        del.writeStartArray(MARKER, 5);
+        assertSame(MARKER, del.getCurrentValue());
+
+        del.writeNumber((short) 1);
+        del.writeNumber(12L);
+        del.writeNumber(0.25);
+        del.writeNumber(0.5f);
+
+        del.writeRawValue("/*foo*/");
+        del.writeRaw("  ");
+
+        del.close();
+        assertEquals("[1,12,0.25,0.5,/*foo*/  ]", sw.toString());
+
+        g0.close();
+    }
+
+    public void testDelegateCopyMethods() throws IOException
+    {
+        JsonParser p = JSON_F.createParser("[123,[true,false]]");
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        del.copyCurrentEvent(p);
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        del.copyCurrentStructure(p);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_TRUE, p.nextToken());
+        assertToken(JsonToken.VALUE_FALSE, p.nextToken());
+        del.copyCurrentEvent(p);
+        g0.writeEndArray();
+        
+        del.close();
+        g0.close();
+        assertEquals("[123,false]", sw.toString());
+    }
+    
     public void testNotDelegateCopyMethods() throws IOException
     {
         JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), "[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");

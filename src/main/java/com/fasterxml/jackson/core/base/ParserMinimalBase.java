@@ -602,15 +602,10 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override
     public String getValueAsString() throws IOException {
-        if (_currToken == JsonToken.VALUE_STRING) {
-            return getText();
-        }
-        if (_currToken == JsonToken.FIELD_NAME) {
-            return currentName();
-        }
+        // sub-classes tend to override so...
         return getValueAsString(null);
     }
-    
+
     @Override
     public String getValueAsString(String defaultValue) throws IOException {
         if (_currToken == JsonToken.VALUE_STRING) {
@@ -878,13 +873,5 @@ public abstract class ParserMinimalBase extends JsonParser
     protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
         return new InputCoercionException(this, msg, inputType, targetType)
             .withRequestPayload(_requestPayload);
-    }
-    
-    protected static byte[] _asciiBytes(String str) {
-        return str.getBytes(StandardCharsets.US_ASCII);
-    }
-
-    protected static String _ascii(byte[] b) {
-        return new String(b, StandardCharsets.US_ASCII);
     }
 }

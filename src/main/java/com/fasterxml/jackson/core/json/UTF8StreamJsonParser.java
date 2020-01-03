@@ -166,6 +166,7 @@ public class UTF8StreamJsonParser
         }
         // let's just advance ptr to end
         int origPtr = _inputPtr;
+        _inputPtr += count;
         out.write(_inputBuffer, origPtr, count);
         return count;
     }

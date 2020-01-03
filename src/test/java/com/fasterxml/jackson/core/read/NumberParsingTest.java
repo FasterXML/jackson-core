@@ -55,7 +55,7 @@ public class NumberParsingTest
 
     public void testSimpleInt() throws Exception
     {
-        for (int EXP_I : new int[] { 1234, -999, 0, 1, -2 }) {
+        for (int EXP_I : new int[] { 1234, -999, 0, 1, -2, 123456789 }) {
             _testSimpleInt(EXP_I, MODE_INPUT_STREAM);
             _testSimpleInt(EXP_I, MODE_INPUT_STREAM_THROTTLED);
             _testSimpleInt(EXP_I, MODE_READER);
@@ -111,17 +111,24 @@ public class NumberParsingTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(DOC, p.getText());
 
-        int i = 0;
-        
-        try {
-            i = p.getIntValue();
-        } catch (Exception e) {
-            throw new Exception("Failed to parse input '"+DOC+"' (parser of type "+p.getClass().getSimpleName()+")", e);
-        }
+        int i = p.getIntValue();
+
         assertEquals(EXP_I, i);
         assertEquals((long) EXP_I, p.getLongValue());
         assertEquals((double) EXP_I, p.getDoubleValue());
         assertEquals(BigDecimal.valueOf((long) EXP_I), p.getDecimalValue());
+        p.close();
+
+        // and finally, coercion from double to int; couple of variants
+        DOC = String.valueOf(EXP_I)+".0";
+        p = createParser(mode, DOC + " ");
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(EXP_I, p.getValueAsInt());
+        p.close();
+
+        p = createParser(mode, DOC + " ");
+        assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(EXP_I, p.getValueAsInt(0));
         p.close();
     }
 

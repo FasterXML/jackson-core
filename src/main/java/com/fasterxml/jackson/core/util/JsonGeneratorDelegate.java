@@ -430,11 +430,5 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /**********************************************************
      */
 
-    @Deprecated // since 2.11
-    public JsonGenerator getDelegate() { return delegate; }
-
-    /**
-     * @since 2.11
-     */
     public JsonGenerator delegate() { return delegate; }
 }

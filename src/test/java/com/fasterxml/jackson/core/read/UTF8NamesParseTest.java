@@ -157,18 +157,20 @@ public class UTF8NamesParseTest
 
     public void testUtf8StringValue() throws Exception
     {
-        _testUtf8StringValue(MODE_INPUT_STREAM);
-        _testUtf8StringValue(MODE_DATA_INPUT);
-        _testUtf8StringValue(MODE_INPUT_STREAM_THROTTLED);
+        _testUtf8StringValue(MODE_INPUT_STREAM, 2900);
+        _testUtf8StringValue(MODE_DATA_INPUT, 2900);
+        _testUtf8StringValue(MODE_INPUT_STREAM_THROTTLED, 2900);
+
+        _testUtf8StringValue(MODE_INPUT_STREAM, 5300);
+        _testUtf8StringValue(MODE_DATA_INPUT, 5300);
+        _testUtf8StringValue(MODE_INPUT_STREAM_THROTTLED, 5300);
     }
 
-    public void _testUtf8StringValue(int mode) throws Exception
+    public void _testUtf8StringValue(int mode, int len) throws Exception
     {
         Random r = new Random(13);
-        //int LEN = 72000;
-        int LEN = 720;
-        StringBuilder sb = new StringBuilder(LEN + 20);
-        while (sb.length() < LEN) {
+        StringBuilder sb = new StringBuilder(len + 20);
+        while (sb.length() < len) {
             int c;
             if (r.nextBoolean()) { // ascii
                 c = 32 + (r.nextInt() & 0x3F);
@@ -188,7 +190,7 @@ public class UTF8NamesParseTest
             sb.append((char) c);
         }
 
-        ByteArrayOutputStream bout = new ByteArrayOutputStream(LEN);
+        ByteArrayOutputStream bout = new ByteArrayOutputStream(len + (len >> 2));
         OutputStreamWriter out = new OutputStreamWriter(bout, "UTF-8");
         out.write("[\"");
         String VALUE = sb.toString();

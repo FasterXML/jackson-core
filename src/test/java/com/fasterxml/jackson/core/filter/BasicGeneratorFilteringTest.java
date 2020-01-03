@@ -286,7 +286,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testMultipleMatchFilteringWithPath4() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 new NameMatchFilter("b0"),
                 true, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
@@ -327,7 +327,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.close();
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 new IndexMatchFilter(1, 3, 5),
                 true, true);
         JSON = "{'a':123,'misc':[1,2, null, true, false, 'abc', 123],'ob':null,'b':true}";
@@ -336,7 +336,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(3, gen.getMatchCount());
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 new IndexMatchFilter(2,6),
                 true, true);
         JSON = "{'misc':[1,2, null, 0.25, false, 'abc', 11234567890]}";
@@ -345,7 +345,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(2, gen.getMatchCount());
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
                 new IndexMatchFilter(1),
                 true, true);
         JSON = "{'misc':[1,0.25,11234567890]}";

@@ -215,10 +215,29 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         StringWriter sw = new StringWriter();
         JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
+
+        // Basic capabilities for parser:
+        assertTrue(del.canOmitFields());
+        assertFalse(del.canWriteBinaryNatively());
+        assertTrue(del.canWriteFormattedNumbers());
+        assertFalse(del.canWriteObjectId());
+        assertFalse(del.canWriteTypeId());
+        assertEquals(g0.version(), del.version());
+
+        // configuration
+        assertTrue(del.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
+        assertFalse(del.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
+        assertSame(g0, del.delegate());
+        assertSame(g0, del.getDelegate()); // deprecated as of 2.11
+
+        // initial state
+        assertNull(del.getSchema());
+        assertNull(del.getPrettyPrinter());
+        
         del.writeStartArray();
 
         assertEquals(1, del.getOutputBuffered());
-        
+
         del.writeNumber(13);
         del.writeNull();
         del.writeBoolean(false);

@@ -1928,12 +1928,12 @@ public class UTF8DataInputJsonParser
             case 4: // 4-byte UTF
                 c = _decodeUtf8_4(c);
                 // Let's add first part right away:
-                outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                 if (outPtr >= outBuf.length) {
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                     outEnd = outBuf.length;
                 }
+                outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                 c = 0xDC00 | (c & 0x3FF);
                 // And let the other char output down below
                 break;

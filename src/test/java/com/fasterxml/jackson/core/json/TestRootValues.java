@@ -138,6 +138,33 @@ public class TestRootValues
         p.close();
     }
 
+    public void testInvalidToken() throws Exception
+    {
+        _testInvalidToken(MODE_INPUT_STREAM, '\u00c4');
+        _testInvalidToken(MODE_INPUT_STREAM_THROTTLED, '\u00c4');
+        _testInvalidToken(MODE_READER, '\u00c4');
+        _testInvalidToken(MODE_DATA_INPUT, '\u00c4');
+
+        _testInvalidToken(MODE_INPUT_STREAM, '\u3456');
+        _testInvalidToken(MODE_INPUT_STREAM_THROTTLED, '\u3456');
+        _testInvalidToken(MODE_READER, '\u3456');
+        _testInvalidToken(MODE_DATA_INPUT, '\u3456');
+    }
+
+    private void _testInvalidToken(int mode, char weirdChar) throws Exception
+    {
+        final String DOC = " A\u3456C ";
+        JsonParser p = createParser(mode, DOC);
+        // Should fail, right away
+        try {
+            p.nextToken();
+            fail("Ought to fail! Instead, got token: "+p.currentToken());
+        } catch (JsonParseException e) {
+            verifyException(e, "Unrecognized token");
+        }
+        p.close();
+    }
+
     /*
     /**********************************************************
     /* Test methods, writes

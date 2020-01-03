@@ -17,7 +17,10 @@ public class SimpleParserTest extends BaseTest
 {
     public void testConfig() throws Exception
     {
-        JsonParser p = createParserUsingReader("[ ]");
+        JsonParser p = createParser(MODE_READER, "[ ]");
+        Object src = p.getInputSource();
+        assertNotNull(src);
+        assertTrue(src instanceof Reader);
         p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         assertTrue(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         p.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
@@ -27,6 +30,18 @@ public class SimpleParserTest extends BaseTest
         assertTrue(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         p.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertFalse(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        p.close();
+
+        p = createParser(MODE_INPUT_STREAM, "[ ]");
+        src = p.getInputSource();
+        assertNotNull(src);
+        assertTrue(src instanceof InputStream);
+        p.close();
+
+        p = createParser(MODE_DATA_INPUT, "[ ]");
+        src = p.getInputSource();
+        assertNotNull(src);
+        assertTrue(src instanceof DataInput);
         p.close();
     }
 
@@ -555,20 +570,39 @@ public class SimpleParserTest extends BaseTest
     private void _testGetTextViaWriter(int mode) throws Exception
     {
         final String INPUT_TEXT = "this is a sample text for json parsing using readText() method";
-        final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
+        final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foobar!\"}";
         JsonParser parser = createParser(mode, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
         assertToken(JsonToken.FIELD_NAME, parser.nextToken());
         assertEquals("a", parser.getCurrentName());
+        _getAndVerifyText(parser, "a");
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
-        Writer writer = new StringWriter();
-        int len = parser.getText(writer);
-        String resultString = writer.toString();
-        assertEquals(len, resultString.length());
-        assertEquals(INPUT_TEXT, resultString);
+        _getAndVerifyText(parser, INPUT_TEXT);
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("b", parser.getCurrentName());
+        assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
+        _getAndVerifyText(parser, "true");
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("c", parser.getCurrentName());
+        assertToken(JsonToken.VALUE_NULL, parser.nextToken());
+        _getAndVerifyText(parser, "null");
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("d", parser.getCurrentName());
+        assertToken(JsonToken.VALUE_STRING, parser.nextToken());
+        _getAndVerifyText(parser, "foobar!");
+
         parser.close();
     }
-    
+
+    private void _getAndVerifyText(JsonParser p, String exp) throws Exception
+    {
+        Writer writer = new StringWriter();
+        int len = p.getText(writer);
+        String resultString = writer.toString();
+        assertEquals(len, resultString.length());
+        assertEquals(exp, resultString);
+    }
+
     public void testLongerReadText() throws Exception
     {
         for (int mode : ALL_MODES) {

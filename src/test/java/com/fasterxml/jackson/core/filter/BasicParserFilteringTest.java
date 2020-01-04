@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.filter;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -68,7 +69,8 @@ public class BasicParserFilteringTest extends BaseTest
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    private final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+    private final String SIMPLE = aposToQuotes(
+            "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':0.25},'b':true}");
 
     public void testNonFiltering() throws Exception
     {
@@ -266,7 +268,7 @@ public class BasicParserFilteringTest extends BaseTest
                 new NameMatchFilter("value0", "value2"),
                 true, /* includePath */ true /* multipleMatches */ );
         String result = readAndWrite(JSON_F, p);
-        assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':4}}"), result);
+        assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':0.25}}"), result);
         assertEquals(2, p.getMatchCount());
 
     }
@@ -360,17 +362,24 @@ public class BasicParserFilteringTest extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals(JsonToken.START_OBJECT, p.getCurrentToken());
+        assertEquals(JsonToken.START_OBJECT, p.currentToken());
+        assertEquals(JsonTokenId.ID_START_OBJECT, p.currentTokenId());
+        assertEquals(JsonTokenId.ID_START_OBJECT, p.getCurrentTokenId());
         assertTrue(p.isExpectedStartObjectToken());
         assertFalse(p.isExpectedStartArrayToken());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals(JsonToken.FIELD_NAME, p.getCurrentToken());
+        assertTrue(p.hasToken(JsonToken.FIELD_NAME));
+        assertTrue(p.hasTokenId(JsonTokenId.ID_FIELD_NAME));
         assertEquals("ob", p.getCurrentName());
 //        assertEquals("ob", p.getText());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("ob", p.getCurrentName());
 
+        assertEquals(p0.getCurrentLocation(), p.getCurrentLocation());
+        
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("value", p.getCurrentName());
         assertEquals("value", p.getText());
@@ -379,7 +388,23 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.getCurrentToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
         assertEquals(3, p.getIntValue());
-        assertEquals("value", p.getCurrentName());
+        assertEquals(3, p.getValueAsInt());
+        assertEquals(3, p.getValueAsInt(7));
+        assertEquals(3L, p.getLongValue());
+        assertEquals(3L, p.getValueAsLong());
+        assertEquals(3L, p.getValueAsLong(6L));
+        assertEquals((double)3, p.getDoubleValue());
+        assertEquals((double)3, p.getValueAsDouble());
+        assertEquals((double)3, p.getValueAsDouble(0.5));
+        assertEquals((short)3, p.getShortValue());
+        assertEquals((byte)3, p.getByteValue());
+        assertEquals((float)3, p.getFloatValue());
+        assertEquals(BigInteger.valueOf(3L), p.getBigIntegerValue());
+        assertEquals(Integer.valueOf(3), p.getNumberValue());
+        assertTrue(p.getValueAsBoolean());
+        assertTrue(p.getValueAsBoolean(false));
+
+        assertEquals("value", p.currentName());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());

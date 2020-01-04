@@ -16,10 +16,12 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 @SuppressWarnings("resource")
 public class BasicGeneratorFilteringTest extends BaseTest
 {
+    static final TokenFilter INCLUDE_ALL_SCALARS = new TokenFilter();
+
     static class NameMatchFilter extends TokenFilter
     {
         private final Set<String> _names;
-        
+
         public NameMatchFilter(String... names) {
             _names = new HashSet<String>(Arrays.asList(names));
         }
@@ -39,6 +41,31 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         @Override
         protected boolean _includeScalar() { return false; }
+    }
+
+    static class NameExcludeFilter extends TokenFilter
+    {
+        private final Set<String> _names;
+        private final boolean _inclArrays;
+
+        public NameExcludeFilter(boolean inclArrays, String... names) {
+            _names = new HashSet<String>(Arrays.asList(names));
+            _inclArrays = inclArrays;
+        }
+
+        @Override
+        public TokenFilter includeElement(int index) {
+            return _inclArrays ? this : null;
+        }
+
+        @Override
+        public TokenFilter includeProperty(String name) {
+            if (_names.contains(name)) {
+                return null;
+            }
+            // but need to pass others provisionally
+            return this;
+        }
     }
 
     static class IndexMatchFilter extends TokenFilter
@@ -105,7 +132,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         //    names. This behavior was NOT included in release however, so:
 //        assertEquals(aposToQuotes("{'value':3}"), w.toString());
 
-        assertEquals(aposToQuotes("3"), w.toString());
+        assertEquals("3", w.toString());
     }
 
     public void testSingleMatchFilteringWithPath() throws Exception
@@ -127,7 +154,6 @@ public class BasicGeneratorFilteringTest extends BaseTest
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
-
         assertEquals(1, gen.getMatchCount());
     }
 
@@ -154,13 +180,21 @@ public class BasicGeneratorFilteringTest extends BaseTest
     }
 
     // Alternative take, using slightly different calls for FIELD_NAME, START_ARRAY
-    public void testSingleMatchFilteringWithPathAlternate1() throws Exception
+    public void testSingleMatchFilteringWithPathAlternate1() throws Exception {
+        _testSingleMatchFilteringWithPathAlternate1(false);
+        _testSingleMatchFilteringWithPathAlternate1(true);
+    }
+
+    private void _testSingleMatchFilteringWithPathAlternate1(boolean exclude) throws Exception
     {
         StringWriter w = new StringWriter();
+        TokenFilter tf = exclude
+                ? new NameExcludeFilter(true, "value", "a")
+                : new NameMatchFilter("value");
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
-                new NameMatchFilter("value"),
+                tf,
                 true, // includePath
-                false // multipleMatches
+                true // multipleMatches
                 );
         //final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':[3],'value2':'foo'},'b':true}";
 
@@ -190,8 +224,15 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
         gen.close();
 
-        assertEquals(aposToQuotes("{'ob':{'value':['x']}}"), w.toString());
-        assertEquals(1, gen.getMatchCount());
+        if (exclude) {
+            assertEquals(aposToQuotes(
+"{'array':[1,2],'ob':{'value0':2,'value2':'foo'},'b':true}"
+                    ), w.toString());
+            assertEquals(5, gen.getMatchCount());
+        } else {
+            assertEquals(aposToQuotes("{'ob':{'value':['x']}}"), w.toString());
+            assertEquals(1, gen.getMatchCount());
+        }
     }
 
     public void testSingleMatchFilteringWithPathRawBinary() throws Exception
@@ -255,6 +296,21 @@ public class BasicGeneratorFilteringTest extends BaseTest
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':4}}"), w.toString());
         assertEquals(2, gen.getMatchCount());
+
+        // also try with alternate filter implementation: first including arrays
+
+        w = new StringWriter();
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
+                new NameExcludeFilter(true, "ob"), true, true);
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'a':123,'array':[1,2],'b':true}"), w.toString());
+
+        // then excluding them
+        w = new StringWriter();
+        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
+                new NameExcludeFilter(false, "ob"), true, true);
+        writeJsonDoc(JSON_F, JSON, gen);
+        assertEquals(aposToQuotes("{'a':123,'b':true}"), w.toString());
     }
 
     public void testMultipleMatchFilteringWithPath2() throws Exception

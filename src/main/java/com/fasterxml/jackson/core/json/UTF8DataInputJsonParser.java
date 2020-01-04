@@ -20,12 +20,15 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * there are some
  * minor differences from regular streaming parsing. Specifically:
  *<ul>
- * <li>Input location is not being tracked, as offsets would need to
- *   be updated for each read from all over the place; if caller wants
+ * <li>Input location offsets not being tracked, as offsets would need to
+ *   be updated for each read from all over the place. If caller wants
  *   this information, it has to track this with {@link DataInput}.
+ *   This also affects column number, so the only location information
+ *   available is the row (line) number (but even that is approximate in
+ *   case of two-byte linefeeds -- it should work with single CR or LF tho)
  *  </li>
- * <li>As a consequence linefeed handling is removed so all white-space is
- *    equal; and checks are simplified NOT to check for control characters
+ * <li>No white space validation: 
+ *    checks are simplified NOT to check for control characters.
  *  </li>
  * </ul>
  */

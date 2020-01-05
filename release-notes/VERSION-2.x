@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.2 (not yet released)
+2.10.2 (05-Jan-2020)
 
 #580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`
   instead of `writeRawValue()`

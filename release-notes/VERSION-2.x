@@ -19,7 +19,7 @@ JSON library.
 #565: Synchronize variants of `JsonGenerator#writeNumberField` with `JsonGenerator#writeNumber`
  (contributed by valery1707@github)
 
-2.10.2 (not yet released)
+2.10.2 (05-Jan-2020)
 
 #580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`
   instead of `writeRawValue()`

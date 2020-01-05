@@ -100,7 +100,10 @@ public class JsonGeneratorDelegate extends JsonGenerator
     
     @Override
     public boolean canOmitFields() { return delegate.canOmitFields(); }
-    
+
+    @Override
+    public boolean canWriteFormattedNumbers() { return delegate.canWriteFormattedNumbers(); }
+
     /*
     /**********************************************************
     /* Public API, configuration

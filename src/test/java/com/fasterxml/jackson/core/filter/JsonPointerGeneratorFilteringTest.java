@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.StringWriter;
+import java.io.*;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 @SuppressWarnings("resource")

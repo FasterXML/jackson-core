@@ -39,14 +39,20 @@ public class TestCharEscaping
 
     private final static JsonFactory JSON_F = new JsonFactory();
 
-    public void testMissingEscaping()
-        throws Exception
+    public void testMissingEscaping() throws Exception {
+        for (int mode : ALL_MODES) {
+            _testMissingEscaping(mode);
+        }
+    }
+
+    
+    private void _testMissingEscaping(int readMode) throws Exception
     {
         // Invalid: control chars, including lf, must be escaped
         final String DOC = "["
             +"\"Linefeed: \n.\""
             +"]";
-        JsonParser jp = createParserUsingReader(DOC);
+        JsonParser jp = createParser(JSON_F, readMode, DOC);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         try {
             // This may or may not trigger exception
@@ -61,52 +67,84 @@ public class TestCharEscaping
         jp.close();
     }
 
-    public void testSimpleEscaping()
-        throws Exception
+    public void testSimpleEscaping() throws Exception {
+        for (int mode : ALL_MODES) {
+            _testSimpleEscaping(mode);
+        }
+    }
+
+    private void _testSimpleEscaping(int readMode) throws Exception
     {
         String DOC = "["
             +"\"LF=\\n\""
             +"]";
 
-        JsonParser jp = createParserUsingReader(DOC);
+        JsonParser jp = createParser(JSON_F, readMode, DOC);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("LF=\n", jp.getText());
         jp.close();
 
-
-        /* Note: must split Strings, so that javac won't try to handle
-         * escape and inline null char
-         */
-        DOC = "[\"NULL:\\u0000!\"]";
-
-        jp = createParserUsingReader(DOC);
+        // Note: must split Strings, so that javac won't try to handle
+        // escape and inline null char
+        jp = createParser(JSON_F, readMode, "[\"NULL:\\u0000!\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("NULL:\0!", jp.getText());
         jp.close();
 
         // Then just a single char escaping
-        jp = createParserUsingReader("[\"\\u0123\"]");
+        jp = createParser(JSON_F, readMode, "[\"\\u0123\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("\u0123", jp.getText());
         jp.close();
 
         // And then double sequence
-        jp = createParserUsingReader("[\"\\u0041\\u0043\"]");
+        jp = createParser(JSON_F, readMode, "[\"\\u0041\\u0043\"]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("AC", jp.getText());
         jp.close();
     }
 
-    public void testInvalid()
-        throws Exception
+    public void testSimpleNameEscaping() throws Exception {
+        for (int mode : ALL_MODES) {
+            _testSimpleNameEscaping(mode);
+        }
+    }
+
+    private void _testSimpleNameEscaping(int readMode) throws Exception
+    {
+        // test to try to tease out various edge conditions
+        for (int i = 0; i < 16; ++i) {
+            final String base = "1234567890abcdef".substring(0, i);
+            final String inputKey = quote(base + "\\\"");
+            final String expKey = base + "\"";
+            // note: append spaces so there's no buffer boundary issue
+            JsonParser p = createParser(JSON_F, readMode, "{"+inputKey+" : 123456789}       ");
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals(expKey, p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(123456789, p.getIntValue());
+            assertToken(JsonToken.END_OBJECT, p.nextToken());
+            p.close();
+
+        }
+    }
+    
+    public void testInvalid() throws Exception {
+        for (int mode : ALL_MODES) {
+            _testInvalid(mode);
+        }
+    }
+
+    private void _testInvalid(int readMode) throws Exception
     {
         // 2-char sequences not allowed:
         String DOC = "[\"\\u41=A\"]";
-        JsonParser jp = createParserUsingReader(DOC);
+        JsonParser jp = createParser(JSON_F, readMode, DOC);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         try {
             jp.nextToken();
@@ -122,32 +160,20 @@ public class TestCharEscaping
      * Test to verify that decoder does not allow 8-digit escapes
      * (non-BMP characters must be escaped using two 4-digit sequences)
      */
-    public void test8DigitSequence()
-        throws Exception
+    public void test8DigitSequence() throws Exception {
+        for (int mode : ALL_MODES) {
+            _test8DigitSequence(mode);
+        }
+    }
+
+    private void _test8DigitSequence(int readMode) throws Exception
     {
         String DOC = "[\"\\u00411234\"]";
-        JsonParser jp = createParserUsingReader(DOC);
+        JsonParser jp = createParser(JSON_F, readMode, DOC);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("A1234", jp.getText());
         jp.close();
-    }
-
-    public void testWriteLongCustomEscapes() throws Exception
-    {
-        JsonFactory jf = new JsonFactory();
-        jf.setCharacterEscapes(ESC_627); // must set to trigger bug
-        StringBuilder longString = new StringBuilder();
-        while (longString.length() < 2000) {
-          longString.append("\u65e5\u672c\u8a9e");
-        }
-
-        StringWriter writer = new StringWriter();
-        // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
-        JsonGenerator jgen = jf.createGenerator(writer);
-        jgen.setHighestNonEscapedChar(127); // must set to trigger bug
-        jgen.writeString(longString.toString());
-        jgen.close();
     }
 
     // [jackson-core#116]
@@ -162,7 +188,16 @@ public class TestCharEscaping
 
     // [jackson-core#540]
     public void testInvalidEscape() throws Exception {
-        JsonParser p = JSON_F.createParser(quote("\\u\u0080...").getBytes("UTF-8"));
+        for (int mode : ALL_MODES) {
+            _testInvalidEscape(mode);
+        }
+    }
+
+    private void _testInvalidEscape(int readMode) throws Exception
+    {
+        String DOC = quote("\\u\u0080...");
+        JsonParser p = createParser(JSON_F, readMode, DOC);
+
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         // this is where we should get proper exception
         try {
@@ -216,5 +251,30 @@ public class TestCharEscaping
 
         final String doc = useBytes ? bytes.toString("UTF-8") : sw.toString();
         assertEquals("[\""+expEncoded+"\"]", doc);
+    }
+
+    /*
+    /**********************************************************
+    /* Test wrt CharacterEscapes
+    /**********************************************************
+      */
+
+    public void testWriteLongCustomEscapes() throws Exception
+    {
+        JsonFactory jf = ((JsonFactoryBuilder)JsonFactory.builder())
+                .characterEscapes(ESC_627)
+                .build();
+
+        StringBuilder longString = new StringBuilder();
+        while (longString.length() < 2000) {
+            longString.append("\u65e5\u672c\u8a9e");
+        }
+
+        StringWriter writer = new StringWriter();
+        // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
+        JsonGenerator gen = jf.createGenerator(writer);
+        gen.setHighestNonEscapedChar(127); // must set to trigger bug
+        gen.writeString(longString.toString());
+        gen.close();
     }
 }

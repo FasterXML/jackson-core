@@ -90,10 +90,24 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         p.close();
 
         // and with raw bytes
-        p = f.createParser("[ ]".getBytes("UTF-8"));
+        final byte[] bytes = "[ ]".getBytes("UTF-8");
+        p = f.createParser(bytes);
         // should be overridden;
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(456, p.getIntValue());
+        p.close();
+
+        // also diff method has diff code path so try both:
+        p = f.createParser(bytes, 0, bytes.length);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(456, p.getIntValue());
+        p.close();
+
+        // and also char[]
+        final char[] chars = "  [ ]".toCharArray();
+        p = f.createParser(chars, 0, chars.length);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(789, p.getIntValue());
         p.close();
     }
 
@@ -113,5 +127,19 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         g = f.createGenerator(out, JsonEncoding.UTF8);
         g.close();
         assertEquals("123", out.toString("UTF-8"));
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedMethods() throws IOException
+    {
+        JsonFactory f = new JsonFactory();
+        assertNull(f.getInputDecorator());
+        assertNull(f.getOutputDecorator());
+        final SimpleInputDecorator inDec = new SimpleInputDecorator();
+        final SimpleOutputDecorator outDec = new SimpleOutputDecorator();
+        f.setInputDecorator(inDec);
+        assertSame(inDec, f.getInputDecorator());
+        f.setOutputDecorator(outDec);
+        assertSame(outDec, f.getOutputDecorator());
     }
 }

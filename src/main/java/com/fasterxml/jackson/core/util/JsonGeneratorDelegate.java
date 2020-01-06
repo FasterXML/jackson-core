@@ -52,15 +52,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public void setCurrentValue(Object v) {
         delegate.setCurrentValue(v);
     }
-    
-    /*
-    /**********************************************************
-    /* Extended API
-    /**********************************************************
-     */
 
-    public JsonGenerator getDelegate() { return delegate; }
-    
     /*
     /**********************************************************
     /* Public API, metadata
@@ -100,7 +92,10 @@ public class JsonGeneratorDelegate extends JsonGenerator
     
     @Override
     public boolean canOmitFields() { return delegate.canOmitFields(); }
-    
+
+    @Override
+    public boolean canWriteFormattedNumbers() { return delegate.canWriteFormattedNumbers(); }
+
     /*
     /**********************************************************
     /* Public API, configuration
@@ -483,4 +478,18 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
     
     @Override public boolean isClosed() { return delegate.isClosed(); }
+
+    /*
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
+
+    @Deprecated // since 2.11
+    public JsonGenerator getDelegate() { return delegate; }
+
+    /**
+     * @since 2.11
+     */
+    public JsonGenerator delegate() { return delegate; }
 }

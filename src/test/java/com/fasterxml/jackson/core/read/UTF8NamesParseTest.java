@@ -15,20 +15,26 @@ public class UTF8NamesParseTest
     extends BaseTest
 {
     final static String[] UTF8_2BYTE_STRINGS = new String[] {
-        /* This may look funny, but UTF8 scanner has fairly
-         * elaborate decoding machinery, and it is indeed
-         * necessary to try out various combinations...
-         */
-        "b", "A\u00D8", "abc", "c3p0",
-        "12345", "......", "Long\u00FAer",
+        // This may look funny, but UTF8 scanner has fairly elaborate decoding
+        // machinery, and it is indeed necessary to try out various combinations...
+        "b", "\u00d8", "A\u00D8", "ab\u00D8d", "abc\u00d8", "c3p0",
+        "1234\u00C75",
+        "......",
+        "Long\u00FAer",
         "Latin1-fully-\u00BE-develop\u00A8d",
         "Some very long name, ridiculously long actually to see that buffer expansion works: \u00BF?"
     };
 
     final static String[] UTF8_3BYTE_STRINGS = new String[] {
-        "\uC823?", "A\u400F", "1\u1234?",
+        "\uC823?", "A\u400F", "1\u1234?", "ab\u1234d",
         "Ab123\u4034",
-        "Even-longer:\uC023"
+        "Long \uC023 ish",
+        "Bit longer:\uC023",
+        "Even-longer:\u3456",
+        "Yet bit longer \uC023",
+        "Even more \u3456 longer",
+        "\uC023 Possibly ridiculous",
+        "But \uC023 this takes the cake",
     };
 
     public void testEmptyName() throws Exception
@@ -157,18 +163,20 @@ public class UTF8NamesParseTest
 
     public void testUtf8StringValue() throws Exception
     {
-        _testUtf8StringValue(MODE_INPUT_STREAM);
-        _testUtf8StringValue(MODE_DATA_INPUT);
-        _testUtf8StringValue(MODE_INPUT_STREAM_THROTTLED);
+        _testUtf8StringValue(MODE_INPUT_STREAM, 2900);
+        _testUtf8StringValue(MODE_DATA_INPUT, 2900);
+        _testUtf8StringValue(MODE_INPUT_STREAM_THROTTLED, 2900);
+
+        _testUtf8StringValue(MODE_INPUT_STREAM, 5300);
+        _testUtf8StringValue(MODE_DATA_INPUT, 5300);
+        _testUtf8StringValue(MODE_INPUT_STREAM_THROTTLED, 5300);
     }
 
-    public void _testUtf8StringValue(int mode) throws Exception
+    public void _testUtf8StringValue(int mode, int len) throws Exception
     {
         Random r = new Random(13);
-        //int LEN = 72000;
-        int LEN = 720;
-        StringBuilder sb = new StringBuilder(LEN + 20);
-        while (sb.length() < LEN) {
+        StringBuilder sb = new StringBuilder(len + 20);
+        while (sb.length() < len) {
             int c;
             if (r.nextBoolean()) { // ascii
                 c = 32 + (r.nextInt() & 0x3F);
@@ -188,23 +196,43 @@ public class UTF8NamesParseTest
             sb.append((char) c);
         }
 
-        ByteArrayOutputStream bout = new ByteArrayOutputStream(LEN);
+        final String VALUE = sb.toString();
+        ByteArrayOutputStream bout = new ByteArrayOutputStream(len + (len >> 2));
         OutputStreamWriter out = new OutputStreamWriter(bout, "UTF-8");
         out.write("[\"");
-        String VALUE = sb.toString();
         out.write(VALUE);
         out.write("\"]");
         out.close();
 
-        byte[] data = bout.toByteArray();
-
-        JsonParser p = createParser(mode, data);
+        JsonParser p = createParser(mode, bout.toByteArray());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         String act = p.getText();
 
         assertEquals(VALUE.length(), act.length());
         assertEquals(VALUE, act);
+        p.close();
+
+        // But how about as key
+        bout = new ByteArrayOutputStream(len + (len >> 2));
+        out = new OutputStreamWriter(bout, "UTF-8");
+        out.write("{\"");
+        out.write(VALUE);
+        out.write("\":42}");
+        out.close();
+
+        p = createParser(mode, bout.toByteArray());
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+
+        act = p.getText();
+        assertEquals(VALUE.length(), act.length());
+        assertEquals(VALUE, act);
+
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(42, p.getIntValue());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        
         p.close();
     }
 

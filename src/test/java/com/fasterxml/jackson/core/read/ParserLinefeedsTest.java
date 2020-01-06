@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.read;
 
 
 import com.fasterxml.jackson.core.*;
@@ -9,7 +9,7 @@ import java.io.IOException;
  * Set of basic unit tests for verifying that the basic parser
  * functionality works as expected.
  */
-public class TestParserLinefeeds
+public class ParserLinefeedsTest
     extends BaseTest
 {
     public void testCR() throws Exception

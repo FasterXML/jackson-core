@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.*;
 
@@ -10,7 +10,7 @@ import java.math.BigInteger;
  * Set of basic unit tests for verifying that the Object write methods
  * of {@link JsonGenerator} work as expected.
  */
-public class TestGeneratorObject
+public class ObjectWriteTest
     extends BaseTest
 {
     public void testEmptyObjectWrite()
@@ -226,6 +226,7 @@ public class TestGeneratorObject
         gen.writeNumberField("big", (BigInteger) null);
         gen.writeNumberField("dec", (BigDecimal) null);
         gen.writeObjectField("obj", null);
+        gen.writeBinaryField("bin", new byte[] { 1, 2 });
 
         gen.writeEndObject();
         gen.close();
@@ -251,6 +252,12 @@ public class TestGeneratorObject
         assertEquals("obj", jp.getCurrentName());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
 
+        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("bin", jp.getCurrentName());
+        // no native binary indicator in JSON, so:
+        assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
+        assertEquals("AQI=", jp.getText());
+        
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
         jp.close();
     }

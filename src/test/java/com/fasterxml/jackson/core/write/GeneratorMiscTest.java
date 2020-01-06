@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.write;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.*;
  * features.
  */
 @SuppressWarnings("resource")
-public class TestGeneratorMisc
+public class GeneratorMiscTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();

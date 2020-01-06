@@ -19,12 +19,22 @@ JSON library.
 #565: Synchronize variants of `JsonGenerator#writeNumberField` with `JsonGenerator#writeNumber`
  (contributed by valery1707@github)
 
-2.10.1 (not yet released)
+2.10.2 (05-Jan-2020)
+
+#580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`
+  instead of `writeRawValue()`
+ (reported by Arnaud R)
+#582: `FilteringGeneratorDelegate` bug when filtering arrays (in 2.10.1)
+ (reported by alarribeau@github)
+
+2.10.1 (09-Nov-2019)
 
 #455: Jackson reports wrong locations for JsonEOFException
  (reported by wastevenson@github, fix contributed by Todd O'B
 #567: Add `uses` for `ObjectCodec` in module-info
  (reported by Marc M)
+#578: Array index out of bounds in hex lookup
+ (reported by Emily S)
 
 2.10.0 (26-Sep-2019)
 

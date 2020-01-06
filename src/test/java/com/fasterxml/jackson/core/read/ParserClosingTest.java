@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.read;
 
 import static org.junit.Assert.*;
 
@@ -11,7 +11,7 @@ import java.io.*;
  * the underlying source occurs as expected and specified
  * by documentation.
  */
-public class TestParserClosing
+public class ParserClosingTest
     extends BaseTest
 {
     /**
@@ -105,7 +105,7 @@ public class TestParserClosing
     public void testReleaseContentBytes() throws Exception
     {
         byte[] input = "[1]foobar".getBytes("UTF-8");
-        JsonParser jp = new JsonFactory().createParser(input);
+        JsonParser jp = sharedStreamFactory().createParser(input);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
@@ -113,12 +113,14 @@ public class TestParserClosing
         // theoretically could have only read subset; but current impl is more greedy
         assertEquals(6, jp.releaseBuffered(out));
         assertArrayEquals("foobar".getBytes("UTF-8"), out.toByteArray());
+        // also will "drain" so can not release twice
+        assertEquals(0, jp.releaseBuffered(out));
         jp.close();
     }
 
     public void testReleaseContentChars() throws Exception
     {
-        JsonParser jp = new JsonFactory().createParser("[true]xyz");
+        JsonParser jp = sharedStreamFactory().createParser("[true]xyz");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
@@ -126,6 +128,8 @@ public class TestParserClosing
         // theoretically could have only read subset; but current impl is more greedy
         assertEquals(3, jp.releaseBuffered(sw));
         assertEquals("xyz", sw.toString());
+        // also will "drain" so can not release twice
+        assertEquals(0, jp.releaseBuffered(sw));
         jp.close();
     }
     

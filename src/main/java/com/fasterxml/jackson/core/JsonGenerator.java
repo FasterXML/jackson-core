@@ -435,8 +435,9 @@ public abstract class JsonGenerator
      * @throws UnsupportedOperationException if generator does not support schema
      */
     public void setSchema(FormatSchema schema) {
-        throw new UnsupportedOperationException("Generator of type "+getClass().getName()+" does not support schema of type '"
-                +schema.getSchemaType()+"'");
+        throw new UnsupportedOperationException(String.format(
+                "Generator of type %s does not support schema of type '%s'",
+                getClass().getName(), schema.getSchemaType()));
     }
 
     /**
@@ -2143,10 +2144,9 @@ public abstract class JsonGenerator
      */
     protected void _writeSimpleObject(Object value)  throws IOException
     {
-        /* 31-Dec-2009, tatu: Actually, we could just handle some basic
-         *    types even without codec. This can improve interoperability,
-         *    and specifically help with TokenBuffer.
-         */
+        // 31-Dec-2009, tatu: Actually, we could just handle some basic
+        //    types even without codec. This can improve interoperability,
+        //    and specifically help with TokenBuffer.
         if (value == null) {
             writeNull();
             return;

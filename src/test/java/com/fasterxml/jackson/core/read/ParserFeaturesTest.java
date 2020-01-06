@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.main;
+package com.fasterxml.jackson.core.read;
 
 import java.io.*;
 
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>
  * settings work as expected.
  */
-public class TestParserFeatures
+public class ParserFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     public void testDefaultSettings() throws Exception

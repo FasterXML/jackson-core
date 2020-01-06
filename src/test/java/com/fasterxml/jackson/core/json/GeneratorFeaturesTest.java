@@ -95,14 +95,17 @@ public class GeneratorFeaturesTest
     {
         JsonFactory f = new JsonFactory();
         // by default should output numbers as-is:
-        assertEquals("[1,2,1.25,2.25,3001,0.5,-1]", _writeNumbers(f));        
+        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1]", _writeNumbers(f, false));        
+        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1]", _writeNumbers(f, true));        
 
         // but if overridden, quotes as Strings
         f = JsonFactory.builder()
                 .enable(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS)
                 .build();
-        assertEquals("[\"1\",\"2\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
-                     _writeNumbers(f));
+        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
+                     _writeNumbers(f, false));
+        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
+                _writeNumbers(f, true));
 
         
     }
@@ -204,14 +207,21 @@ public class GeneratorFeaturesTest
         }
     }
 
-    private String _writeNumbers(JsonFactory f) throws IOException
+    private String _writeNumbers(JsonFactory f, boolean useBytes) throws IOException
     {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter sw = new StringWriter();
-        JsonGenerator g = f.createGenerator(sw);
+        JsonGenerator g;
+        if (useBytes) {
+            g = f.createGenerator(bytes);
+        } else {
+            g = f.createGenerator(sw);
+        }
     
         g.writeStartArray();
         g.writeNumber(1);
         g.writeNumber(2L);
+        g.writeNumber((short) 3);
         g.writeNumber(1.25);
         g.writeNumber(2.25f);
         g.writeNumber(BigInteger.valueOf(3001));
@@ -220,7 +230,7 @@ public class GeneratorFeaturesTest
         g.writeEndArray();
         g.close();
 
-        return sw.toString();
+        return useBytes ? bytes.toString("UTF-8") : sw.toString();
     }
 
     // for [core#246]

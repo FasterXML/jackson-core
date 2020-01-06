@@ -193,6 +193,7 @@ public class UTF8StreamJsonParser
         }
         // let's just advance ptr to end
         int origPtr = _inputPtr;
+        _inputPtr += count;
         out.write(_inputBuffer, origPtr, count);
         return count;
     }
@@ -2292,7 +2293,7 @@ public class UTF8StreamJsonParser
                 } else if ((ch & 0xF8) == 0xF0) { // 4 bytes; double-char with surrogates and all...
                     ch &= 0x07;
                     needed = 3;
-                } else { // 5- and 6-byte chars not valid xml chars
+                } else { // 5- and 6-byte chars not valid json chars
                     _reportInvalidInitial(ch);
                     needed = ch = 1; // never really gets this far
                 }
@@ -3281,10 +3282,10 @@ public class UTF8StreamJsonParser
                     _reportInvalidEOF(" in character escape sequence", JsonToken.VALUE_STRING);
                 }
             }
-            int ch = _inputBuffer[_inputPtr++] & 0xFF;
+            int ch = _inputBuffer[_inputPtr++];
             int digit = CharTypes.charToHex(ch);
             if (digit < 0) {
-                _reportUnexpectedChar(ch, "expected a hex-digit for character escape sequence");
+                _reportUnexpectedChar(ch & 0xFF, "expected a hex-digit for character escape sequence");
             }
             value = (value << 4) | digit;
         }

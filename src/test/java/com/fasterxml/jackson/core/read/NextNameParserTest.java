@@ -17,10 +17,15 @@ public class NextNameParserTest
         _testBasicNextName(MODE_INPUT_STREAM_THROTTLED);
     }
 
+    public void testBasicNextNameWithDataInput() throws Exception
+    {
+        _testBasicNextName(MODE_DATA_INPUT);
+    }
+    
     private void _testBasicNextName(int mode) throws Exception
     {
         final String DOC = aposToQuotes(
-"{ 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ]  },\n"
+"{ 'data' : { 'primary' : -15, 'vector' : [ 'yes', false ], 'misc' : null, 'name' : 'Bob'  },\n"
 +"  'array' : [ true,   {'message':'hello', 'value' : 42, 'misc' : [1, 2] }, null, 0.25 ]\n"
 +"}");
 
@@ -34,7 +39,7 @@ public class NextNameParserTest
 
         assertEquals("primary", p.nextFieldName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(15, p.getIntValue());
+        assertEquals(-15, p.getIntValue());
 
         assertEquals("vector", p.nextFieldName());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -43,7 +48,15 @@ public class NextNameParserTest
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        assertEquals("misc", p.nextFieldName());
+        assertToken(JsonToken.VALUE_NULL, p.nextToken());
+
+        assertEquals("name", p.nextFieldName());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("Bob", p.getText());
+
+        assertNull(p.nextFieldName());
+        assertToken(JsonToken.END_OBJECT, p.currentToken());
 
         assertEquals("array", p.nextFieldName());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -63,7 +76,10 @@ public class NextNameParserTest
         assertEquals(1, p.getIntValue());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(2, p.getIntValue());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
+
+        assertNull(p.nextFieldName());
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
+
         assertToken(JsonToken.END_OBJECT, p.nextToken());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());

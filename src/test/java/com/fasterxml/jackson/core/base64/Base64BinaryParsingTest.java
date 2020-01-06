@@ -232,6 +232,12 @@ public class Base64BinaryParsingTest
                     p = createParser(jsonFactory, mode, bytes.toByteArray());
                 }
                 assertToken(JsonToken.VALUE_STRING, p.nextToken());
+
+                // minor twist: for even-length values, force access as String first:
+                if ((len & 1) == 0) {
+                    assertNotNull(p.getText());
+                }
+                
                 byte[] data = null;
                 try {
                     data = p.getBinaryValue(variant);

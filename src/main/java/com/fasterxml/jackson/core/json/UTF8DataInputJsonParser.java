@@ -21,12 +21,15 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * there are some
  * minor differences from regular streaming parsing. Specifically:
  *<ul>
- * <li>Input location is not being tracked, as offsets would need to
- *   be updated for each read from all over the place; if caller wants
+ * <li>Input location offsets not being tracked, as offsets would need to
+ *   be updated for each read from all over the place. If caller wants
  *   this information, it has to track this with {@link DataInput}.
+ *   This also affects column number, so the only location information
+ *   available is the row (line) number (but even that is approximate in
+ *   case of two-byte linefeeds -- it should work with single CR or LF tho)
  *  </li>
- * <li>As a consequence linefeed handling is removed so all white-space is
- *    equal; and checks are simplified NOT to check for control characters
+ * <li>No white space validation: 
+ *    checks are simplified NOT to check for control characters.
  *  </li>
  * </ul>
  *
@@ -719,10 +722,9 @@ public class UTF8DataInputJsonParser
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
             return (_currToken = _parseNegNumber());
-            /* Should we have separate handling for plus? Although
-             * it is not allowed per se, it may be erroneously used,
-             * and could be indicated by a more specific error message.
-             */
+            // Should we have separate handling for plus? Although it is not allowed
+            // per se, it may be erroneously used, and could be indicated by a more
+            // specific error message.
         case '0':
         case '1':
         case '2':
@@ -1928,12 +1930,12 @@ public class UTF8DataInputJsonParser
             case 4: // 4-byte UTF
                 c = _decodeUtf8_4(c);
                 // Let's add first part right away:
-                outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                 if (outPtr >= outBuf.length) {
                     outBuf = _textBuffer.finishCurrentSegment();
                     outPtr = 0;
                     outEnd = outBuf.length;
                 }
+                outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                 c = 0xDC00 | (c & 0x3FF);
                 // And let the other char output down below
                 break;
@@ -2843,12 +2845,25 @@ public class UTF8DataInputJsonParser
 
     @Override
     public JsonLocation getTokenLocation() {
+        // 03-Jan-2020, tatu: Should probably track this, similar to how
+        //   streaming parsers do it, but... not done yet
+
+//        if (_currToken == JsonToken.FIELD_NAME) {
+//           return new JsonLocation(_getSourceReference(),
+//                    -1L, -1L, _nameStartRow, _nameStartCol);
+//        }
+
+        // No column tracking since we do not have pointers, DataInput has no offset
+        
         return new JsonLocation(_getSourceReference(), -1L, -1L, _tokenInputRow, -1);
     }
 
     @Override
     public JsonLocation getCurrentLocation() {
-        return new JsonLocation(_getSourceReference(), -1L, -1L, _currInputRow, -1);
+        // No column tracking since we do not have pointers, DataInput has no offset
+        final int col = -1;
+        return new JsonLocation(_getSourceReference(), -1L, -1L,
+                _currInputRow, col);
     }
 
     /*

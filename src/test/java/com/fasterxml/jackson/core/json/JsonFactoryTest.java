@@ -96,19 +96,28 @@ public class JsonFactoryTest
         }
     }
 
+    static class BogusSchema implements FormatSchema
+    {
+        @Override
+        public String getSchemaType() {
+            return "test";
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
     /**********************************************************************
      */
+
+    final JsonFactory JSON_F = sharedStreamFactory();
     
     @SuppressWarnings("deprecation")
     public void testGeneratorFeatures() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        assertNull(f.getCodec());
+        assertNull(JSON_F.getCodec());
 
-        f = JsonFactory.builder()
+        JsonFactory f = JsonFactory.builder()
                 .configure(JsonWriteFeature.QUOTE_FIELD_NAMES, true)
                 .build();
         // 24-Oct-2018, tatu: Until 3.x, we'll only have backwards compatible
@@ -128,6 +137,24 @@ public class JsonFactoryTest
 
         // by default, should be enabled
         assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
+
+        assertFalse(JSON_F.requiresCustomCodec());
+        assertFalse(JSON_F.canHandleBinaryNatively());
+    }
+
+    public void testFactoryMisc() throws Exception
+    {
+        assertNull(JSON_F.getInputDecorator());
+        assertNull(JSON_F.getOutputDecorator());
+
+        assertFalse(JSON_F.canUseSchema(null));
+        assertFalse(JSON_F.canUseSchema(new BogusSchema()));
+
+        assertNull(JSON_F.getFormatReadFeatureType());
+        assertNull(JSON_F.getFormatWriteFeatureType());
+
+        assertEquals(0, JSON_F.getFormatParserFeatures());
+        assertEquals(0, JSON_F.getFormatGeneratorFeatures());
     }
 
     // for [core#189]: verify that it's ok to disable recycling
@@ -175,7 +202,7 @@ public class JsonFactoryTest
             p.close();
         }
     }
-    
+
     public void testJsonWithFiles() throws Exception
     {
         File file = File.createTempFile("jackson-test", null);
@@ -243,5 +270,22 @@ public class JsonFactoryTest
         // However: real copy constructor SHOULD copy it
         JsonFactory jf3 = new CustomFactory(jf, codec);
         assertSame(codec, jf3.getCodec());
+    }
+
+    public void testRootValues() throws Exception
+    {
+        JsonFactory f = new JsonFactory();
+        assertEquals(" ", f.getRootValueSeparator());
+        f.setRootValueSeparator("/");
+        assertEquals("/", f.getRootValueSeparator());
+
+        // but also test it is used
+        StringWriter w = new StringWriter();
+        JsonGenerator g = f.createGenerator(w);
+        g.writeNumber(1);
+        g.writeNumber(2);
+        g.writeNumber(3);
+        g.close();
+        assertEquals("1/2/3", w.toString());
     }
 }

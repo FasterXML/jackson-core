@@ -174,6 +174,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         if (count < 1) { return 0; }
         // let's just advance ptr to end
         int origPtr = _inputPtr;
+        _inputPtr += count;
         w.write(_inputBuffer, origPtr, count);
         return count;
     }
@@ -2812,7 +2813,7 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     @Override
     public JsonLocation getCurrentLocation() {
-        int col = _inputPtr - _currInputRowStart + 1; // 1-based
+        final int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_getSourceReference(),
                 -1L, _currInputProcessed + _inputPtr,
                 _currInputRow, col);

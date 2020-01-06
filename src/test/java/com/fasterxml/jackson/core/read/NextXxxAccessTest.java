@@ -42,6 +42,13 @@ public class NextXxxAccessTest
         _testIsNextTokenName4(MODE_DATA_INPUT);
         _testIsNextTokenName4(MODE_READER);
     }
+
+    public void testIsNextTokenName5() throws Exception {
+        _testIsNextTokenName5(MODE_INPUT_STREAM);
+        _testIsNextTokenName5(MODE_INPUT_STREAM_THROTTLED);
+        _testIsNextTokenName5(MODE_DATA_INPUT);
+        _testIsNextTokenName5(MODE_READER);
+    }
     
     // [jackson-core#34]
     public void testIssue34() throws Exception
@@ -277,6 +284,25 @@ public class NextXxxAccessTest
         p.close();
     }
 
+    private void _testIsNextTokenName5(int mode) throws Exception
+    {
+        final String DOC = "{\"name\":\t\r{ },\"name2\":null}";
+        JsonParser p = createParser(mode, DOC);
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+        assertTrue(p.nextFieldName(new SerializedString("name")));
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+
+        assertTrue(p.nextFieldName(new SerializedString("name2")));
+        assertToken(JsonToken.VALUE_NULL, p.nextToken());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        if (mode != MODE_DATA_INPUT) {
+            assertNull(p.nextToken());
+        }
+        p.close();
+    }
+    
     private void _testNextFieldNameIndent(int mode) throws Exception
     {
         final String DOC = "{\n  \"name\" : \n  [\n  ]\n   }";
@@ -285,7 +311,8 @@ public class NextXxxAccessTest
         assertTrue(p.nextFieldName(new SerializedString("name")));
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertFalse(p.nextFieldName(new SerializedString("x")));
+        assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         if (mode != MODE_DATA_INPUT) {
             assertNull(p.nextToken());

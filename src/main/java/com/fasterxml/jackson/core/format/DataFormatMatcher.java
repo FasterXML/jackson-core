@@ -91,7 +91,7 @@ public class DataFormatMatcher
      *</pre>
      */
     public String getMatchedFormatName() {
-        return _match.getFormatName();
+        return hasMatch() ? getMatch().getFormatName() : null;
     }
     
     /*

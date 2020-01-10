@@ -204,6 +204,11 @@ Todd O'Bryan (toddobryan@github)
   * Contributed fix fox #455: Jackson reports wrong locations for JsonEOFException
   (2.10.1)
 
+Scott Leberknight (sleberknight@github)
+  * Reported, contributed fix for #592: DataFormatMatcher#getMatchedFormatName throws NPE
+    when no match exists
+  (2.10.3)
+
 Valery (valery1707@github)
   * Contributed #565: Synchronize variants of `JsonGenerator#writeNumberField`
    with `JsonGenerator#writeNumber`

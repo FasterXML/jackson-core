@@ -83,6 +83,7 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         DataFormatMatcher matcher = detector.findFormat(new ByteArrayInputStream(NON_JSON.getBytes("UTF-8")));
         // should not have match
         assertFalse(matcher.hasMatch());
+        assertNull(matcher.getMatchedFormatName());
         // and thus:
         assertEquals(MatchStrength.INCONCLUSIVE, matcher.getMatchStrength());
         // also:

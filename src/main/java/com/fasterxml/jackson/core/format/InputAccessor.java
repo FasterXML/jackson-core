@@ -74,13 +74,8 @@ public interface InputAccessor
          * Constructor used when the full input (or at least enough leading bytes
          * of full input) is available.
          */
-        public Std(byte[] inputDocument)
-        {
-            _in = null;
-            _buffer = inputDocument;
-            // we have it all:
-            _bufferedStart = 0;
-            _bufferedEnd = inputDocument.length;
+        public Std(byte[] inputDocument) {
+            this(inputDocument, 0, inputDocument.length);
         }
 
         /**

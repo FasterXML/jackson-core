@@ -60,7 +60,15 @@ public class DataFormatDetector
     }
 
     public DataFormatDetector(Collection<JsonFactory> detectors) {
-        this(detectors.toArray(new JsonFactory[detectors.size()]));
+        this(detectors.toArray(new JsonFactory[0]));
+    }
+
+    private DataFormatDetector(JsonFactory[] detectors,
+            MatchStrength optMatch, MatchStrength minMatch, int maxInputLookahead) {
+        _detectors = detectors;
+        _optimalMatch = optMatch;
+        _minimalMatch = minMatch;
+        _maxInputLookahead = maxInputLookahead;
     }
 
     /**
@@ -95,14 +103,6 @@ public class DataFormatDetector
             return this;
         }
         return new DataFormatDetector(_detectors, _optimalMatch, _minimalMatch, lookaheadBytes);
-    }
-    
-    private DataFormatDetector(JsonFactory[] detectors,
-            MatchStrength optMatch, MatchStrength minMatch, int maxInputLookahead) {
-        _detectors = detectors;
-        _optimalMatch = optMatch;
-        _minimalMatch = minMatch;
-        _maxInputLookahead = maxInputLookahead;
     }
 
     /*

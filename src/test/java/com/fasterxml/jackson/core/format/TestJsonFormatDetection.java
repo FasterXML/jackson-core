@@ -63,7 +63,14 @@ public class TestJsonFormatDetection extends com.fasterxml.jackson.core.BaseTest
         JsonFactory jsonF = new JsonFactory();
         DataFormatDetector detector = new DataFormatDetector(jsonF);
         final String JSON = "\"JSON!\"";
-        DataFormatMatcher matcher = detector.findFormat(new ByteArrayInputStream(JSON.getBytes("UTF-8")));
+        final byte[] bytes = JSON.getBytes("UTF-8");
+
+        _testSimpleValidString(jsonF, detector.findFormat(bytes));
+        _testSimpleValidString(jsonF, detector.findFormat(new ByteArrayInputStream(bytes)));
+    }
+
+    private void _testSimpleValidString(JsonFactory jsonF, DataFormatMatcher matcher) throws Exception
+    {
         // should have match
         assertTrue(matcher.hasMatch());
         assertEquals("JSON", matcher.getMatchedFormatName());

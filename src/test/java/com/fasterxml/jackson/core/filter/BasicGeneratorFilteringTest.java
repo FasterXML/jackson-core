@@ -435,7 +435,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     }
 
     // [core#580]
-    public void testRawValueDelegation() throws Exception
+    public void testRawValueDelegationWithArray() throws Exception
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
@@ -453,4 +453,23 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.close();
         assertEquals("[1,3,/* comment */,42]", w.toString());
     }
+
+    // [core#588]
+    public void testRawValueDelegationWithObject() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
+                TokenFilter.INCLUDE_ALL, true, true);
+
+        gen.writeStartObject();
+        gen.writeNumberField("f1", 1);
+        gen.writeFieldName("f2");
+        gen.writeRawValue(new char[]{'1', '2', '.', '3', '-'}, 0, 4);
+        gen.writeNumberField("f3", 3);
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'f1':1,'f2':12.3,'f3':3}"), w.toString());
+    }
+
 }

@@ -337,6 +337,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public void writeNumber(String encodedValue) throws IOException, UnsupportedOperationException { delegate.writeNumber(encodedValue); }
 
     @Override
+    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws IOException, UnsupportedOperationException { delegate.writeNumber(encodedValueBuffer, offset, length); }
+
+    @Override
     public void writeBoolean(boolean state) throws IOException { delegate.writeBoolean(state); }
     
     @Override

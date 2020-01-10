@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.3 (not released yet)
+
+#592: DataFormatMatcher#getMatchedFormatName throws NPE when no match exists
+ (reported by Scott L)
+
 2.10.2 (05-Jan-2020)
 
 #580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`

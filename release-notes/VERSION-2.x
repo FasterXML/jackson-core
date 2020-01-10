@@ -18,6 +18,8 @@ JSON library.
 
 #565: Synchronize variants of `JsonGenerator#writeNumberField` with `JsonGenerator#writeNumber`
  (contributed by valery1707@github)
+#587: Add JsonGenerator#writeNumber(char[], int, int) method
+ (contributed by Volkan Y)
 
 2.10.3 (not released yet)
 

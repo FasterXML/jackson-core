@@ -213,3 +213,7 @@ Valery (valery1707@github)
   * Contributed #565: Synchronize variants of `JsonGenerator#writeNumberField`
    with `JsonGenerator#writeNumber`
   (2.11.0)
+
+Volkan Yazıcı (vy@github)
+  * Contributed #587: Add JsonGenerator#writeNumber(char[], int, int) method
+  (2.11.0)

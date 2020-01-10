@@ -17,6 +17,12 @@ public class TestJsonStringEncoder
         assertArrayEquals("foobar".toCharArray(), result);
         result = encoder.quoteAsString("\"x\"");
         assertArrayEquals("\\\"x\\\"".toCharArray(), result);
+
+        // and simply for sake of code coverage
+        result = encoder.quoteAsString(new StringBuilder("foobar"));
+        assertArrayEquals("foobar".toCharArray(), result);
+        result = encoder.quoteAsString(new StringBuilder("\"x\""));
+        assertArrayEquals("\\\"x\\\"".toCharArray(), result);
     }
 
     public void testQuoteCharSequenceAsString() throws Exception
@@ -48,7 +54,6 @@ public class TestJsonStringEncoder
         char[] result = encoder.quoteAsString(input);
         assertEquals(2*input.length(), result.length);
         assertEquals(exp, new String(result));
-        
     }
 
     public void testQuoteLongCharSequenceAsString() throws Exception
@@ -100,7 +105,10 @@ public class TestJsonStringEncoder
                 generateRandom(39000)
         };
         for (String str : strings) {
-            assertArrayEquals(str.getBytes("UTF-8"), encoder.encodeAsUTF8(str));
+            final byte[] exp = str.getBytes("UTF-8");
+            assertArrayEquals(exp, encoder.encodeAsUTF8(str));
+            // and for 2.x code coverage (only
+            assertArrayEquals(exp, encoder.encodeAsUTF8((CharSequence)str));
         }
     }
 

@@ -107,7 +107,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     {
         // First, verify non-filtering
         StringWriter w = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(w);
+        JsonGenerator gen = _createGenerator(w);
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes(
@@ -118,7 +118,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testSingleMatchFilteringWithoutPath() throws Exception
     {
         StringWriter w = new StringWriter();
-        JsonGenerator gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        JsonGenerator gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameMatchFilter("value"),
                 false, // includePath
                 false // multipleMatches
@@ -137,7 +137,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testSingleMatchFilteringWithPath() throws Exception
     {
         StringWriter w = new StringWriter();
-        JsonGenerator origGen = JSON_F.createGenerator(w);
+        JsonGenerator origGen = _createGenerator(w);
         NameMatchFilter filter = new NameMatchFilter("value");
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(origGen,
                 filter,
@@ -159,7 +159,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testSingleMatchFilteringWithPathSkippedArray() throws Exception
     {
         StringWriter w = new StringWriter();
-        JsonGenerator origGen = JSON_F.createGenerator(w);
+        JsonGenerator origGen = _createGenerator(w);
         NameMatchFilter filter = new NameMatchFilter("value");
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(origGen,
                 filter,
@@ -190,7 +190,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         TokenFilter tf = exclude
                 ? new NameExcludeFilter(true, "value", "a")
                 : new NameMatchFilter("value");
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 tf,
                 true, // includePath
                 true // multipleMatches
@@ -237,7 +237,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testSingleMatchFilteringWithPathRawBinary() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameMatchFilter("array"),
                 true, // includePath
                 false // multipleMatches
@@ -288,7 +288,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testMultipleMatchFilteringWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameMatchFilter("value0", "value2"),
                 true, /* includePath */ true /* multipleMatches */ );
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
@@ -299,14 +299,14 @@ public class BasicGeneratorFilteringTest extends BaseTest
         // also try with alternate filter implementation: first including arrays
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameExcludeFilter(true, "ob"), true, true);
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'a':123,'array':[1,2],'b':true}"), w.toString());
 
         // then excluding them
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameExcludeFilter(false, "ob"), true, true);
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'a':123,'b':true}"), w.toString());
@@ -316,7 +316,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     {
         StringWriter w = new StringWriter();
 
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameMatchFilter("array", "b", "value"),
                 true, true);
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
@@ -329,7 +329,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     {
         StringWriter w = new StringWriter();
 
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameMatchFilter("value"),
                 true, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
@@ -341,7 +341,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testMultipleMatchFilteringWithPath4() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameMatchFilter("b0"),
                 true, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
@@ -353,7 +353,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testIndexMatchWithPath1() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(1),
                 true, true);
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':'abc'},'b':true}";
@@ -361,7 +361,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(aposToQuotes("{'array':[2]}"), w.toString());
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(0),
                 true, true);
         writeJsonDoc(JSON_F, JSON, gen);
@@ -372,7 +372,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testIndexMatchWithPath2() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(0,1),
                 true, true);
         String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
@@ -382,7 +382,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.close();
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(1, 3, 5),
                 true, true);
         JSON = "{'a':123,'misc':[1,2, null, true, false, 'abc', 123],'ob':null,'b':true}";
@@ -391,7 +391,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(3, gen.getMatchCount());
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(2,6),
                 true, true);
         JSON = "{'misc':[1,2, null, 0.25, false, 'abc', 11234567890]}";
@@ -400,7 +400,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(2, gen.getMatchCount());
 
         w = new StringWriter();
-        gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(1),
                 true, true);
         JSON = "{'misc':[1,0.25,11234567890]}";
@@ -413,7 +413,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     {
         StringWriter w = new StringWriter();
 
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 TokenFilter.INCLUDE_ALL,
                 true, true);
 
@@ -438,7 +438,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testRawValueDelegationWithArray() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 TokenFilter.INCLUDE_ALL, true, true);
 
         gen.writeStartArray();
@@ -458,7 +458,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     public void testRawValueDelegationWithObject() throws Exception
     {
         StringWriter w = new StringWriter();
-        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), w),
+        FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 TokenFilter.INCLUDE_ALL, true, true);
 
         gen.writeStartObject();
@@ -472,4 +472,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(aposToQuotes("{'f1':1,'f2':12.3,'f3':3}"), w.toString());
     }
 
+    private JsonGenerator _createGenerator(Writer w) throws IOException {
+        return JSON_F.createGenerator(w);
+    }
 }

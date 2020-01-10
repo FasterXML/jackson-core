@@ -35,4 +35,24 @@ public class DataFormatMatcherTest extends com.fasterxml.jackson.core.BaseTest
         verifyException(e, "Illegal start/length");
     }
   }
+
+  public void testGetMatchedFormatNameReturnsNameWhenMatches() {
+    DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
+            new byte[2],
+            1,
+            0,
+            new JsonFactory(),
+            MatchStrength.SOLID_MATCH);
+    assertEquals(JsonFactory.FORMAT_NAME_JSON, dataFormatMatcher.getMatchedFormatName());
+  }
+
+  public void testGetMatchedFormatNameReturnsNullWhenNoMatch() {
+    DataFormatMatcher dataFormatMatcher = new DataFormatMatcher(null,
+            new byte[2],
+            1,
+            0,
+            null,
+            MatchStrength.NO_MATCH);
+    assertNull(dataFormatMatcher.getMatchedFormatName());
+  }
 }

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.base;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;

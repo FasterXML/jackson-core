@@ -208,13 +208,12 @@ public abstract class JsonGenerator
      * @param schema Schema to use
      * 
      * @throws UnsupportedOperationException if generator does not support schema
-     */
-    /*
     public void setSchema(FormatSchema schema) {
         throw new UnsupportedOperationException(String.format(
                 "Generator of type %s does not support schema of type '%s'",
                 getClass().getName(), schemaType);
     }
+    */
 
     /**
      * Method for accessing Schema that this parser uses, if any.

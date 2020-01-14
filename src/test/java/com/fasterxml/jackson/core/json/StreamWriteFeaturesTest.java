@@ -71,15 +71,15 @@ public class StreamWriteFeaturesTest
     {
         JsonFactory f = new JsonFactory();
         // by default should output numbers as-is:
-        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1]", _writeNumbers(f, false));        
-        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1]", _writeNumbers(f, true));        
+        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1,12.3]", _writeNumbers(f, false));
+        assertEquals("[1,2,3,1.25,2.25,3001,0.5,-1,12.3]", _writeNumbers(f, true));
 
         // but if overridden, quotes as Strings
         f = f.rebuild().configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS, true)
                 .build();
-        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
+        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\",\"12.3\"]",
                      _writeNumbers(f, false));
-        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\"]",
+        assertEquals("[\"1\",\"2\",\"3\",\"1.25\",\"2.25\",\"3001\",\"0.5\",\"-1\",\"12.3\"]",
                 _writeNumbers(f, true));
     }
 
@@ -193,6 +193,7 @@ public class StreamWriteFeaturesTest
         g.writeNumber(BigInteger.valueOf(3001));
         g.writeNumber(BigDecimal.valueOf(0.5));
         g.writeNumber("-1");
+        g.writeNumber(new char[]{'1', '2', '.', '3', '-'}, 0, 4);
         g.writeEndArray();
         g.close();
 

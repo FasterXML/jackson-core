@@ -12,6 +12,13 @@
   <version>2.11.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <description>Core Jackson processing abstractions (aka Streaming API), implementation for JSON</description>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
   <inceptionYear>2008</inceptionYear>
 
   <url>https://github.com/FasterXML/jackson-core</url>

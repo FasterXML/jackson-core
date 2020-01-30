@@ -5,7 +5,7 @@ import java.lang.ref.SoftReference;
 /**
  * Helper entity used to control access to simple buffer recyling scheme used for
  * some encoding, decoding tasks.
- * 
+ *
  * @see BufferRecycler
  *
  * @since 2.9.2
@@ -33,10 +33,13 @@ public class BufferRecyclers
      */
     private final static ThreadLocalBufferManager _bufferRecyclerTracker;
     static {
-        _bufferRecyclerTracker = "true".equals(System.getProperty(SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS))
-                ? ThreadLocalBufferManager.instance()
-                : null;
-    }    
+        boolean trackReusableBuffers = false;
+        try {
+            trackReusableBuffers = "true".equals(System.getProperty(SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS));
+        } catch (SecurityException e) { }
+
+        _bufferRecyclerTracker = trackReusableBuffers ? ThreadLocalBufferManager.instance() : null;
+    }
 
     /*
     /**********************************************************

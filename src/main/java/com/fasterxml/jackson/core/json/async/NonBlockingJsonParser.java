@@ -11,6 +11,12 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
+/**
+ * Non-blocking parser implementation for JSON content.
+ *<p>
+ * NOTE: only supports parsing of UTF-8 encoded content (and 7-bit US-ASCII since
+ * it is strict subset of UTF-8): other encodings are not supported.
+ */
 public class NonBlockingJsonParser
     extends NonBlockingJsonParserBase
     implements ByteArrayFeeder

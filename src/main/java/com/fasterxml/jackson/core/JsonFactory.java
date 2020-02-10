@@ -1110,7 +1110,11 @@ public class JsonFactory
      *<p>
      * If this factory does not support non-blocking parsing (either at all,
      * or from byte array),
-     * will throw {@link UnsupportedOperationException}
+     * will throw {@link UnsupportedOperationException}.
+     *<p>
+     * Note that JSON-backed factory only supports parsing of UTF-8 encoded JSON content
+     * (and US-ASCII since it is proper subset); other encodings are not supported
+     * at this point.
      *
      * @since 2.9
      */

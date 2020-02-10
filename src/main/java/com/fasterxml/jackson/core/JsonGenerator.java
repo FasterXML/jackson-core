@@ -962,6 +962,30 @@ public abstract class JsonGenerator
         writeEndArray();
     }
 
+    /**
+     * Value write method that can be called to write a single
+     * array (sequence of {@link JsonToken#START_ARRAY}, zero or
+     * more {@link JsonToken#VALUE_STRING}, {@link JsonToken#END_ARRAY})
+     *
+     * @since 2.11
+     *
+     * @param array Array that contains values to write
+     * @param offset Offset of the first element to write, within array
+     * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     */
+    public void writeArray(String[] array, int offset, int length) throws IOException
+    {
+        if (array == null) {
+            throw new IllegalArgumentException("null array");
+        }
+        _verifyOffsets(array.length, offset, length);
+        writeStartArray(array, length);
+        for (int i = offset, end = offset+length; i < end; ++i) {
+            writeString(array[i]);
+        }
+        writeEndArray();
+    }
+
     /*
     /**********************************************************
     /* Public API, write methods, text/String values

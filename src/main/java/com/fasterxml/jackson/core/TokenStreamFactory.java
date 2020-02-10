@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
+import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
@@ -842,7 +843,7 @@ public abstract class TokenStreamFactory
      * or from byte array),
      * will throw {@link UnsupportedOperationException}
      */
-    public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException {
+    public <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException {
         return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");        
     }
 

@@ -16,6 +16,8 @@ JSON library.
 
 2.11.0 (not yet released)
 
+#504: Add a String Array write method in the Streaming API
+ (requested by Michel F, impl contributed by Oleksandr P)
 #565: Synchronize variants of `JsonGenerator#writeNumberField` with `JsonGenerator#writeNumber`
  (contributed by valery1707@github)
 #587: Add JsonGenerator#writeNumber(char[], int, int) method

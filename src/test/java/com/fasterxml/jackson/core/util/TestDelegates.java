@@ -291,9 +291,10 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         del.writeArray(new int[] { 1, 2, 3 }, 0, 3);
         del.writeArray(new long[] { 1, 123456, 2 }, 1, 1);
         del.writeArray(new double[] { 0.25, 0.5, 0.75 }, 0, 2);
+        del.writeArray(new String[] { "Aa", "Bb", "Cc" }, 1, 2);
 
         del.close();
-        assertEquals("[[1,2,3],[123456],[0.25,0.5]]", sw.toString());
+        assertEquals("[[1,2,3],[123456],[0.25,0.5],[\"Bb\",\"Cc\"]]", sw.toString());
 
         g0.close();
     }

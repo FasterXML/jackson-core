@@ -217,3 +217,11 @@ Valery (valery1707@github)
 Volkan Yazıcı (vy@github)
   * Contributed #587: Add JsonGenerator#writeNumber(char[], int, int) method
   (2.11.0)
+
+Michel Feinstein (feinstein@github)
+  * Requested #504: Add a String Array write method in the Streaming API
+  (2.11.0)
+
+Oleksandr Poslavskyi (alevskyi@github)
+  * Contributed implementation of #504: Add a String Array write method in the Streaming API
+  (2.11.0)

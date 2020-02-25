@@ -193,9 +193,6 @@ public class UTF8StreamJsonParser
             
             int count = _inputStream.read(_inputBuffer, 0, space);
             if (count > 0) {
-                _inputPtr = 0;
-                _inputEnd = count;
-
                 _currInputProcessed += _inputEnd;
                 _currInputRowStart -= _inputEnd;
 
@@ -203,6 +200,9 @@ public class UTF8StreamJsonParser
                 //   this increase to avoid "moving" name-offset, resulting most likely
                 //   in negative value, which is fine as combine value remains unchanged.
                 _nameStartOffset -= bufSize;
+
+                _inputPtr = 0;
+                _inputEnd = count;
 
                 return true;
             }

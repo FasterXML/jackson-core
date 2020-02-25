@@ -221,9 +221,6 @@ public class ReaderBasedJsonParser
         if (_reader != null) {
             int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
             if (count > 0) {
-                _inputPtr = 0;
-                _inputEnd = count;
-
                 _currInputProcessed += bufSize;
                 _currInputRowStart -= bufSize;
 
@@ -231,6 +228,9 @@ public class ReaderBasedJsonParser
                 //   this increase to avoid "moving" name-offset, resulting most likely
                 //   in negative value, which is fine as combine value remains unchanged.
                 _nameStartOffset -= bufSize;
+
+                _inputPtr = 0;
+                _inputEnd = count;
 
                 return true;
             }

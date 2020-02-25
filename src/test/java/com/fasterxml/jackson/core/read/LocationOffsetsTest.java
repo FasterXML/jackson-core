@@ -3,6 +3,11 @@ package com.fasterxml.jackson.core.read;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
+import java.io.IOException;
+import java.util.Base64;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
 {
     final JsonFactory JSON_F = new JsonFactory();
@@ -143,7 +148,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         assertEquals(8, p.getCurrentLocation().getColumnNr());
         p.close();
     }
-    
+
     // for [core#533]
     public void testUtf8Bom() throws Exception
     {
@@ -231,5 +236,66 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         arr[2] = (byte) 0xBF;
         System.arraycopy(bytes, 0, arr, 3, bytes.length);
         return arr;
+    }
+
+    public void testBigPayload() throws IOException {
+        JsonLocation loc;
+        JsonParser p;
+
+        byte[] bytes = new byte[50_000];
+        ThreadLocalRandom.current().nextBytes(bytes);
+        String b64Encoded = Base64.getEncoder().encodeToString(bytes);
+
+        String doc = "{\"key\":\"" + b64Encoded + "\"}";
+
+        p = createParserUsingStream(JSON_F, doc, "UTF-8");
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        loc = p.getTokenLocation();
+        assertEquals(0, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(1, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(1, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(2, loc.getColumnNr());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        loc = p.getTokenLocation();
+        assertEquals(1, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(2, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(8, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(9, loc.getColumnNr());
+
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        loc = p.getTokenLocation();
+        assertEquals(7, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(8, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(8, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(9, loc.getColumnNr());
+
+        p.getTextCharacters();
+        loc = p.getTokenLocation();
+        assertEquals(7, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(8, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(doc.length() - 1, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(doc.length(), loc.getColumnNr());
     }
 }

@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
 {
@@ -242,11 +240,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         JsonLocation loc;
         JsonParser p;
 
-        byte[] bytes = new byte[50_000];
-        ThreadLocalRandom.current().nextBytes(bytes);
-        String b64Encoded = Base64.getEncoder().encodeToString(bytes);
-
-        String doc = "{\"key\":\"" + b64Encoded + "\"}";
+        String doc = "{\"key\":\"" + generateRandomAlpha(50000) + "\"}";
 
         p = createParserUsingStream(JSON_F, doc, "UTF-8");
 
@@ -297,5 +291,16 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(doc.length(), loc.getColumnNr());
+    }
+
+    private String generateRandomAlpha(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        Random rnd = new Random(length);
+        for (int i = 0; i < length; ++i) {
+            // let's limit it not to include surrogate pairs:
+            char ch = (char) ('A' + rnd.nextInt(26));
+            sb.append(ch);
+        }
+        return sb.toString();
     }
 }

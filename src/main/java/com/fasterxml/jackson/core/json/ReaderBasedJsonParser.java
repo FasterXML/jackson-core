@@ -244,14 +244,10 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     
     protected boolean _loadMore() throws IOException
     {
-        final int bufSize = _inputEnd;
-
         if (_reader != null) {
             int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
             if (count > 0) {
-                _inputPtr = 0;
-                _inputEnd = count;
-
+                final int bufSize = _inputEnd;
                 _currInputProcessed += bufSize;
                 _currInputRowStart -= bufSize;
 
@@ -259,6 +255,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
                 //   this increase to avoid "moving" name-offset, resulting most likely
                 //   in negative value, which is fine as combine value remains unchanged.
                 _nameStartOffset -= bufSize;
+
+                _inputPtr = 0;
+                _inputEnd = count;
 
                 return true;
             }

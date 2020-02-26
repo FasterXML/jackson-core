@@ -27,6 +27,8 @@ JSON library.
 
 #592: DataFormatMatcher#getMatchedFormatName throws NPE when no match exists
  (reported by Scott L)
+#603: 'JsonParser.getCurrentLocation()` byte/char offset update incorrectly for big payloads
+ (reported, fix contributed by Fabien R)
 
 2.10.2 (05-Jan-2020)
 

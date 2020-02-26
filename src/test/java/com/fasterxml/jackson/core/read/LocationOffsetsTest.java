@@ -2,6 +2,9 @@ package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
 
+import java.io.IOException;
+import java.util.Random;
+
 public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
 {
     final JsonFactory JSON_F = new JsonFactory();
@@ -142,7 +145,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         assertEquals(8, p.getCurrentLocation().getColumnNr());
         p.close();
     }
-    
+
     // for [core#533]
     public void testUtf8Bom() throws Exception
     {
@@ -230,5 +233,76 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         arr[2] = (byte) 0xBF;
         System.arraycopy(bytes, 0, arr, 3, bytes.length);
         return arr;
+    }
+
+    // [core#603]
+    public void testBigPayload() throws IOException {
+        JsonLocation loc;
+        JsonParser p;
+
+        String doc = "{\"key\":\"" + generateRandomAlpha(50000) + "\"}";
+
+        p = createParserUsingStream(JSON_F, doc, "UTF-8");
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        loc = p.getTokenLocation();
+        assertEquals(0, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(1, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(1, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(2, loc.getColumnNr());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        loc = p.getTokenLocation();
+        assertEquals(1, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(2, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(8, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(9, loc.getColumnNr());
+
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        loc = p.getTokenLocation();
+        assertEquals(7, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(8, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(8, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(9, loc.getColumnNr());
+
+        p.getTextCharacters();
+        loc = p.getTokenLocation();
+        assertEquals(7, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(8, loc.getColumnNr());
+        loc = p.getCurrentLocation();
+        assertEquals(doc.length() - 1, loc.getByteOffset());
+        assertEquals(-1L, loc.getCharOffset());
+        assertEquals(1, loc.getLineNr());
+        assertEquals(doc.length(), loc.getColumnNr());
+
+        p.close();
+    }
+
+    private String generateRandomAlpha(int length) {
+        StringBuilder sb = new StringBuilder(length);
+        Random rnd = new Random(length);
+        for (int i = 0; i < length; ++i) {
+            // let's limit it not to include surrogate pairs:
+            char ch = (char) ('A' + rnd.nextInt(26));
+            sb.append(ch);
+        }
+        return sb.toString();
     }
 }

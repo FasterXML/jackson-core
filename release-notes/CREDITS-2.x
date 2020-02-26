@@ -196,9 +196,12 @@ David Nault (dnault@github)
   (2.10.0)
 
 Fabien Renaud (fabienrenaud@github)
-  * Reported, contributed fix fir #533: UTF-8 BOM not accounted for in
+  * Reported, contributed fix for #533: UTF-8 BOM not accounted for in
     `JsonLocation.getByteOffset()`
   (2.10.0)
+  * Reported, contributed fix for #603: 'JsonParser.getCurrentLocation()`
+    byte/char offset update incorrectly for big payloads
+  (2.10.3)
 
 Todd O'Bryan (toddobryan@github)
   * Contributed fix fox #455: Jackson reports wrong locations for JsonEOFException

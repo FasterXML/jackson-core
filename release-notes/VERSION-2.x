@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.3 (not released yet)
+2.10.3 (03-Mar-2020)
 
 #592: DataFormatMatcher#getMatchedFormatName throws NPE when no match exists
  (reported by Scott L)

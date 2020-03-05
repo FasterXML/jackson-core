@@ -19,6 +19,8 @@ JSON library.
 #580: FilteringGeneratorDelegate writeRawValue delegate to `writeRaw()`
   instead of `writeRawValue()`
  (reported by Arnaud R)
+#605: Handle case when system property access is restricted
+ (reported by rhernandez35@github)
 
 2.9.10 (21-Sep-2019)
 

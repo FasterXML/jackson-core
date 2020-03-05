@@ -23,7 +23,12 @@ JSON library.
 #587: Add JsonGenerator#writeNumber(char[], int, int) method
  (contributed by Volkan Y)
 
-2.10.3 (not released yet)
+2.10.4 (not yet released)
+
+#605: Handle case when system property access is restricted
+ (reported by rhernandez35@github)
+
+2.10.3 (03-Mar-2020)
 
 #592: DataFormatMatcher#getMatchedFormatName throws NPE when no match exists
  (reported by Scott L)

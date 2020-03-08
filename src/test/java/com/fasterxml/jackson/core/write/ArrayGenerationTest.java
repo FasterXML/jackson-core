@@ -248,8 +248,9 @@ public class ArrayGenerationTest extends BaseTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? FACTORY.createGenerator(bytes)
-                : FACTORY.createGenerator(sw);
+        ObjectWriteContext wctxt = ObjectWriteContext.empty();
+        JsonGenerator gen = useBytes ? FACTORY.createGenerator(wctxt, bytes)
+                : FACTORY.createGenerator(wctxt, sw);
 
         gen.writeArray(values, pre, elements);
         gen.close();
@@ -261,8 +262,9 @@ public class ArrayGenerationTest extends BaseTest
             json = sw.toString();
         }
 
-        JsonParser p = useBytes ? FACTORY.createParser(bytes.toByteArray())
-                : FACTORY.createParser(json);
+        ObjectReadContext rctxt = ObjectReadContext.empty();
+        JsonParser p = useBytes ? FACTORY.createParser(rctxt, bytes.toByteArray())
+                : FACTORY.createParser(rctxt, json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < elements; ++i) {
             JsonToken t = p.nextToken();

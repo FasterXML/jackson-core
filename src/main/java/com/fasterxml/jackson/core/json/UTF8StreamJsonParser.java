@@ -247,8 +247,10 @@ public class UTF8StreamJsonParser
             if (buf != null) {
                 // Let's not set it to null; this way should get slightly more meaningful
                 // error messages in case someone closes parser indirectly, without realizing.
-                _inputBuffer = NO_BYTES;
-                _ioContext.releaseReadIOBuffer(buf);
+                if (buf != NO_BYTES) {
+                    _inputBuffer = NO_BYTES;
+                    _ioContext.releaseReadIOBuffer(buf);
+                }
             }
         }
     }

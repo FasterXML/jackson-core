@@ -22,6 +22,7 @@ JSON library.
  (contributed by valery1707@github)
 #587: Add JsonGenerator#writeNumber(char[], int, int) method
  (contributed by Volkan Y)
+#606: Do not clear aggregated contents of `TextBuffer` when `releaseBuffers()` called
 
 2.10.4 (not yet released)
 

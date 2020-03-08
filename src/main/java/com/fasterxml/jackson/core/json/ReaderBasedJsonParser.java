@@ -219,7 +219,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
      * separately (if need be).
      */
     @Override
-    protected void _releaseBuffers() throws IOException {
+    protected void _releaseBuffers() throws IOException
+    {
         super._releaseBuffers();
         // merge new symbols, if any
         _symbols.release();
@@ -287,15 +288,14 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     @Override
     public final String getText() throws IOException
     {
-        JsonToken t = _currToken;
-        if (t == JsonToken.VALUE_STRING) {
+        if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
                 _finishString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
         }
-        return _getText2(t);
+        return _getText2(_currToken);
     }
 
     @Override // since 2.8

@@ -150,17 +150,31 @@ public final class TextBuffer
      * can still use this text buffer, it is not advisable to call this
      * method if that is likely, since next time a buffer is needed,
      * buffers need to reallocated.
-     * Note: calling this method automatically also clears contents
-     * of the buffer.
+     *<p>
+     * Note: since Jackson 2.11, calling this method will NOT clear already
+     * aggregated contents (that is, {@code _currentSegment}, to retain
+     * current token text if (but only if!) already aggregated.
      */
     public void releaseBuffers()
     {
-        if (_allocator == null) {
-            resetWithEmpty();
-        } else {
+        // inlined `resetWithEmpty()` (except leaving `_resultString` as-is
+        {
+            _inputStart = -1;
+            _currentSize = 0;
+            _inputLen = 0;
+
+            _inputBuffer = null;
+            // note: _resultString retained (see https://github.com/FasterXML/jackson-databind/issues/2635
+            // for reason)
+            _resultArray = null; // should this be retained too?
+
+            if (_hasSegments) {
+                clearSegments();
+            }
+        }
+
+        if (_allocator != null) {
             if (_currentSegment != null) {
-                // First, let's get rid of all but the largest char array
-                resetWithEmpty();
                 // And then return that array
                 char[] buf = _currentSegment;
                 _currentSegment = null;
@@ -428,6 +442,7 @@ public final class TextBuffer
                 }
             }
         }
+
         return _resultString;
     }
  

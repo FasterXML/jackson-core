@@ -1,0 +1,25 @@
+-encoding
+'UTF-8'
+-protected
+-quiet
+-sourcepath
+'/opt/java/jackson-core/src/main/java:/opt/java/jackson-core/target/generated-sources:/opt/java/jackson-core/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2008&#x2013;2020 <a href="http://fasterxml.com/">FasterXML</a>. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/opt/java/jackson-core/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'Jackson-core 2.11.0.rc1 API'
+-link
+'https://docs.oracle.com/javase/8/docs/api'
+-linkoffline
+'https://docs.oracle.com/javase/6/docs/api' '/opt/java/jackson-core/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'Jackson-core 2.11.0.rc1 API'

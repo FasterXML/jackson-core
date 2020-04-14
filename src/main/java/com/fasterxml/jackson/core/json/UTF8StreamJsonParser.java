@@ -749,6 +749,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -814,6 +815,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             return (_currToken = _parsePosNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
@@ -930,6 +932,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -1142,6 +1145,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -1260,6 +1264,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             _nextToken = _parsePosNumber(i);
             return;
         }
@@ -1317,6 +1322,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         default:
@@ -1667,6 +1673,19 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
+    protected JsonToken _parsePosNumber(int c) throws IOException
+    {
+        if (c == '.') {
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+                return (_currToken = _parsePosNumber(c, true));
+            } else {
+                return _handleUnexpectedValue(c);
+            }
+        }
+
+        return _parsePosNumber(c, false);
+    }
+
     /**
      * Initial parsing method for number values. It needs to be able
      * to parse enough input to be able to determine whether the
@@ -1682,7 +1701,7 @@ public class UTF8StreamJsonParser
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
      */
-    protected JsonToken _parsePosNumber(int c) throws IOException
+    protected JsonToken _parsePosNumber(int c, boolean leadingDecimal) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         // One special case: if first char is 0, must not be followed by a digit
@@ -1690,9 +1709,17 @@ public class UTF8StreamJsonParser
             c = _verifyNoLeadingZeroes();
         }
         // Ok: we can first just add digit we saw first:
-        outBuf[0] = (char) c;
-        int intLen = 1;
-        int outPtr = 1;
+        int intLen;
+        int outPtr;
+        if (leadingDecimal) {
+            _inputPtr--;
+            intLen = 0;
+            outPtr = 0;
+        } else {
+            intLen = 1;
+            outPtr = 1;
+            outBuf[0] = (char) c;
+        }
         // And then figure out how far we can read without further checks
         // for either input or output
         final int end = Math.min(_inputEnd, _inputPtr + outBuf.length - 1); // 1 == outPtr

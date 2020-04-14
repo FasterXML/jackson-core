@@ -765,6 +765,35 @@ public class NumberParsingTest
         }
     }
 
+    /**
+     * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
+     */
+    public void testLeadingDotInDecimal() throws Exception {
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(mode, " .123 ");
+            try {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('.'");
+            }
+            p.close();
+        }
+    }
+
+    public void testLeadingDotInDecimalAllowed() throws Exception {
+        for (int mode : ALL_MODES) {
+            final JsonFactory f = JsonFactory.builder()
+                    .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
+                    .build();
+            JsonParser p = createParser(f, mode, " .123 ");
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.123, p.getValueAsDouble());
+            assertEquals("0.123", p.getDecimalValue().toString());
+            p.close();
+        }
+    }
+
     /*
     /**********************************************************
     /* Helper methods

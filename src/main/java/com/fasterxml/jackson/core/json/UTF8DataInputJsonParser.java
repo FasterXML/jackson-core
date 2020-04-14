@@ -625,6 +625,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -690,6 +691,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             return (_currToken = _parsePosNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
@@ -795,6 +797,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -949,6 +952,16 @@ public class UTF8DataInputJsonParser
      */
     protected JsonToken _parsePosNumber(int c) throws IOException
     {
+
+        boolean forceFloat = false;
+        if (c == '.') {
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+                forceFloat = true;
+            } else {
+                return _handleUnexpectedValue(c);
+            }
+        }
+
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr;
 
@@ -979,7 +992,7 @@ public class UTF8DataInputJsonParser
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == '.' || c == 'e' || c == 'E' || forceFloat) {
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);

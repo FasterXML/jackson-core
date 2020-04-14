@@ -103,7 +103,18 @@ public enum JsonReadFeature
      * this is a non-standard feature, and as such disabled by default.
      */
     ALLOW_LEADING_ZEROS_FOR_NUMBERS(false),
-    
+
+    /**
+     * Feature that determines whether parser will allow
+     * JSON decimal numbers to start with a deciaml point
+     * (like: .123). If enabled, no exception is thrown, and the number
+     * is parsed as though a leading 0 had been present.
+     *<p>
+     * Since JSON specification does not allow leading decimal,
+     * this is a non-standard feature, and as such disabled by default.
+     */
+    ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false),
+
     /**
      * Feature that allows parser to recognize set of
      * "Not-a-Number" (NaN) tokens as legal floating number

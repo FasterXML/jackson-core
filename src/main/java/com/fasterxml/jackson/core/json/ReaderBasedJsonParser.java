@@ -726,6 +726,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         default:
@@ -919,6 +920,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -988,6 +990,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             _nextToken = _parsePosNumber(i);
             return;
         }
@@ -1023,6 +1026,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -1089,6 +1093,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
+        case '.':
             return (_currToken = _parsePosNumber(i));
         /*
          * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
@@ -1217,6 +1222,7 @@ public class ReaderBasedJsonParser
     /**********************************************************
      */
 
+
     /**
      * Initial parsing method for number values. It needs to be able
      * to parse enough input to be able to determine whether the
@@ -1234,6 +1240,18 @@ public class ReaderBasedJsonParser
      */
     protected final JsonToken _parsePosNumber(int ch) throws IOException
     {
+        if (ch == '.') {
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+                return (_currToken = _parsePosNumber(ch, true));
+            } else {
+                return _handleOddValue(ch);
+            }
+        }
+        return _parsePosNumber(ch, false);
+    }
+
+    protected final JsonToken _parsePosNumber(int ch, boolean numberHasLeadingDecimal) throws IOException
+    {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),
          * actual conversion to a number is deferred. Thus, need to
@@ -1241,6 +1259,7 @@ public class ReaderBasedJsonParser
          */
         int ptr = _inputPtr;
         int startPtr = ptr-1; // to include digit already read
+
         final int inputLen = _inputEnd;
 
         // One special case, leading zero(es):
@@ -1269,7 +1288,7 @@ public class ReaderBasedJsonParser
             }
             ++intLen;
         }
-        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
+        if (ch == INT_PERIOD || ch == INT_e || ch == INT_E || numberHasLeadingDecimal) {
             _inputPtr = ptr;
             return _parseFloat(ch, startPtr, ptr, false, intLen);
         }

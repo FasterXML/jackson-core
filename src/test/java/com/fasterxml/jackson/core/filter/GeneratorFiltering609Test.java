@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.filter;
 
 import java.io.*;
 
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
 // for [core#609]
-public class TokenFilter609Test
+public class GeneratorFiltering609Test
     extends com.fasterxml.jackson.core.BaseTest
 {
     static class NullExcludingTokenFilter extends TokenFilter {
@@ -41,7 +41,6 @@ public class TokenFilter609Test
             } else if (maxStringLength <= 0 || maxStringLength >= text.length()) {
                 super.writeString(text);
             } else {
-//                super.writeString(text.substring(0, maxStringLength));
                 StringReader textReader = new StringReader(text);
                 super.writeString(textReader, maxStringLength);
             }

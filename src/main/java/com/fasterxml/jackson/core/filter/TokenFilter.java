@@ -245,6 +245,21 @@ public class TokenFilter
 
     /**
      * Call made to verify whether leaf-level
+     * "streaming" String value
+     * should be included in output or not.
+     *<p>
+     * NOTE: note that any reads from passed in {@code Reader} may lead
+     * to actual loss of content to write; typically method should not
+     * access content passed via this method.
+     *
+     * @since 2.11
+     */
+    public boolean includeString(java.io.Reader r, int maxLen) {
+        return _includeScalar();
+    }
+
+    /**
+     * Call made to verify whether leaf-level
      * <code>int</code> value
      * should be included in output or not.
      * 

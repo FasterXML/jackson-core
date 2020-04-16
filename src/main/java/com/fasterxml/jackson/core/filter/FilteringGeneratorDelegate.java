@@ -500,11 +500,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             if (state != TokenFilter.INCLUDE_ALL) {
                 // [core#609]: do need to implement, but with 2.10.x TokenFilter no
                 // useful method to call so will be mostly unfiltered
-                /*
-                if (!state.includeString("")) {
+                if (!state.includeString(reader, len)) {
                     return;
                 }
-                */
             }
             _checkParentPath();
         }

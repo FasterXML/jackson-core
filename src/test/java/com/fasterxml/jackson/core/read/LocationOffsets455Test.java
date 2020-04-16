@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
@@ -15,15 +15,16 @@ public class LocationOffsets455Test extends com.fasterxml.jackson.core.BaseTest
         JsonLocation loc = p.getCurrentLocation();
         assertEquals(1, loc.getLineNr());
         assertEquals(3, loc.getColumnNr());
-        assertEquals(2, loc.getByteOffset());
+        assertEquals(2, loc.getCharOffset());
+        assertEquals(-1, loc.getByteOffset());
 
         assertNull(p.nextToken());
 
         loc = p.getCurrentLocation();
-        System.err.println("LOC/r = "+loc);
         assertEquals(1, loc.getLineNr());
-        assertEquals(2, loc.getByteOffset());
         assertEquals(3, loc.getColumnNr());
+        assertEquals(2, loc.getCharOffset());
+        assertEquals(-1, loc.getByteOffset());
         p.close();
     }
 
@@ -40,10 +41,10 @@ public class LocationOffsets455Test extends com.fasterxml.jackson.core.BaseTest
 
         assertNull(p.nextToken());
         loc = p.getCurrentLocation();
-        System.err.println("LOC/str = "+loc);
         assertEquals(1, loc.getLineNr());
-        assertEquals(2, loc.getCharOffset());
         assertEquals(3, loc.getColumnNr());
+        assertEquals(2, loc.getByteOffset());
+        assertEquals(-1, loc.getCharOffset());
         p.close();
     }
 

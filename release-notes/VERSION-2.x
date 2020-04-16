@@ -23,6 +23,8 @@ JSON library.
 #587: Add JsonGenerator#writeNumber(char[], int, int) method
  (contributed by Volkan Y)
 #606: Do not clear aggregated contents of `TextBuffer` when `releaseBuffers()` called
+#609: `FilteringGeneratorDelegate` does not handle `writeString(Reader, int)`
+ (reported by Volkan Y)
 
 2.10.4 (not yet released)
 

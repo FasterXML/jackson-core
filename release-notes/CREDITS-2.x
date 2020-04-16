@@ -220,6 +220,9 @@ Valery (valery1707@github)
 Volkan Yazıcı (vy@github)
   * Contributed #587: Add JsonGenerator#writeNumber(char[], int, int) method
   (2.11.0)
+  * Reported #609: (partial fix) `FilteringGeneratorDelegate` does not handle
+    `writeString(Reader, int)`
+  (2.10.4 [partial], 2.11.0 [full fix])
 
 Michel Feinstein (feinstein@github)
   * Requested #504: Add a String Array write method in the Streaming API

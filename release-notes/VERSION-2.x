@@ -28,6 +28,8 @@ JSON library.
 
 #605: Handle case when system property access is restricted
  (reported by rhernandez35@github)
+#609: (partial fix) `FilteringGeneratorDelegate` does not handle `writeString(Reader, int)`
+ (reported by Volkan Y)
 
 2.10.3 (03-Mar-2020)
 

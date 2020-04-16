@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.filter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -484,6 +485,30 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
         } 
         delegate.writeString(value);
+    }
+
+    @Override
+    public void writeString(Reader reader, int len) throws IOException {
+        if (_itemFilter == null) {
+            return;
+        }
+        if (_itemFilter != TokenFilter.INCLUDE_ALL) {
+            TokenFilter state = _filterContext.checkValue(_itemFilter);
+            if (state == null) {
+                return;
+            }
+            if (state != TokenFilter.INCLUDE_ALL) {
+                // [core#609]: do need to implement, but with 2.10.x TokenFilter no
+                // useful method to call so will be mostly unfiltered
+                /*
+                if (!state.includeString("")) {
+                    return;
+                }
+                */
+            }
+            _checkParentPath();
+        }
+        delegate.writeString(reader, len);
     }
 
     @Override

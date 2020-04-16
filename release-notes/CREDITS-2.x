@@ -211,3 +211,8 @@ Scott Leberknight (sleberknight@github)
   * Reported, contributed fix for #592: DataFormatMatcher#getMatchedFormatName throws NPE
     when no match exists
   (2.10.3)
+
+Volkan Yazıcı (vy@github)
+  * Reported #609: (partial fix) `FilteringGeneratorDelegate` does not handle
+    `writeString(Reader, int)`
+  (2.10.4 [partial], 2.11.0 [full fix])

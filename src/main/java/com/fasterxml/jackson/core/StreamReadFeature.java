@@ -76,7 +76,7 @@ public enum StreamReadFeature
      * exception with that location information). If feature is disabled, no source reference
      * is passed and source is only indicated as "UNKNOWN".
      *<p>
-     * Most common reason for disabling this feature is to avoid leaking information about
+     * Most common reason for disabling this feature is to avoid leaking
      * internal information; this may be done for security reasons.
      * Note that even if source reference is included, only parts of contents are usually
      * printed, and not the whole contents. Further, many source reference types can not

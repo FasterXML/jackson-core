@@ -276,16 +276,25 @@ public abstract class TSFBuilder<F extends JsonFactory,
     // // // Support for subtypes
 
     protected void _legacyEnable(JsonParser.Feature f) {
-        _streamReadFeatures |= f.getMask();
+        if (f != null) {
+            _streamReadFeatures |= f.getMask();
+        }
     }
+
     protected void _legacyDisable(JsonParser.Feature f) {
-        _streamReadFeatures &= ~f.getMask();
+        if (f != null) {
+            _streamReadFeatures &= ~f.getMask();
+        }
     }
 
     protected void _legacyEnable(JsonGenerator.Feature f) {
-        _streamWriteFeatures |= f.getMask();
+        if (f != null) {
+            _streamWriteFeatures |= f.getMask();
+        }
     }
     protected void _legacyDisable(JsonGenerator.Feature f) {
-        _streamWriteFeatures &= ~f.getMask();
+        if (f != null) {
+            _streamWriteFeatures &= ~f.getMask();
+        }
     }
 }

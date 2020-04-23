@@ -780,6 +780,9 @@ public class UTF8StreamJsonParser
 
             // Should we have separate handling for plus? Although it is not allowed per se,
             // it may be erroneously used, and could be indicate by a more specific error message.
+        case '.': // [core#611]:
+            t = _parseFloatThatStartsWithPeriod();
+            break;
         case '0':
         case '1':
         case '2':
@@ -845,6 +848,8 @@ public class UTF8StreamJsonParser
 
             // Should we have separate handling for plus? Although it is not allowed per se,
             // it may be erroneously used, and could be indicate by a more specific error message.
+        case '.': // [core#611]:
+            return (_currToken = _parseFloatThatStartsWithPeriod());
         case '0':
         case '1':
         case '2':
@@ -1046,6 +1051,9 @@ public class UTF8StreamJsonParser
         case '-':
             t = _parseNegNumber();
             break;
+        case '.': // [core#611]:
+            t = _parseFloatThatStartsWithPeriod();
+            break;
         case '0':
         case '1':
         case '2':
@@ -1164,6 +1172,9 @@ public class UTF8StreamJsonParser
         case '-':
             _nextToken = _parseNegNumber();
             return;
+        case '.': // [core#611]:
+            _nextToken = _parseFloatThatStartsWithPeriod();
+            return;
         case '0':
         case '1':
         case '2':
@@ -1220,6 +1231,9 @@ public class UTF8StreamJsonParser
             break;
         case '-':
             t = _parseNegNumber();
+            break;
+        case '.': // [core#611]:
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -1351,6 +1365,17 @@ public class UTF8StreamJsonParser
     /* Internal methods, number parsing
     /**********************************************************
      */
+
+    // @since 2.11, [core#611]
+    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
+    {
+        // [core#611]: allow optionally leading decimal point
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+            return _handleUnexpectedValue(INT_PERIOD);
+        }
+        return _parseFloat(_textBuffer.emptyAndGetCurrentSegment(),
+                0, INT_PERIOD, false, 0);
+    }
 
     /**
      * Initial parsing method for number values. It needs to be able
@@ -1538,7 +1563,7 @@ public class UTF8StreamJsonParser
         }
         return ch;
     }
-    
+
     private final JsonToken _parseFloat(char[] outBuf, int outPtr, int c,
             boolean negative, int integerPartLength) throws IOException
     {

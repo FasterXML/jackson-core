@@ -757,6 +757,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
              */
             t = _parseNegNumber();
             break;
+        case '.': // [core#61]]
+            t = _parseFloatThatStartsWithPeriod();
+            break;
         case '0':
         case '1':
         case '2':
@@ -950,6 +953,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         case '-':
             t = _parseNegNumber();
             break;
+        case '.': // [core#61]]
+            t = _parseFloatThatStartsWithPeriod();
+            break;
         case '0':
         case '1':
         case '2':
@@ -1019,6 +1025,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         case '-':
             _nextToken = _parseNegNumber();
             return;
+        case '.': // [core#61]]
+            _nextToken = _parseFloatThatStartsWithPeriod();
+            return;
         case '0':
         case '1':
         case '2':
@@ -1053,6 +1062,9 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
         switch (i) {
         case '-':
             t = _parseNegNumber();
+            break;
+        case '.': // [core#61]]
+            t = _parseFloatThatStartsWithPeriod();
             break;
         case '0':
         case '1':
@@ -1120,6 +1132,8 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
              * it is not allowed per se, it may be erroneously used,
              * and could be indicated by a more specific error message.
              */
+        case '.': // [core#61]]
+            return (_currToken = _parseFloatThatStartsWithPeriod());
         case '0':
         case '1':
         case '2':
@@ -1257,6 +1271,16 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
     /* Internal methods, number parsing
     /**********************************************************
      */
+
+    // @since 2.11, [core#611]
+    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
+    {
+        // [core#611]: allow optionally leading decimal point
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+            return _handleOddValue('.');
+        }
+        return _parseFloat(INT_PERIOD, _inputPtr-1, _inputPtr, false, 0);
+    }
 
     /**
      * Initial parsing method for number values. It needs to be able

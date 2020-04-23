@@ -6,6 +6,10 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class NonStandardNumbers611Test
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
+            .build();
+
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */
@@ -22,10 +26,6 @@ public class NonStandardNumbers611Test
         }
     }
 
-    private final JsonFactory JSON_F = JsonFactory.builder()
-            .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
-            .build();
-    
     public void testLeadingDotInDecimalAllowedAsync() throws Exception {
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_DATA_INPUT);
     }

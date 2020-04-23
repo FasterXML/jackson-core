@@ -983,7 +983,6 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-
     // @since 2.11, [core#611]
     protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
     {
@@ -992,9 +991,7 @@ public class UTF8DataInputJsonParser
             return _handleUnexpectedValue(INT_PERIOD);
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = '.';
-        int c = _inputData.readUnsignedByte();
-        return _parseFloat(outBuf, 1, c, false, 0);
+        return _parseFloat(outBuf, 0, INT_PERIOD, false, 0);
     }
 
     /**

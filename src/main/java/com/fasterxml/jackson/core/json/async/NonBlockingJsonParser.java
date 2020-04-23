@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
@@ -625,6 +626,13 @@ public class NonBlockingJsonParser
         // Should we have separate handling for plus? Although
         // it is not allowed per se, it may be erroneously used,
         // and could be indicate by a more specific error message.
+
+        case '.': // [core#611]
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _startFloatThatStartsWithPeriod();
+            }
+            break;
+
         case '0':
             return _startNumberLeadingZero();
         case '1':
@@ -1286,6 +1294,15 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
+    // [core#611]: allow non-standard floats like ".125"
+    protected JsonToken _startFloatThatStartsWithPeriod() throws IOException
+    {
+        _numberNegative = false;
+        _intLength = 0;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        return _startFloat(outBuf, 0, INT_PERIOD);
+    }
+    
     protected JsonToken _startPositiveNumber(int ch) throws IOException
     {
         _numberNegative = false;

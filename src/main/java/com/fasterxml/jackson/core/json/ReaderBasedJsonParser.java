@@ -1235,7 +1235,7 @@ public class ReaderBasedJsonParser
     protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
     {
         // [core#611]: allow optionally leading decimal point
-        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleOddValue('.');
         }
         return _parseFloat(INT_PERIOD, _inputPtr-1, _inputPtr, false, 0);

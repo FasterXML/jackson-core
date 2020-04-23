@@ -22,31 +22,30 @@ public class NonStandardNumbers611Test
         }
     }
 
-    public void testLeadingDotInDecimalAllowed() throws Exception {
-        final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
-                .build();
+    private final JsonFactory JSON_F = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
+            .build();
+    
+    public void testLeadingDotInDecimalAllowedAsync() throws Exception {
+        _testLeadingDotInDecimalAllowed(JSON_F, MODE_DATA_INPUT);
+    }
 
-// TODO:
-/*
-        for (int mode : ALL_MODES) {
-            _testLeadingDotInDecimalAllowed(f, mode);
-        }
-        */
+    public void testLeadingDotInDecimalAllowedBytes() throws Exception {
+        _testLeadingDotInDecimalAllowed(JSON_F, MODE_INPUT_STREAM);
+        _testLeadingDotInDecimalAllowed(JSON_F, MODE_INPUT_STREAM_THROTTLED);
+    }
 
-
-        _testLeadingDotInDecimalAllowed(f, MODE_INPUT_STREAM);
-        _testLeadingDotInDecimalAllowed(f, MODE_INPUT_STREAM_THROTTLED);
-        _testLeadingDotInDecimalAllowed(f, MODE_READER);
-        _testLeadingDotInDecimalAllowed(f, MODE_DATA_INPUT);
+    public void testLeadingDotInDecimalAllowedReader() throws Exception {
+        _testLeadingDotInDecimalAllowed(JSON_F, MODE_READER);
     }
 
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode) throws Exception
     {
-        JsonParser p = createParser(f, mode, " .123 ");
+        JsonParser p = createParser(f, mode, " .125 ");
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        assertEquals(0.123, p.getValueAsDouble());
-        assertEquals("0.123", p.getDecimalValue().toString());
+        assertEquals(0.125, p.getValueAsDouble());
+        assertEquals("0.125", p.getDecimalValue().toString());
+        assertEquals(".125", p.getText());
         p.close();
     }
 }

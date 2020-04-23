@@ -170,7 +170,13 @@ public abstract class JsonParser
          */
          @Deprecated
         ALLOW_NUMERIC_LEADING_ZEROS(false),
-        
+
+        /**
+         * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS} instead
+         */
+        @Deprecated
+        ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false),
+
         /**
          * Feature that allows parser to recognize set of
          * "Not-a-Number" (NaN) tokens as legal floating number

@@ -118,7 +118,8 @@ public enum JsonReadFeature
      *
      * @since 2.11
      */
-    ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false, null),
+    @SuppressWarnings("deprecation")
+    ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS),
 
     /**
      * Feature that allows parser to recognize set of

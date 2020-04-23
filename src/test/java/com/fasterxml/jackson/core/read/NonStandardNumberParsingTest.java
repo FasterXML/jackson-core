@@ -1,10 +1,10 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
-public class NonStandardNumbers611Test
+public class NonStandardNumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = JsonFactory.builder()

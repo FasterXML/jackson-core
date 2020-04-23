@@ -25,6 +25,8 @@ JSON library.
 #606: Do not clear aggregated contents of `TextBuffer` when `releaseBuffers()` called
 #609: `FilteringGeneratorDelegate` does not handle `writeString(Reader, int)`
  (reported by Volkan Y)
+#611: Optionally allow leading decimal in float tokens
+ (contributed by James A)
 
 2.10.4 (not yet released)
 

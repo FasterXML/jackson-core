@@ -231,3 +231,7 @@ Michel Feinstein (feinstein@github)
 Oleksandr Poslavskyi (alevskyi@github)
   * Contributed implementation of #504: Add a String Array write method in the Streaming API
   (2.11.0)
+
+James Agnew (jamesagnew@github)
+  * Contributed implementation of #611: Optionally allow leading decimal in float tokens
+  (2.11.0)

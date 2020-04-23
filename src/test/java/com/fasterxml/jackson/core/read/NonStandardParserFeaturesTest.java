@@ -145,6 +145,7 @@ public class NonStandardParserFeaturesTest
         //   representation or not? Won't, for now:
         assertEquals("0", p.getText());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
+        p.close();
     }
 
     private void _testAllowNaN(int mode) throws Exception

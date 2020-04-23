@@ -625,6 +625,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
+        case '.': // as per [core#611]
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -690,6 +691,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
+        case '.': // as per [core#611]
             return (_currToken = _parsePosNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
@@ -795,6 +797,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
+        case '.': // as per [core#611]
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -951,7 +954,8 @@ public class UTF8DataInputJsonParser
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr;
-
+        final boolean forceFloat;
+        
         // One special case: if first char is 0, must not be followed by a digit.
         // Gets bit tricky as we only want to retain 0 if it's the full value
         if (c == INT_0) {
@@ -962,7 +966,16 @@ public class UTF8DataInputJsonParser
                 outBuf[0] = '0';
                 outPtr = 1;
             }
+            forceFloat = false;
         } else {
+            forceFloat = (c == INT_PERIOD);
+            if (forceFloat) {
+                // [core#611]: allow optionally leading decimal point
+                if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+                    return _handleUnexpectedValue(c);
+                }
+            }
+            
             outBuf[0] = (char) c;
             c = _inputData.readUnsignedByte();
             outPtr = 1;
@@ -979,7 +992,7 @@ public class UTF8DataInputJsonParser
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }
-        if (c == '.' || c == 'e' || c == 'E') {
+        if (c == '.' || c == 'e' || c == 'E' || forceFloat) {
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);

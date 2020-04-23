@@ -656,10 +656,12 @@ public class UTF8DataInputJsonParser
             t = _parseNegNumber();
             break;
 
-            /* Should we have separate handling for plus? Although
-             * it is not allowed per se, it may be erroneously used,
-             * and could be indicate by a more specific error message.
-             */
+            // Should we have separate handling for plus? Although
+            // it is not allowed per se, it may be erroneously used,
+            // and could be indicate by a more specific error message.
+        case '.': // as per [core#611]
+            t = _parseFloatThatStartsWithPeriod();
+            break;
         case '0':
         case '1':
         case '2':
@@ -670,7 +672,6 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
-        case '.': // as per [core#611]
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -726,6 +727,8 @@ public class UTF8DataInputJsonParser
             // Should we have separate handling for plus? Although it is not allowed
             // per se, it may be erroneously used, and could be indicated by a more
             // specific error message.
+        case '.': // as per [core#611]
+            return (_currToken = _parseFloatThatStartsWithPeriod());
         case '0':
         case '1':
         case '2':
@@ -736,7 +739,6 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
-        case '.': // as per [core#611]
             return (_currToken = _parsePosNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
@@ -832,6 +834,8 @@ public class UTF8DataInputJsonParser
         case '-':
             t = _parseNegNumber();
             break;
+        case '.': // as per [core#611]
+            t = _parseFloatThatStartsWithPeriod();
         case '0':
         case '1':
         case '2':
@@ -842,7 +846,6 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
-        case '.': // as per [core#611]
             t = _parsePosNumber(i);
             break;
         case 'f':
@@ -980,6 +983,20 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
+
+    // @since 2.11, [core#611]
+    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
+    {
+        // [core#611]: allow optionally leading decimal point
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+            return _handleUnexpectedValue(INT_PERIOD);
+        }
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = '.';
+        int c = _inputData.readUnsignedByte();
+        return _parseFloat(outBuf, 1, c, false, 0);
+    }
+
     /**
      * Initial parsing method for number values. It needs to be able
      * to parse enough input to be able to determine whether the
@@ -999,7 +1016,6 @@ public class UTF8DataInputJsonParser
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr;
-        final boolean forceFloat;
         
         // One special case: if first char is 0, must not be followed by a digit.
         // Gets bit tricky as we only want to retain 0 if it's the full value
@@ -1011,16 +1027,7 @@ public class UTF8DataInputJsonParser
                 outBuf[0] = '0';
                 outPtr = 1;
             }
-            forceFloat = false;
         } else {
-            forceFloat = (c == INT_PERIOD);
-            if (forceFloat) {
-                // [core#611]: allow optionally leading decimal point
-                if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                    return _handleUnexpectedValue(c);
-                }
-            }
-            
             outBuf[0] = (char) c;
             c = _inputData.readUnsignedByte();
             outPtr = 1;
@@ -1037,7 +1044,7 @@ public class UTF8DataInputJsonParser
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }
-        if (c == '.' || c == 'e' || c == 'E' || forceFloat) {
+        if (c == '.' || c == 'e' || c == 'E') {
             return _parseFloat(outBuf, outPtr, c, false, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);

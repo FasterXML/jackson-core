@@ -1681,11 +1681,10 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    // @since 2.11, [core#611]
     protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
     {
         // [core#611]: allow optionally leading decimal point
-        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleUnexpectedValue(INT_PERIOD);
         }
         return _parseFloat(_textBuffer.emptyAndGetCurrentSegment(),

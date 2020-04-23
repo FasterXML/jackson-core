@@ -1231,7 +1231,6 @@ public class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    // @since 2.11, [core#611]
     protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
     {
         // [core#611]: allow optionally leading decimal point

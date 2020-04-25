@@ -293,6 +293,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     /**
      * Test default, non-overridden generator delegate.
      */
+    @SuppressWarnings("deprecation")
     public void testGeneratorDelegate() throws IOException
     {
         final String TOKEN ="foo";
@@ -420,6 +421,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         
         del.close();
         g0.close();
+        p.close();
         assertEquals("[123,false]", sw.toString());
     }
     

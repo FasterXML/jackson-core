@@ -42,9 +42,10 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /* Configured features
     /**********************************************************************
      */
-    
+
     /**
-     * Set of {@link TokenStreamFactory.Feature}s enabled, as bitmask.
+     * Set of {@link com.fasterxml.jackson.core.JsonFactory.Feature}s enabled,
+     * as bitmask.
      */
     protected int _factoryFeatures;
 

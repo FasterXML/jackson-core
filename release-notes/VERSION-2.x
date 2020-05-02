@@ -28,7 +28,7 @@ JSON library.
 #611: Optionally allow leading decimal in float tokens
  (contributed by James A)
 
-2.10.4 (not yet released)
+2.10.4 (03-May-2020)
 
 #605: Handle case when system property access is restricted
  (reported by rhernandez35@github)

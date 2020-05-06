@@ -25,7 +25,7 @@ public abstract class InputDecorator
      * @param in Original input source
      * 
      * @return InputStream to use; either 'in' as is, or decorator
-     *   version that typically delogates to 'in'
+     *   version that typically delegates to 'in'
      */
     public abstract InputStream decorate(IOContext ctxt, InputStream in)
         throws IOException;

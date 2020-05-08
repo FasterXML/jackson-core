@@ -188,8 +188,10 @@ public abstract class ParserMinimalBase extends JsonParser
         final JsonToken t = _currToken;
         return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
     }
-    
+
     @Override public JsonToken getCurrentToken() { return _currToken; }
+
+    @Deprecated
     @Override public int getCurrentTokenId() {
         final JsonToken t = _currToken;
         return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();

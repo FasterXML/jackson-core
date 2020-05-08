@@ -112,7 +112,10 @@ public class JsonParserDelegate extends JsonParser
     @Override public int currentTokenId() { return delegate.currentTokenId(); }
     
     @Override public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
+
+    @Deprecated // since 2.12
     @Override public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
+
     @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }
     @Override public boolean hasTokenId(int id) { return delegate.hasTokenId(id); }
     @Override public boolean hasToken(JsonToken t) { return delegate.hasToken(t); }

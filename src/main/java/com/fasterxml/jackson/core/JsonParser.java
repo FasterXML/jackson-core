@@ -1009,15 +1009,19 @@ public abstract class JsonParser
     }
 
     /**
-     * Alias for {@link #currentToken()}, will be deprecated in Jackson 2.9
+     * Alias for {@link #currentToken()}, may be deprecated sometime after
+     * Jackson 2.12 (will be removed from 3.0).
      */
     public abstract JsonToken getCurrentToken();
 
     /**
-     * Alias for {@link #currentTokenId()}, will be deprecated in Jackson 2.9
+     * Alias for {@link #currentTokenId()}.
+     *
+     * @deprecated Since 2.12 use {@link #currentTokenId} instead
      */
+    @Deprecated
     public abstract int getCurrentTokenId();
-    
+
     /**
      * Method for checking whether parser currently points to
      * a token (and data for that token is available).

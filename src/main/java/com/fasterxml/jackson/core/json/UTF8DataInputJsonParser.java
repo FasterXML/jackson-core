@@ -2000,10 +2000,13 @@ public class UTF8DataInputJsonParser
             }
             // fall through
         case ',':
-            if (isEnabled(JsonReadFeature.ALLOW_MISSING_VALUES)) {
-//               _inputPtr--;
-                _nextByte = c;
-               return JsonToken.VALUE_NULL;
+            // 11-May-2020, tatu: [core#616] No commas in root level
+            if (!_parsingContext.inRoot()) {
+                if (isEnabled(JsonReadFeature.ALLOW_MISSING_VALUES)) {
+//                   _inputPtr--;
+                        _nextByte = c;
+                       return JsonToken.VALUE_NULL;
+                }
             }
             // fall through
         case '}':

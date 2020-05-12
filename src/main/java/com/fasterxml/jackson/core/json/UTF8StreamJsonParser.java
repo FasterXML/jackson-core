@@ -2946,9 +2946,12 @@ public class UTF8StreamJsonParser
             // 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
             //   we may allow "missing values", that is, encountering a trailing
             //   comma or closing marker where value would be expected
-            if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
-                --_inputPtr;
-                return JsonToken.VALUE_NULL;
+            // 11-May-2020, tatu: [core#616] No commas in root level
+            if (!_parsingContext.inRoot()) {
+                if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
+                    --_inputPtr;
+                    return JsonToken.VALUE_NULL;
+                }
             }
             // fall through
         case '}':

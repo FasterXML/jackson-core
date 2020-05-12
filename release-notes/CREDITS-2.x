@@ -224,6 +224,11 @@ Volkan Yazıcı (vy@github)
     `writeString(Reader, int)`
   (2.10.4 [partial], 2.11.0 [full fix])
 
+Justin Liu (jusliu@github)
+  * Reported #616: Parsing JSON with `ALLOW_MISSING_VALUE` enabled results in endless stream
+   of `VALUE_NULL` tokens
+  (2.10.5)
+
 Michel Feinstein (feinstein@github)
   * Requested #504: Add a String Array write method in the Streaming API
   (2.11.0)

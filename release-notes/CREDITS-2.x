@@ -216,3 +216,8 @@ Volkan Yazıcı (vy@github)
   * Reported #609: (partial fix) `FilteringGeneratorDelegate` does not handle
     `writeString(Reader, int)`
   (2.10.4 [partial], 2.11.0 [full fix])
+
+Justin Liu (jusliu@github)
+  * Reported #616: Parsing JSON with `ALLOW_MISSING_VALUE` enabled results in endless stream
+   of `VALUE_NULL` tokens
+  (2.10.5)

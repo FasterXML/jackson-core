@@ -1132,17 +1132,20 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             return (_currToken = _parsePosNumber(i));
         /*
          * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
-         * The Check is for missing values. Incase of missing values in an array, the next token will be either ',' or ']'.
+         * The Check is for missing values. In case of missing values in an array, the next token will be either ',' or ']'.
          * This case, decrements the already incremented _inputPtr in the buffer in case of comma(,) 
          * so that the existing flow goes back to checking the next token which will be comma again and
          * it continues the parsing.
          * Also the case returns NULL as current token in case of ',' or ']'.    
          */
+// case ']':  // 11-May-2020, tatu: related to [core#616], this should never be reached
         case ',':
-        case ']':
-            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
-                --_inputPtr;
-                return (_currToken = JsonToken.VALUE_NULL);  
+            // 11-May-2020, tatu: [core#616] No commas in root level
+            if (!_parsingContext.inRoot()) {
+                if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
+                    --_inputPtr;
+                    return (_currToken = JsonToken.VALUE_NULL);
+                }
             }
         }
         return (_currToken = _handleOddValue(i));
@@ -1881,9 +1884,12 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
             }
             // fall through
         case ',':
-            if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
-                --_inputPtr;
-                return JsonToken.VALUE_NULL;
+            // 11-May-2020, tatu: [core#616] No commas in root level
+            if (!_parsingContext.inRoot()) {
+                if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
+                    --_inputPtr;
+                    return JsonToken.VALUE_NULL;
+                }
             }
             break;
         case 'N':

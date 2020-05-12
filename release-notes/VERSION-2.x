@@ -28,6 +28,12 @@ JSON library.
 #611: Optionally allow leading decimal in float tokens
  (contributed by James A)
 
+2.10.5 (not yet released)
+
+#616: Parsing JSON with `ALLOW_MISSING_VALUE` enabled results in endless stream
+  of `VALUE_NULL` tokens
+ (reported by Justin L)
+
 2.10.4 (03-May-2020)
 
 #605: Handle case when system property access is restricted

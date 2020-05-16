@@ -3,12 +3,15 @@ package com.fasterxml.jackson.core;
 import java.io.InputStream;
 import java.io.Reader;
 
+import com.fasterxml.jackson.core.util.JacksonFeature;
+
 /**
  * Token reader (parser) features not-specific to any particular format backend.
  *<p>
  * NOTE: Jackson 2.x contained these along with JSON-specific features in <code>JsonParser.Feature</code>.
  */
 public enum StreamReadFeature
+    implements JacksonFeature // since 2.12
 {
     // // // Low-level I/O handling features:
 
@@ -116,7 +119,10 @@ public enum StreamReadFeature
         return flags;
     }
 
+    @Override
     public boolean enabledByDefault() { return _defaultState; }
+    @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+    @Override
     public int getMask() { return _mask; }
 }

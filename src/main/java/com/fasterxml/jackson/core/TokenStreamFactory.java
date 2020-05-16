@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.sym.SimpleNameMatcher;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
+import com.fasterxml.jackson.core.util.JacksonFeature;
 import com.fasterxml.jackson.core.util.Named;
 import com.fasterxml.jackson.core.util.Snapshottable;
 
@@ -59,7 +60,9 @@ public abstract class TokenStreamFactory
      * Enumeration that defines all on/off features that can only be
      * changed for {@link TokenStreamFactory}.
      */
-    public enum Feature {
+    public enum Feature
+        implements JacksonFeature
+    {
         
         // // // Symbol handling (interning etc)
         
@@ -137,11 +140,14 @@ public abstract class TokenStreamFactory
             }
             return flags;
         }
-        
+
         private Feature(boolean defaultState) { _defaultState = defaultState; }
-        
+
+        @Override
         public boolean enabledByDefault() { return _defaultState; }
+        @Override
         public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
+        @Override
         public int getMask() { return (1 << ordinal()); }
     }
 

@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.core.util.JacksonFeature;
+
 /**
  * Token writer (generator) features not-specific to any particular format backend.
  * Eventual replacement for non-JSON-specific {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s.
@@ -11,6 +13,7 @@ import java.math.BigDecimal;
  * @since 2.10
  */
 public enum StreamWriteFeature
+    implements JacksonFeature // since 2.12
 {
     // // Low-level I/O / content features
 
@@ -144,8 +147,11 @@ public enum StreamWriteFeature
         return flags;
     }
 
+    @Override
     public boolean enabledByDefault() { return _defaultState; }
+    @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+    @Override
     public int getMask() { return _mask; }
 
     public JsonGenerator.Feature mappedFeature() { return _mappedFeature; }

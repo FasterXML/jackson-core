@@ -352,7 +352,7 @@ public class BasicParserFilteringTest extends BaseTest
 
         assertFalse(p.hasCurrentToken());
         assertNull(p.getCurrentToken());
-        assertEquals(JsonTokenId.ID_NO_TOKEN, p.getCurrentTokenId());
+        assertEquals(JsonTokenId.ID_NO_TOKEN, p.currentTokenId());
         assertFalse(p.isExpectedStartObjectToken());
         assertFalse(p.isExpectedStartArrayToken());
 
@@ -364,7 +364,7 @@ public class BasicParserFilteringTest extends BaseTest
         assertEquals(JsonToken.START_OBJECT, p.getCurrentToken());
         assertEquals(JsonToken.START_OBJECT, p.currentToken());
         assertEquals(JsonTokenId.ID_START_OBJECT, p.currentTokenId());
-        assertEquals(JsonTokenId.ID_START_OBJECT, p.getCurrentTokenId());
+        assertEquals(JsonTokenId.ID_START_OBJECT, p.currentTokenId());
         assertTrue(p.isExpectedStartObjectToken());
         assertFalse(p.isExpectedStartArrayToken());
 

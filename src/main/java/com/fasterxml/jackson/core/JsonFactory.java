@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.JacksonFeature;
 
 /**
  * The main factory class of Jackson package, used to configure and
@@ -57,8 +58,9 @@ public class JsonFactory
      * Enumeration that defines all on/off features that can only be
      * changed for {@link JsonFactory}.
      */
-    public enum Feature {
-        
+    public enum Feature
+        implements JacksonFeature // since 2.12
+    {
         // // // Symbol handling (interning etc)
         
         /**
@@ -112,7 +114,7 @@ public class JsonFactory
          * but may not make sense on platforms where {@link SoftReference} handling
          * is broken (like Android), or if there are retention issues due to
          * {@link ThreadLocal} (see
-         * <a href="https://github.com/FasterXML/jackson-core/issues/189">Issue #189</a>
+         * <a href="https://github.com/FasterXML/jackson-core/issues/189">jackson-core#189</a>
          * for a possible case)
          *<p>
          * This setting is enabled by default.
@@ -141,9 +143,12 @@ public class JsonFactory
         }
         
         private Feature(boolean defaultState) { _defaultState = defaultState; }
-        
+
+        @Override
         public boolean enabledByDefault() { return _defaultState; }
+        @Override
         public boolean enabledIn(int flags) { return (flags & getMask()) != 0; }
+        @Override
         public int getMask() { return (1 << ordinal()); }
     }
 

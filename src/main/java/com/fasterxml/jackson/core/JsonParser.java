@@ -582,7 +582,9 @@ public abstract class JsonParser
      *
      * @since 2.12
      */
-    public abstract JacksonFeatureSet<StreamReadCapability> getReadCapabilities();
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        return DEFAULT_READ_CAPABILITIES;
+    }
 
     /*
     /**********************************************************

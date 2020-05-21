@@ -169,11 +169,6 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return DEFAULT_READ_CAPABILITIES;
-    }
-
     // from base class:
 
     //public void enableFeature(Feature f)

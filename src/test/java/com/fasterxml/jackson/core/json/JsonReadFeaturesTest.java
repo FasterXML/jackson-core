@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -14,26 +12,21 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class JsonReadFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = sharedStreamFactory();
+
     public void testStreamReadFeatureDefaults() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        assertTrue(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
-
-        JsonParser p = f.createParser(ObjectReadContext.empty(), new StringReader("{}"));
-        _testDefaultSettings(p);
-        p.close();
-        p = f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream("{}".getBytes("UTF-8")));
-        _testDefaultSettings(p);
-        p.close();
+        _testDefaultSettings(createParser(JSON_F, MODE_INPUT_STREAM, "{}"));
+        _testDefaultSettings(createParser(JSON_F, MODE_READER, "{}"));
+        _testDefaultSettings(createParser(JSON_F, MODE_DATA_INPUT, "{}"));
     }
 
     public void testJsonReadFeatureDefaultSettings() throws Exception
     {
-        JsonFactory f = sharedStreamFactory();
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS));
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES));
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES));
+        assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS));
+        assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES));
+        assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES));
     }
     
     public void testQuotesRequired() throws Exception
@@ -62,11 +55,16 @@ public class JsonReadFeaturesTest
     /****************************************************************
      */
 
-    private void _testDefaultSettings(JsonParser p) {
+    private void _testDefaultSettings(JsonParser p) throws Exception {
         assertFalse(p.canReadObjectId());
         assertFalse(p.canReadTypeId());
+
+        // [core#619]:
+        assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES));
+
+        p.close();
     }
-    
+
     private void _testQuotesRequired(boolean useStream) throws Exception
     {
         final String JSON = "{ test : 3 }";

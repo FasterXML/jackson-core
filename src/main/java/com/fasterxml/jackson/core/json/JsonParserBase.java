@@ -88,11 +88,16 @@ public abstract class JsonParserBase
 
     /*
     /**********************************************************************
-    /* Versioned
+    /* Versioned, capabilities, config
     /**********************************************************************
      */
 
     @Override public Version version() { return PackageVersion.VERSION; }
+
+    @Override
+    public int formatReadFeatures() {
+        return _formatReadFeatures;
+    }
 
     @Override
     public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {

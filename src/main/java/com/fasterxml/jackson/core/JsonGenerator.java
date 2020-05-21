@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 /**
  * Base class that defines public API for writing JSON content.
  * Instances are created using factory methods of
- * a {@link JsonFactory} instance.
+ * a {@link TokenStreamFactory} instance.
  *
  * @author Tatu Saloranta
  */

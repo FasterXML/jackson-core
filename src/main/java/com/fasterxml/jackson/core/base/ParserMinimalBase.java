@@ -198,16 +198,6 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    @Override
-    public ObjectReadContext getObjectReadContext() {
-        return _objectReadContext;
-    }
-
-    @Override
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return DEFAULT_READ_CAPABILITIES;
-    }
-
     // from base class:
 
     @Override
@@ -225,12 +215,18 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override
     public boolean isEnabled(StreamReadFeature f) { return f.enabledIn(_streamReadFeatures); }
 
+    /*
+    /**********************************************************************
+    /* Config access, capability introspection
+    /**********************************************************************
+     */
+    
     @Override
     public int streamReadFeatures() { return _streamReadFeatures; }
 
     @Override
-    public int formatReadFeatures() {
-        return 0;
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        return DEFAULT_READ_CAPABILITIES;
     }
 
     /*
@@ -255,6 +251,11 @@ public abstract class ParserMinimalBase extends JsonParser
 
     //  public abstract JsonLocation getTokenLocation();
     //  public abstract JsonLocation getCurrentLocation();
+
+    @Override
+    public ObjectReadContext getObjectReadContext() {
+        return _objectReadContext;
+    }
 
     /**
      * Method sub-classes need to implement

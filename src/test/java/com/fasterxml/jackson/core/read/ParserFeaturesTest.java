@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -12,27 +10,24 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class ParserFeaturesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = sharedStreamFactory();
+
     public void testDefaultSettings() throws Exception
     {
-        JsonFactory f = new JsonFactory();
-        assertTrue(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        assertTrue(JSON_F.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
 
-        JsonParser p = f.createParser(new StringReader("{}"));
-        _testDefaultSettings(p);
-        p.close();
-        p = f.createParser(new ByteArrayInputStream("{}".getBytes("UTF-8")));
-        _testDefaultSettings(p);
-        p.close();
+        _testDefaultSettings(createParser(JSON_F, MODE_INPUT_STREAM, "{}"));
+        _testDefaultSettings(createParser(JSON_F, MODE_READER, "{}"));
+        _testDefaultSettings(createParser(JSON_F, MODE_DATA_INPUT, "{}"));
     }
 
     @SuppressWarnings("deprecation")
     public void testDeprecatedDefaultSettings() throws Exception
     {
-        JsonFactory f = sharedStreamFactory();
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES));
-        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));
+        assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS));
+        assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES));
+        assertFalse(JSON_F.isEnabled(JsonParser.Feature.ALLOW_SINGLE_QUOTES));
     }
     
     public void testQuotesRequired() throws Exception
@@ -40,8 +35,6 @@ public class ParserFeaturesTest
         _testQuotesRequired(false);
         _testQuotesRequired(true);
     }
-
-    // // Tests for [JACKSON-208], unquoted tabs:
 
     public void testTabsDefault() throws Exception
     {
@@ -61,11 +54,16 @@ public class ParserFeaturesTest
     /****************************************************************
      */
 
-    private void _testDefaultSettings(JsonParser p) {
+    private void _testDefaultSettings(JsonParser p) throws Exception {
         assertFalse(p.canReadObjectId());
         assertFalse(p.canReadTypeId());
+
+        // [core#619]:
+        assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES));
+
+        p.close();
     }
-    
+
     private void _testQuotesRequired(boolean useStream) throws Exception
     {
         final String JSON = "{ test : 3 }";

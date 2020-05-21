@@ -78,6 +78,17 @@ desc, allFeatures.length));
     }
 
     /**
+     * Main accessor for checking whether given feature is enabled in this feature set.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled in this set; false otherwise
+     */
+    public boolean isEnabled(F feature) {
+        return (feature.getMask() & _enabled) != 0;
+    }
+
+    /**
      * Accessor for underlying bitmask
      * 
      * @return Bitmask of enabled features

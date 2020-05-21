@@ -148,9 +148,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public JsonToken getCurrentToken() { return _currToken; }
     @Override public JsonToken currentToken() { return _currToken; }
 
+    @Deprecated // since 2.12
     @Override public final int getCurrentTokenId() {
-        final JsonToken t = _currToken;
-        return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
+        return currentTokenId();
     }
     @Override public final int currentTokenId() {
         final JsonToken t = _currToken;

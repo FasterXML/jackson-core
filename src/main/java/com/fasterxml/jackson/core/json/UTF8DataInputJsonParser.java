@@ -142,6 +142,11 @@ public class UTF8DataInputJsonParser
         _objectCodec = c;
     }
 
+    @Override // @since 2.12
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        return JSON_READ_CAPABILITIES;
+    }
+
     /*
     /**********************************************************
     /* Overrides for life-cycle

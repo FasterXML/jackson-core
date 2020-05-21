@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -167,6 +168,11 @@ public abstract class ParserMinimalBase extends JsonParser
     /* Configuration overrides if any
     /**********************************************************
      */
+
+    @Override // @since 2.12
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        return DEFAULT_READ_CAPABILITIES;
+    }
 
     // from base class:
 

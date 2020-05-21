@@ -16,7 +16,7 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * based on a {@link java.io.Reader} to handle low-level character
  * conversion tasks.
  */
-public class ReaderBasedJsonParser // final in 2.3, earlier
+public class ReaderBasedJsonParser
     extends ParserBase
 {
     @SuppressWarnings("deprecation")
@@ -167,6 +167,11 @@ public class ReaderBasedJsonParser // final in 2.3, earlier
 
     @Override public ObjectCodec getCodec() { return _objectCodec; }
     @Override public void setCodec(ObjectCodec c) { _objectCodec = c; }
+
+    @Override // @since 2.12
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        return JSON_READ_CAPABILITIES;
+    }
 
     @Override
     public int releaseBuffered(Writer w) throws IOException {

@@ -13,6 +13,7 @@ import java.util.Iterator;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
@@ -39,6 +40,16 @@ public abstract class JsonParser
     public enum NumberType {
         INT, LONG, BIG_INTEGER, FLOAT, DOUBLE, BIG_DECIMAL
     };
+
+    /**
+     * Default set of {@link StreamReadCapability}ies that may be used as
+     * basis for format-specific readers (or as bogus instance if non-null
+     * set needs to be passed).
+     *
+     * @since 2.12
+     */
+    protected final static JacksonFeatureSet<StreamReadCapability> DEFAULT_READ_CAPABILITIES
+        = JacksonFeatureSet.fromDefaults(StreamReadCapability.values());
 
     /**
      * Enumeration that defines all on/off features for parsers.
@@ -543,7 +554,7 @@ public abstract class JsonParser
      * Access mode is determined by earlier calls via {@link JsonFactory};
      * it may not be changed after construction.
      *<p>
-     * If non-blocking decoding is u (@code true}, it is possible to call
+     * If non-blocking decoding is (@code true}, it is possible to call
      * {@link #getNonBlockingInputFeeder()} to obtain object to use
      * for feeding input; otherwise (<code>false</code> returned)
      * input is read by blocking 
@@ -562,6 +573,16 @@ public abstract class JsonParser
     public NonBlockingInputFeeder getNonBlockingInputFeeder() {
         return null;
     }
+
+    /**
+     * Accessor for getting metadata on capabilities of this parser, based on
+     * underlying data format being read (directly or indirectly).
+     *
+     * @return Set of read capabilities for content to read via this parser
+     *
+     * @since 2.12
+     */
+    public abstract JacksonFeatureSet<StreamReadCapability> getReadCapabilities();
 
     /*
     /**********************************************************

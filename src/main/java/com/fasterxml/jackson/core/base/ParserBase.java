@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.PackageVersion;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
 /**
@@ -22,6 +23,11 @@ import com.fasterxml.jackson.core.util.TextBuffer;
  */
 public abstract class ParserBase extends ParserMinimalBase
 {
+    // JSON capabilities are the same as defaults
+    // @since 2.12
+    protected final static JacksonFeatureSet<StreamReadCapability> JSON_READ_CAPABILITIES
+        = DEFAULT_READ_CAPABILITIES;
+
     /*
     /**********************************************************
     /* Generic I/O state

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.PackageVersion;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 /**
  * Another intermediate base class aimed at ONLY json-backed parser.
@@ -92,6 +93,12 @@ public abstract class JsonParserBase
      */
 
     @Override public Version version() { return PackageVersion.VERSION; }
+
+    @Override
+    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        // For now, JSON settings do not differ from general defaults:
+        return DEFAULT_READ_CAPABILITIES;
+    }
 
     /*
     /**********************************************************************

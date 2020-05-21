@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
@@ -34,6 +35,13 @@ public abstract class JsonParser
     public enum NumberType {
         INT, LONG, BIG_INTEGER, FLOAT, DOUBLE, BIG_DECIMAL
     }
+
+    /**
+     * Set of default {@link StreamReadCapability}ies enabled: usable as basis
+     * for format-specific instances or placeholder if non-null instance needed.
+     */
+    protected final static JacksonFeatureSet<StreamReadCapability> DEFAULT_READ_CAPABILITIES
+        = JacksonFeatureSet.fromDefaults(StreamReadCapability.values());
 
     /*
     /**********************************************************************
@@ -258,7 +266,7 @@ public abstract class JsonParser
      * Access mode is determined by earlier calls via {@link JsonFactory};
      * it may not be changed after construction.
      *<p>
-     * If non-blocking decoding is u (@code true}, it is possible to call
+     * If non-blocking decoding is (@code true}, it is possible to call
      * {@link #getNonBlockingInputFeeder()} to obtain object to use
      * for feeding input; otherwise (<code>false</code> returned)
      * input is read by blocking 
@@ -273,6 +281,16 @@ public abstract class JsonParser
     public NonBlockingInputFeeder getNonBlockingInputFeeder() {
         return null;
     }
+
+    /**
+     * Accessor for getting metadata on capabilities of this parser, based on
+     * underlying data format being read (directly or indirectly).
+     *
+     * @return Set of read capabilities for content to read via this parser
+     *
+     * @since 2.12
+     */
+    public abstract JacksonFeatureSet<StreamReadCapability> getReadCapabilities();
 
     /*
     /**********************************************************************

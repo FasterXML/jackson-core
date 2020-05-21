@@ -83,6 +83,8 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public NonBlockingInputFeeder getNonBlockingInputFeeder() { return delegate.getNonBlockingInputFeeder(); }
 
+    @Override public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() { return delegate.getReadCapabilities(); }
+
     /*
     /**********************************************************************
     /* Closeable impl

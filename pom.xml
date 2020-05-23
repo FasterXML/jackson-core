@@ -60,7 +60,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.4</version>
         <executions>
           <execution>
             <goals>

@@ -16,6 +16,8 @@ JSON library.
 
 2.12.0 (not yet released)
 
+#618: Publish Gradle Module Metadata
+ (contributed by Jendrik J)
 #619: Add `StreamReadCapability` for further format-based/format-agnostic
   handling improvements
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)

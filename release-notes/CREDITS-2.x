@@ -240,3 +240,7 @@ Oleksandr Poslavskyi (alevskyi@github)
 James Agnew (jamesagnew@github)
   * Contributed implementation of #611: Optionally allow leading decimal in float tokens
   (2.11.0)
+
+Jendrik Johannes (jjohannes@github)
+  * Contributed #618: Publish Gradle Module Metadata
+  (2.12.0)

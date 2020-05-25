@@ -198,22 +198,6 @@ public abstract class JsonParser
 
     /*
     /**********************************************************************
-    /* General capability introspection
-    /**********************************************************************
-     */
-
-    /**
-     * Specialized capability accessor used to check whether parsers for
-     * this factory can create "synthetic nulls" since format does not
-     * have native notation (or at least not unambiguous one).
-     * This is true for XML backend.
-     *
-     * @since 3.0
-     */
-    public boolean canSynthesizeNulls() { return false; }
-
-    /*
-    /**********************************************************************
     /* Schema support
     /**********************************************************************
      */

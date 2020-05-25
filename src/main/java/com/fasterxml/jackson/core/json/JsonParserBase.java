@@ -95,11 +95,6 @@ public abstract class JsonParserBase
     @Override public Version version() { return PackageVersion.VERSION; }
 
     @Override
-    public int formatReadFeatures() {
-        return _formatReadFeatures;
-    }
-
-    @Override
     public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
         // For now, JSON settings do not differ from general defaults:
         return DEFAULT_READ_CAPABILITIES;

@@ -65,7 +65,6 @@ public class JsonParserDelegate extends JsonParser
  
     @Override public boolean isEnabled(StreamReadFeature f) { return delegate.isEnabled(f); }
     @Override public int streamReadFeatures() { return delegate.streamReadFeatures(); }
-    @Override public int formatReadFeatures() { return delegate.formatReadFeatures(); }
 
     @Override public FormatSchema getSchema() { return delegate.getSchema(); }
     @Override public void setSchema(FormatSchema schema) { delegate.setSchema(schema); }

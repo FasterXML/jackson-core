@@ -347,7 +347,7 @@ public abstract class JsonParser
      *    otherwise number of bytes released (0 if there was nothing to release)
      *    
      * @throws IOException if write to stream threw exception
-     */    
+     */
     public int releaseBuffered(OutputStream out) throws IOException {
         return -1;
     }
@@ -400,16 +400,6 @@ public abstract class JsonParser
      * @since 3.0
      */
     public abstract int streamReadFeatures();
-
-    /**
-     * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
-     * on/off configuration settings.
-     * 
-     * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
-     *
-     * @since 3.0
-     */
-    public abstract int formatReadFeatures();
 
     /*
     /**********************************************************************

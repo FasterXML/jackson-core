@@ -447,24 +447,6 @@ public abstract class BaseTest
         g.close();
     }
 
-    protected String readAndWrite(JsonFactory f, JsonParser p) throws IOException
-    {
-        StringWriter sw = new StringWriter(100);
-        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
-        g.disable(StreamWriteFeature.AUTO_CLOSE_CONTENT);
-        try {
-            while (p.nextToken() != null) {
-                g.copyCurrentEvent(p);
-            }
-        } catch (IOException e) {
-            g.flush();
-            fail("Unexpected problem during `readAndWrite`. Output so far: '"+sw+"'; problem: "+e);
-        }
-        p.close();
-        g.close();
-        return sw.toString();
-    }
-
     /*
     /**********************************************************
     /* Additional assertion methods

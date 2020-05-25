@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.filter;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -430,5 +432,23 @@ public class BasicParserFilteringTest extends BaseTest
         p.skipChildren();
         assertEquals(JsonToken.END_OBJECT, p.currentToken());
         assertNull(p.nextToken());
+    }
+
+    protected String readAndWrite(JsonFactory f, JsonParser p) throws IOException
+    {
+        StringWriter sw = new StringWriter(100);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        //g.disable(StreamWriteFeature.AUTO_CLOSE_CONTENT);
+        try {
+            while (p.nextToken() != null) {
+                g.copyCurrentEvent(p);
+            }
+        } catch (IOException e) {
+            g.flush();
+            fail("Unexpected problem during `readAndWrite`. Output so far: '"+sw+"'; problem: "+e);
+        }
+        p.close();
+        g.close();
+        return sw.toString();
     }
 }

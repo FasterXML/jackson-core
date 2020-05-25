@@ -84,9 +84,7 @@ public abstract class JsonGenerator
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
      */
-    public Object getOutputTarget() {
-        return null;
-    }
+    public abstract Object getOutputTarget();
 
     /**
      * Method for verifying amount of content that is buffered by generator
@@ -94,19 +92,15 @@ public abstract class JsonGenerator
      * in units (byte, char) that the generator implementation uses for buffering;
      * or -1 if this information is not available.
      * Unit used is often the same as the unit of underlying target (that is,
-     * `byte` for {@link java.io.OutputStream}, `char` for {@link java.io.Writer}),
+     * {@code byte} for {@link java.io.OutputStream},
+     * {@code char} for {@link java.io.Writer}),
      * but may differ if buffering is done before encoding.
      * Default JSON-backed implementations do use matching units.
-     *<p>
-     * Note: non-JSON implementations will be retrofitted for 2.6 and beyond;
-     * please report if you see -1 (missing override)
      *
      * @return Amount of content buffered in internal units, if amount known and
      *    accessible; -1 if not accessible.
      */
-    public int getOutputBuffered() {
-        return -1;
-    }
+    public abstract int getOutputBuffered();
 
     /**
      * Helper method, usually equivalent to:
@@ -136,31 +130,15 @@ public abstract class JsonGenerator
      */
 
     /**
-     * Method for enabling specified parser features:
-     * check {@link StreamWriteFeature} for list of available features.
-     *
-     * @return Generator itself (this), to allow chaining
-     */
-    public abstract JsonGenerator enable(StreamWriteFeature f);
-
-    /**
-     * Method for disabling specified  features
-     * (check {@link StreamWriteFeature} for list of features)
-     *
-     * @return Generator itself (this), to allow chaining
-     */
-    public abstract JsonGenerator disable(StreamWriteFeature f);
-
-    /**
      * Method for enabling or disabling specified feature:
      * check {@link StreamWriteFeature} for list of available features.
+     *<p>
+     * NOTE: mostly left in 3.0 just to support disabling of
+     * {@link StreamWriteFeature#AUTO_CLOSE_CONTENT}.
      *
      * @return Generator itself (this), to allow chaining
      */
-    public final JsonGenerator configure(StreamWriteFeature f, boolean state) {
-        if (state) enable(f); else disable(f);
-        return this;
-    }
+    public abstract JsonGenerator configure(StreamWriteFeature f, boolean state);
 
     /**
      * Method for checking whether given feature is enabled.
@@ -169,7 +147,7 @@ public abstract class JsonGenerator
     public abstract boolean isEnabled(StreamWriteFeature f);
 
     /**
-     * Bulk access method for getting state of all standard (non-dataformat-specific)
+     * Bulk access method for getting state of all standard (format-agnostic)
      * {@link StreamWriteFeature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link StreamWriteFeature}s.
@@ -178,54 +156,17 @@ public abstract class JsonGenerator
      */
     public abstract int streamWriteFeatures();
 
-    /**
-     * Bulk access method for getting state of all {@link FormatFeature}s, format-specific
-     * on/off configuration settings.
-     * 
-     * @return Bit mask that defines current states of all standard {@link FormatFeature}s.
-     *
-     * @since 3.0
-     */
-    public abstract int formatWriteFeatures();
-
     /*
     /**********************************************************************
-    /* Public API, Schema configuration
+    /* Public API, other configuration
     /**********************************************************************
-     */
-
-    /**
-     * Method to call to make this generator use specified schema.
-     * Method must be called before generating any content, right after instance
-     * has been created.
-     * Note that not all generators support schemas; and those that do usually only
-     * accept specific types of schemas: ones defined for data format this generator
-     * produces.
-     *<p>
-     * If generator does not support specified schema, {@link UnsupportedOperationException}
-     * is thrown.
-     * 
-     * @param schema Schema to use
-     * 
-     * @throws UnsupportedOperationException if generator does not support schema
-    public void setSchema(FormatSchema schema) {
-        throw new UnsupportedOperationException(String.format(
-                "Generator of type %s does not support schema of type '%s'",
-                getClass().getName(), schemaType);
-    }
-    */
+      */
 
     /**
      * Method for accessing Schema that this parser uses, if any.
      * Default implementation returns null.
      */
     public FormatSchema getSchema() { return null; }
-
-    /*
-    /**********************************************************************
-    /* Public API, other configuration
-    /**********************************************************************
-      */
 
     /**
      * Method that can be called to request that generator escapes
@@ -279,7 +220,7 @@ public abstract class JsonGenerator
      * Default implementation does nothing and simply returns this instance.
      */
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) { return this; }
-    
+
     /*
     /**********************************************************************
     /* Public API, capability introspection methods
@@ -295,7 +236,7 @@ public abstract class JsonGenerator
      * @return True if this generator can use given schema; false if not
      */
     public boolean canUseSchema(FormatSchema schema) { return false; }
-    
+
     /**
      * Introspection method that may be called to see if the underlying
      * data format supports some kind of Object Ids natively (many do not;
@@ -878,7 +819,7 @@ public abstract class JsonGenerator
      *
      * @param v Number value to write
      */
-    public void writeNumber(short v) throws IOException { writeNumber((int) v); }
+    public abstract void writeNumber(short v) throws IOException;
 
     /**
      * Method for outputting given value as JSON number.
@@ -1201,9 +1142,9 @@ public abstract class JsonGenerator
     /**********************************************************************
      */
 
-    // 04-Oct-2019, tatu: Reminder: these could be defined final to
-    //    remember NOT to override in delegating sub-classes -- but
-    //    not final in 2.x to reduce compatibility issues
+    // 25-May-2020, tatu: NOTE! Made `final` on purpose in 3.x to prevent issues
+    //    rising from complexity of overriding only some of methods (writeFieldName()
+    //    and matching writeXxx() for value)
 
     /**
      * Convenience method for outputting a field entry ("member")

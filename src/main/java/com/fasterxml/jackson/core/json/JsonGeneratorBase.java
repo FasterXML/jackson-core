@@ -169,12 +169,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /* Overridden configuration methods
     /**********************************************************************
      */
-    
-    @Override
-    public int formatWriteFeatures() {
-        return _formatWriteFeatures;
-    }
-    
+
     @Override
     public JsonGenerator setHighestNonEscapedChar(int charCode) {
         _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;

@@ -94,14 +94,12 @@ public abstract class GeneratorBase extends JsonGenerator
     // public int formatWriteFeatures();
 
     @Override
-    public JsonGenerator enable(StreamWriteFeature f) {
-        _streamWriteFeatures |= f.getMask();
-        return this;
-    }
-
-    @Override
-    public JsonGenerator disable(StreamWriteFeature f) {
-        _streamWriteFeatures &= ~f.getMask();
+    public final JsonGenerator configure(StreamWriteFeature f, boolean state) {
+        if (state) {
+            _streamWriteFeatures |= f.getMask();
+        } else {
+            _streamWriteFeatures &= ~f.getMask();
+        }
         return this;
     }
 

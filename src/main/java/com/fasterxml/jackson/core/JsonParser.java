@@ -201,16 +201,6 @@ public abstract class JsonParser
      * Default implementation returns null.
      */
     public FormatSchema getSchema() { return null; }
-    
-    /**
-     * Method that can be used to verify that given schema can be used with
-     * this parser (using {@link #setSchema}).
-     * 
-     * @param schema Schema to check
-     * 
-     * @return True if this parser can use given schema; false if not
-     */
-    public boolean canUseSchema(FormatSchema schema) { return false; }
 
     /*
     /**********************************************************************

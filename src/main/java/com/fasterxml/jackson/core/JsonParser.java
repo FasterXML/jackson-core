@@ -196,32 +196,6 @@ public abstract class JsonParser
         _requestPayload = (payload == null) ? null : new RequestPayload(payload);
     }
 
-    /*
-    /**********************************************************************
-    /* Schema support
-    /**********************************************************************
-     */
-
-    /**
-     * Method to call to make this parser use specified schema. Method must
-     * be called before trying to parse any content, right after parser instance
-     * has been created.
-     * Note that not all parsers support schemas; and those that do usually only
-     * accept specific types of schemas: ones defined for data format parser can read.
-     *<p>
-     * If parser does not support specified schema, {@link UnsupportedOperationException}
-     * is thrown.
-     * 
-     * @param schema Schema to use
-     * 
-     * @throws UnsupportedOperationException if parser does not support schema
-     */
-    public void setSchema(FormatSchema schema) {
-        String desc = (schema == null) ? "NULL" : String.format("'%s'", schema.getSchemaType());
-        throw new UnsupportedOperationException("Parser of type "+getClass().getName()
-                +" does not support schema of type "+desc);
-    }
-
     /**
      * Method for accessing Schema that this parser uses, if any.
      * Default implementation returns null.

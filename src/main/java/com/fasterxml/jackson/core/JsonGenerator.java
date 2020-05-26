@@ -736,7 +736,6 @@ public abstract class JsonGenerator
      */
     public abstract void writeStartArray() throws IOException;
 
-    // TODO: deprecate in 2.11 (remove from 3.0)
     /**
      * Method for writing start marker of an Array value, similar
      * to {@link #writeStartArray()}, but also specifying how many
@@ -751,7 +750,10 @@ public abstract class JsonGenerator
      *   this is the case.
      *   
      * @since 2.4
+     *
+     * @deprecated Since 2.12 Use {@link #writeStartArray(Object, int)} instead
      */
+    @Deprecated
     public void writeStartArray(int size) throws IOException {
         writeStartArray();
     }

@@ -258,11 +258,11 @@ public class WriterBasedJsonGenerator
         }
     }
 
-    @Override // since 2.10
-    public void writeStartArray(int size) throws IOException
+    @Override // since 2.12
+    public void writeStartArray(Object currentValue) throws IOException
     {
         _verifyValueWrite("start an array");
-        _writeContext = _writeContext.createChildArrayContext();
+        _writeContext = _writeContext.createChildArrayContext(currentValue);
         if (_cfgPrettyPrinter != null) {
             _cfgPrettyPrinter.writeStartArray(this);
         } else {
@@ -272,7 +272,22 @@ public class WriterBasedJsonGenerator
             _outputBuffer[_outputTail++] = '[';
         }
     }
-    
+
+    @Override // since 2.12
+    public void writeStartArray(Object currentValue, int size) throws IOException
+    {
+        _verifyValueWrite("start an array");
+        _writeContext = _writeContext.createChildArrayContext(currentValue);
+        if (_cfgPrettyPrinter != null) {
+            _cfgPrettyPrinter.writeStartArray(this);
+        } else {
+            if (_outputTail >= _outputEnd) {
+                _flushBuffer();
+            }
+            _outputBuffer[_outputTail++] = '[';
+        }
+    }
+
     @Override
     public void writeEndArray() throws IOException
     {

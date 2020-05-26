@@ -175,6 +175,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void writeStartArray(int size) throws IOException
     {

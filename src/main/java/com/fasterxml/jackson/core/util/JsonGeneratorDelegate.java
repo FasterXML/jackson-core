@@ -188,6 +188,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public void writeStartArray() throws IOException { delegate.writeStartArray(); }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void writeStartArray(int size) throws IOException { delegate.writeStartArray(size); }
 

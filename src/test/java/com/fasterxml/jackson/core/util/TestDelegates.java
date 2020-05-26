@@ -13,14 +13,6 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 {
-    static class BogusSchema implements FormatSchema
-    {
-        @Override
-        public String getSchemaType() {
-            return "test";
-        }
-    }
-
     static class POJO {
         public int x = 3;
     }
@@ -218,7 +210,6 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     /**
      * Test default, non-overridden generator delegate.
      */
-    @SuppressWarnings("deprecation")
     public void testGeneratorDelegate() throws IOException
     {
         final String TOKEN ="foo";
@@ -238,8 +229,6 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         // configuration
         assertFalse(del.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
         assertSame(g0, del.delegate());
-
-        assertFalse(del.canUseSchema(new BogusSchema()));
 
         // initial state
         assertNull(del.getSchema());

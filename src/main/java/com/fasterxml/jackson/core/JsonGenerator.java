@@ -228,16 +228,6 @@ public abstract class JsonGenerator
      */
 
     /**
-     * Method that can be used to verify that given schema can be used with
-     * this generator.
-     * 
-     * @param schema Schema to check
-     * 
-     * @return True if this generator can use given schema; false if not
-     */
-    public boolean canUseSchema(FormatSchema schema) { return false; }
-
-    /**
      * Introspection method that may be called to see if the underlying
      * data format supports some kind of Object Ids natively (many do not;
      * for example, JSON doesn't).

@@ -71,9 +71,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
 
     @Override
-    public boolean canUseSchema(FormatSchema schema) { return delegate.canUseSchema(schema); }
-
-    @Override
     public boolean canWriteTypeId() { return delegate.canWriteTypeId(); }
 
     @Override

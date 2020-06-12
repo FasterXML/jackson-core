@@ -745,9 +745,16 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected void _parseNumericValue(int expType) throws IOException
     {
+        // 12-Jun-2020, tatu: Sanity check to prevent more cryptic error for this case.
+        //    (note: could alternatively see if TextBuffer has aggregated contents, avoid
+        //    exception -- but that might be more confusing)
+        if (_closed) {
+            _reportError("Internal error: _parseNumericValue called when parser instance closed");
+        }
+
         // Int or float?
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-            int len = _intLength;
+            final int len = _intLength;
             // First: optimization for simple int
             if (len <= 9) { 
                 int i = _textBuffer.contentsAsInt(_numberNegative);
@@ -792,6 +799,12 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     protected int _parseIntValue() throws IOException
     {
+        // 12-Jun-2020, tatu: Sanity check to prevent more cryptic error for this case.
+        //    (note: could alternatively see if TextBuffer has aggregated contents, avoid
+        //    exception -- but that might be more confusing)
+        if (_closed) {
+            _reportError("Internal error: _parseNumericValue called when parser instance closed");
+        }
         // Inlined variant of: _parseNumericValue(NR_INT)
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
             if (_intLength <= 9) {

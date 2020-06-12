@@ -356,9 +356,8 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             ctxt = ctxt.getParent();
         }
-        /* 24-Sep-2013, tatu: Unfortunate, but since we did not expose exceptions,
-         *   need to wrap this here
-         */
+        // 24-Sep-2013, tatu: Unfortunate, but since we did not expose exceptions,
+        //   need to wrap this here
         try {
             ctxt.setCurrentName(name);
         } catch (IOException e) {

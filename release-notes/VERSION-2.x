@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.11.0 (25-Jun-2020)
+
+No changes since 2.11.0
+
 2.11.0 (26-Apr-2020)
 
 #504: Add a String Array write method in the Streaming API

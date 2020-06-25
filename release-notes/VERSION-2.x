@@ -22,6 +22,10 @@ JSON library.
   handling improvements
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 
+2.11.1 (25-Jun-2020)
+
+No changes since 2.11.0
+
 2.11.0 (26-Apr-2020)
 
 #504: Add a String Array write method in the Streaming API

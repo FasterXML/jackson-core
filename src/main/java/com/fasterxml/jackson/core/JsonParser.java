@@ -833,7 +833,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the resulting integer value falls outside range of
-     * Java byte, a {@link JsonParseException}
+     * Java byte, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
      */
     public abstract byte getByteValue() throws IOException;
@@ -848,7 +848,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the resulting integer value falls outside range of
-     * Java short, a {@link JsonParseException}
+     * Java short, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
      */
     public abstract short getShortValue() throws IOException;
@@ -863,7 +863,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the resulting integer value falls outside range of
-     * Java int, a {@link JsonParseException}
+     * Java int, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
      */
     public abstract int getIntValue() throws IOException;
@@ -878,7 +878,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the token is an integer, but its value falls
-     * outside of range of Java long, a {@link JsonParseException}
+     * outside of range of Java long, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
      */
     public abstract long getLongValue() throws IOException;
@@ -904,7 +904,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the value falls
-     * outside of range of Java float, a {@link JsonParseException}
+     * outside of range of Java float, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
      */
     public abstract float getFloatValue() throws IOException;
@@ -919,7 +919,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the value falls
-     * outside of range of Java double, a {@link JsonParseException}
+     * outside of range of Java double, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
      */
     public abstract double getDoubleValue() throws IOException;
@@ -998,6 +998,8 @@ public abstract class JsonParser
      * Convenience alternative to {@link #getBinaryValue(Base64Variant)}
      * that defaults to using
      * {@link Base64Variants#getDefaultVariant} as the default encoding.
+     *
+     * @return Decoded binary data
      */
     public byte[] getBinaryValue() throws IOException {
         return getBinaryValue(Base64Variants.getDefaultVariant());

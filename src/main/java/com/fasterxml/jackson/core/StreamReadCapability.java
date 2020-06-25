@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.util.JacksonFeature;
  * @since 2.12
  */
 public enum StreamReadCapability
-    implements JacksonFeature // since 2.12
+    implements JacksonFeature
 {
     /**
      * Capability that indicates that data format can expose multiple properties

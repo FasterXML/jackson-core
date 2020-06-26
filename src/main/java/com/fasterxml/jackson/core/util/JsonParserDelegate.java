@@ -109,6 +109,8 @@ public class JsonParserDelegate extends JsonParser
     @Override public TokenStreamContext getParsingContext() { return delegate.getParsingContext(); }
     @Override public boolean isExpectedStartArrayToken() { return delegate.isExpectedStartArrayToken(); }
     @Override public boolean isExpectedStartObjectToken() { return delegate.isExpectedStartObjectToken(); }
+    @Override public boolean isExpectedNumberIntToken() { return delegate.isExpectedNumberIntToken(); }
+
     @Override public boolean isNaN() throws IOException { return delegate.isNaN(); }
 
     /*

@@ -632,13 +632,22 @@ public abstract class JsonParser
      *   start-array marker (such {@link JsonToken#START_ARRAY});
      *   false if not.
      */
-    public boolean isExpectedStartArrayToken() { return currentToken() == JsonToken.START_ARRAY; }
+    public abstract boolean isExpectedStartArrayToken();
 
     /**
      * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
      * currently points to {@link JsonToken#START_OBJECT}.
      */
-    public boolean isExpectedStartObjectToken() { return currentToken() == JsonToken.START_OBJECT; }
+    public abstract boolean isExpectedStartObjectToken();
+
+    /**
+     * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
+     * currently points to {@link JsonToken#VALUE_NUMBER_INT}.
+     *<p>
+     * The initial use case is for XML backend to efficiently (attempt to) coerce
+     * textual content into numbers.
+     */
+    public abstract boolean isExpectedNumberIntToken();
 
     /**
      * Access for checking whether current token is a numeric value token, but
@@ -648,9 +657,7 @@ public abstract class JsonParser
      * NOTE: roughly equivalent to calling <code>!Double.isFinite()</code>
      * on value you would get from calling {@link #getDoubleValue()}.
      */
-    public boolean isNaN() throws IOException {
-        return false;
-    }
+    public abstract boolean isNaN() throws IOException;
 
     /*
     /**********************************************************************

@@ -295,6 +295,7 @@ public abstract class ParserMinimalBase extends JsonParser
     
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
+    @Override public boolean isExpectedNumberIntToken() { return _currToken == JsonToken.VALUE_NUMBER_INT; }
 
     @Override
     public JsonToken nextValue() throws IOException {

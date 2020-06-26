@@ -1118,6 +1118,17 @@ public abstract class JsonParser
     public boolean isExpectedStartObjectToken() { return currentToken() == JsonToken.START_OBJECT; }
 
     /**
+     * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
+     * currently points to {@link JsonToken#VALUE_NUMBER_INT}.
+     *<p>
+     * The initial use case is for XML backend to efficiently (attempt to) coerce
+     * textual content into numbers.
+     *
+     * @since 2.12
+     */
+    public boolean isExpectedNumberIntToken() { return currentToken() == JsonToken.VALUE_NUMBER_INT; }
+    
+    /**
      * Access for checking whether current token is a numeric value token, but
      * one that is of "not-a-number" (NaN) variety (including both "NaN" AND
      * positive/negative infinity!): not supported by all formats,

@@ -69,6 +69,7 @@ public class NumberParsingTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+        assertTrue(p.isExpectedNumberIntToken());
         assertEquals(""+EXP_I, p.getText());
 
         if (((short) EXP_I) == EXP_I) {
@@ -108,6 +109,7 @@ public class NumberParsingTest
         DOC = String.valueOf(EXP_I);
         p = createParser(mode, DOC + " "); // DataInput requires separator
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertTrue(p.isExpectedNumberIntToken());
         assertEquals(DOC, p.getText());
 
         int i = p.getIntValue();
@@ -122,6 +124,7 @@ public class NumberParsingTest
         DOC = String.valueOf(EXP_I)+".0";
         p = createParser(mode, DOC + " ");
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertFalse(p.isExpectedNumberIntToken());
         assertEquals(EXP_I, p.getValueAsInt());
         p.close();
 

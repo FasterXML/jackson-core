@@ -231,6 +231,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertFalse(del.hasTokenId(JsonTokenId.ID_START_OBJECT));
         assertTrue(del.isExpectedStartArrayToken());
         assertFalse(del.isExpectedStartObjectToken());
+        assertFalse(del.isExpectedNumberIntToken());
         assertEquals("[", del.getText());
         assertNotNull(del.getParsingContext());
         assertSame(parser.getParsingContext(), del.getParsingContext());
@@ -251,6 +252,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertEquals((short)1, del.getShortValue());
         assertEquals(1f, del.getFloatValue());
         assertFalse(del.isNaN());
+        assertTrue(del.isExpectedNumberIntToken());
         assertEquals(NumberType.INT, del.getNumberType());
         assertEquals(Integer.valueOf(1), del.getNumberValue());
         assertNull(del.getEmbeddedObject());

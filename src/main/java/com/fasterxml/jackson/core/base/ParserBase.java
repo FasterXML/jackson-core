@@ -756,7 +756,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
             final int len = _intLength;
             // First: optimization for simple int
-            if (len <= 9) { 
+            if (len <= 9) {
                 int i = _textBuffer.contentsAsInt(_numberNegative);
                 _numberInt = i;
                 _numTypesValid = NR_INT;

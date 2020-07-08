@@ -269,7 +269,10 @@ public class NumberParsingTest
     public void testLongBoundsChecks() throws Exception
     {
         String minLong = String.valueOf(Long.MIN_VALUE).substring(1);
+        String belowMinLong = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE)
+                .toString().substring(1);
         String maxLong = String.valueOf(Long.MAX_VALUE);
+        String aboveMaxLong = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE).toString();
         final String VALUE_491 = "1323372036854775807"; // is within range (JACKSON-491)
         final String OVERFLOW =  "9999999999999999999"; // and this one is clearly out
 
@@ -277,8 +280,11 @@ public class NumberParsingTest
         assertTrue(NumberInput.inLongRange(maxLong, false));
         assertTrue(NumberInput.inLongRange(VALUE_491, true));
         assertTrue(NumberInput.inLongRange(VALUE_491, false));
+
         assertFalse(NumberInput.inLongRange(OVERFLOW, false));
         assertFalse(NumberInput.inLongRange(OVERFLOW, true));
+        assertFalse(NumberInput.inLongRange(belowMinLong, true));
+        assertFalse(NumberInput.inLongRange(aboveMaxLong, false));
 
         char[] cbuf = minLong.toCharArray();
         assertTrue(NumberInput.inLongRange(cbuf, 0, cbuf.length, true));
@@ -287,8 +293,12 @@ public class NumberParsingTest
         cbuf = VALUE_491.toCharArray();
         assertTrue(NumberInput.inLongRange(cbuf, 0, cbuf.length, true));
         assertTrue(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
+
         cbuf = OVERFLOW.toCharArray();
         assertFalse(NumberInput.inLongRange(cbuf, 0, cbuf.length, true));
+        assertFalse(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
+
+        cbuf = aboveMaxLong.toCharArray();
         assertFalse(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
     }
     

@@ -24,12 +24,30 @@ public enum StreamReadCapability
      * Capability may be used for allowing secondary mapping of such duplicates
      * in case of using Tree Model (see {@link TreeNode}), or "untyped" databinding
      * (mapping content as generic {@link java.lang.Object}).
-     * 
      *<p>
-     * Capability is typically {@code false}, hence default.
+     * Capability is currently only enabled for XML format backend.
      */
     DUPLICATE_PROPERTIES(false),
 
+    /**
+     * Capability that indicates that data format may in some cases expose Scalar values
+     * (whether typed or untyped) as Object values. There are additional access methods
+     * at databind level: this capability may be used to decide whether to attempt to
+     * use such methods especially in potentially ambiguous cases.
+     *<p>
+     * Capability is currently only enabled for XML format backend.
+     */
+    SCALARS_AS_OBJECTS(false),
+
+    /**
+     * Capability that indicates that data format only exposed "untyped" scalars: that is,
+     * instead of Number, Boolean and String types all scalar values are reported as
+     * text ({@link JsonToken#VALUE_STRING})
+     * unless some sort of coercion is implied by caller.
+     *<p>
+     * This capability is true for many textual formats like CSV, Properties and XML.
+     */
+    UNTYPED_SCALARS(false),
     ;
 
     /**
@@ -50,5 +68,4 @@ public enum StreamReadCapability
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
     @Override
     public int getMask() { return _mask; }
-
 }

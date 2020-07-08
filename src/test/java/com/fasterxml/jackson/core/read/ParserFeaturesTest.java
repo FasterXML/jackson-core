@@ -60,6 +60,8 @@ public class ParserFeaturesTest
 
         // [core#619]:
         assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES));
+        assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.SCALARS_AS_OBJECTS));
+        assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.UNTYPED_SCALARS));
 
         p.close();
     }

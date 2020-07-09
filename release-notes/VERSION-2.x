@@ -21,6 +21,8 @@ JSON library.
 #619: Add `StreamReadCapability` for further format-based/format-agnostic
   handling improvements
 #627: Add `JsonParser.isExpectedNumberIntToken()` convenience method
+#630: Add `StreamWriteCapability` for further format-based/format-agnostic
+  handling improvements
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 
 2.11.1 (25-Jun-2020)

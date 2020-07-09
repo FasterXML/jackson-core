@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -284,6 +285,16 @@ public abstract class JsonGenerator
      * or not.
      */
     public boolean canWriteFormattedNumbers() { return false; }
+
+    /**
+     * Accessor for getting metadata on capabilities of this parser, based on
+     * underlying data format being read (directly or indirectly).
+     *
+     * @return Set of read capabilities for content to read via this parser
+     *
+     * @since 2.12
+     */
+    public abstract JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities();
 
     /*
     /**********************************************************************

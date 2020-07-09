@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 /**
  * Intermediate base class shared by JSON-backed generators
@@ -156,14 +157,19 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
     /*
     /**********************************************************************
-    /* Versioned, accessors
+    /* Versioned, accessors, capabilities
     /**********************************************************************
      */
 
     @Override public Version version() { return PackageVersion.VERSION; }
 
     public boolean isEnabled(JsonWriteFeature f) { return f.enabledIn(_formatWriteFeatures); }
-    
+
+    @Override
+    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
+        return DEFAULT_WRITE_CAPABILITIES;
+    }
+
     /*
     /**********************************************************************
     /* Overridden configuration methods

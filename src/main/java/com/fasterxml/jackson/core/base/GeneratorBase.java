@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.base;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +36,35 @@ public abstract class GeneratorBase extends JsonGenerator
      * huge "plain" serialization. See [core#315] for details.
      */
     protected final static int MAX_BIG_DECIMAL_SCALE = 9999;
-    
+
+    /*
+    /**********************************************************************
+    /* Default capabilities
+    /**********************************************************************
+     */
+
+    /**
+     * Default set of {@link StreamReadCapability}ies that may be used as
+     * basis for format-specific readers (or as bogus instance if non-null
+     * set needs to be passed).
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_WRITE_CAPABILITIES
+        = JacksonFeatureSet.fromDefaults(StreamWriteCapability.values());
+
+    /**
+     * Default set of {@link StreamReadCapability}ies for typical textual formats,
+     * to use either as-is, or as a base with possible differences.
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_TEXTUAL_WRITE_CAPABILITIES
+        = DEFAULT_WRITE_CAPABILITIES.with(StreamWriteCapability.CAN_WRITE_FORMATTED_NUMBERS);
+
+    /**
+     * Default set of {@link StreamReadCapability}ies for typical binary formats,
+     * to use either as-is, or as a base with possible differences.
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_BINARY_WRITE_CAPABILITIES
+        = DEFAULT_WRITE_CAPABILITIES.with(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY);
+
     /*
     /**********************************************************************
     /* Configuration

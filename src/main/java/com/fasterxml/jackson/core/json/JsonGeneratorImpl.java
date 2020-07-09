@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
@@ -29,6 +30,15 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      * (first 128 character codes), used for single-byte UTF-8 characters.
      */
     protected final static int[] sOutputEscapes = CharTypes.get7BitOutputEscapes();
+
+    /**
+     * Default capabilities for JSON generator implementations which do not
+     * different from "general textual" defaults
+     *
+     * @since 2.12
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> JSON_WRITE_CAPABILITIES
+        = DEFAULT_TEXTUAL_WRITE_CAPABILITIES;
 
     /*
     /**********************************************************
@@ -190,6 +200,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     public JsonGenerator setRootValueSeparator(SerializableString sep) {
         _rootValueSeparator = sep;
         return this;
+    }
+
+    @Override
+    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
+        return JSON_WRITE_CAPABILITIES;
     }
 
     /*

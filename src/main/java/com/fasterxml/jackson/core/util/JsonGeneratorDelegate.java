@@ -96,6 +96,11 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public boolean canWriteFormattedNumbers() { return delegate.canWriteFormattedNumbers(); }
 
+    @Override
+    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
+        return delegate.getWriteCapabilities();
+    }
+
     /*
     /**********************************************************
     /* Public API, configuration

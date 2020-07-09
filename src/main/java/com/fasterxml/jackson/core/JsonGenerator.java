@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -29,6 +30,34 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public abstract class JsonGenerator
     implements Closeable, Flushable, Versioned
 {
+    /**
+     * Default set of {@link StreamReadCapability}ies that may be used as
+     * basis for format-specific readers (or as bogus instance if non-null
+     * set needs to be passed).
+     *
+     * @since 2.12
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_WRITE_CAPABILITIES
+        = JacksonFeatureSet.fromDefaults(StreamWriteCapability.values());
+
+    /**
+     * Default set of {@link StreamReadCapability}ies for typical textual formats,
+     * to use either as-is, or as a base with possible differences.
+     *
+     * @since 2.12
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_TEXTUAL_WRITE_CAPABILITIES
+        = DEFAULT_WRITE_CAPABILITIES.with(StreamWriteCapability.CAN_WRITE_FORMATTED_NUMBERS);
+
+    /**
+     * Default set of {@link StreamReadCapability}ies for typical binary formats,
+     * to use either as-is, or as a base with possible differences.
+     *
+     * @since 2.12
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_BINARY_WRITE_CAPABILITIES
+        = DEFAULT_WRITE_CAPABILITIES.with(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY);
+
     /**
      * Enumeration that defines all togglable features for generators.
      */
@@ -634,7 +663,7 @@ public abstract class JsonGenerator
             ctxt.setCurrentValue(v);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Public API, capability introspection methods
@@ -718,6 +747,18 @@ public abstract class JsonGenerator
      * @since 2.8
      */
     public boolean canWriteFormattedNumbers() { return false; }
+
+    /**
+     * Accessor for getting metadata on capabilities of this parser, based on
+     * underlying data format being read (directly or indirectly).
+     *
+     * @return Set of read capabilities for content to read via this parser
+     *
+     * @since 2.12
+     */
+    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
+        return DEFAULT_WRITE_CAPABILITIES;
+    }
 
     /*
     /**********************************************************

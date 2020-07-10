@@ -581,7 +581,7 @@ public abstract class ParserBase extends ParserMinimalBase
     /* Numeric accessors of public API
     /**********************************************************
      */
-    
+
     @Override
     public Number getNumberValue() throws IOException
     {
@@ -599,13 +599,43 @@ public abstract class ParserBase extends ParserMinimalBase
             if ((_numTypesValid & NR_BIGINT) != 0) {
                 return _numberBigInt;
             }
-            // Shouldn't get this far but if we do
+            _throwInternal();
+        }
+
+        // And then floating point types. But here optimal type
+        // needs to be big decimal, to avoid losing any data?
+        if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             return _numberBigDecimal;
         }
-    
-        /* And then floating point types. But here optimal type
-         * needs to be big decimal, to avoid losing any data?
-         */
+        if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
+            _throwInternal();
+        }
+        return _numberDouble;
+    }
+
+    // NOTE: mostly copied from above
+    @Override
+    public Number getNumberValueExact() throws IOException
+    {
+        if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            if (_numTypesValid == NR_UNKNOWN) {
+                _parseNumericValue(NR_UNKNOWN);
+            }
+            if ((_numTypesValid & NR_INT) != 0) {
+                return _numberInt;
+            }
+            if ((_numTypesValid & NR_LONG) != 0) {
+                return _numberLong;
+            }
+            if ((_numTypesValid & NR_BIGINT) != 0) {
+                return _numberBigInt;
+            }
+            _throwInternal();
+        }
+        // 09-Jul-2020, tatu: [databind#2644] requires we will retain accuracy, so:
+        if (_numTypesValid == NR_UNKNOWN) {
+            _parseNumericValue(NR_BIGDECIMAL);
+        }
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             return _numberBigDecimal;
         }
@@ -733,7 +763,7 @@ public abstract class ParserBase extends ParserMinimalBase
     /* Conversion from textual to numeric representation
     /**********************************************************
      */
-    
+
     /**
      * Method that will parse actual numeric value out of a syntactically
      * valid number value. Type it will parse into depends on whether

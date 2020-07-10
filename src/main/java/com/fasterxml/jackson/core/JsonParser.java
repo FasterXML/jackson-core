@@ -819,8 +819,39 @@ public abstract class JsonParser
      * all kinds of numeric values. It will return the optimal
      * (simplest/smallest possible) wrapper object that can
      * express the numeric value just parsed.
+     *
+     * @return Numeric value of the current token in its most optimal
+     *   representation
+     *
+     * @throws IOException Problem with access: {@link JsonParseException} if
+     *    the current token is not numeric, or if decoding of the value fails
+     *    (invalid format for numbers); plain {@link IOException} if underlying
+     *    content read fails (possible if values are extracted lazily)
      */
     public abstract Number getNumberValue() throws IOException;
+
+    /**
+     * Method similar to {@link #getNumberValue} with the difference that
+     * for floating-point numbers value returned may be {@link BigDecimal}
+     * if the underlying format does not store floating-point numbers using
+     * native representation: for example, textual formats represent numbers
+     * as Strings (which are 10-based), and conversion to {@link java.lang.Double}
+     * is potentially lossy operation.
+     *<p>
+     * Default implementation simply returns {@link #getNumberValue()}
+     *
+     * @return Numeric value of the current token using most accurate representation
+     *
+     * @throws IOException Problem with access: {@link JsonParseException} if
+     *    the current token is not numeric, or if decoding of the value fails
+     *    (invalid format for numbers); plain {@link IOException} if underlying
+     *    content read fails (possible if values are extracted lazily)
+     *
+     * @since 2.12
+     */
+    public Number getNumberValueExact() throws IOException {
+        return getNumberValue();
+    }
 
     /**
      * If current token is of type 

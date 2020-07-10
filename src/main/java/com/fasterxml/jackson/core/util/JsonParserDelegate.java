@@ -206,12 +206,15 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public Number getNumberValue() throws IOException { return delegate.getNumberValue(); }
 
+    @Override
+    public Number getNumberValueExact() throws IOException { return delegate.getNumberValueExact(); }
+
     /*
     /**********************************************************************
     /* Public API, access to token information, coercion/conversion
     /**********************************************************************
      */
-    
+
     @Override public int getValueAsInt() throws IOException { return delegate.getValueAsInt(); }
     @Override public int getValueAsInt(int defaultValue) throws IOException { return delegate.getValueAsInt(defaultValue); }
     @Override public long getValueAsLong() throws IOException { return delegate.getValueAsLong(); }

@@ -482,7 +482,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return _numberDouble;
     }
-    
+
     @Override
     public NumberType getNumberType() throws IOException
     {

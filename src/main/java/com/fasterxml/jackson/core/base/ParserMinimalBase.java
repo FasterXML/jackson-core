@@ -627,6 +627,11 @@ public abstract class ParserMinimalBase extends JsonParser
         return getText();
     }
 
+    @Override
+    public Number getNumberValueExact() throws IOException {
+        return getNumberValue();
+    }
+
     /*
     /**********************************************************************
     /* Databind callbacks

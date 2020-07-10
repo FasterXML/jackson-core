@@ -846,12 +846,8 @@ public abstract class JsonParser
      *    the current token is not numeric, or if decoding of the value fails
      *    (invalid format for numbers); plain {@link IOException} if underlying
      *    content read fails (possible if values are extracted lazily)
-     *
-     * @since 2.12
      */
-    public Number getNumberValueExact() throws IOException {
-        return getNumberValue();
-    }
+    public abstract Number getNumberValueExact() throws IOException;
 
     /**
      * If current token is of type 

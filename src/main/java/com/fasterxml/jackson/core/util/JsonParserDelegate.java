@@ -193,12 +193,15 @@ public class JsonParserDelegate extends JsonParser
     @Override
     public Number getNumberValue() throws IOException { return delegate.getNumberValue(); }
 
+    @Override
+    public Number getNumberValueExact() throws IOException { return delegate.getNumberValueExact(); }
+
     /*
     /**********************************************************
     /* Public API, access to token information, coercion/conversion
     /**********************************************************
      */
-    
+
     @Override public int getValueAsInt() throws IOException { return delegate.getValueAsInt(); }
     @Override public int getValueAsInt(int defaultValue) throws IOException { return delegate.getValueAsInt(defaultValue); }
     @Override public long getValueAsLong() throws IOException { return delegate.getValueAsLong(); }
@@ -209,7 +212,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public boolean getValueAsBoolean(boolean defaultValue) throws IOException { return delegate.getValueAsBoolean(defaultValue); }
     @Override public String getValueAsString() throws IOException { return delegate.getValueAsString(); }
     @Override public String getValueAsString(String defaultValue) throws IOException { return delegate.getValueAsString(defaultValue); }
-    
+
     /*
     /**********************************************************
     /* Public API, access to token values, other

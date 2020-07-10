@@ -23,6 +23,7 @@ JSON library.
 #627: Add `JsonParser.isExpectedNumberIntToken()` convenience method
 #630: Add `StreamWriteCapability` for further format-based/format-agnostic
   handling improvements
+#631: Add `JsonParser.getNumberValueExact()` to allow precision-retaining buffering
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 
 2.11.1 (25-Jun-2020)

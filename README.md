@@ -6,7 +6,7 @@ It also includes the default implementation of handler types (parser, generator)
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
 This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on.
-It is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+It is licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/smile),
@@ -24,7 +24,7 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-core.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
-[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-core)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core)
 [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme)
 
 # Get it!
@@ -51,7 +51,7 @@ Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/).
+For non-Maven use cases, you download jars from [Central Maven repository](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 

@@ -108,7 +108,8 @@ The maintainers of `jackson-core` and thousands of other packages are working wi
 
 ## Differences from Jackson 1.x
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
+Project contains versions 2.0 and above: source code for the latest 1.x version (1.9.13) is available from
+[FasterXML/jackson-1](https://github.com/FasterXML/jackson-1) repo (unmaintained).
 
 Note that the main differences compared to 1.0 core jar are:
 

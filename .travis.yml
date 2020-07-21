@@ -1,7 +1,7 @@
-# 08-Dec-2018, tatu: While it should be possible to run core streaming on Java 6,
-#   build won't work with anything below Java 8 now
 language: java
 
+# 08-Dec-2018, tatu: While it should be possible to run core streaming on Java 6,
+#   build won't work with anything below Java 8 now
 jdk:
   - openjdk8
   - openjdk11

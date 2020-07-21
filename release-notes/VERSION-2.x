@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.5 (not yet released)
+2.10.5 (21-Jul-2020)
 
 #616: Parsing JSON with `ALLOW_MISSING_VALUE` enabled results in endless stream
   of `VALUE_NULL` tokens

@@ -4,18 +4,17 @@ language: java
 #   build won't work with anything below Java 8 now
 jdk:
   - openjdk8
-  - oraclejdk11
+  - openjdk11
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
 #   https://knowm.org/configure-travis-ci-to-deploy-snapshots/
 
 before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
-after_success: "mvn deploy --settings target/travis/settings.xml"
+script: "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && mvn clean deploy --settings target/travis/settings.xml || mvn clean verify --settings target/travis/settings.xml"
 
 # whitelist
 branches:
   only:
-    - master
     - "2.10"
 
 env:

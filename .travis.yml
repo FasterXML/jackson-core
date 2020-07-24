@@ -10,10 +10,9 @@ jdk:
 #   https://knowm.org/configure-travis-ci-to-deploy-snapshots/
 
 before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
-after_success: "mvn deploy --settings target/travis/settings.xml"
+script: "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && mvn clean deploy --settings target/travis/settings.xml || mvn clean verify --settings target/travis/settings.xml"
 
 env:
   global:
     - secure: "YW0hrdsHvH41pb5uPJ2DGzXrBgOVT7nEyag/bAQoDcSlOQ/g55tnY6rIGkqE/aYD47IroTEhW4yLyM3tZpbrqwagX4dUX90ukjcUwUvFE1ePTSEfdBtuHVwl8f6HmLIIw2yK0dQ1gOJ21T+3g+wddvK+6sWBJJ+s3O1FePDh6X0="
     - secure: "sGQxvyfg98BFcJcWHQ5BjvDNhbwdgD1yEfkE3qzH4/gzwD/ND1jKhkCX++Glt3DuyAKhENNzXlSkztdCE5wKfK3X6MVvOgzMgiV/BhHIf09EtAjZ35fe4pr+GZImfGZO3qkViooTz3FDJyKJBA3YyMTuo9/eWK8HlUFCZHTjKP8="
-

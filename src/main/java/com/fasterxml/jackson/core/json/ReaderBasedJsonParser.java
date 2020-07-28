@@ -2355,7 +2355,7 @@ public class ReaderBasedJsonParser
                 _currInputRowStart = _inputPtr;
             } else if (i == INT_CR) {
                 _skipCR();
-            } else if (i != INT_TAB) {
+            } else if (i != INT_TAB && i != INT_RS) {
                 _throwInvalidSpace(i);
             }
         }
@@ -2375,7 +2375,7 @@ public class ReaderBasedJsonParser
                     _currInputRowStart = _inputPtr;
                 } else if (i == INT_CR) {
                     _skipCR();
-                } else if (i != INT_TAB) {
+                } else if (i != INT_TAB && i != INT_RS) {
                     _throwInvalidSpace(i);
                 }
             }

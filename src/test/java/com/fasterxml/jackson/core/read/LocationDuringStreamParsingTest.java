@@ -87,11 +87,11 @@ public class LocationDuringStreamParsingTest extends BaseTest
         assertEquals(expected, actual);
     }
 
-    private static class LocData
+    static class LocData
     {
-        private long lineNumber;
-        private long columnNumber;
-        private long offset;
+        long lineNumber;
+        long columnNumber;
+        long offset;
 
         LocData(long lineNumber, long columnNumber, long offset)
         {
@@ -101,7 +101,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
         }
     }
 
-    private static LocData at(long lineNumber, long columnNumber, long offset)
+    static LocData at(long lineNumber, long columnNumber, long offset)
     {
         return new LocData(lineNumber, columnNumber, offset);
     }

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncConcurrencyTest extends AsyncTestBase
 {
-    private final static JsonFactory JSON_F = new JsonFactory();
+    final static JsonFactory JSON_F = new JsonFactory();
     static {
         // To make it pass, try:
 //        JSON_F.disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING);
@@ -23,11 +23,11 @@ public class AsyncConcurrencyTest extends AsyncTestBase
     private final static String TEXT2 = "Some longer text";
     private final static String TEXT3 = "and yet more";
     private final static String TEXT4 = "... Longest yet although not superbly long still (see 'apos'?)";
-    
-    private final static byte[] JSON_DOC = utf8Bytes(String.format(
+
+    final static byte[] JSON_DOC = utf8Bytes(String.format(
             "[\"%s\", \"%s\",\n\"%s\",\"%s\" ]", TEXT1, TEXT2, TEXT3, TEXT4));
 
-    private class WorkUnit {
+    class WorkUnit {
 
         private int stage = 0;
 

@@ -101,7 +101,7 @@ public final class CharsToNameCanonicalizer
      * defined, and child instance is released (call to <code>release</code>),
      * parent's shared tables may be updated from the child instance.
      */
-    final private CharsToNameCanonicalizer _parent;
+    final protected CharsToNameCanonicalizer _parent;
 
     /**
      * Member that is only used by the root table instance: root
@@ -109,7 +109,7 @@ public final class CharsToNameCanonicalizer
      * may return new state if they add entries to the table.
      * Child tables do NOT use the reference.
      */
-    final private AtomicReference<TableInfo> _tableInfo;
+    final protected AtomicReference<TableInfo> _tableInfo;
 
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -118,9 +118,9 @@ public final class CharsToNameCanonicalizer
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
      */
-    final private int _seed;
+    final protected int _seed;
 
-    final private int _flags;
+    final protected int _flags;
 
     /**
      * Whether any canonicalization should be attempted (whether using
@@ -128,7 +128,7 @@ public final class CharsToNameCanonicalizer
      *<p>
      * NOTE: non-final since we may need to disable this with overflow.
      */
-    private boolean _canonicalize;
+    protected boolean _canonicalize;
 
     /*
     /**********************************************************
@@ -140,7 +140,7 @@ public final class CharsToNameCanonicalizer
      * Primary matching symbols; it's expected most match occur from
      * here.
      */
-    private String[] _symbols;
+    protected String[] _symbols;
 
     /**
      * Overflow buckets; if primary doesn't match, lookup is done
@@ -149,34 +149,34 @@ public final class CharsToNameCanonicalizer
      * Note: Number of buckets is half of number of symbol entries, on
      * assumption there's less need for buckets.
      */
-    private Bucket[] _buckets;
+    protected Bucket[] _buckets;
 
     /**
      * Current size (number of entries); needed to know if and when
      * rehash.
      */
-    private int _size;
+    protected int _size;
 
     /**
      * Limit that indicates maximum size this instance can hold before
      * it needs to be expanded and rehashed. Calculated using fill
      * factor passed in to constructor.
      */
-    private int _sizeThreshold;
+    protected int _sizeThreshold;
 
     /**
      * Mask used to get index from hash values; equal to
      * <code>_buckets.length - 1</code>, when _buckets.length is
      * a power of two.
      */
-    private int _indexMask;
+    protected int _indexMask;
 
     /**
      * We need to keep track of the longest collision list; this is needed
      * both to indicate problems with attacks and to allow flushing for
      * other cases.
      */
-    private int _longestCollisionList;
+    protected int _longestCollisionList;
 
     /*
     /**********************************************************
@@ -195,7 +195,7 @@ public final class CharsToNameCanonicalizer
      * and when adding new collision list queues (i.e. creating a new
      * collision list head entry)
      */
-    private boolean _hashShared;
+    protected boolean _hashShared;
 
     /*
     /**********************************************************
@@ -209,7 +209,7 @@ public final class CharsToNameCanonicalizer
      * to detect likely attempts at denial-of-service attacks that
      * uses hash collisions.
      */
-    private BitSet _overflows;
+    protected BitSet _overflows;
 
     /*
     /**********************************************************

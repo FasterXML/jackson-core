@@ -65,7 +65,7 @@ public final class ByteQuadsCanonicalizer
      * Reference to the root symbol table, for child tables, so
      * that they can merge table information back as necessary.
      */
-    final private ByteQuadsCanonicalizer _parent;
+    final protected ByteQuadsCanonicalizer _parent;
 
     /**
      * Member that is only used by the root table instance: root
@@ -73,7 +73,7 @@ public final class ByteQuadsCanonicalizer
      * may return new state if they add entries to the table.
      * Child tables do NOT use the reference.
      */
-    final private AtomicReference<TableInfo> _tableInfo;
+    final protected AtomicReference<TableInfo> _tableInfo;
     
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -82,7 +82,7 @@ public final class ByteQuadsCanonicalizer
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
      */
-    final private int _seed;
+    final protected int _seed;
     
     /*
     /**********************************************************
@@ -97,13 +97,13 @@ public final class ByteQuadsCanonicalizer
      * NOTE: non-final to allow disabling intern()ing in case of excessive
      * collisions.
      */
-    private boolean _intern;
+    protected boolean _intern;
 
     /**
      * Flag that indicates whether we should throw an exception if enough 
      * hash collisions are detected (true); or just worked around (false).
      */
-    private final boolean _failOnDoS;
+    protected final boolean _failOnDoS;
     
     /*
     /**********************************************************
@@ -117,7 +117,7 @@ public final class ByteQuadsCanonicalizer
      * structure (details of which may be tweaked depending on expected rates
      * of collisions).
      */
-    private int[] _hashArea;
+    protected int[] _hashArea;
 
     /**
      * Number of slots for primary entries within {@link #_hashArea}; which is
@@ -125,17 +125,17 @@ public final class ByteQuadsCanonicalizer
      * primary covers only half of the area; plus, additional area for longer
      * symbols after hash area).
      */
-    private int _hashSize;
+    protected int _hashSize;
 
     /**
      * Offset within {@link #_hashArea} where secondary entries start
      */
-    private int _secondaryStart;
+    protected int _secondaryStart;
 
     /**
      * Offset within {@link #_hashArea} where tertiary entries start
      */
-    private int _tertiaryStart;
+    protected int _tertiaryStart;
     
     /**
      * Constant that determines size of buckets for tertiary entries:
@@ -146,12 +146,12 @@ public final class ByteQuadsCanonicalizer
      * Default value is 2, for buckets of 4 slots; grows bigger with
      * bigger table sizes.
      */
-    private int _tertiaryShift;
+    protected int _tertiaryShift;
 
     /**
      * Total number of Strings in the symbol table; only used for child tables.
      */
-    private int _count;
+    protected int _count;
 
     /**
      * Array that contains <code>String</code> instances matching
@@ -159,7 +159,7 @@ public final class ByteQuadsCanonicalizer
      * Contains nulls for unused entries. Note that this size is twice
      * that of {@link #_hashArea}
      */
-    private String[] _names;
+    protected String[] _names;
 
     /*
     /**********************************************************
@@ -172,7 +172,7 @@ public final class ByteQuadsCanonicalizer
      * for more spilled over entries (if any).
      * Spill over area is within fixed-size portion of {@link #_hashArea}.
      */
-    private int _spilloverEnd;
+    protected int _spilloverEnd;
 
     /**
      * Offset within {@link #_hashArea} that follows main slots and contains
@@ -182,7 +182,7 @@ public final class ByteQuadsCanonicalizer
      * Note that long name area follows immediately after the fixed-size
      * main hash area ({@link #_hashArea}).
      */
-    private int _longNameOffset;
+    protected int _longNameOffset;
 
     /*
     /**********************************************************
@@ -203,7 +203,7 @@ public final class ByteQuadsCanonicalizer
      * and when adding new collision list queues (i.e. creating a new
      * collision list head entry)
      */
-    private boolean _hashShared;
+    protected boolean _hashShared;
 
     /*
     /**********************************************************

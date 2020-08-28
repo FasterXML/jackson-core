@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private static class BogusCodec extends ObjectCodec {
+    static class BogusCodec extends ObjectCodec {
         @Override
         public Version version() { return null; }
 

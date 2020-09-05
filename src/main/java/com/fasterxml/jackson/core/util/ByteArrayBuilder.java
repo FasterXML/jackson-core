@@ -54,6 +54,11 @@ public final class ByteArrayBuilder extends OutputStream
 
     public ByteArrayBuilder(BufferRecycler br, int firstBlockSize) {
         _bufferRecycler = br;
+        // 04-Sep-2020, tatu: Let's make this bit more robust and refuse to allocate
+        //    humongous blocks even if requested
+        if (firstBlockSize > MAX_BLOCK_SIZE) {
+            firstBlockSize = MAX_BLOCK_SIZE;
+        }
         _currBlock = (br == null) ? new byte[firstBlockSize] : br.allocByteBuffer(BufferRecycler.BYTE_WRITE_CONCAT_BUFFER);
     }
 

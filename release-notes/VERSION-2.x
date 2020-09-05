@@ -24,6 +24,7 @@ JSON library.
 #630: Add `StreamWriteCapability` for further format-based/format-agnostic
   handling improvements
 #631: Add `JsonParser.getNumberValueExact()` to allow precision-retaining buffering
+#639: Limit initial allocated block size by `ByteArrayBuilder` to max block size
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 
 2.11.2 (02-Aug-2020)

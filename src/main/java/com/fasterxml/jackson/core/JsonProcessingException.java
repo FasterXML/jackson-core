@@ -14,8 +14,8 @@ package com.fasterxml.jackson.core;
  */
 public class JsonProcessingException extends java.io.IOException
 {
-    final static long serialVersionUID = 123; // Stupid eclipse...
-	
+    private final static long serialVersionUID = 123; // eclipse complains otherwise
+
     protected JsonLocation _location;
 
     protected JsonProcessingException(String msg, JsonLocation loc, Throwable rootCause) {

@@ -13,7 +13,7 @@ package com.fasterxml.jackson.core;
 public class JsonGenerationException
     extends JsonProcessingException
 {
-    private final static long serialVersionUID = 123; // Stupid eclipse...
+    private final static long serialVersionUID = 123; // eclipse complains otherwise
 
     // transient since 2.7.4
     protected transient JsonGenerator _processor;

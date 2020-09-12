@@ -6,7 +6,6 @@ import java.util.Random;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
 import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.json.async.NonBlockingJsonParserBase;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 

@@ -14,7 +14,6 @@ public final class CharTypes
         }
     }
 
-
     /**
      * Lookup table used for determining which input characters
      * need special handling when contained in text segment.

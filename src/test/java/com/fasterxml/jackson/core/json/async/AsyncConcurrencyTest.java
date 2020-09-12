@@ -26,8 +26,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
     final static byte[] JSON_DOC = utf8Bytes(String.format(
             "[\"%s\", \"%s\",\n\"%s\",\"%s\" ]", TEXT1, TEXT2, TEXT3, TEXT4));
 
-    class WorkUnit {
-
+    static class WorkUnit {
         private int stage = 0;
 
         private AsyncReaderWrapper parser;
@@ -105,7 +104,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         }
     }
     
-    private void _testConcurrentAsyncOnce(final int round, final int maxRounds) throws Exception
+    void _testConcurrentAsyncOnce(final int round, final int maxRounds) throws Exception
     {
         final int numThreads = 3;
         final ExecutorService executor = Executors.newFixedThreadPool(numThreads);

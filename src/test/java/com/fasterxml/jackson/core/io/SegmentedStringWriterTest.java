@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 public class SegmentedStringWriterTest

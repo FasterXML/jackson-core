@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.sym;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 
 /**
  * Some unit tests to try to exercise part of parser code that

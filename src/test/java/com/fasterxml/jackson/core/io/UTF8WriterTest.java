@@ -4,8 +4,6 @@ import java.io.*;
 
 import org.junit.Assert;
 
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.UTF8Writer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
 public class UTF8WriterTest

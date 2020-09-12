@@ -3,8 +3,6 @@ package com.fasterxml.jackson.core.filter;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
-import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
 // for [core#609]
@@ -12,7 +10,7 @@ public class GeneratorFiltering609Test
     extends com.fasterxml.jackson.core.BaseTest
 {
     static class NullExcludingTokenFilter extends TokenFilter {
-        private static final NullExcludingTokenFilter INSTANCE =
+        static final NullExcludingTokenFilter INSTANCE =
                 new NullExcludingTokenFilter();
 
         @Override
@@ -27,7 +25,7 @@ public class GeneratorFiltering609Test
     {
         private final int maxStringLength;
 
-        private StringTruncatingGeneratorDelegate(
+        StringTruncatingGeneratorDelegate(
                 JsonGenerator jsonGenerator,
                 int maxStringLength) {
             super(jsonGenerator);

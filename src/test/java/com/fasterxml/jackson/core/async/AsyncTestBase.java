@@ -15,7 +15,7 @@ public abstract class AsyncTestBase extends BaseTest
 
     protected final static String UNICODE_SEGMENT = "["+UNICODE_2BYTES+"/"+UNICODE_3BYTES+"]";
 
-    protected AsyncReaderWrapper asyncForBytes(JsonFactory f,
+    protected static AsyncReaderWrapper asyncForBytes(JsonFactory f,
             int bytesPerRead,
             byte[] bytes, int padding) throws IOException
     {

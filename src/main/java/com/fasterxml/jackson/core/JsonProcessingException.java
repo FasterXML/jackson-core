@@ -11,18 +11,18 @@ package com.fasterxml.jackson.core;
  * that are not pure I/O problems.
  * Regular {@link java.io.IOException}s will be passed through as is.
  * Sub-class of {@link java.io.IOException} for convenience.
+ *<p>
+ * Since Jackson 2.12 extends intermediate {@link JacksonException} type
+ * instead of directly extending {@link java.io.IOException}
  */
-public class JsonProcessingException extends java.io.IOException
+public class JsonProcessingException extends JacksonException
 {
     private final static long serialVersionUID = 123; // eclipse complains otherwise
 
     protected JsonLocation _location;
 
     protected JsonProcessingException(String msg, JsonLocation loc, Throwable rootCause) {
-        super(msg);
-        if (rootCause != null) {
-            initCause(rootCause);
-        }
+        super(msg, rootCause);
         _location = loc;
     }
 
@@ -49,7 +49,7 @@ public class JsonProcessingException extends java.io.IOException
      */
 
     public JsonLocation getLocation() { return _location; }
-    
+
     /**
      * Method that allows to remove context information from this exception's message.
      * Useful when you are parsing security-sensitive data and don't want original data excerpts

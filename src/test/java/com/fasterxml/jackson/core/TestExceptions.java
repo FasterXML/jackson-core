@@ -12,7 +12,8 @@ public class TestExceptions extends BaseTest
     // For [core#10]
     public void testOriginalMesssage()
     {
-        JsonProcessingException exc = new JsonParseException(null, "Foobar", JsonLocation.NA);
+        final JsonLocation loc = new JsonLocation(null, -1L, 1, 1);
+        JsonProcessingException exc = new JsonParseException(null, "Foobar", loc);
         String msg = exc.getMessage();
         String orig = exc.getOriginalMessage();
         assertEquals("Foobar", orig);
@@ -20,7 +21,7 @@ public class TestExceptions extends BaseTest
 
         // and another
         JsonProcessingException exc2 = new JsonProcessingException("Second",
-                JsonLocation.NA, exc);
+                loc, exc);
         assertSame(exc, exc2.getCause());
         exc2.clearLocation();
         assertNull(exc2.getLocation());
@@ -28,9 +29,8 @@ public class TestExceptions extends BaseTest
         // and yet with null
         JsonProcessingException exc3 = new JsonProcessingException(exc);
         assertNull(exc3.getOriginalMessage());
-        assertEquals("N/A", exc3.getMessage());
-
-        assertEquals("com.fasterxml.jackson.core.JsonProcessingException: N/A", exc3.toString());
+        assertEquals("N/A\n at [No location information]", exc3.getMessage());
+        assertTrue(exc3.toString().startsWith("com.fasterxml.jackson.core.JsonProcessingException: N/A"));
     }
 
     // [core#198]

@@ -29,3 +29,4 @@ JSON library.
 #551: Remove `JsonGenerator.setPrettyPrinter()` from 3.0
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
+- Change the way `JsonLocation.NA` is included in exception messages

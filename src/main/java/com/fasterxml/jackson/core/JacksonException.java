@@ -2,17 +2,18 @@ package com.fasterxml.jackson.core;
 
 /**
  * Base class for all Jackson-produced checked exceptions.
- *<p>
- * For Jackson 2.x this base type is not widely used (instead, its main subtype
- * {@link JsonProcessingException} is): it is provided more for forwards-compatibility
- * purposes as 3.x will base all other types directly on it and deprecate
- * {@link JsonProcessingException} (as well as chance its type to unchecked).
- *
- * @since 2.12
  */
 public abstract class JacksonException extends java.io.IOException
 {
     private final static long serialVersionUID = 123; // eclipse complains otherwise
+
+    protected JsonLocation _location;
+
+    /*
+    /**********************************************************************
+    /* Life-cycle
+    /**********************************************************************
+     */
 
     protected JacksonException(String msg) {
         super(msg);
@@ -22,38 +23,43 @@ public abstract class JacksonException extends java.io.IOException
         super(t);
     }
 
-    protected JacksonException(String msg, Throwable rootCause) {
+    protected JacksonException(String msg, JsonLocation loc, Throwable rootCause) {
         super(msg, rootCause);
-        // 23-Sep-2020, tatu: before 2.12, had null checks for some reason...
-        //   But I don't think that is actually required; Javadocs for
-        //   `java.lang.Throwable` constructor claim {@code null} is fine.
-/*        if (rootCause != null) {
-            initCause(rootCause);
-        }*/
+        _location = (loc == null) ? JsonLocation.NA : loc;
+    }
+
+    /**
+     * Method that allows to remove context information from this exception's message.
+     * Useful when you are parsing security-sensitive data and don't want original data excerpts
+     * to be present in Jackson parser error messages.
+     */
+    public JacksonException clearLocation() {
+        _location = null;
+        return this;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Accessor for location information related to position within input
      * or output (depending on operation), if available; if not available
-     * may return {@code null}.
+     * may return {@link JsonLocation#NA} (but never {@code null}).
      *<p>
      * Accuracy of location information depends on backend (format) as well
      * as (in some cases) operation being performed.
      */
-    public abstract JsonLocation getLocation();
+    public JsonLocation getLocation() { return _location; }
 
     /**
      * Method that allows accessing the original "message" argument,
      * without additional decorations (like location information)
      * that overridden {@link #getMessage} adds.
      */
-    public abstract String getOriginalMessage();
+    public String getOriginalMessage() { return super.getMessage(); }
 
     /**
      * Method that allows accessing underlying processor that triggered
@@ -69,5 +75,53 @@ public abstract class JacksonException extends java.io.IOException
      * 
      * @return Originating processor, if available; null if not.
      */
-    public abstract Object getProcessor();
+    public Object getProcessor() { return null; }
+
+    /*
+    /**********************************************************************
+    /* Methods for sub-classes to use, override
+    /**********************************************************************
+     */
+    
+    /**
+     * Accessor that sub-classes can override to append additional
+     * information right after the main message, but before
+     * source location information.
+     */
+    protected String getMessageSuffix() { return null; }
+
+    /*
+    /**********************************************************************
+    /* Overrides of standard methods
+    /**********************************************************************
+     */
+    
+    /**
+     * Default method overridden so that we can add location information
+     */
+    @Override public String getMessage() {
+        String msg = super.getMessage();
+        if (msg == null) {
+            msg = "N/A";
+        }
+        JsonLocation loc = getLocation();
+        String suffix = getMessageSuffix();
+        // mild optimization, if nothing extra is needed:
+        if ((loc != null) || suffix != null) {
+            StringBuilder sb = new StringBuilder(100);
+            sb.append(msg);
+            if (suffix != null) {
+                sb.append(suffix);
+            }
+            if (loc != null) {
+                sb.append('\n');
+                sb.append(" at ");
+                sb = loc.toString(sb);
+            }
+            msg = sb.toString();
+        }
+        return msg;
+    }
+
+    @Override public String toString() { return getClass().getName()+": "+getMessage(); }
 }

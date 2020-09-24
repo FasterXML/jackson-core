@@ -27,11 +27,10 @@ public class JsonLocation
     /**
      * Shared immutable "N/A location" that can be returned to indicate
      * that no location information is available.
-     *<p>
-     * NOTE: before 2.9, Location was given as String "N/A"; with 2.9 it was
-     * removed so that source should be indicated as "UNKNOWN".
      */
     public final static JsonLocation NA = new JsonLocation(null, -1L, -1L, -1, -1);
+
+    private final static String NO_LOCATION_DESC = "[No location information]";
 
     protected final long _totalBytes;
     protected final long _totalChars;
@@ -42,7 +41,7 @@ public class JsonLocation
     /**
      * Displayable description for input source: file path, URL.
      *<p>
-     * NOTE: <code>transient</code> since 2.2 so that Location itself is Serializable.
+     * NOTE: <code>transient</code> so that Location itself is Serializable.
      */
     final transient Object _sourceRef;
 
@@ -151,15 +150,27 @@ public class JsonLocation
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(80);
-        sb.append("[Source: ");
-        _appendSourceDesc(sb);
-        sb.append("; line: ");
-        sb.append(_lineNr);
-        sb.append(", column: ");
-        sb.append(_columnNr);
-        sb.append(']');
-        return sb.toString();
+        // 23-Sep-2020, tatu: Let's not bother printing out non-existing location info
+        if (this == NA) {
+            return NO_LOCATION_DESC;
+        }
+        return toString(new StringBuilder(80)).toString();
+    }
+
+    public StringBuilder toString(StringBuilder sb) {
+        // 23-Sep-2020, tatu: Let's not bother printing out non-existing location info
+        if (this == NA) {
+            sb.append(NO_LOCATION_DESC);
+        } else {
+            sb.append("[Source: ");
+            _appendSourceDesc(sb);
+            sb.append("; line: ");
+            sb.append(_lineNr);
+            sb.append(", column: ");
+            sb.append(_columnNr);
+            sb.append(']');
+        }
+        return sb;
     }
 
     protected StringBuilder _appendSourceDesc(StringBuilder sb)

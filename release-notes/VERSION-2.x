@@ -28,6 +28,7 @@ JSON library.
 #640: Add `JacksonException` as parent class of `JsonProcessingException`
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 
+2.11.3 (02-Oct-2020)
 2.11.2 (02-Aug-2020)
 2.11.1 (25-Jun-2020)
 

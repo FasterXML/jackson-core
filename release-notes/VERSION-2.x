@@ -16,6 +16,7 @@ JSON library.
 
 2.12.0 (not yet released)
 
+2.11.3 (02-Oct-2020)
 2.11.2 (02-Aug-2020)
 2.11.1 (25-Jun-2020)
 

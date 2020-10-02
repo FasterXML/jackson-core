@@ -549,8 +549,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                     _itemFilter = f;
                     if (f == TokenFilter.INCLUDE_ALL) {
-                        if (_verifyAllowedMatches() && _includePath) {
-                            return (_currToken = t);
+                        if (_verifyAllowedMatches()) {
+                            if (_includePath) {
+                                return (_currToken = t);
+                            }
+                        } else {
+                            delegate.nextToken();
+                            delegate.skipChildren();
                         }
                         continue main_loop;
                     }

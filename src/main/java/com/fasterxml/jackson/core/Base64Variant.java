@@ -590,10 +590,10 @@ public final class Base64Variant
 
     @Override
     public String toString() { return _name; }
-    
+
     @Override
     public boolean equals(Object o) {
-        // identity comparison should be dine
+        // identity comparison should be fine
         return (o == this);
     }
 
@@ -601,13 +601,13 @@ public final class Base64Variant
     public int hashCode() {
         return _name.hashCode();
     }
-    
+
     /*
     /**********************************************************
     /* Internal helper methods
     /**********************************************************
      */
-    
+
     /**
      * @param bindex Relative index within base64 character unit; between 0
      *   and 3 (as unit has exactly 4 characters)
@@ -644,6 +644,5 @@ public final class Base64Variant
         return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end",
                 getName(), getPaddingChar());
     }
-
 }
 

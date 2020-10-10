@@ -29,7 +29,7 @@ public class DefaultIndenterTest {
     DefaultIndenter defaultIndenterTwo = defaultIndenter.withIndent("9Qh/6,~n");
     DefaultIndenter defaultIndenterThree = defaultIndenterTwo.withIndent("9Qh/6,~n");
 
-    assertEquals("\n", defaultIndenterThree.getEol());
+    assertEquals(System.lineSeparator(), defaultIndenterThree.getEol());
     assertNotSame(defaultIndenterThree, defaultIndenter);
     assertSame(defaultIndenterThree, defaultIndenterTwo);
   }

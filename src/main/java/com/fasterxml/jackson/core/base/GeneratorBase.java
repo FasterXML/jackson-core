@@ -72,7 +72,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Flag set to indicate that implicit conversion from number
      * to JSON String is needed (as per
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_NUMBERS_AS_STRINGS}).
+     * {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_NUMBERS_AS_STRINGS}).
      */
     protected boolean _cfgNumbersAsStrings;
 

@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.DupDetector;
@@ -1083,7 +1082,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Method called to report a problem with unquoted control character.
      * Note: it is possible to suppress some instances of
-     * exception by enabling {@link Feature#ALLOW_UNQUOTED_CONTROL_CHARS}.
+     * exception by enabling
+     * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}.
      */
     @SuppressWarnings("deprecation")
     protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {

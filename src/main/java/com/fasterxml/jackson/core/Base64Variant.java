@@ -90,7 +90,7 @@ public final class Base64Variant
     /**
      * Whether padding characters should be required or not while decoding
      */
-    private final transient PaddingReadBehaviour _paddingReadBehaviour;
+    private final PaddingReadBehaviour _paddingReadBehaviour;
 
     /**
      * Character used for padding, if any ({@link #PADDING_CHAR_NONE} if not).
@@ -189,18 +189,30 @@ public final class Base64Variant
         this(base, base._name, base._usesPadding, base._paddingChar, paddingReadBehaviour, base._maxLineLength);
     }
 
+    /**
+     * @since 2.12
+     */
     public Base64Variant withPaddingAllowed() {
         return new Base64Variant(this, PaddingReadBehaviour.PADDING_ALLOWED);
     }
 
+    /**
+     * @since 2.12
+     */
     public Base64Variant withPaddingRequired() {
         return new Base64Variant(this, PaddingReadBehaviour.PADDING_REQUIRED);
     }
 
+    /**
+     * @since 2.12
+     */
     public Base64Variant withPaddingForbidden() {
         return new Base64Variant(this, PaddingReadBehaviour.PADDING_FORBIDDEN);
     }
 
+    /**
+     * @since 2.12
+     */
     public Base64Variant withWritePadding(boolean writePadding) {
         return new Base64Variant(this, this._name, writePadding, this._paddingChar, this._maxLineLength);
 

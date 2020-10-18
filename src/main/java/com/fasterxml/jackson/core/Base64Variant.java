@@ -710,12 +710,12 @@ public final class Base64Variant
 
     /**
      * Helper method that will construct a message to use in exceptions for cases where input ends
-     * prematurely in place where padding would be expected.
+     * prematurely in place where padding is not expected.
      *
      * @since 2.12
      */
     public String unexpectedPaddingMessage() {
-        return String.format("Unexpected end of base64-encoded String: derived base64 variant '%s' expects no padding at the end while decoding. This Base64Variant might have been incorrectly configured",
+        return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects no padding at the end while decoding. This Base64Variant might have been incorrectly configured",
                 getName());
     }
 
@@ -726,7 +726,7 @@ public final class Base64Variant
      * @since 2.10
      */
     public String missingPaddingMessage() {
-        return String.format("Unexpected end of base64-encoded String: derived base64 variant '%s' expects padding (one or more '%c' characters) at the end. This Base64Variant might have been incorrectly configured",
+        return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end. This Base64Variant might have been incorrectly configured",
                 getName(), getPaddingChar());
     }
 

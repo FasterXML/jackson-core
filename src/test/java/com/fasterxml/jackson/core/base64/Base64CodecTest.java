@@ -206,6 +206,7 @@ public class Base64CodecTest
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "expects padding");
         }
+
         Base64Variants.MODIFIED_FOR_URL.withPaddingAllowed().decode(BASE64_HELLO_WITHOUT_PADDING);
         Base64Variants.MODIFIED_FOR_URL.withPaddingForbidden().decode(BASE64_HELLO_WITHOUT_PADDING);
 

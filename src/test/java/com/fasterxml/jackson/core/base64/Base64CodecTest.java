@@ -52,7 +52,7 @@ public class Base64CodecTest
 
         assertEquals(Base64Variant.BASE64_VALUE_INVALID, std.decodeBase64Byte((byte) '?'));
         assertEquals(Base64Variant.BASE64_VALUE_INVALID, std.decodeBase64Byte((byte) 0xA0));
-        
+
         assertEquals(0, std.decodeBase64Char('A'));
         assertEquals(1, std.decodeBase64Char((int) 'B'));
         assertEquals(2, std.decodeBase64Char((byte)'C'));
@@ -60,7 +60,7 @@ public class Base64CodecTest
         assertEquals(0, std.decodeBase64Byte((byte) 'A'));
         assertEquals(1, std.decodeBase64Byte((byte) 'B'));
         assertEquals(2, std.decodeBase64Byte((byte)'C'));
-        
+
         assertEquals('/', std.encodeBase64BitsAsChar(63));
         assertEquals((byte) 'b', std.encodeBase64BitsAsByte(27));
 
@@ -82,7 +82,7 @@ public class Base64CodecTest
 
         byte[] input = new byte[] { 1, 2, 34, 127, -1 };
         String encoded = std.encode(input, false);
-        byte[] decoded = std.decode(encoded);    
+        byte[] decoded = std.decode(encoded);
         Assert.assertArrayEquals(input, decoded);
 
         assertEquals(quote(encoded), std.encode(input, true));
@@ -115,7 +115,7 @@ public class Base64CodecTest
         }
         sb.append("AQ==");
         final String exp = sb.toString();
-        
+
         // first, JSON standard
         assertEquals(exp.replace("##", "\\n"), std.encode(data, false));
 
@@ -147,5 +147,67 @@ public class Base64CodecTest
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "Illegal character");
         }
+    }
+
+    public void testPaddingReadBehaviour() throws Exception {
+
+        for (Base64Variant variant: Arrays.asList(Base64Variants.MIME, Base64Variants.MIME_NO_LINEFEEDS, Base64Variants.PEM)) {
+
+            final String BASE64_HELLO = "aGVsbG8=";
+            try {
+                variant.withPaddingForbidden().decode(BASE64_HELLO);
+                fail("Should not pass");
+            } catch (IllegalArgumentException iae) {
+                    verifyException(iae, "no padding");
+            }
+
+            variant.withPaddingAllowed().decode(BASE64_HELLO);
+            variant.withPaddingRequired().decode(BASE64_HELLO);
+
+            final String BASE64_HELLO_WITHOUT_PADDING = "aGVsbG8";
+            try {
+                variant.withPaddingRequired().decode(BASE64_HELLO_WITHOUT_PADDING);
+                fail("Should not pass");
+            } catch (IllegalArgumentException iae) {
+                verifyException(iae, "expects padding");
+            }
+            variant.withPaddingAllowed().decode(BASE64_HELLO_WITHOUT_PADDING);
+            variant.withPaddingForbidden().decode(BASE64_HELLO_WITHOUT_PADDING);
+        }
+
+        //testing for MODIFIED_FOR_URL
+
+        final String BASE64_HELLO = "aGVsbG8=";
+        try {
+            Base64Variants.MODIFIED_FOR_URL.withPaddingForbidden().decode(BASE64_HELLO);
+            fail("Should not pass");
+        } catch (IllegalArgumentException iae) {
+            verifyException(iae, "illegal character");
+        }
+
+        try {
+            Base64Variants.MODIFIED_FOR_URL.withPaddingAllowed().decode(BASE64_HELLO);
+            fail("Should not pass");
+        } catch (IllegalArgumentException iae) {
+            verifyException(iae, "illegal character");
+        }
+
+        try {
+            Base64Variants.MODIFIED_FOR_URL.withPaddingRequired().decode(BASE64_HELLO);
+            fail("Should not pass");
+        } catch (IllegalArgumentException iae) {
+            verifyException(iae, "illegal character");
+        }
+
+        final String BASE64_HELLO_WITHOUT_PADDING = "aGVsbG8";
+        try {
+            Base64Variants.MODIFIED_FOR_URL.withPaddingRequired().decode(BASE64_HELLO_WITHOUT_PADDING);
+            fail("Should not pass");
+        } catch (IllegalArgumentException iae) {
+            verifyException(iae, "expects padding");
+        }
+        Base64Variants.MODIFIED_FOR_URL.withPaddingAllowed().decode(BASE64_HELLO_WITHOUT_PADDING);
+        Base64Variants.MODIFIED_FOR_URL.withPaddingForbidden().decode(BASE64_HELLO_WITHOUT_PADDING);
+
     }
 }

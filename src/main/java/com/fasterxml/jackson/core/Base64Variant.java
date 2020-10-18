@@ -603,6 +603,9 @@ public final class Base64Variant
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     _reportInvalidBase64(ch, 2, null);
                 }
+                if (paddingReadBehaviour().equals(PaddingReadBehaviour.PADDING_FORBIDDEN)) {
+                    _reportBase64UnexpectedPadding();
+                }
                 // Ok, must get padding
                 if (ptr >= len) {
                     _reportBase64EOF();
@@ -620,8 +623,8 @@ public final class Base64Variant
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
             if (ptr >= len) {
-                // but as per [JACKSON-631] can be end-of-input, iff not using padding
-                if (!usesPadding()) {
+                // but as per [JACKSON-631] can be end-of-input, iff padding on read is not required
+                if (!paddingReadBehaviour().equals(PaddingReadBehaviour.PADDING_REQUIRED)) {
                     decodedData >>= 2;
                     builder.appendTwoBytes(decodedData);
                     break;
@@ -633,6 +636,9 @@ public final class Base64Variant
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     _reportInvalidBase64(ch, 3, null);
+                }
+                if (paddingReadBehaviour().equals(PaddingReadBehaviour.PADDING_FORBIDDEN)) {
+                    _reportBase64UnexpectedPadding();
                 }
                 decodedData >>= 2;
                 builder.appendTwoBytes(decodedData);
@@ -698,6 +704,21 @@ public final class Base64Variant
         throw new IllegalArgumentException(missingPaddingMessage());
     }
 
+    protected void _reportBase64UnexpectedPadding() throws IllegalArgumentException {
+        throw new IllegalArgumentException(unexpectedPaddingMessage());
+    }
+
+    /**
+     * Helper method that will construct a message to use in exceptions for cases where input ends
+     * prematurely in place where padding would be expected.
+     *
+     * @since 2.12
+     */
+    public String unexpectedPaddingMessage() {
+        return String.format("Unexpected end of base64-encoded String: derived base64 variant '%s' expects no padding at the end while decoding. This Base64Variant might have been incorrectly configured",
+                getName());
+    }
+
     /**
      * Helper method that will construct a message to use in exceptions for cases where input ends
      * prematurely in place where padding would be expected.
@@ -705,7 +726,7 @@ public final class Base64Variant
      * @since 2.10
      */
     public String missingPaddingMessage() {
-        return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end",
+        return String.format("Unexpected end of base64-encoded String: derived base64 variant '%s' expects padding (one or more '%c' characters) at the end. This Base64Variant might have been incorrectly configured",
                 getName(), getPaddingChar());
     }
 

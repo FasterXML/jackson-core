@@ -12,7 +12,10 @@ package com.fasterxml.jackson.core;
  * <li> {@link #PEM}
  * <li> {@link #MODIFIED_FOR_URL}
  * </ul>
- * 
+ *
+ * If a Base64Variant with default configuration outputs padding it also expects it on reading.
+ * If it does not output padding it will not accept padding on read.
+ *
  * @author Tatu Saloranta
  */
 public final class Base64Variants

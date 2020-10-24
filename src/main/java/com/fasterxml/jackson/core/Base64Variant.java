@@ -190,6 +190,7 @@ public final class Base64Variant
     }
 
     /**
+     * @return Base64Variant which does not require padding on read
      * @since 2.12
      */
     public Base64Variant withPaddingAllowed() {
@@ -197,6 +198,7 @@ public final class Base64Variant
     }
 
     /**
+     * @return Base64Variant which requires padding on read
      * @since 2.12
      */
     public Base64Variant withPaddingRequired() {
@@ -204,6 +206,7 @@ public final class Base64Variant
     }
 
     /**
+     * @return Base64Variant which does not accept padding on read
      * @since 2.12
      */
     public Base64Variant withPaddingForbidden() {
@@ -211,6 +214,8 @@ public final class Base64Variant
     }
 
     /**
+     * @param writePadding Determines if padding is output on write
+     * @return Base64Variant which writes padding or not depending on writePadding
      * @since 2.12
      */
     public Base64Variant withWritePadding(boolean writePadding) {
@@ -218,7 +223,11 @@ public final class Base64Variant
 
     }
 
-    private enum PaddingReadBehaviour {
+    /**
+     * Defines how the Base64Variant deals with Padding while reading
+     * @since 2.12
+     */
+    public enum PaddingReadBehaviour {
         PADDING_FORBIDDEN,
         PADDING_REQUIRED,
         PADDING_ALLOWED

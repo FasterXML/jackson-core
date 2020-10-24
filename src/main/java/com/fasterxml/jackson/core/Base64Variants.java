@@ -31,6 +31,7 @@ public final class Base64Variants
      * Note that although this can be thought of as the standard variant,
      * it is <b>not</b> the default for Jackson: no-linefeeds alternative
      * is because of JSON requirement of escaping all linefeeds.
+     * writes padding on output; does not accept padding when reading (may change latter with a call to {@link Base64Variant#withWritePadding(boolean)}])
      */
     public final static Base64Variant MIME;
     static {
@@ -42,6 +43,7 @@ public final class Base64Variants
      * use linefeeds (max line length set to infinite). Useful when linefeeds
      * wouldn't work well (possibly in attributes), or for minor space savings
      * (save 1 linefeed per 76 data chars, ie. ~1.4% savings).
+     * writes padding on output; does not accept padding when reading (may change latter with a call to {@link Base64Variant#withWritePadding(boolean)}])
      */
     public final static Base64Variant MIME_NO_LINEFEEDS;
     static {
@@ -51,6 +53,7 @@ public final class Base64Variants
     /**
      * This variant is the one that predates {@link #MIME}: it is otherwise
      * identical, except that it mandates shorter line length.
+     * writes padding on output; does not accept padding when reading (may change latter with a call to {@link Base64Variant#withWritePadding(boolean)}])
      */
     public final static Base64Variant PEM = new Base64Variant(MIME, "PEM", true, '=', 64);
 
@@ -64,6 +67,7 @@ public final class Base64Variants
      * line length set to infinite). And finally, two characters (plus and
      * slash) that would need quoting in URLs are replaced with more
      * optimal alternatives (hyphen and underscore, respectively).
+     * writes padding on output; does not accept padding when reading (may change latter with a call to {@link Base64Variant#withWritePadding(boolean)}])
      */
     public final static Base64Variant MODIFIED_FOR_URL;
     static {

@@ -241,6 +241,10 @@ James Agnew (jamesagnew@github)
   * Contributed implementation of #611: Optionally allow leading decimal in float tokens
   (2.11.0)
 
+Pavan Kalyan (pavan-kalyan@github)
+  * Contributed #500: Allow "optional-padding" for `Base64Variant`
+  (2.12.0)
+
 Jendrik Johannes (jjohannes@github)
   * Contributed #618: Publish Gradle Module Metadata
   (2.12.0)

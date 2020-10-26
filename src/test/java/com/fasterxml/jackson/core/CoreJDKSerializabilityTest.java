@@ -30,10 +30,33 @@ public class CoreJDKSerializabilityTest extends BaseTest
 
     public void testBase64Variant() throws Exception
     {
-        Base64Variant orig = Base64Variants.PEM;
-        byte[] stuff = jdkSerialize(orig);
-        Base64Variant back = jdkDeserialize(stuff);
-        assertSame(orig, back);
+        {
+            Base64Variant orig = Base64Variants.PEM;
+            final String exp = _encodeBase64(orig);
+            byte[] stuff = jdkSerialize(orig);
+            Base64Variant back = jdkDeserialize(stuff);
+            assertSame(orig, back);
+            assertEquals(exp, _encodeBase64(back));
+        }
+
+        // and then with a twist
+        {
+            Base64Variant orig = Base64Variants.MODIFIED_FOR_URL;
+            assertFalse(orig.usesPadding());
+            Base64Variant mod = orig.withWritePadding(true);
+            assertTrue(mod.usesPadding());
+            assertNotSame(orig, mod);
+            assertFalse(orig.equals(mod));
+            assertFalse(mod.equals(orig));
+
+            final String exp = _encodeBase64(mod);
+            byte[] stuff = jdkSerialize(mod);
+            Base64Variant back = jdkDeserialize(stuff);
+            assertTrue(back.usesPadding());
+            assertNotSame(mod, back);
+            assertEquals(mod, back);
+            assertEquals(exp, _encodeBase64(back));
+        }
     }
 
     public void testPrettyPrinter() throws Exception
@@ -149,5 +172,11 @@ public class CoreJDKSerializabilityTest extends BaseTest
         }
         p.close();
         g.close();
+    }
+
+    protected String _encodeBase64(Base64Variant b64) throws IOException
+    {
+        // something with padding...
+        return b64.encode("abcde".getBytes("UTF-8"));
     }
 }

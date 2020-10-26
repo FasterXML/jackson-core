@@ -731,7 +731,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /**
      * Method called to throw an exception for integral (not floating point) input
-     * token with value outside of Java signed 32-bit range when requested as {code int}.
+     * token with value outside of Java signed 32-bit range when requested as {@code int}.
      * Result will be {@link InputCoercionException} being thrown.
      */
     protected void reportOverflowInt() throws IOException {
@@ -751,7 +751,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /**
      * Method called to throw an exception for integral (not floating point) input
-     * token with value outside of Java signed 64-bit range when requested as {code long}.
+     * token with value outside of Java signed 64-bit range when requested as {@code long}.
      * Result will be {@link InputCoercionException} being thrown.
      */
     protected void reportOverflowLong() throws IOException {

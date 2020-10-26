@@ -14,7 +14,7 @@ public interface JacksonFeature
      * Accessor for checking whether this feature is enabled by default.
      */
     public boolean enabledByDefault();
-    
+
     /**
      * Returns bit mask for this feature instance; must be a single bit,
      * that is of form {@code 1 << N}

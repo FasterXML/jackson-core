@@ -10,13 +10,11 @@ import static org.junit.Assert.*;
  * @see RequestPayload
  **/
 public class RequestPayloadTest {
-  @SuppressWarnings("unused")
   @Test(expected = IllegalArgumentException.class)
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionOne() {
       new RequestPayload(null);
   }
 
-  @SuppressWarnings("unused")
   @Test(expected = IllegalArgumentException.class)
   public void testFailsToCreateTakingCharSequenceThrowsIllegalArgumentExceptionTwo() {
       new RequestPayload(null, "UTF-8");

@@ -12,9 +12,21 @@ package com.fasterxml.jackson.core;
  * <li> {@link #PEM}
  * <li> {@link #MODIFIED_FOR_URL}
  * </ul>
- *
- * If a Base64Variant with default configuration outputs padding it also expects it on reading.
- * If it does not output padding it will not accept padding on read.
+ * See entries for full description of differences.
+ *<p>
+ * Note that for default {@link Base64Variant} instances listed above, configuration
+ * is such that if padding is written on output, it will also be required on
+ * reading. This behavior may be changed by using methods:
+ *<ul>
+ * <li>{@link Base64Variant#withPaddingAllowed()}
+ *  </li>
+ * <li>{@link Base64Variant#withPaddingForbidden()}
+ *  </li>
+ * <li>{@link Base64Variant#withPaddingRequired()}
+ *  </li>
+ * <li>{@link Base64Variant#withWritePadding(boolean)}
+ *  </li>
+ *</ul>
  *
  * @author Tatu Saloranta
  */
@@ -30,8 +42,9 @@ public final class Base64Variants
      *<p>
      * Note that although this can be thought of as the standard variant,
      * it is <b>not</b> the default for Jackson: no-linefeeds alternative
-     * is because of JSON requirement of escaping all linefeeds.
-     * writes padding on output; does not accept padding when reading (may change later with a call to {@link Base64Variant#withWritePadding(boolean)}])
+     * is instead used because of JSON requirement of escaping all linefeeds.
+     *<p>
+     * Writes padding on output; requires padding when reading (may change later with a call to {@link Base64Variant#withWritePadding})
      */
     public final static Base64Variant MIME;
     static {
@@ -43,7 +56,8 @@ public final class Base64Variants
      * use linefeeds (max line length set to infinite). Useful when linefeeds
      * wouldn't work well (possibly in attributes), or for minor space savings
      * (save 1 linefeed per 76 data chars, ie. ~1.4% savings).
-     * writes padding on output; does not accept padding when reading (may change later with a call to {@link Base64Variant#withWritePadding(boolean)}])
+     *<p>
+     * Writes padding on output; requires padding when reading (may change later with a call to {@link Base64Variant#withWritePadding})
      */
     public final static Base64Variant MIME_NO_LINEFEEDS;
     static {
@@ -53,7 +67,8 @@ public final class Base64Variants
     /**
      * This variant is the one that predates {@link #MIME}: it is otherwise
      * identical, except that it mandates shorter line length.
-     * writes padding on output; does not accept padding when reading (may change later with a call to {@link Base64Variant#withWritePadding(boolean)}])
+     *<p>
+     * Writes padding on output; requires padding when reading (may change later with a call to {@link Base64Variant#withWritePadding})
      */
     public final static Base64Variant PEM = new Base64Variant(MIME, "PEM", true, '=', 64);
 
@@ -67,7 +82,8 @@ public final class Base64Variants
      * line length set to infinite). And finally, two characters (plus and
      * slash) that would need quoting in URLs are replaced with more
      * optimal alternatives (hyphen and underscore, respectively).
-     * writes padding on output; does not accept padding when reading (may change later with a call to {@link Base64Variant#withWritePadding(boolean)}])
+     *<p>
+     * Does not write padding on output; does not accept padding when reading (may change later with a call to {@link Base64Variant#withWritePadding})
      */
     public final static Base64Variant MODIFIED_FOR_URL;
     static {
@@ -80,7 +96,7 @@ public final class Base64Variants
     }
 
     /**
-     * Method used to get the default variant ("MIME_NO_LINEFEEDS") for cases
+     * Method used to get the default variant -- {@link #MIME_NO_LINEFEEDS} -- for cases
      * where caller does not explicitly specify the variant.
      * We will prefer no-linefeed version because linefeeds in JSON values
      * must be escaped, making linefeed-containing variants sub-optimal.
@@ -90,6 +106,10 @@ public final class Base64Variants
     }
 
     /**
+     * Lookup method for finding one of standard variants by name.
+     * If name does not match any of standard variant names,
+     * a {@link IllegalArgumentException} is thrown.
+     *
      * @since 2.1
      */
     public static Base64Variant valueOf(String name) throws IllegalArgumentException

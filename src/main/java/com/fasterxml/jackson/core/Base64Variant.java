@@ -88,6 +88,11 @@ public final class Base64Variant
     private final transient boolean _usesPadding;
 
     /**
+     * Whether padding characters should be required or not while decoding
+     */
+    private final PaddingReadBehaviour _paddingReadBehaviour;
+
+    /**
      * Character used for padding, if any ({@link #PADDING_CHAR_NONE} if not).
      */
     private final transient char _paddingChar;
@@ -136,6 +141,12 @@ public final class Base64Variant
         if (usesPadding) {
             _asciiToBase64[(int) paddingChar] = BASE64_VALUE_PADDING;
         }
+
+        if (usesPadding) {
+            this._paddingReadBehaviour = PaddingReadBehaviour.PADDING_REQUIRED;
+        } else {
+            this._paddingReadBehaviour = PaddingReadBehaviour.PADDING_FORBIDDEN;
+        }
     }
 
     /**
@@ -155,6 +166,11 @@ public final class Base64Variant
      */
     public Base64Variant(Base64Variant base, String name, boolean usesPadding, char paddingChar, int maxLineLength)
     {
+        this(base, name, usesPadding, paddingChar, base._paddingReadBehaviour, maxLineLength);
+    }
+
+    private Base64Variant(Base64Variant base, String name, boolean usesPadding, char paddingChar, PaddingReadBehaviour paddingReadBehaviour, int maxLineLength)
+    {
         _name = name;
         byte[] srcB = base._base64ToAsciiB;
         System.arraycopy(srcB, 0, this._base64ToAsciiB, 0, srcB.length);
@@ -166,6 +182,56 @@ public final class Base64Variant
         _usesPadding = usesPadding;
         _paddingChar = paddingChar;
         _maxLineLength = maxLineLength;
+        this._paddingReadBehaviour = paddingReadBehaviour;
+    }
+
+    private Base64Variant(Base64Variant base, PaddingReadBehaviour paddingReadBehaviour) {
+        this(base, base._name, base._usesPadding, base._paddingChar, paddingReadBehaviour, base._maxLineLength);
+    }
+
+    /**
+     * @return Base64Variant which does not require padding on read
+     * @since 2.12
+     */
+    public Base64Variant withPaddingAllowed() {
+        return new Base64Variant(this, PaddingReadBehaviour.PADDING_ALLOWED);
+    }
+
+    /**
+     * @return Base64Variant which requires padding on read
+     * @since 2.12
+     */
+    public Base64Variant withPaddingRequired() {
+        return new Base64Variant(this, PaddingReadBehaviour.PADDING_REQUIRED);
+    }
+
+    /**
+     * @return Base64Variant which does not accept padding on read
+     * @since 2.12
+     */
+    public Base64Variant withPaddingForbidden() {
+        return new Base64Variant(this, PaddingReadBehaviour.PADDING_FORBIDDEN);
+    }
+
+    /**
+     * @param writePadding Determines if padding is output on write
+     * @return Base64Variant which writes padding or not depending on writePadding
+     * @since 2.12
+     */
+    public Base64Variant withWritePadding(boolean writePadding) {
+        return new Base64Variant(this, this._name, writePadding, this._paddingChar, this._maxLineLength);
+
+    }
+
+    /**
+     * Defines how the Base64Variant deals with Padding while reading
+     * @since 2.12
+     */
+    public enum PaddingReadBehaviour {
+        PADDING_FORBIDDEN,
+        PADDING_REQUIRED,
+        PADDING_ALLOWED
+        ;
     }
 
     /*
@@ -193,6 +259,7 @@ public final class Base64Variant
     public boolean usesPadding() { return _usesPadding; }
     public boolean usesPaddingChar(char c) { return c == _paddingChar; }
     public boolean usesPaddingChar(int ch) { return ch == (int) _paddingChar; }
+    public PaddingReadBehaviour paddingReadBehaviour() { return _paddingReadBehaviour; }
     public char getPaddingChar() { return _paddingChar; }
     public byte getPaddingByte() { return (byte)_paddingChar; }
 
@@ -275,7 +342,7 @@ public final class Base64Variant
     {
         buffer[outPtr++] = _base64ToAsciiC[(bits >> 18) & 0x3F];
         buffer[outPtr++] = _base64ToAsciiC[(bits >> 12) & 0x3F];
-        if (_usesPadding) {
+        if (usesPadding()) {
             buffer[outPtr++] = (outputBytes == 2) ?
                 _base64ToAsciiC[(bits >> 6) & 0x3F] : _paddingChar;
             buffer[outPtr++] = _paddingChar;
@@ -291,7 +358,7 @@ public final class Base64Variant
     {
         sb.append(_base64ToAsciiC[(bits >> 18) & 0x3F]);
         sb.append(_base64ToAsciiC[(bits >> 12) & 0x3F]);
-        if (_usesPadding) {
+        if (usesPadding()) {
             sb.append((outputBytes == 2) ?
                       _base64ToAsciiC[(bits >> 6) & 0x3F] : _paddingChar);
             sb.append(_paddingChar);
@@ -333,7 +400,7 @@ public final class Base64Variant
     {
         buffer[outPtr++] = _base64ToAsciiB[(bits >> 18) & 0x3F];
         buffer[outPtr++] = _base64ToAsciiB[(bits >> 12) & 0x3F];
-        if (_usesPadding) {
+        if (usesPadding()) {
             byte pb = (byte) _paddingChar;
             buffer[outPtr++] = (outputBytes == 2) ?
                 _base64ToAsciiB[(bits >> 6) & 0x3F] : pb;
@@ -529,8 +596,8 @@ public final class Base64Variant
             decodedData = (decodedData << 6) | bits;
             // third base64 char; can be padding, but not ws
             if (ptr >= len) {
-                // but as per [JACKSON-631] can be end-of-input, iff not using padding
-                if (!usesPadding()) {
+                // but as per [JACKSON-631] can be end-of-input, iff padding is not required
+                if (!paddingReadBehaviour().equals(PaddingReadBehaviour.PADDING_REQUIRED)) {
                     decodedData >>= 4;
                     builder.append(decodedData);
                     break;
@@ -544,6 +611,9 @@ public final class Base64Variant
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     _reportInvalidBase64(ch, 2, null);
+                }
+                if (paddingReadBehaviour().equals(PaddingReadBehaviour.PADDING_FORBIDDEN)) {
+                    _reportBase64UnexpectedPadding();
                 }
                 // Ok, must get padding
                 if (ptr >= len) {
@@ -562,8 +632,8 @@ public final class Base64Variant
             decodedData = (decodedData << 6) | bits;
             // fourth and last base64 char; can be padding, but not ws
             if (ptr >= len) {
-                // but as per [JACKSON-631] can be end-of-input, iff not using padding
-                if (!usesPadding()) {
+                // but as per [JACKSON-631] can be end-of-input, iff padding on read is not required
+                if (!paddingReadBehaviour().equals(PaddingReadBehaviour.PADDING_REQUIRED)) {
                     decodedData >>= 2;
                     builder.appendTwoBytes(decodedData);
                     break;
@@ -575,6 +645,9 @@ public final class Base64Variant
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
                     _reportInvalidBase64(ch, 3, null);
+                }
+                if (paddingReadBehaviour().equals(PaddingReadBehaviour.PADDING_FORBIDDEN)) {
+                    _reportBase64UnexpectedPadding();
                 }
                 decodedData >>= 2;
                 builder.appendTwoBytes(decodedData);
@@ -640,6 +713,21 @@ public final class Base64Variant
         throw new IllegalArgumentException(missingPaddingMessage());
     }
 
+    protected void _reportBase64UnexpectedPadding() throws IllegalArgumentException {
+        throw new IllegalArgumentException(unexpectedPaddingMessage());
+    }
+
+    /**
+     * Helper method that will construct a message to use in exceptions for cases where input ends
+     * prematurely in place where padding is not expected.
+     *
+     * @since 2.12
+     */
+    public String unexpectedPaddingMessage() {
+        return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects no padding at the end while decoding. This Base64Variant might have been incorrectly configured",
+                getName());
+    }
+
     /**
      * Helper method that will construct a message to use in exceptions for cases where input ends
      * prematurely in place where padding would be expected.
@@ -647,7 +735,7 @@ public final class Base64Variant
      * @since 2.10
      */
     public String missingPaddingMessage() {
-        return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end",
+        return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end. This Base64Variant might have been incorrectly configured",
                 getName(), getPaddingChar());
     }
 }

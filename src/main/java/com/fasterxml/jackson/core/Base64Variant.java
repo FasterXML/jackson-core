@@ -291,7 +291,6 @@ public final class Base64Variant
                 || (_maxLineLength != base._maxLineLength)
                 || (_writePadding != base._writePadding)
                 ) {
-System.err.println("DEBUG: re-create '"+_name+"'");
             return new Base64Variant(base,
                     _name, _writePadding, _paddingChar, _paddingReadBehaviour, _maxLineLength);
         }

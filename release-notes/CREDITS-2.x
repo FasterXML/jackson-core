@@ -240,3 +240,8 @@ Oleksandr Poslavskyi (alevskyi@github)
 James Agnew (jamesagnew@github)
   * Contributed implementation of #611: Optionally allow leading decimal in float tokens
   (2.11.0)
+
+Pavel Krutikhin (pakru@github)
+  * Contributed fix for #647: Fix NPE in `writeNumber(String)` method of `UTF8JsonGenerator`,
+  `WriterBasedJsonGenerator`
+  (2.11.4)

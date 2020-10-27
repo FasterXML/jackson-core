@@ -1054,7 +1054,9 @@ public class UTF8JsonGenerator
     public void writeNumber(String encodedValue) throws IOException
     {
         _verifyValueWrite(WRITE_NUMBER);
-        if (_cfgNumbersAsStrings) {
+        if (encodedValue == null) {
+            _writeNull();
+        } else if (_cfgNumbersAsStrings) {
             _writeQuotedRaw(encodedValue);            
         } else {
             writeRaw(encodedValue);

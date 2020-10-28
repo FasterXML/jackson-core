@@ -30,6 +30,12 @@ JSON library.
 #640: Add `JacksonException` as parent class of `JsonProcessingException`
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 
+2.11.4 (not yet released)
+
+#647: Fix NPE in `writeNumber(String)` method of `UTF8JsonGenerator`,
+  `WriterBasedJsonGenerator`
+ (contributed by Pavel K)
+
 2.11.3 (02-Oct-2020)
 2.11.2 (02-Aug-2020)
 2.11.1 (25-Jun-2020)

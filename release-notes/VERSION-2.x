@@ -29,6 +29,7 @@ JSON library.
 #639: Limit initial allocated block size by `ByteArrayBuilder` to max block size
 #640: Add `JacksonException` as parent class of `JsonProcessingException`
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
+- Full "LICENSE" included in jar for easier access by compliancy tools
 
 2.11.4 (not yet released)
 

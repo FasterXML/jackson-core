@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.core.filter;
 
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 @SuppressWarnings("resource")
 public class BasicParserFilteringTest extends BaseTest
@@ -31,6 +33,23 @@ public class BasicParserFilteringTest extends BaseTest
 
         @Override
         protected boolean _includeScalar() { return false; }
+    }
+
+    static class StrictNameMatchFilter extends TokenFilter
+    {
+        private final Set<String> _names;
+
+        public StrictNameMatchFilter(String... names) {
+            _names = new HashSet<String>(Arrays.asList(names));
+        }
+
+        @Override
+        public TokenFilter includeProperty(String name) {
+            if (_names.contains(name)) {
+                return TokenFilter.INCLUDE_ALL;
+            }
+            return null;
+        }
     }
 
     static class IndexMatchFilter extends TokenFilter
@@ -61,6 +80,22 @@ public class BasicParserFilteringTest extends BaseTest
         protected boolean _includeScalar() { return false; }
     }
 
+    static class NoArraysFilter extends TokenFilter
+    {
+        @Override
+        public TokenFilter filterStartArray() {
+            return null;
+        }
+    }
+
+    static class NoObjectsFilter extends TokenFilter
+    {
+        @Override
+        public TokenFilter filterStartObject() {
+            return null;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -84,7 +119,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                new NameMatchFilter("value"),
-                   false, // includePath
+                   Inclusion.ONLY_INCLUDE_ALL,
                    false // multipleMatches
                 );
         String result = readAndWrite(JSON_F, p);
@@ -98,7 +133,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("a"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
         String result = readAndWrite(JSON_F, p);
@@ -112,7 +147,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
         String result = readAndWrite(JSON_F, p);
@@ -126,7 +161,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("ob"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
         String result = readAndWrite(JSON_F, p);
@@ -140,7 +175,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                new NameMatchFilter("value"),
-                   false, // includePath
+                   Inclusion.ONLY_INCLUDE_ALL,
                    false // multipleMatches -false
                 );
         String result = readAndWrite(JSON_F, p);
@@ -154,7 +189,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new IndexMatchFilter(1),
-                false, // includePath
+                Inclusion.ONLY_INCLUDE_ALL,
                 false // multipleMatches -false
         );
         String result = readAndWrite(JSON_F, p);
@@ -168,7 +203,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new IndexMatchFilter(1),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches -false
         );
         String result = readAndWrite(JSON_F, p);
@@ -183,7 +218,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new IndexMatchFilter(1),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches -false
         );
         String result = readAndWrite(JSON_F, p);
@@ -197,7 +232,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches -false
         );
         String result = readAndWrite(JSON_F, p);
@@ -211,7 +246,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("ob"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches -false
         );
         String result = readAndWrite(JSON_F, p);
@@ -225,7 +260,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                new NameMatchFilter("value"),
-                   false, // includePath
+                   Inclusion.ONLY_INCLUDE_ALL,
                    true // multipleMatches - true
                 );
         String result = readAndWrite(JSON_F, p);
@@ -239,7 +274,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 true // multipleMatches - true
         );
         String result = readAndWrite(JSON_F, p);
@@ -253,7 +288,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new IndexMatchFilter(1),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 true // multipleMatches - true
         );
         String result = readAndWrite(JSON_F, p);
@@ -266,7 +301,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value0", "value2"),
-                true, /* includePath */ true /* multipleMatches */ );
+                Inclusion.INCLUDE_ALL_AND_PATH, true /* multipleMatches */ );
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':0.25}}"), result);
         assertEquals(2, p.getMatchCount());
@@ -279,7 +314,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(INPUT);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("b", "value"),
-                true, true);
+                Inclusion.INCLUDE_ALL_AND_PATH, true);
 
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'ob':{'value':3},'b':true}"), result);
@@ -292,22 +327,140 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(JSON);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
-                true, true);
+                Inclusion.INCLUDE_ALL_AND_PATH, true);
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':\"foo\"}}}"), result);
         assertEquals(2, p.getMatchCount());
     }
 
+    public void testNoMatchFiltering1() throws Exception
+    {
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new NameMatchFilter("invalid"),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("{'array':[],'ob':{}}"), result);
+        assertEquals(0, p.getMatchCount());
+    }
+
+    public void testNoMatchFiltering2() throws Exception
+    {
+        String object = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        String jsonString = String.format("[%s,%s,%s]", object, object, object);
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new NameMatchFilter("invalid"),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("[{'array':[],'ob':{}},{'array':[],'ob':{}},{'array':[],'ob':{}}]"), result);
+        assertEquals(0, p.getMatchCount());
+    }
+
+    public void testNoMatchFiltering3() throws Exception
+    {
+        String object = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        String jsonString = String.format("[[%s],[%s],[%s]]", object, object, object);
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new NameMatchFilter("invalid"),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("[[{'array':[],'ob':{}}],[{'array':[],'ob':{}}],[{'array':[],'ob':{}}]]"), result);
+        assertEquals(0, p.getMatchCount());
+
+        StringWriter w = new StringWriter();
+    }
+
+    public void testNoMatchFiltering4() throws Exception
+    {
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new StrictNameMatchFilter("invalid"),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("{}"), result);
+        assertEquals(0, p.getMatchCount());
+    }
+
+    public void testNoMatchFiltering5() throws Exception
+    {
+        String object = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        String jsonString = String.format("[%s,%s,%s]", object, object, object);
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new StrictNameMatchFilter("invalid"),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("[{},{},{}]"), result);
+        assertEquals(0, p.getMatchCount());
+    }
+
+    public void testNoMatchFiltering6() throws Exception
+    {
+        String object = aposToQuotes("{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}");
+        String jsonString = String.format("[[%s],[%s],[%s]]", object, object, object);
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new StrictNameMatchFilter("invalid"),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("[[{}],[{}],[{}]]"), result);
+        assertEquals(0, p.getMatchCount());
+    }
+
+    public void testValueOmitsFieldName1() throws Exception
+    {
+        String jsonString = aposToQuotes("{'a':123,'array':[1,2]}");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new NoArraysFilter(),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("{'a':123}"), result);
+        assertEquals(0, p.getMatchCount());
+    }
+
+    public void testValueOmitsFieldName2() throws Exception
+    {
+        String jsonString = aposToQuotes("['a',{'value0':3,'b':{'value':4}}]");
+        JsonParser p0 = JSON_F.createParser(jsonString);
+        FilteringParserDelegate p = new FilteringParserDelegate(p0,
+            new NoObjectsFilter(),
+            Inclusion.INCLUDE_NON_NULL,
+            true // multipleMatches
+        );
+        String result = readAndWrite(JSON_F, p);
+        assertEquals(aposToQuotes("['a']"), result);
+        assertEquals(1, p.getMatchCount());
+    }
+
     public void testIndexMatchWithPath1() throws Exception
     {
         FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
-                new IndexMatchFilter(1), true, true);
+                new IndexMatchFilter(1), Inclusion.INCLUDE_ALL_AND_PATH, true);
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'array':[2]}"), result);
         assertEquals(1, p.getMatchCount());
 
         p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
-                new IndexMatchFilter(0), true, true);
+                new IndexMatchFilter(0), Inclusion.INCLUDE_ALL_AND_PATH, true);
         result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'array':[1]}"), result);
         assertEquals(1, p.getMatchCount());
@@ -316,13 +469,13 @@ public class BasicParserFilteringTest extends BaseTest
     public void testIndexMatchWithPath2() throws Exception
     {
         FilteringParserDelegate p = new FilteringParserDelegate(JSON_F.createParser(SIMPLE),
-                new IndexMatchFilter(0, 1), true, true);
+                new IndexMatchFilter(0, 1), Inclusion.INCLUDE_ALL_AND_PATH, true);
         assertEquals(aposToQuotes("{'array':[1,2]}"), readAndWrite(JSON_F, p));
         assertEquals(2, p.getMatchCount());
     
         String JSON = aposToQuotes("{'a':123,'array':[1,2,3,4,5],'b':[1,2,3]}");
         p = new FilteringParserDelegate(JSON_F.createParser(JSON),
-                new IndexMatchFilter(1, 3), true, true);
+                new IndexMatchFilter(1, 3), Inclusion.INCLUDE_ALL_AND_PATH, true);
         assertEquals(aposToQuotes("{'array':[2,4],'b':[2]}"), readAndWrite(JSON_F, p));
         assertEquals(3, p.getMatchCount());
     }
@@ -332,7 +485,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         JsonParser p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
 
@@ -346,7 +499,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         JsonParser p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
 
@@ -423,7 +576,7 @@ public class BasicParserFilteringTest extends BaseTest
         JsonParser p0 = JSON_F.createParser(SIMPLE);
         JsonParser p = new FilteringParserDelegate(p0,
                 new NameMatchFilter("value"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
 

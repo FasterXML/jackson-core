@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
 /**
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
  */
 public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 {
+
     /*
     /**********************************************************
     /* Configuration
@@ -45,18 +47,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * done and only explicitly included entries are output; if `true` then
      * path from main level down to match is also included as necessary.
      */
-    protected boolean _includePath;
-
-    /* NOTE: this feature is included in the first version (2.6), but
-     * there is no public API to enable it, yet, since there isn't an
-     * actual use case. But it seemed possible need could arise, which
-     * is feature has not yet been removed. If no use is found within
-     * first version or two, just remove.
-     * 
-     * Marked as deprecated since its status is uncertain.
-     */
-    @Deprecated
-    protected boolean _includeImmediateParent;
+    protected TokenFilter.Inclusion _inclusion;
 
     /*
     /**********************************************************
@@ -90,8 +81,15 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
+    @Deprecated
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
             boolean includePath, boolean allowMultipleMatches)
+    {
+        this(d, f, includePath ? Inclusion.INCLUDE_ALL_AND_PATH : Inclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
+    }
+
+    public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
+            TokenFilter.Inclusion inclusion, boolean allowMultipleMatches)
     {
         // By default, do NOT delegate copy methods
         super(d, false);
@@ -99,7 +97,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         // and this is the currently active filter for root values
         _itemFilter = f;
         _filterContext = TokenFilterContext.createRootContext(f);
-        _includePath = includePath;
+        _inclusion = inclusion;
         _allowMultipleMatches = allowMultipleMatches;
     }
 
@@ -170,6 +168,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray();
+        } else if (_itemFilter != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            delegate.writeStartArray();
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, false);
         }
@@ -198,6 +200,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
+            _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
+            delegate.writeStartArray(size);
+        } else if (_itemFilter != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, true);
             delegate.writeStartArray(size);
         } else {
@@ -298,6 +304,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
             _checkParentPath();
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject();
+        } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
+            _filterContext = _filterContext.createChildObjectContext(f, true);
+            delegate.writeStartObject();
         } else { // filter out
             _filterContext = _filterContext.createChildObjectContext(f, false);
         }
@@ -326,6 +336,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (f == TokenFilter.INCLUDE_ALL) {
             _checkParentPath();
+            _filterContext = _filterContext.createChildObjectContext(f, true);
+            delegate.writeStartObject(forValue);
+        } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+            _checkParentPath(false /* isMatch */);
             _filterContext = _filterContext.createChildObjectContext(f, true);
             delegate.writeStartObject(forValue);
         } else { // filter out
@@ -441,7 +455,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeString(value);
     }
 
@@ -463,7 +477,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeString(text, offset, len);
     }
 
@@ -484,7 +498,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeString(value);
     }
 
@@ -637,7 +651,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -658,7 +672,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -679,7 +693,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -700,7 +714,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -721,7 +735,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -742,7 +756,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -763,7 +777,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNumber(v);
     }
 
@@ -826,7 +840,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeBoolean(v);
     }
 
@@ -847,7 +861,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
                 }
             }
             _checkParentPath();
-        } 
+        }
         delegate.writeNull();
     }
 
@@ -970,13 +984,23 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     protected void _checkParentPath() throws IOException
     {
-        ++_matchCount;
+        _checkParentPath(true);
+    }
+
+    protected void  _checkParentPath(boolean isMatch) throws IOException
+    {
+        if (isMatch) {
+            ++_matchCount;
+        }
         // only need to construct path if parent wasn't written
-        if (_includePath) {
+        if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
+        } else if (_inclusion == Inclusion.INCLUDE_NON_NULL) {
+            // path has already been written, except for maybe field name
+            _filterContext.ensureFieldNameWritten(delegate);
         }
         // also: if no multiple matches desired, short-cut checks
-        if (!_allowMultipleMatches) {
+        if (isMatch && !_allowMultipleMatches) {
             // Mark parents as "skip" so that further check calls are not made
             _filterContext.skipParentChecks();
         }
@@ -990,12 +1014,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     protected void _checkPropertyParentPath() throws IOException
     {
         ++_matchCount;
-        if (_includePath) {
+        if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
-        } else if (_includeImmediateParent) {
-            // 21-Apr-2015, tatu: Note that there is no API to enable this currently...
-            //    retained for speculative future use
-            _filterContext.writeImmediatePath(delegate);
+        } else if (_inclusion == Inclusion.INCLUDE_NON_NULL) {
+            // path has already been written, except for maybe field name
+            _filterContext.ensureFieldNameWritten(delegate);
         }
 
         // also: if no multiple matches desired, short-cut checks

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -46,19 +47,8 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * done and only explicitly included entries are output; if `true` then
      * path from main level down to match is also included as necessary.
      */
-    protected boolean _includePath;
+    protected TokenFilter.Inclusion _inclusion;
 
-    /* NOTE: this feature is included in the first version (2.6), but
-     * there is no public API to enable it, yet, since there isn't an
-     * actual use case. But it seemed possible need could arise, which
-     * is feature has not yet been removed. If no use is found within
-     * first version or two, just remove.
-     * 
-     * Marked as deprecated since its status is uncertain.
-     */
-    @Deprecated
-    protected boolean _includeImmediateParent;
-    
     /*
     /**********************************************************
     /* State
@@ -111,15 +101,22 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**********************************************************
      */
 
+    @Deprecated
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
             boolean includePath, boolean allowMultipleMatches)
+    {
+        this(p, f, includePath ? Inclusion.INCLUDE_ALL_AND_PATH : Inclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
+    }
+
+    public FilteringParserDelegate(JsonParser p, TokenFilter f,
+            TokenFilter.Inclusion inclusion, boolean allowMultipleMatches)
     {
         super(p);
         rootFilter = f;
         // and this is the currently active filter for root values
         _itemFilter = f;
         _headContext = TokenFilterContext.createRootContext(f);
-        _includePath = includePath;
+        _inclusion = inclusion;
         _allowMultipleMatches = allowMultipleMatches;
     }
 
@@ -235,9 +232,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
         // If all the conditions matches then check for scalar / non-scalar property
 
         if (!_allowMultipleMatches && (_currToken != null) && (_exposedContext == null)) {
-            // if scalar, and scalar not present in obj/array and !includePath and INCLUDE_ALL
-            // matched once, return null
-            if (_currToken.isScalarValue() && !_headContext.isStartHandled() && !_includePath
+            // if scalar, and scalar not present in obj/array and _inclusion == ONLY_INCLUDE_ALL
+            // and INCLUDE_ALL matched once, return null
+            if (_currToken.isScalarValue() && !_headContext.isStartHandled()
+                    && _inclusion == Inclusion.ONLY_INCLUDE_ALL
                     && (_itemFilter == TokenFilter.INCLUDE_ALL)) {
                 return (_currToken = null);
             }
@@ -318,11 +316,15 @@ public class FilteringParserDelegate extends JsonParserDelegate
             if (f == TokenFilter.INCLUDE_ALL) {
                 _headContext = _headContext.createChildArrayContext(f, true);
                 return (_currToken = t);
+            } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                // TODO don't count as match?
+                _headContext = _headContext.createChildArrayContext(f, true);
+                return (_currToken = t);
             }
             _headContext = _headContext.createChildArrayContext(f, false);
-            
+
             // Also: only need buffering if parent path to be included
-            if (_includePath) {
+            if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                 t = _nextTokenWithBuffering(_headContext);
                 if (t != null) {
                     _currToken = t;
@@ -354,10 +356,14 @@ public class FilteringParserDelegate extends JsonParserDelegate
             if (f == TokenFilter.INCLUDE_ALL) {
                 _headContext = _headContext.createChildObjectContext(f, true);
                 return (_currToken = t);
+            } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                // TODO don't count as match?
+                _headContext = _headContext.createChildObjectContext(f, true);
+                return (_currToken = t);
             }
             _headContext = _headContext.createChildObjectContext(f, false);
             // Also: only need buffering if parent path to be included
-            if (_includePath) {
+            if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                 t = _nextTokenWithBuffering(_headContext);
                 if (t != null) {
                     _currToken = t;
@@ -391,14 +397,6 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 f = _headContext.setFieldName(name);
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _itemFilter = f;
-                    if (!_includePath) {
-                        // Minor twist here: if parent NOT included, may need to induce output of
-                        // surrounding START_OBJECT/END_OBJECT
-                        if (_includeImmediateParent && !_headContext.isStartHandled()) {
-                            t = _headContext.nextTokenToRead(); // returns START_OBJECT but also marks it handled
-                            _exposedContext = _headContext;
-                        }
-                    }
                     return (_currToken = t);
                 }
                 if (f == null) {
@@ -415,7 +413,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
                     if (_verifyAllowedMatches()) {
-                        if (_includePath) {
+                        if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                             return (_currToken = t);
                         }
                     } else {
@@ -423,7 +421,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                         delegate.skipChildren();
                     }
                 }
-                if (_includePath) {
+                if (_inclusion != Inclusion.ONLY_INCLUDE_ALL) {
                     t = _nextTokenWithBuffering(_headContext);
                     if (t != null) {
                         _currToken = t;
@@ -496,10 +494,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildArrayContext(f, true);
                     return (_currToken = t);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    _headContext = _headContext.createChildArrayContext(f, true);
+                    return (_currToken = t);
                 }
                 _headContext = _headContext.createChildArrayContext(f, false);
                 // but if we didn't figure it out yet, need to buffer possible events
-                if (_includePath) {
+                if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                     t = _nextTokenWithBuffering(_headContext);
                     if (t != null) {
                         _currToken = t;
@@ -531,9 +532,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildObjectContext(f, true);
                     return (_currToken = t);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    _headContext = _headContext.createChildObjectContext(f, true);
+                    return (_currToken = t);
                 }
                 _headContext = _headContext.createChildObjectContext(f, false);
-                if (_includePath) {
+                if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                     t = _nextTokenWithBuffering(_headContext);
                     if (t != null) {
                         _currToken = t;
@@ -579,13 +583,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                     _itemFilter = f;
                     if (f == TokenFilter.INCLUDE_ALL) {
-                        if (_verifyAllowedMatches() && _includePath) {
+                        if (_verifyAllowedMatches() && _inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                             return (_currToken = t);
                         }
-//                        if (_includeImmediateParent) { ...
                         continue main_loop;
                     }
-                    if (_includePath) {
+                    if (_inclusion != Inclusion.ONLY_INCLUDE_ALL) {
                         t = _nextTokenWithBuffering(_headContext);
                         if (t != null) {
                             _currToken = t;
@@ -647,6 +650,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildArrayContext(f, true);
                     return _nextBuffered(buffRoot);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    // TODO don't count as match?
+                    _headContext = _headContext.createChildArrayContext(f, true);
+                    return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildArrayContext(f, false);
                 continue main_loop;
@@ -673,6 +680,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildObjectContext(f, true);
+                    return _nextBuffered(buffRoot);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    // TODO don't count as match?
+                    _headContext = _headContext.createChildArrayContext(f, true);
                     return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildObjectContext(f, false);

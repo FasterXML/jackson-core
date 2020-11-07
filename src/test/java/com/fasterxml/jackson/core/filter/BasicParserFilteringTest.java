@@ -80,14 +80,6 @@ public class BasicParserFilteringTest extends BaseTest
         protected boolean _includeScalar() { return false; }
     }
 
-    static class NoArraysFilter extends TokenFilter
-    {
-        @Override
-        public TokenFilter filterStartArray() {
-            return null;
-        }
-    }
-
     static class NoObjectsFilter extends TokenFilter
     {
         @Override
@@ -420,21 +412,6 @@ public class BasicParserFilteringTest extends BaseTest
         );
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("[[{}],[{}],[{}]]"), result);
-        assertEquals(0, p.getMatchCount());
-    }
-
-    // https://github.com/FasterXML/jackson-core/issues/649
-    public void failing_testValueOmitsFieldName1() throws Exception
-    {
-        String jsonString = aposToQuotes("{'a':123,'array':[1,2]}");
-        JsonParser p0 = JSON_F.createParser(jsonString);
-        FilteringParserDelegate p = new FilteringParserDelegate(p0,
-            new NoArraysFilter(),
-            Inclusion.INCLUDE_NON_NULL,
-            true // multipleMatches
-        );
-        String result = readAndWrite(JSON_F, p);
-        assertEquals(aposToQuotes("{'a':123}"), result);
         assertEquals(0, p.getMatchCount());
     }
 

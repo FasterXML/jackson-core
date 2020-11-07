@@ -227,7 +227,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 tf,
                 Inclusion.INCLUDE_ALL_AND_PATH,
-                false // multipleMatches
+                true // multipleMatches
                 );
         //final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':[3],'value2':'foo'},'b':true}";
 

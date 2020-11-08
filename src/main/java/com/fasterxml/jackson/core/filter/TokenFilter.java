@@ -17,9 +17,9 @@ public class TokenFilter
 {
 
     /**
-     * Enumeration that controls how TokenFilter return values are interpreted
+     * Enumeration that controls how TokenFilter return values are interpreted.
      *
-     * @since 2.11
+     * @since 2.12
      */
     public enum Inclusion {
         /**

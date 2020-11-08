@@ -253,3 +253,7 @@ Pavan Kalyan (pavan-kalyan@github)
 Jendrik Johannes (jjohannes@github)
   * Contributed #618: Publish Gradle Module Metadata
   (2.12.0)
+
+Jonathan Haber (jhaber@github)
+  * Contributed #573: More customizable TokenFilter inclusion (using `Tokenfilter.Inclusion`)
+  (2.12.0)

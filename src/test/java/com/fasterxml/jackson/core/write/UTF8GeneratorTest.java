@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.write;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
@@ -77,7 +78,7 @@ public class UTF8GeneratorTest extends BaseTest
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(g,
                 new JsonPointerBasedFilter("/escapes"),
-                true, // includePath
+                Inclusion.INCLUDE_ALL_AND_PATH,
                 false // multipleMatches
         );
 

@@ -18,6 +18,8 @@ JSON library.
 
 #500: Allow "optional-padding" for `Base64Variant`
  (contributed by Pavan K)
+#573: More customizable TokenFilter inclusion (using `Tokenfilter.Inclusion`)
+ (contributed by Jonathan H)
 #618: Publish Gradle Module Metadata
  (contributed by Jendrik J)
 #619: Add `StreamReadCapability` for further format-based/format-agnostic

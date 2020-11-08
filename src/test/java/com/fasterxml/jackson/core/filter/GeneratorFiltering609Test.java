@@ -63,7 +63,8 @@ public class GeneratorFiltering609Test
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonGenerator g = createGenerator(outputStream);
         g = new FilteringGeneratorDelegate(
-                g, NullExcludingTokenFilter.INSTANCE, true, true);
+                g, NullExcludingTokenFilter.INSTANCE,
+                TokenFilter.Inclusion.INCLUDE_ALL_AND_PATH, true);
         int maxStringLength = 10;
         g = new StringTruncatingGeneratorDelegate(
                 g, maxStringLength);

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.filter;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 @SuppressWarnings("resource")
@@ -14,82 +15,82 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
 
     public void testSimplePropertyWithPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/c", true, "{'c':{'d':{'a':true}}}");
-        _assert(SIMPLE_INPUT, "/c/d", true, "{'c':{'d':{'a':true}}}");
-        _assert(SIMPLE_INPUT, "/c/d/a", true, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c/d", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c/d/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
 
-        _assert(SIMPLE_INPUT, "/c/d/a", true, "{'c':{'d':{'a':true}}}");
+        _assert(SIMPLE_INPUT, "/c/d/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'c':{'d':{'a':true}}}");
         
-        _assert(SIMPLE_INPUT, "/a", true, "{'a':1}");
-        _assert(SIMPLE_INPUT, "/d", true, "{'d':null}");
+        _assert(SIMPLE_INPUT, "/a", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':1}");
+        _assert(SIMPLE_INPUT, "/d", Inclusion.INCLUDE_ALL_AND_PATH, "{'d':null}");
 
         // and then non-match
-        _assert(SIMPLE_INPUT, "/x", true, "");
+        _assert(SIMPLE_INPUT, "/x", Inclusion.INCLUDE_ALL_AND_PATH, "");
     }
     
     public void testSimplePropertyWithoutPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/c", false, "{'d':{'a':true}}");
-        _assert(SIMPLE_INPUT, "/c/d", false, "{'a':true}");
-        _assert(SIMPLE_INPUT, "/c/d/a", false, "true");
+        _assert(SIMPLE_INPUT, "/c", Inclusion.ONLY_INCLUDE_ALL, "{'d':{'a':true}}");
+        _assert(SIMPLE_INPUT, "/c/d", Inclusion.ONLY_INCLUDE_ALL, "{'a':true}");
+        _assert(SIMPLE_INPUT, "/c/d/a", Inclusion.ONLY_INCLUDE_ALL, "true");
         
-        _assert(SIMPLE_INPUT, "/a", false, "1");
-        _assert(SIMPLE_INPUT, "/d", false, "null");
+        _assert(SIMPLE_INPUT, "/a", Inclusion.ONLY_INCLUDE_ALL, "1");
+        _assert(SIMPLE_INPUT, "/d", Inclusion.ONLY_INCLUDE_ALL, "null");
 
         // and then non-match
-        _assert(SIMPLE_INPUT, "/x", false, "");
+        _assert(SIMPLE_INPUT, "/x", Inclusion.ONLY_INCLUDE_ALL, "");
     }
 
     public void testArrayElementWithPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/b", true, "{'b':[1,2,3]}");
-        _assert(SIMPLE_INPUT, "/b/1", true, "{'b':[2]}");
-        _assert(SIMPLE_INPUT, "/b/2", true, "{'b':[3]}");
+        _assert(SIMPLE_INPUT, "/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[1,2,3]}");
+        _assert(SIMPLE_INPUT, "/b/1", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[2]}");
+        _assert(SIMPLE_INPUT, "/b/2", Inclusion.INCLUDE_ALL_AND_PATH, "{'b':[3]}");
         
         // and then non-match
-        _assert(SIMPLE_INPUT, "/b/8", true, "");
+        _assert(SIMPLE_INPUT, "/b/8", Inclusion.INCLUDE_ALL_AND_PATH, "");
     }
 
     public void testArrayNestedWithPath() throws Exception
     {
-        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", true, "{'a':[{'b':3}]}");
-        _assert("[true,[1]]", "/0", true, "[true]");
-        _assert("[true,[1]]", "/1", true, "[[1]]");
-        _assert("[true,[1,2,[true],3],0]", "/0", true, "[true]");
-        _assert("[true,[1,2,[true],3],0]", "/1", true, "[[1,2,[true],3]]");
+        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", Inclusion.INCLUDE_ALL_AND_PATH, "{'a':[{'b':3}]}");
+        _assert("[true,[1]]", "/0", Inclusion.INCLUDE_ALL_AND_PATH, "[true]");
+        _assert("[true,[1]]", "/1", Inclusion.INCLUDE_ALL_AND_PATH, "[[1]]");
+        _assert("[true,[1,2,[true],3],0]", "/0", Inclusion.INCLUDE_ALL_AND_PATH, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/1", Inclusion.INCLUDE_ALL_AND_PATH, "[[1,2,[true],3]]");
 
-        _assert("[true,[1,2,[true],3],0]", "/1/2", true, "[[[true]]]");
-        _assert("[true,[1,2,[true],3],0]", "/1/2/0", true, "[[[true]]]");
-        _assert("[true,[1,2,[true],3],0]", "/1/3/0", true, "");
+        _assert("[true,[1,2,[true],3],0]", "/1/2", Inclusion.INCLUDE_ALL_AND_PATH, "[[[true]]]");
+        _assert("[true,[1,2,[true],3],0]", "/1/2/0", Inclusion.INCLUDE_ALL_AND_PATH, "[[[true]]]");
+        _assert("[true,[1,2,[true],3],0]", "/1/3/0", Inclusion.INCLUDE_ALL_AND_PATH, "");
     }
 
     public void testArrayNestedWithoutPath() throws Exception
     {
-        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", false, "3");
-        _assert("[true,[1,2,[true],3],0]", "/0", false, "true");
-        _assert("[true,[1,2,[true],3],0]", "/1", false,
+        _assert("{'a':[true,{'b':3,'d':2},false]}", "/a/1/b", Inclusion.ONLY_INCLUDE_ALL, "3");
+        _assert("[true,[1,2,[true],3],0]", "/0", Inclusion.ONLY_INCLUDE_ALL, "true");
+        _assert("[true,[1,2,[true],3],0]", "/1", Inclusion.ONLY_INCLUDE_ALL,
                 "[1,2,[true],3]");
 
-        _assert("[true,[1,2,[true],3],0]", "/1/2", false, "[true]");
-        _assert("[true,[1,2,[true],3],0]", "/1/2/0", false, "true");
-        _assert("[true,[1,2,[true],3],0]", "/1/3/0", false, "");
+        _assert("[true,[1,2,[true],3],0]", "/1/2", Inclusion.ONLY_INCLUDE_ALL, "[true]");
+        _assert("[true,[1,2,[true],3],0]", "/1/2/0", Inclusion.ONLY_INCLUDE_ALL, "true");
+        _assert("[true,[1,2,[true],3],0]", "/1/3/0", Inclusion.ONLY_INCLUDE_ALL, "");
     }
     
 //    final String SIMPLE_INPUT = aposToQuotes("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
     
     public void testArrayElementWithoutPath() throws Exception
     {
-        _assert(SIMPLE_INPUT, "/b", false, "[1,2,3]");
-        _assert(SIMPLE_INPUT, "/b/1", false, "2");
-        _assert(SIMPLE_INPUT, "/b/2", false, "3");
+        _assert(SIMPLE_INPUT, "/b", Inclusion.ONLY_INCLUDE_ALL, "[1,2,3]");
+        _assert(SIMPLE_INPUT, "/b/1", Inclusion.ONLY_INCLUDE_ALL, "2");
+        _assert(SIMPLE_INPUT, "/b/2", Inclusion.ONLY_INCLUDE_ALL, "3");
 
-        _assert(SIMPLE_INPUT, "/b/8", false, "");
+        _assert(SIMPLE_INPUT, "/b/8", Inclusion.ONLY_INCLUDE_ALL, "");
 
         // and then non-match
-        _assert(SIMPLE_INPUT, "/x", false, "");
+        _assert(SIMPLE_INPUT, "/x", Inclusion.ONLY_INCLUDE_ALL, "");
     }
 
-    private void _assert(String input, String pathExpr, boolean includeParent, String exp)
+    private void _assert(String input, String pathExpr, Inclusion tokenFilterInclusion, String exp)
         throws Exception
     {
         StringWriter w = new StringWriter();
@@ -97,7 +98,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
         JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         FilteringGeneratorDelegate g = new FilteringGeneratorDelegate(g0,
                 new JsonPointerBasedFilter(pathExpr),
-                includeParent, false);
+                tokenFilterInclusion, false);
 
         try {
             writeJsonDoc(JSON_F, input, g);
@@ -131,7 +132,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
          JsonGenerator jg = JSON_F.createGenerator(ObjectWriteContext.empty(), output);
 
          FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(jg,
-                 new JsonPointerBasedFilter("/noMatch"), true, true);
+                 new JsonPointerBasedFilter("/noMatch"), Inclusion.ONLY_INCLUDE_ALL, true);
          final String[] stuff = new String[] { "foo", "bar" };
 
          switch (mode) {

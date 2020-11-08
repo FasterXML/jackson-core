@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.filter;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
@@ -16,9 +17,9 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 public class FilteringParserDelegate extends JsonParserDelegate
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -42,12 +43,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * done and only explicitly included entries are output; if `true` then
      * path from main level down to match is also included as necessary.
      */
-    protected boolean _includePath;
+    protected TokenFilter.Inclusion _inclusion;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -91,27 +92,27 @@ public class FilteringParserDelegate extends JsonParserDelegate
     protected int _matchCount;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
-            boolean includePath, boolean allowMultipleMatches)
+            TokenFilter.Inclusion inclusion, boolean allowMultipleMatches)
     {
         super(p);
         rootFilter = f;
         // and this is the currently active filter for root values
         _itemFilter = f;
         _headContext = TokenFilterContext.createRootContext(f);
-        _includePath = includePath;
+        _inclusion = inclusion;
         _allowMultipleMatches = allowMultipleMatches;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public TokenFilter getFilter() { return rootFilter; }
@@ -125,9 +126,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken currentToken() { return _currToken; }
@@ -171,9 +172,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token state overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -196,9 +197,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 */
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, traversal
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -213,9 +214,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
         // If all the conditions matches then check for scalar / non-scalar property
 
         if (!_allowMultipleMatches && (_currToken != null) && (_exposedContext == null)) {
-            // if scalar, and scalar not present in obj/array and !includePath and INCLUDE_ALL
-            // matched once, return null
-            if (_currToken.isScalarValue() && !_headContext.isStartHandled() && !_includePath
+            // if scalar, and scalar not present in obj/array and _inclusion == ONLY_INCLUDE_ALL
+            // and INCLUDE_ALL matched once, return null
+            if (_currToken.isScalarValue() && !_headContext.isStartHandled()
+                    && _inclusion == Inclusion.ONLY_INCLUDE_ALL
                     && (_itemFilter == TokenFilter.INCLUDE_ALL)) {
                 return (_currToken = null);
             }
@@ -296,11 +298,15 @@ public class FilteringParserDelegate extends JsonParserDelegate
             if (f == TokenFilter.INCLUDE_ALL) {
                 _headContext = _headContext.createChildArrayContext(f, null, true);
                 return (_currToken = t);
+            } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                // TODO don't count as match?
+                _headContext = _headContext.createChildArrayContext(f, null, true);
+                return (_currToken = t);
             }
             _headContext = _headContext.createChildArrayContext(f, null, false);
-            
-            // Also: only need buffering if parent path to be included
-            if (_includePath) {
+
+// Also: only need buffering if parent path to be included
+            if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                 t = _nextTokenWithBuffering(_headContext);
                 if (t != null) {
                     _currToken = t;
@@ -332,10 +338,14 @@ public class FilteringParserDelegate extends JsonParserDelegate
             if (f == TokenFilter.INCLUDE_ALL) {
                 _headContext = _headContext.createChildObjectContext(f, null, true);
                 return (_currToken = t);
+            } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                // TODO don't count as match?
+                _headContext = _headContext.createChildObjectContext(f, null, true);
+                return (_currToken = t);
             }
             _headContext = _headContext.createChildObjectContext(f, null, false);
             // Also: only need buffering if parent path to be included
-            if (_includePath) {
+            if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                 t = _nextTokenWithBuffering(_headContext);
                 if (t != null) {
                     _currToken = t;
@@ -385,7 +395,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
                     if (_verifyAllowedMatches()) {
-                        if (_includePath) {
+                        if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                             return (_currToken = t);
                         }
                     } else {
@@ -393,7 +403,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                         delegate.skipChildren();
                     }
                 }
-                if (_includePath) {
+                if (_inclusion != Inclusion.ONLY_INCLUDE_ALL) {
                     t = _nextTokenWithBuffering(_headContext);
                     if (t != null) {
                         _currToken = t;
@@ -466,10 +476,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildArrayContext(f, null, true);
                     return (_currToken = t);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    _headContext = _headContext.createChildArrayContext(f, null, true);
+                    return (_currToken = t);
                 }
                 _headContext = _headContext.createChildArrayContext(f, null, false);
                 // but if we didn't figure it out yet, need to buffer possible events
-                if (_includePath) {
+                if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                     t = _nextTokenWithBuffering(_headContext);
                     if (t != null) {
                         _currToken = t;
@@ -501,9 +514,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildObjectContext(f, null, true);
                     return (_currToken = t);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    _headContext = _headContext.createChildObjectContext(f, null, true);
+                    return (_currToken = t);
                 }
                 _headContext = _headContext.createChildObjectContext(f, null, false);
-                if (_includePath) {
+                if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                     t = _nextTokenWithBuffering(_headContext);
                     if (t != null) {
                         _currToken = t;
@@ -549,12 +565,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                     _itemFilter = f;
                     if (f == TokenFilter.INCLUDE_ALL) {
-                        if (_verifyAllowedMatches() && _includePath) {
+                        if (_verifyAllowedMatches() && _inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
                             return (_currToken = t);
                         }
                         continue main_loop;
                     }
-                    if (_includePath) {
+                    if (_inclusion != Inclusion.ONLY_INCLUDE_ALL) {
                         t = _nextTokenWithBuffering(_headContext);
                         if (t != null) {
                             _currToken = t;
@@ -616,6 +632,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildArrayContext(f, null, true);
                     return _nextBuffered(buffRoot);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    // TODO don't count as match?
+                    _headContext = _headContext.createChildArrayContext(f, null, true);
+                    return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildArrayContext(f, null, false);
                 continue main_loop;
@@ -642,6 +662,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 _itemFilter = f;
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _headContext = _headContext.createChildObjectContext(f, null, true);
+                    return _nextBuffered(buffRoot);
+                } else if (f != null && _inclusion == Inclusion.INCLUDE_NON_NULL) {
+                    // TODO don't count as match?
+                    _headContext = _headContext.createChildArrayContext(f, null, true);
                     return _nextBuffered(buffRoot);
                 }
                 _headContext = _headContext.createChildObjectContext(f, null, false);
@@ -800,10 +824,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, traversal methods that CAN NOT just delegate
     /* and where we need to override default delegation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -830,9 +854,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected TokenStreamContext _filterContext() {

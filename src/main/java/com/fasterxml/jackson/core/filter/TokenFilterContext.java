@@ -157,6 +157,17 @@ public class TokenFilterContext extends TokenStreamContext
     }
 
     /**
+     * Method called to ensure that field name, if present, has been written
+     */
+    public void ensureFieldNameWritten(JsonGenerator gen) throws IOException
+    {
+        if (_needToHandleName) {
+            _needToHandleName = false;
+            gen.writeFieldName(_currentName);
+        }
+    }
+
+    /**
      * Method called to ensure that parent path from root is written up to
      * and including this node.
      */
@@ -178,35 +189,6 @@ public class TokenFilterContext extends TokenStreamContext
             if (_type == TYPE_OBJECT) {
                 gen.writeStartObject();
                 gen.writeFieldName(_currentName); // we know name must be written
-            } else if (_type == TYPE_ARRAY) {
-                gen.writeStartArray();
-            }
-        }
-    }
-
-    /**
-     * Variant of {@link #writePath(JsonGenerator)} called when all we
-     * need is immediately surrounding Object. Method typically called
-     * when including a single property but not including full path
-     * to root.
-     */
-    public void writeImmediatePath(JsonGenerator gen) throws IOException
-    {
-        if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
-            return;
-        }
-        if (_startHandled) {
-            // even if Object started, need to start leaf-level name
-            if (_needToHandleName) {
-                gen.writeFieldName(_currentName);
-            }
-        } else {
-            _startHandled = true;
-            if (_type == TYPE_OBJECT) {
-                gen.writeStartObject();
-                if (_needToHandleName) {
-                    gen.writeFieldName(_currentName);
-                }
             } else if (_type == TYPE_ARRAY) {
                 gen.writeStartArray();
             }

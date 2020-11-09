@@ -81,6 +81,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************
      */
 
+    /**
+     * @deprecated since 2.12 Use the constructor that takes {@link TokenFilter.Inclusion}
+     *    argument instead.
+     */
     @Deprecated
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
             boolean includePath, boolean allowMultipleMatches)
@@ -88,6 +92,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         this(d, f, includePath ? Inclusion.INCLUDE_ALL_AND_PATH : Inclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
     }
 
+    /**
+     * @since 2.12
+     */
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
             TokenFilter.Inclusion inclusion, boolean allowMultipleMatches)
     {

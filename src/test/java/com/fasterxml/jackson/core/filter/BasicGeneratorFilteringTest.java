@@ -334,14 +334,14 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
-                new NameExcludeFilter(true, "ob"), true, true);
+                new NameExcludeFilter(true, "ob"), Inclusion.INCLUDE_ALL_AND_PATH, true);
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'a':123,'array':[1,2],'b':true}"), w.toString());
 
         // then excluding them
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
-                new NameExcludeFilter(false, "ob"), true, true);
+                new NameExcludeFilter(false, "ob"), Inclusion.INCLUDE_ALL_AND_PATH, true);
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'a':123,'b':true}"), w.toString());
     }
@@ -472,7 +472,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameMatchFilter("b0"),
-                true, true);
+                Inclusion.INCLUDE_ALL_AND_PATH, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'b0':false}"), w.toString());
@@ -526,7 +526,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(1, 3, 5),
-                true, true);
+                Inclusion.INCLUDE_ALL_AND_PATH, true);
         JSON = "{'a':123,'misc':[1,2, null, true, false, 'abc', 123],'ob':null,'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'misc':[2,true,'abc']}"), w.toString());
@@ -535,7 +535,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(2,6),
-                true, true);
+                Inclusion.INCLUDE_ALL_AND_PATH, true);
         JSON = "{'misc':[1,2, null, 0.25, false, 'abc', 11234567890]}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'misc':[null,11234567890]}"), w.toString());
@@ -544,7 +544,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(1),
-                true, true);
+                Inclusion.INCLUDE_ALL_AND_PATH, true);
         JSON = "{'misc':[1,0.25,11234567890]}";
         writeJsonDoc(JSON_F, JSON, gen);
         assertEquals(aposToQuotes("{'misc':[0.25]}"), w.toString());
@@ -581,7 +581,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
-                TokenFilter.INCLUDE_ALL, true, true);
+                TokenFilter.INCLUDE_ALL, Inclusion.INCLUDE_ALL_AND_PATH, true);
 
         gen.writeStartArray();
         gen.writeRawValue(new char[] { '1'}, 0, 1);
@@ -601,7 +601,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
     {
         StringWriter w = new StringWriter();
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(_createGenerator(w),
-                TokenFilter.INCLUDE_ALL, true, true);
+                TokenFilter.INCLUDE_ALL, Inclusion.INCLUDE_ALL_AND_PATH, true);
 
         gen.writeStartObject();
         gen.writeNumberField("f1", 1);

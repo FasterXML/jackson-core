@@ -131,7 +131,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
          JsonGenerator jg = JSON_F.createGenerator(output);
 
          FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(jg,
-                 new JsonPointerBasedFilter("/noMatch"), true, true);
+                 new JsonPointerBasedFilter("/noMatch"), Inclusion.INCLUDE_ALL_AND_PATH, true);
          final String[] stuff = new String[] { "foo", "bar" };
 
          switch (mode) {

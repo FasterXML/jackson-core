@@ -15,26 +15,25 @@ public final class JsonReadContext extends TokenStreamContext
      * Parent context for this context; null for root context.
      */
     protected final JsonReadContext _parent;
-    
+
     // // // Optional duplicate detection
 
     protected DupDetector _dups;
 
     /*
-    /**********************************************************
-    /* Simple instance reuse slots; speeds up things
-    /* a bit (10-15%) for docs with lots of small
-    /* arrays/objects (for which allocation was
-    /* visible in profile stack frames)
-    /**********************************************************
+    /**********************************************************************
+    /* Simple instance reuse slots; speeds up things a bit (10-15%)
+    /* for docs with lots of small arrays/objects (for which
+    /* allocation was visible in profile stack frames)
+    /**********************************************************************
      */
 
     protected JsonReadContext _child;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information (minus source reference)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected String _currentName;
@@ -45,9 +44,9 @@ public final class JsonReadContext extends TokenStreamContext
     protected int _columnNr;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instance construction, config, reuse
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonReadContext(JsonReadContext parent, DupDetector dups, int type, int lineNr, int colNr) {
@@ -60,7 +59,14 @@ public final class JsonReadContext extends TokenStreamContext
         _index = -1;
     }
 
-    protected void reset(int type, int lineNr, int colNr) {
+    /**
+     * Internal method to allow instance reuse: DO NOT USE unless you absolutely
+     * know what you are doing.
+     * Clears up state (including "current value"), changes type to one specified;
+     * resets current duplicate-detection state (if any).
+     * Parent link left as-is since it is {@code final}.
+     */
+    public void reset(int type, int lineNr, int colNr) {
         _type = type;
         _index = -1;
         _lineNr = lineNr;
@@ -94,9 +100,9 @@ public final class JsonReadContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static JsonReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
@@ -130,9 +136,9 @@ public final class JsonReadContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract method implementations, overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -152,9 +158,9 @@ public final class JsonReadContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -176,9 +182,9 @@ public final class JsonReadContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State changes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public boolean expectComma() {

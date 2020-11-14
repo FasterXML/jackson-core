@@ -72,6 +72,13 @@ public class JsonWriteContext extends TokenStreamContext
         _currentValue = currValue;
     }
 
+    /**
+     * Internal method to allow instance reuse: DO NOT USE unless you absolutely
+     * know what you are doing.
+     * Clears up state, changes type to one specified, assigns "current value";
+     * resets current duplicate-detection state (if any).
+     * Parent link left as-is since it is {@code final}.
+     */
     protected JsonWriteContext reset(int type, Object currValue) {
         _type = type;
         _index = -1;

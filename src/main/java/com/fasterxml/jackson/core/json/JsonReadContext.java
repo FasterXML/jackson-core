@@ -15,17 +15,16 @@ public final class JsonReadContext extends JsonStreamContext
      * Parent context for this context; null for root context.
      */
     protected final JsonReadContext _parent;
-    
+
     // // // Optional duplicate detection
 
     protected DupDetector _dups;
 
     /*
     /**********************************************************
-    /* Simple instance reuse slots; speeds up things
-    /* a bit (10-15%) for docs with lots of small
-    /* arrays/objects (for which allocation was
-    /* visible in profile stack frames)
+    /* Simple instance reuse slots; speeds up things a bit (10-15%)
+    /* for docs with lots of small arrays/objects (for which
+    /* allocation was visible in profile stack frames)
     /**********************************************************
      */
 
@@ -63,7 +62,16 @@ public final class JsonReadContext extends JsonStreamContext
         _index = -1;
     }
 
-    protected void reset(int type, int lineNr, int colNr) {
+    /**
+     * Internal method to allow instance reuse: DO NOT USE unless you absolutely
+     * know what you are doing.
+     * Clears up state (including "current value"), changes type to one specified;
+     * resets current duplicate-detection state (if any).
+     * Parent link left as-is since it is {@code final}.
+     *<p>
+     * NOTE: Public since 2.12.
+     */
+    public void reset(int type, int lineNr, int colNr) {
         _type = type;
         _index = -1;
         _lineNr = lineNr;

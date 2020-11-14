@@ -84,7 +84,16 @@ public class JsonWriteContext extends JsonStreamContext
         _currentValue = currValue;
     }
 
-    protected JsonWriteContext reset(int type) {
+    /**
+     * Internal method to allow instance reuse: DO NOT USE unless you absolutely
+     * know what you are doing.
+     * Clears up state (including "current value"), changes type to one specified;
+     * resets current duplicate-detection state (if any).
+     * Parent link left as-is since it is {@code final}.
+     *<p>
+     * NOTE: Public since 2.12.
+     */
+    public JsonWriteContext reset(int type) {
         _type = type;
         _index = -1;
         _currentName = null;
@@ -94,8 +103,18 @@ public class JsonWriteContext extends JsonStreamContext
         return this;
     }
 
-    /* @since 2.10 */
-    protected JsonWriteContext reset(int type, Object currValue) {
+    /**
+     * Internal method to allow instance reuse: DO NOT USE unless you absolutely
+     * know what you are doing.
+     * Clears up state, changes type to one specified, assigns "current value";
+     * resets current duplicate-detection state (if any).
+     * Parent link left as-is since it is {@code final}.
+     *<p>
+     * NOTE: Public since 2.12.
+     *
+     * @since 2.10
+     */
+    public JsonWriteContext reset(int type, Object currValue) {
         _type = type;
         _index = -1;
         _currentName = null;

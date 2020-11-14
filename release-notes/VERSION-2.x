@@ -30,6 +30,7 @@ JSON library.
 #631: Add `JsonParser.getNumberValueExact()` to allow precision-retaining buffering
 #639: Limit initial allocated block size by `ByteArrayBuilder` to max block size
 #640: Add `JacksonException` as parent class of `JsonProcessingException`
+#653: Make `JsonWriteContext.reset()` and `JsonReadContext.reset()` methods public
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 - Full "LICENSE" included in jar for easier access by compliancy tools
 

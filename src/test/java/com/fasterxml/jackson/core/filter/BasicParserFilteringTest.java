@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -367,8 +366,6 @@ public class BasicParserFilteringTest extends BaseTest
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("[[{'array':[],'ob':{}}],[{'array':[],'ob':{}}],[{'array':[],'ob':{}}]]"), result);
         assertEquals(0, p.getMatchCount());
-
-        StringWriter w = new StringWriter();
     }
 
     public void testNoMatchFiltering4() throws Exception

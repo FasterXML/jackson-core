@@ -215,7 +215,7 @@ public abstract class JsonParser
      * Access mode is determined by earlier calls via {@link JsonFactory};
      * it may not be changed after construction.
      *<p>
-     * If non-blocking decoding is (@code true}, it is possible to call
+     * If non-blocking decoding is {@code true}, it is possible to call
      * {@link #getNonBlockingInputFeeder()} to obtain object to use
      * for feeding input; otherwise (<code>false</code> returned)
      * input is read by blocking 

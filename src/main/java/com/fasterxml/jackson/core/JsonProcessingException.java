@@ -48,6 +48,7 @@ public class JsonProcessingException extends JacksonException
     /**********************************************************
      */
 
+    @Override
     public JsonLocation getLocation() { return _location; }
 
     /**
@@ -66,6 +67,7 @@ public class JsonProcessingException extends JacksonException
      * 
      * @since 2.1
      */
+    @Override
     public String getOriginalMessage() { return super.getMessage(); }
 
     /**
@@ -82,6 +84,7 @@ public class JsonProcessingException extends JacksonException
      *
      * @since 2.7
      */
+    @Override
     public Object getProcessor() { return null; }
 
     /*

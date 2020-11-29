@@ -25,11 +25,26 @@ import com.fasterxml.jackson.core.io.CharTypes;
 public abstract class TokenStreamContext
 {
     // // // Type constants used internally
+    // // // (but exposed publicly as of 2.12 as possibly needed)
 
-    protected final static int TYPE_ROOT = 0;
-    protected final static int TYPE_ARRAY = 1;
-    protected final static int TYPE_OBJECT = 2;
+    /**
+     * Indicator for "Root Value" context (has not parent)
+     */
+    public final static int TYPE_ROOT = 0;
 
+    /**
+     * Indicator for "Array" context.
+     */
+    public final static int TYPE_ARRAY = 1;
+
+    /**
+     * Indicator for "Object" context.
+     */
+    public final static int TYPE_OBJECT = 2;
+
+    /**
+     * Indicates logical type of context as one of {@code TYPE_xxx} consants.
+     */
     protected int _type;
 
     /**

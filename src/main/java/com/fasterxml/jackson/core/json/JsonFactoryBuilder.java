@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.DecorableTSFactory.DecorableTSFBuilder;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
 
 /**
  * {@link com.fasterxml.jackson.core.TokenStreamFactory.TSFBuilder}

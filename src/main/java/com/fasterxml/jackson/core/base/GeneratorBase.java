@@ -300,7 +300,7 @@ public abstract class GeneratorBase extends JsonGenerator
 
     /**
      * Overridable factory method called to instantiate an appropriate {@link PrettyPrinter}
-     * for case of "just use the default one", when {@link #useDefaultPrettyPrinter()} is called.
+     * for case of "just use the default one", when default pretty printer handling enabled.
      */
     protected PrettyPrinter _constructDefaultPrettyPrinter() {
         return new DefaultPrettyPrinter();

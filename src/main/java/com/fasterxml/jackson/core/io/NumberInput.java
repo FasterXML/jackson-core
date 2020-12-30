@@ -311,22 +311,18 @@ public final class NumberInput
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {
-        try { return new BigDecimal(s); } catch (NumberFormatException e) {
-            throw _badBD(s);
-        }
+        char[] ch = s.toCharArray();
+
+        return parseBigDecimal(ch);
     }
 
-    public static BigDecimal parseBigDecimal(char[] b) throws NumberFormatException {
-        return parseBigDecimal(b, 0, b.length);
-    }
-    
-    public static BigDecimal parseBigDecimal(char[] b, int off, int len) throws NumberFormatException {
-        try { return new BigDecimal(b, off, len); } catch (NumberFormatException e) {
-            throw _badBD(new String(b, off, len));
-        }
+    public static BigDecimal parseBigDecimal(char[] ch) throws NumberFormatException {
+        return parseBigDecimal(ch, 0, ch.length);
     }
 
-    private static NumberFormatException _badBD(String s) {
-        return new NumberFormatException("Value \""+s+"\" can not be represented as BigDecimal");
+    public static BigDecimal parseBigDecimal(char[] ch, int off, int len) throws NumberFormatException {
+        BigDecimalParser parser = new BigDecimalParser(ch, off, len);
+
+        return parser.parse();
     }
 }

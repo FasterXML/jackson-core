@@ -472,6 +472,9 @@ public abstract class TokenStreamFactory
      * This is usually used for determining
      * whether to force a stable ordering (like alphabetic ordering by name)
      * if no ordering if explicitly specified.
+     *
+     * @return Whether format supported by this factory
+     *   requires Object properties to be ordered.
      */
     public boolean requiresPropertyOrdering() { return false; }
 
@@ -480,6 +483,9 @@ public abstract class TokenStreamFactory
      * to see whether underlying data format can read and write binary
      * data natively; that is, embedded it as-is without using encodings
      * such as Base64.
+     *
+     * @return Whether format supported by this factory
+     *    supports native binary content
      */
     public abstract boolean canHandleBinaryNatively();
 
@@ -488,6 +494,9 @@ public abstract class TokenStreamFactory
      * factory can create non-blocking parsers: parsers that do not
      * use blocking I/O abstractions but instead use a
      * {@link com.fasterxml.jackson.core.async.NonBlockingInputFeeder}.
+     *
+     * @return Whether this factory supports non-blocking ("async") parsing or
+     *    not (and consequently whether {@code createNonBlockingXxx()} method(s) work)
      */
     public abstract boolean canParseAsync();
 
@@ -495,6 +504,8 @@ public abstract class TokenStreamFactory
      * Method for accessing kind of {@link FormatFeature} that a parser
      * {@link JsonParser} produced by this factory would accept, if any;
      * <code>null</code> returned if none.
+     *
+     * @return Type of format-specific stream read features, if any; {@code null} if none
      */
     public Class<? extends FormatFeature> getFormatReadFeatureType() {
         return null;
@@ -504,6 +515,8 @@ public abstract class TokenStreamFactory
      * Method for accessing kind of {@link FormatFeature} that a parser
      * {@link JsonGenerator} produced by this factory would accept, if any;
      * <code>null</code> returned if none.
+     *
+     * @return Type of format-specific stream read features, if any; {@code null} if none
      */
     public Class<? extends FormatFeature> getFormatWriteFeatureType() {
         return null;
@@ -521,15 +534,19 @@ public abstract class TokenStreamFactory
      * of data format (i.e. schema is for same data format as parsers and
      * generators this factory constructs); individual schema instances
      * may have further usage restrictions.
+     *
+     * @param schema Schema instance to check
+     *
+     * @return Whether parsers and generators constructed by this factory
+     *   can use specified format schema instance
      */
     public abstract boolean canUseSchema(FormatSchema schema);
 
     /**
      * Method that returns short textual id identifying format
      * this factory supports.
-     *<p>
-     * Note: sub-classes should override this method; default
-     * implementation will return null for all sub-classes
+     *
+     * @return Name of the format handled by parsers, generators this factory creates
      */
     public abstract String getFormatName();
 
@@ -1111,6 +1128,12 @@ public abstract class TokenStreamFactory
      * Helper methods used for constructing an optimal stream for
      * parsers to use, when input is to be read from an URL.
      * This helps when reading file content via URL.
+     *
+     * @param url Source to read content to parse from
+     *
+     * @return InputStream constructed for given {@link URL}
+     *
+     * @throws IOException If there is a problem accessing content from specified {@link URL}
      */
     protected InputStream _optimizedStreamFromURL(URL url) throws IOException {
         if ("file".equals(url.getProtocol())) {

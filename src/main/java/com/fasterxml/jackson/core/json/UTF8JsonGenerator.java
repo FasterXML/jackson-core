@@ -533,10 +533,10 @@ public class UTF8JsonGenerator
         _verifyValueWrite(WRITE_STRING);
         if (reader == null) {
             _reportError("null reader");
+            return; // just to block warnings by lgtm.com
         }
 
         int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
-
         final char[] buf = _charBuffer;
 
         // Add leading quote
@@ -2076,8 +2076,9 @@ public class UTF8JsonGenerator
                 if (inputOffset >= inputEnd || cbuf == null) { // nope... have to note down
                     _reportError(String.format(
 "Split surrogate on writeRaw() input (last character): first character 0x%4x", ch));
+                } else {
+                    _outputSurrogates(ch, cbuf[inputOffset]);
                 }
-                _outputSurrogates(ch, cbuf[inputOffset]);
                 return inputOffset+1;
             }
         }

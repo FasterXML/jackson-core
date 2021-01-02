@@ -106,7 +106,7 @@ public final class NumberInput
         }
         return neg ? -num : num;
     }
-    
+
     public static long parseLong(char[] ch, int off, int len)
     {
         // Note: caller must ensure length is [10, 18]
@@ -117,9 +117,8 @@ public final class NumberInput
 
     public static long parseLong(String s)
     {
-        /* Ok, now; as the very first thing, let's just optimize case of "fake longs";
-         * that is, if we know they must be ints, call int parsing
-         */
+        // Ok, now; as the very first thing, let's just optimize case of "fake longs";
+        // that is, if we know they must be ints, call int parsing
         int length = s.length();
         if (length <= 9) {
             return (long) parseInt(s);
@@ -127,7 +126,7 @@ public final class NumberInput
         // !!! TODO: implement efficient 2-int parsing...
         return Long.parseLong(s);
     }
-    
+
     /**
      * Helper method for determining if given String representation of
      * an integral number would fit in 64-bit Java long or not.
@@ -191,14 +190,13 @@ public final class NumberInput
         }
         // One more thing: use integer parsing for 'simple'
         int i = 0;
-        if (i < len) { // skip leading sign:
-            char c = s.charAt(0);
-            if (c == '+') { // for plus, actually physically remove
-                s = s.substring(1);
-                len = s.length();
-            } else if (c == '-') { // minus, just skip for checks, must retain
-                ++i;
-            }
+        // skip leading sign, if any
+        final char sign = s.charAt(0);
+        if (sign == '+') { // for plus, actually physically remove
+            s = s.substring(1);
+            len = s.length();
+        } else if (sign == '-') { // minus, just skip for checks, must retain
+            i = 1;
         }
         for (; i < len; ++i) {
             char c = s.charAt(i);
@@ -229,14 +227,13 @@ public final class NumberInput
         }
         // One more thing: use long parsing for 'simple'
         int i = 0;
-        if (i < len) { // skip leading sign:
-            char c = s.charAt(0);
-            if (c == '+') { // for plus, actually physically remove
-                s = s.substring(1);
-                len = s.length();
-            } else if (c == '-') { // minus, just skip for checks, must retain
-                ++i;
-            }
+        // skip leading sign, if any
+        final char sign = s.charAt(0);
+        if (sign == '+') { // for plus, actually physically remove
+            s = s.substring(1);
+            len = s.length();
+        } else if (sign == '-') { // minus, just skip for checks, must retain
+            i = 1;
         }
         for (; i < len; ++i) {
             char c = s.charAt(i);

@@ -77,6 +77,11 @@ public abstract class FieldNameMatcher
      * Lookup method that does not assume name to be matched to be
      * {@link String#intern}ed (although passing interned String is likely
      * to result in more efficient matching).
+     *
+     * @param toMatch Name to match
+     *
+     * @return Index of the name matched, if any (non-negative number); or an
+     *    error code (negative constant {@code MATCH_xxx}) if none
      */
     public abstract int matchName(String toMatch);
 
@@ -102,6 +107,9 @@ public abstract class FieldNameMatcher
 
     /**
      * Accessor to names matching indexes, iff passed during construction.
+     *
+     * @return Array of names that this matcher may match (with indices that
+     *   match non-negative values by {@code matchXxx} methods)
      */
     public final String[] nameLookup() {
         return _nameLookup;
@@ -116,6 +124,10 @@ public abstract class FieldNameMatcher
     /**
      * Secondary lookup method used for matchers that operate with more complex
      * matching rules, such as case-insensitive matchers.
+     *
+     * @param toMatch Name to match
+     *
+     * @return Index for the match, if any (non-negative); or error code if no match
      */
     protected int matchSecondary(String toMatch) {
         if (_backupMatcher == null) {

@@ -302,7 +302,7 @@ public final class ByteQuadsCanonicalizer
      * Factory method used to create actual symbol table instance to
      * use for parsing.
      *
-     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.JsonFactory.Feature}s enabled.
+     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature}s enabled.
      *
      * @return Actual canonicalizer instance that can be used by a parser
      */

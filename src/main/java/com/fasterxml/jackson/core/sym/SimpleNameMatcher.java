@@ -30,6 +30,12 @@ public class SimpleNameMatcher
     /**
      * Factory method for constructing case-sensitive matcher that only supports
      * matching from `String`.
+     *
+     * @param locale Locale to use (relevant for case-insensitive matchers)
+     * @param fields Names to match
+     * @param alreadyInterned Whether underlying Strings have been {@code String.intern()}ed or not
+     *
+     * @return Matcher constructed
      */
     public static SimpleNameMatcher constructFrom(Locale locale,
             List<Named> fields, boolean alreadyInterned) {
@@ -39,6 +45,11 @@ public class SimpleNameMatcher
     /**
      * Factory method for constructing case-sensitive matcher that only supports
      * matching from `String`.
+     *
+     * @param locale Locale to use (relevant for case-insensitive matchers)
+     * @param fieldNames Names to match
+     *
+     * @return Matcher constructed
      */
     public static SimpleNameMatcher construct(Locale locale, List<String> fieldNames)
     {

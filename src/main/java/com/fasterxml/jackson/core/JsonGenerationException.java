@@ -35,6 +35,10 @@ public class JsonGenerationException
     /**
      * Fluent method that may be used to assign originating {@link JsonGenerator},
      * to be accessed using {@link #getProcessor()}.
+     *
+     * @param g Generator to assign
+     *
+     * @return This exception instance (to allow call chaining)
      */
     public JsonGenerationException withGenerator(JsonGenerator g) {
         _processor = g;

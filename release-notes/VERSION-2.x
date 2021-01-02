@@ -34,7 +34,7 @@ JSON library.
 - Deprecate `JsonParser.getCurrentTokenId()` (use `#currentTokenId()` instead)
 - Full "LICENSE" included in jar for easier access by compliancy tools
 
-2.11.4 (not yet released)
+2.11.4 (12-Dec-2020)
 
 #647: Fix NPE in `writeNumber(String)` method of `UTF8JsonGenerator`,
   `WriterBasedJsonGenerator`

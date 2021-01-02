@@ -43,7 +43,7 @@ public final class MergedStream extends InputStream
         _in.close();
     }
 
-    @Override public void mark(int readlimit) {
+    @Override public synchronized void mark(int readlimit) {
         if (_b == null) { _in.mark(readlimit); }
     }
     
@@ -85,7 +85,7 @@ public final class MergedStream extends InputStream
     }
 
     @Override
-    public void reset() throws IOException {
+    public synchronized void reset() throws IOException {
         if (_b == null) { _in.reset(); }
     }
 

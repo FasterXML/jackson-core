@@ -27,9 +27,9 @@ public final class BinaryNameMatcher
     private final static int MAX_LENGTH_IN_QUADS = 0x7FFF;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* First, main hash area info
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -75,9 +75,9 @@ public final class BinaryNameMatcher
     private int _count;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Then information on collisions etc
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -98,17 +98,20 @@ public final class BinaryNameMatcher
     private int _longNameOffset;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * Constructor used for creating per-<code>JsonFactory</code> "root"
-     * symbol tables: ones used for merging and sharing common symbols
+     * Constructor used for creating per-<code>TokenStreamFactory</code> "root"
+     * symbol tables (for formats that use such approach): ones used for merging
+     * and sharing common symbols
      *
-     * @param entryCount Number of Strings to contain
-     * @param sz Size of logical hash area
+     * @param matcher Backup matcher used if efficient primary matching cannot be used
+     * @param nameLookup Set of names to match
+     * @param hashSize Estimated basic hash area size to use (slightly bigger than number
+     *    of entries in {@code nameLookup} array
      */
     private BinaryNameMatcher(SimpleNameMatcher matcher, String[] nameLookup, int hashSize)
     {
@@ -139,9 +142,9 @@ public final class BinaryNameMatcher
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static BinaryNameMatcher constructFrom(List<Named> fields, boolean alreadyInterned)
@@ -176,9 +179,9 @@ public final class BinaryNameMatcher
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* API, mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     public int addName(String name) {
@@ -305,9 +308,9 @@ public final class BinaryNameMatcher
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* API, accessors, mostly for Unit Tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     public int size() { return _count; }
@@ -368,9 +371,9 @@ public final class BinaryNameMatcher
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, accessing symbols
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -511,9 +514,9 @@ public final class BinaryNameMatcher
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Access from spill-over areas
-    /**********************************************************
+    /**********************************************************************
      */
 
     private int _findTertiary(int origOffset, int q1)
@@ -667,9 +670,9 @@ public final class BinaryNameMatcher
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Hash calculation
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // Copied straight frmo big quads canonicalizer: look comments there
@@ -741,9 +744,9 @@ public final class BinaryNameMatcher
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static int[] _quads(String name) {

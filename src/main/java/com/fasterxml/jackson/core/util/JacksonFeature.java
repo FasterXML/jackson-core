@@ -10,17 +10,25 @@ public interface JacksonFeature
 {
     /**
      * Accessor for checking whether this feature is enabled by default.
+     *
+     * @return Whether this instance is enabled by default or not
      */
     public boolean enabledByDefault();
 
     /**
      * Returns bit mask for this feature instance; must be a single bit,
-     * that is of form {@code 1 << N}
+     * that is of form {@code 1 << N}.
+     *
+     * @return Bit mask of this feature
      */
     public int getMask();
 
     /**
-     * Convenience method for checking whether feature is enabled in given bitmask
+     * Convenience method for checking whether feature is enabled in given bitmask.
+     *
+     * @param flags Bit field that contains a set of enabled features of this type
+     *
+     * @return True if this feature is enabled in passed bit field
      */
     public boolean enabledIn(int flags);
 }

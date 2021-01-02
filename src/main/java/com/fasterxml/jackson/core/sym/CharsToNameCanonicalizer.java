@@ -277,6 +277,8 @@ public final class CharsToNameCanonicalizer
      * Method called to create root canonicalizer for a {@link com.fasterxml.jackson.core.json.JsonFactory}
      * instance. Root instance is never used directly; its main use is for
      * storing and sharing underlying symbol arrays as needed.
+     *
+     * @return Root instance to use for constructing new child instances 
      */
     public static CharsToNameCanonicalizer createRoot() {
         // Need to use a variable seed, to thwart hash-collision based attacks.
@@ -302,6 +304,10 @@ public final class CharsToNameCanonicalizer
      * actively. Instead, a separate 'root' instance should be used
      * on which only makeChild/mergeChild are called, but instance itself
      * is not used as a symbol table.
+     *
+     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature}s enabled.
+     *
+     * @return Actual canonicalizer instance that can be used by a parser
      */
     public CharsToNameCanonicalizer makeChild(int flags) {
         return new CharsToNameCanonicalizer(this, flags, _seed, _tableInfo.get());
@@ -360,6 +366,9 @@ public final class CharsToNameCanonicalizer
     /**********************************************************
      */
 
+    /**
+     * @return Number of symbol entries contained by this canonicalizer instance
+     */
     public int size() {
         if (_tableInfo != null) { // root table
             return _tableInfo.get().size;
@@ -372,7 +381,7 @@ public final class CharsToNameCanonicalizer
      * Method for checking number of primary hash buckets this symbol
      * table uses.
      * 
-     * @since 2.1
+     * @return number of primary slots table has currently
      */
     public int bucketCount() {  return _symbols.length; }
     public boolean maybeDirty() { return !_hashShared; }
@@ -384,6 +393,8 @@ public final class CharsToNameCanonicalizer
      * ({@link #size} - 1), but should usually be much lower, ideally 0.
      * 
      * @since 2.1
+     *
+     * @return Number of collisions in the primary hash area
      */
     public int collisionCount() {
         int count = 0;
@@ -400,7 +411,9 @@ public final class CharsToNameCanonicalizer
      * Method mostly needed by unit tests; calculates length of the
      * longest collision chain. This should typically be a low number,
      * but may be up to {@link #size} - 1 in the pathological case
-     * 
+     *
+     * @return Length of the collision chain
+     *
      * @since 2.1
      */
     public int maxCollisionLength() { return _longestCollisionList; }
@@ -540,6 +553,10 @@ public final class CharsToNameCanonicalizer
     /**
      * Helper method that takes in a "raw" hash value, shuffles it as necessary,
      * and truncates to be used as the index.
+     *
+     * @param rawHash Raw hash value to use for calculating index
+     *
+     * @return Index value calculated
      */
     public int _hashToIndex(int rawHash) {
         // doing these seems to help a bit
@@ -555,8 +572,11 @@ public final class CharsToNameCanonicalizer
      * is done by caller during parsing, not here; however, sometimes
      * it needs to be done for parsed "String" too.
      *
-     * @param len Length of String; has to be at least 1 (caller guarantees
-     *   this pre-condition)
+     * @param buffer Input buffer that contains name to decode
+     * @param start Pointer to the first character of the name
+     * @param len Length of String; has to be at least 1 (caller guarantees)
+     *
+     * @return Hash code calculated
      */
     public int calcHash(char[] buffer, int start, int len) {
         int hash = _seed;
@@ -685,13 +705,8 @@ public final class CharsToNameCanonicalizer
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
     }
 
-    // since 2.10, for tests only
-    /**
-     * Diagnostics method that will verify that internal data structures are consistent;
-     * not meant as user-facing method but only for test suites and possible troubleshooting.
-     *
-     * @since 2.10
-     */
+    // Diagnostics method that will verify that internal data structures are consistent;
+    // not meant as user-facing method but only for test suites and possible troubleshooting.
     protected void verifyInternalConsistency() {
         int count = 0;
         final int size = _symbols.length;

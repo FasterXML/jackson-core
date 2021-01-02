@@ -51,6 +51,9 @@ public abstract class JacksonException extends java.io.IOException
      *<p>
      * Accuracy of location information depends on backend (format) as well
      * as (in some cases) operation being performed.
+     *
+     * @return Location in input or output that triggered the problem reported, if
+     *    available; {@code null} otherwise.
      */
     public JsonLocation getLocation() { return _location; }
 
@@ -58,6 +61,9 @@ public abstract class JacksonException extends java.io.IOException
      * Method that allows accessing the original "message" argument,
      * without additional decorations (like location information)
      * that overridden {@link #getMessage} adds.
+     *
+     * @return Original, unmodified {@code message} argument used to construct
+     *    this exception instance
      */
     public String getOriginalMessage() { return super.getMessage(); }
 
@@ -73,7 +79,7 @@ public abstract class JacksonException extends java.io.IOException
      * Subtypes override this method with co-variant return type, for more
      * type-safe access.
      * 
-     * @return Originating processor, if available; null if not.
+     * @return Originating processor, if available; {@code null} if not.
      */
     public Object getProcessor() { return null; }
 

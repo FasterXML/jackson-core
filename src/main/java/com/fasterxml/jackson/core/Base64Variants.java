@@ -94,6 +94,8 @@ public final class Base64Variants
      * where caller does not explicitly specify the variant.
      * We will prefer no-linefeed version because linefeeds in JSON values
      * must be escaped, making linefeed-containing variants sub-optimal.
+     *
+     * @return Default variant ({@code MIME_NO_LINEFEEDS})
      */
     public static Base64Variant getDefaultVariant() {
         return MIME_NO_LINEFEEDS;
@@ -103,6 +105,12 @@ public final class Base64Variants
      * Lookup method for finding one of standard variants by name.
      * If name does not match any of standard variant names,
      * a {@link IllegalArgumentException} is thrown.
+     *
+     * @param name Name of base64 variant to return
+     *
+     * @return Standard base64 variant that matches given {@code name}
+     *
+     * @throws IllegalArgumentException if no standard variant with given name exists
      */
     public static Base64Variant valueOf(String name) throws IllegalArgumentException
     {

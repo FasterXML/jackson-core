@@ -185,6 +185,11 @@ public final class Base64Variant
      * "Copy constructor" that can be used when the base alphabet is identical
      * to one used by another variant except for the maximum line length
      * (and obviously, name).
+     *
+     * @param base Variant to use for settings not specific by other parameters
+     * @param name Name of this variant
+     * @param maxLineLength Maximum length (in characters) of lines to output before
+     *    using linefeed
      */
     public Base64Variant(Base64Variant base,
             String name, int maxLineLength)
@@ -196,6 +201,13 @@ public final class Base64Variant
      * "Copy constructor" that can be used when the base alphabet is identical
      * to one used by another variant, but other details (padding, maximum
      * line length) differ
+     *
+     * @param base Variant to use for settings not specific by other parameters
+     * @param name Name of this variant
+     * @param writePadding Whether variant will use padding when encoding
+     * @param paddingChar Padding character used for encoding, excepted on reading, if any
+     * @param maxLineLength Maximum length (in characters) of lines to output before
+     *    using linefeed
      */
     public Base64Variant(Base64Variant base,
             String name, boolean writePadding, char paddingChar, int maxLineLength)
@@ -314,6 +326,8 @@ public final class Base64Variant
     public boolean usesPadding() { return _writePadding; }
 
     /**
+     * @return {@code True} if this variant requires padding on content decoded; {@code false} if not.
+     *
      * @since 2.12
      */
     public boolean requiresPaddingOnRead() {
@@ -321,6 +335,8 @@ public final class Base64Variant
     }
 
     /**
+     * @return {@code True} if this variant accepts padding on content decoded; {@code false} if not.
+     *
      * @since 2.12
      */
     public boolean acceptsPaddingOnRead() {
@@ -333,6 +349,8 @@ public final class Base64Variant
     /**
      * @return Indicator on how this Base64 encoding will handle possible padding
      *   in content when reading.
+     *
+     * @since 2.12
      */
     public PaddingReadBehaviour paddingReadBehaviour() { return _paddingReadBehaviour; }
 
@@ -348,6 +366,8 @@ public final class Base64Variant
      */
 
     /**
+     * @param c Character to decode
+     *
      * @return 6-bit decoded value, if valid character; 
      */
     public int decodeBase64Char(char c)
@@ -387,14 +407,22 @@ public final class Base64Variant
     /**
      * Method that encodes given right-aligned (LSB) 24-bit value
      * into 4 base64 characters, stored in given result buffer.
+     * Caller must ensure there is sufficient space for 4 encoded characters
+     * at specified position.
+     *
+     * @param b24 3-byte value to encode
+     * @param buffer Output buffer to append characters to
+     * @param outPtr Starting position within {@code buffer} to append encoded characters
+     *
+     * @return Pointer in output buffer after appending 4 encoded characters
      */
-    public int encodeBase64Chunk(int b24, char[] buffer, int ptr)
+    public int encodeBase64Chunk(int b24, char[] buffer, int outPtr)
     {
-        buffer[ptr++] = _base64ToAsciiC[(b24 >> 18) & 0x3F];
-        buffer[ptr++] = _base64ToAsciiC[(b24 >> 12) & 0x3F];
-        buffer[ptr++] = _base64ToAsciiC[(b24 >> 6) & 0x3F];
-        buffer[ptr++] = _base64ToAsciiC[b24 & 0x3F];
-        return ptr;
+        buffer[outPtr++] = _base64ToAsciiC[(b24 >> 18) & 0x3F];
+        buffer[outPtr++] = _base64ToAsciiC[(b24 >> 12) & 0x3F];
+        buffer[outPtr++] = _base64ToAsciiC[(b24 >> 6) & 0x3F];
+        buffer[outPtr++] = _base64ToAsciiC[b24 & 0x3F];
+        return outPtr;
     }
 
     public void encodeBase64Chunk(StringBuilder sb, int b24)
@@ -411,7 +439,12 @@ public final class Base64Variant
      * it as full data; that is, missing data is at the "right end"
      * (LSB) of int.
      *
-     * @param outputBytes Number of encoded bytes included (either 1 or 2)
+     * @param bits 24-bit chunk containing 1 or 2 bytes to encode
+     * @param outputBytes Number of input bytes to encode (either 1 or 2)
+     * @param buffer Output buffer to append characters to
+     * @param outPtr Starting position within {@code buffer} to append encoded characters
+     *
+     * @return Pointer in output buffer after appending encoded characters (2, 3 or 4)
      */
     public int encodeBase64Partial(int bits, int outputBytes, char[] buffer, int outPtr)
     {
@@ -453,14 +486,20 @@ public final class Base64Variant
     /**
      * Method that encodes given right-aligned (LSB) 24-bit value
      * into 4 base64 bytes (ascii), stored in given result buffer.
+     *
+     * @param b24 3-byte value to encode
+     * @param buffer Output buffer to append characters (as bytes) to
+     * @param outPtr Starting position within {@code buffer} to append encoded characters
+     *
+     * @return Pointer in output buffer after appending 4 encoded characters
      */
-    public int encodeBase64Chunk(int b24, byte[] buffer, int ptr)
+    public int encodeBase64Chunk(int b24, byte[] buffer, int outPtr)
     {
-        buffer[ptr++] = _base64ToAsciiB[(b24 >> 18) & 0x3F];
-        buffer[ptr++] = _base64ToAsciiB[(b24 >> 12) & 0x3F];
-        buffer[ptr++] = _base64ToAsciiB[(b24 >> 6) & 0x3F];
-        buffer[ptr++] = _base64ToAsciiB[b24 & 0x3F];
-        return ptr;
+        buffer[outPtr++] = _base64ToAsciiB[(b24 >> 18) & 0x3F];
+        buffer[outPtr++] = _base64ToAsciiB[(b24 >> 12) & 0x3F];
+        buffer[outPtr++] = _base64ToAsciiB[(b24 >> 6) & 0x3F];
+        buffer[outPtr++] = _base64ToAsciiB[b24 & 0x3F];
+        return outPtr;
     }
 
     /**
@@ -469,7 +508,12 @@ public final class Base64Variant
      * it as full data; that is, missing data is at the "right end"
      * (LSB) of int.
      *
-     * @param outputBytes Number of encoded bytes included (either 1 or 2)
+     * @param bits 24-bit chunk containing 1 or 2 bytes to encode
+     * @param outputBytes Number of input bytes to encode (either 1 or 2)
+     * @param buffer Output buffer to append characters to
+     * @param outPtr Starting position within {@code buffer} to append encoded characters
+     *
+     * @return Pointer in output buffer after appending encoded characters (2, 3 or 4)
      */
     public int encodeBase64Partial(int bits, int outputBytes, byte[] buffer, int outPtr)
     {
@@ -490,8 +534,7 @@ public final class Base64Variant
 
     /*
     /**********************************************************
-    /* Convenience conversion methods for String to/from bytes
-    /* use case.
+    /* Convenience conversion methods for String to/from bytes use case
     /**********************************************************
      */
     
@@ -501,6 +544,8 @@ public final class Base64Variant
      * Resulting value is "raw", that is, not enclosed in double-quotes.
      * 
      * @param input Byte array to encode
+     *
+     * @return Base64 encoded String of encoded {@code input} bytes, not surrounded by quotes
      */
     public String encode(byte[] input)
     {
@@ -515,6 +560,9 @@ public final class Base64Variant
      * 
      * @param input Byte array to encode
      * @param addQuotes Whether to surround resulting value in double quotes or not
+     *
+     * @return Base64 encoded String of encoded {@code input} bytes, possibly
+     *     surrounded by quotes (if {@code addQuotes} enabled)
      */
     public String encode(byte[] input, boolean addQuotes)
     {
@@ -567,6 +615,9 @@ public final class Base64Variant
      * 
      * @param input Byte array to encode
      * @param addQuotes Whether to surround resulting value in double quotes or not
+     * @param linefeed Linefeed to use for encoded content
+     *
+     * @return Base64 encoded String of encoded {@code input} bytes
      */
     public String encode(byte[] input, boolean addQuotes, String linefeed)
     {
@@ -610,7 +661,9 @@ public final class Base64Variant
      * Convenience method for decoding contents of a Base64-encoded String,
      * using this variant's settings.
      *
-     * @param input
+     * @param input Base64-encoded input String to decode
+     *
+     * @return Byte array of decoded contents
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */
@@ -630,6 +683,9 @@ public final class Base64Variant
      * NOTE: builder will NOT be reset before decoding (nor cleared afterwards);
      * assumption is that caller will ensure it is given in proper state, and
      * used as appropriate afterwards.
+     *
+     * @param str Input to decode
+     * @param builder Builder used for assembling decoded content
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */
@@ -765,8 +821,10 @@ public final class Base64Variant
      */
 
     /**
+     * @param ch Character to report on
      * @param bindex Relative index within base64 character unit; between 0
      *   and 3 (as unit has exactly 4 characters)
+     * @param msg Base message to use for exception
      */
     protected void _reportInvalidBase64(char ch, int bindex, String msg)
         throws IllegalArgumentException
@@ -800,6 +858,8 @@ public final class Base64Variant
      * Helper method that will construct a message to use in exceptions for cases where input ends
      * prematurely in place where padding is not expected.
      *
+     * @return Exception message for indicating "unexpected padding" case
+     *
      * @since 2.12
      */
     protected String unexpectedPaddingMessage() {
@@ -810,6 +870,8 @@ public final class Base64Variant
     /**
      * Helper method that will construct a message to use in exceptions for cases where input ends
      * prematurely in place where padding would be expected.
+     *
+     * @return Exception message for indicating "missing padding" case
      */
     public String missingPaddingMessage() { // !!! TODO: why is this 'public'?
         return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end. This Base64Variant might have been incorrectly configured",

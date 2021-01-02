@@ -451,6 +451,7 @@ public class WriterBasedJsonGenerator
         _verifyValueWrite(WRITE_STRING);
         if (reader == null) {
             _reportError("null reader");
+            return; // just to block warnings by lgtm.com
         }
         int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
         //Add leading quote

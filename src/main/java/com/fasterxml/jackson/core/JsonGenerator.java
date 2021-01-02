@@ -57,6 +57,8 @@ public abstract class JsonGenerator
     /**
      * Accessor for context object that provides information about low-level
      * logical position withing output token stream.
+     *
+     * @return Stream output context ({@link TokenStreamContext}) associated with this generator
      */
     public abstract TokenStreamContext getOutputContext();
 
@@ -65,6 +67,8 @@ public abstract class JsonGenerator
      * functionality (or, in some cases, simple placeholder of the same)
      * that allows some level of interaction including ability to trigger
      * serialization of Object values through generator instance.
+     *
+     * @return Object write context ({@link ObjectWriteContext}) associated with this generator
      *
      * @since 3.0
      */
@@ -84,6 +88,8 @@ public abstract class JsonGenerator
      *<p>
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
+     *
+     * @return Output target assigned to this generator
      */
     public abstract Object getOutputTarget();
 
@@ -109,10 +115,12 @@ public abstract class JsonGenerator
      *   getOutputContext().getCurrentValue();
      *</code>
      *<p>
-     * Note that "current value" is NOT populated (or used) by Streaming parser;
+     * Note that "current value" is NOT populated (or used) by Streaming generator;
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
+     *
+     * @return "Current value" for the current context this generator has
      */
     public abstract Object getCurrentValue();
 
@@ -121,6 +129,11 @@ public abstract class JsonGenerator
      *<code>
      *   getOutputContext().setCurrentValue(v);
      *</code>
+     * used to assign "current value" for the current context of this generator.
+     * It is usually assigned and used by higher level data-binding functionality
+     * (instead of streaming parsers/generators) but is stored at streaming level.
+     *
+     * @param v "Current value" to assign to the current output context of this generator
      */
     public abstract void setCurrentValue(Object v);
 
@@ -137,13 +150,20 @@ public abstract class JsonGenerator
      * NOTE: mostly left in 3.0 just to support disabling of
      * {@link StreamWriteFeature#AUTO_CLOSE_CONTENT}.
      *
-     * @return Generator itself (this), to allow chaining
+     * @param f Feature to enable or disable
+     * @param state Whether to enable the feature ({@code true}) or disable ({@code false})
+     *
+     * @return This generator, to allow call chaining
      */
     public abstract JsonGenerator configure(StreamWriteFeature f, boolean state);
 
     /**
      * Method for checking whether given feature is enabled.
      * Check {@link StreamWriteFeature} for list of available features.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} if not
      */
     public abstract boolean isEnabled(StreamWriteFeature f);
 
@@ -164,8 +184,10 @@ public abstract class JsonGenerator
       */
 
     /**
-     * Method for accessing Schema that this parser uses, if any.
+     * Method for accessing Schema that this generator uses, if any.
      * Default implementation returns null.
+     *
+     * @return {@link FormatSchema} this generator is configured to use, if any; {@code null} if none
      */
     public FormatSchema getSchema() { return null; }
 
@@ -189,6 +211,8 @@ public abstract class JsonGenerator
      * @param charCode Either -1 to indicate that no additional escaping
      *   is to be done; or highest code point not to escape (meaning higher
      *   ones will be), if positive value.
+     *
+     * @return This generator, to allow call chaining
      */
     public JsonGenerator setHighestNonEscapedChar(int charCode) { return this; }
 
@@ -209,6 +233,8 @@ public abstract class JsonGenerator
     /**
      * Method for accessing custom escapes generator uses for {@link JsonGenerator}s
      * it creates.
+     *
+     * @return {@link CharacterEscapes} this generator is configured to use, if any; {@code null} if none
      */
     public CharacterEscapes getCharacterEscapes() { return null; }
 
@@ -219,6 +245,10 @@ public abstract class JsonGenerator
      * it creates.
      *<p>
      * Default implementation does nothing and simply returns this instance.
+     *
+     * @param esc {@link CharacterEscapes} to configure this generator to use, if any; {@code null} if none
+     *
+     * @return This generator, to allow call chaining
      */
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) { return this; }
 
@@ -239,6 +269,10 @@ public abstract class JsonGenerator
      * that do support native Object Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native object ids.
+     *
+     * @return {@code True} if this generator is capable of writing "native" Object Ids
+     *   (which is typically determined by capabilities of the underlying format),
+     *   {@code false} if not
      */
     public boolean canWriteObjectId() { return false; }
 
@@ -253,6 +287,10 @@ public abstract class JsonGenerator
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native type ids.
+     *
+     * @return {@code True} if this generator is capable of writing "native" Type Ids
+     *   (which is typically determined by capabilities of the underlying format),
+     *   {@code false} if not
      */
     public boolean canWriteTypeId() { return false; }
 
@@ -263,6 +301,11 @@ public abstract class JsonGenerator
      *<p>
      * Default implementation returns false; overridden by data formats
      * that do support native binary content.
+     *
+     * @return {@code True} if this generator is capable of writing "raw" Binary
+     *   Content
+     *   (this is typically determined by capabilities of the underlying format);
+     *   {@code false} if not
      */
     public boolean canWriteBinaryNatively() { return false; }
     
@@ -271,6 +314,9 @@ public abstract class JsonGenerator
      * writing of Object fields or not. Most formats do allow omission,
      * but certain positional formats (such as CSV) require output of
      * placeholders, even if no real values are to be emitted.
+     *
+     * @return {@code True} if this generator is allowed to only write values
+     *   of some Object fields and omit the rest; {@code false} if not
      */
     public boolean canOmitFields() { return true; }
 
@@ -283,14 +329,19 @@ public abstract class JsonGenerator
      * Usual reason for calling this method is to check whether custom
      * formatting of numbers may be applied by higher-level code (databinding)
      * or not.
+     *
+     * @return {@code True} if this generator is capable of writing "formatted"
+     *   numbers (and if so, need to be passed using
+     *   {@link #writeNumber(String)}, that is, passed as {@code String});
+     *   {@code false} if not
      */
     public boolean canWriteFormattedNumbers() { return false; }
 
     /**
-     * Accessor for getting metadata on capabilities of this parser, based on
+     * Accessor for getting metadata on capabilities of this generator, based on
      * underlying data format being read (directly or indirectly).
      *
-     * @return Set of read capabilities for content to read via this parser
+     * @return Set of read capabilities for content to generate via this generator
      *
      * @since 2.12
      */
@@ -975,8 +1026,11 @@ public abstract class JsonGenerator
      * (with {@link #canWriteObjectId()}), as not all data formats
      * have native type id support; and some may only allow them in
      * certain positions or locations.
-     * If output is not allowed by the data format in this position,
-     * a {@link JsonGenerationException} will be thrown.
+     *
+     * @param id Native Object Id to write
+     * 
+     * @throws JsonGenerationException if Object ID output is not allowed
+     *   (either at all, or specifically in this position in output)
      */
     public void writeObjectId(Object id) throws IOException {
         throw new JsonGenerationException("No native support for writing Object Ids", this);
@@ -990,8 +1044,13 @@ public abstract class JsonGenerator
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
      * a {@link JsonGenerationException} will be thrown.
+     *
+     * @param referenced Referenced value, for which Object Id is expected to be written
+     * 
+     * @throws JsonGenerationException if Object ID output is not allowed
+     *   (either at all, or specifically in this position in output)
      */
-    public void writeObjectRef(Object id) throws IOException {
+    public void writeObjectRef(Object referenced) throws IOException {
         throw new JsonGenerationException("No native support for writing Object Ids", this);
     }
     
@@ -1003,12 +1062,14 @@ public abstract class JsonGenerator
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
      * a {@link JsonGenerationException} will be thrown.
+     *
+     * @param id Native Type Id to write
      */
     public void writeTypeId(Object id) throws IOException {
         throw new JsonGenerationException("No native support for writing Type Ids", this);
     }
 
-    /*
+    /**
      * Replacement method for {@link #writeTypeId(Object)} which is called
      * regardless of whether format has native type ids. If it does have native
      * type ids, those are to be used (if configuration allows this), if not,
@@ -1019,6 +1080,11 @@ public abstract class JsonGenerator
      * (and instead included type id via regular write methods and/or {@link #writeTypeId}
      * -- this is discouraged, but not illegal, and may be necessary as a work-around
      * in some cases.
+     *
+     * @param typeIdDef Full Type Id definition
+     *
+     * @return {@link WritableTypeId} for caller to retain and pass to matching
+     *   {@link #writeTypeSuffix} call
      */
     public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws IOException
     {
@@ -1126,6 +1192,8 @@ public abstract class JsonGenerator
      * stream this generator manages.
      * This is done by delegating call to
      * {@link ObjectWriteContext#writeValue(JsonGenerator, Object)}.
+     *
+     * @param pojo General POJO value to write
      */
     public abstract void writeObject(Object pojo) throws IOException;
 
@@ -1134,6 +1202,8 @@ public abstract class JsonGenerator
      * where given {@code TreeNode} is the root) using this generator.
      * This is done by delegating call to
      * {@link ObjectWriteContext#writeTree}.
+     *
+     * @param rootNode {@link TreeNode} to write
      */
     public abstract void writeTree(TreeNode rootNode) throws IOException;
 
@@ -1155,6 +1225,9 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeBinary(value);
      *</pre>
+     *
+     * @param fieldName Name of Object field to write
+     * @param data Binary value of the field to write
      */
     public final void writeBinaryField(String fieldName, byte[] data) throws IOException {
         writeFieldName(fieldName);
@@ -1168,6 +1241,9 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeBoolean(value);
      *</pre>
+     *
+     * @param fieldName Name of Object field to write
+     * @param value Boolean value of the field to write
      */
     public final void writeBooleanField(String fieldName, boolean value) throws IOException {
         writeFieldName(fieldName);

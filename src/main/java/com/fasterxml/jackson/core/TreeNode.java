@@ -22,12 +22,10 @@ import java.util.Iterator;
  * be minimized.
  *<p>
  * NOTE: starting with Jackson 2.2, there is more functionality
- * available via this class, and the intent is that this should
+ * available via this class, and the intent was that this should
  * form actual base for multiple alternative tree representations;
  * for example, immutable trees could use different implementation
- * than mutable trees. It should also be possible to move actual
- * Tree Model implementation out of databind package eventually
- * (Jackson 3?).
+ * than mutable trees.
  * 
  * @since 2.2
  */
@@ -45,6 +43,8 @@ public interface TreeNode
      * Will return the first {@link JsonToken} that equivalent
      * stream event would produce (for most nodes there is just
      * one token but for structured/container types multiple)
+     *
+     * @return {@link JsonToken} that is most closely associated with the node type
      */
     JsonToken asToken();
 
@@ -79,6 +79,9 @@ public interface TreeNode
      * Note: one and only one of methods {@link #isValueNode},
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
+     *
+     * @return True if this node is considered a value node; something that
+     *    represents either a scalar value or explicit {@code null}
      * 
      * @since 2.2
      */
@@ -90,6 +93,8 @@ public interface TreeNode
      * Note: one and only one of methods {@link #isValueNode},
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
+     *
+     * @return {@code True} for Array and Object nodes, {@code false} otherwise
      * 
      * @since 2.2
      */
@@ -103,6 +108,8 @@ public interface TreeNode
      * Note: one and only one of methods {@link #isValueNode},
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
+     *
+     * @return {@code True} if this node represents a "missing" node
      * 
      * @since 2.2
      */
@@ -113,7 +120,9 @@ public interface TreeNode
      * otherwise.
      * Note that if true is returned, {@link #isContainerNode}
      * must also return true.
-     * 
+     *
+     * @return {@code True} for Array nodes, {@code false} for everything else
+     *
      * @since 2.2
      */
     boolean isArray();
@@ -123,6 +132,8 @@ public interface TreeNode
      * otherwise.
      * Note that if true is returned, {@link #isContainerNode}
      * must also return true.
+     *
+     * @return {@code True} for Object nodes, {@code false} for everything else
      * 
      * @since 2.2
      */
@@ -143,10 +154,12 @@ public interface TreeNode
      * NOTE: handling of explicit null values may vary between
      * implementations; some trees may retain explicit nulls, others
      * not.
-     * 
+     *
+     * @param fieldName Name of the field (of Object node) to access
+     *
      * @return Node that represent value of the specified field,
-     *   if this node is an object and has value for the specified
-     *   field. Null otherwise.
+     *   if this node is an Object and has value for the specified
+     *   field; {@code null} otherwise.
      * 
      * @since 2.2
      */
@@ -164,9 +177,11 @@ public interface TreeNode
      * <code>node.size()</code>, null is returned; no exception is
      * thrown for any index.
      *
+     * @param index Index of the Array node element to access
+     *
      * @return Node that represent value of the specified element,
-     *   if this node is an array and has specified element.
-     *   Null otherwise.
+     *   if this node is an array and has specified element;
+     *   {@code null} otherwise.
      * 
      * @since 2.2
      */
@@ -177,7 +192,9 @@ public interface TreeNode
      * an object node.
      * For other nodes, a "missing node" (virtual node
      * for which {@link #isMissingNode} returns true) is returned.
-     * 
+     *
+     * @param fieldName Name of the field (of Object node) to access
+     *
      * @return Node that represent value of the specified field,
      *   if this node is an object and has value for the specified field;
      *   otherwise "missing node" is returned.
@@ -200,6 +217,8 @@ public interface TreeNode
      * <code>node.size()</code>, "missing node" is returned; no exception is
      * thrown for any index.
      *
+     * @param index Index of the Array node element to access
+     *
      * @return Node that represent value of the specified element,
      *   if this node is an array and has specified element;
      *   otherwise "missing node" is returned.
@@ -212,7 +231,10 @@ public interface TreeNode
      * Method for accessing names of all fields for this node, iff
      * this node is an Object node. Number of field names accessible
      * will be {@link #size}.
-     * 
+     *
+     * @return An iterator for traversing names of all fields this Object node
+     *   has (if Object node); empty {@link Iterator} otherwise (never {@code null}).
+     *
      * @since 2.2
      */
     Iterator<String> fieldNames();
@@ -220,10 +242,13 @@ public interface TreeNode
     /**
      * Method for locating node specified by given JSON pointer instances.
      * Method will never return null; if no matching node exists, 
-     *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
-     * 
-     * @return Node that matches given JSON Pointer: if no match exists,
-     *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
+     * will return a node for which {@link TreeNode#isMissingNode()} returns true.
+     *
+     * @param ptr {@link JsonPointer} expression for descendant node to return
+     *
+     * @return Node that matches given JSON Pointer, if any: if no match exists,
+     *   will return a "missing" node (for which {@link TreeNode#isMissingNode()}
+     *   returns {@code true}).
      * 
      * @since 2.3
      */
@@ -241,9 +266,10 @@ public interface TreeNode
      * 
      * @param jsonPointerExpression Expression to compile as a {@link JsonPointer}
      *   instance
-     * 
-     * @return Node that matches given JSON Pointer: if no match exists,
-     *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
+     *
+     * @return Node that matches given JSON Pointer, if any: if no match exists,
+     *   will return a "missing" node (for which {@link TreeNode#isMissingNode()}
+     *   returns {@code true}).
      * 
      * @since 2.3
      */
@@ -270,6 +296,8 @@ public interface TreeNode
      * reference, so data-binding callback methods like {@link JsonParser#readValueAs(Class)}
      * will not work with calling {@link JsonParser#setCodec}).
      * It is often better to call {@link #traverse(ObjectCodec)} to pass the codec explicitly.
+     *
+     * @return {@link JsonParser} that will stream over contents of this node
      */
     JsonParser traverse();
 
@@ -281,6 +309,10 @@ public interface TreeNode
      * NOTE: constructed parser instance will NOT initially point to a token,
      * so before passing it to deserializers, it is typically necessary to
      * advance it to the first available token by calling {@link JsonParser#nextToken()}.
+     *
+     * @param codec {@link ObjectCodec} to associate with parser constructed
+     *
+     * @return {@link JsonParser} that will stream over contents of this node
      * 
      * @since 2.1
      */

@@ -578,7 +578,7 @@ public class JsonFactory
      * @param schema Schema instance to check
      *
      * @return Whether parsers and generators constructed by this factory
-     *   can use specific format schema instance
+     *   can use specified format schema instance
      */
     @Override
     public boolean canUseSchema(FormatSchema schema) {

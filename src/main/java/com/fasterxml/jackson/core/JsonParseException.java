@@ -32,29 +32,26 @@ public class JsonParseException extends StreamReadException
      * sets processor (accessible via {@link #getProcessor()}) to
      * specified parser.
      *
+     * @param p Parser in use when encountering issue reported
+     * @param msg Base exception message to use
+     *
      * @since 2.7
      */
     public JsonParseException(JsonParser p, String msg) {
         super(p, msg);
     }
 
-    /**
-     * @since 2.7
-     */
+    // @since 2.7
     public JsonParseException(JsonParser p, String msg, Throwable root) {
         super(p, msg, root);
     }
 
-    /**
-     * @since 2.7
-     */
+    // @since 2.7
     public JsonParseException(JsonParser p, String msg, JsonLocation loc) {
         super(p, msg, loc);
     }
 
-    /**
-     * @since 2.7
-     */
+    // @since 2.7
     public JsonParseException(JsonParser p, String msg, JsonLocation loc, Throwable root) {
         super(msg, loc, root);
     }
@@ -64,6 +61,10 @@ public class JsonParseException extends StreamReadException
      * to be accessed using {@link #getProcessor()}.
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
+     *
+     * @param p Parser instance to assign to this exception
+     *
+     * @return This exception instance to allow call chaining
      *
      * @since 2.7
      */
@@ -79,11 +80,15 @@ public class JsonParseException extends StreamReadException
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
      *
+     * @param payload Payload to assign to this exception
+     *
+     * @return This exception instance to allow call chaining
+     *
      * @since 2.8
      */
     @Override
-    public JsonParseException withRequestPayload(RequestPayload p) {
-        _requestPayload = p;
+    public JsonParseException withRequestPayload(RequestPayload payload) {
+        _requestPayload = payload;
         return this;
     }
 

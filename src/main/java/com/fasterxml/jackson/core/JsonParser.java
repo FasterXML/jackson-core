@@ -540,8 +540,7 @@ public abstract class JsonParser
      * (which typically also implies the same for serialization
      * with {@link JsonGenerator}).
      * 
-     * @return True if custom codec is needed with parsers and
-     *   generators created by this factory; false if a general
+     * @return True if format-specific codec is needed with this parser; false if a general
      *   {@link ObjectCodec} is enough
      * 
      * @since 2.1
@@ -619,6 +618,8 @@ public abstract class JsonParser
      * own the source; but if it passes a reference (such as
      * {@link java.io.File} or {@link java.net.URL} and creates
      * stream or reader it does own them.
+     *
+     * @throws IOException if there is either an underlying I/O problem
      */
     @Override
     public abstract void close() throws IOException;
@@ -630,6 +631,8 @@ public abstract class JsonParser
      * stream may be closed). Closing may be due to an explicit
      * call to {@link #close} or because parser has encountered
      * end of input.
+     *
+     * @return {@code True} if this parser instance has been closed
      */
     public abstract boolean isClosed();
 
@@ -648,6 +651,8 @@ public abstract class JsonParser
      * array or object (for highlighting purposes, or error reporting).
      * Contexts can also be used for simple xpath-like matching of
      * input, if so desired.
+     *
+     * @return Stream input context ({@link JsonStreamContext}) associated with this parser
      */
     public abstract JsonStreamContext getParsingContext();
 
@@ -812,7 +817,7 @@ public abstract class JsonParser
      * which features to change, if any.
      *<p>
      * Default implementation will simply throw an exception to indicate that
-     * the generator implementation does not support any {@link FormatFeature}s.
+     * the parser implementation does not support any {@link FormatFeature}s.
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
@@ -1842,6 +1847,9 @@ public abstract class JsonParser
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
      * can not be introspected when using this method.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     public <T> T readValueAs(Class<T> valueType) throws IOException {
         return _codec().readValue(this, valueType);
@@ -1864,6 +1872,9 @@ public abstract class JsonParser
      * END_OBJECT) of the bound structure. For non-structured Json types
      * (and for {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * stream is not advanced.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     @SuppressWarnings("unchecked")
     public <T> T readValueAs(TypeReference<?> valueTypeRef) throws IOException {
@@ -1873,6 +1884,9 @@ public abstract class JsonParser
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     public <T> Iterator<T> readValuesAs(Class<T> valueType) throws IOException {
         return _codec().readValues(this, valueType);
@@ -1881,6 +1895,9 @@ public abstract class JsonParser
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     public <T> Iterator<T> readValuesAs(TypeReference<T> valueTypeRef) throws IOException {
         return _codec().readValues(this, valueTypeRef);
@@ -1894,6 +1911,9 @@ public abstract class JsonParser
      * matching leaf node type. Empty or whitespace documents are null.
      *
      * @return root of the document, or null if empty or whitespace.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     @SuppressWarnings("unchecked")
     public <T extends TreeNode> T readValueAsTree() throws IOException {
@@ -1917,6 +1937,10 @@ public abstract class JsonParser
     /**
      * Helper method for constructing {@link JsonParseException}s
      * based on current state of the parser
+     *
+     * @param msg Base exception message to construct exception with
+     *
+     * @return {@link JsonParseException} constructed
      */
     protected JsonParseException _constructError(String msg) {
         return new JsonParseException(this, msg)

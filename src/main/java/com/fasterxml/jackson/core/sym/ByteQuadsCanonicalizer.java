@@ -284,6 +284,8 @@ public final class ByteQuadsCanonicalizer
     /**
      * Factory method to call to create a symbol table instance with a
      * randomized seed value.
+     *
+     * @return Root instance to use for constructing new child instances 
      */
     public static ByteQuadsCanonicalizer createRoot() {
         // Need to use a variable seed, to thwart hash-collision based attacks.
@@ -303,6 +305,10 @@ public final class ByteQuadsCanonicalizer
     /**
      * Factory method used to create actual symbol table instance to
      * use for parsing.
+     *
+     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.JsonFactory.Feature}s enabled.
+     *
+     * @return Actual canonicalizer instance that can be used by a parser
      */
     public ByteQuadsCanonicalizer makeChild(int flags) {
         return new ByteQuadsCanonicalizer(this,
@@ -358,6 +364,9 @@ public final class ByteQuadsCanonicalizer
     /**********************************************************
      */
 
+    /**
+     * @return Number of symbol entries contained by this canonicalizer instance
+     */
     public int size()
     {
         if (_tableInfo != null) { // root table
@@ -368,7 +377,7 @@ public final class ByteQuadsCanonicalizer
     }
 
     /**
-     * Returns number of primary slots table has currently
+     * @return number of primary slots table has currently
      */
     public int bucketCount() { return _hashSize; }
 
@@ -376,6 +385,8 @@ public final class ByteQuadsCanonicalizer
      * Method called to check to quickly see if a child symbol table
      * may have gotten additional entries. Used for checking to see
      * if a child table should be merged into shared table.
+     *
+     * @return Whether main hash area has been modified
      */
     public boolean maybeDirty() { return !_hashShared; }
 
@@ -385,6 +396,8 @@ public final class ByteQuadsCanonicalizer
      * Method mostly needed by unit tests; calculates number of
      * entries that are in the primary slot set. These are
      * "perfect" entries, accessible with a single lookup
+     *
+     * @return Number of entries in the primary hash area
      */
     public int primaryCount()
     {
@@ -400,6 +413,8 @@ public final class ByteQuadsCanonicalizer
     /**
      * Method mostly needed by unit tests; calculates number of entries
      * in secondary buckets
+     *
+     * @return Number of entries in the secondary hash area
      */
     public int secondaryCount() {
         int count = 0;
@@ -415,6 +430,8 @@ public final class ByteQuadsCanonicalizer
     /**
      * Method mostly needed by unit tests; calculates number of entries
      * in tertiary buckets
+     *
+     * @return Number of entries in the tertiary hash area
      */
     public int tertiaryCount() {
         int count = 0;
@@ -429,7 +446,9 @@ public final class ByteQuadsCanonicalizer
 
     /**
      * Method mostly needed by unit tests; calculates number of entries
-     * in shared spillover area
+     * in shared spill-over area
+     *
+     * @return Number of entries in the linear spill-over areay
      */
     public int spilloverCount() {
         // difference between spillover end, start, divided by 4 (four ints per slot)

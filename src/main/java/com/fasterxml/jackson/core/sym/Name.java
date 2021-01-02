@@ -30,9 +30,6 @@ public abstract class Name
 
     public abstract boolean equals(int q1, int q2);
 
-    /**
-     * @since 2.6
-     */
     public abstract boolean equals(int q1, int q2, int q3);
 
     public abstract boolean equals(int[] quads, int qlen);
@@ -47,8 +44,7 @@ public abstract class Name
 
     @Override public final int hashCode() { return _hashCode; }
 
-    @Override public boolean equals(Object o)
-    {
+    @Override public boolean equals(Object o) {
         // Canonical instances, can usually just do identity comparison
         return (o == this);
     }

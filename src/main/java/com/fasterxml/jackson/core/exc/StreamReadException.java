@@ -50,6 +50,10 @@ public abstract class StreamReadException
      * to be accessed using {@link #getProcessor()}.
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
+     *
+     * @param p Parser instance to assign to this exception
+     *
+     * @return This exception instance to allow call chaining
      */
     public abstract StreamReadException withParser(JsonParser p);
 
@@ -58,8 +62,12 @@ public abstract class StreamReadException
      * to let recipient access it for diagnostics purposes.
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
+     *
+     * @param payload Payload to assign to this exception
+     *
+     * @return This exception instance to allow call chaining
      */
-    public abstract StreamReadException withRequestPayload(RequestPayload p);
+    public abstract StreamReadException withRequestPayload(RequestPayload payload);
     
     @Override
     public JsonParser getProcessor() {

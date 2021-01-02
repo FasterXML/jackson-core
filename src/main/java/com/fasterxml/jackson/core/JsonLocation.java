@@ -23,7 +23,7 @@ public class JsonLocation
      * logs.
      */
     public static final int MAX_CONTENT_SNIPPET = 500;
-    
+
     /**
      * Shared immutable "N/A location" that can be returned to indicate
      * that no location information is available.
@@ -72,6 +72,8 @@ public class JsonLocation
      * that File. Will return null if no such reference is available,
      * for example when {@link java.io.InputStream} was used to
      * construct the parser instance.
+     *
+     * @return Source reference this location was constructed with, if any; {@code null} if none
      */
     public Object getSourceRef() { return _sourceRef; }
 
@@ -106,15 +108,17 @@ public class JsonLocation
      * description returned by {@link #toString()}.
      *<p>
      * NOTE: not added as a "getter" to prevent it from getting serialized.
+     *
+     * @return Description of the source reference (see {@link #getSourceRef()}
      */
     public String sourceDescription() {
         return _appendSourceDesc(new StringBuilder(100)).toString();
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Std method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

@@ -263,6 +263,8 @@ public abstract class JsonParser
      * own the source; but if it passes a reference (such as
      * {@link java.io.File} or {@link java.net.URL} and creates
      * stream or reader it does own them.
+     *
+     * @throws IOException if there is either an underlying I/O problem
      */
     @Override
     public abstract void close() throws IOException;
@@ -274,6 +276,8 @@ public abstract class JsonParser
      * stream may be closed). Closing may be due to an explicit
      * call to {@link #close} or because parser has encountered
      * end of input.
+     *
+     * @return {@code True} if this parser instance has been closed
      */
     public abstract boolean isClosed();
 
@@ -1301,6 +1305,9 @@ public abstract class JsonParser
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
      * can not be introspected when using this method.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     public abstract <T> T readValueAs(Class<T> valueType) throws IOException;
 
@@ -1322,6 +1329,9 @@ public abstract class JsonParser
      * END_OBJECT) of the bound structure. For non-structured types
      * (and for {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * stream is not advanced.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     public abstract <T> T readValueAs(TypeReference<T> valueTypeRef) throws IOException;
 
@@ -1329,7 +1339,7 @@ public abstract class JsonParser
      * @since 3.0
      */
     public abstract <T> T readValueAs(ResolvedType type) throws IOException;
-    
+
     /**
      * Method to deserialize stream content into equivalent "tree model",
      * represented by root {@link TreeNode} of resulting model.
@@ -1344,6 +1354,9 @@ public abstract class JsonParser
      * context object.
      *
      * @return root of the document, or null if empty or whitespace.
+     *
+     * @throws IOException if there is either an underlying I/O problem or decoding
+     *    issue at format layer
      */
     public abstract <T extends TreeNode> T readValueAsTree() throws IOException;
 
@@ -1364,6 +1377,10 @@ public abstract class JsonParser
     /**
      * Helper method for constructing {@link JsonParseException}s
      * based on current state of the parser
+     *
+     * @param msg Base exception message to construct exception with
+     *
+     * @return {@link JsonParseException} constructed
      */
     protected JsonParseException _constructError(String msg) {
         return new JsonParseException(this, msg)

@@ -21,6 +21,9 @@ public class JsonParseException extends StreamReadException
      * Constructor that uses current parsing location as location, and
      * sets processor (accessible via {@link #getProcessor()}) to
      * specified parser.
+     *
+     * @param p Parser in use when encountering issue reported
+     * @param msg Base exception message to use
      */
     public JsonParseException(JsonParser p, String msg) {
         super(p, msg);
@@ -38,15 +41,35 @@ public class JsonParseException extends StreamReadException
         super(msg, loc, root);
     }
 
+    /**
+     * Fluent method that may be used to assign originating {@link JsonParser},
+     * to be accessed using {@link #getProcessor()}.
+     *<p>
+     * NOTE: `this` instance is modified and no new instance is constructed.
+     *
+     * @param p Parser instance to assign to this exception
+     *
+     * @return This exception instance to allow call chaining
+     */
     @Override
     public JsonParseException withParser(JsonParser p) {
         _processor = p;
         return this;
     }
 
+    /**
+     * Fluent method that may be used to assign payload to this exception,
+     * to let recipient access it for diagnostics purposes.
+     *<p>
+     * NOTE: `this` instance is modified and no new instance is constructed.
+     *
+     * @param payload Payload to assign to this exception
+     *
+     * @return This exception instance to allow call chaining
+     */
     @Override
-    public JsonParseException withRequestPayload(RequestPayload p) {
-        _requestPayload = p;
+    public JsonParseException withRequestPayload(RequestPayload payload) {
+        _requestPayload = payload;
         return this;
     }
 }

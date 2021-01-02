@@ -83,19 +83,6 @@ public abstract class JsonParser
      */
 
     /**
-     * Accessor for context object provided by higher-level databinding
-     * functionality (or, in some cases, simple placeholder of the same)
-     * that allows some level of interaction including ability to trigger
-     * deserialization of Object values through generator instance.
-     *<p>
-     * Context object is used by parser to implement some methods,
-     * like {@code readValueAs(...)}
-     *
-     * @since 3.0
-     */
-    public abstract ObjectReadContext getObjectReadContext();
-
-    /**
      * Method that can be used to access current parsing context reader
      * is in. There are 3 different types: root, array and object contexts,
      * with slightly different available information. Contexts are
@@ -104,8 +91,25 @@ public abstract class JsonParser
      * array or object (for highlighting purposes, or error reporting).
      * Contexts can also be used for simple xpath-like matching of
      * input, if so desired.
+     *
+     * @return Stream output context ({@link TokenStreamContext}) associated with this parser
      */
     public abstract TokenStreamContext getParsingContext();
+
+    /**
+     * Accessor for context object provided by higher level data-binding
+     * functionality (or, in some cases, simple placeholder of the same)
+     * that allows some level of interaction including ability to trigger
+     * deserialization of Object values through generator instance.
+     *<p>
+     * Context object is used by parser to implement some methods,
+     * like {@code readValueAs(...)}
+     *
+     * @return Object write context ({@link ObjectReadContext}) associated with this parser
+     *
+     * @since 3.0
+     */
+    public abstract ObjectReadContext getObjectReadContext();
 
     /*
     /**********************************************************************
@@ -159,6 +163,8 @@ public abstract class JsonParser
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
+     *
+     * @return "Current value" for the current input context this parser has
      */
     public abstract Object getCurrentValue();
 
@@ -167,6 +173,8 @@ public abstract class JsonParser
      *<code>
      *   getParsingContext().setCurrentValue(v);
      *</code>
+     *
+     * @param v "Current value" to assign to the current input context of this parser
      */
     public abstract void setCurrentValue(Object v);
 
@@ -178,20 +186,24 @@ public abstract class JsonParser
 
     /**
      * Sets the payload to be passed if {@link JsonParseException} is thrown.
+     *
+     * @param payload to assign
      */
     public void setRequestPayloadOnError(RequestPayload payload) {
         _requestPayload = payload;
     }
 
     /**
-      * Sets the byte[] request payload and the charset
-      */
-      public void setRequestPayloadOnError(byte[] payload, Charset charset) {
-          _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
-      }
+     * Sets the byte[] request payload and the charset
+     */
+    public void setRequestPayloadOnError(byte[] payload, Charset charset) {
+        _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
+    }
 
-     /**
+    /**
      * Sets the String request payload
+     *
+     * @param payload to assign
      */
     public void setRequestPayloadOnError(String payload) {
         _requestPayload = (payload == null) ? null : new RequestPayload(payload);
@@ -200,6 +212,8 @@ public abstract class JsonParser
     /**
      * Method for accessing Schema that this parser uses, if any.
      * Default implementation returns null.
+     *
+     * @return {@link FormatSchema} assigned to this parser, if any; {@code null} if none
      */
     public FormatSchema getSchema() { return null; }
 

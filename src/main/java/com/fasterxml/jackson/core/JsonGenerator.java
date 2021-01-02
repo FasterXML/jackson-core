@@ -361,6 +361,9 @@ public abstract class JsonGenerator
      * Array values can be written in any context where values
      * are allowed: meaning everywhere except for when
      * a field name is expected.
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeStartArray() throws IOException;
 
@@ -373,6 +376,9 @@ public abstract class JsonGenerator
      *
      * @param currentValue Java Object that Array being written represents, if any
      *    (or {@code null} if not known or not applicable)
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeStartArray(Object currentValue) throws IOException;
 
@@ -385,10 +391,13 @@ public abstract class JsonGenerator
      * 
      * @param currentValue Java Object that Array being written represents, if any
      *    (or {@code null} if not known or not applicable)
-     * @param size Number of elements this array will have: actual
+     * @param size Number of elements this Array will have: actual
      *   number of values written (before matching call to
      *   {@link #writeEndArray()} MUST match; generator MAY verify
-     *   this is the case.
+     *   this is the case (and SHOULD if format itself encodes length)
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeStartArray(Object currentValue, int size) throws IOException;
 
@@ -399,6 +408,9 @@ public abstract class JsonGenerator
      *<p>
      * Marker can be written if the innermost structured type
      * is Array.
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeEndArray() throws IOException;
 
@@ -410,6 +422,9 @@ public abstract class JsonGenerator
      * Object values can be written in any context where values
      * are allowed: meaning everywhere except for when
      * a field name is expected.
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeStartObject() throws IOException;
 
@@ -426,6 +441,9 @@ public abstract class JsonGenerator
      *
      * @param currentValue Java Object that Object being written represents, if any
      *    (or {@code null} if not known or not applicable)
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeStartObject(Object currentValue) throws IOException;
 
@@ -442,6 +460,16 @@ public abstract class JsonGenerator
      * Object values can be written in any context where values
      * are allowed: meaning everywhere except for when
      * a field name is expected.
+     *
+     * @param forValue Object value to be written (assigned as "current value" for
+     *    the Object context that gets created)
+     * @param size Number of key/value pairs this Object will have: actual
+     *   number of entries written (before matching call to
+     *   {@link #writeEndObject()} MUST match; generator MAY verify
+     *   this is the case (and SHOULD if format itself encodes length)
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeStartObject(Object forValue, int size) throws IOException;
 
@@ -454,6 +482,9 @@ public abstract class JsonGenerator
      * is Object, and the last written event was either a
      * complete value, or START-OBJECT marker (see JSON specification
      * for more details).
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeEndObject() throws IOException;
 
@@ -465,6 +496,11 @@ public abstract class JsonGenerator
      * Field names can only be written in Object context (check out
      * JSON specification for details), when field name is expected
      * (field names alternate with values).
+     *
+     * @param name Field name to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeFieldName(String name) throws IOException;
 
@@ -478,6 +514,11 @@ public abstract class JsonGenerator
      * Default implementation simple uses unprocessed name container in
      * serialized String; implementations are strongly encouraged to make
      * use of more efficient methods argument object has.
+     *
+     * @param name Pre-encoded field name to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeFieldName(SerializableString name) throws IOException;
 
@@ -488,6 +529,11 @@ public abstract class JsonGenerator
      * unlike JSON), or for convenient conversion into String presentation.
      * Default implementation will simply convert id into <code>String</code>
      * and call {@link #writeFieldName(String)}.
+     *
+     * @param id Field id to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeFieldId(long id) throws IOException;
 
@@ -505,6 +551,9 @@ public abstract class JsonGenerator
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeArray(int[] array, int offset, int length) throws IOException
     {
@@ -525,6 +574,9 @@ public abstract class JsonGenerator
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeArray(long[] array, int offset, int length) throws IOException
     {
@@ -545,6 +597,9 @@ public abstract class JsonGenerator
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeArray(double[] array, int offset, int length) throws IOException
     {
@@ -565,6 +620,9 @@ public abstract class JsonGenerator
      * @param array Array that contains values to write
      * @param offset Offset of the first element to write, within array
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeArray(String[] array, int offset, int length) throws IOException
     {
@@ -589,8 +647,13 @@ public abstract class JsonGenerator
      * a stand alone String; but in all cases, String will be
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
+     *
+     * @param value String value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    public abstract void writeString(String text) throws IOException;
+    public abstract void writeString(String value) throws IOException;
 
     /**
      * Method for outputting a String value. Depending on context
@@ -598,9 +661,20 @@ public abstract class JsonGenerator
      * a stand alone String; but in all cases, String will be
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
-     * If the reader is null, then write a null.
-     * If len is &lt; 0, then write all contents of the reader.
+     * If {@code len} is &lt; 0, then write all contents of the reader.
      * Otherwise, write only len characters.
+     *<p>
+     * Note: actual length of content available may exceed {@code len} but
+     * can not be less than it: if not enough content available, a
+     * {@link JsonGenerationException} will be thrown.
+     *
+     * @param reader Reader to use for reading Text value to write
+     * @param len Maximum Length of Text value to read (in {@code char}s, non-negative)
+     *    if known; {@code -1} to indicate "read and write it all"
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer; or if length ({@code len}) is specified but
+     *    {@code reader} does not provide enough content
      */
     public void writeString(Reader reader, int len) throws IOException {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
@@ -613,8 +687,15 @@ public abstract class JsonGenerator
      * a stand alone String; but in all cases, String will be
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
+     *
+     * @param buffer Buffer that contains String value to write
+     * @param offset Offset in {@code buffer} of the first character of String value to write
+     * @param len Length of the String value (in characters) to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    public abstract void writeString(char[] text, int offset, int len) throws IOException;
+    public abstract void writeString(char[] buffer, int offset, int len) throws IOException;
 
     /**
      * Method similar to {@link #writeString(String)}, but that takes
@@ -625,8 +706,13 @@ public abstract class JsonGenerator
      * Default implementation just calls {@link #writeString(String)};
      * sub-classes should override it with more efficient implementation
      * if possible.
+     *
+     * @param value Pre-encoded String value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    public abstract void writeString(SerializableString text) throws IOException;
+    public abstract void writeString(SerializableString value) throws IOException;
 
     /**
      * Method similar to {@link #writeString(String)} but that takes as
@@ -641,8 +727,15 @@ public abstract class JsonGenerator
      * If so, implementation may instead choose to throw a
      * {@link UnsupportedOperationException} due to ineffectiveness
      * of having to decode input.
+     *
+     * @param buffer Buffer that contains String value to write
+     * @param offset Offset in {@code buffer} of the first byte of String value to write
+     * @param len Length of the String value (in characters) to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    public abstract void writeRawUTF8String(byte[] text, int offset, int length)
+    public abstract void writeRawUTF8String(byte[] buffer, int offset, int len)
         throws IOException;
 
     /**
@@ -662,8 +755,15 @@ public abstract class JsonGenerator
      * generator implementation may instead choose to throw a
      * {@link UnsupportedOperationException} due to ineffectiveness
      * of having to decode input.
+     *
+     * @param buffer Buffer that contains String value to write
+     * @param offset Offset in {@code buffer} of the first byte of String value to write
+     * @param len Length of the String value (in characters) to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    public abstract void writeUTF8String(byte[] text, int offset, int length)
+    public abstract void writeUTF8String(byte[] buffer, int offset, int len)
         throws IOException;
 
     /*
@@ -683,6 +783,11 @@ public abstract class JsonGenerator
      * Note that not all generator implementations necessarily support
      * such by-pass methods: those that do not will throw
      * {@link UnsupportedOperationException}.
+     *
+     * @param text Textual contents to include as-is in output.
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeRaw(String text) throws IOException;
 
@@ -697,6 +802,13 @@ public abstract class JsonGenerator
      * Note that not all generator implementations necessarily support
      * such by-pass methods: those that do not will throw
      * {@link UnsupportedOperationException}.
+     *
+     * @param text String that has contents to include as-is in output
+     * @param offset Offset within {@code text} of the first character to output
+     * @param len Length of content (from {@code text}, starting at offset {@code offset}) to output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeRaw(String text, int offset, int len) throws IOException;
 
@@ -711,8 +823,18 @@ public abstract class JsonGenerator
      * Note that not all generator implementations necessarily support
      * such by-pass methods: those that do not will throw
      * {@link UnsupportedOperationException}.
+     *
+     * @param buffer Buffer that has contents to include as-is in output
+     * @param offset Offset within {@code text} of the first character to output
+     * @param len Length of content (from {@code text}, starting at offset {@code offset}) to output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    public abstract void writeRaw(char[] text, int offset, int len) throws IOException;
+    public abstract void writeRaw(char[] buffer, int offset, int len) throws IOException;
 
     /**
      * Method that will force generator to copy
@@ -725,6 +847,11 @@ public abstract class JsonGenerator
      * Note that not all generator implementations necessarily support
      * such by-pass methods: those that do not will throw
      * {@link UnsupportedOperationException}.
+     *
+     * @param c Character to included in output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeRaw(char c) throws IOException;
 
@@ -744,8 +871,12 @@ public abstract class JsonGenerator
      * other backends that support raw inclusion of text are encouraged
      * to implement it in more efficient manner (especially if they
      * use UTF-8 encoding).
+     *
+     * @param raw Pre-encoded textual contents to included in output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-//    public abstract void writeRaw(SerializableString raw) throws IOException;
     public void writeRaw(SerializableString raw) throws IOException {
         writeRaw(raw.getValue());
     }
@@ -757,6 +888,11 @@ public abstract class JsonGenerator
      * boolean, null, Array or List). Assuming this, proper separators
      * are added if and as needed (comma or colon), and generator
      * state updated to reflect this.
+     *
+     * @param text Textual contents to included in output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeRawValue(String text) throws IOException;
 
@@ -768,6 +904,11 @@ public abstract class JsonGenerator
      * Method similar to {@link #writeRawValue(String)}, but potentially more
      * efficient as it may be able to use pre-encoded content (similar to
      * {@link #writeRaw(SerializableString)}.
+     *
+     * @param raw Pre-encoded textual contents to included in output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeRawValue(SerializableString raw) throws IOException {
         writeRawValue(raw.getValue());
@@ -793,6 +934,12 @@ public abstract class JsonGenerator
      *   whether padding is used (and if so, using which character);
      *   what is the maximum line length before adding linefeed,
      *   and also the underlying alphabet to use.
+     * @param data Buffer that contains binary data to write
+     * @param offset Offset in {@code data} of the first byte of data to write
+     * @param len Length of data to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeBinary(Base64Variant bv,
             byte[] data, int offset, int len) throws IOException;
@@ -801,6 +948,13 @@ public abstract class JsonGenerator
      * Similar to {@link #writeBinary(Base64Variant,byte[],int,int)},
      * but default to using the Jackson default Base64 variant 
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}).
+     *
+     * @param data Buffer that contains binary data to write
+     * @param offset Offset in {@code data} of the first byte of data to write
+     * @param len Length of data to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeBinary(byte[] data, int offset, int len) throws IOException {
         writeBinary(Base64Variants.getDefaultVariant(), data, offset, len);
@@ -811,6 +965,11 @@ public abstract class JsonGenerator
      * but assumes default to using the Jackson default Base64 variant 
      * (which is {@link Base64Variants#MIME_NO_LINEFEEDS}). Also
      * assumes that whole byte array is to be output.
+     *
+     * @param data Buffer that contains binary data to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeBinary(byte[] data) throws IOException {
         writeBinary(Base64Variants.getDefaultVariant(), data, 0, data.length);
@@ -828,6 +987,11 @@ public abstract class JsonGenerator
      *    need not support cases where length is not known in advance; this
      *    depends on underlying data format: JSON output does NOT require length,
      *    other formats may
+     *
+     * @return Number of bytes actually written
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public int writeBinary(InputStream data, int dataLength)
         throws IOException {
@@ -852,6 +1016,9 @@ public abstract class JsonGenerator
      *    other formats may.
      * 
      * @return Number of bytes read from <code>data</code> and written as binary payload
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract int writeBinary(Base64Variant bv,
             InputStream data, int dataLength) throws IOException;
@@ -870,6 +1037,9 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(short v) throws IOException;
 
@@ -881,6 +1051,9 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(int v) throws IOException;
 
@@ -892,6 +1065,9 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(long v) throws IOException;
 
@@ -903,6 +1079,9 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(BigInteger v) throws IOException;
 
@@ -914,6 +1093,9 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(double v) throws IOException;
 
@@ -925,6 +1107,9 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(float v) throws IOException;
 
@@ -936,6 +1121,9 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @param v Number value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(BigDecimal v) throws IOException;
 
@@ -955,19 +1143,30 @@ public abstract class JsonGenerator
      * If implementation does not implement this method,
      * it needs to throw {@link UnsupportedOperationException}.
      * 
+     * @param encodedValue Textual (possibly format) number representation to write
+     *
      * @throws UnsupportedOperationException If underlying data format does not
      *   support numbers serialized textually AND if generator is not allowed
      *   to just output a String instead (Schema-based formats may require actual
      *   number, for example)
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNumber(String encodedValue) throws IOException;
 
     /**
      * Overloaded version of {@link #writeNumber(String)} with same semantics
      * but possibly more efficient operation.
+     *
+     * @param encodedValueBuffer Buffer that contains the textual number representation to write
+     * @param offset Offset of the first character of value to write
+     * @param len Length of the value (in characters) to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws IOException {
-        writeNumber(new String(encodedValueBuffer, offset, length));
+    public void writeNumber(char[] encodedValueBuffer, int offset, int len) throws IOException {
+        writeNumber(new String(encodedValueBuffer, offset, len));
     }
 
     /*
@@ -983,6 +1182,11 @@ public abstract class JsonGenerator
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @param state Boolean value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeBoolean(boolean state) throws IOException;
 
@@ -992,12 +1196,24 @@ public abstract class JsonGenerator
      * (Array value, Object field value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeNull() throws IOException;
 
     /**
-     * Method that can be called on backends that support passing opaque datatypes of
-     * non-JSON formats
+     * Method that can be called on backends that support passing opaque native
+     * values that some data formats support; not used with JSON backend,
+     * more common with binary formats.
+     *<p>
+     * NOTE: this is NOT the method to call for serializing regular POJOs,
+     * see {@link #writeObject} instead.
+     *
+     * @param object Native format-specific value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeEmbeddedObject(Object object) throws IOException {
         // 01-Sep-2016, tatu: As per [core#318], handle small number of cases
@@ -1028,7 +1244,8 @@ public abstract class JsonGenerator
      * certain positions or locations.
      *
      * @param id Native Object Id to write
-     * 
+     *
+     * @throws IOException if there is either an underlying I/O problem
      * @throws JsonGenerationException if Object ID output is not allowed
      *   (either at all, or specifically in this position in output)
      */
@@ -1046,7 +1263,8 @@ public abstract class JsonGenerator
      * a {@link JsonGenerationException} will be thrown.
      *
      * @param referenced Referenced value, for which Object Id is expected to be written
-     * 
+     *
+     * @throws IOException if there is either an underlying I/O problem
      * @throws JsonGenerationException if Object ID output is not allowed
      *   (either at all, or specifically in this position in output)
      */
@@ -1064,6 +1282,9 @@ public abstract class JsonGenerator
      * a {@link JsonGenerationException} will be thrown.
      *
      * @param id Native Type Id to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeTypeId(Object id) throws IOException {
         throw new JsonGenerationException("No native support for writing Type Ids", this);
@@ -1085,6 +1306,9 @@ public abstract class JsonGenerator
      *
      * @return {@link WritableTypeId} for caller to retain and pass to matching
      *   {@link #writeTypeSuffix} call
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws IOException
     {
@@ -1194,6 +1418,9 @@ public abstract class JsonGenerator
      * {@link ObjectWriteContext#writeValue(JsonGenerator, Object)}.
      *
      * @param pojo General POJO value to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeObject(Object pojo) throws IOException;
 
@@ -1204,6 +1431,9 @@ public abstract class JsonGenerator
      * {@link ObjectWriteContext#writeTree}.
      *
      * @param rootNode {@link TreeNode} to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public abstract void writeTree(TreeNode rootNode) throws IOException;
 
@@ -1228,6 +1458,9 @@ public abstract class JsonGenerator
      *
      * @param fieldName Name of Object field to write
      * @param data Binary value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeBinaryField(String fieldName, byte[] data) throws IOException {
         writeFieldName(fieldName);
@@ -1244,6 +1477,9 @@ public abstract class JsonGenerator
      *
      * @param fieldName Name of Object field to write
      * @param value Boolean value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeBooleanField(String fieldName, boolean value) throws IOException {
         writeFieldName(fieldName);
@@ -1257,6 +1493,11 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNull();
      *</pre>
+     *
+     * @param fieldName Name of the null-valued field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNullField(String fieldName) throws IOException {
         writeFieldName(fieldName);
@@ -1270,8 +1511,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeString(value);
      *</pre>
-     *<p>
-     * Note: many performance-sensitive implementations override this method
+     *
+     * @param fieldName Name of the field to write
+     * @param value String value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeStringField(String fieldName, String value) throws IOException {
         writeFieldName(fieldName);
@@ -1285,6 +1530,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @param fieldName Name of the field to write
+     * @param value Numeric value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNumberField(String fieldName, short value) throws IOException {
         writeFieldName(fieldName);
@@ -1298,6 +1549,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @param fieldName Name of the field to write
+     * @param value Numeric value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNumberField(String fieldName, int value) throws IOException {
         writeFieldName(fieldName);
@@ -1311,6 +1568,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @param fieldName Name of the field to write
+     * @param value Numeric value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNumberField(String fieldName, long value) throws IOException {
         writeFieldName(fieldName);
@@ -1324,6 +1587,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @param fieldName Name of the field to write
+     * @param value Numeric value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNumberField(String fieldName, BigInteger value) throws IOException {
         writeFieldName(fieldName);
@@ -1337,6 +1606,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @param fieldName Name of the field to write
+     * @param value Numeric value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNumberField(String fieldName, float value) throws IOException {
         writeFieldName(fieldName);
@@ -1350,6 +1625,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @param fieldName Name of the field to write
+     * @param value Numeric value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNumberField(String fieldName, double value) throws IOException {
         writeFieldName(fieldName);
@@ -1364,6 +1645,12 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeNumber(value);
      *</pre>
+     *
+     * @param fieldName Name of the field to write
+     * @param value Numeric value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeNumberField(String fieldName, BigDecimal value) throws IOException {
         writeFieldName(fieldName);
@@ -1382,6 +1669,11 @@ public abstract class JsonGenerator
      * Note: caller still has to take care to close the array
      * (by calling {#link #writeEndArray}) after writing all values
      * of the value Array.
+     *
+     * @param fieldName Name of the Array field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeArrayFieldStart(String fieldName) throws IOException {
         writeFieldName(fieldName);
@@ -1400,6 +1692,11 @@ public abstract class JsonGenerator
      * Note: caller still has to take care to close the Object
      * (by calling {#link #writeEndObject}) after writing all
      * entries of the value Object.
+     *
+     * @param fieldName Name of the Object field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeObjectFieldStart(String fieldName) throws IOException {
         writeFieldName(fieldName);
@@ -1414,6 +1711,15 @@ public abstract class JsonGenerator
      *  writeFieldName(fieldName);
      *  writeObject(pojo);
      *</pre>
+     *<p>
+     * NOTE: see {@link #writeObject(Object)} for details on how POJO value actually
+     * gets written (uses delegation)
+     *
+     * @param fieldName Name of the field to write
+     * @param pojo POJO value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public final void writeObjectField(String fieldName, Object pojo) throws IOException {
         writeFieldName(fieldName);
@@ -1428,6 +1734,11 @@ public abstract class JsonGenerator
      * <code>false</code> from {@link #canOmitFields()}.
      *<p>
      * Default implementation does nothing.
+     *
+     * @param fieldName Name of the field that is being omitted
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void writeOmittedField(String fieldName) throws IOException { }
 
@@ -1446,6 +1757,11 @@ public abstract class JsonGenerator
      * Calling this method will not advance the given
      * parser, although it may cause parser to internally process
      * more data (if it lazy loads contents of value events, for example)
+     *
+     * @param p Parser that points to the event to copy
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void copyCurrentEvent(JsonParser p) throws IOException
     {
@@ -1547,6 +1863,11 @@ public abstract class JsonGenerator
      * <b>last event</b> that was copied. This will either be
      * the event parser already pointed to (if there were no
      * enclosed events), or the last enclosed event copied.
+     *
+     * @param p Parser that points to the value to copy
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     public void copyCurrentStructure(JsonParser p) throws IOException
     {
@@ -1668,6 +1989,8 @@ public abstract class JsonGenerator
      * Method called to flush any buffered content to the underlying
      * target (output stream, writer), and to flush the target itself
      * as well.
+     *
+     * @throws IOException if there is either an underlying I/O problem
      */
     @Override
     public abstract void flush() throws IOException;
@@ -1675,6 +1998,8 @@ public abstract class JsonGenerator
     /**
      * Method that can be called to determine whether this generator
      * is closed or not. If it is closed, no more output can be done.
+     *
+     * @return {@code True} if this generator has been closed; {@code false} if not
      */
     public abstract boolean isClosed();
 
@@ -1695,6 +2020,8 @@ public abstract class JsonGenerator
      * has feature {@link StreamWriteFeature#AUTO_CLOSE_TARGET} enabled.
      * If either of above is true, the target is also closed. Otherwise
      * (not managing, feature not enabled), target is not closed.
+     *
+     * @throws IOException if there is either an underlying I/O problem
      */
     @Override
     public abstract void close() throws IOException;
@@ -1711,8 +2038,17 @@ public abstract class JsonGenerator
      *<p>
      * Note that sub-classes may override this method to add more detail
      * or use a {@link JsonGenerationException} sub-class.
+     *
+     * @param <T> Bogus type parameter to "return anything" so that compiler
+     *   won't complain when chaining calls
+     *
+     * @param msg Message to construct exception with
+     *
+     * @return Does not return at all as exception is always thrown, but nominally returns "anything"
+     *
+     * @throws JsonGenerationException that was constructed with given message
      */
-    protected <T> T  _reportError(String msg) throws JsonGenerationException {
+    protected <T> T _reportError(String msg) throws JsonGenerationException {
         throw new JsonGenerationException(msg, this);
     }
 

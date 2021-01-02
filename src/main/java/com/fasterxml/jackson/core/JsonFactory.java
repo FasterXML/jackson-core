@@ -318,7 +318,10 @@ public class JsonFactory
 
     /**
      * Constructor used when copy()ing a factory instance.
-     * 
+     *
+     * @param src Original factory to copy settings from
+     * @param codec Databinding-level codec to use, if any
+     *
      * @since 2.2.1
      */
     protected JsonFactory(JsonFactory src, ObjectCodec codec)
@@ -341,6 +344,8 @@ public class JsonFactory
 
     /**
      * Constructor used by {@link JsonFactoryBuilder} for instantiation.
+     *
+     * @param b Builder that contains settings to use
      *
      * @since 2.10
      */
@@ -366,7 +371,7 @@ public class JsonFactory
      * this factory has cumbersome dual role as generic type as well as actual
      * implementation for json.
      * 
-     * @param b Builder that contains information
+     * @param b Builder that contains settings to use
      * @param bogus Argument only needed to separate constructor signature; ignored
      */
     protected JsonFactory(TSFBuilder<?,?> b, boolean bogus) {
@@ -389,6 +394,8 @@ public class JsonFactory
      * Method that allows construction of differently configured factory, starting
      * with settings of this factory.
      *
+     * @return Builder instance to use
+     *
      * @since 2.10
      */
     public TSFBuilder<?,?> rebuild() {
@@ -405,6 +412,8 @@ public class JsonFactory
      *<p>
      * NOTE: signature unfortunately does not expose true implementation type; this
      * will be fixed in 3.0.
+     *
+     * @return Builder instance to use
      */
     public static TSFBuilder<?,?> builder() {
         return new JsonFactoryBuilder();
@@ -421,7 +430,9 @@ public class JsonFactory
      * callbacks, and assumption is that there is strict 1-to-1
      * mapping between codec, factory. Caller has to, then, explicitly
      * set codec after making the copy.
-     * 
+     *
+     * @return Copy of this factory instance
+     *
      * @since 2.1
      */
     public JsonFactory copy()
@@ -431,9 +442,6 @@ public class JsonFactory
         return new JsonFactory(this, null);
     }
 
-    /**
-     * @since 2.1
-     */
     protected void _checkInvalidCopy(Class<?> exp)
     {
         if (getClass() != exp) {
@@ -450,8 +458,12 @@ public class JsonFactory
 
     /**
      * Method that we need to override to actually make restoration go
-     * through constructors etc.
-     * Also: must be overridden by sub-classes as well.
+     * through constructors etc: needed to allow JDK serializability of
+     * factory instances.
+     *<p>
+     * Note: must be overridden by sub-classes as well.
+     *
+     * @return Newly constructed instance
      */
     protected Object readResolve() {
         return new JsonFactory(this, _objectCodec);
@@ -475,7 +487,10 @@ public class JsonFactory
      * require stable ordering. Formats that require ordering include positional
      * textual formats like <code>CSV</code>, and schema-based binary formats
      * like <code>Avro</code>.
-     * 
+     *
+     * @return Whether format supported by this factory
+     *   requires Object properties to be ordered.
+     *
      * @since 2.3
      */
     @Override
@@ -490,7 +505,10 @@ public class JsonFactory
      * Default implementation returns <code>false</code> as JSON does not
      * support native access: all binary content must use Base64 encoding.
      * Most binary formats (like Smile and Avro) support native binary content.
-     * 
+     *
+     * @return Whether format supported by this factory
+     *    supports native binary content
+     *
      * @since 2.3
      */
     @Override
@@ -505,6 +523,9 @@ public class JsonFactory
      * that optimization are possible; and thereby is likely to try
      * to access {@link java.lang.String} content by first copying it into
      * recyclable intermediate buffer.
+     *
+     * @return Whether access to decoded textual content can be efficiently
+     *   accessed using parser method {@code getTextCharacters()}.
      * 
      * @since 2.4
      */
@@ -515,6 +536,9 @@ public class JsonFactory
      * factory can create non-blocking parsers: parsers that do not
      * use blocking I/O abstractions but instead use a
      * {@link com.fasterxml.jackson.core.async.NonBlockingInputFeeder}.
+     *
+     * @return Whether this factory supports non-blocking ("async") parsing or
+     *    not (and consequently whether {@code createNonBlockingXxx()} method(s) work)
      *
      * @since 2.9
      */
@@ -548,7 +572,7 @@ public class JsonFactory
      * of data format (i.e. schema is for same data format as parsers and
      * generators this factory constructs); individual schema instances
      * may have further usage restrictions.
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -566,6 +590,8 @@ public class JsonFactory
      *<p>
      * Note: sub-classes should override this method; default
      * implementation will return null for all sub-classes
+     *
+     * @return Name of the format handled by parsers, generators this factory creates
      */
     @Override
     public String getFormatName()
@@ -580,10 +606,6 @@ public class JsonFactory
         return null;
     }
 
-    /**
-     * Convenience method for trying to determine whether input via given accessor
-     * is of format type supported by this factory.
-     */
     public MatchStrength hasFormat(InputAccessor acc) throws IOException
     {
         // since we can't keep this abstract, only implement for "vanilla" instance
@@ -1482,7 +1504,12 @@ public class JsonFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
-     * 
+     *
+     * @param in InputStream to use for reading content to parse
+     * @param ctxt I/O context to use for parsing
+     *
+     * @return Actual parser to use
+     *
      * @since 2.1
      */
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
@@ -1500,6 +1527,11 @@ public class JsonFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     *
+     * @param r Reader to use for reading content to parse
+     * @param ctxt I/O context to use for parsing
+     *
+     * @return Actual parser to use
      * 
      * @since 2.1
      */
@@ -1511,7 +1543,15 @@ public class JsonFactory
     /**
      * Overridable factory method that actually instantiates parser
      * using given <code>char[]</code> object for accessing content.
-     * 
+     *
+     * @param data Buffer that contains content to parse
+     * @param offset Offset to the first character of data to parse
+     * @param len Number of characters within buffer to parse
+     * @param ctxt I/O context to use for parsing
+     * @param recyclable Whether input buffer is recycled by the factory
+     *
+     * @return Actual parser to use
+     *
      * @since 2.4
      */
     protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
@@ -1531,6 +1571,13 @@ public class JsonFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     *
+     * @param data Buffer that contains content to parse
+     * @param offset Offset to the first character of data to parse
+     * @param len Number of characters within buffer to parse
+     * @param ctxt I/O context to use for parsing
+     *
+     * @return Actual parser to use
      */
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
@@ -1540,6 +1587,11 @@ public class JsonFactory
 
     /**
      * Optional factory method, expected to be overridden
+     *
+     * @param input DataInput to use for reading content to parse
+     * @param ctxt I/O context to use for parsing
+     *
+     * @return Actual parser to use
      *
      * @since 2.8
      */
@@ -1632,9 +1684,6 @@ public class JsonFactory
     /**********************************************************
      */
 
-    /**
-     * @since 2.4
-     */
     protected final InputStream _decorate(InputStream in, IOContext ctxt) throws IOException {
         if (_inputDecorator != null) {
             InputStream in2 = _inputDecorator.decorate(ctxt, in);
@@ -1645,9 +1694,6 @@ public class JsonFactory
         return in;
     }
 
-    /**
-     * @since 2.4
-     */
     protected final Reader _decorate(Reader in, IOContext ctxt) throws IOException {
         if (_inputDecorator != null) {
             Reader in2 = _inputDecorator.decorate(ctxt, in);
@@ -1658,9 +1704,7 @@ public class JsonFactory
         return in;
     }
 
-    /**
-     * @since 2.8
-     */
+    // @since 2.8
     protected final DataInput _decorate(DataInput in, IOContext ctxt) throws IOException {
         if (_inputDecorator != null) {
             DataInput in2 = _inputDecorator.decorate(ctxt, in);
@@ -1670,10 +1714,7 @@ public class JsonFactory
         }
         return in;
     }
-    
-    /**
-     * @since 2.4
-     */
+
     protected final OutputStream _decorate(OutputStream out, IOContext ctxt) throws IOException {
         if (_outputDecorator != null) {
             OutputStream out2 = _outputDecorator.decorate(ctxt, out);
@@ -1684,9 +1725,6 @@ public class JsonFactory
         return out;
     }
 
-    /**
-     * @since 2.4
-     */
     protected final Writer _decorate(Writer out, IOContext ctxt) throws IOException {
         if (_outputDecorator != null) {
             Writer out2 = _outputDecorator.decorate(ctxt, out);
@@ -1707,7 +1745,9 @@ public class JsonFactory
      * Method used by factory to create buffer recycler instances
      * for parsers and generators.
      *<p>
-     * Note: only public to give access for <code>ObjectMapper</code>
+     * Note: only public to give access for {@code ObjectMapper}
+     *
+     * @return Buffer recycler instance to use
      */
     public BufferRecycler _getBufferRecycler()
     {
@@ -1724,6 +1764,11 @@ public class JsonFactory
     /**
      * Overridable factory method that actually instantiates desired
      * context object.
+     *
+     * @param srcRef Source reference to use for diagnostics, exception messages
+     * @param resourceManaged Whether input buffer is managed by this factory or not
+     *
+     * @return I/O context created
      */
     protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
@@ -1732,6 +1777,10 @@ public class JsonFactory
     /**
      * Overridable factory method that actually instantiates desired
      * context object for async (non-blocking) parsing
+     *
+     * @param srcRef Source reference to use for diagnostics, exception messages
+     *
+     * @return I/O context created
      *
      * @since 2.9.7
      */
@@ -1756,6 +1805,8 @@ public class JsonFactory
      * sub-classes do not override them all (plus older version can not implement).
      * So a work-around is to add a check to ensure that factory is still one
      * used for JSON; and if not, make base implementation of a factory method fail.
+     *
+     * @param msg Message template to use for reporting problem (if necessary)
      *
      * @since 2.9
      */

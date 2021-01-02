@@ -18,6 +18,8 @@ public interface Versioned {
      * Method called to detect version of the component that implements this interface;
      * returned version should never be null, but may return specific "not available"
      * instance (see {@link Version} for details).
+     *
+     * @return Version of the component
      */
     Version version();
 }

@@ -32,6 +32,8 @@ public abstract class JacksonException extends java.io.IOException
      * Method that allows to remove context information from this exception's message.
      * Useful when you are parsing security-sensitive data and don't want original data excerpts
      * to be present in Jackson parser error messages.
+     *
+     * @return This exception instance to allow call chaining
      */
     public JacksonException clearLocation() {
         _location = null;
@@ -93,6 +95,8 @@ public abstract class JacksonException extends java.io.IOException
      * Accessor that sub-classes can override to append additional
      * information right after the main message, but before
      * source location information.
+     *
+     * @return Message suffix configured, if any; {@code null} if none
      */
     protected String getMessageSuffix() { return null; }
 
@@ -104,6 +108,10 @@ public abstract class JacksonException extends java.io.IOException
     
     /**
      * Default method overridden so that we can add location information
+     *
+     * @return Message constructed based on possible optional prefix; explicit
+     *   {@code message} passed to constructor as well trailing location description
+     *   (separate from message by linefeed)
      */
     @Override public String getMessage() {
         String msg = super.getMessage();

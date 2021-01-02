@@ -117,6 +117,9 @@ public interface TreeNode
      * Method that returns true if this node is a node that represents
      * logical {@code null} value.
      *
+     * @return {@code True} for nodes representing explicit input {@code null},
+     *    {@code false} for everything else
+     *
      * @since 3.0
      */
     boolean isNull();
@@ -127,6 +130,10 @@ public interface TreeNode
      * as regular content. Such nodes are used to pass information that
      * either native format can not express as-is, metadata not included within
      * at all, or something else that requires special handling.
+     *
+     * @return {@code True} for nodes representing "embedded" (or format-specific, native)
+     *    value -- ones that streaming api exposes as {@link JsonToken#VALUE_EMBEDDED_OBJECT}
+     *    -- {@code false} for other nodes
      *
      * @since 3.0
      */
@@ -245,14 +252,12 @@ public interface TreeNode
      * {@link JsonPointer} instance once and reuse it: this method will not perform
      * any caching of compiled expressions.
      * 
-     * @param jsonPointerExpression Expression to compile as a {@link JsonPointer}
+     * @param ptrExpr Expression to compile as a {@link JsonPointer}
      *   instance
      *
      * @return Node that matches given JSON Pointer, if any: if no match exists,
      *   will return a "missing" node (for which {@link TreeNode#isMissingNode()}
      *   returns {@code true}).
-     * 
-     * @since 2.3
      */
     TreeNode at(String ptrExpr) throws IllegalArgumentException;
 

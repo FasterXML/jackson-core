@@ -301,7 +301,9 @@ public abstract class JsonGenerator
      * use for writing Java objects as JsonContent
      * (using method {@link #writeObject}).
      *
-     * @return Generator itself (this), to allow chaining
+     * @param oc Codec to assign, if any; {@code null} if none
+     *
+     * @return This generator, to allow call chaining
      */
     public abstract JsonGenerator setCodec(ObjectCodec oc);
 
@@ -309,11 +311,16 @@ public abstract class JsonGenerator
      * Method for accessing the object used for writing Java
      * object as JSON content
      * (using method {@link #writeObject}).
+     *
+     * @return Codec assigned to this generator, if any; {@code null} if none
      */
     public abstract ObjectCodec getCodec();
 
     /**
      * Accessor for finding out version of the bundle that provided this generator instance.
+     *
+     * @return Version of this generator (derived from version declared for
+     *   {@code jackson-core} jar that contains the class
      */
     @Override
     public abstract Version version();
@@ -328,7 +335,9 @@ public abstract class JsonGenerator
      * Method for enabling specified parser features:
      * check {@link Feature} for list of available features.
      *
-     * @return Generator itself (this), to allow chaining
+     * @param f Feature to enable
+     *
+     * @return This generator, to allow call chaining
      */
     public abstract JsonGenerator enable(Feature f);
 
@@ -336,7 +345,9 @@ public abstract class JsonGenerator
      * Method for disabling specified  features
      * (check {@link Feature} for list of features)
      *
-     * @return Generator itself (this), to allow chaining
+     * @param f Feature to disable
+     *
+     * @return This generator, to allow call chaining
      */
     public abstract JsonGenerator disable(Feature f);
 
@@ -344,7 +355,10 @@ public abstract class JsonGenerator
      * Method for enabling or disabling specified feature:
      * check {@link Feature} for list of available features.
      *
-     * @return Generator itself (this), to allow chaining
+     * @param f Feature to enable or disable
+     * @param state Whether to enable ({@code true}) or disable ({@code false}) feature
+     *
+     * @return This generator, to allow call chaining
      */
     public final JsonGenerator configure(Feature f, boolean state) {
         if (state) enable(f); else disable(f);
@@ -354,10 +368,21 @@ public abstract class JsonGenerator
     /**
      * Method for checking whether given feature is enabled.
      * Check {@link Feature} for list of available features.
+     *
+     * @param f Feature to check
+     *
+     * @return True if specified feature is enabled; false if not
      */
     public abstract boolean isEnabled(Feature f);
 
     /**
+     * Method for checking whether given feature is enabled.
+     * Check {@link Feature} for list of available features.
+     *
+     * @param f Feature to check
+     *
+     * @return True if specified feature is enabled; false if not
+     *
      * @since 2.10
      */
     public boolean isEnabled(StreamWriteFeature f) {
@@ -369,7 +394,7 @@ public abstract class JsonGenerator
      * {@link JsonGenerator.Feature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link JsonGenerator.Feature}s.
-     * 
+     *
      * @since 2.3
      */
     public abstract int getFeatureMask();
@@ -382,7 +407,7 @@ public abstract class JsonGenerator
      * @param values Bitmask that defines which {@link Feature}s are enabled
      *    and which disabled
      *
-     * @return This parser object, to allow chaining of calls
+     * @return This generator, to allow call chaining
      *
      * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead -- remove from 2.9
      */
@@ -401,6 +426,8 @@ public abstract class JsonGenerator
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
+     *
+     * @return This generator, to allow call chaining
      * 
      * @since 2.6
      */
@@ -432,6 +459,8 @@ public abstract class JsonGenerator
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
+     *
+     * @return This generator, to allow call chaining
      * 
      * @since 2.6
      */
@@ -470,8 +499,10 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Method for accessing Schema that this parser uses, if any.
+     * Method for accessing Schema that this generator uses, if any; {@code null} if none.
      * Default implementation returns null.
+     *
+     * @return Schema in use by this generator, if any; {@code null} if none
      *
      * @since 2.1
      */
@@ -492,7 +523,9 @@ public abstract class JsonGenerator
      * Jackson distribution, call {@link #useDefaultPrettyPrinter}
      * instead.
      *
-     * @return Generator itself (this), to allow chaining
+     * @param pp {@code PrettyPrinter} to assign, if any; {@code null} if none
+     *
+     * @return This generator, to allow call chaining
      */
     public JsonGenerator setPrettyPrinter(PrettyPrinter pp) {
         _cfgPrettyPrinter = pp;
@@ -502,7 +535,9 @@ public abstract class JsonGenerator
     /**
      * Accessor for checking whether this generator has a configured
      * {@link PrettyPrinter}; returns it if so, null if none configured.
-     * 
+     *
+     * @return {@link PrettyPrinter} configured for this generator, if any; {@code null} if none
+     *
      * @since 2.1
      */
     public PrettyPrinter getPrettyPrinter() {
@@ -514,7 +549,7 @@ public abstract class JsonGenerator
      * the default pretty printer
      * ({@link com.fasterxml.jackson.core.util.DefaultPrettyPrinter}).
      *
-     * @return Generator itself (this), to allow chaining
+     * @return This generator, to allow call chaining
      */
     public abstract JsonGenerator useDefaultPrettyPrinter();
 
@@ -538,6 +573,8 @@ public abstract class JsonGenerator
      * @param charCode Either -1 to indicate that no additional escaping
      *   is to be done; or highest code point not to escape (meaning higher
      *   ones will be), if positive value.
+     *
+     * @return This generator, to allow call chaining
      */
     public JsonGenerator setHighestNonEscapedChar(int charCode) { return this; }
 
@@ -558,6 +595,8 @@ public abstract class JsonGenerator
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
+     *
+     * @return {@link CharacterEscapes} configured for this generator, if any; {@code null} if none
      */
     public CharacterEscapes getCharacterEscapes() { return null; }
 
@@ -566,6 +605,10 @@ public abstract class JsonGenerator
      * it creates.
      *<p>
      * Default implementation does nothing and simply returns this instance.
+     *
+     * @param esc {@link CharacterEscapes} to configure this generator to use, if any; {@code null} if none
+     *
+     * @return This generator, to allow call chaining
      */
     public JsonGenerator setCharacterEscapes(CharacterEscapes esc) { return this; }
 
@@ -577,6 +620,8 @@ public abstract class JsonGenerator
      * 
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
+     *
+     * @return This generator, to allow call chaining
      * 
      * @since 2.1
      */
@@ -604,6 +649,8 @@ public abstract class JsonGenerator
      *<p>
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
+     *
+     * @return Output target generator was configured with
      */
     public Object getOutputTarget() {
         return null;
@@ -641,7 +688,9 @@ public abstract class JsonGenerator
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
-     * 
+     *
+     * @return "Current value" associated with the current context (state) of this generator
+     *
      * @since 2.5
      */
     public Object getCurrentValue() {
@@ -654,6 +703,8 @@ public abstract class JsonGenerator
      *<code>
      *   getOutputContext().setCurrentValue(v);
      *</code>
+     *
+     * @param v Current value to assign for the current context of this generator
      * 
      * @since 2.5
      */

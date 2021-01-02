@@ -64,7 +64,9 @@ public class JsonProcessingException extends JacksonException
      * Method that allows accessing the original "message" argument,
      * without additional decorations (like location information)
      * that overridden {@link #getMessage} adds.
-     * 
+     *
+     * @return Original message passed in constructor
+     *
      * @since 2.1
      */
     @Override
@@ -97,6 +99,8 @@ public class JsonProcessingException extends JacksonException
      * Accessor that sub-classes can override to append additional
      * information right after the main message, but before
      * source location information.
+     *
+     * @return Message suffix assigned, if any; {@code null} if none
      */
     protected String getMessageSuffix() { return null; }
 
@@ -105,9 +109,12 @@ public class JsonProcessingException extends JacksonException
     /* Overrides of standard methods
     /**********************************************************
      */
-    
+
     /**
-     * Default method overridden so that we can add location information
+     * Default implementation overridden so that we can add location information
+     *
+     * @return Original {@code message} preceded by optional prefix and followed by
+     *   location information, message and location information separated by a linefeed
      */
     @Override public String getMessage() {
         String msg = super.getMessage();

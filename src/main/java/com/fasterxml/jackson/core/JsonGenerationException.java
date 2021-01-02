@@ -33,25 +33,19 @@ public class JsonGenerationException
         super(msg, null, rootCause);
     }
 
-    /**
-     * @since 2.7
-     */
+    // @since 2.7
     public JsonGenerationException(Throwable rootCause, JsonGenerator g) {
         super(rootCause);
         _processor = g;
     }
 
-    /**
-     * @since 2.7
-     */
+    // @since 2.7
     public JsonGenerationException(String msg, JsonGenerator g) {
         super(msg, (JsonLocation) null);
         _processor = g;
     }
     
-    /**
-     * @since 2.7
-     */
+    // @since 2.7
     public JsonGenerationException(String msg, Throwable rootCause, JsonGenerator g) {
         super(msg, null, rootCause);
         _processor = g;
@@ -60,6 +54,10 @@ public class JsonGenerationException
     /**
      * Fluent method that may be used to assign originating {@link JsonGenerator},
      * to be accessed using {@link #getProcessor()}.
+     *
+     * @param g Generator to assign
+     *
+     * @return This exception instance (to allow call chaining)
      *
      * @since 2.7
      */

@@ -133,6 +133,10 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
+     *
+     * @param esc CharacterEscapes to configure, if any; {@code null} if none
+     *
+     * @return This builder instance (to allow call chaining)
      */
     public JsonFactoryBuilder characterEscapes(CharacterEscapes esc) {
         _characterEscapes = esc;
@@ -145,6 +149,8 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
      * 
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
+     *
+     * @return This builder instance (to allow call chaining)
      */
     public JsonFactoryBuilder rootValueSeparator(String sep) {
         _rootValueSeparator = (sep == null) ? null : new SerializedString(sep);
@@ -157,6 +163,8 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
      * 
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
+     *
+     * @return This builder instance (to allow call chaining)
      */
     public JsonFactoryBuilder rootValueSeparator(SerializableString sep) {
         _rootValueSeparator = sep;
@@ -180,6 +188,8 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
      *    beside from what JSON specification requires (and possible custom escape settings).
      *    Values between 1 and 127 are all taken to behave as if 127 is specified: that is,
      *    no automatic escaping is applied in ASCII range.
+     *
+     * @return This builder instance (to allow call chaining)
      */
     public JsonFactoryBuilder highestNonEscapedChar(int maxNonEscaped) {
         _maximumNonEscapedChar = (maxNonEscaped <= 0) ? 0 : Math.max(127, maxNonEscaped);
@@ -196,6 +206,8 @@ public class JsonFactoryBuilder extends TSFBuilder<JsonFactory, JsonFactoryBuild
      * single-quote/apostrophe ({@code '}).
      *
      * @param ch Character to use for quoting field names and JSON String values.
+     *
+     * @return This builder instance (to allow call chaining)
      */
     public JsonFactoryBuilder quoteChar(char ch) {
         // 12-Aug-2019, tatu: Due to implementation details, escaping characters beyond

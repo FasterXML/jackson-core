@@ -133,6 +133,8 @@ public class JsonFactory
         /**
          * Method that calculates bit set (flags) of all features that
          * are enabled by default.
+         *
+         * @return Bit field of features enabled by default
          */
         public static int collectDefaults() {
             int flags = 0;
@@ -573,7 +575,10 @@ public class JsonFactory
      * generators this factory constructs); individual schema instances
      * may have further usage restrictions.
      *
-     * @since 2.1
+     * @param schema Schema instance to check
+     *
+     * @return Whether parsers and generators constructed by this factory
+     *   can use specific format schema instance
      */
     @Override
     public boolean canUseSchema(FormatSchema schema) {
@@ -631,13 +636,8 @@ public class JsonFactory
     public boolean requiresCustomCodec() {
         return false;
     }
-    
-    /**
-     * Helper method that can be called to determine if content accessed
-     * using given accessor seems to be JSON content.
-     */
-    protected MatchStrength hasJSONFormat(InputAccessor acc) throws IOException
-    {
+
+    protected MatchStrength hasJSONFormat(InputAccessor acc) throws IOException {
         return ByteSourceJsonBootstrapper.hasJSONFormat(acc);
     }
 
@@ -662,6 +662,11 @@ public class JsonFactory
      * Method for enabling or disabling specified parser feature
      * (check {@link JsonParser.Feature} for list of features)
      *
+     * @param f Feature to enable/disable
+     * @param state Whether to enable or disable the feature
+     *
+     * @return This factory instance (to allow call chaining)
+     *
      * @deprecated since 2.10 use {@link JsonFactoryBuilder#configure(JsonFactory.Feature, boolean)} instead
      */
     @Deprecated
@@ -672,6 +677,10 @@ public class JsonFactory
     /**
      * Method for enabling specified parser feature
      * (check {@link JsonFactory.Feature} for list of features)
+     *
+     * @param f Feature to enable
+     *
+     * @return This factory instance (to allow call chaining)
      *
      * @deprecated since 2.10 use {@link JsonFactoryBuilder#configure(JsonFactory.Feature, boolean)} instead
      */
@@ -685,6 +694,10 @@ public class JsonFactory
      * Method for disabling specified parser features
      * (check {@link JsonFactory.Feature} for list of features)
      *
+     * @param f Feature to disable
+     *
+     * @return This factory instance (to allow call chaining)
+     *
      * @deprecated since 2.10 use {@link JsonFactoryBuilder#configure(JsonFactory.Feature, boolean)} instead
      */
     @Deprecated
@@ -695,6 +708,10 @@ public class JsonFactory
 
     /**
      * Checked whether specified parser feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return True if the specified feature is enabled
      */
     public final boolean isEnabled(JsonFactory.Feature f) {
         return (_factoryFeatures & f.getMask()) != 0;
@@ -731,6 +748,11 @@ public class JsonFactory
     /**
      * Method for enabling or disabling specified parser feature
      * (check {@link JsonParser.Feature} for list of features)
+     *
+     * @param f Feature to enable/disable
+     * @param state Whether to enable or disable the feature
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public final JsonFactory configure(JsonParser.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
@@ -739,6 +761,10 @@ public class JsonFactory
     /**
      * Method for enabling specified parser feature
      * (check {@link JsonParser.Feature} for list of features)
+     *
+     * @param f Feature to enable
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public JsonFactory enable(JsonParser.Feature f) {
         _parserFeatures |= f.getMask();
@@ -748,6 +774,10 @@ public class JsonFactory
     /**
      * Method for disabling specified parser features
      * (check {@link JsonParser.Feature} for list of features)
+     *
+     * @param f Feature to disable
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public JsonFactory disable(JsonParser.Feature f) {
         _parserFeatures &= ~f.getMask();
@@ -755,7 +785,11 @@ public class JsonFactory
     }
 
     /**
-     * Checked whether specified parser feature is enabled.
+     * Method for checking if the specified parser feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return True if specified feature is enabled
      */
     @Override
     public final boolean isEnabled(JsonParser.Feature f) {
@@ -763,6 +797,12 @@ public class JsonFactory
     }
 
     /**
+     * Method for checking if the specified stream read feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return True if specified feature is enabled
+     *
      * @since 2.10
      */
     public final boolean isEnabled(StreamReadFeature f) {
@@ -772,6 +812,8 @@ public class JsonFactory
     /**
      * Method for getting currently configured input decorator (if any;
      * there is no default decorator).
+     *
+     * @return InputDecorator configured, if any
      */
     public InputDecorator getInputDecorator() {
         return _inputDecorator;
@@ -780,6 +822,10 @@ public class JsonFactory
     /**
      * Method for overriding currently configured input decorator
      *
+     * @param d Decorator to configure for this factory, if any ({@code null} if none)
+     *
+     * @return This factory instance (to allow call chaining)
+     * 
      * @deprecated Since 2.10 use {@link JsonFactoryBuilder#inputDecorator(InputDecorator)} instead
      */
     @Deprecated
@@ -787,7 +833,7 @@ public class JsonFactory
         _inputDecorator = d;
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, generator settings
@@ -797,6 +843,11 @@ public class JsonFactory
     /**
      * Method for enabling or disabling specified generator feature
      * (check {@link JsonGenerator.Feature} for list of features)
+     *
+     * @param f Feature to enable/disable
+     * @param state Whether to enable or disable the feature
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public final JsonFactory configure(JsonGenerator.Feature f, boolean state) {
         return state ? enable(f) : disable(f);
@@ -805,6 +856,10 @@ public class JsonFactory
     /**
      * Method for enabling specified generator features
      * (check {@link JsonGenerator.Feature} for list of features)
+     * 
+     * @param f Feature to enable
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public JsonFactory enable(JsonGenerator.Feature f) {
         _generatorFeatures |= f.getMask();
@@ -814,6 +869,10 @@ public class JsonFactory
     /**
      * Method for disabling specified generator feature
      * (check {@link JsonGenerator.Feature} for list of features)
+     *
+     * @param f Feature to disable
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public JsonFactory disable(JsonGenerator.Feature f) {
         _generatorFeatures &= ~f.getMask();
@@ -822,6 +881,10 @@ public class JsonFactory
 
     /**
      * Check whether specified generator feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return Whether specified feature is enabled
      */
     @Override
     public final boolean isEnabled(JsonGenerator.Feature f) {
@@ -829,6 +892,12 @@ public class JsonFactory
     }
 
     /**
+     * Check whether specified stream write feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return Whether specified feature is enabled
+     *
      * @since 2.10
      */
     public final boolean isEnabled(StreamWriteFeature f) {
@@ -838,12 +907,18 @@ public class JsonFactory
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
+     *
+     * @return Configured {@code CharacterEscapes}, if any; {@code null} if none
      */
     public CharacterEscapes getCharacterEscapes() { return _characterEscapes; }
 
     /**
      * Method for defining custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
+     *
+     * @param esc CharaterEscapes to set (or {@code null} for "none")
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public JsonFactory setCharacterEscapes(CharacterEscapes esc) {
         _characterEscapes = esc;
@@ -853,6 +928,9 @@ public class JsonFactory
     /**
      * Method for getting currently configured output decorator (if any;
      * there is no default decorator).
+     *
+     * @return OutputDecorator configured for generators factory creates, if any;
+     *    {@code null} if none.
      */
     public OutputDecorator getOutputDecorator() {
         return _outputDecorator;
@@ -861,7 +939,11 @@ public class JsonFactory
     /**
      * Method for overriding currently configured output decorator
      *
-     * @deprecated Since 2.10 use {@link JsonFactoryBuilder#inputDecorator(InputDecorator)} instead
+     * @return This factory instance (to allow call chaining)
+     *
+     * @param d Output decorator to use, if any
+     *
+     * @deprecated Since 2.10 use {@link JsonFactoryBuilder#outputDecorator(OutputDecorator)} instead
      */
     @Deprecated
     public JsonFactory setOutputDecorator(OutputDecorator d) {
@@ -875,8 +957,8 @@ public class JsonFactory
      * 
      * @param sep Separator to use, if any; null means that no separator is
      *   automatically added
-     * 
-     * @since 2.1
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public JsonFactory setRootValueSeparator(String sep) {
         _rootValueSeparator = (sep == null) ? null : new SerializedString(sep);
@@ -884,12 +966,12 @@ public class JsonFactory
     }
 
     /**
-     * @since 2.1
+     * @return Root value separator configured, if any
      */
     public String getRootValueSeparator() {
         return (_rootValueSeparator == null) ? null : _rootValueSeparator.getValue();
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, other
@@ -902,6 +984,10 @@ public class JsonFactory
      * with this factory (and more importantly, parsers and generators
      * it constructs). This is needed to use data-binding methods
      * of {@link JsonParser} and {@link JsonGenerator} instances.
+     *
+     * @param oc Codec to use
+     *
+     * @return This factory instance (to allow call chaining)
      */
     public JsonFactory setCodec(ObjectCodec oc) {
         _objectCodec = oc;
@@ -1308,7 +1394,12 @@ public class JsonFactory
      * the parser, since caller has no access to it.
      *
      * @param f File that contains JSON content to parse
+     *
+     * @return Parser constructed
      * 
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     * @throws JsonParseException if parser initialization fails due to content decoding problem
+     *
      * @deprecated Since 2.2, use {@link #createParser(File)} instead.
      */
     @Deprecated
@@ -1319,21 +1410,24 @@ public class JsonFactory
     /**
      * Method for constructing JSON parser instance to parse
      * contents of resource reference by given URL.
-     *
      *<p>
      * Encoding is auto-detected from contents according to JSON
      * specification recommended mechanism. Json specification
      * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
      * so auto-detection implemented only for this charsets.
      * For other charsets use {@link #createParser(java.io.Reader)}.
-     *
      *<p>
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
      * the parser, since caller has no access to it.
      *
      * @param url URL pointing to resource that contains JSON content to parse
-     * 
+     *
+     * @return Parser constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     * @throws JsonParseException if parser initialization fails due to content decoding problem
+     *
      * @deprecated Since 2.2, use {@link #createParser(URL)} instead.
      */
     @Deprecated
@@ -1359,7 +1453,12 @@ public class JsonFactory
      * For other charsets use {@link #createParser(java.io.Reader)}.
      *
      * @param in InputStream to use for reading JSON content to parse
-     * 
+     *
+     * @return Parser constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     * @throws JsonParseException if parser initialization fails due to content decoding problem
+     *
      * @deprecated Since 2.2, use {@link #createParser(InputStream)} instead.
      */
     @Deprecated
@@ -1378,7 +1477,12 @@ public class JsonFactory
      * is enabled.
      *
      * @param r Reader to use for reading JSON content to parse
-     * 
+     *
+     * @return Parser constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     * @throws JsonParseException if parser initialization fails due to content decoding problem
+     *
      * @deprecated Since 2.2, use {@link #createParser(Reader)} instead.
      */
     @Deprecated
@@ -1388,7 +1492,14 @@ public class JsonFactory
 
     /**
      * Method for constructing parser for parsing the contents of given byte array.
-     * 
+     *
+     * @param data Input content to parse
+     *
+     * @return Parser constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     * @throws JsonParseException if parser initialization fails due to content decoding problem
+     *
      * @deprecated Since 2.2, use {@link #createParser(byte[])} instead.
      */
     @Deprecated
@@ -1403,7 +1514,12 @@ public class JsonFactory
      * @param data Buffer that contains data to parse
      * @param offset Offset of the first data byte within buffer
      * @param len Length of contents to parse within buffer
+     *
+     * @return Parser constructed
      * 
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     * @throws JsonParseException if parser initialization fails due to content decoding problem
+     *
      * @deprecated Since 2.2, use {@link #createParser(byte[],int,int)} instead.
      */
     @Deprecated
@@ -1414,7 +1530,14 @@ public class JsonFactory
     /**
      * Method for constructing parser for parsing
      * contents of given String.
-     * 
+     *
+     * @param content Input content to parse
+     *
+     * @return Parser constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     * @throws JsonParseException if parser initialization fails due to content decoding problem
+     *
      * @deprecated Since 2.2, use {@link #createParser(String)} instead.
      */
     @Deprecated
@@ -1448,6 +1571,10 @@ public class JsonFactory
      * @param out OutputStream to use for writing JSON content 
      * @param enc Character encoding to use
      *
+     * @return Generator constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (write) problem
+     *
      * @deprecated Since 2.2, use {@link #createGenerator(OutputStream, JsonEncoding)} instead.
      */
     @Deprecated
@@ -1467,7 +1594,11 @@ public class JsonFactory
      * Using application needs to close it explicitly.
      *
      * @param out Writer to use for writing JSON content 
-     * 
+     *
+     * @return Generator constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (write) problem
+     *
      * @deprecated Since 2.2, use {@link #createGenerator(Writer)} instead.
      */
     @Deprecated
@@ -1480,7 +1611,13 @@ public class JsonFactory
      * encoding of the format (UTF-8 for JSON and most other data formats).
      *<p>
      * Note: there are formats that use fixed encoding (like most binary data formats).
-     * 
+     *
+     * @param out OutputStream to use for writing JSON content 
+     *
+     * @return Generator constructed
+     *
+     * @throws IOException if parser initialization fails due to I/O (write) problem
+     *
      * @deprecated Since 2.2, use {@link #createGenerator(OutputStream)} instead.
      */
     @Deprecated
@@ -1508,7 +1645,9 @@ public class JsonFactory
      * @param in InputStream to use for reading content to parse
      * @param ctxt I/O context to use for parsing
      *
-     * @return Actual parser to use
+     * @throws IOException if parser initialization fails due to I/O (read) problem
+     *
+     * @return Parser constructed
      *
      * @since 2.1
      */
@@ -1532,6 +1671,8 @@ public class JsonFactory
      * @param ctxt I/O context to use for parsing
      *
      * @return Actual parser to use
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
      * 
      * @since 2.1
      */
@@ -1551,6 +1692,8 @@ public class JsonFactory
      * @param recyclable Whether input buffer is recycled by the factory
      *
      * @return Actual parser to use
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
      *
      * @since 2.4
      */
@@ -1578,6 +1721,8 @@ public class JsonFactory
      * @param ctxt I/O context to use for parsing
      *
      * @return Actual parser to use
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
      */
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
@@ -1592,6 +1737,8 @@ public class JsonFactory
      * @param ctxt I/O context to use for parsing
      *
      * @return Actual parser to use
+     *
+     * @throws IOException if parser initialization fails due to I/O (read) problem
      *
      * @since 2.8
      */
@@ -1624,6 +1771,13 @@ public class JsonFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     *
+     * @param out Writer underlying writer to write generated content to
+     * @param ctxt I/O context to use
+     *
+     * @return This factory instance (to allow call chaining)
+     *
+     * @throws IOException if parser initialization fails due to I/O (write) problem
      */
     protected JsonGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException
     {
@@ -1651,6 +1805,13 @@ public class JsonFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     *
+     * @param out OutputStream underlying writer to write generated content to
+     * @param ctxt I/O context to use
+     *
+     * @return This factory instance (to allow call chaining)
+     *
+     * @throws IOException if parser initialization fails due to I/O (write) problem
      */
     protected JsonGenerator _createUTF8Generator(OutputStream out, IOContext ctxt) throws IOException {
         UTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt,

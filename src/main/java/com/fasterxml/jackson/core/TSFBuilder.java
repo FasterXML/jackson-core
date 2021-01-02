@@ -267,6 +267,8 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /**
      * Method for constructing actual {@link TokenStreamFactory} instance, given
      * configuration.
+     *
+     * @return {@link TokenStreamFactory} build based on current configuration
      */
     public abstract F build();
 

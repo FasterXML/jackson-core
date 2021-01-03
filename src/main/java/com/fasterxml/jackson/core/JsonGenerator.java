@@ -89,7 +89,7 @@ public abstract class JsonGenerator
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
      *
-     * @return Output target assigned to this generator
+     * @return Output target this generator was configured with
      */
     public abstract Object getOutputTarget();
 

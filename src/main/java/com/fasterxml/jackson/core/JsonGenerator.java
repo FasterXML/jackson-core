@@ -354,7 +354,7 @@ public abstract class JsonGenerator
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
      *
-     * @return Output target generator was configured with
+     * @return Output target this generator was configured with
      */
     public Object getOutputTarget() {
         return null;

@@ -397,6 +397,8 @@ public abstract class JsonParser
      * Accessor for {@link ObjectCodec} associated with this
      * parser, if any. Codec is used by {@link #readValueAs(Class)}
      * method (and its variants).
+     *
+     * @return Codec assigned to this parser, if any; {@code null} if none
      */
     public abstract ObjectCodec getCodec();
 
@@ -404,8 +406,10 @@ public abstract class JsonParser
      * Setter that allows defining {@link ObjectCodec} associated with this
      * parser, if any. Codec is used by {@link #readValueAs(Class)}
      * method (and its variants).
+     *
+     * @param oc Codec to assign, if any; {@code null} if none
      */
-    public abstract void setCodec(ObjectCodec c);
+    public abstract void setCodec(ObjectCodec oc);
 
     /**
      * Method that can be used to get access to object that is used
@@ -421,6 +425,8 @@ public abstract class JsonParser
      *<p>
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
+     *
+     * @return Input source this parser was configured with
      */
     public Object getInputSource() { return null; }
 
@@ -434,7 +440,9 @@ public abstract class JsonParser
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
-     * 
+     *
+     * @return "Current value" associated with the current input context (state) of this parser
+     *
      * @since 2.5
      */
     public Object getCurrentValue() {
@@ -447,6 +455,8 @@ public abstract class JsonParser
      *<code>
      *   getParsingContext().setCurrentValue(v);
      *</code>
+     *
+     * @param v Current value to assign for the current input context of this parser
      * 
      * @since 2.5
      */
@@ -460,6 +470,8 @@ public abstract class JsonParser
     /**
      * Sets the payload to be passed if {@link JsonParseException} is thrown.
      *
+     * @param payload Payload to pass
+     *
      * @since 2.8
      */
     public void setRequestPayloadOnError(RequestPayload payload) {
@@ -469,6 +481,9 @@ public abstract class JsonParser
     /**
      * Sets the byte[] request payload and the charset
      *
+     * @param payload Payload to pass
+     * @param charset Character encoding for (lazily) decoding payload
+     *
      * @since 2.8
      */
      public void setRequestPayloadOnError(byte[] payload, String charset) {
@@ -476,10 +491,12 @@ public abstract class JsonParser
      }
 
      /**
-     * Sets the String request payload
-     *
-     * @since 2.8
-     */
+      * Sets the String request payload
+      *
+      * @param payload Payload to pass
+      *
+      * @since 2.8
+      */
     public void setRequestPayloadOnError(String payload) {
         _requestPayload = (payload == null) ? null : new RequestPayload(payload);
     }
@@ -512,6 +529,8 @@ public abstract class JsonParser
     /**
      * Method for accessing Schema that this parser uses, if any.
      * Default implementation returns null.
+     *
+     * @return Schema in use by this parser, if any; {@code null} if none
      *
      * @since 2.1
      */

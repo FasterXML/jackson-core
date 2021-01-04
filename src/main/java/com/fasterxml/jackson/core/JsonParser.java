@@ -966,6 +966,9 @@ public abstract class JsonParser
      * @return Number of characters within buffer returned
      *   by {@link #getTextCharacters} that are part of
      *   textual content of the current token.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract int getTextLength() throws IOException;
 
@@ -976,6 +979,9 @@ public abstract class JsonParser
      * @return Offset of the first character within buffer returned
      *   by {@link #getTextCharacters} that is part of
      *   textual content of the current token.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract int getTextOffset() throws IOException;
 
@@ -1349,7 +1355,7 @@ public abstract class JsonParser
 
     /**
      * Method that will try to convert value of current token to a
-     * <b>int</b>.
+     * Java {@code int} value.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
      * and 1 (true), and Strings are parsed using default Java language integer
      * parsing rules.
@@ -1357,6 +1363,9 @@ public abstract class JsonParser
      * If representation can not be converted to an int (including structured type
      * markers like start/end Object/Array)
      * default value of <b>0</b> will be returned; no exceptions are thrown.
+     *
+     * @return {@code int} value current token is converted to, if possible; exception thrown
+     *    otherwise
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1376,6 +1385,10 @@ public abstract class JsonParser
      * markers like start/end Object/Array)
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
+     * @param def Default value to return if conversion to {@code int} is not possible
+     *
+     * @return {@code int} value current token is converted to, if possible; {@code def} otherwise
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1391,6 +1404,9 @@ public abstract class JsonParser
      * If representation can not be converted to a long (including structured type
      * markers like start/end Object/Array)
      * default value of <b>0L</b> will be returned; no exceptions are thrown.
+     *
+     * @return {@code long} value current token is converted to, if possible; exception thrown
+     *    otherwise
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1410,6 +1426,10 @@ public abstract class JsonParser
      * markers like start/end Object/Array)
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
+     * @param def Default value to return if conversion to {@code long} is not possible
+     *
+     * @return {@code long} value current token is converted to, if possible; {@code def} otherwise
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1427,6 +1447,9 @@ public abstract class JsonParser
      * If representation can not be converted to a double (including structured types
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
+     *
+     * @return {@code double} value current token is converted to, if possible; exception thrown
+     *    otherwise
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1446,6 +1469,10 @@ public abstract class JsonParser
      * like Objects and Arrays),
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
+     * @param def Default value to return if conversion to {@code double} is not possible
+     *
+     * @return {@code double} value current token is converted to, if possible; {@code def} otherwise
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1463,6 +1490,9 @@ public abstract class JsonParser
      * If representation can not be converted to a boolean value (including structured types
      * like Objects and Arrays),
      * default value of <b>false</b> will be returned; no exceptions are thrown.
+     *
+     * @return {@code boolean} value current token is converted to, if possible; exception thrown
+     *    otherwise
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1482,6 +1512,10 @@ public abstract class JsonParser
      * like Objects and Arrays),
      * specified <b>def</b> will be returned; no exceptions are thrown.
      *
+     * @param def Default value to return if conversion to {@code boolean} is not possible
+     *
+     * @return {@code boolean} value current token is converted to, if possible; {@code def} otherwise
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1498,6 +1532,8 @@ public abstract class JsonParser
      * like Objects and Arrays and null token), default value of
      * <b>null</b> will be returned; no exceptions are thrown.
      *
+     * @return {@link String} value current token is converted to, if possible; {@code null} otherwise
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1513,6 +1549,10 @@ public abstract class JsonParser
      * If representation can not be converted to a String value (including structured types
      * like Objects and Arrays and null token), specified default value
      * will be returned; no exceptions are thrown.
+     *
+     * @param def Default value to return if conversion to {@code String} is not possible
+     *
+     * @return {@link String} value current token is converted to, if possible; {@code def} otherwise
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems

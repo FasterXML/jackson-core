@@ -514,6 +514,17 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get an int value next from input.
+     *<p>
+     * NOTE: value checks are performed similar to {@link #getIntValue()}
+     *
+     * @param defaultValue Value to return if next token is NOT of type {@code JsonToken.VALUE_NUMBER_INT}
+     *
+     * @return Integer ({@code int}) value of the {@code JsonToken.VALUE_NUMBER_INT} token parser advanced
+     *   to; or {@code defaultValue} if next token is of some other type
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     * @throws InputCoercionException if integer number does not fit in Java {@code int}
      */
     public int nextIntValue(int defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getIntValue() : defaultValue;
@@ -529,6 +540,17 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a long value next from input.
+     *<p>
+     * NOTE: value checks are performed similar to {@link #getLongValue()}
+     *
+     * @param defaultValue Value to return if next token is NOT of type {@code JsonToken.VALUE_NUMBER_INT}
+     *
+     * @return {@code long} value of the {@code JsonToken.VALUE_NUMBER_INT} token parser advanced
+     *   to; or {@code defaultValue} if next token is of some other type
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     * @throws InputCoercionException if integer number does not fit in Java {@code long}
      */
     public long nextLongValue(long defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
@@ -547,6 +569,12 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a Boolean value next from input.
+     *
+     * @return {@code Boolean} value of the {@code JsonToken.VALUE_TRUE} or {@code JsonToken.VALUE_FALSE}
+     *   token parser advanced to; or {@code null} if next token is of some other type
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public Boolean nextBooleanValue() throws IOException {
         JsonToken t = nextToken();
@@ -616,6 +644,8 @@ public abstract class JsonParser
      * Note that no traversal or conversion is performed; so in some
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
+     *
+     * @return {@code True} if the parser current points to specified token
      */
     public abstract boolean hasTokenId(int id);
 
@@ -629,6 +659,8 @@ public abstract class JsonParser
      * Note that no traversal or conversion is performed; so in some
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
+     *
+     * @return {@code True} if the parser current points to specified token
      */
     public abstract boolean hasToken(JsonToken t);
 
@@ -649,13 +681,17 @@ public abstract class JsonParser
      *
      * @return True if the current token can be considered as a
      *   start-array marker (such {@link JsonToken#START_ARRAY});
-     *   false if not.
+     *   {@code false} if not
      */
     public abstract boolean isExpectedStartArrayToken();
 
     /**
      * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
      * currently points to {@link JsonToken#START_OBJECT}.
+     *
+     * @return True if the current token can be considered as a
+     *   start-array marker (such {@link JsonToken#START_OBJECT});
+     *   {@code false} if not
      */
     public abstract boolean isExpectedStartObjectToken();
 
@@ -665,6 +701,10 @@ public abstract class JsonParser
      *<p>
      * The initial use case is for XML backend to efficiently (attempt to) coerce
      * textual content into numbers.
+     *
+     * @return True if the current token can be considered as a
+     *   start-array marker (such {@link JsonToken#VALUE_NUMBER_INT});
+     *   {@code false} if not
      */
     public abstract boolean isExpectedNumberIntToken();
 
@@ -916,7 +956,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the resulting integer value falls outside range of
-     * Java int, a {@link InputCoercionException}
+     * Java {@code int}, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
      */
     public abstract int getIntValue() throws IOException;

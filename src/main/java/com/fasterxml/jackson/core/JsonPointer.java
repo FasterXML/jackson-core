@@ -59,9 +59,9 @@ public class JsonPointer
     protected final int _matchingElementIndex;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -87,47 +87,50 @@ public class JsonPointer
         _matchingElementIndex = _parseIndex(segment);
     }
 
-    /**
-     * @since 2.5
-     */
     protected JsonPointer(String fullString, String segment, int matchIndex, JsonPointer next) {
         _asString = fullString;
         _nextSegment = next;
         _matchingPropertyName = segment;
         _matchingElementIndex = matchIndex;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Factory method that parses given input and construct matching pointer
      * instance, if it represents a valid JSON Pointer: if not, a
      * {@link IllegalArgumentException} is thrown.
-     * 
+     *
+     * @param expr Pointer expression to compile
+     *
+     * @return Compiled {@link JsonPointer} path expression
+     *
      * @throws IllegalArgumentException Thrown if the input does not present a valid JSON Pointer
      *   expression: currently the only such expression is one that does NOT start with
      *   a slash ('/').
      */
-    public static JsonPointer compile(String input) throws IllegalArgumentException
+    public static JsonPointer compile(String expr) throws IllegalArgumentException
     {
         // First quick checks for well-known 'empty' pointer
-        if ((input == null) || input.length() == 0) {
+        if ((expr == null) || expr.length() == 0) {
             return EMPTY;
         }
         // And then quick validity check:
-        if (input.charAt(0) != '/') {
-            throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+input+"\"");
+        if (expr.charAt(0) != '/') {
+            throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+expr+"\"");
         }
-        return _parseTail(input);
+        return _parseTail(expr);
     }
 
     /**
      * Alias for {@link #compile}; added to make instances automatically
      * deserializable by Jackson databind.
+     *
+     * @return Compiled {@link JsonPointer} path expression
      */
     public static JsonPointer valueOf(String input) { return compile(input); }
 
@@ -137,6 +140,8 @@ public class JsonPointer
      *<p>
      * NOTE: this is different from expression for {@code "/"} which would
      * instead match Object node property with empty String ("") as name.
+     *
+     * @return "Empty" pointer expression instance that matches given root value
      *
      * @since 2.10
      */
@@ -148,6 +153,8 @@ public class JsonPointer
      *
      * @param context Context to build pointer expression fot
      * @param includeRoot Whether to include number offset for virtual "root context" or not.
+     *
+     * @return {@link JsonPointer} path to location of given context
      */
     public static JsonPointer forPath(TokenStreamContext context,
             boolean includeRoot)
@@ -242,9 +249,9 @@ public class JsonPointer
     */
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public boolean matches() { return _nextSegment == null; }
@@ -266,8 +273,6 @@ public class JsonPointer
     /**
      * Returns the leaf of current JSON Pointer expression.
      * Leaf is the last non-null segment of current JSON Pointer.
-     * 
-     * @since 2.5
      */
     public JsonPointer last() {
         JsonPointer current = this;
@@ -383,9 +388,9 @@ public class JsonPointer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public String toString() { return _asString; }
@@ -399,9 +404,9 @@ public class JsonPointer
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static int _parseIndex(String str) {

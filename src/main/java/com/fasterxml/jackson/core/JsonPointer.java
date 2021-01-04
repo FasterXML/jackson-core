@@ -139,9 +139,11 @@ public class JsonPointer
      * Alias for {@link #compile}; added to make instances automatically
      * deserializable by Jackson databind.
      *
+     * @param expr Pointer expression to compile
+     *
      * @return Compiled {@link JsonPointer} path expression
      */
-    public static JsonPointer valueOf(String input) { return compile(input); }
+    public static JsonPointer valueOf(String expr) { return compile(expr); }
 
     /**
      * Accessor for an "empty" expression, that is, one you can get by
@@ -283,9 +285,9 @@ public class JsonPointer
     public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 
     /**
-     * Returns the leaf of current JSON Pointer expression.
-     * Leaf is the last non-null segment of current JSON Pointer.
-     * 
+     * @return  the leaf of current JSON Pointer expression: leaf is the last
+     *    non-null segment of current JSON Pointer.
+     *
      * @since 2.5
      */
     public JsonPointer last() {

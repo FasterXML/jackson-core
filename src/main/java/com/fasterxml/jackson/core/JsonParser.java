@@ -1018,9 +1018,17 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get an int value next from input.
+     *<p>
+     * NOTE: value checks are performed similar to {@link #getIntValue()}
+     *
+     * @param defaultValue Value to return if next token is NOT of type {@code JsonToken.VALUE_NUMBER_INT}
+     *
+     * @return Integer ({@code int}) value of the {@code JsonToken.VALUE_NUMBER_INT} token parser advanced
+     *   to; or {@code defaultValue} if next token is of some other type
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
+     * @throws InputCoercionException if integer number does not fit in Java {@code int}
      */
     public int nextIntValue(int defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getIntValue() : defaultValue;
@@ -1036,9 +1044,17 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a long value next from input.
+     *<p>
+     * NOTE: value checks are performed similar to {@link #getLongValue()}
+     *
+     * @param defaultValue Value to return if next token is NOT of type {@code JsonToken.VALUE_NUMBER_INT}
+     *
+     * @return {@code long} value of the {@code JsonToken.VALUE_NUMBER_INT} token parser advanced
+     *   to; or {@code defaultValue} if next token is of some other type
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
+     * @throws InputCoercionException if integer number does not fit in Java {@code long}
      */
     public long nextLongValue(long defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
@@ -1058,6 +1074,9 @@ public abstract class JsonParser
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a Boolean value next from input.
      *
+     * @return {@code Boolean} value of the {@code JsonToken.VALUE_TRUE} or {@code JsonToken.VALUE_FALSE}
+     *   token parser advanced to; or {@code null} if next token is of some other type
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1067,7 +1086,7 @@ public abstract class JsonParser
         if (t == JsonToken.VALUE_FALSE) { return Boolean.FALSE; }
         return null;
     }
-    
+
     /**
      * Method that will skip all child tokens of an array or
      * object token that the parser currently points to,
@@ -1081,6 +1100,8 @@ public abstract class JsonParser
      * The idea is that after calling this method, application
      * will call {@link #nextToken} to point to the next
      * available token, if any.
+     *
+     * @return This parser, to allow call chaining
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1139,10 +1160,10 @@ public abstract class JsonParser
      * so this method may be useful when building low-overhead codecs.
      * Note, however, that effect may not be big enough to matter: make sure
      * to profile performance before deciding to use this method.
-     * 
+     *
      * @since 2.8
      * 
-     * @return <code>int</code> matching one of constants from {@link JsonTokenId}.
+     * @return {@code int} matching one of constants from {@link JsonTokenId}.
      */
     public int currentTokenId() {
         return getCurrentTokenId();
@@ -1151,11 +1172,16 @@ public abstract class JsonParser
     /**
      * Alias for {@link #currentToken()}, may be deprecated sometime after
      * Jackson 2.12 (will be removed from 3.0).
+     *
+     * @return Type of the token this parser currently points to,
+     *   if any: null before any tokens have been read, and
      */
     public abstract JsonToken getCurrentToken();
 
     /**
      * Alias for {@link #currentTokenId()}.
+     *
+     * @return {@code int} matching one of constants from {@link JsonTokenId}.
      *
      * @deprecated Since 2.12 use {@link #currentTokenId} instead
      */
@@ -1186,6 +1212,8 @@ public abstract class JsonParser
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
      *
+     * @return {@code True} if the parser current points to specified token
+     *
      * @since 2.5
      */
     public abstract boolean hasTokenId(int id);
@@ -1200,6 +1228,8 @@ public abstract class JsonParser
      * Note that no traversal or conversion is performed; so in some
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
+     *
+     * @return {@code True} if the parser current points to specified token
      *
      * @since 2.6
      */
@@ -1222,13 +1252,17 @@ public abstract class JsonParser
      *
      * @return True if the current token can be considered as a
      *   start-array marker (such {@link JsonToken#START_ARRAY});
-     *   false if not.
+     *   {@code false} if not
      */
     public boolean isExpectedStartArrayToken() { return currentToken() == JsonToken.START_ARRAY; }
 
     /**
      * Similar to {@link #isExpectedStartArrayToken()}, but checks whether stream
      * currently points to {@link JsonToken#START_OBJECT}.
+     *
+     * @return True if the current token can be considered as a
+     *   start-array marker (such {@link JsonToken#START_OBJECT});
+     *   {@code false} if not
      *
      * @since 2.5
      */
@@ -1240,6 +1274,10 @@ public abstract class JsonParser
      *<p>
      * The initial use case is for XML backend to efficiently (attempt to) coerce
      * textual content into numbers.
+     *
+     * @return True if the current token can be considered as a
+     *   start-array marker (such {@link JsonToken#VALUE_NUMBER_INT});
+     *   {@code false} if not
      *
      * @since 2.12
      */
@@ -1578,7 +1616,7 @@ public abstract class JsonParser
      * exception.
      *<p>
      * Note: if the resulting integer value falls outside range of
-     * Java int, a {@link InputCoercionException}
+     * Java {@code int}, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
      *
      * @throws IOException for low-level read issues, or

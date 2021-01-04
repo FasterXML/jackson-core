@@ -113,27 +113,33 @@ public class JsonPointer
      * Factory method that parses given input and construct matching pointer
      * instance, if it represents a valid JSON Pointer: if not, a
      * {@link IllegalArgumentException} is thrown.
-     * 
+     *
+     * @param expr Pointer expression to compile
+     *
+     * @return Compiled {@link JsonPointer} path expression
+     *
      * @throws IllegalArgumentException Thrown if the input does not present a valid JSON Pointer
      *   expression: currently the only such expression is one that does NOT start with
      *   a slash ('/').
      */
-    public static JsonPointer compile(String input) throws IllegalArgumentException
+    public static JsonPointer compile(String expr) throws IllegalArgumentException
     {
         // First quick checks for well-known 'empty' pointer
-        if ((input == null) || input.length() == 0) {
+        if ((expr == null) || expr.length() == 0) {
             return EMPTY;
         }
         // And then quick validity check:
-        if (input.charAt(0) != '/') {
-            throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+input+"\"");
+        if (expr.charAt(0) != '/') {
+            throw new IllegalArgumentException("Invalid input: JSON Pointer expression must start with '/': "+"\""+expr+"\"");
         }
-        return _parseTail(input);
+        return _parseTail(expr);
     }
 
     /**
      * Alias for {@link #compile}; added to make instances automatically
      * deserializable by Jackson databind.
+     *
+     * @return Compiled {@link JsonPointer} path expression
      */
     public static JsonPointer valueOf(String input) { return compile(input); }
 
@@ -144,6 +150,8 @@ public class JsonPointer
      * NOTE: this is different from expression for {@code "/"} which would
      * instead match Object node property with empty String ("") as name.
      *
+     * @return "Empty" pointer expression instance that matches given root value
+     *
      * @since 2.10
      */
     public static JsonPointer empty() { return EMPTY; }
@@ -152,9 +160,11 @@ public class JsonPointer
      * Factory method that will construct a pointer instance that describes
      * path to location given {@link JsonStreamContext} points to.
      *
-     * @param context Context to build pointer expression fot
+     * @param context Context to build pointer expression for
      * @param includeRoot Whether to include number offset for virtual "root context"
      *    or not.
+     *
+     * @return {@link JsonPointer} path to location of given context
      *
      * @since 2.9
      */

@@ -57,6 +57,8 @@ public class BufferRecyclers
 
     /**
      * Main accessor to call for accessing possibly recycled {@link BufferRecycler} instance.
+     *
+     * @return {@link BufferRecycler} to use
      */
     public static BufferRecycler getBufferRecycler()
     {

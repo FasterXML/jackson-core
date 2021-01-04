@@ -135,6 +135,8 @@ public enum StreamWriteFeature
     /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
+     *
+     * @return Bit mask of all features that are enabled by default
      */
     public static int collectDefaults()
     {

@@ -107,10 +107,8 @@ public class DefaultPrettyPrinter
      *<p>
      * Note: simply constructs a {@link SerializedString} out of parameter,
      * calls {@link #DefaultPrettyPrinter(SerializableString)}
-     * 
-     * @param rootSeparator
-     * 
-     * @since 2.1
+     *
+     * @param rootSeparator String to use as root value separator
      */
     public DefaultPrettyPrinter(String rootSeparator) {
         this((rootSeparator == null) ? null : new SerializedString(rootSeparator));
@@ -119,10 +117,8 @@ public class DefaultPrettyPrinter
     /**
      * Constructor that specifies separator String to use between root values;
      * if null, no separator is printed.
-     * 
-     * @param rootSeparator
-     * 
-     * @since 2.1
+     *
+     * @param rootSeparator String to use as root value separator
      */
     public DefaultPrettyPrinter(SerializableString rootSeparator) {
         _rootSeparator = rootSeparator;
@@ -157,6 +153,10 @@ public class DefaultPrettyPrinter
     }
 
     /**
+     * @param rootSeparator Root-level value separator to use
+     *
+     * @return This pretty-printer instance (for call chaining)
+     *
      * @since 2.6
      */
     public DefaultPrettyPrinter withRootSeparator(String rootSeparator) {
@@ -171,9 +171,7 @@ public class DefaultPrettyPrinter
         _objectIndenter = (i == null) ? NopIndenter.instance : i;
     }
 
-    /**
-     * @since 2.3
-     */
+    // @since 2.3
     public DefaultPrettyPrinter withArrayIndenter(Indenter i) {
         if (i == null) {
             i = NopIndenter.instance;
@@ -186,9 +184,7 @@ public class DefaultPrettyPrinter
         return pp;
     }
 
-    /**
-     * @since 2.3
-     */
+    // @since 2.3
     public DefaultPrettyPrinter withObjectIndenter(Indenter i) {
         if (i == null) {
             i = NopIndenter.instance;
@@ -207,6 +203,8 @@ public class DefaultPrettyPrinter
      * does this, it is returned; if not, a new instance will be constructed
      * and returned.
      *
+     * @return This pretty-printer instance (for call chaining)
+     *
      * @since 2.3
      */
     public DefaultPrettyPrinter withSpacesInObjectEntries() {
@@ -218,6 +216,8 @@ public class DefaultPrettyPrinter
      * that does not use spaces inside object entries; if 'this' instance already
      * does this, it is returned; if not, a new instance will be constructed
      * and returned.
+     *
+     * @return This pretty-printer instance (for call chaining)
      *
      * @since 2.3
      */
@@ -236,6 +236,12 @@ public class DefaultPrettyPrinter
     }
 
     /**
+     * Method for configuring separators for this pretty-printer to use
+     *
+     * @param separators Separator definitions to use
+     *
+     * @return This pretty-printer instance (for call chaining)
+     *
      * @since 2.9
      */
     public DefaultPrettyPrinter withSeparators(Separators separators) {

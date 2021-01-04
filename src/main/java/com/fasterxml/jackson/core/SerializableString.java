@@ -26,6 +26,8 @@ public interface SerializableString
     /**
      * Returns unquoted String that this object represents (and offers
      * serialized forms for)
+     *
+     * @return Unquoted String
      */
     String getValue();
     
@@ -35,6 +37,8 @@ public interface SerializableString
      *<pre>
      *   getValue().length();
      *</pre>
+     *
+     * @return Length of the String in characters
      */
     int charLength();
 
@@ -47,6 +51,8 @@ public interface SerializableString
     /**
      * Returns JSON quoted form of the String, as character array.
      * Result can be embedded as-is in textual JSON as property name or JSON String.
+     *
+     * @return JSON quoted form of the String as {@code char[]}
      */
     char[] asQuotedChars();
 
@@ -56,6 +62,8 @@ public interface SerializableString
      *<pre>
      * getValue().getBytes("UTF-8");
      *</pre>
+     *
+     * @return UTF-8 encoded version of String, without any escaping
      */
     byte[] asUnquotedUTF8();
 
@@ -65,6 +73,8 @@ public interface SerializableString
      *<pre>
      * new String(asQuotedChars()).getBytes("UTF-8");
      *</pre>
+     *
+     * @return UTF-8 encoded version of JSON-escaped String
      */
     byte[] asQuotedUTF8();
 
@@ -83,7 +93,10 @@ public interface SerializableString
      *  System.arraycopy(bytes, 0, buffer, offset, bytes.length);
      *  return bytes.length;
      *</pre>
-     * 
+     *
+     * @param buffer Buffer to append JSON-escaped String into
+     * @param offset Offset in {@code buffer} to append String at
+     *
      * @return Number of bytes appended, if successful, otherwise -1
      */
     int appendQuotedUTF8(byte[] buffer, int offset);
@@ -96,6 +109,9 @@ public interface SerializableString
      *  System.arraycopy(ch, 0, buffer, offset, ch.length);
      *  return ch.length;
      *</pre>
+     *
+     * @param buffer Buffer to append JSON-escaped String into
+     * @param offset Offset in {@code buffer} to append String at
      * 
      * @return Number of characters appended, if successful, otherwise -1
      */
@@ -109,12 +125,14 @@ public interface SerializableString
      *  System.arraycopy(bytes, 0, buffer, offset, bytes.length);
      *  return bytes.length;
      *</pre>
+     *
+     * @param buffer Buffer to append literal (unescaped) String into
+     * @param offset Offset in {@code buffer} to append String at
      * 
      * @return Number of bytes appended, if successful, otherwise -1
      */
     int appendUnquotedUTF8(byte[] buffer, int offset);
 
-    
     /**
      * Method that will append unquoted characters of this String into given
      * buffer. Functionally equivalent to:
@@ -123,6 +141,9 @@ public interface SerializableString
      *  System.arraycopy(bytes, 0, buffer, offset, ch.length);
      *  return ch.length;
      *</pre>
+     *
+     * @param buffer Buffer to append literal (unescaped) String into
+     * @param offset Offset in {@code buffer} to append String at
      * 
      * @return Number of characters appended, if successful, otherwise -1
      */
@@ -135,22 +156,50 @@ public interface SerializableString
      */
 
     /**
+     * Method for writing JSON-escaped UTF-8 encoded String value using given
+     * {@link OutputStream}.
+     *
+     * @param out {@link OutputStream} to write String into
+     *
      * @return Number of bytes written
+     *
+     * @throws IOException if underlying stream write fails
      */
     int writeQuotedUTF8(OutputStream out) throws IOException;
 
     /**
+     * Method for writing unescaped UTF-8 encoded String value using given
+     * {@link OutputStream}.
+     *
+     * @param out {@link OutputStream} to write String into
+     *
      * @return Number of bytes written
+     *
+     * @throws IOException if underlying stream write fails
      */
     int writeUnquotedUTF8(OutputStream out) throws IOException;
 
     /**
-     * @return Number of bytes put, if successful, otherwise -1
+     * Method for appending JSON-escaped UTF-8 encoded String value into given
+     * {@link ByteBuffer}, if it fits.
+     *
+     * @param buffer {@link ByteBuffer} to append String into
+     *
+     * @return Number of bytes put, if contents fit, otherwise -1
+     *
+     * @throws IOException if underlying buffer append operation fails
      */
     int putQuotedUTF8(ByteBuffer buffer) throws IOException;
 
     /**
-     * @return Number of bytes put, if successful, otherwise -1
+     * Method for appending unquoted ('raw') UTF-8 encoded String value into given
+     * {@link ByteBuffer}, if it fits.
+     *
+     * @param buffer {@link ByteBuffer} to append String into
+     *
+     * @return Number of bytes put, if contents fit, otherwise -1
+     *
+     * @throws IOException if underlying buffer append operation fails
      */
-    int putUnquotedUTF8(ByteBuffer out) throws IOException;
+    int putUnquotedUTF8(ByteBuffer buffer) throws IOException;
 }

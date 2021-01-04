@@ -34,6 +34,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /**
+     * @param d Underlying generator to delegate calls to
      * @param delegateCopyMethods Flag assigned to <code>delagateCopyMethod</code>
      *   and which defines whether copy methods are handled locally (false), or
      *   delegated to configured 
@@ -503,6 +504,8 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public JsonGenerator getDelegate() { return delegate; }
 
     /**
+     * @return Underlying generator that calls are delegated to
+     *
      * @since 2.11
      */
     public JsonGenerator delegate() { return delegate; }

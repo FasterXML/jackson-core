@@ -14,6 +14,9 @@ public abstract class TreeCodec
     public abstract void writeTree(JsonGenerator g, TreeNode tree) throws IOException, JsonProcessingException;
 
     /**
+     * @return Node that represents "missing" node during traversal: something
+     *   referenced but that does not exist in content model
+     * 
      * @since 2.10
      */
     public TreeNode missingNode() {
@@ -21,6 +24,8 @@ public abstract class TreeCodec
     }
 
     /**
+     * @return Node that represents explict {@code null} value in content
+     * 
      * @since 2.10
      */
     public TreeNode nullNode() {

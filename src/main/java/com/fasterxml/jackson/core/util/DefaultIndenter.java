@@ -46,7 +46,10 @@ public class DefaultIndenter
     
     /**
      * Create an indenter which uses the <code>indent</code> string to indent one level
-     *  and the <code>eol</code> string to separate lines.
+     * and the <code>eol</code> string to separate lines.
+     *
+     * @param indent Indentation String to prepend for a single level of indentation
+     * @param eol End-of-line marker to use after indented line
      */
     public DefaultIndenter(String indent, String eol)
     {

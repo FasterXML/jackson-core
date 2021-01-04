@@ -73,13 +73,20 @@ public class JsonParserSequence extends JsonParserDelegate
     }
 
     /**
-     * Method that will construct a parser (possibly a sequence) that
+     * Method that will construct a sequence (possibly a sequence) that
      * contains all given sub-parsers.
      * All parsers given are checked to see if they are sequences: and
      * if so, they will be "flattened", that is, contained parsers are
      * directly added in a new sequence instead of adding sequences
      * within sequences. This is done to minimize delegation depth,
      * ideally only having just a single level of delegation.
+     *
+     * @param checkForExistingToken Flag passed to be assigned as
+     *   {@link #_checkForExistingToken} for resulting sequence
+     * @param first First parser to traverse
+     * @param second Second parser to traverse
+     *
+     * @return Sequence instance constructed
      */
     public static JsonParserSequence createFlattened(boolean checkForExistingToken,
             JsonParser first, JsonParser second)
@@ -103,10 +110,6 @@ public class JsonParserSequence extends JsonParserDelegate
                 p.toArray(new JsonParser[p.size()]));
     }
 
-    /**
-     * @deprecated Since 2.8 use {@link #createFlattened(boolean, JsonParser, JsonParser)}
-     *    instead
-     */
     @Deprecated // since 2.8
     public static JsonParserSequence createFlattened(JsonParser first, JsonParser second) {
         return createFlattened(false, first, second);
@@ -195,6 +198,8 @@ public class JsonParserSequence extends JsonParserDelegate
      * Method that is most useful for debugging or testing;
      * returns actual number of underlying parsers sequence
      * was constructed with (nor just ones remaining active)
+     *
+     * @return Number of actual underlying parsers this sequence has
      */
     public int containedParsersCount() {
         return _parsers.length;

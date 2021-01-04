@@ -37,9 +37,13 @@ public class Version
     protected final String _snapshotInfo;
 
     /**
-     * @deprecated Use variant that takes group and artifact ids
-     * 
+     * @param major Major version number
+     * @param minor Minor version number
+     * @param patchLevel patch level of version
+     * @param snapshotInfo Optional additional string qualifier
+     *
      * @since 2.1
+     * @deprecated Use variant that takes group and artifact ids
      */
     @Deprecated
     public Version(int major, int minor, int patchLevel, String snapshotInfo)
@@ -61,10 +65,16 @@ public class Version
     /**
      * Method returns canonical "not known" version, which is used as version
      * in cases where actual version information is not known (instead of null).
+     *
+     * @return Version instance to use as a placeholder when actual version is not known
+     *   (or not relevant)
      */
     public static Version unknownVersion() { return UNKNOWN_VERSION; }
 
     /**
+     * @return {@code True} if this instance is the one returned by
+     *    call to {@link #unknownVersion()}
+     *
      * @since 2.7 to replace misspelled {@link #isUknownVersion()}
      */
     public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
@@ -72,6 +82,9 @@ public class Version
     public boolean isSnapshot() { return (_snapshotInfo != null && _snapshotInfo.length() > 0); }
 
     /**
+     * @return {@code True} if this instance is the one returned by
+     *    call to {@link #unknownVersion()}
+     *
      * @deprecated Since 2.7 use correctly spelled method {@link #isUnknownVersion()}
      */
     @Deprecated

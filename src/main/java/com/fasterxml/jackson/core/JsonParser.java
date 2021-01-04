@@ -865,11 +865,19 @@ public abstract class JsonParser
      * for field values it will be the preceding field name;
      * and for others (array values, root-level values) null.
      *
-     * @since 3.0
+     * @return Name of the current field in the parsing context
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract String currentName() throws IOException;
 
     /**
+     * @return Name of the current field in the parsing context
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @deprecated Since 3.0 use {@link #currentName} instead
      */
     @Deprecated
@@ -880,6 +888,12 @@ public abstract class JsonParser
      * if no current token (before first call to {@link #nextToken}, or
      * after encountering end-of-input), returns null.
      * Method can be called for any token type.
+     *
+     * @return Textual value associated with the current token (one returned
+     *   by {@link #nextToken()} or other iteration methods)
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract String getText() throws IOException;
 
@@ -897,6 +911,10 @@ public abstract class JsonParser
      * @param writer Writer to write textual content to
      *
      * @return The number of characters written to the Writer
+     *
+     * @throws IOException for low-level read issues or writes using passed
+     *   {@code writer}, or
+     *   {@link JsonParseException} for decoding problems
      */
     public int getText(Writer writer) throws IOException, UnsupportedOperationException
     {

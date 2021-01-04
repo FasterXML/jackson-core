@@ -366,7 +366,7 @@ public abstract class JsonGenerator
      *   getOutputContext().getCurrentValue();
      *</code>
      *<p>
-     * Note that "current value" is NOT populated (or used) by Streaming parser;
+     * Note that "current value" is NOT populated (or used) by Streaming parser or generators;
      * it is only used by higher-level data-binding functionality.
      * The reason it is included here is that it can be stored and accessed hierarchically,
      * and gets passed through data-binding.
@@ -404,7 +404,7 @@ public abstract class JsonGenerator
      */
 
     /**
-     * Method for enabling specified parser features:
+     * Method for enabling specified generator feature:
      * check {@link Feature} for list of available features.
      *
      * @param f Feature to enable
@@ -414,7 +414,7 @@ public abstract class JsonGenerator
     public abstract JsonGenerator enable(Feature f);
 
     /**
-     * Method for disabling specified  features
+     * Method for disabling specified feature
      * (check {@link Feature} for list of features)
      *
      * @param f Feature to disable
@@ -829,10 +829,10 @@ public abstract class JsonGenerator
     public boolean canWriteFormattedNumbers() { return false; }
 
     /**
-     * Accessor for getting metadata on capabilities of this parser, based on
+     * Accessor for getting metadata on capabilities of this generator, based on
      * underlying data format being read (directly or indirectly).
      *
-     * @return Set of read capabilities for content to read via this parser
+     * @return Set of write capabilities for content written using this generator
      *
      * @since 2.12
      */
@@ -1235,7 +1235,7 @@ public abstract class JsonGenerator
      * @since 2.9
      */
     public void writeString(Reader reader, int len) throws IOException {
-        // Let's implement this as "unsupported" to make it easier to add new parser impls
+        // Implemented as "unsupported" for backwards compatibility
         _reportUnsupportedOperation();
     }
 
@@ -1431,8 +1431,6 @@ public abstract class JsonGenerator
      *
      * @throws IOException if there is either an underlying I/O problem or encoding
      *    issue at format layer
-     *
-     * @since 2.1
      */
 //    public abstract void writeRaw(SerializableString raw) throws IOException;
     public void writeRaw(SerializableString raw) throws IOException {

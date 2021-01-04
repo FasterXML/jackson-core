@@ -576,6 +576,8 @@ public abstract class JsonParser
      * {@link #getNonBlockingInputFeeder()} to obtain object to use
      * for feeding input; otherwise (<code>false</code> returned)
      * input is read by blocking 
+     * 
+     * @return True if this is a non-blocking ("asynchronous") parser
      *
      * @since 2.9
      */
@@ -585,6 +587,8 @@ public abstract class JsonParser
      * Method that will either return a feeder instance (if parser uses
      * non-blocking, aka asynchronous access); or <code>null</code> for
      * parsers that use blocking I/O.
+     *
+     * @return Input feeder to use with non-blocking (async) parsing
      *
      * @since 2.9
      */
@@ -609,14 +613,17 @@ public abstract class JsonParser
     /* Versioned
     /**********************************************************
      */
-    
+
     /**
      * Accessor for getting version of the core package, given a parser instance.
      * Left for sub-classes to implement.
+     *
+     * @return Version of this generator (derived from version declared for
+     *   {@code jackson-core} jar that contains the class
      */
     @Override
     public abstract Version version();
-    
+
     /*
     /**********************************************************
     /* Closeable implementation
@@ -679,12 +686,29 @@ public abstract class JsonParser
      * Method that return the <b>starting</b> location of the current
      * token; that is, position of the first character from input
      * that starts the current token.
+     *<p>
+     * Note that the location is not guaranteed to be accurate (although most
+     * implementation will try their best): some implementations may only
+     * return {@link JsonLocation#NA} due to not having access
+     * to input location information (when delegating actual decoding work
+     * to other library)
+     *
+     * @return Starting location of the token parser currently points to
      */
     public abstract JsonLocation getTokenLocation();
 
     /**
      * Method that returns location of the last processed character;
      * usually for error reporting purposes.
+     *<p>
+     * Note that the location is not guaranteed to be accurate (although most
+     * implementation will try their best): some implementations may only
+     * report specific boundary locations (start or end locations of tokens)
+     * and others only return {@link JsonLocation#NA} due to not having access
+     * to input location information (when delegating actual decoding work
+     * to other library)
+     *
+     * @return Location of the last processed input unit (byte or character)
      */
     public abstract JsonLocation getCurrentLocation();
 
@@ -701,11 +725,13 @@ public abstract class JsonParser
      * Content is released by writing it to given stream if possible;
      * if underlying input is byte-based it can released, if not (char-based)
      * it can not.
-     * 
+     *
+     * @param out OutputStream to which buffered, undecoded content is written to
+     *
      * @return -1 if the underlying content source is not byte based
      *    (that is, input can not be sent to {@link OutputStream};
      *    otherwise number of bytes released (0 if there was nothing to release)
-     *    
+     *
      * @throws IOException if write to stream threw exception
      */    
     public int releaseBuffered(OutputStream out) throws IOException {
@@ -720,15 +746,17 @@ public abstract class JsonParser
      * Content is released by writing it to given writer if possible;
      * if underlying input is char-based it can released, if not (byte-based)
      * it can not.
-     * 
+     *
+     * @param w Writer to which buffered but unprocessed content is written to
+     *
      * @return -1 if the underlying content source is not char-based
      *    (that is, input can not be sent to {@link Writer};
      *    otherwise number of chars released (0 if there was nothing to release)
-     *    
+     *
      * @throws IOException if write using Writer threw exception
      */    
     public int releaseBuffered(Writer w) throws IOException { return -1; }
-    
+
     /*
     /***************************************************
     /* Public API, configuration
@@ -738,6 +766,10 @@ public abstract class JsonParser
     /**
      * Method for enabling specified parser feature
      * (check {@link Feature} for list of features)
+     *
+     * @param f Feature to enable
+     *
+     * @return This parser, to allow call chaining
      */
     public JsonParser enable(Feature f) {
         _features |= f.getMask();
@@ -747,6 +779,10 @@ public abstract class JsonParser
     /**
      * Method for disabling specified  feature
      * (check {@link Feature} for list of features)
+     *
+     * @param f Feature to disable
+     *
+     * @return This parser, to allow call chaining
      */
     public JsonParser disable(Feature f) {
         _features &= ~f.getMask();
@@ -756,6 +792,11 @@ public abstract class JsonParser
     /**
      * Method for enabling or disabling specified feature
      * (check {@link Feature} for list of features)
+     *
+     * @param f Feature to enable or disable
+     * @param state Whether to enable feature ({@code true}) or disable ({@code false})
+     *
+     * @return This parser, to allow call chaining
      */
     public JsonParser configure(Feature f, boolean state) {
         if (state) enable(f); else disable(f);
@@ -764,11 +805,19 @@ public abstract class JsonParser
     
     /**
      * Method for checking whether specified {@link Feature} is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} otherwise
      */
     public boolean isEnabled(Feature f) { return f.enabledIn(_features); }
 
     /**
      * Method for checking whether specified {@link Feature} is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} otherwise
      *
      * @since 2.10
      */
@@ -778,18 +827,19 @@ public abstract class JsonParser
      * Bulk access method for getting state of all standard {@link Feature}s.
      * 
      * @return Bit mask that defines current states of all standard {@link Feature}s.
-     * 
+     *
      * @since 2.3
      */
     public int getFeatureMask() { return _features; }
 
     /**
      * Bulk set method for (re)setting states of all standard {@link Feature}s
-     * 
-     * @return This parser object, to allow chaining of calls
-     * 
+     *
+     * @param mask Bit mask that defines set of features to enable
+     *
+     * @return This parser, to allow call chaining
+     *
      * @since 2.3
-     * 
      * @deprecated Since 2.7, use {@link #overrideStdFeatures(int, int)} instead
      */
     @Deprecated
@@ -810,7 +860,9 @@ public abstract class JsonParser
      * 
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
-     * 
+     *
+     * @return This parser, to allow call chaining
+     *
      * @since 2.6
      */
     public JsonParser overrideStdFeatures(int values, int mask) {
@@ -837,9 +889,11 @@ public abstract class JsonParser
      *<p>
      * Default implementation will simply throw an exception to indicate that
      * the parser implementation does not support any {@link FormatFeature}s.
-     * 
+     *
      * @param values Bit mask of set/clear state for features to change
      * @param mask Bit mask of features to change
+     *
+     * @return This parser, to allow call chaining
      * 
      * @since 2.6
      */
@@ -864,6 +918,9 @@ public abstract class JsonParser
      *
      * @return Next token from the stream, if any found, or null
      *   to indicate end-of-input
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract JsonToken nextToken() throws IOException;
 
@@ -883,6 +940,9 @@ public abstract class JsonParser
      *   or null to indicate end-of-input (or, for non-blocking
      *   parsers, {@link JsonToken#NOT_AVAILABLE} if no tokens were
      *   available yet)
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract JsonToken nextValue() throws IOException;
 
@@ -899,6 +959,12 @@ public abstract class JsonParser
      * 
      * @param str Property name to compare next token to (if next token is
      *   <code>JsonToken.FIELD_NAME</code>)
+     *
+     * @return {@code True} if parser advanced to {@code JsonToken.FIELD_NAME} with
+     *    specified name; {@code false} otherwise (different token or non-matching name)
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public boolean nextFieldName(SerializableString str) throws IOException {
         return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(getCurrentName());
@@ -908,7 +974,13 @@ public abstract class JsonParser
      * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
      * returns same as {@link #getCurrentName()}, otherwise null.
-     * 
+     *
+     * @return Name of the the {@code JsonToken.FIELD_NAME} parser advanced to, if any;
+     *   {@code null} if next token is of some other type
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.5
      */
     public String nextFieldName() throws IOException {
@@ -925,6 +997,12 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a String value next from input.
+     *
+     * @return Text value of the {@code JsonToken.VALUE_STRING} token parser advanced
+     *   to; or {@code null} if next token is of some other type
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public String nextTextValue() throws IOException {
         return (nextToken() == JsonToken.VALUE_STRING) ? getText() : null;
@@ -940,6 +1018,9 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get an int value next from input.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public int nextIntValue(int defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getIntValue() : defaultValue;
@@ -955,6 +1036,9 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a long value next from input.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public long nextLongValue(long defaultValue) throws IOException {
         return (nextToken() == JsonToken.VALUE_NUMBER_INT) ? getLongValue() : defaultValue;
@@ -973,6 +1057,9 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to process, and can therefore be used if caller
      * expects to get a Boolean value next from input.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public Boolean nextBooleanValue() throws IOException {
         JsonToken t = nextToken();
@@ -994,6 +1081,9 @@ public abstract class JsonParser
      * The idea is that after calling this method, application
      * will call {@link #nextToken} to point to the next
      * available token, if any.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract JsonParser skipChildren() throws IOException;
 
@@ -1008,6 +1098,9 @@ public abstract class JsonParser
      * Note that for many dataformat implementations this method
      * will not do anything; this is the default implementation unless
      * overridden by sub-classes.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      *
      * @since 2.8
      */
@@ -1160,6 +1253,9 @@ public abstract class JsonParser
      * NOTE: roughly equivalent to calling <code>!Double.isFinite()</code>
      * on value you would get from calling {@link #getDoubleValue()}.
      *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.9
      */
     public boolean isNaN() throws IOException {
@@ -1215,16 +1311,29 @@ public abstract class JsonParser
      */
 
     /**
+     * See {@link #currentName()}.
+     *
+     * @return Name of the current field in the parsing context
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     */
+    public abstract String getCurrentName() throws IOException;
+
+    /**
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#FIELD_NAME}s it will
      * be the same as what {@link #getText} returns;
      * for field values it will be preceding field name;
      * and for others (array values, root-level values) null.
+     *
+     * @return Name of the current field in the parsing context
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
+     * @since 2.10
      */
-    public abstract String getCurrentName() throws IOException;
-
-    // 15-Dec-2017, tatu: Forward-looking, added in 2.9.4 (and officially in 3.0)
-    //   to smooth upgrading
     public String currentName() throws IOException {
         return getCurrentName();
     }
@@ -1234,6 +1343,12 @@ public abstract class JsonParser
      * if no current token (before first call to {@link #nextToken}, or
      * after encountering end-of-input), returns null.
      * Method can be called for any token type.
+     *
+     * @return Textual value associated with the current token (one returned
+     *   by {@link #nextToken()} or other iteration methods)
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract String getText() throws IOException;
 
@@ -1249,7 +1364,11 @@ public abstract class JsonParser
      * can occur directly from intermediate buffers Jackson uses.
      * 
      * @return The number of characters written to the Writer
-     *  
+     *
+     * @throws IOException for low-level read issues or writes using passed
+     *   {@code writer}, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.8
      */
     public int getText(Writer writer) throws IOException, UnsupportedOperationException
@@ -1286,6 +1405,9 @@ public abstract class JsonParser
      * The only reason to call this method (over {@link #getText})
      * is to avoid construction of a String object (which
      * will make a copy of contents).
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract char[] getTextCharacters() throws IOException;
 
@@ -1296,6 +1418,9 @@ public abstract class JsonParser
      * @return Number of characters within buffer returned
      *   by {@link #getTextCharacters} that are part of
      *   textual content of the current token.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract int getTextLength() throws IOException;
 
@@ -1306,6 +1431,9 @@ public abstract class JsonParser
      * @return Offset of the first character within buffer returned
      *   by {@link #getTextCharacters} that is part of
      *   textual content of the current token.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract int getTextOffset() throws IOException;
 
@@ -1378,6 +1506,9 @@ public abstract class JsonParser
      * {@link JsonToken#VALUE_NUMBER_INT} or
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
      * one of {@link NumberType} constants; otherwise returns null.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract NumberType getNumberType() throws IOException;
 
@@ -1393,6 +1524,9 @@ public abstract class JsonParser
      * Note: if the resulting integer value falls outside range of
      * Java byte, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public byte getByteValue() throws IOException {
         int value = getIntValue();
@@ -1419,6 +1553,9 @@ public abstract class JsonParser
      * Note: if the resulting integer value falls outside range of
      * Java short, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public short getShortValue() throws IOException
     {
@@ -1443,6 +1580,9 @@ public abstract class JsonParser
      * Note: if the resulting integer value falls outside range of
      * Java int, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract int getIntValue() throws IOException;
 
@@ -1458,6 +1598,9 @@ public abstract class JsonParser
      * Note: if the token is an integer, but its value falls
      * outside of range of Java long, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract long getLongValue() throws IOException;
 
@@ -1469,6 +1612,9 @@ public abstract class JsonParser
      * It can also be called for {@link JsonToken#VALUE_NUMBER_FLOAT};
      * if so, it is equivalent to calling {@link #getDecimalValue}
      * and then constructing a {@link BigInteger} from that value.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract BigInteger getBigIntegerValue() throws IOException;
 
@@ -1484,6 +1630,9 @@ public abstract class JsonParser
      * Note: if the value falls
      * outside of range of Java float, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract float getFloatValue() throws IOException;
 
@@ -1499,6 +1648,9 @@ public abstract class JsonParser
      * Note: if the value falls
      * outside of range of Java double, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract double getDoubleValue() throws IOException;
 
@@ -1507,6 +1659,9 @@ public abstract class JsonParser
      * token is of type {@link JsonToken#VALUE_NUMBER_FLOAT} or
      * {@link JsonToken#VALUE_NUMBER_INT}. No under/overflow exceptions
      * are ever thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract BigDecimal getDecimalValue() throws IOException;
 
@@ -1525,6 +1680,9 @@ public abstract class JsonParser
  an integer, but its value falls
      * outside of range of Java long, a {@link JsonParseException}
      * may be thrown to indicate numeric overflow/underflow.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public boolean getBooleanValue() throws IOException {
         JsonToken t = currentToken();
@@ -1576,6 +1734,9 @@ public abstract class JsonParser
      *   of "standard" variants).
      *
      * @return Decoded binary data
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract byte[] getBinaryValue(Base64Variant bv) throws IOException;
 
@@ -1585,6 +1746,9 @@ public abstract class JsonParser
      * {@link Base64Variants#getDefaultVariant} as the default encoding.
      *
      * @return Decoded binary data
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public byte[] getBinaryValue() throws IOException {
         return getBinaryValue(Base64Variants.getDefaultVariant());
@@ -1601,7 +1765,10 @@ public abstract class JsonParser
      * @param out Output stream to use for passing decoded binary data
      * 
      * @return Number of bytes that were decoded and written via {@link OutputStream}
-     * 
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.1
      */
     public int readBinaryValue(OutputStream out) throws IOException {
@@ -1616,7 +1783,10 @@ public abstract class JsonParser
      * @param out Output stream to use for passing decoded binary data
      * 
      * @return Number of bytes that were decoded and written via {@link OutputStream}
-     * 
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.1
      */
     public int readBinaryValue(Base64Variant bv, OutputStream out) throws IOException {
@@ -1640,6 +1810,9 @@ public abstract class JsonParser
      * If representation can not be converted to an int (including structured type
      * markers like start/end Object/Array)
      * default value of <b>0</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public int getValueAsInt() throws IOException {
         return getValueAsInt(0);
@@ -1655,6 +1828,9 @@ public abstract class JsonParser
      * If representation can not be converted to an int (including structured type
      * markers like start/end Object/Array)
      * specified <b>def</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public int getValueAsInt(int def) throws IOException { return def; }
 
@@ -1668,6 +1844,9 @@ public abstract class JsonParser
      * If representation can not be converted to a long (including structured type
      * markers like start/end Object/Array)
      * default value of <b>0L</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public long getValueAsLong() throws IOException {
         return getValueAsLong(0);
@@ -1683,6 +1862,9 @@ public abstract class JsonParser
      * If representation can not be converted to a long (including structured type
      * markers like start/end Object/Array)
      * specified <b>def</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public long getValueAsLong(long def) throws IOException {
         return def;
@@ -1698,6 +1880,9 @@ public abstract class JsonParser
      * If representation can not be converted to a double (including structured types
      * like Objects and Arrays),
      * default value of <b>0.0</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public double getValueAsDouble() throws IOException {
         return getValueAsDouble(0.0);
@@ -1713,6 +1898,9 @@ public abstract class JsonParser
      * If representation can not be converted to a double (including structured types
      * like Objects and Arrays),
      * specified <b>def</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public double getValueAsDouble(double def) throws IOException {
         return def;
@@ -1728,6 +1916,9 @@ public abstract class JsonParser
      * If representation can not be converted to a boolean value (including structured types
      * like Objects and Arrays),
      * default value of <b>false</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public boolean getValueAsBoolean() throws IOException {
         return getValueAsBoolean(false);
@@ -1743,6 +1934,9 @@ public abstract class JsonParser
      * If representation can not be converted to a boolean value (including structured types
      * like Objects and Arrays),
      * specified <b>def</b> will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public boolean getValueAsBoolean(boolean def) throws IOException {
         return def;
@@ -1756,7 +1950,10 @@ public abstract class JsonParser
      * If representation can not be converted to a String value (including structured types
      * like Objects and Arrays and null token), default value of
      * <b>null</b> will be returned; no exceptions are thrown.
-     * 
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.1
      */
     public String getValueAsString() throws IOException {
@@ -1771,6 +1968,9 @@ public abstract class JsonParser
      * If representation can not be converted to a String value (including structured types
      * like Objects and Arrays and null token), specified default value
      * will be returned; no exceptions are thrown.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      * 
      * @since 2.1
      */
@@ -1791,7 +1991,10 @@ public abstract class JsonParser
      * that do support native Object Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native object ids.
-     * 
+     *
+     * @return {@code True} if the format being read supports native Object Ids;
+     *    {@code false} if not
+     *
      * @since 2.3
      */
     public boolean canReadObjectId() { return false; }
@@ -1805,6 +2008,9 @@ public abstract class JsonParser
      * that do support native Type Ids. Caller is expected to either
      * use a non-native notation (explicit property or such), or fail,
      * in case it can not use native type ids.
+     *
+     * @return {@code True} if the format being read supports native Type Ids;
+     *    {@code false} if not
      * 
      * @since 2.3
      */
@@ -1820,7 +2026,12 @@ public abstract class JsonParser
      * code.
      *<p>
      * Default implementation will simply return null.
-     * 
+     *
+     * @return Native Object id associated with the current token, if any; {@code null} if none
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.3
      */
     public Object getObjectId() throws IOException { return null; }
@@ -1835,7 +2046,12 @@ public abstract class JsonParser
      * code.
      *<p>
      * Default implementation will simply return null.
-     * 
+     *
+     * @return Native Type Id associated with the current token, if any; {@code null} if none
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
+     *
      * @since 2.3
      */
     public Object getTypeId() throws IOException { return null; }
@@ -1867,6 +2083,13 @@ public abstract class JsonParser
      * The reason is that due to type erasure, key and value types
      * can not be introspected when using this method.
      *
+     * @param <T> Nominal type parameter for value type
+     *
+     * @param valueType Java type to read content as (passed to ObjectCodec that
+     *    deserializes content)
+     *
+     * @return Java value read from content
+     * 
      * @throws IOException if there is either an underlying I/O problem or decoding
      *    issue at format layer
      */
@@ -1892,6 +2115,13 @@ public abstract class JsonParser
      * (and for {@link JsonToken#VALUE_EMBEDDED_OBJECT})
      * stream is not advanced.
      *
+     * @param <T> Nominal type parameter for value type
+     *
+     * @param valueTypeRef Java type to read content as (passed to ObjectCodec that
+     *    deserializes content)
+     *
+     * @return Java value read from content
+     *
      * @throws IOException if there is either an underlying I/O problem or decoding
      *    issue at format layer
      */
@@ -1904,6 +2134,13 @@ public abstract class JsonParser
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
      *
+     * @param <T> Nominal type parameter for value type
+     *
+     * @param valueType Java type to read content as (passed to ObjectCodec that
+     *    deserializes content)
+     *
+     * @return Iterator for reading multiple Java values from content
+     *
      * @throws IOException if there is either an underlying I/O problem or decoding
      *    issue at format layer
      */
@@ -1914,6 +2151,13 @@ public abstract class JsonParser
     /**
      * Method for reading sequence of Objects from parser stream,
      * all with same specified value type.
+     *
+     * @param <T> Nominal type parameter for value type
+     *
+     * @param valueTypeRef Java type to read content as (passed to ObjectCodec that
+     *    deserializes content)
+     *
+     * @return Iterator for reading multiple Java values from content
      *
      * @throws IOException if there is either an underlying I/O problem or decoding
      *    issue at format layer
@@ -1928,6 +2172,8 @@ public abstract class JsonParser
      * For JSON Arrays it will an array node (with child nodes),
      * for objects object node (with child nodes), and for other types
      * matching leaf node type. Empty or whitespace documents are null.
+     *
+     * @param <T> Nominal type parameter for result node type (to reduce need for casting)
      *
      * @return root of the document, or null if empty or whitespace.
      *

@@ -78,16 +78,6 @@ com.fasterxml.jackson.core.*;version=${project.version}
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <links combine.children="append">
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/3.0</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/3.0</link>
-          </links>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
       </plugin>
       <plugin>

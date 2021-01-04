@@ -63,6 +63,8 @@ public abstract class JsonStreamContext
      * Copy constructor used by sub-classes for creating copies for
      * buffering.
      *
+     * @param base Context instance to copy type and index from
+     *
      * @since 2.9
      */
     protected JsonStreamContext(JsonStreamContext base) {
@@ -70,9 +72,7 @@ public abstract class JsonStreamContext
         _index = base._index;
     }
 
-    /**
-     * @since 2.9
-     */
+    // @since 2.9
     protected JsonStreamContext(int type, int index) {
         _type = type;
         _index = index;
@@ -87,12 +87,16 @@ public abstract class JsonStreamContext
     /**
      * Accessor for finding parent context of this context; will
      * return null for root context.
+     *
+     * @return Parent context of this context, if any; {@code null} for Root contexts
      */
     public abstract JsonStreamContext getParent();
 
     /**
      * Method that returns true if this context is an Array context;
-     * that is, content is being read from or written to a Json Array.
+     * that is, content is being read from or written to a JSON Array.
+     *
+     * @return {@code True} if this context represents an Array; {@code false} otherwise
      */
     public final boolean inArray() { return _type == TYPE_ARRAY; }
 
@@ -100,20 +104,22 @@ public abstract class JsonStreamContext
      * Method that returns true if this context is a Root context;
      * that is, content is being read from or written to without
      * enclosing array or object structure.
+     *
+     * @return {@code True} if this context represents a sequence of Root values; {@code false} otherwise
      */
     public final boolean inRoot() { return _type == TYPE_ROOT; }
 
     /**
      * Method that returns true if this context is an Object context;
-     * that is, content is being read from or written to a Json Object.
+     * that is, content is being read from or written to a JSON Object.
+     *
+     * @return {@code True} if this context represents an Object; {@code false} otherwise
      */
     public final boolean inObject() { return _type == TYPE_OBJECT; }
 
     /**
-     * Method for accessing simple type description of current context;
-     * either ROOT (for root-level values), OBJECT (for field names and
-     * values of JSON Objects) or ARRAY (for values of JSON Arrays)
-     *
+     * @return Type description String
+     * 
      * @deprecated Since 2.8 use {@link #typeDesc} instead
      */
     @Deprecated // since 2.8
@@ -127,6 +133,12 @@ public abstract class JsonStreamContext
     }
 
     /**
+     * Method for accessing simple type description of current context;
+     * either ROOT (for root-level values), OBJECT (for field names and
+     * values of JSON Objects) or ARRAY (for values of JSON Arrays)
+     * 
+     * @return Type description String
+     *
      * @since 2.8
      */
     public String typeDesc() {
@@ -153,6 +165,8 @@ public abstract class JsonStreamContext
      * will return `false` before the first entry of Object context or before
      * first element of Array context; otherwise returns `true`.
      *
+     * @return {@code True} if this context has value index to access, {@code false} otherwise
+     *
      * @since 2.9
      */
     public boolean hasCurrentIndex() { return _index >= 0; }
@@ -172,6 +186,8 @@ public abstract class JsonStreamContext
      * Method is mostly used to determine whether this context should be used for
      * constructing {@link JsonPointer}
      *
+     * @return {@code True} if this context has value path segment to access, {@code false} otherwise
+     *
      * @since 2.9
      */
     public boolean hasPathSegment() {
@@ -187,10 +203,15 @@ public abstract class JsonStreamContext
      * Method for accessing name associated with the current location.
      * Non-null for <code>FIELD_NAME</code> and value events that directly
      * follow field names; null for root level and array values.
+     *
+     * @return Current field name within context, if any; {@code null} if none
      */
     public abstract String getCurrentName();
 
     /**
+     * @return {@code True} if a call to {@link #getCurrentName()} would return non-{@code null}
+     *    name; {@code false} otherwise
+     *
      * @since 2.9
      */
     public boolean hasCurrentName() { return getCurrentName() != null; }
@@ -217,7 +238,9 @@ public abstract class JsonStreamContext
      * Method to call to pass value to be returned via {@link #getCurrentValue}; typically
      * called indirectly through {@link JsonParser#setCurrentValue}
      * or {@link JsonGenerator#setCurrentValue}).
-     * 
+     *
+     * @param v Current value to assign to this context
+     *
      * @since 2.5
      */
     public void setCurrentValue(Object v) { }
@@ -226,6 +249,8 @@ public abstract class JsonStreamContext
      * Factory method for constructing a {@link JsonPointer} that points to the current
      * location within the stream that this context is for, excluding information about
      * "root context" (only relevant for multi-root-value cases)
+     *
+     * @return Pointer instance constructed
      *
      * @since 2.9
      */
@@ -240,6 +265,8 @@ public abstract class JsonStreamContext
      *
      * @param includeRoot Whether root-value offset is included as the first segment or not;
      *
+     * @return Pointer instance constructed
+     *
      * @since 2.9
      */
     public JsonPointer pathAsPointer(boolean includeRoot) {
@@ -252,12 +279,14 @@ public abstract class JsonStreamContext
      * read or written. Often used for error reporting purposes.
      * Implementations that do not keep track of such location are expected to return
      * {@link JsonLocation#NA}; this is what the default implementation does.
-     *
-     * @return Location pointing to the point where the context
-     *   start marker was found (or written); never `null`.
      *<p>
      * NOTE: demoted from <code>JsonReadContext</code> in 2.9, to allow use for
      * "non-standard" read contexts.
+     *
+     * @param srcRef Source reference needed to construct location instance
+     *
+     * @return Location pointing to the point where the context
+     *   start marker was found (or written); never `null`.
      *
      * @since 2.9
      */
@@ -268,6 +297,9 @@ public abstract class JsonStreamContext
     /**
      * Overridden to provide developer readable "JsonPath" representation
      * of the context.
+     *
+     * @return Simple developer-readable description this context layer
+     *   (note: NOT constructed with parents, unlike {@link #pathAsPointer})
      * 
      * @since 2.9
      */

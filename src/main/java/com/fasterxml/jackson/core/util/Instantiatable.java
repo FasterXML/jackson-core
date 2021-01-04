@@ -17,6 +17,8 @@ public interface Instantiatable<T>
      * Method called to ensure that we have a non-blueprint object to use;
      * it is either this object (if stateless), or a newly created object
      * with separate state.
+     *
+     * @return Actual instance to use
      */
     T createInstance();
 }

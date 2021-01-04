@@ -83,10 +83,10 @@ public class DefaultPrettyPrinter
     protected String _objectFieldValueSeparatorWithSpaces;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle (construct, configure)
-    /**********************************************************
-    */
+    /**********************************************************************
+     */
 
     public DefaultPrettyPrinter() {
         this(DEFAULT_ROOT_VALUE_SEPARATOR);
@@ -98,8 +98,8 @@ public class DefaultPrettyPrinter
      *<p>
      * Note: simply constructs a {@link SerializedString} out of parameter,
      * calls {@link #DefaultPrettyPrinter(SerializableString)}
-     * 
-     * @param rootSeparator
+     *
+     * @param rootSeparator String to use as root value separator
      */
     public DefaultPrettyPrinter(String rootSeparator) {
         this((rootSeparator == null) ? null : new SerializedString(rootSeparator));
@@ -108,6 +108,8 @@ public class DefaultPrettyPrinter
     /**
      * Constructor that specifies separator String to use between root values;
      * if null, no separator is printed.
+     *
+     * @param rootSeparator String to use as root value separator
      */
     public DefaultPrettyPrinter(SerializableString rootSeparator) {
         _rootSeparator = rootSeparator;
@@ -141,6 +143,11 @@ public class DefaultPrettyPrinter
         return new DefaultPrettyPrinter(this, rootSeparator);
     }
 
+    /**
+     * @param rootSeparator Root-level value separator to use
+     *
+     * @return This pretty-printer instance (for call chaining)
+     */
     public DefaultPrettyPrinter withRootSeparator(String rootSeparator) {
         return withRootSeparator((rootSeparator == null) ? null : new SerializedString(rootSeparator));
     }
@@ -182,6 +189,8 @@ public class DefaultPrettyPrinter
      * that does use spaces inside object entries; if 'this' instance already
      * does this, it is returned; if not, a new instance will be constructed
      * and returned.
+     *
+     * @return This pretty-printer instance (for call chaining)
      */
     public DefaultPrettyPrinter withSpacesInObjectEntries() {
         return _withSpaces(true);
@@ -192,6 +201,8 @@ public class DefaultPrettyPrinter
      * that does not use spaces inside object entries; if 'this' instance already
      * does this, it is returned; if not, a new instance will be constructed
      * and returned.
+     *
+     * @return This pretty-printer instance (for call chaining)
      */
     public DefaultPrettyPrinter withoutSpacesInObjectEntries() {
         return _withSpaces(false);
@@ -207,6 +218,13 @@ public class DefaultPrettyPrinter
         return pp;
     }
 
+    /**
+     * Method for configuring separators for this pretty-printer to use
+     *
+     * @param separators Separator definitions to use
+     *
+     * @return This pretty-printer instance (for call chaining)
+     */
     public DefaultPrettyPrinter withSeparators(Separators separators) {
         _separators = separators;
         _objectFieldValueSeparatorWithSpaces = " " + separators.getObjectFieldValueSeparator() + " ";
@@ -214,9 +232,9 @@ public class DefaultPrettyPrinter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instantiatable impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -229,9 +247,9 @@ public class DefaultPrettyPrinter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* PrettyPrinter impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -351,9 +369,9 @@ public class DefaultPrettyPrinter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

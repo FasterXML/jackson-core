@@ -36,6 +36,14 @@ public class Version
      */
     protected final String _snapshotInfo;
 
+    /**
+     * @param major Major version number
+     * @param minor Minor version number
+     * @param patchLevel patch level of version
+     * @param snapshotInfo Optional additional string qualifier
+     * @param groupId Maven group id
+     * @param artifactId Maven artifact id
+     */
     public Version(int major, int minor, int patchLevel, String snapshotInfo,
             String groupId, String artifactId)
     {
@@ -50,9 +58,16 @@ public class Version
     /**
      * Method returns canonical "not known" version, which is used as version
      * in cases where actual version information is not known (instead of null).
+     *
+     * @return Version instance to use as a placeholder when actual version is not known
+     *   (or not relevant)
      */
     public static Version unknownVersion() { return UNKNOWN_VERSION; }
 
+    /**
+     * @return {@code True} if this instance is the one returned by
+     *    call to {@link #unknownVersion()}
+     */
     public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
 
     public boolean isSnapshot() { return (_snapshotInfo != null) && (_snapshotInfo.length() > 0); }

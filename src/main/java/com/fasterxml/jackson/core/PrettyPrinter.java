@@ -46,11 +46,15 @@ public interface PrettyPrinter
      * Method called after a root-level value has been completely
      * output, and before another value is to be output.
      *<p>
-     * Default
-     * handling (without pretty-printing) will output a space, to
+     * Default handling (without pretty-printing) will output a space, to
      * allow values to be parsed correctly. Pretty-printer is
      * to output some other suitable and nice-looking separator
      * (tab(s), space(s), linefeed(s) or any combination thereof).
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeRootValueSeparator(JsonGenerator gen) throws IOException;
 
@@ -65,6 +69,11 @@ public interface PrettyPrinter
      * Pretty-printer is
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeStartObject(JsonGenerator gen) throws IOException;
 
@@ -78,19 +87,28 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param nrOfEntries Number of direct members of the array that
+     * @param gen Generator used for output
+     * @param nrOfEntries Number of direct members of the Object that
      *   have been output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeEndObject(JsonGenerator gen, int nrOfEntries) throws IOException;
 
     /**
-     * Method called after an object entry (field:value) has been completely
+     * Method called after an Object entry (field:value) has been completely
      * output, and before another value is to be output.
      *<p>
      * Default handling (without pretty-printing) will output a single
      * comma to separate the two. Pretty-printer is
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeObjectEntrySeparator(JsonGenerator gen) throws IOException;
 
@@ -102,6 +120,11 @@ public interface PrettyPrinter
      * colon to separate the two. Pretty-printer is
      * to output a colon as well, but can surround that with other
      * (white-space) decoration.
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeObjectFieldValueSeparator(JsonGenerator gen) throws IOException;
 
@@ -116,6 +139,11 @@ public interface PrettyPrinter
      * Pretty-printer is
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeStartArray(JsonGenerator gen) throws IOException;
 
@@ -129,8 +157,12 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      *
+     * @param gen Generator used for output
      * @param nrOfValues Number of direct members of the array that
      *   have been output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeEndArray(JsonGenerator gen, int nrOfValues) throws IOException;
 
@@ -142,14 +174,18 @@ public interface PrettyPrinter
      * comma to separate the two. Pretty-printer is
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void writeArrayValueSeparator(JsonGenerator gen) throws IOException;
 
     /*
     /**********************************************************************
-    /* Then events that by default do not produce any output
-    /* but that are often overridden to add white space
-    /* in pretty-printing mode
+    /* Then events that by default do not produce any output but that are
+    /* often overridden to add white space in pretty-printing mode
     /**********************************************************************
      */
 
@@ -160,6 +196,11 @@ public interface PrettyPrinter
      *<p>
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void beforeArrayValues(JsonGenerator gen) throws IOException;
 
@@ -171,6 +212,11 @@ public interface PrettyPrinter
      *<p>
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
+     *
+     * @param gen Generator used for output
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     void beforeObjectEntries(JsonGenerator gen) throws IOException;
 }

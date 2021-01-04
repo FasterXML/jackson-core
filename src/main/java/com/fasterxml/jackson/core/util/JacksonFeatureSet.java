@@ -16,6 +16,8 @@ public final class JacksonFeatureSet<F extends JacksonFeature>
      * Constructor for creating instance with specific bitmask, wherein
      * {@code 1} bit means matching {@link JacksonFeature} is enabled and
      * {@code 0} disabled.
+     *
+     * @param bitmask Bitmask for features that are enabled
      */
     protected JacksonFeatureSet(int bitmask) {
         _enabled = bitmask;
@@ -25,7 +27,11 @@ public final class JacksonFeatureSet<F extends JacksonFeature>
      * "Default" factory which will calculate settings based on default-enabled
      * status of all features.
      *
+     * @param <F> Self-reference for convenience
+     *
      * @param allFeatures Set of all features (enabled or disabled): usually from {@code Enum.values()}
+     *
+     * @return Feature set instance constructed
      */
     public static <F extends JacksonFeature> JacksonFeatureSet<F> fromDefaults(F[] allFeatures) {
         // first sanity check

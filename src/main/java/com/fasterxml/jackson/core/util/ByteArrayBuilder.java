@@ -80,6 +80,8 @@ public final class ByteArrayBuilder extends OutputStream
     }
 
     /**
+     * @return Number of bytes aggregated so far
+     *
      * @since 2.9
      */
     public int size() {
@@ -128,9 +130,7 @@ public final class ByteArrayBuilder extends OutputStream
         }
     }
 
-    /**
-     * @since 2.9
-     */
+    // @since 2.9
     public void appendFourBytes(int b32) {
         if ((_currBlockPtr + 3) < _currBlock.length) {
             _currBlock[_currBlockPtr++] = (byte) (b32 >> 24);
@@ -148,6 +148,8 @@ public final class ByteArrayBuilder extends OutputStream
     /**
      * Method called when results are finalized and we can get the
      * full aggregated result buffer to return to the caller
+     *
+     * @return Aggregated contents as a {@code byte[]}
      */
     public byte[] toByteArray()
     {
@@ -185,6 +187,8 @@ public final class ByteArrayBuilder extends OutputStream
     /**
      * Method called when starting "manual" output: will clear out
      * current state and return the first segment buffer to fill
+     *
+     * @return Segment to use for writing
      */
     public byte[] resetAndGetFirstSegment() {
         reset();
@@ -195,6 +199,8 @@ public final class ByteArrayBuilder extends OutputStream
      * Method called when the current segment buffer is full; will
      * append to current contents, allocate a new segment buffer
      * and return it
+     *
+     * @return Segment to use for writing
      */
     public byte[] finishCurrentSegment() {
         _allocMore();

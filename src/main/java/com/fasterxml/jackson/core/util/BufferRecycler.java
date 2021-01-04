@@ -97,6 +97,9 @@ public class BufferRecycler
     /**
      * Alternate constructor to be used by sub-classes, to allow customization
      * of number of low-level buffers in use.
+     *
+     * @param bbCount Number of {@code byte[]} buffers to allocate
+     * @param cbCount Number of {@code char[]} buffers to allocate
      */
     protected BufferRecycler(int bbCount, int cbCount) {
         _byteBuffers = new AtomicReferenceArray<byte[]>(bbCount);
@@ -111,6 +114,8 @@ public class BufferRecycler
     
     /**
      * @param ix One of <code>READ_IO_BUFFER</code> constants.
+     *
+     * @return Buffer allocated (possibly recycled)
      */
     public final byte[] allocByteBuffer(int ix) {
         return allocByteBuffer(ix, 0);

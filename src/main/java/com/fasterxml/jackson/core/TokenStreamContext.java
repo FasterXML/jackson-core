@@ -66,6 +66,8 @@ public abstract class TokenStreamContext
 
     /**
      * Copy constructor used by sub-classes for creating copies for buffering.
+     *
+     * @param base Context instance to copy type and index from
      */
     protected TokenStreamContext(TokenStreamContext base) {
         _type = base._type;
@@ -86,12 +88,16 @@ public abstract class TokenStreamContext
     /**
      * Accessor for finding parent context of this context; will
      * return null for root context.
+     *
+     * @return Parent context of this context, if any; {@code null} for Root contexts
      */
     public abstract TokenStreamContext getParent();
 
     /**
      * Method that returns true if this context is an Array context;
-     * that is, content is being read from or written to a Json Array.
+     * that is, content is being read from or written to a JSON Array.
+     *
+     * @return {@code True} if this context represents an Array; {@code false} otherwise
      */
     public final boolean inArray() { return _type == TYPE_ARRAY; }
 
@@ -99,15 +105,26 @@ public abstract class TokenStreamContext
      * Method that returns true if this context is a Root context;
      * that is, content is being read from or written to without
      * enclosing array or object structure.
+     *
+     * @return {@code True} if this context represents a sequence of Root values; {@code false} otherwise
      */
     public final boolean inRoot() { return _type == TYPE_ROOT; }
 
     /**
      * Method that returns true if this context is an Object context;
-     * that is, content is being read from or written to a Json Object.
+     * that is, content is being read from or written to a JSON Object.
+     *
+     * @return {@code True} if this context represents an Object; {@code false} otherwise
      */
     public final boolean inObject() { return _type == TYPE_OBJECT; }
 
+    /**
+     * Method for accessing simple type description of current context;
+     * either ROOT (for root-level values), OBJECT (for field names and
+     * values of JSON Objects) or ARRAY (for values of JSON Arrays)
+     * 
+     * @return Type description String
+     */
     public String typeDesc() {
         switch (_type) {
         case TYPE_ROOT: return "root";
@@ -131,6 +148,8 @@ public abstract class TokenStreamContext
      * Method that may be called to verify whether this context has valid index:
      * will return `false` before the first entry of Object context or before
      * first element of Array context; otherwise returns `true`.
+     *
+     * @return {@code True} if this context has value index to access, {@code false} otherwise
      */
     public boolean hasCurrentIndex() { return _index >= 0; }
 
@@ -148,6 +167,8 @@ public abstract class TokenStreamContext
      *<p>
      * Method is mostly used to determine whether this context should be used for
      * constructing {@link JsonPointer}
+     *
+     * @return {@code True} if this context has value path segment to access, {@code false} otherwise
      */
     public boolean hasPathSegment() {
         if (_type == TYPE_OBJECT) {
@@ -162,15 +183,22 @@ public abstract class TokenStreamContext
      * Method for accessing name associated with the current location.
      * Non-null for <code>FIELD_NAME</code> and value events that directly
      * follow field names; null for root level and array values.
+     *
+     * @return Current field name within context, if any; {@code null} if none
      */
     public abstract String currentName();
 
     /**
+     * @return {@code True} if a call to {@link #getCurrentName()} would return non-{@code null}
+     *    name; {@code false} otherwise
+     *
      * @deprecated Since 3.0 use {@link #currentName} instead
+     *
+     * @since 2.9
      */
     @Deprecated
     public String getCurrentName() { return currentName(); }
-    
+
     public boolean hasCurrentName() { return currentName() != null; }
 
     /**
@@ -193,6 +221,8 @@ public abstract class TokenStreamContext
      * Method to call to pass value to be returned via {@link #getCurrentValue}; typically
      * called indirectly through {@link JsonParser#setCurrentValue}
      * or {@link JsonGenerator#setCurrentValue}).
+     *
+     * @param v Current value to assign to this context
      */
     public void setCurrentValue(Object v) { }
 
@@ -200,6 +230,8 @@ public abstract class TokenStreamContext
      * Factory method for constructing a {@link JsonPointer} that points to the current
      * location within the stream that this context is for, excluding information about
      * "root context" (only relevant for multi-root-value cases)
+     *
+     * @return Pointer instance constructed
      */
     public JsonPointer pathAsPointer() {
         return JsonPointer.forPath(this, false);
@@ -211,6 +243,8 @@ public abstract class TokenStreamContext
      * "root value index"
      *
      * @param includeRoot Whether root-value offset is included as the first segment or not
+     *
+     * @return Pointer instance constructed
      */
     public JsonPointer pathAsPointer(boolean includeRoot) {
         return JsonPointer.forPath(this, includeRoot);
@@ -222,12 +256,14 @@ public abstract class TokenStreamContext
      * read or written. Often used for error reporting purposes.
      * Implementations that do not keep track of such location are expected to return
      * {@link JsonLocation#NA}; this is what the default implementation does.
-     *
-     * @return Location pointing to the point where the context
-     *   start marker was found (or written); never `null`.
      *<p>
      * NOTE: demoted from <code>JsonReadContext</code> in 2.9, to allow use for
      * "non-standard" read contexts.
+     *
+     * @param srcRef Source reference needed to construct location instance
+     *
+     * @return Location pointing to the point where the context
+     *   start marker was found (or written); never `null`.
      */
     public JsonLocation getStartLocation(Object srcRef) {
         return JsonLocation.NA;
@@ -236,6 +272,9 @@ public abstract class TokenStreamContext
     /**
      * Overridden to provide developer readable "JsonPath" representation
      * of the context.
+     *
+     * @return Simple developer-readable description this context layer
+     *   (note: NOT constructed with parents, unlike {@link #pathAsPointer})
      */
     @Override
     public String toString() {

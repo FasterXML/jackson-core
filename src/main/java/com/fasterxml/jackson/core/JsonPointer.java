@@ -75,9 +75,7 @@ public class JsonPointer
         _asString = "";
     }
 
-    /**
-     * Constructor used for creating non-empty Segments
-     */
+    // Constructor used for creating non-empty Segments
     protected JsonPointer(String fullString, String segment, JsonPointer next) {
         _asString = fullString;
         _nextSegment = next;
@@ -323,15 +321,30 @@ public class JsonPointer
     }
 
     /**
-     * Method that may be called to see if the pointer would match property
-     * (of a JSON Object) with given name.
-     * 
+     * Method that may be called to see if the pointer head (first segment)
+     * would match property (of a JSON Object) with given name.
+     *
+     * @param name Name of Object property to match
+     *
+     * @return {@code True} if the pointer head matches specified property name
+     *
      * @since 2.5
      */
     public boolean matchesProperty(String name) {
         return (_nextSegment != null) && _matchingPropertyName.equals(name);
     }
-    
+
+    /**
+     * Method that may be called to check whether the pointer head (first segment)
+     * matches specified Object property (by name) and if so, return
+     * {@link JsonPointer} that represents rest of the path after match.
+     * If there is no match, {@code null} is returned.
+     *
+     * @param name Name of Object property to match
+     *
+     * @return Remaining path after matching specified property, if there is match;
+     *    {@code null} otherwise
+     */
     public JsonPointer matchProperty(String name) {
         if ((_nextSegment != null) && _matchingPropertyName.equals(name)) {
             return _nextSegment;
@@ -341,7 +354,11 @@ public class JsonPointer
 
     /**
      * Method that may be called to see if the pointer would match
-     * array element (of a JSON Array) with given index.
+     * Array element (of a JSON Array) with given index.
+     *
+     * @param index Index of Array element to match
+     *
+     * @return {@code True} if the pointer head matches specified Array index
      * 
      * @since 2.5
      */
@@ -350,6 +367,16 @@ public class JsonPointer
     }
 
     /**
+     * Method that may be called to check whether the pointer head (first segment)
+     * matches specified Array index and if so, return
+     * {@link JsonPointer} that represents rest of the path after match.
+     * If there is no match, {@code null} is returned.
+     *
+     * @param index Index of Array element to match
+     *
+     * @return Remaining path after matching specified index, if there is match;
+     *    {@code null} otherwise
+     *
      * @since 2.6
      */
     public JsonPointer matchElement(int index) {
@@ -360,9 +387,17 @@ public class JsonPointer
     }
 
     /**
-     * Accessor for getting a "sub-pointer", instance where current segment
-     * has been removed and pointer includes rest of segments.
-     * For matching state, will return null.
+     * Accessor for getting a "sub-pointer" (or sub-path), instance where current segment
+     * has been removed and pointer includes rest of the segments.
+     * For example, for JSON Pointer "/root/branch/leaf", this method would
+     * return pointer "/branch/leaf".
+     * For matching state (last segment), will return {@code null}.
+     *<p>
+     * Note that this is a very cheap method to call as it simply returns "next" segment
+     * (which has been constructed when pointer instance was constructed).
+     *
+     * @return Tail of this pointer, if it has any; {@code null} if this pointer only
+     *    has the current segment
      */
     public JsonPointer tail() {
         return _nextSegment;
@@ -371,10 +406,16 @@ public class JsonPointer
     /**
      * Accessor for getting a pointer instance that is identical to this
      * instance except that the last segment has been dropped.
-     * For example, for JSON Point "/root/branch/leaf", this method would
+     * For example, for JSON Pointer "/root/branch/leaf", this method would
      * return pointer "/root/branch" (compared to {@link #tail()} that
      * would return "/branch/leaf").
-     * For leaf 
+     *<p>
+     * Note that whereas {@link #tail} is a very cheap operation to call (as "tail" already
+     * exists for single-linked forward direction), this method has to fully
+     * construct a new instance by traversing the chain of segments.
+     *
+     * @return Pointer expression that contains same segments as this one, except for
+     *    the last segment.
      *
      * @since 2.5
      */
@@ -468,6 +509,8 @@ public class JsonPointer
      * 
      * @param input Full input for the tail being parsed
      * @param i Offset to character after tilde
+     *
+     * @return Pointer instance constructed
      */
     protected static JsonPointer _parseQuotedTail(String input, int i) {
         final int end = input.length();
@@ -517,7 +560,7 @@ public class JsonPointer
         return new JsonPointer(str.substring(0, str.length() - suffixLength), _matchingPropertyName,
                 _matchingElementIndex, next._constructHead(suffixLength, last));
     }
-    
+
     private static void _appendEscape(StringBuilder sb, char c) {
         if (c == '0') {
             c = '~';

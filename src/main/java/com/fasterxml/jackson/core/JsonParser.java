@@ -737,6 +737,8 @@ public abstract class JsonParser
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
      *
+     * @param id Token id to match (from (@link JsonTokenId})
+     *
      * @return {@code True} if the parser current points to specified token
      */
     public abstract boolean hasTokenId(int id);
@@ -751,6 +753,8 @@ public abstract class JsonParser
      * Note that no traversal or conversion is performed; so in some
      * cases calling method like {@link #isExpectedStartArrayToken()}
      * is necessary instead.
+     *
+     * @param t Token to match
      *
      * @return {@code True} if the parser current points to specified token
      */
@@ -807,6 +811,13 @@ public abstract class JsonParser
      * but often supported for {@link JsonToken#VALUE_NUMBER_FLOAT}.
      * NOTE: roughly equivalent to calling <code>!Double.isFinite()</code>
      * on value you would get from calling {@link #getDoubleValue()}.
+     *
+     * @return {@code True} if the current token is of type {@link JsonToken#VALUE_NUMBER_FLOAT}
+     *   but represents a "Not a Number"; {@code false} for other tokens and regular
+     *   floating-point numbers
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract boolean isNaN() throws IOException;
 
@@ -836,6 +847,8 @@ public abstract class JsonParser
      * the latest token read.
      * Will return null if no tokens have been cleared,
      * or if parser has been closed.
+     *
+     * @return Last cleared token, if any; {@code null} otherwise
      */
     public abstract JsonToken getLastClearedToken();
 
@@ -880,7 +893,9 @@ public abstract class JsonParser
      * but should typically be more efficient as longer content does need to
      * be combined into a single <code>String</code> to return, and write
      * can occur directly from intermediate buffers Jackson uses.
-     * 
+     *
+     * @param writer Writer to write textual content to
+     *
      * @return The number of characters written to the Writer
      */
     public int getText(Writer writer) throws IOException, UnsupportedOperationException
@@ -917,6 +932,12 @@ public abstract class JsonParser
      * The only reason to call this method (over {@link #getText})
      * is to avoid construction of a String object (which
      * will make a copy of contents).
+     *
+     * @return Buffer that contains the current textual value (but not necessarily
+     *    at offset 0, and not necessarily until the end of buffer)
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public abstract char[] getTextCharacters() throws IOException;
 
@@ -1006,6 +1027,8 @@ public abstract class JsonParser
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
      * one of {@link NumberType} constants; otherwise returns null.
      *
+     * @return Type of current number, if parser points to numeric token; {@code null} otherwise
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1015,14 +1038,23 @@ public abstract class JsonParser
      * Numeric accessor that can be called when the current
      * token is of type {@link JsonToken#VALUE_NUMBER_INT} and
      * it can be expressed as a value of Java byte primitive type.
+     * Note that in addition to "natural" input range of {@code [-128, 127]},
+     * this also allows "unsigned 8-bit byte" values {@code [128, 255]}:
+     * but for this range value will be translated by truncation, leading
+     * to sign change.
+     *<p>
      * It can also be called for {@link JsonToken#VALUE_NUMBER_FLOAT};
      * if so, it is equivalent to calling {@link #getDoubleValue}
      * and then casting; except for possible overflow/underflow
      * exception.
      *<p>
      * Note: if the resulting integer value falls outside range of
-     * Java byte, a {@link InputCoercionException}
+     * {@code [-128, 255]},
+     * a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
+     *
+     * @return Current number value as {@code byte} (if numeric token within
+     *   range of {@code [-128, 255]}); otherwise exception thrown
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1042,6 +1074,9 @@ public abstract class JsonParser
      * Java short, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
      *
+     * @return Current number value as {@code short} (if numeric token within
+     *   Java 16-bit signed {@code short} range); otherwise exception thrown
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1059,6 +1094,9 @@ public abstract class JsonParser
      * Note: if the resulting integer value falls outside range of
      * Java {@code int}, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
+     *
+     * @return Current number value as {@code int} (if numeric token within
+     *   Java 32-bit signed {@code int} range); otherwise exception thrown
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1078,6 +1116,9 @@ public abstract class JsonParser
      * outside of range of Java long, a {@link InputCoercionException}
      * may be thrown to indicate numeric overflow/underflow.
      *
+     * @return Current number value as {@code long} (if numeric token within
+     *   Java 32-bit signed {@code long} range); otherwise exception thrown
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1091,6 +1132,9 @@ public abstract class JsonParser
      * It can also be called for {@link JsonToken#VALUE_NUMBER_FLOAT};
      * if so, it is equivalent to calling {@link #getDecimalValue}
      * and then constructing a {@link BigInteger} from that value.
+     *
+     * @return Current number value as {@link BigInteger} (if numeric token);
+     *     otherwise exception thrown
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1110,6 +1154,9 @@ public abstract class JsonParser
      * outside of range of Java float, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
      *
+     * @return Current number value as {@code float} (if numeric token within
+     *   Java {@code float} range); otherwise exception thrown
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1128,6 +1175,9 @@ public abstract class JsonParser
      * outside of range of Java double, a {@link InputCoercionException}
      * will be thrown to indicate numeric overflow/underflow.
      *
+     * @return Current number value as {@code double} (if numeric token within
+     *   Java {@code double} range); otherwise exception thrown
+     *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
@@ -1138,6 +1188,9 @@ public abstract class JsonParser
      * token is of type {@link JsonToken#VALUE_NUMBER_FLOAT} or
      * {@link JsonToken#VALUE_NUMBER_INT}. No under/overflow exceptions
      * are ever thrown.
+     *
+     * @return Current number value as {@link BigDecimal} (if numeric token);
+     *   otherwise exception thrown
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1153,12 +1206,14 @@ public abstract class JsonParser
     /**
      * Convenience accessor that can be called when the current
      * token is {@link JsonToken#VALUE_TRUE} or
-     * {@link JsonToken#VALUE_FALSE}.
-     *<p>
-     * Note: if the token is not of above-mentioned boolean types,
-     * an integer, but its value falls
-     * outside of range of Java long, a {@link JsonParseException}
-     * may be thrown to indicate numeric overflow/underflow.
+     * {@link JsonToken#VALUE_FALSE}, to return matching {@code boolean}
+     * value.
+     * If the current token is of some other type, {@link JsonParseException}
+     * will be thrown
+     *
+     * @return {@code True} if current token is {@code JsonToken.VALUE_TRUE},
+     *   {@code false} if current token is {@code JsonToken.VALUE_FALSE};
+     *   otherwise throws {@link JsonParseException}
      *
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
@@ -1176,6 +1231,12 @@ public abstract class JsonParser
      * is access to binary content (whether via base64 encoding or not)
      * which typically is accessible using this method, as well as
      * {@link #getBinaryValue()}.
+     *
+     * @return Embedded value (usually of "native" type supported by format)
+     *   for the current token, if any; {@code null otherwise}
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     public Object getEmbeddedObject() throws IOException { return null; }
 

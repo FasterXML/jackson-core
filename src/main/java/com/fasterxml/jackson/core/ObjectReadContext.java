@@ -59,11 +59,15 @@ public interface ObjectReadContext
 
     /**
      * Method for construct Array nodes for Tree Model instances.
+     *
+     * @return Array node created
      */
     public ArrayTreeNode createArrayNode();
 
     /**
      * Method for construct Object nodes for Tree Model instances.
+     *
+     * @return Object node created
      */
     public ObjectTreeNode createObjectNode();
 
@@ -77,6 +81,10 @@ public interface ObjectReadContext
      *<p>
      * NOTE! Returned parser has not been advanced to the first token; caller has to
      * do this.
+     *
+     * @param Node to traverse over
+     *
+     * @return Parser that iterates over contents of given node
      */
     default JsonParser treeAsTokens(TreeNode n) {
         return n.traverse(this);

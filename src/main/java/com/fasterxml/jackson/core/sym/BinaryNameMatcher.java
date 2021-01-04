@@ -88,12 +88,12 @@ public final class BinaryNameMatcher
     private int _spilloverEnd;
 
     /**
-     * Offset within {@link #_hashArea} that follows main slots and contains
+     * Offset within {@code _hashArea} that follows main slots and contains
      * quads for longer names (13 bytes or longer), and points to the
      * first available int that may be used for appending quads of the next
      * long name.
      * Note that long name area follows immediately after the fixed-size
-     * main hash area ({@link #_hashArea}).
+     * main hash area ({@code _hashArea}).
      */
     private int _longNameOffset;
 
@@ -104,7 +104,7 @@ public final class BinaryNameMatcher
      */
 
     /**
-     * Constructor used for creating per-<code>TokenStreamFactory</code> "root"
+     * Constructor used for creating per-{@code TokenStreamFactory} "root"
      * symbol tables (for formats that use such approach): ones used for merging
      * and sharing common symbols
      *

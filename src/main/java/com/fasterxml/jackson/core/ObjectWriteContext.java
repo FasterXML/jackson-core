@@ -31,10 +31,13 @@ public interface ObjectWriteContext
 
     /**
      * Accessor for getting {@link PrettyPrinter} instance to use for a new generator.
-     * Note that this MUST BE thread-safe instance: that is, if pretty printer is stateful,
+     * Note that this MUST BE a thread-safe instance: that is, if the pretty printer
+     * implementation is stateful,
      * a new unshared instance needs to be returned -- caller will NOT try to make
      * a copy of {@link com.fasterxml.jackson.core.util.Instantiatable} printers, context
      * must do that.
+     *
+     * @return {@link PrettyPrinter} instance to use for a single serialization operation
      */
     public PrettyPrinter getPrettyPrinter();
 
@@ -64,11 +67,15 @@ public interface ObjectWriteContext
 
     /**
      * Method for construct Array nodes for Tree Model instances.
+     *
+     * @return Array node created
      */
     public ArrayTreeNode createArrayNode();
-    
+
     /**
      * Method for construct Object nodes for Tree Model instances.
+     *
+     * @return Object node created
      */
     public ObjectTreeNode createObjectNode();
     
@@ -77,6 +84,9 @@ public interface ObjectWriteContext
     /**
      * Method that may be called to serialize given value, using specified
      * token stream generator.
+     *
+     * @param g Generator to use for serialization
+     * @param value Java value to be serialzized
      */
     public void writeValue(JsonGenerator g, Object value) throws IOException;
 

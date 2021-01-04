@@ -30,7 +30,7 @@ public abstract class GeneratorBase extends JsonGenerator
     protected final static String WRITE_STRING = "write a string";
 
     /**
-     * This value is the limit of scale allowed for serializing {@link BigDecimal}
+     * This value is the limit of scale allowed for serializing {@link java.math.BigDecimal}
      * in "plain" (non-engineering) notation; intent is to prevent asymmetric
      * attack whereupon simple eng-notation with big scale is used to generate
      * huge "plain" serialization. See [core#315] for details.

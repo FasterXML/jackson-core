@@ -354,6 +354,10 @@ public final class UTF8Writer extends Writer
      * Method called to calculate Unicode code-point, from a surrogate pair.
      *
      * @param secondPart Second UTF-16 unit of surrogate (first part stored in {@code _surrogate})
+     *
+     * @return Decoded Unicode point
+     *
+     * @throws IOException If surrogate pair is invalid
      */
     protected int convertSurrogate(int secondPart)
         throws IOException

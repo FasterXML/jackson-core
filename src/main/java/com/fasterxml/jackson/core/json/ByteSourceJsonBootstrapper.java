@@ -19,11 +19,11 @@ public final class ByteSourceJsonBootstrapper
     public final static byte UTF8_BOM_1 = (byte) 0xEF;
     public final static byte UTF8_BOM_2 = (byte) 0xBB;
     public final static byte UTF8_BOM_3 = (byte) 0xBF;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final IOContext _context;
@@ -31,9 +31,9 @@ public final class ByteSourceJsonBootstrapper
     private final InputStream _in;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Input buffering
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final byte[] _inputBuffer;
@@ -49,9 +49,9 @@ public final class ByteSourceJsonBootstrapper
     private final boolean _bufferRecyclable;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Input location
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -64,9 +64,9 @@ public final class ByteSourceJsonBootstrapper
 //    private int _inputProcessed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Data gathered
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -77,9 +77,9 @@ public final class ByteSourceJsonBootstrapper
     private int _bytesPerChar; // 0 means "dunno yet"
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public ByteSourceJsonBootstrapper(IOContext ctxt, InputStream in) {
@@ -104,15 +104,19 @@ public final class ByteSourceJsonBootstrapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /*  Encoding detection during bootstrapping
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
      * Method that should be called after constructing an instace.
      * It will figure out encoding that content uses, to allow
      * for instantiating a proper scanner object.
+     *
+     * @return {@link JsonEncoding} detected, if any; {@code JsonEncoding.UTF8} otherwise
+     *
+     * @throws IOException If read from underlying input source fails
      */
     public JsonEncoding detectEncoding() throws IOException
     {
@@ -177,7 +181,12 @@ public final class ByteSourceJsonBootstrapper
     /**
      * Helper method that may be called to see if given {@link DataInput}
      * has BOM marker, and if so, to skip it.
-     * @throws IOException 
+     *
+     * @param input DataInput to read content from
+     *
+     * @return Byte (as unsigned {@code int}) read after possible UTF-8 BOM
+     *
+     * @throws IOException If read from underlying input source fails
      *
      * @since 2.8
      */
@@ -203,9 +212,9 @@ public final class ByteSourceJsonBootstrapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constructing a Reader
-    /**********************************************************
+    /**********************************************************************
      */
     
     @SuppressWarnings("resource")
@@ -271,9 +280,9 @@ public final class ByteSourceJsonBootstrapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -367,9 +376,9 @@ public final class ByteSourceJsonBootstrapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, problem reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     private void reportWeirdUCS4(String type) throws IOException {
@@ -377,9 +386,9 @@ public final class ByteSourceJsonBootstrapper
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, raw input access
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected boolean ensureLoaded(int minimum) throws IOException {

@@ -19,11 +19,18 @@ public final class NumberInput
     final static String MAX_LONG_STR = String.valueOf(Long.MAX_VALUE);
 
     /**
-     * Fast method for parsing integers that are known to fit into
+     * Fast method for parsing unsigned integers that are known to fit into
      * regular 32-bit signed int type. This means that length is
-     * between 1 and 9 digits (inclusive)
+     * between 1 and 9 digits (inclusive) and there is no sign character.
      *<p>
-     * Note: public to let unit tests call it
+     * Note: public to let unit tests call it; not meant to be used by any
+     * code outside this package.
+     *
+     * @param ch Buffer that contains integer value to decode
+     * @param off Offset of the first digit character in buffer
+     * @param len Length of the number to decode (in characters)
+     *
+     * @return Decoded {@code int} value
      */
     public static int parseInt(char[] ch, int off, int len)
     {
@@ -52,7 +59,16 @@ public final class NumberInput
 
     /**
      * Helper method to (more) efficiently parse integer numbers from
-     * String values.
+     * String values. Input String must be simple Java integer value.
+     * No range checks are made to verify that the value fits in 32-bit Java {@code int}:
+     * caller is expected to only calls this in cases where this can be guaranteed
+     * (basically: number of digits does not exceed 9)
+     *<p>
+     * NOTE: semantics differ significantly from {@link #parseInt(char[], int, int)}.
+     *
+     * @param s String that contains integer value to decode
+     *
+     * @return Decoded {@code int} value
      */
     public static int parseInt(String s)
     {
@@ -115,6 +131,13 @@ public final class NumberInput
         return val + (long) parseInt(ch, off+len1, 9);
     }
 
+    /**
+     * Similar to {@link #parseInt(String)} but for {@code long} values.
+     *
+     * @param s String that contains {@code long} value to decode
+     *
+     * @return Decoded {@code long} value
+     */
     public static long parseLong(String s)
     {
         // Ok, now; as the very first thing, let's just optimize case of "fake longs";
@@ -133,8 +156,14 @@ public final class NumberInput
      * Note that input String must NOT contain leading minus sign (even
      * if 'negative' is set to true).
      *
+     * @param ch Buffer that contains long value to check
+     * @param off Offset of the first digit character in buffer
+     * @param len Length of the number to decode (in characters)
      * @param negative Whether original number had a minus sign (which is
      *    NOT passed to this method) or not
+     *
+     * @return {@code True} if specified String representation is within Java
+     *   {@code long} range; {@code false} if not.
      */
     public static boolean inLongRange(char[] ch, int off, int len,
             boolean negative)
@@ -157,8 +186,12 @@ public final class NumberInput
      * Similar to {@link #inLongRange(char[],int,int,boolean)}, but
      * with String argument
      *
+     * @param s String that contains {@code long} value to check
      * @param negative Whether original number had a minus sign (which is
      *    NOT passed to this method) or not
+     *
+     * @return {@code True} if specified String representation is within Java
+     *   {@code long} range; {@code false} if not.
      */
     public static boolean inLongRange(String s, boolean negative)
     {

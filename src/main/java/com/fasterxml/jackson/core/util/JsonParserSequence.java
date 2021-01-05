@@ -60,9 +60,7 @@ public class JsonParserSequence extends JsonParserDelegate
         this(false, parsers);
     }
 
-    /**
-     * @since 2.8
-     */
+    // @since 2.8
     protected JsonParserSequence(boolean checkForExistingToken, JsonParser[] parsers)
     {
         super(parsers[0]);

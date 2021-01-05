@@ -206,12 +206,19 @@ public final class CharTypes
      * Value of 0 means "no escaping"; other positive values that value is character
      * to use after backslash; and negative values that generic (backslash - u)
      * escaping is to be used.
+     *
+     * @return 128-entry {@code int[]} that contains escape definitions
      */
     public static int[] get7BitOutputEscapes() { return sOutputEscapes128; }
 
     /**
      * Alternative to {@link #get7BitOutputEscapes()} when a non-standard quote character
      * is used.
+     *
+     * @param quoteChar Character used for quoting textual values and property names;
+     *    usually double-quote but sometimes changed to single-quote (apostrophe)
+     *
+     * @return 128-entry {@code int[]} that contains escape definitions
      *
      * @since 2.10
      */

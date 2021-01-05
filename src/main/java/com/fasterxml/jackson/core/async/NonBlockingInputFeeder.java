@@ -18,12 +18,16 @@ public interface NonBlockingInputFeeder
      * Method called to check whether it is ok to feed more data: parser returns true
      * if it has no more content to parse (and it is ok to feed more); otherwise false
      * (and no data should yet be fed).
+     *
+     * @return {@code True} if more input is needed (and can be fed); {@code false} if
+     *    there is still some input to decode
      */
     public boolean needMoreInput();
 
     /**
      * Method that should be called after last chunk of data to parse has been fed
-     * (with <code>feedInput</code> in sub-class); can be called regardless of what {@link #needMoreInput}
+     * (with {@code feedInput} in sub-class); can be called regardless of what
+     * {@link #needMoreInput}
      * returns. After calling this method, no more data can be fed; and parser assumes
      * no more data will be available.
      */

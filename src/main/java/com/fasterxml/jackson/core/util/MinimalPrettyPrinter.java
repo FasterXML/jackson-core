@@ -56,6 +56,8 @@ public class MinimalPrettyPrinter
     /**
      * @param separators Separator definitions
      *
+     * @return This pretty-printer instance to allow call chaining
+     *
      * @since 2.9
      */
     public MinimalPrettyPrinter setSeparators(Separators separators) {

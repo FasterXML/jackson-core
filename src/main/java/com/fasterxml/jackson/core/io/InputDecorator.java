@@ -26,6 +26,8 @@ public abstract class InputDecorator
      * 
      * @return InputStream to use; either 'in' as is, or decorator
      *   version that typically delegates to 'in'
+     *
+     * @throws IOException if construction of {@link InputStream} fails
      */
     public abstract InputStream decorate(IOContext ctxt, InputStream in)
         throws IOException;
@@ -46,6 +48,8 @@ public abstract class InputDecorator
      * 
      * @return Either {@link InputStream} to use as input source; or null to indicate
      *   that contents are to be processed as-is by caller
+     *
+     * @throws IOException if construction of {@link InputStream} fails
      */
     public abstract InputStream decorate(IOContext ctxt, byte[] src, int offset, int length)
         throws IOException;
@@ -65,7 +69,9 @@ public abstract class InputDecorator
      * 
      * @return InputStream to use; either 'input' as is, or decorator
      *   version that typically delogates to 'input'
-     * 
+     *
+     * @throws IOException if construction of {@link DataInput} fails
+     *
      * @since 2.8
      */
     public DataInput decorate(IOContext ctxt, DataInput input)
@@ -86,6 +92,8 @@ public abstract class InputDecorator
      * 
      * @return Reader to use; either passed in argument, or something that
      *   calls it (for example, a {@link FilterReader})
+     *
+     * @throws IOException if construction of {@link Reader} fails
      */
     public abstract Reader decorate(IOContext ctxt, Reader r) throws IOException;
 }

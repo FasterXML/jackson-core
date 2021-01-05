@@ -27,9 +27,10 @@ public final class JacksonFeatureSet<F extends JacksonFeature>
      * "Default" factory which will calculate settings based on default-enabled
      * status of all features.
      *
-     * @param <F> Self-reference for convenience
+     * @param <F> Self-reference type for convenience
      *
-     * @param allFeatures Set of all features (enabled or disabled): usually from {@code Enum.values()}
+     * @param allFeatures Set of all features (enabled or disabled): usually from
+     * {@code Enum.values()}
      *
      * @return Feature set instance constructed
      */

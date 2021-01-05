@@ -89,7 +89,7 @@ public final class TextBuffer
     // // // Currently used segment; not (yet) contained in _seqments
 
     /**
-     * Amount of characters in segments in {@link _segments}
+     * Amount of characters in segments in {@link #_segments}
      */
     private int _segmentSize;
 
@@ -124,9 +124,7 @@ public final class TextBuffer
         _allocator = allocator;
     }
 
-    /**
-     * @since 2.10
-     */
+    // @since 2.10
     protected TextBuffer(BufferRecycler allocator, char[] initialSegment) {
         _allocator = allocator;
         _currentSegment = initialSegment;
@@ -137,6 +135,11 @@ public final class TextBuffer
     /**
      * Factory method for constructing an instance with no allocator, and
      * with initial full segment.
+     *
+     * @param initialSegment Initial, full segment to use for creating buffer (buffer
+     *   {@link #size()} would return length of {@code initialSegment})
+     *
+     * @return TextBuffer constructed
      *
      * @since 2.10
      */
@@ -204,6 +207,11 @@ public final class TextBuffer
     }
 
     /**
+     * Method for clearing out possibly existing content, and replacing them with
+     * a single-character content (so {@link #size()} would return {@code 1})
+     *
+     * @param ch Character to set as the buffer contents
+     *
      * @since 2.9
      */
     public void resetWith(char ch)
@@ -228,8 +236,12 @@ public final class TextBuffer
      * this means that buffer will just have pointers to actual data. It
      * also means that if anything is to be appended to the buffer, it
      * will first have to unshare it (make a local copy).
+     *
+     * @param buf Buffer that contains shared contents
+     * @param offset Offset of the first content character in {@code buf}
+     * @param len Length of content in {@code buf}
      */
-    public void resetWithShared(char[] buf, int start, int len)
+    public void resetWithShared(char[] buf, int offset, int len)
     {
         // First, let's clear intermediate values, if any:
         _resultString = null;
@@ -237,7 +249,7 @@ public final class TextBuffer
 
         // Then let's mark things we need about input buffer
         _inputBuffer = buf;
-        _inputStart = start;
+        _inputStart = offset;
         _inputLen = len;
 
         // And then reset internal input buffers, if necessary:
@@ -246,7 +258,7 @@ public final class TextBuffer
         }
     }
 
-    public void resetWithCopy(char[] buf, int start, int len)
+    public void resetWithCopy(char[] buf, int offset, int len)
     {
         _inputBuffer = null;
         _inputStart = -1; // indicates shared buffer not used
@@ -262,12 +274,10 @@ public final class TextBuffer
             _currentSegment = buf(len);
         }
         _currentSize = _segmentSize = 0;
-        append(buf, start, len);
+        append(buf, offset, len);
     }
 
-    /**
-     * @since 2.9
-     */
+    // @since 2.9
     public void resetWithCopy(String text, int start, int len)
     {
         _inputBuffer = null;
@@ -303,16 +313,19 @@ public final class TextBuffer
     }
 
     /**
+     * Method for accessing the currently active (last) content segment
+     * without changing state of the buffer
+     *
+     * @return Currently active (last) content segment
+     *
      * @since 2.9
      */
     public char[] getBufferWithoutReset() {
         return _currentSegment;
     }
 
-    /**
-     * Helper method used to find a buffer to use, ideally one
-     * recycled earlier.
-     */
+    // Helper method used to find a buffer to use, ideally one
+    // recycled earlier.
     private char[] buf(int needed)
     {
         if (_allocator != null) {
@@ -342,7 +355,7 @@ public final class TextBuffer
      */
 
     /**
-     * @return Number of characters currently stored by this collector
+     * @return Number of characters currently stored in this buffer
      */
     public int size() {
         if (_inputStart >= 0) { // shared copy from input buf
@@ -369,6 +382,9 @@ public final class TextBuffer
     /**
      * Method that can be used to check whether textual contents can
      * be efficiently accessed using {@link #getTextBuffer}.
+     *
+     * @return {@code True} if access via {@link #getTextBuffer()} would be efficient
+     *   (that is, content already available as aggregated {@code char[]})
      */
     public boolean hasTextAsCharacters()
     {
@@ -380,9 +396,11 @@ public final class TextBuffer
     }
 
     /**
-     * Accessor that may be used to get the contents of this buffer in a single
-     * <code>char</code> array regardless of whether they were collected in a segmented
-     * fashion or not.
+     * Accessor that may be used to get the contents of this buffer as a single
+     * {@code char[]} regardless of whether they were collected in a segmented
+     * fashion or not: this typically require allocation of the result buffer.
+     *
+     * @return Aggregated {@code char[]} that contains all buffered content
      */
     public char[] getTextBuffer()
     {
@@ -406,6 +424,13 @@ public final class TextBuffer
     /**********************************************************
      */
 
+    /**
+     * Accessor that may be used to get the contents of this buffer as a single
+     * {@code String} regardless of whether they were collected in a segmented
+     * fashion or not: this typically require construction of the result String.
+     *
+     * @return Aggregated buffered contents as a {@link java.lang.String}
+     */
     public String contentsAsString()
     {
         if (_resultString == null) {
@@ -457,6 +482,10 @@ public final class TextBuffer
     /**
      * Convenience method for converting contents of the buffer
      * into a {@link BigDecimal}.
+     *
+     * @return Buffered text value parsed as a {@link BigDecimal}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
      */
     public BigDecimal contentsAsDecimal() throws NumberFormatException
     {
@@ -479,6 +508,10 @@ public final class TextBuffer
     /**
      * Convenience method for converting contents of the buffer
      * into a Double value.
+     *
+     * @return Buffered text value parsed as a {@link Double}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
      */
     public double contentsAsDouble() throws NumberFormatException {
         return NumberInput.parseDouble(contentsAsString());
@@ -487,8 +520,15 @@ public final class TextBuffer
     /**
      * Specialized convenience method that will decode a 32-bit int,
      * of at most 9 digits (and possible leading minus sign).
+     *<p>
+     * NOTE: method DOES NOT verify that the contents actually are a valid
+     * Java {@code int} value (either regarding format, or value range): caller
+     * MUST validate that.
      *
      * @param neg Whether contents start with a minus sign
+     *
+     * @return Buffered text value parsed as an {@code int} using
+     *   {@link NumberInput#parseInt(String)} method (which does NOT validate input)
      *
      * @since 2.9
      */
@@ -508,8 +548,15 @@ public final class TextBuffer
     /**
      * Specialized convenience method that will decode a 64-bit int,
      * of at most 18 digits (and possible leading minus sign).
+     *<p>
+     * NOTE: method DOES NOT verify that the contents actually are a valid
+     * Java {@code long} value (either regarding format, or value range): caller
+     * MUST validate that.
      *
      * @param neg Whether contents start with a minus sign
+     *
+     * @return Buffered text value parsed as an {@code long} using
+     *   {@link NumberInput#parseLong(String)} method (which does NOT validate input)
      *
      * @since 2.9
      */
@@ -527,6 +574,14 @@ public final class TextBuffer
     }
 
     /**
+     * Accessor that will write buffered contents using given {@link Writer}.
+     *
+     * @param w Writer to use for writing out buffered content
+     *
+     * @return Number of characters written (same as {@link #size()})
+     *
+     * @throws IOException If write using {@link Writer} parameter fails
+     *
      * @since 2.8
      */
     public int contentsToWriter(Writer w) throws IOException
@@ -720,6 +775,15 @@ public final class TextBuffer
     public void setCurrentLength(int len) { _currentSize = len; }
 
     /**
+     * Convenience method that finishes the current active content segment
+     * (by specifying how many characters within consists of valid content)
+     * and aggregates and returns resulting contents (similar to a call
+     * to {@link #contentsAsString()}).
+     *
+     * @param len Length of content (in characters) of the current active segment
+     *
+     * @return String that contains all buffered content
+     *
      * @since 2.6
      */
     public String setCurrentAndReturn(int len) {
@@ -761,6 +825,9 @@ public final class TextBuffer
      * Method called to expand size of the current segment, to
      * accommodate for more contiguous content. Usually only
      * used when parsing tokens like names if even then.
+     * Method will both expand the segment and return it
+     *
+     * @return Expanded current segment
      */
     public char[] expandCurrentSegment()
     {
@@ -782,7 +849,9 @@ public final class TextBuffer
      * 
      * @param minSize Required minimum strength of the current segment
      *
-     * @since 2.4.0
+     * @return Expanded current segment
+     *
+     * @since 2.4
      */
     public char[] expandCurrentSegment(int minSize) {
         char[] curr = _currentSegment;
@@ -835,10 +904,7 @@ public final class TextBuffer
         _currentSize = sharedLen;
     }
 
-    /**
-     * Method called when current segment is full, to allocate new
-     * segment.
-     */
+    // Method called when current segment is full, to allocate new segment.
     private void expand(int minNewSegmentSize)
     {
         // First, let's move current segment to segment list:

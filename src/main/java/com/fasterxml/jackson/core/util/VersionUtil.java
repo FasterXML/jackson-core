@@ -18,42 +18,33 @@ public class VersionUtil
     private final static Pattern V_SEP = Pattern.compile("[-_./;:]");
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instance life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected VersionUtil() { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Static load methods
-    /**********************************************************
+    /**********************************************************************
      */
-    
-    /**
-     * Helper method that will try to load version information for specified
-     * class. Implementation is as follows:
-     *
-     * First, tries to load version info from a class named
-     * "PackageVersion" in the same package as the class.
-     *
-     * If no version information is found, {@link Version#unknownVersion()} is returned.
-     */
-    public static Version versionFor(Class<?> cls)
-    {
-        Version version = packageVersionFor(cls);
-        return version == null ? Version.unknownVersion() : version;
-    }
 
     /**
      * Loads version information by introspecting a class named
      * "PackageVersion" in the same package as the given class.
      *<p>
      * If the class could not be found or does not have a public
-     * static Version field named "VERSION", returns null.
+     * static Version field named "VERSION", returns "empty" {@link Version}
+     * returned by {@link Version#unknownVersion()}.
+     *
+     * @param cls Class for which to look version information
+     *
+     * @return Version information discovered if any; 
+     *  {@link Version#unknownVersion()} if none
      */
-    public static Version packageVersionFor(Class<?> cls)
+    public static Version versionFor(Class<?> cls)
     {
         Version v = null;
         try {
@@ -73,6 +64,13 @@ public class VersionUtil
 
     /**
      * Method used by <code>PackageVersion</code> classes to decode version injected by Maven build.
+     *
+     * @param s Version String to parse
+     * @param groupId Maven group id to include with version
+     * @param artifactId Maven artifact id to include with version
+     *
+     * @return Version instance constructed from parsed components, if successful;
+     *    {@link Version#unknownVersion()} if parsing of components fail
      */
     public static Version parseVersion(String s, String groupId, String artifactId)
     {
@@ -98,9 +96,9 @@ public class VersionUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Orphan utility methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public final static void throwInternal() {

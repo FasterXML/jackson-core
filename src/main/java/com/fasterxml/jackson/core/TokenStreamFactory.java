@@ -316,9 +316,9 @@ public abstract class TokenStreamFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constants
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -339,9 +339,9 @@ public abstract class TokenStreamFactory
     protected final static int DEFAULT_STREAM_WRITE_FEATURE_FLAGS = StreamWriteFeature.collectDefaults();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -370,9 +370,9 @@ public abstract class TokenStreamFactory
     protected final int _formatWriteFeatures;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -429,10 +429,13 @@ public abstract class TokenStreamFactory
      * new copy that does NOT share any state, even non-visible to calling code,
      * such as symbol table reuse.
      *<p>
-     * Implementation should be functionally equivalent to
+     * Implementation should be functionally equivalent to:
      *<pre>
      *    factoryInstance.rebuild().build();
      *</pre>
+     *
+     * @return Newly constructed stream factory instance of same type as this one,
+     *    with identical configuration settings
      */
     public abstract TokenStreamFactory copy();
 
@@ -446,13 +449,18 @@ public abstract class TokenStreamFactory
      * usually simply return `this` -- method is left unimplemented at this level
      * to make implementors aware of requirement to consider immutability.
      *
+     * @return This factory instance to allow call chaining
+     *
      * @since 3.0
      */
     @Override
     public abstract TokenStreamFactory snapshot();
 
     /**
-     * Method that can be used to create differently configured stream factories.
+     * Method that can be used to create differently configured stream factories: it will
+     * create and return a Builder instance with exact settings of this stream factory.
+     *
+     * @return Builder instance initialized with configuration this stream factory has
      *
      * @since 3.0
      */
@@ -460,9 +468,9 @@ public abstract class TokenStreamFactory
 //    public abstract <F extends TokenStreamFactory, T extends TSFBuilder<F,T>> TSFBuilder<F,T> rebuild();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Capability introspection
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -565,46 +573,53 @@ public abstract class TokenStreamFactory
     /**********************************************************
      */
 
+    /**
+     * Checked whether specified parser feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} otherwise
+     */
     public final boolean isEnabled(TokenStreamFactory.Feature f) {
         return (_factoryFeatures & f.getMask()) != 0;
     }
 
     /**
      * Checked whether specified parser feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} otherwise
      */
     public final boolean isEnabled(StreamReadFeature f) {
         return (_streamReadFeatures & f.getMask()) != 0;
     }
 
     /**
-     * Check whether specified generator feature is enabled.
+     * Checked whether specified parser feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} otherwise
      */
     public final boolean isEnabled(StreamWriteFeature f) {
         return (_streamWriteFeatures & f.getMask()) != 0;
     }
 
-    /**
-     * @since 3.0
-     */
+    // @since 3.0
     public final int getStreamReadFeatures() {
         return _streamReadFeatures;
     }
 
-    /**
-     * @since 3.0
-     */
+    // @since 3.0
     public final int getStreamWriteFeatures() {
         return _streamWriteFeatures;
     }
 
-    /**
-     * @since 3.0
-     */
+    // @since 3.0
     public int getFormatReadFeatures() { return _formatReadFeatures; }
 
-    /**
-     * @since 3.0
-     */
+    // @since 3.0
     public int getFormatWriteFeatures() { return _formatWriteFeatures; }
 
     /*
@@ -619,6 +634,9 @@ public abstract class TokenStreamFactory
      * that this has already been done by caller.
      *
      * @param matches Names to match, including both primary names and possible aliases
+     * @param alreadyInterned Whether name Strings are already {@code String.intern()ed} or not
+     *
+     * @return Case-sensitive {@link FieldNameMatcher} instance to use
      */
     public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
         // 15-Nov-2017, tatu: Base implementation that is likely to work fine for
@@ -632,6 +650,9 @@ public abstract class TokenStreamFactory
      * that this has already been done by caller.
      *
      * @param matches Names to match, including both primary names and possible aliases
+     * @param alreadyInterned Whether name Strings are already {@code String.intern()ed} or not
+     *
+     * @return Case-insensitive {@link FieldNameMatcher} instance to use
      */
     public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
@@ -639,9 +660,9 @@ public abstract class TokenStreamFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parser factories, traditional (blocking) I/O sources
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -660,6 +681,8 @@ public abstract class TokenStreamFactory
      * the parser, since caller has no access to it.
      *
      * @param f File that contains JSON content to parse
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
             File f) throws IOException;
@@ -681,6 +704,8 @@ public abstract class TokenStreamFactory
      * the parser, since caller has no access to it.
      *
      * @param url URL pointing to resource that contains JSON content to parse
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
             URL url) throws IOException;
@@ -703,6 +728,8 @@ public abstract class TokenStreamFactory
      * For other charsets use {@link #createParser(java.io.Reader)}.
      *
      * @param in InputStream to use for reading JSON content to parse
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
             InputStream in) throws IOException;
@@ -718,6 +745,8 @@ public abstract class TokenStreamFactory
      * is enabled.
      *
      * @param r Reader to use for reading JSON content to parse
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
             Reader r) throws IOException;
@@ -725,6 +754,8 @@ public abstract class TokenStreamFactory
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
+     *
+     * @return Parser constructed
      */
     public JsonParser createParser(ObjectReadContext readCtxt, byte[] data) throws IOException {
         return createParser(readCtxt, data, 0, data.length);
@@ -737,18 +768,24 @@ public abstract class TokenStreamFactory
      * @param data Buffer that contains data to parse
      * @param offset Offset of the first data byte within buffer
      * @param len Length of contents to parse within buffer
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
             byte[] data, int offset, int len) throws IOException;
 
     /**
      * Method for constructing parser for parsing contents of given String.
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
             String content) throws IOException;
 
     /**
      * Method for constructing parser for parsing contents of given char array.
+     *
+     * @return Parser constructed
      */
     public JsonParser createParser(ObjectReadContext readCtxt,
             char[] content) throws IOException {
@@ -757,6 +794,8 @@ public abstract class TokenStreamFactory
 
     /**
      * Method for constructing parser for parsing contents of given char array.
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
             char[] content, int offset, int len) throws IOException;
@@ -769,6 +808,8 @@ public abstract class TokenStreamFactory
      */
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.File)}
      */
     @Deprecated
@@ -777,6 +818,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.net.URL)}
      */
     @Deprecated
@@ -785,6 +828,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.InputStream)}
      */
     @Deprecated
@@ -793,6 +838,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.Reader)}
      */
     @Deprecated
@@ -801,6 +848,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[])}
      */
     @Deprecated
@@ -809,6 +858,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[],int,int)}
      */
     @Deprecated
@@ -817,6 +868,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,String)}
      */
     @Deprecated
@@ -825,6 +878,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,char[])}
      */
     @Deprecated
@@ -833,6 +888,8 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @return Parser constructed
+     *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,char[],int,int)}
      */
     @Deprecated
@@ -852,6 +909,8 @@ public abstract class TokenStreamFactory
      *<p>
      * If this factory does not support {@link DataInput} as source,
      * will throw {@link UnsupportedOperationException}
+     *
+     * @return Parser constructed
      */
     public abstract JsonParser createParser(ObjectReadContext readCtx,
             DataInput in) throws IOException;
@@ -865,6 +924,8 @@ public abstract class TokenStreamFactory
      * If this factory does not support non-blocking parsing (either at all,
      * or from byte array),
      * will throw {@link UnsupportedOperationException}
+     *
+     * @return Non-blocking parser constructed
      */
     public <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException {
         return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");        
@@ -893,6 +954,8 @@ public abstract class TokenStreamFactory
      *    configuration
      * @param out OutputStream to use for writing JSON content
      *
+     * @return Generator constructed
+     *
      * @since 3.0
      */
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, OutputStream out)
@@ -917,6 +980,8 @@ public abstract class TokenStreamFactory
      *    configuration
      * @param out OutputStream to use for writing JSON content
      *
+     * @return Generator constructed
+     *
      * @since 3.0
      */
     public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
@@ -939,6 +1004,8 @@ public abstract class TokenStreamFactory
      *    configuration
      * @param w Writer to use for writing JSON content 
      *
+     * @return Generator constructed
+     *
      * @since 3.0
      */
     public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w)
@@ -953,11 +1020,13 @@ public abstract class TokenStreamFactory
      * i.e. generator will handle closing of file when
      * {@link JsonGenerator#close} is called.
      *
-     * @since 3.0
-     *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
      * @param f File to write contents to
+     *
+     * @return Generator constructed
+     *
+     * @since 3.0
      */
     public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt, File f,
             JsonEncoding enc)
@@ -969,6 +1038,8 @@ public abstract class TokenStreamFactory
      *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
+     *
+     * @return Generator constructed
      *
      * @since 3.0
      */
@@ -1089,14 +1160,15 @@ public abstract class TokenStreamFactory
      * Method used by factory to create buffer recycler instances
      * for parsers and generators.
      *<p>
-     * Note: only public to give access for <code>ObjectMapper</code>
+     * Note: only public to give access for {@code ObjectMapper}
+     *
+     * @return BufferRecycler instance to use
      */
     public BufferRecycler _getBufferRecycler()
     {
-        /* 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
-         *   scheme, for cases where it is considered harmful (possibly
-         *   on Android, for example)
-         */
+        // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
+        //   scheme, for cases where it is considered harmful (possibly
+        //   on Android, for example)
         if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
             return BufferRecyclers.getBufferRecycler();
         }

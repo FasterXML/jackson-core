@@ -86,7 +86,10 @@ public interface ObjectWriteContext
      * token stream generator.
      *
      * @param g Generator to use for serialization
-     * @param value Java value to be serialzized
+     * @param value Java value to be serialized
+     *
+     * @throws IOException for low-level write problems,
+     *   {@link com.fasterxml.jackson.core.JsonGenerationException} for databinding issues
      */
     public void writeValue(JsonGenerator g, Object value) throws IOException;
 

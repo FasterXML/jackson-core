@@ -216,6 +216,13 @@ public class JsonFactory
     /**********************************************************************
      */
 
+    /**
+     * Accessor for getting version of the core package, given a parser instance.
+     * Left for sub-classes to implement.
+     *
+     * @return Version of this generator (derived from version declared for
+     *   {@code jackson-core} jar that contains the class
+     */
     @Override
     public Version version() {
         return PackageVersion.VERSION;
@@ -229,6 +236,10 @@ public class JsonFactory
 
     /**
      * Checked whether specified parser feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} otherwise
      */
     public final boolean isEnabled(JsonReadFeature f) {
         return (_formatReadFeatures & f.getMask()) != 0;
@@ -236,6 +247,10 @@ public class JsonFactory
 
     /**
      * Check whether specified generator feature is enabled.
+     *
+     * @param f Feature to check
+     *
+     * @return {@code True} if feature is enabled; {@code false} otherwise
      */
     public final boolean isEnabled(JsonWriteFeature f) {
         return (_formatWriteFeatures & f.getMask()) != 0;
@@ -287,6 +302,8 @@ public class JsonFactory
     /**
      * Method for accessing custom escapes factory uses for {@link JsonGenerator}s
      * it creates.
+     *
+     * @return CharacterEscapes configured to be used by parser instances
      */
     public CharacterEscapes getCharacterEscapes() { return _characterEscapes; }
 

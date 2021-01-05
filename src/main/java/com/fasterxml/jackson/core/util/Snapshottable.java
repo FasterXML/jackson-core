@@ -23,6 +23,8 @@ public interface Snapshottable<T> {
      * including `this`. That instance may be `this` if (and only if) this instance is effectively
      * immutable (unmodifiable) through its API: if this is not the case, a new copy with same
      * configuration must be created and returned.
+     *
+     * @return Snapshot instance
      */
     public T snapshot();
 

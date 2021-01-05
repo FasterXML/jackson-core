@@ -82,7 +82,7 @@ public interface ObjectReadContext
      * NOTE! Returned parser has not been advanced to the first token; caller has to
      * do this.
      *
-     * @param Node to traverse over
+     * @param n Node to traverse over
      *
      * @return Parser that iterates over contents of given node
      */

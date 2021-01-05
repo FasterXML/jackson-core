@@ -7,7 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 /**
- * TextBuffer is a class similar to {@link StringBuffer}, with
+ * TextBuffer is a class similar to {@link java.lang.StringBuffer}, with
  * following differences:
  *<ul>
  *  <li>TextBuffer uses segments character arrays, to avoid having

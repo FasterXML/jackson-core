@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -9,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * performance optimization, to avoid calling native intern() method
  * in cases where same String is being interned multiple times.
  *<p>
- * Note: that this class extends {@link LinkedHashMap} is an implementation
+ * Note: that this class extends {@link java.util.LinkedHashMap} is an implementation
  * detail -- no code should ever directly call Map methods.
  */
 public final class InternCache

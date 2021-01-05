@@ -54,6 +54,8 @@ public class MinimalPrettyPrinter
     }
 
     /**
+     * @param separators Separator definitions
+     *
      * @since 2.9
      */
     public MinimalPrettyPrinter setSeparators(Separators separators) {

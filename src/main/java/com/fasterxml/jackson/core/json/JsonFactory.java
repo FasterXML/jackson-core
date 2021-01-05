@@ -174,6 +174,8 @@ public class JsonFactory
     /**
      * Main factory method to use for constructing {@link JsonFactory} instances with
      * different configuration.
+     *
+     * @return Builder instance to use
      */
     public static JsonFactoryBuilder builder() {
         return new JsonFactoryBuilder();
@@ -184,6 +186,8 @@ public class JsonFactory
      * the same settings as this instance, but is otherwise
      * independent (i.e. nothing is actually shared, symbol tables
      * are separate).
+     *
+     * @return Copy of this factory instance
      */
     @Override
     public JsonFactory copy() {
@@ -203,8 +207,9 @@ public class JsonFactory
 
     /**
      * Method that we need to override to actually make restoration go
-     * through constructors etc.
-     * Also: must be overridden by sub-classes as well.
+     * through constructors etc; called by JDK serialization system.
+     *
+     * @return A properly initialized copy of this factory instance
      */
     protected Object readResolve() {
         return new JsonFactory(this);

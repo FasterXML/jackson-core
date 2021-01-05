@@ -109,9 +109,6 @@ public class IOContext
         _encoding = enc;
     }
 
-    /**
-     * @since 1.6
-     */
     public IOContext withEncoding(JsonEncoding enc) {
         _encoding = enc;
         return this;
@@ -138,9 +135,12 @@ public class IOContext
     }
 
     /**
+     * Method for recycling or allocation byte buffer of "read I/O" type.
      *<p>
      * Note: the method can only be called once during its life cycle.
      * This is to protect against accidental sharing.
+     *
+     * @return Allocated or recycled byte buffer
      */
     public byte[] allocReadIOBuffer() {
         _verifyAlloc(_readIOBuffer);
@@ -148,19 +148,41 @@ public class IOContext
     }
 
     /**
+     * Variant of {@link #allocReadIOBuffer()} that specifies smallest acceptable
+     * buffer size.
+     *
+     * @param minSize Minimum size of the buffer to recycle or allocate
+     *
+     * @return Allocated or recycled byte buffer
+     *
      * @since 2.4
      */
     public byte[] allocReadIOBuffer(int minSize) {
         _verifyAlloc(_readIOBuffer);
         return (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, minSize));
     }
-    
+
+    /**
+     * Method for recycling or allocation byte buffer of "write encoding" type.
+     *<p>
+     * Note: the method can only be called once during its life cycle.
+     * This is to protect against accidental sharing.
+     *
+     * @return Allocated or recycled byte buffer
+     */
     public byte[] allocWriteEncodingBuffer() {
         _verifyAlloc(_writeEncodingBuffer);
         return (_writeEncodingBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER));
     }
 
     /**
+     * Variant of {@link #allocWriteEncodingBuffer()} that specifies smallest acceptable
+     * buffer size.
+     *
+     * @param minSize Minimum size of the buffer to recycle or allocate
+     *
+     * @return Allocated or recycled byte buffer
+     *
      * @since 2.4
      */
     public byte[] allocWriteEncodingBuffer(int minSize) {
@@ -169,7 +191,12 @@ public class IOContext
     }
 
     /**
-     * @since 2.1
+     * Method for recycling or allocation byte buffer of "base 64 encode/decode" type.
+     *<p>
+     * Note: the method can only be called once during its life cycle.
+     * This is to protect against accidental sharing.
+     *
+     * @return Allocated or recycled byte buffer
      */
     public byte[] allocBase64Buffer() {
         _verifyAlloc(_base64Buffer);
@@ -177,6 +204,13 @@ public class IOContext
     }
 
     /**
+     * Variant of {@link #allocBase64Buffer()} that specifies smallest acceptable
+     * buffer size.
+     *
+     * @param minSize Minimum size of the buffer to recycle or allocate
+     *
+     * @return Allocated or recycled byte buffer
+     *
      * @since 2.9
      */
     public byte[] allocBase64Buffer(int minSize) {
@@ -189,9 +223,7 @@ public class IOContext
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
     }
 
-    /**
-     * @since 2.4
-     */
+    // @since 2.4
     public char[] allocTokenBuffer(int minSize) {
         _verifyAlloc(_tokenCBuffer);
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, minSize));
@@ -210,12 +242,13 @@ public class IOContext
     /**
      * Method to call when all the processing buffers can be safely
      * recycled.
+     *
+     * @param buf Buffer instance to release (return for recycling)
      */
     public void releaseReadIOBuffer(byte[] buf) {
         if (buf != null) {
-            /* Let's do sanity checks to ensure once-and-only-once release,
-             * as well as avoiding trying to release buffers not owned
-             */
+            // Let's do sanity checks to ensure once-and-only-once release,
+            // as well as avoiding trying to release buffers not owned
             _verifyRelease(buf, _readIOBuffer);
             _readIOBuffer = null;
             _bufferRecycler.releaseByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER, buf);
@@ -224,9 +257,8 @@ public class IOContext
 
     public void releaseWriteEncodingBuffer(byte[] buf) {
         if (buf != null) {
-            /* Let's do sanity checks to ensure once-and-only-once release,
-             * as well as avoiding trying to release buffers not owned
-             */
+            // Let's do sanity checks to ensure once-and-only-once release,
+            // as well as avoiding trying to release buffers not owned
             _verifyRelease(buf, _writeEncodingBuffer);
             _writeEncodingBuffer = null;
             _bufferRecycler.releaseByteBuffer(BufferRecycler.BYTE_WRITE_ENCODING_BUFFER, buf);
@@ -268,9 +300,9 @@ public class IOContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helpers
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final void _verifyAlloc(Object buffer) {

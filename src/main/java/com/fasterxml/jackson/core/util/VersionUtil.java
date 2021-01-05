@@ -45,19 +45,6 @@ public class VersionUtil
      */
     
     /**
-     * Alias of {@link #packageVersionFor(Class)}.
-     *
-     * @param cls Class for which to look version information
-     *
-     * @return Version information discovered if any; 
-     *  {@link Version#unknownVersion()} if none
-     */
-    public static Version versionFor(Class<?> cls)
-    {
-        return packageVersionFor(cls);
-    }
-
-    /**
      * Loads version information by introspecting a class named
      * "PackageVersion" in the same package as the given class.
      *<p>
@@ -70,7 +57,7 @@ public class VersionUtil
      * @return Version information discovered if any; 
      *  {@link Version#unknownVersion()} if none
      */
-    public static Version packageVersionFor(Class<?> cls)
+    public static Version versionFor(Class<?> cls)
     {
         Version v = null;
         try {
@@ -86,6 +73,21 @@ public class VersionUtil
             ;
         }
         return (v == null) ? Version.unknownVersion() : v;
+    }
+
+    /**
+     * Alias of {@link #versionFor(Class)}.
+     *
+     * @param cls Class for which to look version information
+     *
+     * @return Version information discovered if any; 
+     *  {@link Version#unknownVersion()} if none
+     *
+     * @deprecated Since 2.12 simply use {@link #versionFor(Class)} instead
+     */
+    @Deprecated
+    public static Version packageVersionFor(Class<?> cls) {
+        return versionFor(cls);
     }
 
     /**

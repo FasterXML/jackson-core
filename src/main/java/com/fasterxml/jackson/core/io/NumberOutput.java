@@ -21,9 +21,8 @@ public final class NumberOutput
     private final static int[] TRIPLET_TO_CHARS = new int[1000];
 
     static {
-        /* Let's fill it with NULLs for ignorable leading digits,
-         * and digit chars for others
-         */
+        // Let's fill it with NULLs for ignorable leading digits,
+        // and digit chars for others
         int fullIx = 0;
         for (int i1 = 0; i1 < 10; ++i1) {
             for (int i2 = 0; i2 < 10; ++i2) {
@@ -51,7 +50,17 @@ public final class NumberOutput
      */
 
     /**
-     * @return Offset within buffer after outputting int
+     * Method for appending value of given {@code int} value into
+     * specified {@code char[]}.
+     *<p>
+     * NOTE: caller must guarantee that the output buffer has enough room
+     * for String representation of the value.
+     *
+     * @param v Value to append to buffer
+     * @param b Buffer to append value to: caller must guarantee there is enough room
+     * @param off Offset within output buffer ({@code b}) to append number at
+     *
+     * @return Offset within buffer after outputting {@code int}
      */
     public static int outputInt(int v, char[] b, int off)
     {
@@ -152,7 +161,17 @@ public final class NumberOutput
     }
 
     /**
-     * @return Offset within buffer after outputting int
+     * Method for appending value of given {@code long} value into
+     * specified {@code char[]}.
+     *<p>
+     * NOTE: caller must guarantee that the output buffer has enough room
+     * for String representation of the value.
+     *
+     * @param v Value to append to buffer
+     * @param b Buffer to append value to: caller must guarantee there is enough room
+     * @param off Offset within output buffer ({@code b}) to append number at
+     *
+     * @return Offset within buffer after outputting {@code long}
      */
     public static int outputLong(long v, char[] b, int off)
     {
@@ -258,9 +277,7 @@ public final class NumberOutput
         return Double.toString(v);
     }
 
-    /**
-     * @since 2.6.0
-     */
+    // @since 2.6
     public static String toString(float v) {
         return Float.toString(v);
     }
@@ -275,6 +292,8 @@ public final class NumberOutput
      * Helper method to verify whether given {@code double} value is finite
      * (regular rational number} or not (NaN or Infinity).
      *
+     * @param value {@code double} value to check
+     *
      * @return True if number is NOT finite (is Infinity or NaN); false otherwise
      *
      * Since 2.10
@@ -287,6 +306,8 @@ public final class NumberOutput
     /**
      * Helper method to verify whether given {@code float} value is finite
      * (regular rational number} or not (NaN or Infinity).
+     *
+     * @param value {@code float} value to check
      *
      * @return True if number is NOT finite (is Infinity or NaN); false otherwise
      *

@@ -434,12 +434,17 @@ public abstract class GeneratorBase extends JsonGenerator
      * 
      * @param typeMsg Additional message used for generating exception message
      *   if value output is NOT legal in current generator output state.
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
     protected abstract void _verifyValueWrite(String typeMsg) throws IOException;
 
     /**
      * Overridable factory method called to instantiate an appropriate {@link PrettyPrinter}
      * for case of "just use the default one", when {@link #useDefaultPrettyPrinter()} is called.
+     *
+     * @return Instance of "default" pretty printer to use
      *
      * @since 2.6
      */
@@ -450,6 +455,12 @@ public abstract class GeneratorBase extends JsonGenerator
     /**
      * Helper method used to serialize a {@link java.math.BigDecimal} as a String,
      * for serialization, taking into account configuration settings
+     *
+     * @param value BigDecimal value to convert to String
+     *
+     * @return String representation of {@code value}
+     *
+     * @throws IOException if there is a problem serializing value as String
      *
      * @since 2.7.7
      */
@@ -473,9 +484,7 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     /**********************************************************
      */
 
-    /**
-     * @since 2.5
-     */
+    // @since 2.5
     protected final int _decodeSurrogate(int surr1, int surr2) throws IOException
     {
         // First is known to be valid, but how about the other?

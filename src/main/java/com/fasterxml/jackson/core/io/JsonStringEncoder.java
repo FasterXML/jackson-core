@@ -47,6 +47,8 @@ public final class JsonStringEncoder
     /**
      * Factory method for getting an instance; this is either recycled per-thread instance,
      * or a newly constructed one.
+     *
+     * @return Static stateless encoder instance
      */
     public static JsonStringEncoder getInstance() {
         return instance;
@@ -59,8 +61,12 @@ public final class JsonStringEncoder
      */
 
     /**
-     * Method that will quote text contents using JSON standard quoting,
-     * and return results as a character array
+     * Method that will escape text contents using JSON standard escaping,
+     * and return results as a character array.
+     *
+     * @param input Value String to process
+     *
+     * @return JSON-escaped String matching {@code input}
      */
     public char[] quoteAsCharArray(CharSequence input)
     {
@@ -131,6 +137,9 @@ public final class JsonStringEncoder
      * Method that will quote text contents using JSON standard quoting,
      * and append results to a supplied {@link StringBuilder}.
      * Use this variant if you have e.g. a {@link StringBuilder} and want to avoid superfluous copying of it.
+     *
+     * @param input Value {@link CharSequence} to process
+     * @param output {@link StringBuilder} to append escaped contents to
      */
     public void quoteAsString(CharSequence input, StringBuilder output)
     {
@@ -167,8 +176,13 @@ public final class JsonStringEncoder
     }
 
     /**
-     * Will quote given JSON String value using standard quoting, encode
-     * results as UTF-8, and return result as a byte array.
+     * Method that will escape text contents using JSON standard escaping,
+     * encode resulting String as UTF-8 bytes
+     * and return results as a  byte array.
+     *
+     * @param text Value String to process
+     *
+     * @return UTF-8 encoded bytes of JSON-escaped {@code text}
      */
     @SuppressWarnings("resource")
     public byte[] quoteAsUTF8(CharSequence text)
@@ -269,8 +283,12 @@ public final class JsonStringEncoder
     }
 
     /**
-     * Will encode given String as UTF-8 (without any quoting), return
-     * resulting byte array.
+     * Will encode given String as UTF-8 (without any escaping) and return
+     * the resulting byte array.
+     *
+     * @param text Value String to process
+     *
+     * @return UTF-8 encoded bytes of {@code text} (without any escaping)
      */
     @SuppressWarnings("resource")
     public byte[] encodeAsUTF8(CharSequence text)

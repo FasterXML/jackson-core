@@ -78,6 +78,8 @@ public final class SegmentedStringWriter extends Writer
      * and return result String.
      * Note that the method is not idempotent -- if called second time,
      * will just return an empty String.
+     *
+     * @return String that contains all aggregated content
      */
     public String getAndClear() {
         String result = _buffer.contentsAsString();

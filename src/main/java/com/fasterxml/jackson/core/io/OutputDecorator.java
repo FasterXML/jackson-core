@@ -9,7 +9,8 @@ import java.io.*;
  * processing during write operations.
  */
 @SuppressWarnings("serial")
-public abstract class OutputDecorator implements java.io.Serializable // since 2.1
+public abstract class OutputDecorator
+    implements java.io.Serializable // since 2.1
 {
     /**
      * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
@@ -21,6 +22,8 @@ public abstract class OutputDecorator implements java.io.Serializable // since 2
      * 
      * @return OutputStream to use; either passed in argument, or something that
      *   calls it
+     *
+     * @throws IOException if construction of decorated {@link OutputStream} fails
      */
     public abstract OutputStream decorate(IOContext ctxt, OutputStream out) throws IOException;
 
@@ -33,6 +36,8 @@ public abstract class OutputDecorator implements java.io.Serializable // since 2
      * @param w Original output writer
      * 
      * @return Writer to use; either passed in argument, or something that calls it
+     *
+     * @throws IOException if construction of decorated {@link Writer} fails
      */
     public abstract Writer decorate(IOContext ctxt, Writer w) throws IOException;
 }

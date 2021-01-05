@@ -157,9 +157,9 @@ public interface SerializableString
 
     /**
      * Method for writing JSON-escaped UTF-8 encoded String value using given
-     * {@link OutputStream}.
+     * {@link java.io.OutputStream}.
      *
-     * @param out {@link OutputStream} to write String into
+     * @param out {@link java.io.OutputStream} to write String into
      *
      * @return Number of bytes written
      *
@@ -169,9 +169,9 @@ public interface SerializableString
 
     /**
      * Method for writing unescaped UTF-8 encoded String value using given
-     * {@link OutputStream}.
+     * {@link java.io.OutputStream}.
      *
-     * @param out {@link OutputStream} to write String into
+     * @param out {@link java.io.OutputStream} to write String into
      *
      * @return Number of bytes written
      *
@@ -181,9 +181,9 @@ public interface SerializableString
 
     /**
      * Method for appending JSON-escaped UTF-8 encoded String value into given
-     * {@link ByteBuffer}, if it fits.
+     * {@link java.nio.ByteBuffer}, if it fits.
      *
-     * @param buffer {@link ByteBuffer} to append String into
+     * @param buffer {@link java.nio.ByteBuffer} to append String into
      *
      * @return Number of bytes put, if contents fit, otherwise -1
      *
@@ -193,9 +193,9 @@ public interface SerializableString
 
     /**
      * Method for appending unquoted ('raw') UTF-8 encoded String value into given
-     * {@link ByteBuffer}, if it fits.
+     * {@link java.nio.ByteBuffer}, if it fits.
      *
-     * @param buffer {@link ByteBuffer} to append String into
+     * @param buffer {@link java.nio.ByteBuffer} to append String into
      *
      * @return Number of bytes put, if contents fit, otherwise -1
      *

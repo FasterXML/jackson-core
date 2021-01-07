@@ -7,7 +7,6 @@ The core abstractions are not JSON specific, although naming does contain 'JSON'
 
 This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on.
 It is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
-For additional/alternative licensing questions, please contact `info@fasterxml.com`: affordable commercial licenses available for use cases like Android app development.
 
 Alternate data format implementations (like
 [Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),

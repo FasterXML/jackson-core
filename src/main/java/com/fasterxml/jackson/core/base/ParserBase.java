@@ -468,6 +468,9 @@ public abstract class ParserBase extends ParserMinimalBase
      * reader. This may be called along with {@link #_closeInput} (for
      * example, when explicitly closing this reader instance), or
      * separately (if need be).
+     *
+     * @throws IOException Not thrown by base implementation but could be thrown
+     *   by sub-classes
      */
     protected void _releaseBuffers() throws IOException {
         _textBuffer.releaseBuffers();
@@ -496,6 +499,11 @@ public abstract class ParserBase extends ParserMinimalBase
     }
 
     /**
+     * @return If no exception is thrown, {@code -1} which is used as marked for "end-of-input"
+     *
+     * @throws JsonParseException If check on {@code _handleEOF()} fails; usually because
+     *    the current context is not root context (missing end markers in content)
+     *
      * @since 2.4
      */
     protected final int _eofAsNextChar() throws JsonParseException {
@@ -771,6 +779,9 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @param expType Numeric type that we will immediately need, if any;
      *   mostly necessary to optimize handling of floating point numbers
+     *
+     * @throws IOException If there are problems reading content
+     * @throws JsonParseException If there are problems decoding number value
      */
     protected void _parseNumericValue(int expType) throws IOException
     {
@@ -823,9 +834,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _reportError("Current token (%s) not numeric, can not use numeric value accessors", _currToken);
     }
 
-    /**
-     * @since 2.6
-     */
+    // @since 2.6
     protected int _parseIntValue() throws IOException
     {
         // 12-Jun-2020, tatu: Sanity check to prevent more cryptic error for this case.
@@ -1084,6 +1093,11 @@ public abstract class ParserBase extends ParserMinimalBase
      * Note: it is possible to suppress some instances of
      * exception by enabling
      * {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}.
+     *
+     * @param i Invalid control character
+     * @param ctxtDesc Addition description of context to use in exception message
+     *
+     * @throws JsonParseException explaining the problem
      */
     @SuppressWarnings("deprecation")
     protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
@@ -1100,6 +1114,8 @@ public abstract class ParserBase extends ParserMinimalBase
      *    invalid (unrecognized) JSON token: called when parser finds something that
      *    looks like unquoted textual token
      *
+     * @throws IOException Not thrown by base implementation but allowed by sub-classes
+     *
      * @since 2.10
      */
     protected String _validJsonTokenList() throws IOException {
@@ -1110,6 +1126,8 @@ public abstract class ParserBase extends ParserMinimalBase
      * @return Description to use as "valid JSON values" in an exception message about
      *    invalid (unrecognized) JSON value: called when parser finds something that
      *    does not look like a value or separator.
+     *
+     * @throws IOException Not thrown by base implementation but allowed by sub-classes
      *
      * @since 2.10
      */
@@ -1131,6 +1149,10 @@ public abstract class ParserBase extends ParserMinimalBase
      * Method that sub-classes must implement to support escaped sequences
      * in base64-encoded sections.
      * Sub-classes that do not need base64 support can leave this as is
+     *
+     * @return Character decoded, if any
+     *
+     * @throws IOException If escape decoding fails
      */
     protected char _decodeEscaped() throws IOException {
         throw new UnsupportedOperationException();
@@ -1186,9 +1208,9 @@ public abstract class ParserBase extends ParserMinimalBase
         return reportInvalidBase64Char(b64variant, ch, bindex, null);
     }
 
-    /**
+    /*
      * @param bindex Relative index within base64 character unit; between 0
-     *   and 3 (as unit has exactly 4 characters)
+     *  and 3 (as unit has exactly 4 characters)
      */
     protected IllegalArgumentException reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex, String msg) throws IllegalArgumentException {
         String base;
@@ -1224,6 +1246,8 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * Helper method used to encapsulate logic of including (or not) of
      * "source reference" when constructing {@link JsonLocation} instances.
+     *
+     * @return Source reference object, if any; {@code null} if none
      *
      * @since 2.9
      */

@@ -70,6 +70,10 @@ public final class JsonReadContext extends JsonStreamContext
      * Parent link left as-is since it is {@code final}.
      *<p>
      * NOTE: Public since 2.12.
+     *
+     * @param type Type to assign to this context node
+     * @param lineNr Line of the starting position of this context
+     * @param colNr Column of the starting position of this context
      */
     public void reset(int type, int lineNr, int colNr) {
         _type = type;
@@ -173,6 +177,8 @@ public final class JsonReadContext extends JsonStreamContext
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
+     *
+     * @return Parent context of this context node, if any; {@code null} for root context
      *
      * @since 2.7
      */

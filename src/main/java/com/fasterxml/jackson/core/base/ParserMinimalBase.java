@@ -263,7 +263,11 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /**
-     * Method sub-classes need to implement
+     * Method sub-classes need to implement for verifying that end-of-content
+     * is acceptable at current input position.
+     *
+     * @throws JsonParseException If end-of-content is not acceptable (for example,
+     *   missing end-object or end-array tokens)
      */
     protected abstract void _handleEOF() throws JsonParseException;
 
@@ -500,6 +504,13 @@ public abstract class ParserMinimalBase extends JsonParser
     /**
      * Helper method that can be used for base64 decoding in cases where
      * encoded content has already been read as a String.
+     *
+     * @param str String to decode
+     * @param builder Builder used to buffer binary content decoded
+     * @param b64variant Base64 variant expected in content
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant) throws IOException
     {
@@ -520,7 +531,14 @@ public abstract class ParserMinimalBase extends JsonParser
      * Helper method used to determine whether we are currently pointing to
      * a String value of "null" (NOT a null token); and, if so, that parser
      * is to recognize and return it similar to if it was real null token.
-     * 
+     *<p>
+     * Default implementation accepts exact string {@code "null"} and nothing else
+     *
+     * @param value String value to check
+     *
+     * @return True if given value contains "null equivalent" String value (for
+     *   content this parser handles).
+     *
      * @since 2.3
      */
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
@@ -544,6 +562,10 @@ public abstract class ParserMinimalBase extends JsonParser
      * based on first character(s), but is not valid according to rules of format.
      * In case of JSON this also includes invalid forms like positive sign and
      * leading zeroes.
+     *
+     * @param msg Base exception message to use
+     *
+     * @throws JsonParseException Exception that describes problem with number validity
      */
     protected void reportInvalidNumber(String msg) throws JsonParseException {
         _reportError("Invalid numeric value: "+msg);
@@ -553,6 +575,8 @@ public abstract class ParserMinimalBase extends JsonParser
      * Method called to throw an exception for integral (not floating point) input
      * token with value outside of Java signed 32-bit range when requested as {@code int}.
      * Result will be {@link InputCoercionException} being thrown.
+     *
+     * @throws JsonParseException Exception that describes problem with number range validity
      */
     protected void reportOverflowInt() throws IOException {
         reportOverflowInt(getText());
@@ -574,6 +598,8 @@ public abstract class ParserMinimalBase extends JsonParser
      * Method called to throw an exception for integral (not floating point) input
      * token with value outside of Java signed 64-bit range when requested as {@code long}.
      * Result will be {@link InputCoercionException} being thrown.
+     *
+     * @throws JsonParseException Exception that describes problem with number range validity
      */
     protected void reportOverflowLong() throws IOException {
         reportOverflowLong(getText());
@@ -591,9 +617,7 @@ public abstract class ParserMinimalBase extends JsonParser
                 inputType, Long.TYPE);
     }
 
-    /**
-     * @since 2.10
-     */
+    // @since 2.10
     protected void _reportInputCoercion(String msg, JsonToken inputType, Class<?> targetType)
             throws InputCoercionException {
         throw new InputCoercionException(this, msg, inputType, targetType);
@@ -639,9 +663,7 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportInvalidEOF(" in "+_currToken, _currToken);
     }
 
-    /**
-     * @since 2.8
-     */
+    // @since 2.8
     protected void _reportInvalidEOFInValue(JsonToken type) throws JsonParseException {
         String msg;
         if (type == JsonToken.VALUE_STRING) {
@@ -655,15 +677,15 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportInvalidEOF(msg, type);
     }
 
-    /**
-     * @since 2.8
-     */
+    // @since 2.8
     protected void _reportInvalidEOF(String msg, JsonToken currToken) throws JsonParseException {
         throw new JsonEOFException(this, currToken, "Unexpected end-of-input"+msg);
     }
 
     /**
      * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
+     *
+     * @throws JsonParseException Exception that describes problem with end-of-content within value
      */
     @Deprecated // since 2.8
     protected void _reportInvalidEOFInValue() throws JsonParseException {
@@ -671,7 +693,10 @@ public abstract class ParserMinimalBase extends JsonParser
     }
     
     /**
+     * @param msg Addition message snippet to append to base exception message
      * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
+     *
+     * @throws JsonParseException Exception that describes problem with end-of-content within value
      */
     @Deprecated // since 2.8
     protected void _reportInvalidEOF(String msg) throws JsonParseException {

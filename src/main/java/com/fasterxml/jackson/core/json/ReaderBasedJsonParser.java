@@ -120,8 +120,19 @@ public class ReaderBasedJsonParser
      */
 
     /**
-     * Method called when caller wants to provide input buffer directly,
+     * Constructor called when caller wants to provide input buffer directly,
      * and it may or may not be recyclable use standard recycle context.
+     *
+     * @param ctxt I/O context to use
+     * @param features Standard stream read features enabled
+     * @param r Reader used for reading actual content, if any; {@code null} if none
+     * @param codec {@code ObjectCodec} to delegate object deserialization to
+     * @param st Name canonicalizer to use
+     * @param inputBuffer Input buffer to read initial content from (before Reader)
+     * @param start Pointer in {@code inputBuffer} that has the first content character to decode
+     * @param end Pointer past the last content character in {@code inputBuffer}
+     * @param bufferRecyclable Whether {@code inputBuffer} passed is managed by Jackson core
+     *    (and thereby needs recycling)
      *
      * @since 2.4
      */
@@ -142,8 +153,14 @@ public class ReaderBasedJsonParser
     }
 
     /**
-     * Method called when input comes as a {@link java.io.Reader}, and buffer allocation
+     * Constructor called when input comes as a {@link java.io.Reader}, and buffer allocation
      * can be done using default mechanism.
+     *
+     * @param ctxt I/O context to use
+     * @param features Standard stream read features enabled
+     * @param r Reader used for reading actual content, if any; {@code null} if none
+     * @param codec {@code ObjectCodec} to delegate object deserialization to
+     * @param st Name canonicalizer to use
      */
     public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
         ObjectCodec codec, CharsToNameCanonicalizer st)
@@ -1304,6 +1321,14 @@ public class ReaderBasedJsonParser
      * processing. However, actual numeric value conversion will be
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
+     *
+     * @param ch The first non-null digit character of the number to parse
+     *
+     * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
+     *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     protected final JsonToken _parsePosNumber(int ch) throws IOException
     {
@@ -1476,6 +1501,15 @@ public class ReaderBasedJsonParser
      * buffer boundary. As a result code is very similar, except
      * that it has to explicitly copy contents to the text buffer
      * instead of just sharing the main input buffer.
+     *
+     * @param neg Whether number being decoded is negative or not
+     * @param startPtr Offset in input buffer for the next character of content
+     *
+     * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
+     *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     private final JsonToken _parseNumber2(boolean neg, int startPtr) throws IOException
     {
@@ -1605,10 +1639,8 @@ public class ReaderBasedJsonParser
         return reset(neg, intLen, fractLen, expLen);
     }
 
-    /**
-     * Method called when we have seen one zero, and want to ensure
-     * it is not followed by another
-     */
+    // Method called when we have seen one zero, and want to ensure
+    // it is not followed by another
     private final char _verifyNoLeadingZeroes() throws IOException
     {
         // Fast case first:
@@ -1652,10 +1684,8 @@ public class ReaderBasedJsonParser
         return ch;
     }
 
-    /**
-     * Method called if expected numeric value (due to leading sign) does not
-     * look like a number
-     */
+    // Method called if expected numeric value (due to leading sign) does not
+    // look like a number
     protected JsonToken _handleInvalidNumberStart(int ch, boolean negative) throws IOException
     {
         if (ch == 'I') {
@@ -1691,6 +1721,11 @@ public class ReaderBasedJsonParser
      *<p>
      * NOTE: caller MUST ensure there is at least one character available;
      * and that input pointer is AT given char (not past)
+     *
+     * @param First character of likely white space to skip
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid white space)
      */
     private final void _verifyRootSpace(int ch) throws IOException
     {
@@ -1802,6 +1837,13 @@ public class ReaderBasedJsonParser
      * than double quote, when expecting a field name.
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
+     *
+     * @param i First undecoded character of possible "odd name" to decode
+     *
+     * @return Name decoded, if allowed and successful
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid white space)
      */
     protected String _handleOddName(int i) throws IOException
     {
@@ -1889,6 +1931,13 @@ public class ReaderBasedJsonParser
     /**
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
+     *
+     * @param i First undecoded character of possible "odd value" to decode
+     *
+     * @return Type of value decoded, if allowed and successful
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid white space)
      */
     protected JsonToken _handleOddValue(int i) throws IOException
     {
@@ -2118,6 +2167,9 @@ public class ReaderBasedJsonParser
      * Method called to skim through rest of unparsed String value,
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid white space)
      */
     protected final void _skipString() throws IOException
     {
@@ -2167,10 +2219,8 @@ public class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    /**
-     * We actually need to check the character value here
-     * (to see if we have \n following \r).
-     */
+    // We actually need to check the character value here
+    // (to see if we have \n following \r).
     protected final void _skipCR() throws IOException {
         if (_inputPtr < _inputEnd || _loadMore()) {
             if (_inputBuffer[_inputPtr] == '\n') {
@@ -2646,9 +2696,7 @@ public class ReaderBasedJsonParser
         _matchToken("null", 1);
     }
 
-    /**
-     * Helper method for checking whether input matches expected token
-     */
+    // Helper method for checking whether input matches expected token
     protected final void _matchToken(String matchStr, int i) throws IOException
     {
         final int len = matchStr.length();
@@ -2707,6 +2755,13 @@ public class ReaderBasedJsonParser
     /**
      * Efficient handling for incremental parsing of base64-encoded
      * textual content.
+     *
+     * @param b64variant Type of base64 encoding expected in context
+     *
+     * @return Fully decoded value of base64 content
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid white space)
      */
     @SuppressWarnings("resource")
     protected byte[] _decodeBase64(Base64Variant b64variant) throws IOException

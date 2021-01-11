@@ -732,7 +732,7 @@ public abstract class JsonParser
      *    otherwise number of bytes released (0 if there was nothing to release)
      *
      * @throws IOException if write to stream threw exception
-     */    
+     */
     public int releaseBuffered(OutputStream out) throws IOException {
         return -1;
     }

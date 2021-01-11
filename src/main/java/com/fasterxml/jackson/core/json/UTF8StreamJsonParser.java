@@ -138,6 +138,21 @@ public class UTF8StreamJsonParser
      */
 
     /**
+     * Constructor called when caller wants to provide input buffer directly
+     * (or needs to, in case of bootstrapping having read some of contents)
+     * and it may or may not be recyclable use standard recycle context.
+     *
+     * @param ctxt I/O context to use
+     * @param features Standard stream read features enabled
+     * @param in InputStream used for reading actual content, if any; {@code null} if none
+     * @param codec {@code ObjectCodec} to delegate object deserialization to
+     * @param sym Name canonicalizer to use
+     * @param inputBuffer Input buffer to read initial content from (before Reader)
+     * @param start Pointer in {@code inputBuffer} that has the first content character to decode
+     * @param end Pointer past the last content character in {@code inputBuffer}
+     * @param bufferRecyclable Whether {@code inputBuffer} passed is managed by Jackson core
+     *    (and thereby needs recycling)
+     *
      * @deprecated Since 2.10
      */
     @Deprecated
@@ -150,6 +165,23 @@ public class UTF8StreamJsonParser
             inputBuffer, start, end, 0, bufferRecyclable);
     }
 
+    /**
+     * Constructor called when caller wants to provide input buffer directly
+     * (or needs to, in case of bootstrapping having read some of contents)
+     * and it may or may not be recyclable use standard recycle context.
+     *
+     * @param ctxt I/O context to use
+     * @param features Standard stream read features enabled
+     * @param in InputStream used for reading actual content, if any; {@code null} if none
+     * @param codec {@code ObjectCodec} to delegate object deserialization to
+     * @param sym Name canonicalizer to use
+     * @param inputBuffer Input buffer to read initial content from (before Reader)
+     * @param start Pointer in {@code inputBuffer} that has the first content character to decode
+     * @param end Pointer past the last content character in {@code inputBuffer}
+     * @param bytesPreProcessed Number of bytes that have been consumed already (by bootstrapping)
+     * @param bufferRecyclable Whether {@code inputBuffer} passed is managed by Jackson core
+     *    (and thereby needs recycling)
+     */
     public UTF8StreamJsonParser(IOContext ctxt, int features, InputStream in,
             ObjectCodec codec, ByteQuadsCanonicalizer sym,
             byte[] inputBuffer, int start, int end, int bytesPreProcessed,
@@ -1396,6 +1428,14 @@ public class UTF8StreamJsonParser
      * processing. However, actual numeric value conversion will be
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
+     *
+     * @param c The first non-null digit character of the number to parse
+     *
+     * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
+     *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     protected JsonToken _parsePosNumber(int c) throws IOException
     {
@@ -1494,10 +1534,8 @@ public class UTF8StreamJsonParser
         return resetInt(true, intLen);
     }
 
-    /**
-     * Method called to handle parsing when input is split across buffer boundary
-     * (or output is longer than segment used to store it)
-     */
+    // Method called to handle parsing when input is split across buffer boundary
+    // (or output is longer than segment used to store it)
     private final JsonToken _parseNumber2(char[] outBuf, int outPtr, boolean negative,
             int intPartLength) throws IOException
     {
@@ -1532,11 +1570,9 @@ public class UTF8StreamJsonParser
         return resetInt(negative, intPartLength);
         
     }
-    
-    /**
-     * Method called when we have seen one zero, and want to ensure
-     * it is not followed by another
-     */
+
+    // Method called when we have seen one zero, and want to ensure
+    // it is not followed by another
     private final int _verifyNoLeadingZeroes() throws IOException
     {
         // Ok to have plain "0"
@@ -1672,6 +1708,11 @@ public class UTF8StreamJsonParser
      *<p>
      * NOTE: caller MUST ensure there is at least one character available;
      * and that input pointer is AT given char (not past)
+     *
+     * @param First character of likely white space to skip
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid white space)
      */
     private final void _verifyRootSpace(int ch) throws IOException
     {
@@ -1801,9 +1842,7 @@ public class UTF8StreamJsonParser
         return parseMediumName2(i, q2);
     }
 
-    /**
-     * @since 2.6
-     */
+    // @since 2.6
     protected final String parseMediumName2(int q3, final int q2) throws IOException
     {
         final byte[] input = _inputBuffer;
@@ -1906,11 +1945,9 @@ public class UTF8StreamJsonParser
         return parseEscapedName(_quadBuffer, qlen, 0, q, 0);
     }
 
-    /**
-     * Method called when not even first 8 bytes are guaranteed
-     * to come consecutively. Happens rarely, so this is offlined;
-     * plus we'll also do full checks for escaping etc.
-     */
+    // Method called when not even first 8 bytes are guaranteed
+    // to come consecutively. Happens rarely, so this is offlined;
+    // plus we'll also do full checks for escaping etc.
     protected String slowParseName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
@@ -1940,12 +1977,10 @@ public class UTF8StreamJsonParser
         return parseEscapedName(_quadBuffer, 2, q3, ch, lastQuadBytes);
     }
 
-    /**
-     * Slower parsing method which is generally branched to when an escape
-     * sequence is detected (or alternatively for long names, one crossing
-     * input buffer boundary). Needs to be able to handle more exceptional
-     * cases, gets slower, and hence is offlined to a separate method.
-     */
+    // Slower parsing method which is generally branched to when an escape
+    // sequence is detected (or alternatively for long names, one crossing
+    // input buffer boundary). Needs to be able to handle more exceptional
+    // cases, gets slower, and hence is offlined to a separate method.
     protected final String parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
     {
@@ -2041,6 +2076,13 @@ public class UTF8StreamJsonParser
      * than double quote, when expecting a field name.
      * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
+     *
+     * @param ch First undecoded character of possible "odd name" to decode
+     *
+     * @return Name decoded, if allowed and successful
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid name)
      */
     protected String _handleOddName(int ch) throws IOException
     {
@@ -2109,11 +2151,10 @@ public class UTF8StreamJsonParser
         return name;
     }
 
-    /* Parsing to support [JACKSON-173]. Plenty of duplicated code;
-     * main reason being to try to avoid slowing down fast path
-     * for valid JSON -- more alternatives, more code, generally
-     * bit slower execution.
-     */
+    // Parsing to support apostrope-quoted names. Plenty of duplicated code;
+    // main reason being to try to avoid slowing down fast path
+    // for valid JSON -- more alternatives, more code, generally
+    // bit slower execution.
     protected String _parseAposName() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
@@ -2275,8 +2316,7 @@ public class UTF8StreamJsonParser
         return name;
     }
 
-    /**
-     * This is the main workhorse method used when we take a symbol
+    /* This is the main workhorse method used when we take a symbol
      * table miss. It needs to demultiplex individual bytes, decode
      * multi-byte chars (if any), and then construct Name instance
      * and add it to the symbol table.
@@ -2389,9 +2429,7 @@ public class UTF8StreamJsonParser
         return _symbols.addName(baseName, quads, qlen);
     }
 
-    /**
-     * Helper method needed to fix [jackson-core#148], masking of 0x00 character
-     */
+    // Helper method needed to fix [jackson-core#148], masking of 0x00 character
     private final static int _padLastQuad(int q, int bytes) {
         return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
     }
@@ -2438,9 +2476,7 @@ public class UTF8StreamJsonParser
         _finishString2(outBuf, outPtr);
     }
 
-    /**
-     * @since 2.6
-     */
+    // @since 2.6
     protected String _finishAndReturnString() throws IOException
     {
         // First, single tight loop for ASCII content, not split across input buffer boundary:        
@@ -2560,6 +2596,9 @@ public class UTF8StreamJsonParser
      * Method called to skim through rest of unparsed String value,
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid String value)
      */
     protected void _skipString() throws IOException
     {
@@ -2623,6 +2662,13 @@ public class UTF8StreamJsonParser
     /**
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
+     *
+     * @param c First undecoded character of possible "odd value" to decode
+     *
+     * @return Type of value decoded, if allowed and successful
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid white space)
      */
     protected JsonToken _handleUnexpectedValue(int c) throws IOException
     {
@@ -2787,10 +2833,8 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    /**
-     * Method called if expected numeric value (due to leading sign) does not
-     * look like a number
-     */
+    // Method called if expected numeric value (due to leading sign) does not
+    // look like a number
     protected JsonToken _handleInvalidNumberStart(int ch, boolean neg) throws IOException
     {
         while (ch == 'I') {
@@ -3233,10 +3277,8 @@ public class UTF8StreamJsonParser
         return true;
     }
 
-    /**
-     * Method for skipping contents of an input line; usually for CPP
-     * and YAML style comments.
-     */
+    // Method for skipping contents of an input line; usually for CPP
+    // and YAML style comments.
     private final void _skipLine() throws IOException
     {
         // Ok: need to find EOF or linefeed
@@ -3430,10 +3472,8 @@ public class UTF8StreamJsonParser
         return c;
     }
 
-    /**
-     * @return Character value <b>minus 0x10000</c>; this so that caller
-     *    can readily expand it to actual surrogates
-     */
+    // @return Character value <b>minus 0x10000</c>; this so that caller
+    //    can readily expand it to actual surrogates
     private final int _decodeUtf8_4(int c) throws IOException
     {
         if (_inputPtr >= _inputEnd) {
@@ -3531,10 +3571,8 @@ public class UTF8StreamJsonParser
     /**********************************************************
      */
 
-    /**
-     * We actually need to check the character value here
-     * (to see if we have \n following \r).
-     */
+    // We actually need to check the character value here
+    // (to see if we have \n following \r).
     protected final void _skipCR() throws IOException
     {
         if (_inputPtr < _inputEnd || _loadMore()) {
@@ -3546,7 +3584,7 @@ public class UTF8StreamJsonParser
         _currInputRowStart = _inputPtr;
     }
 
-        private int nextByte() throws IOException
+    private int nextByte() throws IOException
     {
         if (_inputPtr >= _inputEnd) {
             _loadMoreGuaranteed();
@@ -3626,6 +3664,13 @@ public class UTF8StreamJsonParser
     /**
      * Efficient handling for incremental parsing of base64-encoded
      * textual content.
+     *
+     * @param b64variant Type of base64 encoding expected in context
+     *
+     * @return Fully decoded value of base64 content
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid content)
      */
     @SuppressWarnings("resource")
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException

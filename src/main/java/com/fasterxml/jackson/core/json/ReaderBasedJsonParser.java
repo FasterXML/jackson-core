@@ -120,7 +120,8 @@ public class ReaderBasedJsonParser
      */
 
     /**
-     * Constructor called when caller wants to provide input buffer directly,
+     * Constructor called when caller wants to provide input buffer directly
+     * (or needs to, in case of bootstrapping having read some of contents)
      * and it may or may not be recyclable use standard recycle context.
      *
      * @param ctxt I/O context to use
@@ -1843,7 +1844,7 @@ public class ReaderBasedJsonParser
      * @return Name decoded, if allowed and successful
      *
      * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     *   {@link JsonParseException} for decoding problems (invalid name)
      */
     protected String _handleOddName(int i) throws IOException
     {
@@ -2761,7 +2762,7 @@ public class ReaderBasedJsonParser
      * @return Fully decoded value of base64 content
      *
      * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     *   {@link JsonParseException} for decoding problems (invalid content)
      */
     @SuppressWarnings("resource")
     protected byte[] _decodeBase64(Base64Variant b64variant) throws IOException

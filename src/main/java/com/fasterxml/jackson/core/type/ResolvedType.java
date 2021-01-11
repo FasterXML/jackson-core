@@ -20,7 +20,7 @@ public abstract class ResolvedType
      */
 
     /**
-     * Accessor for type-erased {@link Class} of resolved type.
+     * @return Type-erased {@link Class} of resolved type
      */
     public abstract Class<?> getRawClass();
 
@@ -53,6 +53,8 @@ public abstract class ResolvedType
      * {@link java.util.concurrent.atomic.AtomicReference}, and various
      * <code>Optional</code> types (in JDK8, Guava).
      *
+     * @return {@code True} if this is a "referential" type, {@code false} if not
+     *
      * @since 2.6
      */
     public boolean isReferenceType() {
@@ -70,27 +72,16 @@ public abstract class ResolvedType
     /**
      * Method that can be used to find out if the type directly declares generic
      * parameters (for its direct super-class and/or super-interfaces).
+     *
+     * @return {@code True} if this type has generic type parameters, {@code false} if not
      */
     public abstract boolean hasGenericTypes();
 
     /**
-     * Accessor that can be used to find out type for which parameterization
-     * is applied: this is often NOT same as what {@link #getRawClass} returns,
-     * but rather one of it supertype.
-     *<p>
-     * For example: for type like {@link java.util.HashMap}, raw type is
-     * {@link java.util.HashMap}; but this method would return
-     * {@link java.util.Map}, because relevant type parameters that are
-     * resolved (and accessible using {@link #containedType(int)} and
-     * {@link #getKeyType()}) are parameter for {@link java.util.Map}
-     * (which may or may not be same as type parameters for subtype;
-     * in case of {@link java.util.HashMap} they are, but for further
-     * subtypes they may be different parameters or possibly none at all).
-     * 
-     * @since 2.5
-     *
      * @deprecated Since 2.7: does not have meaning as parameters depend on type
      *    resolved.
+     *
+     * @return Type-erased class of something not usable at this point
      */
     @Deprecated // since 2.7
     public Class<?> getParameterSource() {
@@ -100,6 +91,8 @@ public abstract class ResolvedType
     /**
      * Method for accessing key type for this type, assuming type
      * has such a concept (only Map types do)
+     *
+     * @return Key type of this type, if any; {@code null} if none
      */
     public abstract ResolvedType getKeyType();
 
@@ -107,6 +100,8 @@ public abstract class ResolvedType
      * Method for accessing content type of this type, if type has
      * such a thing: simple types do not, structured types do
      * (like arrays, Collections and Maps)
+     *
+     * @return Content type of this type, if any; {@code null} if none
      */
     public abstract ResolvedType getContentType();
 
@@ -114,7 +109,7 @@ public abstract class ResolvedType
      * Method for accessing type of value that instances of this
      * type references, if any.
      * 
-     * @return Referenced type, if any; null if not.
+     * @return Referenced type, if any; {@code null} if not.
      * 
      * @since 2.6
      */
@@ -160,10 +155,12 @@ public abstract class ResolvedType
     /**
      * Method that can be used to serialize type into form from which
      * it can be fully deserialized from at a later point (using
-     * <code>TypeFactory</code> from mapper package).
+     * {@code TypeFactory} from mapper package).
      * For simple types this is same as calling
      * {@link Class#getName}, but for structured types it may additionally
      * contain type information about contents.
+     *
+     * @return String representation of the fully resolved type
      */
     public abstract String toCanonical();
 }

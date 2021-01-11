@@ -962,6 +962,14 @@ public class UTF8DataInputJsonParser
      * processing. However, actual numeric value conversion will be
      * deferred, since it is usually the most complicated and costliest
      * part of processing.
+     *
+     * @param c The first non-null digit character of the number to parse
+     *
+     * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
+     *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     protected JsonToken _parsePosNumber(int c) throws IOException
     {
@@ -1060,6 +1068,9 @@ public class UTF8DataInputJsonParser
      * skipped redundant ones.
      *
      * @return Character immediately following zeroes
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     private final int _handleLeadingZeroes() throws IOException
     {
@@ -1151,7 +1162,7 @@ public class UTF8DataInputJsonParser
         return resetFloat(negative, integerPartLength, fractLen, expLen);
     }
 
-    /**
+    /*
      * Method called to ensure that a root-value is followed by a space token,
      * if possible.
      *<p>
@@ -1382,12 +1393,11 @@ public class UTF8DataInputJsonParser
         return parseEscapedName(_quadBuffer, 2, q3, ch, lastQuadBytes);
     }
     
-    /**
-     * Slower parsing method which is generally branched to when
+    /* Slower parsing method which is generally branched to when
      * an escape sequence is detected (or alternatively for long
      * names, one crossing input buffer boundary).
      * Needs to be able to handle more exceptional cases, gets slower,
-     * and hance is offlined to a separate method.
+     * and hence is offlined to a separate method.
      */
     protected final String parseEscapedName(int[] quads, int qlen, int currQuad, int ch,
             int currQuadBytes) throws IOException
@@ -1482,6 +1492,13 @@ public class UTF8DataInputJsonParser
      * than double quote, when expecting a field name.
      * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
+     *
+     * @param ch First undecoded character of possible "odd name" to decode
+     *
+     * @return Name decoded, if allowed and successful
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid name)
      */
     protected String _handleOddName(int ch) throws IOException
     {
@@ -1937,6 +1954,9 @@ public class UTF8DataInputJsonParser
      * Method called to skim through rest of unparsed String value,
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     protected void _skipString() throws IOException
     {
@@ -1988,6 +2008,13 @@ public class UTF8DataInputJsonParser
     /**
      * Method for handling cases where first non-space character
      * of an expected value token is not legal for standard JSON content.
+     *
+     * @param c First undecoded character of unexpected (but possibly ultimate accepted) value
+     *
+     * @return Token that was successfully decoded (if successful)
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems
      */
     protected JsonToken _handleUnexpectedValue(int c)
         throws IOException
@@ -2116,8 +2143,8 @@ public class UTF8DataInputJsonParser
 
         return JsonToken.VALUE_STRING;
     }
-    
-    /**
+
+    /*
      * Method called if expected numeric value (due to leading sign) does not
      * look like a number
      */
@@ -2711,6 +2738,13 @@ public class UTF8DataInputJsonParser
     /**
      * Efficient handling for incremental parsing of base64-encoded
      * textual content.
+     *
+     * @param b64variant Type of base64 encoding expected in context
+     *
+     * @return Fully decoded value of base64 content
+     *
+     * @throws IOException for low-level read issues, or
+     *   {@link JsonParseException} for decoding problems (invalid content)
      */
     @SuppressWarnings("resource")
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException

@@ -18,7 +18,7 @@ public abstract class ResolvedType
      */
 
     /**
-     * Accessor for type-erased {@link Class} of resolved type.
+     * @return Type-erased {@link Class} of resolved type
      */
     public abstract Class<?> getRawClass();
 
@@ -50,6 +50,8 @@ public abstract class ResolvedType
      * values themselves. Typical examples include things like
      * {@link java.util.concurrent.atomic.AtomicReference}, and various
      * <code>Optional</code> types (in JDK8, Guava).
+     *
+     * @return {@code True} if this is a "referential" type, {@code false} if not
      */
     public boolean isReferenceType() {
         return getReferencedType() != null;
@@ -66,12 +68,16 @@ public abstract class ResolvedType
     /**
      * Method that can be used to find out if the type directly declares generic
      * parameters (for its direct super-class and/or super-interfaces).
+     *
+     * @return {@code True} if this type has generic type parameters, {@code false} if not
      */
     public abstract boolean hasGenericTypes();
 
     /**
      * Method for accessing key type for this type, assuming type
      * has such a concept (only Map types do)
+     *
+     * @return Key type of this type, if any; {@code null} if none
      */
     public abstract ResolvedType getKeyType();
 
@@ -79,6 +85,8 @@ public abstract class ResolvedType
      * Method for accessing content type of this type, if type has
      * such a thing: simple types do not, structured types do
      * (like arrays, Collections and Maps)
+     *
+     * @return Content type of this type, if any; {@code null} if none
      */
     public abstract ResolvedType getContentType();
 
@@ -86,7 +94,7 @@ public abstract class ResolvedType
      * Method for accessing type of value that instances of this
      * type references, if any.
      * 
-     * @return Referenced type, if any; null if not.
+     * @return Referenced type, if any; {@code null} if not.
      */
     public abstract ResolvedType getReferencedType();
     
@@ -117,10 +125,12 @@ public abstract class ResolvedType
     /**
      * Method that can be used to serialize type into form from which
      * it can be fully deserialized from at a later point (using
-     * <code>TypeFactory</code> from mapper package).
+     * {@code TypeFactory} from mapper package).
      * For simple types this is same as calling
      * {@link Class#getName}, but for structured types it may additionally
      * contain type information about contents.
+     *
+     * @return String representation of the fully resolved type
      */
     public abstract String toCanonical();
 }

@@ -102,7 +102,9 @@ public abstract class DecorableTSFactory
     }
 
     /**
-     * Constructors used by builders for instantiation.
+     * Constructor used by builders for instantiation.
+     *
+     * @param baseBuilder Builder with configurations to use
      *
      * @since 3.0
      */
@@ -113,9 +115,7 @@ public abstract class DecorableTSFactory
         _outputDecorator = baseBuilder.outputDecorator();
     }
 
-    /**
-     * Copy constructor.
-     */
+    // Copy constructor.
     protected DecorableTSFactory(DecorableTSFactory src) {
         super(src);
         _inputDecorator = src.getInputDecorator();

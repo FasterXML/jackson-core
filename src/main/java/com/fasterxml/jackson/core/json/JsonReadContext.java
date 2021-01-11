@@ -69,6 +69,8 @@ public final class JsonReadContext extends TokenStreamContext
      * @param type Type to assign to this context node
      * @param lineNr Line of the starting position of this context
      * @param colNr Column of the starting position of this context
+     *
+     * @return This context instance (to allow call-chaining)
      */
     public JsonReadContext reset(int type, int lineNr, int colNr) {
         _type = type;

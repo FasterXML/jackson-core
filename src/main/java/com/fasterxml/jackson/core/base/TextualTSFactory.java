@@ -31,6 +31,8 @@ public abstract class TextualTSFactory
     /**
      * Constructors used by builders for instantiation.
      *
+     * @param baseBuilder Builder with configurations to use
+     *
      * @since 3.0
      */
     protected TextualTSFactory(DecorableTSFBuilder<?,?> baseBuilder)
@@ -38,9 +40,7 @@ public abstract class TextualTSFactory
         super(baseBuilder);
     }
 
-    /**
-     * Copy constructor.
-     */
+    // Copy constructor.
     protected TextualTSFactory(TextualTSFactory src) {
         super(src);
     }
@@ -72,6 +72,10 @@ public abstract class TextualTSFactory
      * that optimization are possible; and thereby is likely to try
      * to access {@link java.lang.String} content by first copying it into
      * recyclable intermediate buffer.
+     *<p>
+     * Default implementation simply returns {@code true}
+     *
+     * @return Whether efficient access is possible
      */
     public boolean canUseCharArrays() { return true; }
 
@@ -238,6 +242,14 @@ public abstract class TextualTSFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     *
+     * @param writeCtxt Object write context for generator to use
+     * @param ioCtxt IOContext for generator to use
+     * @param out Writer for generator to use
+     *
+     * @return Generator constructed
+     *
+     * @throws IOException If there is a problem constructing generator
      */
     protected abstract JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
             IOContext ioCtxt, Writer out) throws IOException;
@@ -251,6 +263,14 @@ public abstract class TextualTSFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     *
+     * @param writeCtxt Object write context for generator to use
+     * @param ioCtxt IOContext for generator to use
+     * @param out OutputStream for generator to use
+     *
+     * @return Generator constructed
+     *
+     * @throws IOException If there is a problem constructing generator
      */
     protected abstract JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
             IOContext ioCtxt, OutputStream out) throws IOException;

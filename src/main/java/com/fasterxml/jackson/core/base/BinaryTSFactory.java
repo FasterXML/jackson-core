@@ -28,7 +28,9 @@ public abstract class BinaryTSFactory
     }
 
     /**
-     * Constructors used by builders for instantiation.
+     * Constructor used by builders for instantiation.
+     *
+     * @param baseBuilder Builder with configurations to use
      *
      * @since 3.0
      */
@@ -37,9 +39,7 @@ public abstract class BinaryTSFactory
         super(baseBuilder);
     }
 
-    /**
-     * Copy constructor.
-     */
+    // Copy constructor.
     protected BinaryTSFactory(BinaryTSFactory src) {
         super(src);
     }
@@ -197,9 +197,17 @@ public abstract class BinaryTSFactory
      * on it being called as expected. That is, it is part of official
      * interface from sub-class perspective, although not a public
      * method available to users of factory implementations.
+     *
+     * @param writeCtxt Object write context for generator to use
+     * @param ioCtxt IOContext for generator to use
+     * @param out Writer for generator to use
+     *
+     * @return Generator constructed
+     *
+     * @throws IOException If there is a problem constructing generator
      */
     protected abstract JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            IOContext ctxt, OutputStream out) throws IOException;
+            IOContext ioCtxt, OutputStream out) throws IOException;
 
     protected <T> T _nonByteSource() throws IOException {
         throw new UnsupportedOperationException("Can not create parser for character-based (not byte-based) source");

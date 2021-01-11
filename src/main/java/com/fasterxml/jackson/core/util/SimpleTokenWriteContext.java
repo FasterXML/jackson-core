@@ -169,6 +169,8 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
      * @param name Name of Object property being written
      *
      * @return {@code True} if name writing should proceed; {@code false} if not
+     *
+     * @throws JsonProcessingException If write fails due to duplicate check
      */
     public boolean writeFieldName(String name) throws JsonProcessingException {
         if ((_type != TYPE_OBJECT) || _gotFieldId) {

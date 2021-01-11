@@ -158,6 +158,8 @@ public class TokenFilter
      * The default implementation simply returns <code>this</code> to continue calling
      * methods on this filter object, without full inclusion or exclusion.
      * 
+     * @param name Name of Object property to check
+     *
      * @return TokenFilter to use for further calls within property value, unless return value
      *   is <code>null</code> or {@link #INCLUDE_ALL} (which have simpler semantics)
      */
@@ -183,7 +185,9 @@ public class TokenFilter
      *<p>
      * The default implementation simply returns <code>this</code> to continue calling
      * methods on this filter object, without full inclusion or exclusion.
-     * 
+     *
+     * @param index Array element index (0-based) to check
+     *
      * @return TokenFilter to use for further calls within element value, unless return value
      *   is <code>null</code> or {@link #INCLUDE_ALL} (which have simpler semantics)
      */
@@ -209,7 +213,9 @@ public class TokenFilter
      *<p>
      * The default implementation simply returns <code>this</code> to continue calling
      * methods on this filter object, without full inclusion or exclusion.
-     * 
+     *
+     * @param index Index (0-based) of the root value to check
+     *
      * @return TokenFilter to use for further calls within root value, unless return value
      *   is <code>null</code> or {@link #INCLUDE_ALL} (which have simpler semantics)
      */
@@ -224,11 +230,19 @@ public class TokenFilter
      */
 
     /**
-     * Call made when verifying whether a scaler value is being
+     * Call made when verifying whether a scalar value is being
      * read from a parser.
      *<p>
      * Default action is to call <code>_includeScalar()</code> and return
      * whatever it indicates.
+     *
+     * @param p Parser that points to the value (typically {@code delegate}
+     *    parser, not filtering parser that wraps it)
+     *
+     * @return True if scalar value is to be included; false if not
+     *
+     * @throws IOException if there are any problems reading content (typically
+     *   via calling passed-in {@code JsonParser})
      */
     public boolean includeValue(JsonParser p) throws IOException {
         return _includeScalar();
@@ -244,6 +258,10 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * boolean value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
     public boolean includeBoolean(boolean value) {
         return _includeScalar();
@@ -253,6 +271,8 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * null value
      * should be included in output or not.
+     *
+     * @return True if ({@code null}) value is to be included; false if not
      */
     public boolean includeNull() {
         return _includeScalar();
@@ -262,6 +282,10 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * String value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
     public boolean includeString(String value) {
         return _includeScalar();
@@ -273,8 +297,13 @@ public class TokenFilter
      * should be included in output or not.
      *<p>
      * NOTE: note that any reads from passed in {@code Reader} may lead
-     * to actual loss of content to write; typically method should not
+     * to actual loss of content to write; typically method should NOT
      * access content passed via this method.
+     *
+     * @param r Reader used to pass String value to parser
+     * @param maxLen indicated maximum length of String value
+     *
+     * @return True if value is to be included; false if not
      *
      * @since 2.11
      */
@@ -288,8 +317,12 @@ public class TokenFilter
      * should be included in output or not.
      * 
      * NOTE: also called for `short`, `byte`
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
-    public boolean includeNumber(int v) {
+    public boolean includeNumber(int value) {
         return _includeScalar();
     }
 
@@ -297,8 +330,12 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * <code>long</code> value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
-    public boolean includeNumber(long v) {
+    public boolean includeNumber(long value) {
         return _includeScalar();
     }
 
@@ -306,8 +343,12 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * <code>float</code> value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
-    public boolean includeNumber(float v) {
+    public boolean includeNumber(float value) {
         return _includeScalar();
     }
 
@@ -315,8 +356,12 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * <code>double</code> value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
-    public boolean includeNumber(double v) {
+    public boolean includeNumber(double value) {
         return _includeScalar();
     }
     
@@ -324,8 +369,12 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * {@link BigDecimal} value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
-    public boolean includeNumber(BigDecimal v) {
+    public boolean includeNumber(BigDecimal value) {
         return _includeScalar();
     }
 
@@ -333,8 +382,12 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * {@link BigInteger} value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
-    public boolean includeNumber(BigInteger v) {
+    public boolean includeNumber(BigInteger value) {
         return _includeScalar();
     }
 
@@ -344,6 +397,8 @@ public class TokenFilter
      * should be included in output or not.
      *<p>
      * NOTE: no binary payload passed; assumption is this won't be of much use.
+     *
+     * @return True if the binary value is to be included; false if not
      */
     public boolean includeBinary() {
         return _includeScalar();
@@ -357,6 +412,8 @@ public class TokenFilter
      * NOTE: value itself not passed since it may come on multiple forms
      * and is unlikely to be of much use in determining inclusion
      * criteria.
+     *
+     * @return True if the raw value is to be included; false if not
      */
     public boolean includeRawValue() {
         return _includeScalar();
@@ -366,8 +423,12 @@ public class TokenFilter
      * Call made to verify whether leaf-level
      * embedded (Opaque) value
      * should be included in output or not.
+     *
+     * @param value Value to check
+     *
+     * @return True if value is to be included; false if not
      */
-    public boolean includeEmbeddedValue(Object ob) {
+    public boolean includeEmbeddedValue(Object value) {
         return _includeScalar();
     }
 
@@ -395,6 +456,9 @@ public class TokenFilter
      * Overridable default implementation delegated to all scalar value
      * inclusion check methods.
      * The default implementation simply includes all leaf values.
+     *
+     * @return Whether all leaf scalar values should be included ({@code true})
+     *    or not ({@code false})
      */
     protected boolean _includeScalar() {
         return true;

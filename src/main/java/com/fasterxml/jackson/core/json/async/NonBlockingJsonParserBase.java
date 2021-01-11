@@ -646,12 +646,10 @@ public abstract class NonBlockingJsonParserBase
         return _addName(quads, 3, lastQuadBytes);
     }
 
-    /**
-     * This is the main workhorse method used when we take a symbol
-     * table miss. It needs to demultiplex individual bytes, decode
-     * multi-byte chars (if any), and then construct Name instance
-     * and add it to the symbol table.
-     */
+    // This is the main workhorse method used when we take a symbol
+    // table miss. It needs to demultiplex individual bytes, decode
+    // multi-byte chars (if any), and then construct Name instance
+    // and add it to the symbol table.
     protected final String _addName(int[] quads, int qlen, int lastQuadBytes) throws JsonParseException
     {
         /* Ok: must decode UTF-8 chars. No other validation is
@@ -760,9 +758,7 @@ public abstract class NonBlockingJsonParserBase
         return _symbols.addName(baseName, quads, qlen);
     }
 
-    /**
-     * Helper method needed to fix [jackson-core#148], masking of 0x00 character
-     */
+    // Helper method needed to fix [jackson-core#148], masking of 0x00 character
     protected final static int _padLastQuad(int q, int bytes) {
         return (bytes == 4) ? q : (q | (-1 << (bytes << 3)));
     }
@@ -772,11 +768,9 @@ public abstract class NonBlockingJsonParserBase
     /* Internal methods, state changes
     /**********************************************************************
      */
-    
-    /**
-     * Helper method called at point when all input has been exhausted and
-     * input feeder has indicated no more input will be forthcoming.
-     */
+
+    // Helper method called at point when all input has been exhausted and
+    // input feeder has indicated no more input will be forthcoming.
     protected final JsonToken _eofAsNextToken() throws IOException {
         _majorState = MAJOR_CLOSED;
         if (!_parsingContext.inRoot()) {

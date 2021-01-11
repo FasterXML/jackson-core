@@ -370,10 +370,8 @@ public class WriterBasedJsonGenerator
         _tokenWriteContext = _tokenWriteContext.clearAndGetParent();
     }
 
-    /**
-     * Specialized version of <code>_writeFieldName</code>, off-lined
-     * to keep the "fast path" as simple (and hopefully fast) as possible.
-     */
+    // Specialized version of <code>_writeFieldName</code>, off-lined
+    // to keep the "fast path" as simple (and hopefully fast) as possible.
     protected final void _writePPFieldName(String name, boolean commaBefore) throws IOException
     {
         if (commaBefore) {

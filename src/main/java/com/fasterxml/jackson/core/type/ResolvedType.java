@@ -102,6 +102,8 @@ public abstract class ResolvedType
      * Method for checking how many contained types this type
      * has. Contained types are usually generic types, so that
      * generic Maps have 2 contained types.
+     *
+     * @return Number of contained types that may be accessed
      */
     public abstract int containedTypeCount();
 

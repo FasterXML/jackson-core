@@ -133,6 +133,10 @@ public class TokenFilterContext extends JsonStreamContext
     /**
      * Method called to check whether value is to be included at current output
      * position, either as Object property, Array element, or root value.
+     *
+     * @param filter Currently active filter
+     *
+     * @return Filter to use for value
      */
     public TokenFilter checkValue(TokenFilter filter) {
         // First, checks for Object properties have been made earlier:
@@ -148,7 +152,13 @@ public class TokenFilterContext extends JsonStreamContext
     }
 
     /**
-     * Method called to ensure that field name, if present, has been written
+     * Method called to ensure that field name, if present, has been written;
+     * may result (but does not always) in a call using given generator
+     *
+     * @param gen Generator to use to write the property name, if necessary
+     *
+     * @throws IOException If there is a problem writing property name (typically
+     *   thrown by {@code JsonGenerator})
      */
     public void ensureFieldNameWritten(JsonGenerator gen) throws IOException
     {
@@ -161,6 +171,11 @@ public class TokenFilterContext extends JsonStreamContext
     /**
      * Method called to ensure that parent path from root is written up to
      * and including this node.
+     *
+     * @param gen Generator to use to write the path, if necessary
+     *
+     * @throws IOException If there is a problem writing property name (typically
+     *   thrown by {@code JsonGenerator})
      */
     public void writePath(JsonGenerator gen) throws IOException
     {
@@ -325,10 +340,8 @@ public class TokenFilterContext extends JsonStreamContext
 
     // // // Overridden standard methods
 
-    /**
-     * Overridden to provide developer writeable "JsonPath" representation
-     * of the context.
-     */
+    // Overridden to provide developer writeable "JsonPath" representation
+    // of the context.
     @Override public String toString() {
         StringBuilder sb = new StringBuilder(64);
         appendDesc(sb);

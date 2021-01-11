@@ -227,6 +227,10 @@ public class NonBlockingJsonParser
      * Method called when decoding of a token has been started, but not yet completed due
      * to missing input; method is to continue decoding due to at least one more byte
      * being made available to decode.
+     *
+     * @return Token decoded, if complete; {@link JsonToken#NOT_AVAILABLE} if not
+     *
+     * @throws IOException (generally {@link JsonParseException}) for decoding problems
      */
     protected final JsonToken _finishToken() throws IOException
     {
@@ -351,6 +355,10 @@ public class NonBlockingJsonParser
      * available, and end-of-input has been detected. This is usually problem
      * case, but not always: root-level values may be properly terminated by
      * this, and similarly trailing white-space may have been skipped.
+     *
+     * @return Token decoded, if complete; {@link JsonToken#NOT_AVAILABLE} if not
+     *
+     * @throws IOException (generally {@link JsonParseException}) for decoding problems
      */
     protected final JsonToken _finishTokenWithEOF() throws IOException
     {
@@ -664,10 +672,8 @@ public class NonBlockingJsonParser
         return _startUnexpectedValue(false, ch);
     }
 
-    /**
-     * Helper method called to parse token that is either a value token in array
-     * or end-array marker
-     */
+    // Helper method called to parse token that is either a value token in array
+    // or end-array marker
     private final JsonToken _startValueExpectComma(int ch) throws IOException
     {
         // First: any leading white space?
@@ -762,11 +768,9 @@ public class NonBlockingJsonParser
         return _startUnexpectedValue(true, ch);
     }
 
-    /**
-     * Helper method called to detect type of a value token (at any level), and possibly
-     * decode it if contained in input buffer.
-     * Value MUST be preceded by a semi-colon (which may be surrounded by white-space)
-     */
+    // Helper method called to detect type of a value token (at any level), and possibly
+    // decode it if contained in input buffer.
+    // Value MUST be preceded by a semi-colon (which may be surrounded by white-space)
     private final JsonToken _startValueExpectColon(int ch) throws IOException
     {
         // First: any leading white space?
@@ -840,8 +844,7 @@ public class NonBlockingJsonParser
         return _startUnexpectedValue(false, ch);
     }
 
-    /* Method called when we have already gotten a comma (i.e. not the first value)
-     */
+    // Method called when we have already gotten a comma (i.e. not the first value)
     private final JsonToken _startValueAfterComma(int ch) throws IOException
     {
         // First: any leading white space?

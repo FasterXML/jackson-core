@@ -67,12 +67,16 @@ public class DataFormatMatcher
     /**
      * Accessor to use to see if any formats matched well enough with
      * the input data.
+     *
+     * @return Whether format has a match
      */
     public boolean hasMatch() { return _match != null; }
 
     /**
      * Method for accessing strength of the match, if any; if no match,
      * will return {@link MatchStrength#INCONCLUSIVE}.
+     *
+     * @return Strength of match
      */
     public MatchStrength getMatchStrength() {
         return (_matchStrength == null) ? MatchStrength.INCONCLUSIVE : _matchStrength;
@@ -80,6 +84,8 @@ public class DataFormatMatcher
 
     /**
      * Accessor for {@link JsonFactory} that represents format that data matched.
+     *
+     * @return Relevant {@link JsonFactory} to indicate matched format
      */
     public JsonFactory getMatch() { return _match; }
 
@@ -89,6 +95,8 @@ public class DataFormatMatcher
      *<pre>
      *   return hasMatch() ? getMatch().getFormatName() : null;
      *</pre>
+     *
+     * @return Name of the format that is acceptable match, if any; {@code null} if none
      */
     public String getMatchedFormatName() {
         return hasMatch() ? getMatch().getFormatName() : null;
@@ -100,11 +108,9 @@ public class DataFormatMatcher
     /**********************************************************
      */
     
-    /**
-     * Convenience method for trying to construct a {@link JsonParser} for
-     * parsing content which is assumed to be in detected data format.
-     * If no match was found, returns null.
-     */
+    // Convenience method for trying to construct a {@link JsonParser} for
+    // parsing content which is assumed to be in detected data format.
+    // If no match was found, returns null.
     public JsonParser createParserWithMatch() throws IOException {
         if (_match == null) {
             return null;
@@ -121,6 +127,8 @@ public class DataFormatMatcher
      * unless given stream itself can do buffering.
      * Stream will return all content that was read during matching process, as well
      * as remaining contents of the underlying stream.
+     *
+     * @return InputStream to use for reading actual content using format detected
      */
     public InputStream getDataStream() {
         if (_originalStream == null) {

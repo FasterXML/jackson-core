@@ -96,9 +96,7 @@ public class WriterBasedJsonGenerator
         this(ctxt, features, codec, w, JsonFactory.DEFAULT_QUOTE_CHAR);
     }
 
-    /**
-     * @since 2.10
-     */
+    // @since 2.10
     public WriterBasedJsonGenerator(IOContext ctxt, int features,
             ObjectCodec codec, Writer w,
             char quoteChar)
@@ -353,10 +351,8 @@ public class WriterBasedJsonGenerator
         _writeContext = _writeContext.clearAndGetParent();
     }
 
-    /**
-     * Specialized version of <code>_writeFieldName</code>, off-lined
-     * to keep the "fast path" as simple (and hopefully fast) as possible.
-     */
+    // Specialized version of <code>_writeFieldName</code>, off-lined
+    // to keep the "fast path" as simple (and hopefully fast) as possible.
     protected final void _writePPFieldName(String name, boolean commaBefore) throws IOException
     {
         if (commaBefore) {

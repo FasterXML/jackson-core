@@ -108,6 +108,12 @@ public class FilteringParserDelegate extends JsonParserDelegate
         this(p, f, includePath ? Inclusion.INCLUDE_ALL_AND_PATH : Inclusion.ONLY_INCLUDE_ALL, allowMultipleMatches);
     }
 
+    /**
+     * @param p Parser to delegate calls to
+     * @param f Filter to use
+     * @param inclusion Definition of inclusion criteria
+     * @param allowMultipleMatches Whether to allow multiple matches
+     */
     public FilteringParserDelegate(JsonParser p, TokenFilter f,
             TokenFilter.Inclusion inclusion, boolean allowMultipleMatches)
     {
@@ -131,6 +137,8 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**
      * Accessor for finding number of matches, where specific token and sub-tree
      * starting (if structured type) are passed.
+     *
+     * @return Number of matches
      */
     public int getMatchCount() {
         return _matchCount;
@@ -453,12 +461,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
         return _nextToken2();
     }
 
-    /**
-     * Offlined handling for cases where there was no buffered token to
-     * return, and the token read next could not be returned as-is,
-     * at least not yet, but where we have not yet established that
-     * buffering is needed.
-     */
+    // Offlined handling for cases where there was no buffered token to
+    // return, and the token read next could not be returned as-is,
+    // at least not yet, but where we have not yet established that
+    // buffering is needed.
     protected final JsonToken _nextToken2() throws IOException
     {
         main_loop:
@@ -618,9 +624,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         }
     }
 
-    /**
-     * Method called when a new potentially included context is found.
-     */
+    // Method called when a new potentially included context is found.
     protected final JsonToken _nextTokenWithBuffering(final TokenFilterContext buffRoot)
         throws IOException
     {

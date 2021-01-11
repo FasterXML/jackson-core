@@ -158,30 +158,41 @@ public class WritableTypeId
     /**
      * Constructor used when calling a method for generating and writing Type Id;
      * caller only knows value object and its intended shape.
+     *
+     * @param value Actual value for which type information is written
+     * @param valueShape Serialize shape writer will use for value
      */
-    public WritableTypeId(Object value, JsonToken valueShape0) {
-        this(value, valueShape0, null);
+    public WritableTypeId(Object value, JsonToken valueShape) {
+        this(value, valueShape, null);
     }
 
     /**
      * Constructor used when calling a method for generating and writing Type Id,
      * but where actual type to use for generating id is NOT the type of value
      * (but its supertype).
+     *
+     * @param value Actual value for which type information is written
+     * @param valueType Effective type of {@code value} to use for Type Id generation
+     * @param valueShape Serialize shape writer will use for value
      */
-    public WritableTypeId(Object value, Class<?> valueType0, JsonToken valueShape0) {
-        this(value, valueShape0, null);
-        forValueType = valueType0;
+    public WritableTypeId(Object value, Class<?> valueType, JsonToken valueShape) {
+        this(value, valueShape, null);
+        forValueType = valueType;
     }
 
     /**
      * Constructor used when calling a method for writing Type Id;
      * caller knows value object, its intended shape as well as id to
      * use; but not details of wrapping (if any).
+     *
+     * @param value Actual value for which type information is written
+     * @param valueShape Serialize shape writer will use for value
+     * @param id Actual type id to use if known; {@code null} if not
      */
-    public WritableTypeId(Object value, JsonToken valueShape0, Object id0)
+    public WritableTypeId(Object value, JsonToken valueShape, Object id)
     {
         forValue = value;
-        id = id0;
-        valueShape = valueShape0;
+        this.id = id;
+        this.valueShape = valueShape;
     }
 }

@@ -112,9 +112,7 @@ public abstract class GeneratorBase extends JsonGenerator
         _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
     }
 
-    /**
-     * @since 2.5
-     */
+    // @since 2.5
     @SuppressWarnings("deprecation")
     protected GeneratorBase(int features, ObjectCodec codec, JsonWriteContext ctxt) {
         super();
@@ -128,6 +126,9 @@ public abstract class GeneratorBase extends JsonGenerator
      * Implemented with standard version number detection algorithm, typically using
      * a simple generated class, with information extracted from Maven project file
      * during build.
+     *
+     * @return Version number of the generator (version of the jar that contains
+     *     generator implementation class)
      */
     @Override public Version version() { return PackageVersion.VERSION; }
 

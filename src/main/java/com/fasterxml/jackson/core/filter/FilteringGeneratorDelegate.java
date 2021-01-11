@@ -82,6 +82,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     /**
+     * @param d Generator to delegate calls to
+     * @param f Filter to use
+     * @param includePath Whether to include path or not
+     * @param allowMultipleMatches Whether to allow multiple matches
+     *
      * @deprecated since 2.12 Use the constructor that takes {@link TokenFilter.Inclusion}
      *    argument instead.
      */
@@ -93,6 +98,11 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     /**
+     * @param d Generator to delegate calls to
+     * @param f Filter to use
+     * @param inclusion Definition of inclusion criteria
+     * @param allowMultipleMatches Whether to allow multiple matches
+     *
      * @since 2.12
      */
     public FilteringGeneratorDelegate(JsonGenerator d, TokenFilter f,
@@ -123,6 +133,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**
      * Accessor for finding number of matches, where specific token and sub-tree
      * starting (if structured type) are passed.
+     *
+     * @return Number of matches
      */
     public int getMatchCount() {
         return _matchCount;
@@ -1017,6 +1029,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * Specialized variant of {@link #_checkParentPath} used when checking
      * parent for a property name to be included with value: rules are slightly
      * different.
+     *
+     * @throws IOException If there is an issue with possible resulting read
      */
     protected void _checkPropertyParentPath() throws IOException
     {

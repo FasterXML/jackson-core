@@ -113,9 +113,7 @@ public class UTF8JsonGenerator
     /**********************************************************
      */
 
-    /**
-     * @since 2.10
-     */
+    // @since 2.10
     @SuppressWarnings("deprecation")
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out, char quoteChar)
@@ -145,9 +143,7 @@ public class UTF8JsonGenerator
         }
     }
 
-    /**
-     * @since 2.10
-     */
+    // @since 2.10
     public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,
             OutputStream out, char quoteChar,
             byte[] outputBuffer, int outputOffset, boolean bufferRecyclable)
@@ -420,10 +416,8 @@ public class UTF8JsonGenerator
         _writeContext = _writeContext.clearAndGetParent();
     }
 
-    /**
-     * Specialized version of <code>_writeFieldName</code>, off-lined
-     * to keep the "fast path" as simple (and hopefully fast) as possible.
-     */
+    // Specialized version of <code>_writeFieldName</code>, off-lined
+    // to keep the "fast path" as simple (and hopefully fast) as possible.
     protected final void _writePPFieldName(String name) throws IOException
     {
         int status = _writeContext.writeFieldName(name);

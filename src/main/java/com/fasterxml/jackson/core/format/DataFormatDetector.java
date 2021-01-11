@@ -75,6 +75,10 @@ public class DataFormatDetector
      * Method that will return a detector instance that uses given
      * optimal match level (match that is considered sufficient to return, without
      * trying to find stronger matches with other formats).
+     *
+     * @param optMatch Optimal match level to use
+     *
+     * @return Format detector instance with specified optimal match level
      */
     public DataFormatDetector withOptimalMatch(MatchStrength optMatch) {
         if (optMatch == _optimalMatch) {
@@ -86,6 +90,10 @@ public class DataFormatDetector
      * Method that will return a detector instance that uses given
      * minimal match level; match that may be returned unless a stronger match
      * is found with other format detectors.
+     *
+     * @param minMatch Minimum match level to use
+     *
+     * @return Format detector instance with specified minimum match level
      */
     public DataFormatDetector withMinimalMatch(MatchStrength minMatch) {
         if (minMatch == _minimalMatch) {
@@ -97,6 +105,10 @@ public class DataFormatDetector
     /**
      * Method that will return a detector instance that allows detectors to
      * read up to specified number of bytes when determining format match strength.
+     *
+     * @param lookaheadBytes Amount of look-ahead allowed
+     *
+     * @return Format detector instance with specified lookahead settings
      */
     public DataFormatDetector withMaxInputLookahead(int lookaheadBytes) {
         if (lookaheadBytes == _maxInputLookahead) {
@@ -115,9 +127,13 @@ public class DataFormatDetector
      * Method to call to find format that content (accessible via given
      * {@link InputStream}) given has, as per configuration of this detector
      * instance.
-     * 
+     *
+     * @param in InputStream from which to read initial content
+     *
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
+     *
+     * @throws IOException for read I/O problems
      */
     public DataFormatMatcher findFormat(InputStream in) throws IOException {
         return _findFormat(new InputAccessor.Std(in, new byte[_maxInputLookahead]));
@@ -126,9 +142,13 @@ public class DataFormatDetector
     /**
      * Method to call to find format that given content (full document)
      * has, as per configuration of this detector instance.
-     * 
+     *
+     * @param fullInputData Full contents to use for format detection
+     *
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
+     *
+     * @throws IOException for read I/O problems
      */
     public DataFormatMatcher findFormat(byte[] fullInputData) throws IOException {
         return _findFormat(new InputAccessor.Std(fullInputData));
@@ -138,8 +158,14 @@ public class DataFormatDetector
      * Method to call to find format that given content (full document)
      * has, as per configuration of this detector instance.
      * 
+     * @param fullInputData Full contents to use for format detection
+     * @param offset Offset of the first content byte
+     * @param len Length of content
+     *
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
+     *
+     * @throws IOException for read I/O problems
      * 
      * @since 2.1
      */

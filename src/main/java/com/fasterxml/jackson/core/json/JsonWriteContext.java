@@ -78,6 +78,13 @@ public class JsonWriteContext extends TokenStreamContext
      * Clears up state, changes type to one specified, assigns "current value";
      * resets current duplicate-detection state (if any).
      * Parent link left as-is since it is {@code final}.
+     *
+     * @param type Type to assign to this context node
+     * @param currValue Current value to assign to this context node
+     *
+     * @return This context instance to allow call-chaining
+     *
+     * @since 2.10
      */
     protected JsonWriteContext reset(int type, Object currValue) {
         _type = type;
@@ -146,6 +153,8 @@ public class JsonWriteContext extends TokenStreamContext
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
+     *
+     * @return Parent context of this context node, if any; {@code null} for root context
      */
     public JsonWriteContext clearAndGetParent() {
         _currentValue = null;
@@ -158,9 +167,13 @@ public class JsonWriteContext extends TokenStreamContext
     }
 
     /**
-     * Method that writer is to call before it writes a field name.
+     * Method that writer is to call before it writes a name of Object property.
+     *
+     * @param name Property name being written
      *
      * @return Index of the field entry (0-based)
+     *
+     * @throws JsonProcessingException if duplicate check restriction is violated
      */
     public int writeFieldName(String name) throws JsonProcessingException {
         if ((_type != TYPE_OBJECT) || _gotName) {

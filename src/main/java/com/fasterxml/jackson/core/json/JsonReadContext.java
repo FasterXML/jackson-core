@@ -65,8 +65,12 @@ public final class JsonReadContext extends TokenStreamContext
      * Clears up state (including "current value"), changes type to one specified;
      * resets current duplicate-detection state (if any).
      * Parent link left as-is since it is {@code final}.
+     *
+     * @param type Type to assign to this context node
+     * @param lineNr Line of the starting position of this context
+     * @param colNr Column of the starting position of this context
      */
-    public void reset(int type, int lineNr, int colNr) {
+    public JsonReadContext reset(int type, int lineNr, int colNr) {
         _type = type;
         _index = -1;
         _lineNr = lineNr;
@@ -76,6 +80,7 @@ public final class JsonReadContext extends TokenStreamContext
         if (_dups != null) {
             _dups.reset();
         }
+        return this;
     }
 
     /*
@@ -170,6 +175,8 @@ public final class JsonReadContext extends TokenStreamContext
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
+     *
+     * @return Parent context of this context node, if any; {@code null} for root context
      */
     public JsonReadContext clearAndGetParent() {
         _currentValue = null;

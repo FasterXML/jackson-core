@@ -142,6 +142,8 @@ public class JsonFactory
 
     /**
      * Copy constructor.
+     *
+     * @param src Original factory to copy configuration from
      */
     protected JsonFactory(JsonFactory src)
     {
@@ -154,6 +156,8 @@ public class JsonFactory
 
     /**
      * Constructors used by {@link JsonFactoryBuilder} for instantiation.
+     *
+     * @param b Builder that has configuration to use
      *
      * @since 3.0
      */

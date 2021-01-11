@@ -144,6 +144,8 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
+     *
+     * @return Parent context of this context node, if any; {@code null} for root context
      */
     public SimpleTokenWriteContext clearAndGetParent() {
         _currentValue = null;
@@ -164,7 +166,9 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     /**
      * Method that writer is to call before it writes a field name.
      *
-     * @return Ok if name writing should proceed
+     * @param name Name of Object property being written
+     *
+     * @return {@code True} if name writing should proceed; {@code false} if not
      */
     public boolean writeFieldName(String name) throws JsonProcessingException {
         if ((_type != TYPE_OBJECT) || _gotFieldId) {

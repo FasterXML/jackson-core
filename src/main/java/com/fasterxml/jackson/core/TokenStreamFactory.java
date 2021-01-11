@@ -388,6 +388,9 @@ public abstract class TokenStreamFactory
      * processing objects (such as symbol tables parsers use)
      * and this reuse only works within context of a single
      * factory instance.
+     *
+     * @param formatReadFeatures Bitmask of format-specific read features enabled
+     * @param formatWriteFeatures Bitmask of format-specific write features enabled
      */
     protected TokenStreamFactory(int formatReadFeatures, int formatWriteFeatures) {
         _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;
@@ -404,6 +407,8 @@ public abstract class TokenStreamFactory
      * if and when new general-purpose properties are added, implementation classes
      * do not have to use different constructors.
      *
+     * @param baseBuilder Builder with configuration to use
+     *
      * @since 3.0
      */
     protected TokenStreamFactory(TSFBuilder<?,?> baseBuilder)
@@ -418,6 +423,8 @@ public abstract class TokenStreamFactory
     /**
      * Constructor used if a snapshot is created, or possibly for sub-classing or
      * wrapping (delegating)
+     *
+     * @param src Source factory with configuration to copy
      */
     protected TokenStreamFactory(TokenStreamFactory src)
     {
@@ -533,10 +540,11 @@ public abstract class TokenStreamFactory
     public Class<? extends FormatFeature> getFormatWriteFeatureType() {
         return null;
     }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Format detection functionality
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -563,18 +571,18 @@ public abstract class TokenStreamFactory
     public abstract String getFormatName();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Versioned
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public abstract Version version();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, access to features
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -627,9 +635,9 @@ public abstract class TokenStreamFactory
     public int getFormatWriteFeatures() { return _formatWriteFeatures; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods for helper objects
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -684,7 +692,8 @@ public abstract class TokenStreamFactory
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
      * the parser, since caller has no access to it.
      *
-     * @param f File that contains JSON content to parse
+     * @param readCtxt Object read context to use
+     * @param f File that contains content to parse
      *
      * @return Parser constructed
      *
@@ -708,7 +717,8 @@ public abstract class TokenStreamFactory
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
      * the parser, since caller has no access to it.
      *
-     * @param url URL pointing to resource that contains JSON content to parse
+     * @param readCtxt Object read context to use
+     * @param url URL pointing to resource that contains content to parse
      *
      * @return Parser constructed
      *
@@ -733,7 +743,8 @@ public abstract class TokenStreamFactory
      * so auto-detection implemented only for this charsets.
      * For other charsets use {@link #createParser(java.io.Reader)}.
      *
-     * @param in InputStream to use for reading JSON content to parse
+     * @param readCtxt Object read context to use
+     * @param in InputStream to use for reading content to parse
      *
      * @return Parser constructed
      *
@@ -752,7 +763,8 @@ public abstract class TokenStreamFactory
      * if (and only if) {@link com.fasterxml.jackson.core.StreamReadFeature#AUTO_CLOSE_SOURCE}
      * is enabled.
      *
-     * @param r Reader to use for reading JSON content to parse
+     * @param readCtxt Object read context to use
+     * @param r Reader to use for reading content to parse
      *
      * @return Parser constructed
      *
@@ -765,6 +777,9 @@ public abstract class TokenStreamFactory
      * Method for constructing parser for parsing
      * the contents of given byte array.
      *
+     * @param readCtxt Object read context to use
+     * @param data Content to read
+     *
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -776,8 +791,9 @@ public abstract class TokenStreamFactory
     /**
      * Method for constructing parser for parsing
      * the contents of given byte array.
-     * 
-     * @param data Buffer that contains data to parse
+     *
+     * @param readCtxt Object read context to use
+     * @param content Buffer that contains data to parse
      * @param offset Offset of the first data byte within buffer
      * @param len Length of contents to parse within buffer
      *
@@ -786,10 +802,13 @@ public abstract class TokenStreamFactory
      * @throws IOException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            byte[] data, int offset, int len) throws IOException;
+            byte[] content, int offset, int len) throws IOException;
 
     /**
      * Method for constructing parser for parsing contents of given String.
+     *
+     * @param readCtxt Object read context to use
+     * @param content Content to read
      *
      * @return Parser constructed
      *
@@ -800,6 +819,9 @@ public abstract class TokenStreamFactory
 
     /**
      * Method for constructing parser for parsing contents of given char array.
+     *
+     * @param readCtxt Object read context to use
+     * @param content Content to read
      *
      * @return Parser constructed
      *
@@ -812,6 +834,11 @@ public abstract class TokenStreamFactory
 
     /**
      * Method for constructing parser for parsing contents of given char array.
+     *
+     * @param readCtxt Object read context to use
+     * @param content Buffer that contains data to parse
+     * @param offset Offset of the first data byte within buffer
+     * @param len Length of contents to parse within buffer
      *
      * @return Parser constructed
      *
@@ -828,18 +855,19 @@ public abstract class TokenStreamFactory
      */
 
     /**
+     * @param f File that contains content to parse
      * @return Parser constructed
-     *
      * @throws IOException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.File)}
      */
     @Deprecated
-    public JsonParser createParser(File src) throws IOException {
-        return createParser(ObjectReadContext.empty(), src);
+    public JsonParser createParser(File f) throws IOException {
+        return createParser(ObjectReadContext.empty(), f);
     }
 
     /**
+     * @param src Resource that contains content to parse
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -852,6 +880,7 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @param in InputStream to use for reading content to parse
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -864,6 +893,7 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @param r Reader to use for reading content to parse
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -876,6 +906,7 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @param content Buffer that contains content to parse
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -883,23 +914,27 @@ public abstract class TokenStreamFactory
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[])}
      */
     @Deprecated
-    public JsonParser createParser(byte[] data) throws IOException {
-        return createParser(ObjectReadContext.empty(), data, 0, data.length);
+    public JsonParser createParser(byte[] content) throws IOException {
+        return createParser(ObjectReadContext.empty(), content, 0, content.length);
     }
 
     /**
-     * @return Parser constructed
+     * @param content Buffer that contains content to parse
+     * @param offset Offset of the first data byte within buffer
+     * @param len Length of contents to parse within buffer
      *
+     * @return Parser constructed
      * @throws IOException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[],int,int)}
      */
     @Deprecated
-    public JsonParser createParser(byte[] data, int offset, int len) throws IOException {
-        return createParser(ObjectReadContext.empty(), data, offset, len);
+    public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
+        return createParser(ObjectReadContext.empty(), content, offset, len);
     }
 
     /**
+     * @param content Content to parse
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -912,6 +947,7 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @param content Buffer that contains data to parse
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -924,6 +960,10 @@ public abstract class TokenStreamFactory
     }
 
     /**
+     * @param content Buffer that contains data to parse
+     * @param offset Offset of the first data byte within buffer
+     * @param len Length of contents to parse within buffer
+     *
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
@@ -948,11 +988,14 @@ public abstract class TokenStreamFactory
      * If this factory does not support {@link DataInput} as source,
      * will throw {@link UnsupportedOperationException}
      *
+     * @param readCtxt Object read context to use
+     * @param in InputStream to use for reading content to parse
+     *
      * @return Parser constructed
      *
      * @throws IOException If parser construction or initialization fails
      */
-    public abstract JsonParser createParser(ObjectReadContext readCtx,
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
             DataInput in) throws IOException;
 
     /**
@@ -964,6 +1007,9 @@ public abstract class TokenStreamFactory
      * If this factory does not support non-blocking parsing (either at all,
      * or from byte array),
      * will throw {@link UnsupportedOperationException}
+     *
+     * @param <P> Nominal type of parser constructed and returned
+     * @param readCtxt Object read context to use
      *
      * @return Non-blocking parser constructed
      *
@@ -994,7 +1040,7 @@ public abstract class TokenStreamFactory
      *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
-     * @param out OutputStream to use for writing JSON content
+     * @param out OutputStream to use for writing content
      *
      * @return Generator constructed
      *
@@ -1022,7 +1068,8 @@ public abstract class TokenStreamFactory
      *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
-     * @param out OutputStream to use for writing JSON content
+     * @param out OutputStream to use for writing content
+     * @param enc Character set encoding to use (usually {@link JsonEncoding#UTF8})
      *
      * @return Generator constructed
      *
@@ -1048,7 +1095,7 @@ public abstract class TokenStreamFactory
      *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
-     * @param w Writer to use for writing JSON content 
+     * @param w Writer to use for writing content 
      *
      * @return Generator constructed
      *
@@ -1071,6 +1118,7 @@ public abstract class TokenStreamFactory
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
      * @param f File to write contents to
+     * @param enc Character set encoding to use (usually {@link JsonEncoding#UTF8})
      *
      * @return Generator constructed
      *
@@ -1088,6 +1136,7 @@ public abstract class TokenStreamFactory
      *
      * @param writeCtxt Object-binding context where applicable; used for providing contextual
      *    configuration
+     * @param out {@link DataOutput} used as target of generation
      *
      * @return Generator constructed
      *
@@ -1107,7 +1156,7 @@ public abstract class TokenStreamFactory
      */
     
     /**
-     * Method for constructing JSON generator for writing JSON content
+     * Method for constructing JSON generator for writing content
      * using specified output stream.
      * Encoding to use must be specified, and needs to be one of available
      * types (as per JSON specification).
@@ -1123,7 +1172,7 @@ public abstract class TokenStreamFactory
      * Note: there are formats that use fixed encoding (like most binary data formats)
      * and that ignore passed in encoding.
      *
-     * @param out OutputStream to use for writing JSON content 
+     * @param out OutputStream to use for writing content 
      * @param enc Character encoding to use
      *
      * @return Generator constructed
@@ -1138,9 +1187,9 @@ public abstract class TokenStreamFactory
 
     /**
      * Convenience method for constructing generator that uses default
-     * encoding of the format (UTF-8 for JSON and most other data formats).
-     *<p>
-     * Note: there are formats that use fixed encoding (like most binary data formats).
+     * encoding of the format (UTF-8 for JSON and most other data formats),
+     *
+     * @param out OutputStream to use for writing content 
      *
      * @return Generator constructed
      *
@@ -1152,7 +1201,7 @@ public abstract class TokenStreamFactory
     }
     
     /**
-     * Method for constructing JSON generator for writing JSON content
+     * Method for constructing JSON generator for writing content
      * using specified Writer.
      *<p>
      * Underlying stream <b>is NOT owned</b> by the generator constructed,
@@ -1162,7 +1211,7 @@ public abstract class TokenStreamFactory
      * {@link com.fasterxml.jackson.core.StreamWriteFeature#AUTO_CLOSE_TARGET} is enabled).
      * Using application needs to close it explicitly.
      *
-     * @param w Writer to use for writing JSON content 
+     * @param w Writer to use for writing content 
      *
      * @return Generator constructed
      *
@@ -1173,63 +1222,10 @@ public abstract class TokenStreamFactory
         return createGenerator(ObjectWriteContext.empty(), w);
     }
 
-    /**
-     * Method for constructing JSON generator for writing JSON content
-     * to specified file, overwriting contents it might have (or creating
-     * it if such file does not yet exist).
-     * Encoding to use must be specified, and needs to be one of available
-     * types (as per JSON specification).
-     *<p>
-     * Underlying stream <b>is owned</b> by the generator constructed,
-     * i.e. generator will handle closing of file when
-     * {@link JsonGenerator#close} is called.
-     *
-     * @param f File to write contents to
-     * @param enc Character encoding to use
-     *
-     * @return Generator constructed
-     *
-     * @throws IOException If generator construction or initialization fails
-     */
-    @Deprecated
-    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException {
-        return createGenerator(ObjectWriteContext.empty(), f, enc);
-    }
-
-    /**
-     * Method for constructing generator for writing content using specified
-     * {@link DataOutput} instance.
-     *
-     * @return Generator constructed
-     *
-     * @throws IOException If generator construction or initialization fails
-     */
-    @Deprecated
-    public JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException {
-        return createGenerator(ObjectWriteContext.empty(),
-                _createDataOutputWrapper(out), enc);
-    }
-
-    /**
-     * Convenience method for constructing generator that uses default
-     * encoding of the format (UTF-8 for JSON and most other data formats).
-     *<p>
-     * Note: there are formats that use fixed encoding (like most binary data formats).
-     *
-     * @return Generator constructed
-     *
-     * @throws IOException If generator construction or initialization fails
-     */
-    @Deprecated
-    public JsonGenerator createGenerator(DataOutput out) throws IOException {
-        return createGenerator(ObjectWriteContext.empty(),
-                _createDataOutputWrapper(out), JsonEncoding.UTF8);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal factory methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1254,6 +1250,11 @@ public abstract class TokenStreamFactory
     /**
      * Overridable factory method that actually instantiates desired
      * context object.
+     *
+     * @param srcRef Source reference to use (relevant to {@code JsonLocation} construction)
+     * @param resourceManaged Whether input/output buffers used are managed by this factory
+     *
+     * @return Context constructed
      */
     protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(), srcRef, resourceManaged, null);
@@ -1262,6 +1263,12 @@ public abstract class TokenStreamFactory
     /**
      * Overridable factory method that actually instantiates desired
      * context object.
+     *
+     * @param srcRef Source reference to use (relevant to {@code JsonLocation} construction)
+     * @param resourceManaged Whether input/output buffers used are managed by this factory
+     * @param enc Character encoding defined to be used/expected
+     *
+     * @return Context constructed
      */
     protected IOContext _createContext(Object srcRef, boolean resourceManaged,
             JsonEncoding enc) {

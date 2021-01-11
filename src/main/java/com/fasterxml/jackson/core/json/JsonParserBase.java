@@ -347,11 +347,9 @@ public abstract class JsonParserBase
                 (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));
     }
 
-    /**
-     * Method called to report a problem with unquoted control character.
-     * Note: it is possible to suppress some instances of
-     * exception by enabling {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}.
-     */
+    // Method called to report a problem with unquoted control character.
+    // Note: it is possible to suppress some instances of
+    // exception by enabling {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}.
     protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
         // It is possible to allow unquoted control chars:
         if (!isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS) || i > INT_SPACE) {
@@ -365,8 +363,6 @@ public abstract class JsonParserBase
      * @return Description to use as "valid tokens" in an exception message about
      *    invalid (unrecognized) JSON token: called when parser finds something that
      *    looks like unquoted textual token
-     *
-     * @since 2.10
      */
     protected String _validJsonTokenList() throws IOException {
         return _validJsonValueList();
@@ -376,8 +372,6 @@ public abstract class JsonParserBase
      * @return Description to use as "valid JSON values" in an exception message about
      *    invalid (unrecognized) JSON value: called when parser finds something that
      *    does not look like a value or separator.
-     *
-     * @since 2.10
      */
     protected String _validJsonValueList() throws IOException {
         if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {

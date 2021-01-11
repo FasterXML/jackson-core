@@ -146,6 +146,8 @@ public class SimpleTokenReadContext extends TokenStreamContext
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
+     *
+     * @return Parent context of this context node, if any; {@code null} for root context
      */
     public SimpleTokenReadContext clearAndGetParent() {
         _currentValue = null;
@@ -167,6 +169,8 @@ public class SimpleTokenReadContext extends TokenStreamContext
      * Method to call to advance index within current context: to be called
      * when a new token found within current context (field name for objects,
      * value for root and array contexts)
+     *
+     * @return Index after increment
      */
     public int valueRead() {
         return ++_index; // starts from -1

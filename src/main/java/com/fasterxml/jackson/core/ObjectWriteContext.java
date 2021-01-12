@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
@@ -88,12 +89,13 @@ public interface ObjectWriteContext
      * @param g Generator to use for serialization
      * @param value Java value to be serialized
      *
-     * @throws IOException for low-level write problems,
-     *   {@link com.fasterxml.jackson.core.JsonGenerationException} for databinding issues
+     * @throws WrappedIOException for low-level write problems,
+     * @throws com.fasterxml.jackson.core.JsonGenerationException for encoding problems
+     * @throws JacksonException (various subtypes) for databinding problems
      */
-    public void writeValue(JsonGenerator g, Object value) throws IOException;
+    public void writeValue(JsonGenerator g, Object value) throws JacksonException;
 
-    public void writeTree(JsonGenerator g, TreeNode value) throws IOException;
+    public void writeTree(JsonGenerator g, TreeNode value) throws JacksonException;
 
     /**
      * Default no-op implementation.
@@ -145,12 +147,12 @@ public interface ObjectWriteContext
         }
         
         @Override
-        public void writeValue(JsonGenerator g, Object value) throws IOException {
+        public void writeValue(JsonGenerator g, Object value) {
             _reportUnsupportedOperation();
         }
 
         @Override
-        public void writeTree(JsonGenerator g, TreeNode value) throws IOException {
+        public void writeTree(JsonGenerator g, TreeNode value) {
             _reportUnsupportedOperation();
         }
         

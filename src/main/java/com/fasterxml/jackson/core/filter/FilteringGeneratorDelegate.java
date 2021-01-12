@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -120,9 +119,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, accessors
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -135,13 +134,13 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, structural
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
-    public void writeStartArray() throws IOException
+    public void writeStartArray() throws JacksonException
     {
         // First things first: whole-sale skipping easy
         if (_itemFilter == null) {
@@ -176,7 +175,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeStartArray(Object currValue) throws IOException
+    public void writeStartArray(Object currValue) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
@@ -209,7 +208,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeStartArray(Object currValue, int size) throws IOException
+    public void writeStartArray(Object currValue, int size) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
@@ -238,7 +237,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeEndArray() throws IOException
+    public void writeEndArray() throws JacksonException
     {
         _filterContext = _filterContext.closeArray(delegate);
 
@@ -248,7 +247,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeStartObject() throws IOException
+    public void writeStartObject() throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, null, false);
@@ -282,7 +281,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeStartObject(Object currValue) throws IOException
+    public void writeStartObject(Object currValue) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
@@ -316,7 +315,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeStartObject(Object currValue, int size) throws IOException
+    public void writeStartObject(Object currValue, int size) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
@@ -346,7 +345,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeEndObject() throws IOException
+    public void writeEndObject() throws JacksonException
     {
         _filterContext = _filterContext.closeObject(delegate);
         if (_filterContext != null) {
@@ -355,7 +354,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeFieldName(String name) throws IOException
+    public void writeFieldName(String name) throws JacksonException
     {
         TokenFilter state = _filterContext.setFieldName(name);
         if (state == null) {
@@ -375,7 +374,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeFieldName(SerializableString name) throws IOException
+    public void writeFieldName(SerializableString name) throws JacksonException
     {
         TokenFilter state = _filterContext.setFieldName(name.getValue());
         if (state == null) {
@@ -396,7 +395,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     // 02-Dec-2019, tatu: Not sure what else to do... so use default impl from base class
     @Override
-    public void writeFieldId(long id) throws IOException {
+    public void writeFieldId(long id) throws JacksonException {
         writeFieldName(Long.toString(id));
     }
 
@@ -407,7 +406,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeString(String value) throws IOException
+    public void writeString(String value) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -428,7 +427,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len) throws IOException
+    public void writeString(char[] text, int offset, int len) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -450,7 +449,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeString(SerializableString value) throws IOException
+    public void writeString(SerializableString value) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -471,7 +470,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeString(Reader reader, int len) throws IOException {
+    public void writeString(Reader reader, int len) throws JacksonException {
         if (_itemFilter == null) {
             return;
         }
@@ -493,7 +492,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
+    public void writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawUTF8String(text, offset, length);
@@ -501,7 +500,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length) throws IOException
+    public void writeUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
         // not exact match, but best we can do
         if (_checkRawValueWrite()) {
@@ -516,7 +515,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeRaw(String text) throws IOException
+    public void writeRaw(String text) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text);
@@ -524,7 +523,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len) throws IOException
+    public void writeRaw(String text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text, offset, len);
@@ -532,7 +531,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRaw(SerializableString text) throws IOException
+    public void writeRaw(SerializableString text) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text);
@@ -540,7 +539,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws IOException
+    public void writeRaw(char[] text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text, offset, len);
@@ -548,7 +547,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRaw(char c) throws IOException
+    public void writeRaw(char c) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(c);
@@ -556,7 +555,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRawValue(String text) throws IOException
+    public void writeRawValue(String text) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawValue(text);
@@ -564,7 +563,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRawValue(String text, int offset, int len) throws IOException
+    public void writeRawValue(String text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawValue(text, offset, len);
@@ -572,7 +571,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len) throws IOException
+    public void writeRawValue(char[] text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawValue(text, offset, len);
@@ -580,7 +579,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException
+    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws JacksonException
     {
         if (_checkBinaryWrite()) {
             delegate.writeBinary(b64variant, data, offset, len);
@@ -588,7 +587,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws JacksonException
     {
         if (_checkBinaryWrite()) {
             return delegate.writeBinary(b64variant, data, dataLength);
@@ -603,7 +602,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeNumber(short v) throws IOException
+    public void writeNumber(short v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -624,7 +623,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(int v) throws IOException
+    public void writeNumber(int v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -645,7 +644,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(long v) throws IOException
+    public void writeNumber(long v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -666,7 +665,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(BigInteger v) throws IOException
+    public void writeNumber(BigInteger v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -687,7 +686,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(double v) throws IOException
+    public void writeNumber(double v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -708,7 +707,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(float v) throws IOException
+    public void writeNumber(float v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -729,7 +728,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(BigDecimal v) throws IOException
+    public void writeNumber(BigDecimal v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -750,7 +749,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(String encodedValue) throws IOException, UnsupportedOperationException
+    public void writeNumber(String encodedValue) throws JacksonException, UnsupportedOperationException
     {
         if (_itemFilter == null) {
             return;
@@ -771,7 +770,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws IOException, UnsupportedOperationException
+    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws JacksonException, UnsupportedOperationException
     {
         if (_itemFilter == null) {
             return;
@@ -792,7 +791,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeBoolean(boolean v) throws IOException
+    public void writeBoolean(boolean v) throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -813,7 +812,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeNull() throws IOException
+    public void writeNull() throws JacksonException
     {
         if (_itemFilter == null) {
             return;
@@ -840,7 +839,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeOmittedField(String fieldName) throws IOException {
+    public void writeOmittedField(String fieldName) throws JacksonException {
         // Hmmh. Not sure how this would work but...
         if (_itemFilter != null) {
             delegate.writeOmittedField(fieldName);
@@ -857,21 +856,21 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     //   Let's try to use current state as a clue at least...
     
     @Override
-    public void writeObjectId(Object id) throws IOException {
+    public void writeObjectId(Object id) throws JacksonException {
         if (_itemFilter != null) {
             delegate.writeObjectId(id);
         }
     }
 
     @Override
-    public void writeObjectRef(Object id) throws IOException {
+    public void writeObjectRef(Object id) throws JacksonException {
         if (_itemFilter != null) {
             delegate.writeObjectRef(id);
         }
     }
     
     @Override
-    public void writeTypeId(Object id) throws IOException {
+    public void writeTypeId(Object id) throws JacksonException {
         if (_itemFilter != null) {
             delegate.writeTypeId(id);
         }
@@ -887,12 +886,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     @Override
-    public void writeObject(Object pojo) throws IOException,JsonProcessingException {
+    public void writeObject(Object pojo) throws JacksonException,JsonProcessingException {
 ...
     }
     
     @Override
-    public void writeTree(TreeNode rootNode) throws IOException {
+    public void writeTree(TreeNode rootNode) throws JacksonException {
 ...    
     }
     */
@@ -907,13 +906,13 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     @Override
-    public void copyCurrentEvent(JsonParser jp) throws IOException {
+    public void copyCurrentEvent(JsonParser jp) throws JacksonException {
         if (delegateCopyMethods) delegate.copyCurrentEvent(jp);
         else super.copyCurrentEvent(jp);
     }
 
     @Override
-    public void copyCurrentStructure(JsonParser jp) throws IOException {
+    public void copyCurrentStructure(JsonParser jp) throws JacksonException {
         if (delegateCopyMethods) delegate.copyCurrentStructure(jp);
         else super.copyCurrentStructure(jp);
     }
@@ -925,12 +924,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     /**********************************************************************
      */
 
-    protected void _checkParentPath() throws IOException
+    protected void _checkParentPath() throws JacksonException
     {
         _checkParentPath(true);
     }
 
-    protected void  _checkParentPath(boolean isMatch) throws IOException
+    protected void  _checkParentPath(boolean isMatch) throws JacksonException
     {
         if (isMatch) {
             ++_matchCount;
@@ -954,9 +953,9 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      * parent for a property name to be included with value: rules are slightly
      * different.
      *
-     * @throws IOException If there is an issue with possible resulting read
+     * @throws JacksonException If there is an issue with possible resulting read
      */
-    protected void _checkPropertyParentPath() throws IOException
+    protected void _checkPropertyParentPath() throws JacksonException
     {
         ++_matchCount;
         if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
@@ -972,7 +971,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
     }
     
-    protected boolean _checkBinaryWrite() throws IOException
+    protected boolean _checkBinaryWrite() throws JacksonException
     {
         if (_itemFilter == null) {
             return false;
@@ -987,7 +986,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         return false;
     }
     
-    protected boolean _checkRawValueWrite() throws IOException
+    protected boolean _checkRawValueWrite() throws JacksonException
     {
         if (_itemFilter == null) {
             return false;

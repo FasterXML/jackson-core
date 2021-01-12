@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
@@ -32,7 +30,7 @@ public class DefaultPrettyPrinter
      */
     public interface Indenter
     {
-        void writeIndentation(JsonGenerator g, int level) throws IOException;
+        void writeIndentation(JsonGenerator g, int level) throws JacksonException;
 
         /**
          * @return True if indenter is considered inline (does not add linefeeds),
@@ -253,7 +251,7 @@ public class DefaultPrettyPrinter
      */
 
     @Override
-    public void writeRootValueSeparator(JsonGenerator g) throws IOException
+    public void writeRootValueSeparator(JsonGenerator g) throws JacksonException
     {
         if (_rootSeparator != null) {
             g.writeRaw(_rootSeparator);
@@ -261,7 +259,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void writeStartObject(JsonGenerator g) throws IOException
+    public void writeStartObject(JsonGenerator g) throws JacksonException
     {
         g.writeRaw('{');
         if (!_objectIndenter.isInline()) {
@@ -270,7 +268,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void beforeObjectEntries(JsonGenerator g) throws IOException
+    public void beforeObjectEntries(JsonGenerator g) throws JacksonException
     {
         _objectIndenter.writeIndentation(g, _nesting);
     }
@@ -285,7 +283,7 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeObjectFieldValueSeparator(JsonGenerator g) throws IOException
+    public void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException
     {
         if (_spacesInObjectEntries) {
             g.writeRaw(_objectFieldValueSeparatorWithSpaces);
@@ -304,14 +302,14 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeObjectEntrySeparator(JsonGenerator g) throws IOException
+    public void writeObjectEntrySeparator(JsonGenerator g) throws JacksonException
     {
         g.writeRaw(_separators.getObjectEntrySeparator());
         _objectIndenter.writeIndentation(g, _nesting);
     }
 
     @Override
-    public void writeEndObject(JsonGenerator g, int nrOfEntries) throws IOException
+    public void writeEndObject(JsonGenerator g, int nrOfEntries) throws JacksonException
     {
         if (!_objectIndenter.isInline()) {
             --_nesting;
@@ -325,7 +323,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void writeStartArray(JsonGenerator g) throws IOException
+    public void writeStartArray(JsonGenerator g) throws JacksonException
     {
         if (!_arrayIndenter.isInline()) {
             ++_nesting;
@@ -334,7 +332,7 @@ public class DefaultPrettyPrinter
     }
 
     @Override
-    public void beforeArrayValues(JsonGenerator g) throws IOException {
+    public void beforeArrayValues(JsonGenerator g) throws JacksonException {
         _arrayIndenter.writeIndentation(g, _nesting);
     }
 
@@ -348,14 +346,14 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeArrayValueSeparator(JsonGenerator g) throws IOException
+    public void writeArrayValueSeparator(JsonGenerator g) throws JacksonException
     {
         g.writeRaw(_separators.getArrayValueSeparator());
         _arrayIndenter.writeIndentation(g, _nesting);
     }
 
     @Override
-    public void writeEndArray(JsonGenerator g, int nrOfValues) throws IOException
+    public void writeEndArray(JsonGenerator g, int nrOfValues) throws JacksonException
     {
         if (!_arrayIndenter.isInline()) {
             --_nesting;
@@ -385,7 +383,7 @@ public class DefaultPrettyPrinter
         public static NopIndenter instance() { return _nopInstance; }
 
         @Override
-        public void writeIndentation(JsonGenerator g, int level) throws IOException { }
+        public void writeIndentation(JsonGenerator g, int level) { }
 
         @Override
         public boolean isInline() { return true; }
@@ -403,7 +401,7 @@ public class DefaultPrettyPrinter
         public static FixedSpaceIndenter instance() { return _fixedInstance; }
 
         @Override
-        public void writeIndentation(JsonGenerator g, int level) throws IOException
+        public void writeIndentation(JsonGenerator g, int level) throws JacksonException
         {
             g.writeRaw(' ');
         }

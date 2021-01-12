@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.core.base;
 
+import java.io.InputStream;
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
 
 /**
  * This base class implements part of API that a JSON generator exposes
@@ -157,12 +156,12 @@ public abstract class GeneratorBase extends JsonGenerator
     //public void writeEndObject() throws IOException
 
     @Override
-    public void writeStartArray(Object forValue, int size) throws IOException {
+    public void writeStartArray(Object forValue, int size) throws JacksonException {
         writeStartArray(forValue);
     }
 
     @Override
-    public void writeStartObject(Object forValue, int size) throws IOException
+    public void writeStartObject(Object forValue, int size) throws JacksonException
     {
         writeStartObject(forValue);
     }
@@ -173,7 +172,7 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    @Override public void writeFieldName(SerializableString name) throws IOException {
+    @Override public void writeFieldName(SerializableString name) throws JacksonException {
         writeFieldName(name.getValue());
     }
 
@@ -188,32 +187,32 @@ public abstract class GeneratorBase extends JsonGenerator
     //public abstract void writeRaw(char[] text, int offset, int len) throws IOException;
 
     @Override
-    public void writeString(SerializableString text) throws IOException {
+    public void writeString(SerializableString text) throws JacksonException {
         writeString(text.getValue());
     }
 
-    @Override public void writeRawValue(String text) throws IOException {
+    @Override public void writeRawValue(String text) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text);
     }
 
-    @Override public void writeRawValue(String text, int offset, int len) throws IOException {
+    @Override public void writeRawValue(String text, int offset, int len) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
     }
 
-    @Override public void writeRawValue(char[] text, int offset, int len) throws IOException {
+    @Override public void writeRawValue(char[] text, int offset, int len) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
     }
 
-    @Override public void writeRawValue(SerializableString text) throws IOException {
+    @Override public void writeRawValue(SerializableString text) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text);
     }
 
     @Override
-    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException {
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws JacksonException {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
         _reportUnsupportedOperation();
         return 0;
@@ -244,7 +243,7 @@ public abstract class GeneratorBase extends JsonGenerator
      */
 
     @Override
-    public void writeObject(Object value) throws IOException {
+    public void writeObject(Object value) throws JacksonException {
         if (value == null) {
             // important: call method that does check value write:
             writeNull();
@@ -257,7 +256,7 @@ public abstract class GeneratorBase extends JsonGenerator
     }
 
     @Override
-    public void writeTree(TreeNode rootNode) throws IOException {
+    public void writeTree(TreeNode rootNode) throws JacksonException {
         // As with 'writeObject()', we are not to check if write would work
         if (rootNode == null) {
             writeNull();
@@ -272,8 +271,8 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    @Override public abstract void flush() throws IOException;
-    @Override public void close() throws IOException { _closed = true; }
+//    @Override public abstract void flush();
+    @Override public void close() { _closed = true; }
     @Override public boolean isClosed() { return _closed; }
 
     /*
@@ -296,10 +295,9 @@ public abstract class GeneratorBase extends JsonGenerator
      * @param typeMsg Additional message used for generating exception message
      *   if value output is NOT legal in current generator output state.
      *
-     * @throws IOException if there is either an underlying I/O problem or encoding
-     *    issue at format layer
+     * @throws JacksonException if there is a problem in trying to write a value
      */
-    protected abstract void _verifyValueWrite(String typeMsg) throws IOException;
+    protected abstract void _verifyValueWrite(String typeMsg) throws JacksonException;
 
     /**
      * Overridable factory method called to instantiate an appropriate {@link PrettyPrinter}
@@ -319,9 +317,9 @@ public abstract class GeneratorBase extends JsonGenerator
      *
      * @return String representation of {@code value}
      *
-     * @throws IOException if there is a problem serializing value as String
+     * @throws JacksonException if there is a problem serializing value as String
      */
-    protected String _asString(BigDecimal value) throws IOException {
+    protected String _asString(BigDecimal value) throws JacksonException {
         if (StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_streamWriteFeatures)) {
             // 24-Aug-2016, tatu: [core#315] prevent possible DoS vector
             int scale = value.scale();
@@ -341,7 +339,7 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     /**********************************************************************
      */
 
-    protected final int _decodeSurrogate(int surr1, int surr2) throws IOException
+    protected final int _decodeSurrogate(int surr1, int surr2) throws JacksonException
     {
         // First is known to be valid, but how about the other?
         if (surr2 < SURR2_FIRST || surr2 > SURR2_LAST) {

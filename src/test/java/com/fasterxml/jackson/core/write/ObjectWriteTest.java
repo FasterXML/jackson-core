@@ -14,11 +14,13 @@ import java.math.BigInteger;
 public class ObjectWriteTest
     extends BaseTest
 {
+    final TokenStreamFactory JSON_F = newStreamFactory();
+
     public void testEmptyObjectWrite()
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
 
         TokenStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
@@ -60,7 +62,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
         // Mismatch:
         try {
@@ -76,7 +78,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
         gen.writeFieldName("first");
         gen.writeNumber(-901);
@@ -112,7 +114,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
 
         final String TEXT = "\"some\nString!\"";
@@ -220,7 +222,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
 
         gen.writeStringField("str", null);

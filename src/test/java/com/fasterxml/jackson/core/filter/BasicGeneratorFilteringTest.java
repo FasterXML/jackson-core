@@ -287,7 +287,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeRawValue(new SerializedString("1"));
         gen.writeRawValue("2");
         gen.writeEndArray();
-        
+
         gen.writeFieldName("array");
 
         gen.writeStartArray();

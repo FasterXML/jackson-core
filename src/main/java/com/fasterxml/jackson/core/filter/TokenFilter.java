@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
@@ -241,10 +241,10 @@ public class TokenFilter
      *
      * @return True if scalar value is to be included; false if not
      *
-     * @throws IOException if there are any problems reading content (typically
+     * @throws JacksonException if there are any problems reading content (typically
      *   via calling passed-in {@code JsonParser})
      */
-    public boolean includeValue(JsonParser p) throws IOException {
+    public boolean includeValue(JsonParser p) throws JacksonException {
         return _includeScalar();
     }
 

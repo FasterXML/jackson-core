@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -84,7 +85,7 @@ public class NonBlockingJsonParser
     }
 
     @Override
-    public void feedInput(byte[] buf, int start, int end) throws IOException
+    public void feedInput(byte[] buf, int start, int end) throws JacksonException
     {
         // Must not have remaining input
         if (_inputPtr < _inputEnd) {
@@ -127,17 +128,21 @@ public class NonBlockingJsonParser
      * implementation
      */
 
-//    public boolean nextFieldName(SerializableString str) throws IOException
-//    public String nextTextValue() throws IOException
-//    public int nextIntValue(int defaultValue) throws IOException
-//    public long nextLongValue(long defaultValue) throws IOException
-//    public Boolean nextBooleanValue() throws IOException
+//    public boolean nextFieldName(SerializableString str) throws JacksonException
+//    public String nextTextValue() throws JacksonException
+//    public int nextIntValue(int defaultValue) throws JacksonException
+//    public long nextLongValue(long defaultValue) throws JacksonException
+//    public Boolean nextBooleanValue() throws JacksonException
 
     @Override
-    public int releaseBuffered(OutputStream out) throws IOException {
+    public int releaseBuffered(OutputStream out) throws JacksonException {
         int avail = _inputEnd - _inputPtr;
         if (avail > 0) {
-            out.write(_inputBuffer, _inputPtr, avail);
+            try {
+                out.write(_inputBuffer, _inputPtr, avail);
+            } catch (IOException e) {
+                throw WrappedIOException.construct(e);
+            }
         }
         return avail;
     }
@@ -145,7 +150,7 @@ public class NonBlockingJsonParser
     // Should never be called: can not be implemented quite as expected
     // due to non-blocking behavior
     @Override
-    protected char _decodeEscaped() throws IOException {
+    protected char _decodeEscaped() throws JacksonException {
         VersionUtil.throwInternal();
         return ' ';
     }
@@ -157,7 +162,7 @@ public class NonBlockingJsonParser
      */
 
     @Override
-    public JsonToken nextToken() throws IOException
+    public JsonToken nextToken() throws JacksonException
     {
         // First: regardless of where we really are, need at least one more byte;
         // can simplify some of the checks by short-circuiting right away
@@ -216,7 +221,7 @@ public class NonBlockingJsonParser
     }
 
     @Override
-    public void finishToken() throws IOException {
+    public void finishToken() throws JacksonException {
         // 10-Nov-2017, tatu: Can not implement reliably -- should this produce
         //    exception or not? For now, quietly ignore
     }
@@ -228,9 +233,9 @@ public class NonBlockingJsonParser
      *
      * @return Token decoded, if complete; {@link JsonToken#NOT_AVAILABLE} if not
      *
-     * @throws IOException (generally {@link JsonParseException}) for decoding problems
+     * @throws JacksonException (generally {@link JsonParseException}) for decoding problems
      */
-    protected final JsonToken _finishToken() throws IOException
+    protected final JsonToken _finishToken() throws JacksonException
     {
         // NOTE: caller ensures there's input available...
         switch (_minorState) {
@@ -356,9 +361,9 @@ public class NonBlockingJsonParser
      *
      * @return Token decoded, if complete; {@link JsonToken#NOT_AVAILABLE} if not
      *
-     * @throws IOException (generally {@link JsonParseException}) for decoding problems
+     * @throws JacksonException (generally {@link JsonParseException}) for decoding problems
      */
-    protected final JsonToken _finishTokenWithEOF() throws IOException
+    protected final JsonToken _finishTokenWithEOF() throws JacksonException
     {
         // NOTE: caller ensures there's input available...
         JsonToken t = _currToken;
@@ -431,7 +436,7 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    private final JsonToken _startDocument(int ch) throws IOException
+    private final JsonToken _startDocument(int ch) throws JacksonException
     {
         ch &= 0xFF;
 
@@ -469,7 +474,7 @@ public class NonBlockingJsonParser
         return _startValue(ch);
     }
 
-    private final JsonToken _finishBOM(int bytesHandled) throws IOException
+    private final JsonToken _finishBOM(int bytesHandled) throws JacksonException
     {
         // public final static byte UTF8_BOM_1 = (byte) 0xEF;
         // public final static byte UTF8_BOM_2 = (byte) 0xBB;
@@ -511,7 +516,7 @@ public class NonBlockingJsonParser
      * Method that handles initial token type recognition for token
      * that has to be either FIELD_NAME or END_OBJECT.
      */
-    private final JsonToken _startFieldName(int ch) throws IOException
+    private final JsonToken _startFieldName(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -538,7 +543,7 @@ public class NonBlockingJsonParser
         return _parseEscapedName(0, 0, 0);
     }
 
-    private final JsonToken _startFieldNameAfterComma(int ch) throws IOException
+    private final JsonToken _startFieldNameAfterComma(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -604,7 +609,7 @@ public class NonBlockingJsonParser
      * decode it if contained in input buffer.
      * Value may be preceded by leading white-space, but no separator (comma).
      */
-    private final JsonToken _startValue(int ch) throws IOException
+    private final JsonToken _startValue(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -672,7 +677,7 @@ public class NonBlockingJsonParser
 
     // Helper method called to parse token that is either a value token in array
     // or end-array marker
-    private final JsonToken _startValueExpectComma(int ch) throws IOException
+    private final JsonToken _startValueExpectComma(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -769,7 +774,7 @@ public class NonBlockingJsonParser
     // Helper method called to detect type of a value token (at any level), and possibly
     // decode it if contained in input buffer.
     // Value MUST be preceded by a semi-colon (which may be surrounded by white-space)
-    private final JsonToken _startValueExpectColon(int ch) throws IOException
+    private final JsonToken _startValueExpectColon(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -843,7 +848,7 @@ public class NonBlockingJsonParser
     }
 
     // Method called when we have already gotten a comma (i.e. not the first value)
-    private final JsonToken _startValueAfterComma(int ch) throws IOException
+    private final JsonToken _startValueAfterComma(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -907,7 +912,8 @@ public class NonBlockingJsonParser
         return _startUnexpectedValue(true, ch);
     }
 
-    protected JsonToken _startUnexpectedValue(boolean leadingComma, int ch) throws IOException
+    protected JsonToken _startUnexpectedValue(boolean leadingComma, int ch)
+            throws JacksonException
     {
         switch (ch) {
         case INT_RBRACKET:
@@ -954,7 +960,7 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
     
-    private final int _skipWS(int ch) throws IOException
+    private final int _skipWS(int ch) throws JacksonException
     {
         do {
             if (ch != INT_SPACE) {
@@ -977,7 +983,7 @@ public class NonBlockingJsonParser
         return ch;
     }
 
-    private final JsonToken _startSlashComment(int fromMinorState) throws IOException
+    private final JsonToken _startSlashComment(int fromMinorState) throws JacksonException
     {
         if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
@@ -1000,7 +1006,7 @@ public class NonBlockingJsonParser
         return null;
     }
 
-    private final JsonToken _finishHashComment(int fromMinorState) throws IOException
+    private final JsonToken _finishHashComment(int fromMinorState) throws JacksonException
     {
         // Could by-pass this check by refactoring, but for now simplest way...
         if (!isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
@@ -1030,7 +1036,7 @@ public class NonBlockingJsonParser
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCppComment(int fromMinorState) throws IOException
+    private final JsonToken _finishCppComment(int fromMinorState) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1056,7 +1062,7 @@ public class NonBlockingJsonParser
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws IOException
+    private final JsonToken _finishCComment(int fromMinorState, boolean gotStar) throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -1088,7 +1094,7 @@ public class NonBlockingJsonParser
         return _startAfterComment(fromMinorState);
     }
 
-    private final JsonToken _startAfterComment(int fromMinorState) throws IOException
+    private final JsonToken _startAfterComment(int fromMinorState) throws JacksonException
     {
         // Ok, then, need one more character...
         if (_inputPtr >= _inputEnd) {
@@ -1121,7 +1127,7 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    protected JsonToken _startFalseToken() throws IOException
+    protected JsonToken _startFalseToken() throws JacksonException
     {
         int ptr = _inputPtr;
         if ((ptr + 4) < _inputEnd) { // yes, can determine efficiently
@@ -1141,7 +1147,7 @@ public class NonBlockingJsonParser
         return _finishKeywordToken("false", 1, JsonToken.VALUE_FALSE);
     }
 
-    protected JsonToken _startTrueToken() throws IOException
+    protected JsonToken _startTrueToken() throws JacksonException
     {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
@@ -1160,7 +1166,7 @@ public class NonBlockingJsonParser
         return _finishKeywordToken("true", 1, JsonToken.VALUE_TRUE);
     }
 
-    protected JsonToken _startNullToken() throws IOException
+    protected JsonToken _startNullToken() throws JacksonException
     {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
@@ -1180,7 +1186,7 @@ public class NonBlockingJsonParser
     }
 
     protected JsonToken _finishKeywordToken(String expToken, int matched,
-            JsonToken result) throws IOException
+            JsonToken result) throws JacksonException
     {
         final int end = expToken.length();
 
@@ -1208,7 +1214,7 @@ public class NonBlockingJsonParser
     }
 
     protected JsonToken _finishKeywordTokenWithEOF(String expToken, int matched,
-            JsonToken result) throws IOException
+            JsonToken result) throws JacksonException
     {
         if (matched == expToken.length()) {
             return (_currToken = result);
@@ -1217,7 +1223,7 @@ public class NonBlockingJsonParser
         return _finishErrorTokenWithEOF();
     }
 
-    protected JsonToken _finishNonStdToken(int type, int matched) throws IOException
+    protected JsonToken _finishNonStdToken(int type, int matched) throws JacksonException
     {
         final String expToken = _nonStdToken(type);
         final int end = expToken.length();
@@ -1247,7 +1253,7 @@ public class NonBlockingJsonParser
         return _finishErrorToken();
     }
 
-    protected JsonToken _finishNonStdTokenWithEOF(int type, int matched) throws IOException
+    protected JsonToken _finishNonStdTokenWithEOF(int type, int matched) throws JacksonException
     {
         final String expToken = _nonStdToken(type);
         if (matched == expToken.length()) {
@@ -1257,7 +1263,7 @@ public class NonBlockingJsonParser
         return _finishErrorTokenWithEOF();
     }
 
-    protected JsonToken _finishErrorToken() throws IOException
+    protected JsonToken _finishErrorToken() throws JacksonException
     {
         while (_inputPtr < _inputEnd) {
             int i = (int) _inputBuffer[_inputPtr++];
@@ -1279,12 +1285,12 @@ public class NonBlockingJsonParser
         return (_currToken = JsonToken.NOT_AVAILABLE);
     }
 
-    protected JsonToken _finishErrorTokenWithEOF() throws IOException
+    protected JsonToken _finishErrorTokenWithEOF() throws JacksonException
     {
         return _reportErrorToken(_textBuffer.contentsAsString());
     }
 
-    protected JsonToken _reportErrorToken(String actualToken) throws IOException
+    protected JsonToken _reportErrorToken(String actualToken) throws JacksonException
     {
         // !!! TODO: Include non-standard ones if enabled
         _reportError("Unrecognized token '%s': was expecting %s", _textBuffer.contentsAsString(),
@@ -1299,7 +1305,7 @@ public class NonBlockingJsonParser
      */
 
     // [core#611]: allow non-standard floats like ".125"
-    protected JsonToken _startFloatThatStartsWithPeriod() throws IOException
+    protected JsonToken _startFloatThatStartsWithPeriod() throws JacksonException
     {
         _numberNegative = false;
         _intLength = 0;
@@ -1307,7 +1313,7 @@ public class NonBlockingJsonParser
         return _startFloat(outBuf, 0, INT_PERIOD);
     }
     
-    protected JsonToken _startPositiveNumber(int ch) throws IOException
+    protected JsonToken _startPositiveNumber(int ch) throws JacksonException
     {
         _numberNegative = false;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1357,7 +1363,7 @@ public class NonBlockingJsonParser
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
-    protected JsonToken _startNegativeNumber() throws IOException
+    protected JsonToken _startNegativeNumber() throws JacksonException
     {
         _numberNegative = true;
         if (_inputPtr >= _inputEnd) {
@@ -1370,12 +1376,12 @@ public class NonBlockingJsonParser
                 return _finishNumberLeadingNegZeroes();
             }
             // One special case: if first char is 0, must not be followed by a digit
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         } else if (ch > INT_9) {
             if (ch == 'I') {
                 return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
             }
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = '-';
@@ -1423,7 +1429,7 @@ public class NonBlockingJsonParser
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
-    protected JsonToken _startNumberLeadingZero() throws IOException
+    protected JsonToken _startNumberLeadingZero() throws JacksonException
     {
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
@@ -1457,7 +1463,7 @@ public class NonBlockingJsonParser
             // (colon not possible since this is within value, not after key)
             // 
             if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
-                reportUnexpectedNumberChar(ch,
+                _reportUnexpectedNumberChar(ch,
                         "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
             }
         } else { // leading zero case (zero followed by a digit)
@@ -1468,18 +1474,18 @@ public class NonBlockingJsonParser
         return _valueCompleteInt(0, "0");
     }
 
-    protected JsonToken _finishNumberMinus(int ch) throws IOException
+    protected JsonToken _finishNumberMinus(int ch) throws JacksonException
     {
         if (ch <= INT_0) {
             if (ch == INT_0) {
                 return _finishNumberLeadingNegZeroes();
             }
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         } else if (ch > INT_9) {
             if (ch == 'I') {
                 return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
             }
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = '-';
@@ -1488,7 +1494,7 @@ public class NonBlockingJsonParser
         return _finishNumberIntegralPart(outBuf, 2);
     }
 
-    protected JsonToken _finishNumberLeadingZeroes() throws IOException
+    protected JsonToken _finishNumberLeadingZeroes() throws JacksonException
     {
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
@@ -1516,14 +1522,14 @@ public class NonBlockingJsonParser
                 // (colon not possible since this is within value, not after key)
                 // 
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
-                    reportUnexpectedNumberChar(ch,
+                    _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
             } else { // Number between 0 and 9
                 // although not guaranteed, seems likely valid separator (white space,
                 // comma, end bracket/curly); next time token needed will verify
                 if (!isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)) {
-                    reportInvalidNumber("Leading zeroes not allowed");
+                    _reportInvalidNumber("Leading zeroes not allowed");
                 }
                 if (ch == INT_0) { // coalesce multiple leading zeroes into just one
                     continue;
@@ -1539,7 +1545,7 @@ public class NonBlockingJsonParser
         }
     }
 
-    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException
+    protected JsonToken _finishNumberLeadingNegZeroes() throws JacksonException
     {
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
@@ -1569,14 +1575,14 @@ public class NonBlockingJsonParser
                 // (colon not possible since this is within value, not after key)
                 // 
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
-                    reportUnexpectedNumberChar(ch,
+                    _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
             } else { // Number between 1 and 9; go integral
                 // although not guaranteed, seems likely valid separator (white space,
                 // comma, end bracket/curly); next time token needed will verify
                 if (!isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)) {
-                    reportInvalidNumber("Leading zeroes not allowed");
+                    _reportInvalidNumber("Leading zeroes not allowed");
                 }
                 if (ch == INT_0) { // coalesce multiple leading zeroes into just one
                     continue;
@@ -1593,7 +1599,7 @@ public class NonBlockingJsonParser
         }
     }
 
-    protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException
+    protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws JacksonException
     {
         int negMod = _numberNegative ? -1 : 0;
 
@@ -1633,7 +1639,7 @@ public class NonBlockingJsonParser
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
-    protected JsonToken _startFloat(char[] outBuf, int outPtr, int ch) throws IOException
+    protected JsonToken _startFloat(char[] outBuf, int outPtr, int ch) throws JacksonException
     {
         int fractLen = 0;
         if (ch == INT_PERIOD) {
@@ -1653,7 +1659,7 @@ public class NonBlockingJsonParser
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
                     // must be followed by sequence of ints, one minimum
                     if (fractLen == 0) {
-                        reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                        _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
                     }
                     break;
                 }
@@ -1708,7 +1714,7 @@ public class NonBlockingJsonParser
             // must be followed by sequence of ints, one minimum
             ch &= 0xFF;
             if (expLen == 0) {
-                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+                _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
             }
         }
         // push back the last char
@@ -1719,7 +1725,7 @@ public class NonBlockingJsonParser
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
-    protected JsonToken _finishFloatFraction() throws IOException
+    protected JsonToken _finishFloatFraction() throws JacksonException
     {
         int fractLen = _fractLength;
         char[] outBuf = _textBuffer.getBufferWithoutReset();
@@ -1743,7 +1749,7 @@ public class NonBlockingJsonParser
         // Ok, fraction done; what have we got next?
         // must be followed by sequence of ints, one minimum
         if (fractLen == 0) {
-            reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
         }
         _fractLength = fractLen;
         _textBuffer.setCurrentLength(outPtr);
@@ -1768,7 +1774,7 @@ public class NonBlockingJsonParser
         return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
     }
 
-    protected JsonToken _finishFloatExponent(boolean checkSign, int ch) throws IOException
+    protected JsonToken _finishFloatExponent(boolean checkSign, int ch) throws JacksonException
     {
         if (checkSign) {
             _minorState = MINOR_NUMBER_EXPONENT_DIGITS;
@@ -1803,7 +1809,7 @@ public class NonBlockingJsonParser
         // must be followed by sequence of ints, one minimum
         ch &= 0xFF;
         if (expLen == 0) {
-            reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+            _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
         }
         // push back the last char
         --_inputPtr;
@@ -1819,7 +1825,7 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    private final String _fastParseName() throws IOException
+    private final String _fastParseName() throws JacksonException
     {
         // If so, can also unroll loops nicely
         // This may seem weird, but here we do NOT want to worry about UTF-8
@@ -1877,7 +1883,7 @@ public class NonBlockingJsonParser
         return null;
     }
 
-    private final String _parseMediumName(int ptr, int q2) throws IOException
+    private final String _parseMediumName(int ptr, int q2) throws JacksonException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
@@ -1921,7 +1927,7 @@ public class NonBlockingJsonParser
         return null;
     }
 
-    private final String _parseMediumName2(int ptr, int q3, final int q2) throws IOException
+    private final String _parseMediumName2(int ptr, int q3, final int q2) throws JacksonException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
@@ -1971,7 +1977,7 @@ public class NonBlockingJsonParser
      * and hence is offlined to a separate method.
      */
     private final JsonToken _parseEscapedName(int qlen, int currQuad, int currQuadBytes)
-        throws IOException
+        throws JacksonException
     {
         // This may seem weird, but here we do not want to worry about
         // UTF-8 decoding yet. Rather, we'll assume that part is ok (if not it will get
@@ -2087,7 +2093,7 @@ public class NonBlockingJsonParser
      * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
      */
-    private JsonToken _handleOddName(int ch) throws IOException
+    private JsonToken _handleOddName(int ch) throws JacksonException
     {
         // First: may allow single quotes
         switch (ch) {
@@ -2131,7 +2137,7 @@ public class NonBlockingJsonParser
      * Unlike other 
      */
     private JsonToken _finishUnquotedName(int qlen, int currQuad, int currQuadBytes)
-        throws IOException
+        throws JacksonException
     {
         int[] quads = _quadBuffer;
         final int[] codes = CharTypes.getInputCodeUtf8JsNames();
@@ -2179,7 +2185,7 @@ public class NonBlockingJsonParser
     }
 
     private JsonToken _finishAposName(int qlen, int currQuad, int currQuadBytes)
-        throws IOException
+        throws JacksonException
     {
         int[] quads = _quadBuffer;
         final int[] codes = _icLatin1;
@@ -2275,7 +2281,7 @@ public class NonBlockingJsonParser
         return _fieldComplete(name);
     }
 
-    protected final JsonToken _finishFieldWithEscape() throws IOException
+    protected final JsonToken _finishFieldWithEscape() throws JacksonException
     {
         // First: try finishing what wasn't yet:
         int ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
@@ -2327,7 +2333,7 @@ public class NonBlockingJsonParser
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);
     }
 
-    private int _decodeSplitEscaped(int value, int bytesRead) throws IOException
+    private int _decodeSplitEscaped(int value, int bytesRead) throws JacksonException
     {
         if (_inputPtr >= _inputEnd) {
             _quoted32 = value;
@@ -2399,7 +2405,7 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    protected JsonToken _startString() throws IOException
+    protected JsonToken _startString() throws JacksonException
     {
         int ptr = _inputPtr;
         int outPtr = 0;
@@ -2426,7 +2432,7 @@ public class NonBlockingJsonParser
         return _finishRegularString();
     }
 
-    private final JsonToken _finishRegularString() throws IOException
+    private final JsonToken _finishRegularString() throws JacksonException
     {
         int c;
 
@@ -2526,7 +2532,7 @@ public class NonBlockingJsonParser
         }
     }
 
-    protected JsonToken _startAposString() throws IOException
+    protected JsonToken _startAposString() throws JacksonException
     {
         int ptr = _inputPtr;
         int outPtr = 0;
@@ -2554,7 +2560,7 @@ public class NonBlockingJsonParser
         return _finishAposString();
     }
 
-    private final JsonToken _finishAposString() throws IOException
+    private final JsonToken _finishAposString() throws JacksonException
     {
         int c;
         final int[] codes = _icUTF8;
@@ -2652,7 +2658,7 @@ public class NonBlockingJsonParser
     }
     
     private final boolean _decodeSplitMultiByte(int c, int type, boolean gotNext)
-            throws IOException
+            throws JacksonException
     {
         switch (type) {
         case 1:
@@ -2705,7 +2711,7 @@ public class NonBlockingJsonParser
     }
 
     private final boolean _decodeSplitUTF8_3(int prev, int prevCount, int next)
-        throws IOException
+        throws JacksonException
     {
         if (prevCount == 1) {
             if ((next & 0xC0) != 0x080) {
@@ -2730,7 +2736,7 @@ public class NonBlockingJsonParser
     // @return Character value <b>minus 0x10000</c>; this so that caller
     //    can readily expand it to actual surrogates
     private final boolean _decodeSplitUTF8_4(int prev, int prevCount, int next)
-        throws IOException
+        throws JacksonException
     {
         if (prevCount == 1) {
             if ((next & 0xC0) != 0x080) {
@@ -2777,7 +2783,7 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    private final int _decodeCharEscape() throws IOException
+    private final int _decodeCharEscape() throws JacksonException
     {
         int left = _inputEnd - _inputPtr;
         if (left < 5) { // offline boundary-checking case:
@@ -2786,7 +2792,7 @@ public class NonBlockingJsonParser
         return _decodeFastCharEscape();
     }
 
-    private final int _decodeFastCharEscape() throws IOException
+    private final int _decodeFastCharEscape() throws JacksonException
     {
         int c = (int) _inputBuffer[_inputPtr++];
         switch (c) {
@@ -2851,7 +2857,7 @@ public class NonBlockingJsonParser
     /**********************************************************************
      */
 
-    private final int _decodeUTF8_2(int c, int d) throws IOException
+    private final int _decodeUTF8_2(int c, int d) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);
@@ -2859,7 +2865,7 @@ public class NonBlockingJsonParser
         return ((c & 0x1F) << 6) | (d & 0x3F);
     }
 
-    private final int _decodeUTF8_3(int c, int d, int e) throws IOException
+    private final int _decodeUTF8_3(int c, int d, int e) throws JacksonException
     {
         c &= 0x0F;
         if ((d & 0xC0) != 0x080) {
@@ -2874,7 +2880,7 @@ public class NonBlockingJsonParser
 
     // @return Character value <b>minus 0x10000</c>; this so that caller
     //    can readily expand it to actual surrogates
-    private final int _decodeUTF8_4(int c, int d, int e, int f) throws IOException
+    private final int _decodeUTF8_4(int c, int d, int e, int f) throws JacksonException
     {
         if ((d & 0xC0) != 0x080) {
             _reportInvalidOther(d & 0xFF, _inputPtr);

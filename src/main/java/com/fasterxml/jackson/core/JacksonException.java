@@ -2,8 +2,12 @@ package com.fasterxml.jackson.core;
 
 /**
  * Base class for all Jackson-produced checked exceptions.
+ *<p>
+ * Note that in Jackson 2.x this exception extended {@link java.io.IOException}
+ * but in 3.x {@link RuntimeException}
  */
-public abstract class JacksonException extends java.io.IOException
+public abstract class JacksonException
+    extends RuntimeException
 {
     private final static long serialVersionUID = 123; // eclipse complains otherwise
 
@@ -19,8 +23,12 @@ public abstract class JacksonException extends java.io.IOException
         super(msg);
     }
 
-    protected JacksonException(Throwable t) {
-        super(t);
+    protected JacksonException(Throwable rootCause) {
+        super(rootCause);
+    }
+
+    protected JacksonException(String msg, Throwable rootCause) {
+        super(msg, rootCause);
     }
 
     protected JacksonException(String msg, JsonLocation loc, Throwable rootCause) {

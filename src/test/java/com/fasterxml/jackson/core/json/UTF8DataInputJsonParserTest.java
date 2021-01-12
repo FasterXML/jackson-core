@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -36,7 +37,7 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         try {
             uTF8DataInputJsonParser.nextFieldName();
             fail("Expecting exception: IOException");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             assertEquals(JsonParser.class.getName(), e.getStackTrace()[0].getClassName());
         }
     }

@@ -73,7 +73,7 @@ public interface ObjectReadContext
 
     // // // Databinding callbacks, tree deserialization
 
-    public <T extends TreeNode> T readTree(JsonParser p) throws IOException;
+    public <T extends TreeNode> T readTree(JsonParser p) throws JacksonException;
 
     /**
      * Convenience method for traversing over given {@link TreeNode} by exposing
@@ -92,11 +92,11 @@ public interface ObjectReadContext
 
     // // // Databinding callbacks, non-tree value deserialization
 
-    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException;
+    public <T> T readValue(JsonParser p, Class<T> valueType) throws JacksonException;
 
-    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException;
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws JacksonException;
 
-    public <T> T readValue(JsonParser p, ResolvedType type) throws IOException;
+    public <T> T readValue(JsonParser p, ResolvedType type) throws JacksonException;
 
     /**
      * Default no-op implementation.
@@ -139,24 +139,24 @@ public interface ObjectReadContext
         // // // Databind integration, trees
 
         @Override
-        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+        public <T extends TreeNode> T readTree(JsonParser p) {
             return _reportUnsupportedOperation();
         }
 
         // // // Databind integration, other values
         
         @Override
-        public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
+        public <T> T readValue(JsonParser p, Class<T> valueType) {
             return _reportUnsupportedOperation();
         }
 
         @Override
-        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
+        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) {
             return _reportUnsupportedOperation();
         }
 
         @Override
-        public <T> T readValue(JsonParser p, ResolvedType type) throws IOException {
+        public <T> T readValue(JsonParser p, ResolvedType type) {
             return _reportUnsupportedOperation();
         }
 

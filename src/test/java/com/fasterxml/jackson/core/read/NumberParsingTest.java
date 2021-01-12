@@ -688,7 +688,7 @@ public class NumberParsingTest
         try {
             p.getBooleanValue();
             fail("Expected error trying to call getBooleanValue on non-boolean value");
-        } catch (JsonParseException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "not of boolean type");
         }
         p.close();
@@ -709,7 +709,7 @@ public class NumberParsingTest
         try {
             p.getIntValue();
             fail("Expected error trying to call getIntValue on non-numeric value");
-        } catch (JsonParseException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "can not use numeric value accessors");
         }
         p.close();
@@ -730,7 +730,7 @@ public class NumberParsingTest
         try {
             p.getLongValue();
             fail("Expected error trying to call getLongValue on non-numeric value");
-        } catch (JsonParseException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "can not use numeric value accessors");
         }
         p.close();

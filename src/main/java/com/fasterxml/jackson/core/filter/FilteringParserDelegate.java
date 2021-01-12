@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
@@ -170,7 +168,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 
     @Override
-    public String currentName() throws IOException {
+    public String currentName() {
         TokenStreamContext ctxt = _filterContext();
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             TokenStreamContext parent = ctxt.getParent();
@@ -211,7 +209,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
      */
 
     @Override
-    public JsonToken nextToken() throws IOException
+    public JsonToken nextToken() throws JacksonException
     {
         // 23-May-2017, tatu: To be honest, code here is rather hairy and I don't like all
         //    conditionals; and it seems odd to return `null` but NOT considering input
@@ -266,7 +264,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 ctxt = _headContext.findChildOf(ctxt);
                 _exposedContext = ctxt;
                 if (ctxt == null) { // should never occur
-                    throw _constructError("Unexpected problem: chain of filtered context broken, token: "+t);
+                    throw _constructReadException("Unexpected problem: chain of filtered context broken, token: "+t);
                 }
             }
         }
@@ -447,7 +445,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     // return, and the token read next could not be returned as-is,
     // at least not yet, but where we have not yet established that
     // buffering is needed.
-    protected final JsonToken _nextToken2() throws IOException
+    protected final JsonToken _nextToken2() throws JacksonException
     {
         main_loop:
         while (true) {
@@ -608,7 +606,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
     // Method called when a new potentially included context is found.
     protected final JsonToken _nextTokenWithBuffering(final TokenFilterContext buffRoot)
-        throws IOException
+        throws JacksonException
     {
         main_loop:
         while (true) {
@@ -748,7 +746,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         }
     }
 
-    private JsonToken _nextBuffered(TokenFilterContext buffRoot) throws IOException
+    private JsonToken _nextBuffered(TokenFilterContext buffRoot) throws JacksonException
     {
         _exposedContext = buffRoot;
         TokenFilterContext ctxt = buffRoot;
@@ -759,7 +757,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         while (true) {
             // all done with buffered stuff?
             if (ctxt == _headContext) {
-                throw _constructError("Internal error: failed to locate expected buffered tokens");
+                throw _constructReadException("Internal error: failed to locate expected buffered tokens");
                 /*
                 _exposedContext = null;
                 break;
@@ -769,7 +767,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             ctxt = _exposedContext.findChildOf(ctxt);
             _exposedContext = ctxt;
             if (ctxt == null) { // should never occur
-                throw _constructError("Unexpected problem: chain of filtered context broken");
+                throw _constructReadException("Unexpected problem: chain of filtered context broken");
             }
             t = _exposedContext.nextTokenToRead();
             if (t != null) {
@@ -778,7 +776,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
         }
     }
 
-    private final boolean _verifyAllowedMatches() throws IOException {
+    private final boolean _verifyAllowedMatches() throws JacksonException {
         if (_matchCount == 0 || _allowMultipleMatches) {
             ++_matchCount;
             return true;
@@ -787,7 +785,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     }
 
     @Override
-    public JsonToken nextValue() throws IOException {
+    public JsonToken nextValue() throws JacksonException {
         // Re-implemented same as ParserMinimalBase:
         JsonToken t = nextToken();
         if (t == JsonToken.FIELD_NAME) {
@@ -802,7 +800,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
      * state correct here.
      */
     @Override
-    public JsonParser skipChildren() throws IOException
+    public JsonParser skipChildren() throws JacksonException
     {
         if ((_currToken != JsonToken.START_OBJECT)
             && (_currToken != JsonToken.START_ARRAY)) {
@@ -835,17 +833,17 @@ public class FilteringParserDelegate extends JsonParserDelegate
      */
 
     @Override
-    public String nextFieldName() throws IOException {
+    public String nextFieldName() throws JacksonException {
         return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
     }
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws IOException {
+    public boolean nextFieldName(SerializableString str) throws JacksonException {
         return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(currentName());
     }
 
     @Override
-    public int nextFieldName(FieldNameMatcher matcher) throws IOException {
+    public int nextFieldName(FieldNameMatcher matcher) throws JacksonException {
         String str = nextFieldName();
         if (str != null) {
             // 15-Nov-2017, tatu: We can not rely on name being interned here

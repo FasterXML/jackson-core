@@ -6,6 +6,7 @@ package com.fasterxml.jackson.core;
 
 import java.io.Closeable;
 import java.io.Flushable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -2033,6 +2034,8 @@ public abstract class JsonGenerator
     /*
     /**********************************************************************
     /* Helper methods for sub-classes
+    /*
+    /* NOTE: some could be moved out in 3.0 if there was "JsonGeneratorMinimalBase"
     /**********************************************************************
      */
 
@@ -2054,6 +2057,15 @@ public abstract class JsonGenerator
      */
     protected <T> T _reportError(String msg) throws JsonGenerationException {
         throw new JsonGenerationException(msg, this);
+    }
+
+    protected <T> T _reportUnsupportedOperation() {
+        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
+    }
+
+    // @since 3.0
+    protected JacksonException _wrapIOFailure(IOException e) {
+        return WrappedIOException.construct(e);
     }
 
     protected final void _verifyOffsets(int arrayLength, int offset, int length)

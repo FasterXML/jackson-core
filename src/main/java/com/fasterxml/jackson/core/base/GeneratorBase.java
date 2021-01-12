@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.core.base;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -364,14 +362,5 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     /**********************************************************************
      */
 
-    // @since 3.0
-    protected JacksonException _wrapIOFailure(IOException e) {
-        return WrappedIOException.construct(e);
-    }
-
     protected void _throwInternal() { VersionUtil.throwInternal(); }
-
-    protected <T> T _reportUnsupportedOperation() {
-        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
-    }
 }

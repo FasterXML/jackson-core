@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -468,7 +467,7 @@ public class WriterBasedJsonGenerator
             try {
                 numRead = reader.read(buf, 0, toReadNow);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             if (numRead <= 0) {
                 break;
@@ -545,7 +544,7 @@ public class WriterBasedJsonGenerator
             try {
                 _writer.write(text, 0, len);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
         if (_outputTail >= _outputEnd) {
@@ -640,7 +639,7 @@ public class WriterBasedJsonGenerator
         try {
             _writer.write(text, offset, len);
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
     }
 
@@ -1004,7 +1003,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.flush();
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
         }
@@ -1045,7 +1044,7 @@ public class WriterBasedJsonGenerator
                     _writer.flush();
                 }
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
         // Internal buffer(s) generator has can now be released as well
@@ -1132,7 +1131,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(_outputBuffer, _outputHead, flushLen);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             /* In any case, tail will be the new start, so hopefully
@@ -1211,7 +1210,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(_outputBuffer, start, flushLen);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 if (ptr >= end) {
                     break output_loop;
@@ -1273,7 +1272,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(text, start, newAmount);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             // Was this the end?
@@ -1330,7 +1329,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(_outputBuffer, _outputHead, flushLen);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             ++_outputTail;
@@ -1372,7 +1371,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(_outputBuffer, start, flushLen);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 if (ptr >= end) {
                     break output_loop;
@@ -1429,7 +1428,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(text, start, newAmount);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             // Was this the end?
@@ -1493,7 +1492,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(_outputBuffer, _outputHead, flushLen);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             ++_outputTail;
@@ -1542,7 +1541,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(_outputBuffer, start, flushLen);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 if (ptr >= end) {
                     break output_loop;
@@ -1605,7 +1604,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(text, start, newAmount);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             // Was this the end?
@@ -1805,7 +1804,7 @@ public class WriterBasedJsonGenerator
             try {
                 count = in.read(readBuffer, inputEnd, length);            
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             if (count < 0) {
                 return inputEnd;
@@ -1867,7 +1866,7 @@ public class WriterBasedJsonGenerator
             try {
                 _writer.write(buf, 0, 2);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             return;
         }
@@ -1913,7 +1912,7 @@ public class WriterBasedJsonGenerator
                     _writer.write(buf, 2, 6);
                 }
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             return;
         }
@@ -1937,7 +1936,7 @@ public class WriterBasedJsonGenerator
         try {
             _writer.write(escape);
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
     }
 
@@ -1966,7 +1965,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(ent, 0, 2);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             return ptr;
@@ -2011,7 +2010,7 @@ public class WriterBasedJsonGenerator
                         _writer.write(ent, 2, 6);
                     }
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             return ptr;
@@ -2031,7 +2030,7 @@ public class WriterBasedJsonGenerator
             try {
                 _writer.write(escape);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
         return ptr;
@@ -2089,7 +2088,7 @@ public class WriterBasedJsonGenerator
                 try {
                     _writer.write(escape);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 return;
             }
@@ -2131,7 +2130,7 @@ public class WriterBasedJsonGenerator
             try {
                 _writer.write(_outputBuffer, offset, len);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
     }

@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -550,7 +549,7 @@ public class UTF8JsonGenerator
             try {
                 numRead = reader.read(buf, 0, toReadNow);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             if(numRead <= 0){
                 break;
@@ -1194,7 +1193,7 @@ public class UTF8JsonGenerator
                 try {
                     _outputStream.flush();
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
         }
@@ -1235,7 +1234,7 @@ public class UTF8JsonGenerator
                     _outputStream.flush();
                 }
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
         // Internal buffer(s) generator has can now be released as well
@@ -1273,7 +1272,7 @@ public class UTF8JsonGenerator
                 try {
                     _outputStream.write(bytes, 0, len);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 return;
             }
@@ -1291,7 +1290,7 @@ public class UTF8JsonGenerator
                 try {
                     _outputStream.write(bytes, offset, len);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 return;
             }
@@ -1784,7 +1783,7 @@ public class UTF8JsonGenerator
                 try {
                     _outputStream.write(raw, 0, len);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 return outputPtr;
             }
@@ -2066,7 +2065,7 @@ public class UTF8JsonGenerator
             try {
                 count = in.read(readBuffer, inputEnd, length);            
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             if (count < 0) {
                 return inputEnd;
@@ -2198,7 +2197,7 @@ public class UTF8JsonGenerator
             try {
                 _outputStream.write(_outputBuffer, 0, len);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
     }

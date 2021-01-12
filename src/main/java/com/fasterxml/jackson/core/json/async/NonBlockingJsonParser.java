@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -141,7 +140,7 @@ public class NonBlockingJsonParser
             try {
                 out.write(_inputBuffer, _inputPtr, avail);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
         return avail;

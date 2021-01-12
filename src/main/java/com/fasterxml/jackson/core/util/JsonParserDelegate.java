@@ -129,7 +129,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public void clearCurrentToken() { delegate.clearCurrentToken(); }
     @Override public JsonToken getLastClearedToken() { return delegate.getLastClearedToken(); }
     /*
-    @Override public void overrideCurrentName(String name) throws IOException {
+    @Override public void overrideCurrentName(String name) {
         delegate.overrideCurrentName(name);
     }
     */

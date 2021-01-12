@@ -8,7 +8,6 @@ import java.io.Writer;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -165,11 +164,7 @@ public class UTF8DataInputJsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
-                try {
-                    return _finishAndReturnString(); // only strings can be incomplete
-                } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
-                }
+                return _finishAndReturnString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
         }
@@ -202,7 +197,7 @@ public class UTF8DataInputJsonParser
                 return ch.length;
             }
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
         return 0;
     }
@@ -214,11 +209,7 @@ public class UTF8DataInputJsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
-                try {
-                    return _finishAndReturnString(); // only strings can be incomplete
-                } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
-                }
+                return _finishAndReturnString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
         }
@@ -234,11 +225,7 @@ public class UTF8DataInputJsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
-                try {
-                    return _finishAndReturnString(); // only strings can be incomplete
-                } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
-                }
+                return _finishAndReturnString(); // only strings can be incomplete
             }
             return _textBuffer.contentsAsString();
         }
@@ -316,11 +303,7 @@ public class UTF8DataInputJsonParser
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
-                    try {
-                        _finishString(); // only strings can be incomplete
-                    } catch (IOException e) {
-                        throw WrappedIOException.construct(e);
-                    }
+                    _finishString(); // only strings can be incomplete
                 }
                 // fall through
             case ID_NUMBER_INT:
@@ -340,11 +323,7 @@ public class UTF8DataInputJsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
-                try {
-                    _finishString(); // only strings can be incomplete
-                } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
-                }
+                _finishString(); // only strings can be incomplete
             }
             return _textBuffer.size();
         }
@@ -371,11 +350,7 @@ public class UTF8DataInputJsonParser
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
-                    try {
-                        _finishString(); // only strings can be incomplete
-                    } catch (IOException e) {
-                        throw WrappedIOException.construct(e);
-                    }
+                    _finishString(); // only strings can be incomplete
                 }
                 // fall through
             case ID_NUMBER_INT:
@@ -428,7 +403,7 @@ public class UTF8DataInputJsonParser
             try {
                 out.write(b);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             return b.length;
         }
@@ -437,7 +412,7 @@ public class UTF8DataInputJsonParser
         try {
             return _readBinary(b64variant, out, buf);
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         } finally {
             _ioContext.releaseBase64Buffer(buf);
         }
@@ -589,7 +564,7 @@ public class UTF8DataInputJsonParser
             }
             return _nextToken();
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
     }
 
@@ -767,11 +742,7 @@ public class UTF8DataInputJsonParser
     public void finishToken() throws JacksonException {
         if (_tokenIncomplete) {
             _tokenIncomplete = false;
-            try {
-                _finishString(); // only strings can be incomplete
-            } catch (IOException e) {
-                throw WrappedIOException.construct(e);
-            }
+            _finishString(); // only strings can be incomplete
         }
     }
 
@@ -789,7 +760,7 @@ public class UTF8DataInputJsonParser
         try {
             return _nextFieldName();
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
     }
 
@@ -902,11 +873,7 @@ public class UTF8DataInputJsonParser
             if (t == JsonToken.VALUE_STRING) {
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
-                    try {
-                        return _finishAndReturnString();
-                    } catch (IOException e) {
-                        throw WrappedIOException.construct(e);
-                    }
+                    return _finishAndReturnString();
                 }
                 return _textBuffer.contentsAsString();
             }
@@ -1907,47 +1874,55 @@ public class UTF8DataInputJsonParser
     /**********************************************************************
      */
 
-    protected void _finishString() throws IOException
+    protected void _finishString() throws JacksonException
     {
         int outPtr = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         final int[] codes = _icUTF8;
         final int outEnd = outBuf.length;
 
-        do {
-            int c = _inputData.readUnsignedByte();
-            if (codes[c] != 0) {
-                if (c == INT_QUOTE) {
-                    _textBuffer.setCurrentLength(outPtr);
+        try {
+            do {
+                int c = _inputData.readUnsignedByte();
+                if (codes[c] != 0) {
+                    if (c == INT_QUOTE) {
+                        _textBuffer.setCurrentLength(outPtr);
+                        return;
+                    }
+                    _finishString2(outBuf, outPtr, c);
                     return;
                 }
-                _finishString2(outBuf, outPtr, c);
-                return;
-            }
-            outBuf[outPtr++] = (char) c;
-        } while (outPtr < outEnd);
-        _finishString2(outBuf, outPtr, _inputData.readUnsignedByte());
+                outBuf[outPtr++] = (char) c;
+            } while (outPtr < outEnd);
+            _finishString2(outBuf, outPtr, _inputData.readUnsignedByte());
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
     }
 
-    private String _finishAndReturnString() throws IOException
+    private String _finishAndReturnString() throws JacksonException
     {
         int outPtr = 0;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         final int[] codes = _icUTF8;
         final int outEnd = outBuf.length;
 
-        do {
-            int c = _inputData.readUnsignedByte();
-            if (codes[c] != 0) {
-                if (c == INT_QUOTE) {
-                    return _textBuffer.setCurrentAndReturn(outPtr);
+        try {
+            do {
+                int c = _inputData.readUnsignedByte();
+                if (codes[c] != 0) {
+                    if (c == INT_QUOTE) {
+                        return _textBuffer.setCurrentAndReturn(outPtr);
+                    }
+                    _finishString2(outBuf, outPtr, c);
+                    return _textBuffer.contentsAsString();
                 }
-                _finishString2(outBuf, outPtr, c);
-                return _textBuffer.contentsAsString();
-            }
-            outBuf[outPtr++] = (char) c;
-        } while (outPtr < outEnd);
-        _finishString2(outBuf, outPtr, _inputData.readUnsignedByte());
+                outBuf[outPtr++] = (char) c;
+            } while (outPtr < outEnd);
+            _finishString2(outBuf, outPtr, _inputData.readUnsignedByte());
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
         return _textBuffer.contentsAsString();
     }
     
@@ -2549,7 +2524,7 @@ public class UTF8DataInputJsonParser
         try {
             return _decodeEscaped2();
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
     }
     

@@ -1,8 +1,14 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInput;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -116,9 +122,9 @@ public final class ByteSourceJsonBootstrapper
      *
      * @return {@link JsonEncoding} detected, if any; {@code JsonEncoding.UTF8} otherwise
      *
-     * @throws IOException If read from underlying input source fails
+     * @throws JacksonException If read from underlying input source fails
      */
-    public JsonEncoding detectEncoding() throws IOException
+    public JsonEncoding detectEncoding() throws JacksonException
     {
         boolean foundEncoding = false;
 
@@ -186,29 +192,31 @@ public final class ByteSourceJsonBootstrapper
      *
      * @return Byte (as unsigned {@code int}) read after possible UTF-8 BOM
      *
-     * @throws IOException If read from underlying input source fails
-     *
-     * @since 2.8
+     * @throws JacksonException If read from underlying input source fails
      */
-    public static int skipUTF8BOM(DataInput input) throws IOException
+    public static int skipUTF8BOM(DataInput input) throws JacksonException
     {
-        int b = input.readUnsignedByte();
-        if (b != 0xEF) {
-            return b;
+        try {
+            int b = input.readUnsignedByte();
+            if (b != 0xEF) {
+                return b;
+            }
+            // since this is not legal byte in JSON otherwise, except
+            // that we do get BOM; if not, report error
+            b = input.readUnsignedByte();
+            if (b != 0xBB) {
+                throw new IOException("Unexpected byte 0x"+Integer.toHexString(b)
+                    +" following 0xEF; should get 0xBB as part of UTF-8 BOM");
+            }
+            b = input.readUnsignedByte();
+            if (b != 0xBF) {
+                throw new IOException("Unexpected byte 0x"+Integer.toHexString(b)
+                    +" following 0xEF 0xBB; should get 0xBF as part of UTF-8 BOM");
+            }
+            return input.readUnsignedByte();
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
         }
-        // since this is not legal byte in JSON otherwise, except
-        // that we do get BOM; if not, report error
-        b = input.readUnsignedByte();
-        if (b != 0xBB) {
-            throw new IOException("Unexpected byte 0x"+Integer.toHexString(b)
-                +" following 0xEF; should get 0xBB as part of UTF-8 BOM");
-        }
-        b = input.readUnsignedByte();
-        if (b != 0xBF) {
-            throw new IOException("Unexpected byte 0x"+Integer.toHexString(b)
-                +" following 0xEF 0xBB; should get 0xBF as part of UTF-8 BOM");
-        }
-        return input.readUnsignedByte();
     }
 
     /*
@@ -218,7 +226,7 @@ public final class ByteSourceJsonBootstrapper
      */
     
     @SuppressWarnings("resource")
-    public Reader constructReader() throws IOException
+    public Reader constructReader() throws JacksonException
     {
         JsonEncoding enc = _context.getEncoding();
         switch (enc.bits()) {
@@ -231,14 +239,17 @@ public final class ByteSourceJsonBootstrapper
                 if (in == null) {
                     in = new ByteArrayInputStream(_inputBuffer, _inputPtr, _inputEnd);
                 } else {
-                    /* Also, if we have any read but unused input (usually true),
-                     * need to merge that input in:
-                     */
+                    // Also, if we have any read but unused input (usually true),
+                    // need to merge that input in:
                     if (_inputPtr < _inputEnd) {
                         in = new MergedStream(_context, in, _inputBuffer, _inputPtr, _inputEnd);
                     }
                 }
-                return new InputStreamReader(in, enc.getJavaName());
+                try {
+                    return new InputStreamReader(in, enc.getJavaName());
+                } catch (IOException e) {
+                    throw _wrapIOFailure(e);
+                }
             }
         case 32:
             {
@@ -257,7 +268,8 @@ public final class ByteSourceJsonBootstrapper
     public JsonParser constructParser(ObjectReadContext readCtxt,
             int streamReadFeatures, int formatReadFeatures,
             ByteQuadsCanonicalizer rootByteSymbols, CharsToNameCanonicalizer rootCharSymbols,
-            int factoryFeatures) throws IOException
+            int factoryFeatures)
+        throws JacksonException
     {
         int prevInputPtr = _inputPtr;
         JsonEncoding enc = detectEncoding();
@@ -289,7 +301,7 @@ public final class ByteSourceJsonBootstrapper
      * @return True if a BOM was succesfully found, and encoding
      *   thereby recognized.
      */
-    private boolean handleBOM(int quad) throws IOException
+    private boolean handleBOM(int quad) throws JacksonException
     {
         /* Handling of (usually) optional BOM (required for
          * multi-byte formats); first 32-bit charsets:
@@ -306,10 +318,10 @@ public final class ByteSourceJsonBootstrapper
             _bigEndian = false;
             return true;
         case 0x0000FFFE: // UCS-4, in-order...
-            reportWeirdUCS4("2143"); // throws exception
+            _reportWeirdUCS4("2143"); // throws exception
             break; // never gets here
         case 0xFEFF0000: // UCS-4, in-order...
-            reportWeirdUCS4("3412"); // throws exception
+            _reportWeirdUCS4("3412"); // throws exception
             break; // never gets here
         default:
         }
@@ -337,7 +349,7 @@ public final class ByteSourceJsonBootstrapper
         return false;
     }
 
-    private boolean checkUTF32(int quad) throws IOException
+    private boolean checkUTF32(int quad) throws JacksonException
     {
         /* Handling of (usually) optional BOM (required for
          * multi-byte formats); first 32-bit charsets:
@@ -347,9 +359,9 @@ public final class ByteSourceJsonBootstrapper
         } else if ((quad & 0x00FFFFFF) == 0) { // 0x??000000 -> UTF32-LE
             _bigEndian = false;
         } else if ((quad & ~0x00FF0000) == 0) { // 0x00??0000 -> UTF32-in-order
-            reportWeirdUCS4("3412");
+            _reportWeirdUCS4("3412");
         } else if ((quad & ~0x0000FF00) == 0) { // 0x0000??00 -> UTF32-in-order
-            reportWeirdUCS4("2143");
+            _reportWeirdUCS4("2143");
         } else {
             // Can not be valid UTF-32 encoded JSON...
             return false;
@@ -381,8 +393,8 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************************
      */
 
-    private void reportWeirdUCS4(String type) throws IOException {
-        throw new CharConversionException("Unsupported UCS-4 endianness ("+type+") detected");
+    private void _reportWeirdUCS4(String type) throws JacksonException {
+        throw _createIOFailure("Unsupported UCS-4 endianness ("+type+") detected");
     }
 
     /*
@@ -391,7 +403,7 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************************
      */
 
-    protected boolean ensureLoaded(int minimum) throws IOException {
+    protected boolean ensureLoaded(int minimum) throws JacksonException {
         /* Let's assume here buffer has enough room -- this will always
          * be true for the limited used this method gets
          */
@@ -402,7 +414,11 @@ public final class ByteSourceJsonBootstrapper
             if (_in == null) { // block source
                 count = -1;
             } else {
-                count = _in.read(_inputBuffer, _inputEnd, _inputBuffer.length - _inputEnd);
+                try {
+                    count = _in.read(_inputBuffer, _inputEnd, _inputBuffer.length - _inputEnd);
+                } catch (IOException e) {
+                    throw _wrapIOFailure(e);
+                }
             }
             if (count < 1) {
                 return false;
@@ -411,5 +427,22 @@ public final class ByteSourceJsonBootstrapper
             gotten += count;
         }
         return true;
+    }
+
+    /*
+    /**********************************************************************
+    /* Internal methods, exception handling
+    /**********************************************************************
+     */
+
+    protected static JacksonException _createIOFailure(String msg) throws JacksonException {
+        // 12-Jan-2021, tatu: Couple of alternatives, but since this is before
+        //    actual parser created, seems best to simply fake this was "true"
+        //    IOException
+        return _wrapIOFailure(new IOException(msg));
+    }
+
+    protected static JacksonException _wrapIOFailure(IOException e) throws JacksonException {
+        return WrappedIOException.construct(e);
     }
 }

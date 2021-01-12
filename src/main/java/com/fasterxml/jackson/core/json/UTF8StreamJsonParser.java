@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -174,7 +173,7 @@ public class UTF8StreamJsonParser
         try {
             out.write(_inputBuffer, origPtr, count);
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
         return count;
     }
@@ -202,7 +201,7 @@ public class UTF8StreamJsonParser
             try {
                 count = _inputStream.read(_inputBuffer, 0, space);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             if (count > 0) {
                 final int bufSize = _inputEnd;
@@ -224,7 +223,9 @@ public class UTF8StreamJsonParser
             _closeInput();
             // Should never return 0, so let's fail
             if (count == 0) {
-                throw WrappedIOException.construct(new IOException(
+                // 12-Jan-2021, tatu: May need to think about this bit more but for now
+                //    do double-wrapping
+                throw _wrapIOFailure(new IOException(
                         "InputStream.read() returned 0 characters when trying to read "+_inputBuffer.length+" bytes"));
             }
         }
@@ -241,7 +242,7 @@ public class UTF8StreamJsonParser
                 try {
                     _inputStream.close();
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             _inputStream = null;
@@ -318,7 +319,7 @@ public class UTF8StreamJsonParser
                 return ch.length;
             }
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
         return 0;
     }
@@ -525,7 +526,7 @@ public class UTF8StreamJsonParser
             try {
                 out.write(b);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             return b.length;
         }
@@ -534,7 +535,7 @@ public class UTF8StreamJsonParser
         try {
             return _readBinary(b64variant, out, buf);
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         } finally {
             _ioContext.releaseBase64Buffer(buf);
         }

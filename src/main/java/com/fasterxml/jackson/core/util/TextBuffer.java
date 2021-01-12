@@ -581,8 +581,6 @@ public final class TextBuffer
      * @return Number of characters written (same as {@link #size()})
      *
      * @throws IOException If write using {@link Writer} parameter fails
-     *
-     * @since 2.8
      */
     public int contentsToWriter(Writer w) throws IOException
     {

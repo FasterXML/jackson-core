@@ -19,7 +19,6 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.core.type.WritableTypeId.Inclusion;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.core.util.VersionUtil;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
 
@@ -679,10 +678,7 @@ public abstract class JsonGenerator
      * @throws JsonGenerationException for problems in encoding token stream
      *    (including the case where {@code reader} does not provide enough content)
      */
-    public void writeString(Reader reader, int len) throws JacksonException {
-        // Let's implement this as "unsupported" to make it easier to add new parser impls
-        _reportUnsupportedOperation();
-    }
+    public abstract void writeString(Reader reader, int len) throws JacksonException;
 
     /**
      * Method for outputting a String value. Depending on context
@@ -1752,6 +1748,9 @@ public abstract class JsonGenerator
     /*
     /**********************************************************************
     /* Public API, copy-through methods
+    /*
+    /* NOTE: need to remain here for `JsonGeneratorDelegate` to call
+    /* (or refactor to have "JsonGeneratorMinimalBase" or such)
     /**********************************************************************
      */
 
@@ -2055,12 +2054,6 @@ public abstract class JsonGenerator
      */
     protected <T> T _reportError(String msg) throws JsonGenerationException {
         throw new JsonGenerationException(msg, this);
-    }
-
-    protected void _throwInternal() { VersionUtil.throwInternal(); }
-
-    protected <T> T _reportUnsupportedOperation() {
-        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
     }
 
     protected final void _verifyOffsets(int arrayLength, int offset, int length)

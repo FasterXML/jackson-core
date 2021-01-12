@@ -19,9 +19,9 @@ public abstract class TextualTSFactory
     private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected TextualTSFactory(int formatPF, int formatGF) {
@@ -46,9 +46,9 @@ public abstract class TextualTSFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Default introspection
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -58,9 +58,9 @@ public abstract class TextualTSFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended capabilities for textual formats (only)
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -80,23 +80,25 @@ public abstract class TextualTSFactory
     public boolean canUseCharArrays() { return true; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods: parsers, with context
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            File f) throws IOException {
+            File f) throws JacksonException
+    {
         // true, since we create InputStream from File
         IOContext ioCtxt = _createContext(f, true);
         return _createParser(readCtxt, ioCtxt,
-                _decorate(ioCtxt, new FileInputStream(f)));
+                _decorate(ioCtxt, _fileInputStream(f)));
     }
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            URL url) throws IOException {
+            URL url) throws JacksonException
+    {
         // true, since we create InputStream from URL
         IOContext ioCtxt = _createContext(url, true);
         return _createParser(readCtxt, ioCtxt,
@@ -105,14 +107,16 @@ public abstract class TextualTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            InputStream in) throws IOException {
+            InputStream in) throws JacksonException
+    {
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            Reader r) throws IOException {
+            Reader r) throws JacksonException
+    {
         // false -> we do NOT own Reader (did not create it)
         IOContext ioCtxt = _createContext(r, false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, r));
@@ -120,7 +124,8 @@ public abstract class TextualTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            byte[] data, int offset, int len) throws IOException {
+            byte[] data, int offset, int len) throws JacksonException
+    {
         IOContext ioCtxt = _createContext(data, true);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
@@ -133,7 +138,7 @@ public abstract class TextualTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            String content) throws IOException
+            String content) throws JacksonException
     {
         final int strLen = content.length();
         // Actually, let's use this for medium-sized content, up to 64kB chunk (32kb char)
@@ -150,7 +155,8 @@ public abstract class TextualTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            char[] content, int offset, int len) throws IOException {
+            char[] content, int offset, int len) throws JacksonException
+    {
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
             return createParser(readCtxt, new CharArrayReader(content, offset, len));
         }
@@ -162,39 +168,39 @@ public abstract class TextualTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, 
-            DataInput in) throws IOException
+            DataInput in) throws JacksonException
     {
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
     
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
-            IOContext ctxt, InputStream in) throws IOException;
+            IOContext ctxt, InputStream in) throws JacksonException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
-            IOContext ctxt, Reader r) throws IOException;
+            IOContext ctxt, Reader r) throws JacksonException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
             IOContext ctxt,
-            byte[] data, int offset, int len) throws IOException;
+            byte[] data, int offset, int len) throws JacksonException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
             IOContext ctxt, char[] data, int offset, int len, boolean recyclable)
-                    throws IOException;
+                    throws JacksonException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
-            IOContext ctxt, DataInput input) throws IOException;
+            IOContext ctxt, DataInput input) throws JacksonException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods: generators
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             OutputStream out, JsonEncoding enc)
-        throws IOException
+        throws JacksonException
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(out, false, enc);
@@ -207,7 +213,7 @@ public abstract class TextualTSFactory
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w)
-        throws IOException
+        throws JacksonException
     {
         IOContext ioCtxt = _createContext(w, false);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, w));
@@ -216,10 +222,10 @@ public abstract class TextualTSFactory
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             File f, JsonEncoding enc)
-        throws IOException
+        throws JacksonException
     {
-        OutputStream out = new FileOutputStream(f);
-        IOContext ioCtxt = _createContext(f, true, enc);
+        final OutputStream out = _fileOutputStream(f);
+        final IOContext ioCtxt = _createContext(f, true, enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
         }
@@ -228,9 +234,9 @@ public abstract class TextualTSFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods: abstract, for sub-classes to implement
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -249,10 +255,10 @@ public abstract class TextualTSFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If there is a problem constructing generator
+     * @throws JacksonException If there is a problem constructing generator
      */
     protected abstract JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            IOContext ioCtxt, Writer out) throws IOException;
+            IOContext ioCtxt, Writer out) throws JacksonException;
 
     /**
      * Overridable factory method that actually instantiates generator for
@@ -270,19 +276,23 @@ public abstract class TextualTSFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If there is a problem constructing generator
+     * @throws JacksonException If there is a problem constructing generator
      */
     protected abstract JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
-            IOContext ioCtxt, OutputStream out) throws IOException;
+            IOContext ioCtxt, OutputStream out) throws JacksonException;
 
     protected Writer _createWriter(IOContext ioCtxt, OutputStream out, JsonEncoding enc)
-        throws IOException
+        throws JacksonException
     {
         // note: this should not get called any more (caller checks, dispatches)
         if (enc == JsonEncoding.UTF8) { // We have optimized writer for UTF-8
             return new UTF8Writer(ioCtxt, out);
         }
         // not optimal, but should do unless we really care about UTF-16/32 encoding speed
-        return new OutputStreamWriter(out, enc.getJavaName());
+        try {
+            return new OutputStreamWriter(out, enc.getJavaName());
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
     }
 }

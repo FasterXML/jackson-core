@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json.async;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonParserBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
@@ -409,14 +408,13 @@ public abstract class NonBlockingJsonParserBase
                 return ch.length;
             }
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
         return 0;
     }
 
     // // // Let's override default impls for improved performance
-    
-    // @since 2.1
+
     @Override
     public String getValueAsString() throws JacksonException
     {
@@ -428,8 +426,7 @@ public abstract class NonBlockingJsonParserBase
         }
         return super.getValueAsString(null);
     }
-    
-    // @since 2.1
+
     @Override
     public String getValueAsString(String defValue) throws JacksonException
     {
@@ -532,7 +529,7 @@ public abstract class NonBlockingJsonParserBase
         try {
             out.write(b);
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
         return b.length;
     }

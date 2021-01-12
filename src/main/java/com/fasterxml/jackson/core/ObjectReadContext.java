@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
@@ -35,23 +34,23 @@ public interface ObjectReadContext
 
     // // // Parser construction
 
-    default JsonParser createParser(InputStream in) throws IOException {
+    default JsonParser createParser(InputStream in) throws JacksonException {
         return getParserFactory().createParser(this, in);
     }
 
-    default JsonParser createParser(Reader r) throws IOException {
+    default JsonParser createParser(Reader r) throws JacksonException {
         return getParserFactory().createParser(this, r);
     }
 
-    default JsonParser createParser(String content) throws IOException {
+    default JsonParser createParser(String content) throws JacksonException {
         return getParserFactory().createParser(this, content);
     }
 
-    default JsonParser createParser(byte[] content) throws IOException {
+    default JsonParser createParser(byte[] content) throws JacksonException {
         return getParserFactory().createParser(this, content);
     }
 
-    default JsonParser createParser(byte[] content, int offset, int length) throws IOException {
+    default JsonParser createParser(byte[] content, int offset, int length) throws JacksonException {
         return getParserFactory().createParser(this, content, offset, length);
     }
     

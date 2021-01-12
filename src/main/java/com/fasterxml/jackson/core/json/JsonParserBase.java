@@ -145,7 +145,7 @@ public abstract class JsonParserBase
     //   unlikely to be of much real benefit
     /*
     @Override
-    protected void _releaseBuffers() throws IOException {
+    protected void _releaseBuffers() {
         super._releaseBuffers();
         char[] buf = _nameCopyBuffer;
         if (buf != null) {

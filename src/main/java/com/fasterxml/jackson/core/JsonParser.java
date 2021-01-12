@@ -905,19 +905,7 @@ public abstract class JsonParser
      * @throws WrappedIOException for low-level read issues, or failed write using {@link Writer}
      * @throws com.fasterxml.jackson.core.exc.StreamReadException for decoding problems
      */
-    public int getText(Writer writer) throws JacksonException, UnsupportedOperationException
-    {
-        String str = getText();
-        if (str == null) {
-            return 0;
-        }
-        try {
-            writer.write(str);
-        } catch (IOException e) {
-            throw WrappedIOException.construct(e);
-        }
-        return str.length();
-    }
+    public abstract int getText(Writer writer) throws JacksonException;
 
     /**
      * Method similar to {@link #getText}, but that will return

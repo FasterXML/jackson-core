@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.base;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -239,7 +241,7 @@ public abstract class ParserMinimalBase extends JsonParser
     // public JsonToken getCurrentToken()
     // public boolean hasCurrentToken()
   
-    // public abstract void close() throws IOException;
+    // public abstract void close();
     // public abstract boolean isClosed();
 
     /*
@@ -267,7 +269,7 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected abstract void _handleEOF() throws JacksonException;
 
-    // public abstract String currentName() throws IOException;
+    // public abstract String currentName();
 
     /*
     /**********************************************************************
@@ -275,7 +277,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    // public abstract JsonToken nextToken() throws IOException;
+    // public abstract JsonToken nextToken() throws JacksonException;
 
     @Override public void finishToken() throws JacksonException { ; /* nothing */ }
 
@@ -418,6 +420,21 @@ public abstract class ParserMinimalBase extends JsonParser
 //    @Override public abstract int getTextLength();
 //    @Override public abstract int getTextOffset();
 
+    @Override
+    public int getText(Writer writer) throws JacksonException
+    {
+        String str = getText();
+        if (str == null) {
+            return 0;
+        }
+        try {
+            writer.write(str);
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return str.length();
+    }
+
     /*
     /**********************************************************************
     /* Public API, access to token information, numeric
@@ -479,7 +496,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-//    public abstract byte[] getBinaryValue(Base64Variant b64variant) throws IOException;
+//    public abstract byte[] getBinaryValue(Base64Variant b64variant);
 
     @Override
     public Object getEmbeddedObject() { return null; }
@@ -924,6 +941,11 @@ public abstract class ParserMinimalBase extends JsonParser
         throw _constructReadException(String.format(msg, arg1, arg2, arg3));
     }
 
+    // @since 3.0
+    protected JacksonException _wrapIOFailure(IOException e) {
+        return WrappedIOException.construct(e);
+    }
+    
     protected final void _throwInternal() {
         VersionUtil.throwInternal();
     }

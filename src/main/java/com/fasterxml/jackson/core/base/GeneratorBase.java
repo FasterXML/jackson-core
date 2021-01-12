@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.core.base;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * This base class implements part of API that a JSON generator exposes
@@ -150,10 +154,10 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    //public void writeStartArray() throws IOException
-    //public void writeEndArray() throws IOException
-    //public void writeStartObject() throws IOException
-    //public void writeEndObject() throws IOException
+    //public void writeStartArray()
+    //public void writeEndArray()
+    //public void writeStartObject()
+    //public void writeEndObject()
 
     @Override
     public void writeStartArray(Object forValue, int size) throws JacksonException {
@@ -176,15 +180,19 @@ public abstract class GeneratorBase extends JsonGenerator
         writeFieldName(name.getValue());
     }
 
-    //public abstract void writeString(String text) throws IOException;
+    //public abstract void writeString(String text);
 
-    //public abstract void writeString(char[] text, int offset, int len) throws IOException;
+    //public abstract void writeString(char[] text, int offset, int len);
 
-    //public abstract void writeString(Reader reader, int len) throws IOException;
+    @Override
+    public void writeString(Reader reader, int len) throws JacksonException {
+        // Let's implement this as "unsupported" to make it easier to add new parser impls
+        _reportUnsupportedOperation();
+    }
+    
+    //public abstract void writeRaw(String text);
 
-    //public abstract void writeRaw(String text) throws IOException,;
-
-    //public abstract void writeRaw(char[] text, int offset, int len) throws IOException;
+    //public abstract void writeRaw(char[] text, int offset, int len);
 
     @Override
     public void writeString(SerializableString text) throws JacksonException {
@@ -348,5 +356,22 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
         }
         int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
         return c;
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods: error reporting
+    /**********************************************************************
+     */
+
+    // @since 3.0
+    protected JacksonException _wrapIOFailure(IOException e) {
+        return WrappedIOException.construct(e);
+    }
+
+    protected void _throwInternal() { VersionUtil.throwInternal(); }
+
+    protected <T> T _reportUnsupportedOperation() {
+        throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
     }
 }

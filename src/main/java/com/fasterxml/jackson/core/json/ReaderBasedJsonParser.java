@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -175,7 +174,7 @@ public class ReaderBasedJsonParser
         try {
             w.write(_inputBuffer, origPtr, count);
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
         return count;
     }
@@ -205,7 +204,7 @@ public class ReaderBasedJsonParser
                 try {
                     _reader.close();
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
             }
             _reader = null;
@@ -251,7 +250,7 @@ public class ReaderBasedJsonParser
             try {
                 count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             if (count > 0) {
                 final int bufSize = _inputEnd;
@@ -273,8 +272,8 @@ public class ReaderBasedJsonParser
             // Should never return 0, so let's fail
             if (count == 0) {
                 // Could use something else, but seems like there ought to be "real" IOException for this:
-                throw WrappedIOException.construct(
-                        new IOException("Reader returned 0 characters when trying to read "+_inputEnd));
+                throw _wrapIOFailure(new IOException(
+                        "Reader returned 0 characters when trying to read "+_inputEnd));
             }
         }
         return false;
@@ -332,7 +331,7 @@ public class ReaderBasedJsonParser
                 return ch.length;
             }
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw _wrapIOFailure(e);
         }
         return 0;
     }
@@ -499,7 +498,7 @@ public class ReaderBasedJsonParser
             try {
                 out.write(b);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
             return b.length;
         }
@@ -544,7 +543,7 @@ public class ReaderBasedJsonParser
                 try {
                     out.write(buffer, 0, outputPtr);
                 } catch (IOException e) {
-                    throw WrappedIOException.construct(e);
+                    throw _wrapIOFailure(e);
                 }
                 outputPtr = 0;
             }
@@ -650,7 +649,7 @@ public class ReaderBasedJsonParser
             try {
                 out.write(buffer, 0, outputPtr);
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw _wrapIOFailure(e);
             }
         }
         return outputCount;

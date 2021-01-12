@@ -327,7 +327,8 @@ public class JsonFactory
      */
 
     @Override
-    public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException
+    public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt)
+            throws JacksonException
     {
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
@@ -349,7 +350,8 @@ public class JsonFactory
 
     @Override
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
-            InputStream in) throws IOException {
+            InputStream in) throws JacksonException
+    {
         return new ByteSourceJsonBootstrapper(ioCtxt, in)
                 .constructParser(readCtxt,
                         readCtxt.getStreamReadFeatures(_streamReadFeatures),
@@ -359,7 +361,8 @@ public class JsonFactory
 
     @Override
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
-            Reader r) throws IOException {
+            Reader r) throws JacksonException
+    {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
@@ -370,7 +373,8 @@ public class JsonFactory
     @Override
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
             char[] data, int offset, int len,
-            boolean recyclable) throws IOException {
+            boolean recyclable) throws JacksonException
+    {
         return new ReaderBasedJsonParser(readCtxt, ioCtxt,
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
@@ -381,7 +385,8 @@ public class JsonFactory
 
     @Override
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
-            byte[] data, int offset, int len) throws IOException
+            byte[] data, int offset, int len)
+        throws JacksonException
     {
         return new ByteSourceJsonBootstrapper(ioCtxt, data, offset, len)
                 .constructParser(readCtxt,
@@ -392,7 +397,8 @@ public class JsonFactory
 
     @Override
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
-            DataInput input) throws IOException
+            DataInput input)
+        throws JacksonException
     {
         // Also: while we can't do full bootstrapping (due to read-ahead limitations), should
         // at least handle possible UTF-8 BOM
@@ -412,7 +418,8 @@ public class JsonFactory
 
     @Override
     protected JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            IOContext ioCtxt, Writer out) throws IOException
+            IOContext ioCtxt, Writer out)
+        throws JacksonException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
         // May get Character-Escape overrides from context; if not, use factory's own
@@ -433,7 +440,7 @@ public class JsonFactory
 
     @Override
     protected JsonGenerator _createUTF8Generator(ObjectWriteContext writeCtxt,
-            IOContext ioCtxt, OutputStream out) throws IOException
+            IOContext ioCtxt, OutputStream out) throws JacksonException
     {
         SerializableString rootSep = writeCtxt.getRootValueSeparator(_rootValueSeparator);
         // May get Character-Escape overrides from context; if not, use factory's own

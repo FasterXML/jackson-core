@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
@@ -52,15 +51,15 @@ public interface ObjectWriteContext
     // // // Generator construction: limited to targets that make sense for embedding
     // // // purposes (like "JSON in JSON" etc)
 
-    default JsonGenerator createGenerator(OutputStream out) throws IOException {
+    default JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         return getGeneratorFactory().createGenerator(this, out);
     }
 
-    default JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+    default JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
         return getGeneratorFactory().createGenerator(this, out, enc);
     }
 
-    default JsonGenerator createGenerator(Writer w) throws IOException {
+    default JsonGenerator createGenerator(Writer w) throws JacksonException {
         return getGeneratorFactory().createGenerator(this, w);
     }
 

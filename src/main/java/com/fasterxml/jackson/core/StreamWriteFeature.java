@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.util.JacksonFeature;
  * NOTE: Jackson 2.x contained these along with JSON-specific features in <code>JsonGenerator.Feature</code>.
  */
 public enum StreamWriteFeature
-    implements JacksonFeature // since 2.12
+    implements JacksonFeature
 {
     // // Low-level I/O / content features
 
@@ -93,7 +93,7 @@ public enum StreamWriteFeature
      * Feature that determines what to do if the underlying data format requires knowledge
      * of all properties to output, and if no definition is found for a property that
      * caller tries to write. If enabled, such properties will be quietly ignored;
-     * if disabled, a {@link JsonProcessingException} will be thrown to indicate the
+     * if disabled, a {@link JsonGenerationException} will be thrown to indicate the
      * problem.
      * Typically most textual data formats do NOT require schema information (although
      * some do, such as CSV), whereas many binary data formats do require definitions
@@ -105,7 +105,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is disabled by default, meaning that if the underlying data format
      * requires knowledge of all properties to output, attempts to write an unknown
-     * property will result in a {@link JsonProcessingException}
+     * property will result in a {@link JsonGenerationException}
      */
     IGNORE_UNKNOWN(false),
     ;

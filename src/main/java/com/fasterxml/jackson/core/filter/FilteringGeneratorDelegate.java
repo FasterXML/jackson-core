@@ -886,12 +886,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     @Override
-    public void writeObject(Object pojo) throws JacksonException,JsonProcessingException {
+    public void writeObject(Object pojo) {
 ...
     }
     
     @Override
-    public void writeTree(TreeNode rootNode) throws JacksonException {
+    public void writeTree(TreeNode rootNode) {
 ...    
     }
     */
@@ -906,15 +906,15 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     @Override
-    public void copyCurrentEvent(JsonParser jp) throws JacksonException {
-        if (delegateCopyMethods) delegate.copyCurrentEvent(jp);
-        else super.copyCurrentEvent(jp);
+    public void copyCurrentEvent(JsonParser p) {
+        if (delegateCopyMethods) delegate.copyCurrentEvent(p);
+        else super.copyCurrentEvent(p);
     }
 
     @Override
-    public void copyCurrentStructure(JsonParser jp) throws JacksonException {
-        if (delegateCopyMethods) delegate.copyCurrentStructure(jp);
-        else super.copyCurrentStructure(jp);
+    public void copyCurrentStructure(JsonParser p) {
+        if (delegateCopyMethods) delegate.copyCurrentStructure(p);
+        else super.copyCurrentStructure(p);
     }
     */
 

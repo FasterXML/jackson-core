@@ -205,12 +205,12 @@ public final class JsonReadContext extends TokenStreamContext
         return (_type != TYPE_ROOT && ix > 0);
     }
 
-    public void setCurrentName(String name) throws JsonProcessingException {
+    public void setCurrentName(String name) throws JsonParseException {
         _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
     }
 
-    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
+    private void _checkDup(DupDetector dd, String name) throws JsonParseException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
             throw new JsonParseException(((src instanceof JsonParser) ? ((JsonParser) src) : null),

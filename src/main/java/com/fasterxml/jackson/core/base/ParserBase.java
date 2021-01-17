@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.base;
 
+import java.io.IOException;
 //import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -276,6 +277,8 @@ public abstract class ParserBase extends ParserMinimalBase
             _closed = true;
             try {
                 _closeInput();
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
             } finally {
                 // as per [JACKSON-324], do in finally block
                 // Also, internal buffer(s) can now be released as well
@@ -335,7 +338,7 @@ public abstract class ParserBase extends ParserMinimalBase
     /**********************************************************************
      */
 
-    protected abstract void _closeInput();
+    protected abstract void _closeInput() throws IOException;
 
     /*
     /**********************************************************************

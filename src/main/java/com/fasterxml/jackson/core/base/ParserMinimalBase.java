@@ -900,7 +900,25 @@ public abstract class ParserMinimalBase extends JsonParser
     protected void _reportMissingRootWS(int ch) throws StreamReadException {
         _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
-    
+
+    // @since 3.0
+    protected void _reportBadInputStream(int readLen) throws StreamReadException
+    {
+        // 12-Jan-2021, tatu: May need to think about this bit more but for now
+        //    do double-wrapping
+        throw _wrapIOFailure(new IOException(
+"Bad input source: InputStream.read() returned 0 bytes when trying to read "+readLen+" bytes"));
+    }
+
+    // @since 3.0
+    protected void _reportBadReader(int readLen) throws StreamReadException
+    {
+        // 12-Jan-2021, tatu: May need to think about this bit more but for now
+        //    do double-wrapping
+        throw _wrapIOFailure(new IOException(
+"Bad input source: Reader.read() returned 0 bytes when trying to read "+readLen+" bytes"));
+    }
+
     protected void _throwInvalidSpace(int i) throws StreamReadException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";

@@ -223,10 +223,7 @@ public class UTF8StreamJsonParser
             _closeInput();
             // Should never return 0, so let's fail
             if (count == 0) {
-                // 12-Jan-2021, tatu: May need to think about this bit more but for now
-                //    do double-wrapping
-                throw _wrapIOFailure(new IOException(
-                        "InputStream.read() returned 0 characters when trying to read "+_inputBuffer.length+" bytes"));
+                _reportBadInputStream(_inputBuffer.length);
             }
         }
         return false;

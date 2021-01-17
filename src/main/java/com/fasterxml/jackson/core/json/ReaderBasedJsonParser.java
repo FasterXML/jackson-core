@@ -271,9 +271,7 @@ public class ReaderBasedJsonParser
             _closeInput();
             // Should never return 0, so let's fail
             if (count == 0) {
-                // Could use something else, but seems like there ought to be "real" IOException for this:
-                throw _wrapIOFailure(new IOException(
-                        "Reader returned 0 characters when trying to read "+_inputEnd));
+                _reportBadReader(_inputBuffer.length);
             }
         }
         return false;

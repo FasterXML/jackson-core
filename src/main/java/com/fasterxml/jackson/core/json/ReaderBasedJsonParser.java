@@ -1711,7 +1711,7 @@ public class ReaderBasedJsonParser
      * NOTE: caller MUST ensure there is at least one character available;
      * and that input pointer is AT given char (not past)
      *
-     * @param First character of likely white space to skip
+     * @param ch First character of likely white space to skip
      *
      * @throws JacksonException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems (invalid white space)

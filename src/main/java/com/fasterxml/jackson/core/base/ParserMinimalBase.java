@@ -921,10 +921,55 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************************
-    /* Error reporting, generic
+    /* Error reporting, input coercion support
     /**********************************************************************
      */
 
+    // @since 3.0
+    protected InputCoercionException _constructNotNumericType(JsonToken actualToken, int expNumericType)
+    {
+        final String msg = String.format(
+"Current token (%s) not numeric, can not use numeric value accessors", actualToken);
+
+        Class<?> targetType;
+
+        switch (expNumericType) {
+        case NR_INT:
+            targetType = Integer.TYPE;
+            break;
+        case NR_LONG:
+            targetType = Long.TYPE;
+            break;
+        case NR_BIGINT:
+            targetType = BigInteger.class;
+            break;
+        case NR_FLOAT:
+            targetType = Float.TYPE;
+            break;
+        case NR_DOUBLE:
+            targetType = Double.TYPE;
+            break;
+        case NR_BIGDECIMAL:
+            targetType = BigDecimal.class;
+            break;
+        default:
+            targetType = Number.class;
+            break;
+        }
+        return _constructInputCoercion(msg, actualToken, targetType);
+    }
+
+    protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
+        return new InputCoercionException(this, msg, inputType, targetType)
+            .withRequestPayload(_requestPayload);
+    }
+    
+    /*
+    /**********************************************************************
+    /* Error reporting, generic
+    /**********************************************************************
+     */
+    
     protected final void _reportError(String msg) throws StreamReadException {
         throw _constructReadException(msg);
     }
@@ -948,10 +993,5 @@ public abstract class ParserMinimalBase extends JsonParser
     
     protected final void _throwInternal() {
         VersionUtil.throwInternal();
-    }
-
-    protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
-        return new InputCoercionException(this, msg, inputType, targetType)
-            .withRequestPayload(_requestPayload);
     }
 }

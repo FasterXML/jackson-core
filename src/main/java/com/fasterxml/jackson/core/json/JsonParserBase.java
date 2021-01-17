@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.json;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
@@ -204,41 +203,7 @@ public abstract class JsonParserBase
             _parseSlowFloat(expType);
             return;
         }
-        _reportNotNumericType(_currToken, expType);
-    }
-
-    protected void _reportNotNumericType(JsonToken actualToken, int expNumericType)
-        throws InputCoercionException
-    {
-        final String msg = String.format(
-"Current token (%s) not numeric, can not use numeric value accessors", actualToken);
-
-        Class<?> targetType;
-
-        switch (expNumericType) {
-        case NR_INT:
-            targetType = Integer.TYPE;
-            break;
-        case NR_LONG:
-            targetType = Long.TYPE;
-            break;
-        case NR_BIGINT:
-            targetType = BigInteger.class;
-            break;
-        case NR_FLOAT:
-            targetType = Float.TYPE;
-            break;
-        case NR_DOUBLE:
-            targetType = Double.TYPE;
-            break;
-        case NR_BIGDECIMAL:
-            targetType = BigDecimal.class;
-            break;
-        default:
-            targetType = Number.class;
-            break;
-        }
-        throw _constructInputCoercion(msg, actualToken, targetType);
+        throw _constructNotNumericType(_currToken, expType);
     }
 
     @Override

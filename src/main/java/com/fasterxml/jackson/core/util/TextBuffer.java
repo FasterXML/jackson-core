@@ -26,44 +26,43 @@ import com.fasterxml.jackson.core.io.NumberInput;
  */
 public final class TextBuffer
 {
-    final static char[] NO_CHARS = new char[0];
+    private final static char[] NO_CHARS = new char[0];
 
-    /**
+    /*
      * Let's start with sizable but not huge buffer, will grow as necessary
      *<p>
      * Reduced from 1000 down to 500 in 2.10.
      */
-    final static int MIN_SEGMENT_LEN = 500;
+    private final static int MIN_SEGMENT_LEN = 500;
 
-    /**
+    // Non-private to access from a test
+    /*
      * Let's limit maximum segment length to something sensible.
      * For 2.10, let's limit to using 64kc chunks (128 kB) -- was 256kC/512kB up to 2.9
      */
     final static int MAX_SEGMENT_LEN = 0x10000;
-    
+
     /*
-    /**********************************************************
-    /* Configuration:
-    /**********************************************************
+    /**********************************************************************
+    /* Configuration
+    /**********************************************************************
      */
 
     private final BufferRecycler _allocator;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared input buffers
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * Shared input buffer; stored here in case some input can be returned
+    /* Shared input buffer; stored here in case some input can be returned
      * as is, without being copied to collector's own buffers. Note that
      * this is read-only for this Object.
      */
     private char[] _inputBuffer;
 
-    /**
-     * Character offset of first char in input buffer; -1 to indicate
+    /* Character offset of first char in input buffer; -1 to indicate
      * that input buffer currently does not contain any useful char data
      */
     private int _inputStart;
@@ -71,9 +70,9 @@ public final class TextBuffer
     private int _inputLen;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Aggregation segments (when not using input buf)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -101,9 +100,9 @@ public final class TextBuffer
     private int _currentSize;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Caching of results
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -115,16 +114,15 @@ public final class TextBuffer
     private char[] _resultArray;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public TextBuffer(BufferRecycler allocator) {
         _allocator = allocator;
     }
 
-    // @since 2.10
     protected TextBuffer(BufferRecycler allocator, char[] initialSegment) {
         _allocator = allocator;
         _currentSegment = initialSegment;
@@ -140,8 +138,6 @@ public final class TextBuffer
      *   {@link #size()} would return length of {@code initialSegment})
      *
      * @return TextBuffer constructed
-     *
-     * @since 2.10
      */
     public static TextBuffer fromInitial(char[] initialSegment) {
         return new TextBuffer(null, initialSegment);
@@ -211,8 +207,6 @@ public final class TextBuffer
      * a single-character content (so {@link #size()} would return {@code 1})
      *
      * @param ch Character to set as the buffer contents
-     *
-     * @since 2.9
      */
     public void resetWith(char ch)
     {
@@ -277,7 +271,6 @@ public final class TextBuffer
         append(buf, offset, len);
     }
 
-    // @since 2.9
     public void resetWithCopy(String text, int start, int len)
     {
         _inputBuffer = null;
@@ -340,18 +333,17 @@ public final class TextBuffer
         /* Let's start using _last_ segment from list; for one, it's
          * the biggest one, and it's also most likely to be cached
          */
-        /* 28-Aug-2009, tatu: Actually, the current segment should
-         *   be the biggest one, already
-         */
+        // 28-Aug-2009, tatu: Actually, the current segment should
+        //   be the biggest one, already
         //_currentSegment = _segments.get(_segments.size() - 1);
         _segments.clear();
         _currentSize = _segmentSize = 0;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors for implementing public interface
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -419,9 +411,9 @@ public final class TextBuffer
     }
 
     /*
-    /**********************************************************
-    /* Other accessors:
-    /**********************************************************
+    /**********************************************************************
+    /* Other accessors
+    /**********************************************************************
      */
 
     /**
@@ -619,9 +611,9 @@ public final class TextBuffer
     }
 
     /*
-    /**********************************************************
-    /* Public mutators:
-    /**********************************************************
+    /**********************************************************************
+    /* Public mutators
+    /**********************************************************************
      */
 
     /**
@@ -722,9 +714,9 @@ public final class TextBuffer
     }
 
     /*
-    /**********************************************************
-    /* Raw access, for high-performance use:
-    /**********************************************************
+    /**********************************************************************
+    /* Raw access, for high-performance use
+    /**********************************************************************
      */
 
     public char[] getCurrentSegment()
@@ -781,8 +773,6 @@ public final class TextBuffer
      * @param len Length of content (in characters) of the current active segment
      *
      * @return String that contains all buffered content
-     *
-     * @since 2.6
      */
     public String setCurrentAndReturn(int len) {
         _currentSize = len;
@@ -848,8 +838,6 @@ public final class TextBuffer
      * @param minSize Required minimum strength of the current segment
      *
      * @return Expanded current segment
-     *
-     * @since 2.4
      */
     public char[] expandCurrentSegment(int minSize) {
         char[] curr = _currentSegment;
@@ -859,9 +847,9 @@ public final class TextBuffer
     }
 
     /*
-    /**********************************************************
-    /* Standard methods:
-    /**********************************************************
+    /**********************************************************************
+    /* Standard method overrides
+    /**********************************************************************
      */
 
     /**
@@ -872,9 +860,9 @@ public final class TextBuffer
     @Override public String toString() { return contentsAsString(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods:
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

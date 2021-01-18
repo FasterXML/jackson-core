@@ -281,7 +281,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
     protected void _reportCantWriteValueExpectName(String typeMsg) throws JacksonException
     {
-        _reportError(String.format("Can not %s, expecting field name (context: %s)",
-                typeMsg, _tokenWriteContext.typeDesc()));
+        throw _constructWriteException("Can not %s, expecting field name (context: %s)",
+                typeMsg, _tokenWriteContext.typeDesc());
     }
 }

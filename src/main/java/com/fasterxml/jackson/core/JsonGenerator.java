@@ -1227,9 +1227,8 @@ public abstract class JsonGenerator
             writeBinary((byte[]) object);
             return;
         }
-        throw new JsonGenerationException("No native support for writing embedded objects of type "
-                +object.getClass().getName(),
-                this);
+        throw _constructWriteException("No native support for writing embedded objects of type %s",
+                object.getClass().getName());
     }
 
     /*
@@ -1253,7 +1252,7 @@ public abstract class JsonGenerator
      *   (either at all, or specifically in this position in output)
      */
     public void writeObjectId(Object id) throws JacksonException {
-        throw new JsonGenerationException("No native support for writing Object Ids", this);
+        throw _constructWriteException("No native support for writing Object Ids");
     }
 
     /**
@@ -1273,7 +1272,7 @@ public abstract class JsonGenerator
      *   (either at all, or specifically in this position in output)
      */
     public void writeObjectRef(Object referenced) throws JacksonException {
-        throw new JsonGenerationException("No native support for writing Object Ids", this);
+        throw _constructWriteException("No native support for writing Object Ids");
     }
     
     /**
@@ -1291,7 +1290,7 @@ public abstract class JsonGenerator
      * @throws JsonGenerationException for problems in encoding token stream
      */
     public void writeTypeId(Object id) throws JacksonException {
-        throw new JsonGenerationException("No native support for writing Type Ids", this);
+        throw _constructWriteException("No native support for writing Type Ids");
     }
 
     /**
@@ -1314,7 +1313,8 @@ public abstract class JsonGenerator
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws JsonGenerationException for problems in encoding token stream
      */
-    public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef) throws JacksonException
+    public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef)
+        throws JacksonException
     {
         Object id = typeIdDef.id;
 
@@ -2056,11 +2056,28 @@ public abstract class JsonGenerator
      * @throws JsonGenerationException that was constructed with given message
      */
     protected <T> T _reportError(String msg) throws JsonGenerationException {
-        throw new JsonGenerationException(msg, this);
+        throw _constructWriteException(msg);
     }
 
     protected <T> T _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
+    }
+
+    // @since 3.0
+    protected JsonGenerationException _constructWriteException(String msg) {
+        return new JsonGenerationException(msg, this);
+    }
+
+    protected JsonGenerationException _constructWriteException(String msg, Object arg) {
+        return new JsonGenerationException(String.format(msg, arg), this);
+    }
+
+    protected JsonGenerationException _constructWriteException(String msg, Object arg1, Object arg2) {
+        return new JsonGenerationException(String.format(msg, arg1, arg2), this);
+    }
+
+    protected JsonGenerationException _constructWriteException(String msg, Throwable t) {
+        return new JsonGenerationException(msg, t, this);
     }
 
     // @since 3.0

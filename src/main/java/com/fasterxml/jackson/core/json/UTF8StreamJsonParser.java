@@ -3,6 +3,8 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -1737,8 +1739,8 @@ public class UTF8StreamJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected JsonToken _parsePosNumber(int c) throws JacksonException
     {
@@ -2014,8 +2016,8 @@ public class UTF8StreamJsonParser
      *
      * @param ch First character of likely white space to skip
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems (invalid white space)
      */
     private final void _verifyRootSpace(int ch) throws JacksonException
     {
@@ -2383,8 +2385,8 @@ public class UTF8StreamJsonParser
      *
      * @return Name decoded, if allowed and successful
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid name)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems (invalid name)
      */
     protected String _handleOddName(int ch) throws JacksonException
     {
@@ -2564,7 +2566,7 @@ public class UTF8StreamJsonParser
     /**********************************************************************
      */
 
-    private final String findName(int q1, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int lastQuadBytes) throws StreamReadException
     {
         q1 = _padLastQuad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -2577,7 +2579,7 @@ public class UTF8StreamJsonParser
         return addName(_quadBuffer, 1, lastQuadBytes);
     }
 
-    private final String findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int lastQuadBytes) throws StreamReadException
     {
         q2 = _padLastQuad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -2591,7 +2593,7 @@ public class UTF8StreamJsonParser
         return addName(_quadBuffer, 2, lastQuadBytes);
     }
 
-    private final String findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int q3, int lastQuadBytes) throws StreamReadException
     {
         q3 = _padLastQuad(q3, lastQuadBytes);
         String name = _symbols.findName(q1, q2, q3);
@@ -2605,7 +2607,8 @@ public class UTF8StreamJsonParser
         return addName(quads, 3, lastQuadBytes);
     }
     
-    private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
+    private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes)
+        throws StreamReadException
     {
         if (qlen >= quads.length) {
             _quadBuffer = quads = growArrayBy(quads, quads.length);
@@ -2623,7 +2626,8 @@ public class UTF8StreamJsonParser
      * multi-byte chars (if any), and then construct Name instance
      * and add it to the symbol table.
      */
-    private final String addName(int[] quads, int qlen, int lastQuadBytes) throws JsonParseException
+    private final String addName(int[] quads, int qlen, int lastQuadBytes)
+        throws StreamReadException
     {
         /* Ok: must decode UTF-8 chars. No other validation is
          * needed, since unescaping has been done earlier as necessary
@@ -2897,8 +2901,8 @@ public class UTF8StreamJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid String value)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems (invalid String value)
      */
     protected void _skipString() throws JacksonException
     {
@@ -2967,8 +2971,8 @@ public class UTF8StreamJsonParser
      *
      * @return Type of value decoded, if allowed and successful
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected JsonToken _handleUnexpectedValue(int c) throws JacksonException
     {
@@ -3931,7 +3935,7 @@ public class UTF8StreamJsonParser
         _reportError("Unrecognized token '%s': was expecting %s", sb, msg);
     }
 
-    protected void _reportInvalidChar(int c) throws JsonParseException
+    protected void _reportInvalidChar(int c) throws StreamReadException
     {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
@@ -3940,16 +3944,15 @@ public class UTF8StreamJsonParser
         _reportInvalidInitial(c);
     }
 
-    protected void _reportInvalidInitial(int mask) throws JsonParseException {
+    protected void _reportInvalidInitial(int mask) throws StreamReadException {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 
-    protected void _reportInvalidOther(int mask) throws JsonParseException {
+    protected void _reportInvalidOther(int mask) throws StreamReadException {
         _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
 
-    protected void _reportInvalidOther(int mask, int ptr)
-        throws JsonParseException
+    protected void _reportInvalidOther(int mask, int ptr) throws StreamReadException
     {
         _inputPtr = ptr;
         _reportInvalidOther(mask);
@@ -3969,8 +3972,8 @@ public class UTF8StreamJsonParser
      *
      * @return Fully decoded value of base64 content
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid content)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems (invalid content)
      */
     @SuppressWarnings("resource")
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws JacksonException
@@ -4137,7 +4140,7 @@ public class UTF8StreamJsonParser
     /**********************************************************************
      */
 
-    private final JsonToken _closeScope(int i) throws JsonParseException {
+    private final JsonToken _closeScope(int i) throws StreamReadException {
         if (i == INT_RCURLY) {
             _closeObjectScope();
             return (_currToken = JsonToken.END_OBJECT);
@@ -4146,7 +4149,7 @@ public class UTF8StreamJsonParser
         return (_currToken = JsonToken.END_ARRAY);
     }
 
-    private final void _closeArrayScope() throws JsonParseException {
+    private final void _closeArrayScope() throws StreamReadException {
         _updateLocation();
         if (!_parsingContext.inArray()) {
             _reportMismatchedEndMarker(']', '}');
@@ -4154,7 +4157,7 @@ public class UTF8StreamJsonParser
         _parsingContext = _parsingContext.clearAndGetParent();
     }
 
-    private final void _closeObjectScope() throws JsonParseException {
+    private final void _closeObjectScope() throws StreamReadException {
         _updateLocation();
         if (!_parsingContext.inObject()) {
             _reportMismatchedEndMarker('}', ']');

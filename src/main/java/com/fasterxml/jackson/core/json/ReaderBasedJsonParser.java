@@ -3,6 +3,8 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -26,9 +28,9 @@ public class ReaderBasedJsonParser
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Input configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -54,19 +56,19 @@ public class ReaderBasedJsonParser
     protected boolean _bufferRecyclable;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
-    final protected CharsToNameCanonicalizer _symbols;
+    protected final CharsToNameCanonicalizer _symbols;
 
-    final protected int _hashSeed;
+    protected final int _hashSeed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parsing state
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -84,20 +86,14 @@ public class ReaderBasedJsonParser
      */
     protected long _nameStartOffset;
 
-    /**
-     * @since 2.7
-     */
     protected int _nameStartRow;
 
-    /**
-     * @since 2.7
-     */
     protected int _nameStartCol;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -159,9 +155,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Base method defs, overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -234,9 +230,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level access, supporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _loadMoreGuaranteed() throws JacksonException {
@@ -278,9 +274,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, data access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -302,7 +298,7 @@ public class ReaderBasedJsonParser
         return _getText2(_currToken);
     }
 
-    @Override // since 2.8
+    @Override
     public int getText(Writer writer) throws JacksonException
     {
         final JsonToken t = _currToken;
@@ -336,7 +332,6 @@ public class ReaderBasedJsonParser
     
     // // // Let's override default impls for improved performance
 
-    // @since 2.1
     @Override
     public final String getValueAsString() throws JacksonException
     {
@@ -353,7 +348,6 @@ public class ReaderBasedJsonParser
         return super.getValueAsString(null);
     }
 
-    // @since 2.1
     @Override
     public final String getValueAsString(String defValue) throws JacksonException {
         if (_currToken == JsonToken.VALUE_STRING) {
@@ -654,9 +648,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, traversal
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -821,12 +815,11 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, nextXxx() overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
-    // Implemented since 2.7
     @Override
     public boolean nextFieldName(SerializableString sstr) throws JacksonException
     {
@@ -1280,9 +1273,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, number parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final JsonToken _parseFloatThatStartsWithPeriod() throws JacksonException
@@ -1314,8 +1307,8 @@ public class ReaderBasedJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected final JsonToken _parsePosNumber(int ch) throws JacksonException
     {
@@ -1495,8 +1488,8 @@ public class ReaderBasedJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     private final JsonToken _parseNumber2(boolean neg, int startPtr) throws JacksonException
     {
@@ -1711,8 +1704,8 @@ public class ReaderBasedJsonParser
      *
      * @param ch First character of likely white space to skip
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     private final void _verifyRootSpace(int ch) throws JacksonException
     {
@@ -1734,9 +1727,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, secondary parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final String _parseName() throws JacksonException
@@ -1829,8 +1822,8 @@ public class ReaderBasedJsonParser
      *
      * @return Name decoded, if allowed and successful
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid name)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected String _handleOddName(int i) throws JacksonException
     {
@@ -1923,8 +1916,8 @@ public class ReaderBasedJsonParser
      *
      * @return Type of value decoded, if allowed and successful
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected JsonToken _handleOddValue(int i) throws JacksonException
     {
@@ -2153,8 +2146,8 @@ public class ReaderBasedJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected final void _skipString() throws JacksonException
     {
@@ -2199,9 +2192,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, other parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     // We actually need to check the character value here
@@ -2732,9 +2725,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Binary access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -2745,8 +2738,8 @@ public class ReaderBasedJsonParser
      *
      * @return Fully decoded value of base64 content
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid content)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     @SuppressWarnings("resource")
     protected byte[] _decodeBase64(Base64Variant b64variant) throws JacksonException
@@ -2868,9 +2861,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
-    /* Internal methods, location updating (refactored in 2.7)
-    /**********************************************************
+    /**********************************************************************
+    /* Internal methods, location updating
+    /**********************************************************************
      */
 
     @Override
@@ -2912,9 +2905,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Error reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _reportInvalidToken(String matchedPart) throws JacksonException {
@@ -2940,16 +2933,17 @@ public class ReaderBasedJsonParser
                 break;
             }
         }
-        _reportError("Unrecognized token '%s': was expecting %s", sb, msg);
+        throw _constructReadException("Unrecognized token '%s': was expecting %s", sb, msg);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException {
+    private void _closeScope(int i) throws StreamReadException
+    {
         if (i == INT_RBRACKET) {
             _updateLocation();
             if (!_parsingContext.inArray()) {

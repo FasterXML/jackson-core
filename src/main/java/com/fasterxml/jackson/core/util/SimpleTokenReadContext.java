@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.DupDetector;
 
 public class SimpleTokenReadContext extends TokenStreamContext
@@ -176,12 +177,20 @@ public class SimpleTokenReadContext extends TokenStreamContext
         return ++_index; // starts from -1
     }
 
-    public void setCurrentName(String name) throws JsonParseException {
+    /**
+     * Method called to indicate what the "current" name (Object property name
+     * just decoded) is: may also trigger duplicate detection.
+     * 
+     * @param name Name of Object property encountered
+     *
+     * @throws StreamReadException If there is a duplicate name violation
+     */
+    public void setCurrentName(String name) throws StreamReadException {
         _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
     }
 
-    private void _checkDup(DupDetector dd, String name) throws JsonParseException {
+    protected void _checkDup(DupDetector dd, String name) throws StreamReadException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
             throw new JsonParseException(((src instanceof JsonParser) ? ((JsonParser) src) : null),

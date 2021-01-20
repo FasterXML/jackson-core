@@ -2,13 +2,13 @@ package com.fasterxml.jackson.core.util;
 
 import java.nio.charset.Charset;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+
 /**
  * Container object used to contain optional information on content
- * being parsed, passed to {@link com.fasterxml.jackson.core.JsonParseException} in case of
+ * being parsed, passed to {@link StreamReadException} in case of
  * exception being thrown; this may be useful for caller to display
  * information on failure.
- *
- * @since 2.8
  */
 public class RequestPayload
     implements java.io.Serializable // just in case, even though likely included as transient

@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
  * Exception type for read-side problems that are not direct decoding ("parsing")
- * problems (those would be reported as {@link com.fasterxml.jackson.core.JsonParseException}s),
+ * problems (those would be reported as basic
+ * {@link StreamReadException}s),
  * but rather result from failed attempts to convert specific Java value out of valid
  * but incompatible input value. One example is numeric coercions where target number type's
  * range does not allow mapping of too large/too small input value.
  */
-public class InputCoercionException extends StreamReadException {
+public class InputCoercionException extends StreamReadException
+{
     private static final long serialVersionUID = 3L;
 
     /**

@@ -64,8 +64,6 @@ public class DupDetector
 
     /**
      * @return Source object (parser / generator) used to construct this detector
-     *
-     * @since 2.7
      */
     public Object getSource() {
         return _source;
@@ -79,11 +77,8 @@ public class DupDetector
      * @param name Property seen
      *
      * @return {@code True} if the property had already been seen before in this context
-     *
-     * @throws JsonParseException to report possible operation problem (default implementation
-     *    never throws it)
      */
-    public boolean isDup(String name) throws JsonParseException
+    public boolean isDup(String name)
     {
         if (_firstName == null) {
             _firstName = name;

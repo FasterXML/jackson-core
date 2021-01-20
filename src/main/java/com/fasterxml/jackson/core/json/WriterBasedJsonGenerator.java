@@ -17,28 +17,28 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 public class WriterBasedJsonGenerator
     extends JsonGeneratorBase
 {
-    final protected static int SHORT_WRITE = 32;
+    protected final static int SHORT_WRITE = 32;
 
-    final protected static char[] HEX_CHARS = CharTypes.copyHexChars();
+    protected final static char[] HEX_CHARS = CharTypes.copyHexChars();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
-    final protected Writer _writer;
+    protected final Writer _writer;
 
     /**
      * Character used for quoting JSON Object property names
      * and String values.
      */
-    final protected char _quoteChar;
+    protected final char _quoteChar;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output buffering
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -83,9 +83,9 @@ public class WriterBasedJsonGenerator
     protected char[] _copyBuffer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public WriterBasedJsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
@@ -116,9 +116,9 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden configuration, introspection methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -138,9 +138,9 @@ public class WriterBasedJsonGenerator
     public boolean canWriteFormattedNumbers() { return true; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -239,9 +239,9 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, structural
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -419,9 +419,9 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, textual
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -564,11 +564,11 @@ public class WriterBasedJsonGenerator
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, unprocessed ("raw")
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -678,9 +678,9 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, base64-encoded binary
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -734,11 +734,11 @@ public class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         return bytes;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, primitive
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -948,9 +948,9 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Implementations for other methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -989,9 +989,9 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level output handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1067,9 +1067,9 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing; text, default
-    /**********************************************************
+    /**********************************************************************
      */
 
     private void _writeString(String text) throws JacksonException
@@ -1442,10 +1442,10 @@ public class WriterBasedJsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, text segment
     /* with custom escaping (possibly coupling with ASCII limits)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /* Same as "_writeString2()", except needs additional escaping
@@ -1616,11 +1616,11 @@ public class WriterBasedJsonGenerator
             _appendCharacterEscape(c, escCode);
         }
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing; binary
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected final void _writeBinary(Base64Variant b64variant, byte[] input, int inputPtr, final int inputEnd)
@@ -1813,11 +1813,11 @@ public class WriterBasedJsonGenerator
         } while (inputEnd < 3);
         return inputEnd;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, other
-    /**********************************************************
+    /**********************************************************************
      */
     
     private final void _writeNull() throws JacksonException
@@ -1833,11 +1833,11 @@ public class WriterBasedJsonGenerator
         buf[++ptr] = 'l';
         _outputTail = ptr+1;
     }
-        
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, escapes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

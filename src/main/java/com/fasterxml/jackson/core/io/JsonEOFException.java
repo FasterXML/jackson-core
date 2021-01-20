@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.JsonToken;
  * is reached unexpectedly, either within token being decoded, or during
  * skipping of intervening white-space that is not between root-level
  * tokens (that is, is within JSON Object or JSON Array construct).
- *
- * @since 2.8
  */
 public class JsonEOFException extends JsonParseException
 {

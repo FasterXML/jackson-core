@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.InputStream;
 import java.io.Reader;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.util.JacksonFeature;
 
 /**
@@ -35,7 +36,7 @@ public enum StreamReadFeature
      * Feature that determines whether {@link JsonParser} will explicitly
      * check that no duplicate JSON Object field names are encountered.
      * If enabled, parser will check all names within context and report
-     * duplicates by throwing a {@link JsonParseException}; if disabled,
+     * duplicates by throwing a {@link StreamReadException}; if disabled,
      * parser will not do such checking. Assumption in latter case is
      * that caller takes care of handling duplicates at a higher level:
      * data-binding, for example, has features to specify detection to

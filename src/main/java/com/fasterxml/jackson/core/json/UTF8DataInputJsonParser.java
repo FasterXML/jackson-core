@@ -8,6 +8,8 @@ import java.io.Writer;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -1000,8 +1002,8 @@ public class UTF8DataInputJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected JsonToken _parsePosNumber(int c) throws IOException
     {
@@ -1101,8 +1103,8 @@ public class UTF8DataInputJsonParser
      *
      * @return Character immediately following zeroes
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     private final int _handleLeadingZeroes() throws IOException
     {
@@ -1530,8 +1532,8 @@ public class UTF8DataInputJsonParser
      *
      * @return Name decoded, if allowed and successful
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid name)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected String _handleOddName(int ch) throws IOException
     {
@@ -1700,7 +1702,7 @@ public class UTF8DataInputJsonParser
     /**********************************************************************
      */
 
-    private final String findName(int q1, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int lastQuadBytes) throws StreamReadException
     {
         q1 = pad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -1713,7 +1715,7 @@ public class UTF8DataInputJsonParser
         return addName(_quadBuffer, 1, lastQuadBytes);
     }
 
-    private final String findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int lastQuadBytes) throws StreamReadException
     {
         q2 = pad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -1727,7 +1729,7 @@ public class UTF8DataInputJsonParser
         return addName(_quadBuffer, 2, lastQuadBytes);
     }
 
-    private final String findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
+    private final String findName(int q1, int q2, int q3, int lastQuadBytes) throws StreamReadException
     {
         q3 = pad(q3, lastQuadBytes);
         String name = _symbols.findName(q1, q2, q3);
@@ -1741,7 +1743,7 @@ public class UTF8DataInputJsonParser
         return addName(quads, 3, lastQuadBytes);
     }
     
-    private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws JsonParseException
+    private final String findName(int[] quads, int qlen, int lastQuad, int lastQuadBytes) throws StreamReadException
     {
         if (qlen >= quads.length) {
             _quadBuffer = quads = _growArrayBy(quads, quads.length);
@@ -1760,7 +1762,7 @@ public class UTF8DataInputJsonParser
      * multi-byte chars (if any), and then construct Name instance
      * and add it to the symbol table.
      */
-    private final String addName(int[] quads, int qlen, int lastQuadBytes) throws JsonParseException
+    private final String addName(int[] quads, int qlen, int lastQuadBytes) throws StreamReadException
     {
         /* Ok: must decode UTF-8 chars. No other validation is
          * needed, since unescaping has been done earlier as necessary
@@ -1996,8 +1998,8 @@ public class UTF8DataInputJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected void _skipString() throws IOException
     {
@@ -2054,8 +2056,8 @@ public class UTF8DataInputJsonParser
      *
      * @return Token that was successfully decoded (if successful)
      *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     protected JsonToken _handleUnexpectedValue(int c)
         throws IOException
@@ -2751,7 +2753,7 @@ public class UTF8DataInputJsonParser
      }
         
     protected void _reportInvalidChar(int c)
-        throws JsonParseException
+        throws StreamReadException
     {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
@@ -2761,13 +2763,13 @@ public class UTF8DataInputJsonParser
     }
 
     protected void _reportInvalidInitial(int mask)
-        throws JsonParseException
+        throws StreamReadException
     {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 
     private void _reportInvalidOther(int mask)
-        throws JsonParseException
+        throws StreamReadException
     {
         _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
@@ -2793,9 +2795,6 @@ public class UTF8DataInputJsonParser
      * @param b64variant Type of base64 encoding expected in context
      *
      * @return Fully decoded value of base64 content
-     *
-     * @throws JacksonException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid content)
      */
     @SuppressWarnings("resource")
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException
@@ -2931,7 +2930,7 @@ public class UTF8DataInputJsonParser
     /**********************************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException {
+    private void _closeScope(int i) throws StreamReadException {
         if (i == INT_RBRACKET) {
             if (!_parsingContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');

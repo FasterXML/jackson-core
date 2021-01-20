@@ -611,7 +611,7 @@ public abstract class NonBlockingJsonParserBase
     /**********************************************************
      */
 
-    protected final String _findName(int q1, int lastQuadBytes) throws JsonParseException
+    protected final String _findName(int q1, int lastQuadBytes) throws JacksonException
     {
         q1 = _padLastQuad(q1, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -624,7 +624,7 @@ public abstract class NonBlockingJsonParserBase
         return _addName(_quadBuffer, 1, lastQuadBytes);
     }
 
-    protected final String _findName(int q1, int q2, int lastQuadBytes) throws JsonParseException
+    protected final String _findName(int q1, int q2, int lastQuadBytes) throws JacksonException
     {
         q2 = _padLastQuad(q2, lastQuadBytes);
         // Usually we'll find it from the canonical symbol table already
@@ -638,7 +638,7 @@ public abstract class NonBlockingJsonParserBase
         return _addName(_quadBuffer, 2, lastQuadBytes);
     }
 
-    protected final String _findName(int q1, int q2, int q3, int lastQuadBytes) throws JsonParseException
+    protected final String _findName(int q1, int q2, int q3, int lastQuadBytes) throws JacksonException
     {
         q3 = _padLastQuad(q3, lastQuadBytes);
         String name = _symbols.findName(q1, q2, q3);
@@ -656,7 +656,8 @@ public abstract class NonBlockingJsonParserBase
     // table miss. It needs to demultiplex individual bytes, decode
     // multi-byte chars (if any), and then construct Name instance
     // and add it to the symbol table.
-    protected final String _addName(int[] quads, int qlen, int lastQuadBytes) throws JsonParseException
+    protected final String _addName(int[] quads, int qlen, int lastQuadBytes)
+        throws JacksonException
     {
         /* Ok: must decode UTF-8 chars. No other validation is
          * needed, since unescaping has been done earlier as necessary
@@ -845,7 +846,7 @@ public abstract class NonBlockingJsonParserBase
         _tokenInputTotal = _currInputProcessed + (ptr - _currBufferStart);
     }
 
-    protected void _reportInvalidChar(int c) throws JsonParseException {
+    protected void _reportInvalidChar(int c) throws JacksonException {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
             _throwInvalidSpace(c);
@@ -853,16 +854,16 @@ public abstract class NonBlockingJsonParserBase
         _reportInvalidInitial(c);
     }
 
-    protected void _reportInvalidInitial(int mask) throws JsonParseException {
+    protected void _reportInvalidInitial(int mask) throws JacksonException {
         _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 
-    protected void _reportInvalidOther(int mask, int ptr) throws JsonParseException {
+    protected void _reportInvalidOther(int mask, int ptr) throws JacksonException {
         _inputPtr = ptr;
         _reportInvalidOther(mask);
     }
 
-    protected void _reportInvalidOther(int mask) throws JsonParseException {
+    protected void _reportInvalidOther(int mask) throws JacksonException {
         _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
 }

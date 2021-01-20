@@ -167,13 +167,14 @@ public class JsonWriteContext extends TokenStreamContext
     }
 
     /**
-     * Method that writer is to call before it writes a name of Object property.
+     * Method that generator is to call when it writes a name of Object property.
      *
      * @param name Property name being written
      *
      * @return Index of the field entry (0-based)
      *
-     * @throws JsonGenerationException if duplicate check restriction is violated
+     * @throws JsonGenerationException if duplicate check restriction is violated (which
+     *    assumes that duplicate-detection is enabled)
      */
     public int writeFieldName(String name) throws JsonGenerationException {
         if ((_type != TYPE_OBJECT) || _gotName) {

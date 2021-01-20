@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 /**
  * Extension of {@link TokenStreamContext}, which implements
@@ -205,12 +206,20 @@ public final class JsonReadContext extends TokenStreamContext
         return (_type != TYPE_ROOT && ix > 0);
     }
 
-    public void setCurrentName(String name) throws JsonParseException {
+    /**
+     * Method that parser is to call when it reads a name of Object property.
+     *
+     * @param name Property name that has been read
+     *
+     * @throws StreamReadException if duplicate check restriction is violated (which
+     *    assumes that duplicate-detection is enabled)
+     */
+    public void setCurrentName(String name) throws StreamReadException {
         _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
     }
 
-    private void _checkDup(DupDetector dd, String name) throws JsonParseException {
+    private void _checkDup(DupDetector dd, String name) throws StreamReadException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
             throw new JsonParseException(((src instanceof JsonParser) ? ((JsonParser) src) : null),

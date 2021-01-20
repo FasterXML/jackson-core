@@ -772,7 +772,7 @@ public abstract class ParserMinimalBase extends JsonParser
      *
      * @param msg Base exception message to use
      *
-     * @throws JsonParseException Exception that describes problem with number validity
+     * @throws StreamReadException Exception that describes problem with number validity
      */
     protected void _reportInvalidNumber(String msg) throws StreamReadException {
         _reportError("Invalid numeric value: "+msg);
@@ -797,7 +797,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * token with value outside of Java signed 32-bit range when requested as {@code int}.
      * Result will be {@link InputCoercionException} being thrown.
      *
-     * @throws JsonParseException Exception that describes problem with number range validity
+     * @throws InputCoercionException Exception that describes problem with number range validity
      */
     protected void _reportOverflowInt() throws InputCoercionException {
         _reportOverflowInt(getText());
@@ -819,7 +819,7 @@ public abstract class ParserMinimalBase extends JsonParser
      * token with value outside of Java signed 64-bit range when requested as {@code long}.
      * Result will be {@link InputCoercionException} being thrown.
      *
-     * @throws JsonParseException Exception that describes problem with number range validity
+     * @throws InputCoercionException Exception that describes problem with number range validity
      */
     protected void _reportOverflowLong() throws InputCoercionException {
         _reportOverflowLong(getText());

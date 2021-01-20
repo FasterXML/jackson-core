@@ -206,7 +206,7 @@ public abstract class JsonParser
      */
 
     /**
-     * Sets the payload to be passed if {@link JsonParseException} is thrown.
+     * Sets the payload to be passed if {@link StreamReadException} is thrown.
      *
      * @param payload to assign
      */
@@ -1677,12 +1677,12 @@ public abstract class JsonParser
     }
 
     /**
-     * Helper method for constructing {@link JsonParseException}s
+     * Helper method for constructing {@link StreamReadException}
      * based on current state of the parser
      *
      * @param msg Base exception message to construct exception with
      *
-     * @return {@link JsonParseException} constructed
+     * @return {@link StreamReadException} constructed
      */
     protected StreamReadException _constructReadException(String msg) {
         return new JsonParseException(this, msg)

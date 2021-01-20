@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -232,7 +233,7 @@ public class NonBlockingJsonParser
      *
      * @return Token decoded, if complete; {@link JsonToken#NOT_AVAILABLE} if not
      *
-     * @throws JacksonException (generally {@link JsonParseException}) for decoding problems
+     * @throws JacksonException (generally {@link StreamReadException}) for decoding problems
      */
     protected final JsonToken _finishToken() throws JacksonException
     {
@@ -360,7 +361,7 @@ public class NonBlockingJsonParser
      *
      * @return Token decoded, if complete; {@link JsonToken#NOT_AVAILABLE} if not
      *
-     * @throws JacksonException (generally {@link JsonParseException}) for decoding problems
+     * @throws JacksonException (generally {@link StreamReadException}) for decoding problems
      */
     protected final JsonToken _finishTokenWithEOF() throws JacksonException
     {

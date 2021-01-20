@@ -31,7 +31,7 @@ public abstract class ParserBase extends ParserMinimalBase
      * I/O context for this reader. It handles buffer allocation
      * for the reader.
      */
-    final protected IOContext _ioContext;
+    protected final IOContext _ioContext;
 
     /**
      * Flag that indicates whether parser is closed or not. Gets
@@ -377,10 +377,10 @@ public abstract class ParserBase extends ParserMinimalBase
     /**
      * @return If no exception is thrown, {@code -1} which is used as marked for "end-of-input"
      *
-     * @throws JsonParseException If check on {@code _handleEOF()} fails; usually because
+     * @throws StreamReadException If check on {@code _handleEOF()} fails; usually because
      *    the current context is not root context (missing end markers in content)
      */
-    protected final int _eofAsNextChar() throws JsonParseException {
+    protected final int _eofAsNextChar() throws StreamReadException {
         _handleEOF();
         return -1;
     }

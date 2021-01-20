@@ -128,7 +128,7 @@ public class TokenFilterContext extends TokenStreamContext
     /**********************************************************************
      */
     
-    public TokenFilter setFieldName(String name) throws JsonProcessingException {
+    public TokenFilter setFieldName(String name) {
         _currentName = name;
         _needToHandleName = true;
         return _filter;

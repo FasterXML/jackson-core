@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.util.JacksonFeature;
  * NOTE: Jackson 2.x contained these along with JSON-specific features in <code>JsonParser.Feature</code>.
  */
 public enum StreamReadFeature
-    implements JacksonFeature // since 2.12
+    implements JacksonFeature
 {
     // // // Low-level I/O handling features:
 
@@ -65,7 +65,8 @@ public enum StreamReadFeature
      *<p>
      * Feature is disabled by default, meaning that if the underlying data format
      * requires knowledge of all properties to output, attempts to read an unknown
-     * property will result in a {@link JsonProcessingException}
+     * property will result in an exception (typically of type
+     * {@link com.fasterxml.jackson.core.exc.StreamReadException}).
      */
     IGNORE_UNDEFINED(false),
 

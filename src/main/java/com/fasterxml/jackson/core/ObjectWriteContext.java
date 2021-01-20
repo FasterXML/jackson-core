@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.core;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
@@ -51,15 +51,15 @@ public interface ObjectWriteContext
     // // // Generator construction: limited to targets that make sense for embedding
     // // // purposes (like "JSON in JSON" etc)
 
-    default JsonGenerator createGenerator(OutputStream out) throws IOException {
+    default JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         return getGeneratorFactory().createGenerator(this, out);
     }
 
-    default JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+    default JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws JacksonException {
         return getGeneratorFactory().createGenerator(this, out, enc);
     }
 
-    default JsonGenerator createGenerator(Writer w) throws IOException {
+    default JsonGenerator createGenerator(Writer w) throws JacksonException {
         return getGeneratorFactory().createGenerator(this, w);
     }
 
@@ -88,12 +88,13 @@ public interface ObjectWriteContext
      * @param g Generator to use for serialization
      * @param value Java value to be serialized
      *
-     * @throws IOException for low-level write problems,
-     *   {@link com.fasterxml.jackson.core.JsonGenerationException} for databinding issues
+     * @throws WrappedIOException for low-level write problems,
+     * @throws com.fasterxml.jackson.core.JsonGenerationException for encoding problems
+     * @throws JacksonException (various subtypes) for databinding problems
      */
-    public void writeValue(JsonGenerator g, Object value) throws IOException;
+    public void writeValue(JsonGenerator g, Object value) throws JacksonException;
 
-    public void writeTree(JsonGenerator g, TreeNode value) throws IOException;
+    public void writeTree(JsonGenerator g, TreeNode value) throws JacksonException;
 
     /**
      * Default no-op implementation.
@@ -145,12 +146,12 @@ public interface ObjectWriteContext
         }
         
         @Override
-        public void writeValue(JsonGenerator g, Object value) throws IOException {
+        public void writeValue(JsonGenerator g, Object value) {
             _reportUnsupportedOperation();
         }
 
         @Override
-        public void writeTree(JsonGenerator g, TreeNode value) throws IOException {
+        public void writeTree(JsonGenerator g, TreeNode value) {
             _reportUnsupportedOperation();
         }
         

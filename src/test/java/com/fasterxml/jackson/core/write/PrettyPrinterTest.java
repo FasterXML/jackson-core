@@ -22,14 +22,12 @@ public class PrettyPrinterTest
     {
         @Override
         public void writeEndObject(JsonGenerator jg, int nrOfEntries)
-                throws IOException, JsonGenerationException
         {
             jg.writeRaw("("+nrOfEntries+")}");
         }
 
         @Override
         public void writeEndArray(JsonGenerator jg, int nrOfValues)
-            throws IOException, JsonGenerationException
         {
             jg.writeRaw("("+nrOfValues+")]");
         }
@@ -125,7 +123,7 @@ public class PrettyPrinterTest
                 return new MinimalPrettyPrinter() {
                     @Override
                     // use TAB between array values
-                    public void beforeArrayValues(JsonGenerator jg) throws IOException, JsonGenerationException
+                    public void beforeArrayValues(JsonGenerator jg)
                     {
                         jg.writeRaw("\t");
                     }

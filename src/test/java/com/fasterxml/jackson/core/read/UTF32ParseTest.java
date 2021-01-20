@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.CharConversionException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
@@ -22,7 +20,7 @@ public class UTF32ParseTest extends BaseTest
             try {
                 parser.nextToken();
                 fail("Should not pass");
-            } catch (CharConversionException e) {
+            } catch (JacksonException e) {
                 verifyException(e, "Unexpected EOF");
                 verifyException(e, "of a 4-byte UTF-32 char");
             }
@@ -49,7 +47,7 @@ public class UTF32ParseTest extends BaseTest
         try {
             parser.nextToken();
             fail("Should not pass");
-        } catch (CharConversionException e) {
+        } catch (JacksonException e) {
             verifyException(e, "Invalid UTF-32 character 0xfefe0001");
         }
         parser.close();

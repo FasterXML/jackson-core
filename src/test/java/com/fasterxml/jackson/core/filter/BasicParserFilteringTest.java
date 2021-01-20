@@ -571,7 +571,7 @@ public class BasicParserFilteringTest extends BaseTest
             while (p.nextToken() != null) {
                 g.copyCurrentEvent(p);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             g.flush();
             fail("Unexpected problem during `readAndWrite`. Output so far: '"+sw+"'; problem: "+e);
         }

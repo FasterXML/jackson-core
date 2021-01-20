@@ -18,9 +18,9 @@ public abstract class BinaryTSFactory
     private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected BinaryTSFactory(int formatPF, int formatGF) {
@@ -45,9 +45,9 @@ public abstract class BinaryTSFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Default introspection
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -57,21 +57,21 @@ public abstract class BinaryTSFactory
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods: parsers
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, File f) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, File f) throws JacksonException {
+        final InputStream in = _fileInputStream(f);
         // true, since we create InputStream from File
-        IOContext ioCtxt = _createContext(f, true);
-        InputStream in = new FileInputStream(f);
+        final IOContext ioCtxt = _createContext(f, true);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, URL url) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, URL url) throws JacksonException {
         // true, since we create InputStream from URL
         IOContext ioCtxt = _createContext(url, true);
         InputStream in = _optimizedStreamFromURL(url);
@@ -79,19 +79,20 @@ public abstract class BinaryTSFactory
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, InputStream in) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, InputStream in) throws JacksonException {
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, Reader r) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, Reader r) throws JacksonException {
         return _nonByteSource();
     }
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, 
-            byte[] data, int offset, int len) throws IOException {
+            byte[] data, int offset, int len) throws JacksonException
+    {
         IOContext ioCtxt = _createContext(data, true, null);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
@@ -104,42 +105,42 @@ public abstract class BinaryTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, 
-            String content) throws IOException {
+            String content) throws JacksonException {
         return _nonByteSource();
     }
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, 
-            char[] content, int offset, int len) throws IOException {
+            char[] content, int offset, int len) throws JacksonException {
         return _nonByteSource();
     }
     
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, 
-            DataInput in) throws IOException {
+            DataInput in) throws JacksonException {
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
     
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
-            IOContext ioCtxt, InputStream in) throws IOException;
+            IOContext ioCtxt, InputStream in) throws JacksonException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt, 
-            IOContext ioCtxt, byte[] data, int offset, int len) throws IOException;
+            IOContext ioCtxt, byte[] data, int offset, int len) throws JacksonException;
 
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
-            IOContext ioCtxt, DataInput input) throws IOException;
+            IOContext ioCtxt, DataInput input) throws JacksonException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods: generators
-    /**********************************************************
+    /**********************************************************************
      */
 
     /*
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
-        throws IOException
+        throws JacksonException
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(out, false, enc);
@@ -147,7 +148,7 @@ public abstract class BinaryTSFactory
     }
 
     @Override
-    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
+    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException
     {
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
@@ -159,7 +160,7 @@ public abstract class BinaryTSFactory
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             OutputStream out, JsonEncoding enc)
-        throws IOException
+        throws JacksonException
     {
         // false -> we won't manage the stream unless explicitly directed to
         IOContext ioCtxt = _createContext(out, false, enc);
@@ -168,24 +169,24 @@ public abstract class BinaryTSFactory
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
-            Writer w) throws IOException {
+            Writer w) throws JacksonException {
         return _nonByteTarget();
     }
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
-            File f, JsonEncoding enc) throws IOException
+            File f, JsonEncoding enc) throws JacksonException
     {
-        OutputStream out = new FileOutputStream(f);
+        final OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
-        IOContext ioCtxt = _createContext(out, true, enc);
+        final IOContext ioCtxt = _createContext(out, true, enc);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods: abstract, for sub-classes to implement
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -204,16 +205,16 @@ public abstract class BinaryTSFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If there is a problem constructing generator
+     * @throws JacksonException If there is a problem constructing generator
      */
     protected abstract JsonGenerator _createGenerator(ObjectWriteContext writeCtxt,
-            IOContext ioCtxt, OutputStream out) throws IOException;
+            IOContext ioCtxt, OutputStream out) throws JacksonException;
 
-    protected <T> T _nonByteSource() throws IOException {
+    protected <T> T _nonByteSource() throws JacksonException {
         throw new UnsupportedOperationException("Can not create parser for character-based (not byte-based) source");
     }
 
-    protected <T> T _nonByteTarget() throws IOException {
+    protected <T> T _nonByteTarget() throws JacksonException {
         throw new UnsupportedOperationException("Can not create generator for character-based (not byte-based) target");
     }
 }

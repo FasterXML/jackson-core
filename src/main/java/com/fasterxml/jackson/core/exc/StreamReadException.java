@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.util.RequestPayload;
 public abstract class StreamReadException
     extends JsonProcessingException
 {
-    final static long serialVersionUID = 1L;
+    private final static long serialVersionUID = 1L;
 
     protected transient JsonParser _processor;
 

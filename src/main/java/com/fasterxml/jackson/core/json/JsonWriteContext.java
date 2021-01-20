@@ -173,9 +173,9 @@ public class JsonWriteContext extends TokenStreamContext
      *
      * @return Index of the field entry (0-based)
      *
-     * @throws JsonProcessingException if duplicate check restriction is violated
+     * @throws JsonGenerationException if duplicate check restriction is violated
      */
-    public int writeFieldName(String name) throws JsonProcessingException {
+    public int writeFieldName(String name) throws JsonGenerationException {
         if ((_type != TYPE_OBJECT) || _gotName) {
             return STATUS_EXPECT_VALUE;
         }
@@ -185,7 +185,7 @@ public class JsonWriteContext extends TokenStreamContext
         return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
     }
 
-    private final void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
+    private final void _checkDup(DupDetector dd, String name) throws JsonGenerationException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
             throw new JsonGenerationException("Duplicate field '"+name+"'",

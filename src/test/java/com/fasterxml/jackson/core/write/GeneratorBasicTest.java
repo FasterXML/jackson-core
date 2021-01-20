@@ -361,7 +361,7 @@ public class GeneratorBasicTest
             JsonToken t = null;
             try {
                 t = p.nextToken();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 fail("Problem with value "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
@@ -417,7 +417,7 @@ public class GeneratorBasicTest
             JsonToken t = null;
             try {
                 t = p.nextToken();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 fail("Problem with number "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);

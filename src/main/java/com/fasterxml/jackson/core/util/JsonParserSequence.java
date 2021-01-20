@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -120,12 +119,12 @@ public class JsonParserSequence extends JsonParserDelegate
      */
 
     @Override
-    public void close() throws IOException {
+    public void close() throws JacksonException {
         do { delegate.close(); } while (switchToNext());
     }
 
     @Override
-    public JsonToken nextToken() throws IOException
+    public JsonToken nextToken() throws JacksonException
     {
         if (delegate == null) {
             return null;
@@ -147,7 +146,7 @@ public class JsonParserSequence extends JsonParserDelegate
      * state correct here.
      */
     @Override
-    public JsonParser skipChildren() throws IOException
+    public JsonParser skipChildren() throws JacksonException
     {
         if ((delegate.currentToken() != JsonToken.START_OBJECT)
             && (delegate.currentToken() != JsonToken.START_ARRAY)) {
@@ -180,20 +179,20 @@ public class JsonParserSequence extends JsonParserDelegate
      */
 
     @Override
-    public String nextFieldName() throws IOException {
+    public String nextFieldName() throws JacksonException {
         // NOTE: call `nextToken()` to handle delegation
         return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
     }
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws IOException {
+    public boolean nextFieldName(SerializableString str) throws JacksonException {
         // NOTE: call `nextToken()` to handle delegation
         return (nextToken() == JsonToken.FIELD_NAME)
                 && str.getValue().equals(currentName());
     }
 
     @Override
-    public int nextFieldName(FieldNameMatcher matcher) throws IOException {
+    public int nextFieldName(FieldNameMatcher matcher) throws JacksonException {
         // NOTE: call `nextToken()` to handle delegation
         String str = nextFieldName();
         if (str != null) {
@@ -245,7 +244,7 @@ public class JsonParserSequence extends JsonParserDelegate
         return false;
     }
 
-    protected JsonToken switchAndReturnNext() throws IOException
+    protected JsonToken switchAndReturnNext() throws JacksonException
     {
         while (_nextParserIndex < _parsers.length) {
             delegate = _parsers[_nextParserIndex++];

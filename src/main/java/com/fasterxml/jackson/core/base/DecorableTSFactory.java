@@ -1,6 +1,10 @@
 package com.fasterxml.jackson.core.base;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.*;
@@ -72,9 +76,9 @@ public abstract class DecorableTSFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -90,9 +94,9 @@ public abstract class DecorableTSFactory
     protected final OutputDecorator _outputDecorator;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected DecorableTSFactory(int formatPF, int formatGF) {
@@ -123,40 +127,26 @@ public abstract class DecorableTSFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration, decorators
-    /**********************************************************
+    /**********************************************************************
      */
 
     public OutputDecorator getOutputDecorator() {
         return _outputDecorator;
     }
 
-    /*
-    public DecorableTSFactory setOutputDecorator(OutputDecorator d) {
-        _outputDecorator = d;
-        return this;
-    }
-    */
-
     public InputDecorator getInputDecorator() {
         return _inputDecorator;
     }
 
     /*
-    public DecorableTSFactory setInputDecorator(InputDecorator d) {
-        _inputDecorator = d;
-        return this;
-    }
-    */
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Decorators, input
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected InputStream _decorate(IOContext ioCtxt, InputStream in) throws IOException
+    protected InputStream _decorate(IOContext ioCtxt, InputStream in) throws JacksonException
     {
         if (_inputDecorator != null) {
             InputStream in2 = _inputDecorator.decorate(ioCtxt, in);
@@ -167,7 +157,7 @@ public abstract class DecorableTSFactory
         return in;
     }
 
-    protected Reader _decorate(IOContext ioCtxt, Reader in) throws IOException
+    protected Reader _decorate(IOContext ioCtxt, Reader in) throws JacksonException
     {
         if (_inputDecorator != null) {
             Reader in2 = _inputDecorator.decorate(ioCtxt, in);
@@ -178,7 +168,7 @@ public abstract class DecorableTSFactory
         return in;
     }
 
-    protected DataInput _decorate(IOContext ioCtxt, DataInput in) throws IOException
+    protected DataInput _decorate(IOContext ioCtxt, DataInput in) throws JacksonException
     {
         if (_inputDecorator != null) {
             DataInput in2 = _inputDecorator.decorate(ioCtxt, in);
@@ -190,12 +180,12 @@ public abstract class DecorableTSFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Decorators, output
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected OutputStream _decorate(IOContext ioCtxt, OutputStream out) throws IOException
+    protected OutputStream _decorate(IOContext ioCtxt, OutputStream out) throws JacksonException
     {
         if (_outputDecorator != null) {
             OutputStream out2 = _outputDecorator.decorate(ioCtxt, out);
@@ -206,7 +196,7 @@ public abstract class DecorableTSFactory
         return out;
     }
 
-    protected Writer _decorate(IOContext ioCtxt, Writer out) throws IOException
+    protected Writer _decorate(IOContext ioCtxt, Writer out) throws JacksonException
     {
         if (_outputDecorator != null) {
             Writer out2 = _outputDecorator.decorate(ioCtxt, out);

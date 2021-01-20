@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
@@ -697,10 +698,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            File f) throws IOException;
+            File f) throws JacksonException;
 
     /**
      * Method for constructing JSON parser instance to decode
@@ -722,10 +723,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            URL url) throws IOException;
+            URL url) throws JacksonException;
 
     /**
      * Method for constructing JSON parser instance to parse
@@ -748,10 +749,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            InputStream in) throws IOException;
+            InputStream in) throws JacksonException;
 
     /**
      * Method for constructing parser for parsing
@@ -768,10 +769,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            Reader r) throws IOException;
+            Reader r) throws JacksonException;
 
     /**
      * Method for constructing parser for parsing
@@ -782,9 +783,9 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
-    public JsonParser createParser(ObjectReadContext readCtxt, byte[] data) throws IOException {
+    public JsonParser createParser(ObjectReadContext readCtxt, byte[] data) throws JacksonException {
         return createParser(readCtxt, data, 0, data.length);
     }
 
@@ -799,10 +800,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            byte[] content, int offset, int len) throws IOException;
+            byte[] content, int offset, int len) throws JacksonException;
 
     /**
      * Method for constructing parser for parsing contents of given String.
@@ -812,10 +813,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            String content) throws IOException;
+            String content) throws JacksonException;
 
     /**
      * Method for constructing parser for parsing contents of given char array.
@@ -825,10 +826,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public JsonParser createParser(ObjectReadContext readCtxt,
-            char[] content) throws IOException {
+            char[] content) throws JacksonException {
         return createParser(readCtxt, content, 0, content.length);
     }
 
@@ -842,10 +843,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            char[] content, int offset, int len) throws IOException;
+            char[] content, int offset, int len) throws JacksonException;
 
     /*
     /**********************************************************************
@@ -857,12 +858,12 @@ public abstract class TokenStreamFactory
     /**
      * @param f File that contains content to parse
      * @return Parser constructed
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.File)}
      */
     @Deprecated
-    public JsonParser createParser(File f) throws IOException {
+    public JsonParser createParser(File f) throws JacksonException {
         return createParser(ObjectReadContext.empty(), f);
     }
 
@@ -870,12 +871,12 @@ public abstract class TokenStreamFactory
      * @param src Resource that contains content to parse
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.net.URL)}
      */
     @Deprecated
-    public JsonParser createParser(URL src) throws IOException {
+    public JsonParser createParser(URL src) throws JacksonException {
         return createParser(ObjectReadContext.empty(), src);
     }
 
@@ -883,12 +884,12 @@ public abstract class TokenStreamFactory
      * @param in InputStream to use for reading content to parse
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.InputStream)}
      */
     @Deprecated
-    public JsonParser createParser(InputStream in) throws IOException {
+    public JsonParser createParser(InputStream in) throws JacksonException {
         return createParser(ObjectReadContext.empty(), in);
     }
 
@@ -896,12 +897,12 @@ public abstract class TokenStreamFactory
      * @param r Reader to use for reading content to parse
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,java.io.Reader)}
      */
     @Deprecated
-    public JsonParser createParser(Reader r) throws IOException {
+    public JsonParser createParser(Reader r) throws JacksonException {
         return createParser(ObjectReadContext.empty(), r);
     }
 
@@ -909,12 +910,12 @@ public abstract class TokenStreamFactory
      * @param content Buffer that contains content to parse
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[])}
      */
     @Deprecated
-    public JsonParser createParser(byte[] content) throws IOException {
+    public JsonParser createParser(byte[] content) throws JacksonException {
         return createParser(ObjectReadContext.empty(), content, 0, content.length);
     }
 
@@ -924,12 +925,12 @@ public abstract class TokenStreamFactory
      * @param len Length of contents to parse within buffer
      *
      * @return Parser constructed
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,byte[],int,int)}
      */
     @Deprecated
-    public JsonParser createParser(byte[] content, int offset, int len) throws IOException {
+    public JsonParser createParser(byte[] content, int offset, int len) throws JacksonException {
         return createParser(ObjectReadContext.empty(), content, offset, len);
     }
 
@@ -937,12 +938,12 @@ public abstract class TokenStreamFactory
      * @param content Content to parse
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,String)}
      */
     @Deprecated
-    public JsonParser createParser(String content) throws IOException {
+    public JsonParser createParser(String content) throws JacksonException {
         return createParser(ObjectReadContext.empty(), content);
     }
 
@@ -950,12 +951,12 @@ public abstract class TokenStreamFactory
      * @param content Buffer that contains data to parse
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,char[])}
      */
     @Deprecated
-    public JsonParser createParser(char[] content) throws IOException {
+    public JsonParser createParser(char[] content) throws JacksonException {
         return createParser(ObjectReadContext.empty(), content, 0, content.length);
     }
 
@@ -966,12 +967,12 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      *
      * @deprecated Since 3.0 use {@link #createParser(ObjectReadContext,char[],int,int)}
      */
     @Deprecated
-    public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+    public JsonParser createParser(char[] content, int offset, int len) throws JacksonException {
         return createParser(ObjectReadContext.empty(), content, offset, len);
     }
 
@@ -993,10 +994,10 @@ public abstract class TokenStreamFactory
      *
      * @return Parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
     public abstract JsonParser createParser(ObjectReadContext readCtxt,
-            DataInput in) throws IOException;
+            DataInput in) throws JacksonException;
 
     /**
      * Optional method for constructing parser for non-blocking parsing
@@ -1013,9 +1014,9 @@ public abstract class TokenStreamFactory
      *
      * @return Non-blocking parser constructed
      *
-     * @throws IOException If parser construction or initialization fails
+     * @throws JacksonException If parser construction or initialization fails
      */
-    public <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws IOException {
+    public <P extends JsonParser & ByteArrayFeeder> P createNonBlockingByteArrayParser(ObjectReadContext readCtxt) throws JacksonException {
         return _unsupported("Non-blocking source not (yet?) support for this format ("+getFormatName()+")");        
     }
 
@@ -1044,12 +1045,12 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      *
      * @since 3.0
      */
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, OutputStream out)
-        throws IOException {
+        throws JacksonException {
         return createGenerator(writeCtxt, out, JsonEncoding.UTF8);
     }
 
@@ -1073,13 +1074,13 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      *
      * @since 3.0
      */
     public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             OutputStream out, JsonEncoding enc)
-        throws IOException;
+        throws JacksonException;
 
     /**
      * Method for constructing generator that writes contents
@@ -1099,12 +1100,12 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      *
      * @since 3.0
      */
     public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w)
-        throws IOException;
+        throws JacksonException;
 
     /**
      * Method for constructing generator that writes contents
@@ -1122,13 +1123,13 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      *
      * @since 3.0
      */
     public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt, File f,
             JsonEncoding enc)
-        throws IOException;
+        throws JacksonException;
 
     /**
      * Method for constructing generator that writes content into specified {@link DataOutput},
@@ -1140,11 +1141,11 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out) throws IOException {
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out) throws JacksonException {
         return createGenerator(writeCtxt, _createDataOutputWrapper(out));
     }
 
@@ -1177,11 +1178,11 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      */
     @Deprecated
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
-        throws IOException {
+        throws JacksonException {
         return createGenerator(ObjectWriteContext.empty(), out, enc);
     }
 
@@ -1193,10 +1194,10 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      */
     @Deprecated
-    public JsonGenerator createGenerator(OutputStream out) throws IOException {
+    public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         return createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
     }
     
@@ -1215,10 +1216,10 @@ public abstract class TokenStreamFactory
      *
      * @return Generator constructed
      *
-     * @throws IOException If generator construction or initialization fails
+     * @throws JacksonException If generator construction or initialization fails
      */
     @Deprecated
-    public JsonGenerator createGenerator(Writer w) throws IOException {
+    public JsonGenerator createGenerator(Writer w) throws JacksonException {
         return createGenerator(ObjectWriteContext.empty(), w);
     }
 
@@ -1288,9 +1289,9 @@ public abstract class TokenStreamFactory
      *
      * @return InputStream constructed for given {@link URL}
      *
-     * @throws IOException If there is a problem accessing content from specified {@link URL}
+     * @throws JacksonException If there is a problem accessing content from specified {@link URL}
      */
-    protected InputStream _optimizedStreamFromURL(URL url) throws IOException {
+    protected InputStream _optimizedStreamFromURL(URL url) throws JacksonException {
         if ("file".equals(url.getProtocol())) {
             /* Can not do this if the path refers
              * to a network drive on windows. This fixes the problem;
@@ -1303,13 +1304,42 @@ public abstract class TokenStreamFactory
                 // [core#48]: Let's try to avoid probs with URL encoded stuff
                 String path = url.getPath();
                 if (path.indexOf('%') < 0) {
-                    return new FileInputStream(url.getPath());
-
+                    try {
+                        return new FileInputStream(url.getPath());
+                    } catch (IOException e) {
+                        throw _wrapIOFailure(e);
+                    }
                 }
                 // otherwise, let's fall through and let URL decoder do its magic
             }
         }
-        return url.openStream();
+        try {
+            return url.openStream();
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+    }
+
+    protected InputStream _fileInputStream(File f) throws JacksonException
+    {
+        try {
+            return new FileInputStream(f);
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+    }
+
+    protected OutputStream _fileOutputStream(File f) throws JacksonException
+    {
+        try {
+            return new FileOutputStream(f);
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+    }
+
+    protected JacksonException _wrapIOFailure(IOException e) {
+        return WrappedIOException.construct(e);
     }
 
     protected <T> T _unsupported() {

@@ -344,7 +344,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         StringWriter sw = new StringWriter();
         JsonGenerator jg = new JsonGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), sw), false) {
             @Override
-            public void writeFieldName(String name) throws IOException {
+            public void writeFieldName(String name) {
                 super.writeFieldName(name+"-test");
                 super.writeBoolean(true);
                 super.writeFieldName(name);

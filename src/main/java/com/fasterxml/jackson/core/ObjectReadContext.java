@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
@@ -35,23 +34,23 @@ public interface ObjectReadContext
 
     // // // Parser construction
 
-    default JsonParser createParser(InputStream in) throws IOException {
+    default JsonParser createParser(InputStream in) throws JacksonException {
         return getParserFactory().createParser(this, in);
     }
 
-    default JsonParser createParser(Reader r) throws IOException {
+    default JsonParser createParser(Reader r) throws JacksonException {
         return getParserFactory().createParser(this, r);
     }
 
-    default JsonParser createParser(String content) throws IOException {
+    default JsonParser createParser(String content) throws JacksonException {
         return getParserFactory().createParser(this, content);
     }
 
-    default JsonParser createParser(byte[] content) throws IOException {
+    default JsonParser createParser(byte[] content) throws JacksonException {
         return getParserFactory().createParser(this, content);
     }
 
-    default JsonParser createParser(byte[] content, int offset, int length) throws IOException {
+    default JsonParser createParser(byte[] content, int offset, int length) throws JacksonException {
         return getParserFactory().createParser(this, content, offset, length);
     }
     
@@ -73,7 +72,7 @@ public interface ObjectReadContext
 
     // // // Databinding callbacks, tree deserialization
 
-    public <T extends TreeNode> T readTree(JsonParser p) throws IOException;
+    public <T extends TreeNode> T readTree(JsonParser p) throws JacksonException;
 
     /**
      * Convenience method for traversing over given {@link TreeNode} by exposing
@@ -92,11 +91,11 @@ public interface ObjectReadContext
 
     // // // Databinding callbacks, non-tree value deserialization
 
-    public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException;
+    public <T> T readValue(JsonParser p, Class<T> valueType) throws JacksonException;
 
-    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException;
+    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws JacksonException;
 
-    public <T> T readValue(JsonParser p, ResolvedType type) throws IOException;
+    public <T> T readValue(JsonParser p, ResolvedType type) throws JacksonException;
 
     /**
      * Default no-op implementation.
@@ -139,24 +138,24 @@ public interface ObjectReadContext
         // // // Databind integration, trees
 
         @Override
-        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+        public <T extends TreeNode> T readTree(JsonParser p) {
             return _reportUnsupportedOperation();
         }
 
         // // // Databind integration, other values
         
         @Override
-        public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
+        public <T> T readValue(JsonParser p, Class<T> valueType) {
             return _reportUnsupportedOperation();
         }
 
         @Override
-        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
+        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) {
             return _reportUnsupportedOperation();
         }
 
         @Override
-        public <T> T readValue(JsonParser p, ResolvedType type) throws IOException {
+        public <T> T readValue(JsonParser p, ResolvedType type) {
             return _reportUnsupportedOperation();
         }
 

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -225,12 +223,12 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
     @Override
-    public void writeStartArray(Object currentValue, int size) throws IOException {
+    public void writeStartArray(Object currentValue, int size) throws JacksonException {
         writeStartArray(currentValue);
     }
 
     @Override
-    public void writeStartObject(Object currentValue, int size) throws IOException {
+    public void writeStartObject(Object currentValue, int size) throws JacksonException {
         writeStartObject(currentValue);
     }
 
@@ -241,7 +239,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
    @Override
-    public void writeFieldId(long id) throws IOException {
+    public void writeFieldId(long id) throws JacksonException {
         writeFieldName(Long.toString(id));
     }
 
@@ -251,7 +249,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /**********************************************************************
      */
 
-    protected void _verifyPrettyValueWrite(String typeMsg, int status) throws IOException
+    protected void _verifyPrettyValueWrite(String typeMsg, int status) throws JacksonException
     {
         // If we have a pretty printer, it knows what to do:
         switch (status) {
@@ -281,9 +279,9 @@ public abstract class JsonGeneratorBase extends GeneratorBase
         }
     }
 
-    protected void _reportCantWriteValueExpectName(String typeMsg) throws IOException
+    protected void _reportCantWriteValueExpectName(String typeMsg) throws JacksonException
     {
-        _reportError(String.format("Can not %s, expecting field name (context: %s)",
-                typeMsg, _tokenWriteContext.typeDesc()));
+        throw _constructWriteException("Can not %s, expecting field name (context: %s)",
+                typeMsg, _tokenWriteContext.typeDesc());
     }
 }

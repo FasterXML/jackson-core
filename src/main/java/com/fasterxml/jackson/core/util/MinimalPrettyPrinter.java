@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.PrettyPrinter;
 
@@ -29,15 +28,12 @@ public class MinimalPrettyPrinter
 
     protected String _rootValueSeparator;
 
-    /**
-     * @since 2.9
-     */
     protected Separators _separators;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, construction, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     public MinimalPrettyPrinter() {
@@ -57,8 +53,6 @@ public class MinimalPrettyPrinter
      * @param separators Separator definitions
      *
      * @return This pretty-printer instance to allow call chaining
-     *
-     * @since 2.9
      */
     public MinimalPrettyPrinter setSeparators(Separators separators) {
         _separators = separators;
@@ -66,13 +60,13 @@ public class MinimalPrettyPrinter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* PrettyPrinter impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public void writeRootValueSeparator(JsonGenerator g) throws IOException
+    public void writeRootValueSeparator(JsonGenerator g) throws JacksonException
     {
         if (_rootValueSeparator != null) {
             g.writeRaw(_rootValueSeparator);
@@ -80,13 +74,13 @@ public class MinimalPrettyPrinter
     }
 
     @Override
-    public void writeStartObject(JsonGenerator g) throws IOException
+    public void writeStartObject(JsonGenerator g) throws JacksonException
     {
         g.writeRaw('{');
     }
     
     @Override
-    public void beforeObjectEntries(JsonGenerator g) throws IOException
+    public void beforeObjectEntries(JsonGenerator g) throws JacksonException
     {
         // nothing special, since no indentation is added
     }
@@ -99,7 +93,7 @@ public class MinimalPrettyPrinter
      * colon to separate the two, without additional spaces.
      */
     @Override
-    public void writeObjectFieldValueSeparator(JsonGenerator g) throws IOException
+    public void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException
     {
         g.writeRaw(_separators.getObjectFieldValueSeparator());
     }
@@ -112,25 +106,25 @@ public class MinimalPrettyPrinter
      * comma to separate the two.
      */
     @Override
-    public void writeObjectEntrySeparator(JsonGenerator g) throws IOException
+    public void writeObjectEntrySeparator(JsonGenerator g) throws JacksonException
     {
         g.writeRaw(_separators.getObjectEntrySeparator());
     }
 
     @Override
-    public void writeEndObject(JsonGenerator g, int nrOfEntries) throws IOException
+    public void writeEndObject(JsonGenerator g, int nrOfEntries) throws JacksonException
     {
         g.writeRaw('}');
     }
     
     @Override
-    public void writeStartArray(JsonGenerator g) throws IOException
+    public void writeStartArray(JsonGenerator g) throws JacksonException
     {
         g.writeRaw('[');
     }
     
     @Override
-    public void beforeArrayValues(JsonGenerator g) throws IOException
+    public void beforeArrayValues(JsonGenerator g) throws JacksonException
     {
         // nothing special, since no indentation is added
     }
@@ -143,13 +137,13 @@ public class MinimalPrettyPrinter
      * comma to separate values.
      */
     @Override
-    public void writeArrayValueSeparator(JsonGenerator g) throws IOException
+    public void writeArrayValueSeparator(JsonGenerator g) throws JacksonException
     {
         g.writeRaw(_separators.getArrayValueSeparator());
     }
     
     @Override
-    public void writeEndArray(JsonGenerator g, int nrOfValues) throws IOException
+    public void writeEndArray(JsonGenerator g, int nrOfValues) throws JacksonException
     {
         g.writeRaw(']');
     }

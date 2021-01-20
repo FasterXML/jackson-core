@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.core.async;
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.JacksonException;
 
 /**
  * {@link NonBlockingInputFeeder} implementation used when feeding data
  * as byte arrays.
- *
- * @since 2.9
  */
 public interface ByteArrayFeeder extends NonBlockingInputFeeder
 {
@@ -20,8 +18,8 @@ public interface ByteArrayFeeder extends NonBlockingInputFeeder
       * @param offset Offset within array where input data to process starts
       * @param end Offset after last byte contained in the input array
       * 
-      * @throws IOException if the state is such that this method should not be called
+      * @throws JacksonException if the state is such that this method should not be called
       *   (has not yet consumed existing input data, or has been marked as closed)
       */
-     public void feedInput(byte[] data, int offset, int end) throws IOException;
+     public void feedInput(byte[] data, int offset, int end) throws JacksonException;
 }

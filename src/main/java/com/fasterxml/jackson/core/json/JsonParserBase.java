@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.core.json;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
@@ -121,7 +122,7 @@ public abstract class JsonParserBase
      * Method that can be called to get the name associated with
      * the current event.
      */
-    @Override public String currentName() throws IOException {
+    @Override public String currentName() {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             JsonReadContext parent = _parsingContext.getParent();
@@ -143,7 +144,7 @@ public abstract class JsonParserBase
     //   unlikely to be of much real benefit
     /*
     @Override
-    protected void _releaseBuffers() throws IOException {
+    protected void _releaseBuffers() {
         super._releaseBuffers();
         char[] buf = _nameCopyBuffer;
         if (buf != null) {
@@ -160,7 +161,8 @@ public abstract class JsonParserBase
      */
 
     @Override
-    protected void _parseNumericValue(int expType) throws IOException
+    protected void _parseNumericValue(int expType)
+        throws JacksonException, InputCoercionException
     {
         // Int or float?
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
@@ -201,11 +203,11 @@ public abstract class JsonParserBase
             _parseSlowFloat(expType);
             return;
         }
-        _reportError("Current token (%s) not numeric, can not use numeric value accessors", _currToken);
+        throw _constructNotNumericType(_currToken, expType);
     }
 
     @Override
-    protected int _parseIntValue() throws IOException
+    protected int _parseIntValue() throws JacksonException
     {
         // Inlined variant of: _parseNumericValue(NR_INT)
         if (_currToken == JsonToken.VALUE_NUMBER_INT) {
@@ -224,7 +226,7 @@ public abstract class JsonParserBase
         return _numberInt;
     }
 
-    private void _parseSlowFloat(int expType) throws IOException
+    private void _parseSlowFloat(int expType) throws JacksonException
     {
         /* Nope: floating point. Here we need to be careful to get
          * optimal parsing strategy: choice is between accurate but
@@ -244,11 +246,12 @@ public abstract class JsonParserBase
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value ("+_longNumberDesc(_textBuffer.contentsAsString())+")", nex);
+            throw _constructReadException("Malformed numeric value (%s)",
+                    _longNumberDesc(_textBuffer.contentsAsString()));
         }
     }
 
-    private void _parseSlowInt(int expType) throws IOException
+    private void _parseSlowInt(int expType) throws JacksonException
     {
         String numStr = _textBuffer.contentsAsString();
         try {
@@ -279,17 +282,17 @@ public abstract class JsonParserBase
             }
         } catch (NumberFormatException nex) {
             // Can this ever occur? Due to overflow, maybe?
-            _wrapError("Malformed numeric value ("+_longNumberDesc(numStr)+")", nex);
+            throw _constructReadException("Malformed numeric value (%s)",
+                    _longNumberDesc(numStr));
         }
     }
 
-    protected void _reportTooLongIntegral(int expType, String rawNum) throws IOException
+    protected void _reportTooLongIntegral(int expType, String rawNum) throws JacksonException
     {
         if (expType == NR_INT) {
-            reportOverflowInt(rawNum);
-        } else {
-            reportOverflowLong(rawNum);
+            _reportOverflowInt(rawNum);
         }
+        _reportOverflowLong(rawNum);
     }
 
     /*
@@ -326,7 +329,7 @@ public abstract class JsonParserBase
     /**********************************************************************
      */
 
-    protected char _handleUnrecognizedCharacterEscape(char ch) throws JsonProcessingException {
+    protected char _handleUnrecognizedCharacterEscape(char ch) throws StreamReadException {
         // It is possible we allow all kinds of non-standard escapes...
         if (isEnabled(JsonReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
             return ch;
@@ -340,7 +343,7 @@ public abstract class JsonParserBase
     }
 
     // Promoted from `ParserBase` in 3.0
-    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws JsonParseException {
+    protected void _reportMismatchedEndMarker(int actCh, char expCh) throws StreamReadException {
         TokenStreamContext ctxt = getParsingContext();
         _reportError(String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
@@ -350,7 +353,7 @@ public abstract class JsonParserBase
     // Method called to report a problem with unquoted control character.
     // Note: it is possible to suppress some instances of
     // exception by enabling {@link JsonReadFeature#ALLOW_UNESCAPED_CONTROL_CHARS}.
-    protected void _throwUnquotedSpace(int i, String ctxtDesc) throws JsonParseException {
+    protected void _throwUnquotedSpace(int i, String ctxtDesc) throws StreamReadException {
         // It is possible to allow unquoted control chars:
         if (!isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS) || i > INT_SPACE) {
             char c = (char) i;
@@ -362,14 +365,14 @@ public abstract class JsonParserBase
     // @return Description to use as "valid tokens" in an exception message about
     //    invalid (unrecognized) JSON token: called when parser finds something that
     //    looks like unquoted textual token
-    protected String _validJsonTokenList() throws IOException {
+    protected String _validJsonTokenList() {
         return _validJsonValueList();
     }
 
     // @return Description to use as "valid JSON values" in an exception message about
     //   invalid (unrecognized) JSON value: called when parser finds something that
     //    does not look like a value or separator.
-    protected String _validJsonValueList() throws IOException {
+    protected String _validJsonValueList() {
         if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
             return "(JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')";
         }

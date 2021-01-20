@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 /**
@@ -85,7 +84,7 @@ public class DefaultIndenter
     public boolean isInline() { return false; }
 
     @Override
-    public void writeIndentation(JsonGenerator jg, int level) throws IOException
+    public void writeIndentation(JsonGenerator jg, int level) throws JacksonException
     {
         jg.writeRaw(eol);
         if (level > 0) { // should we err on negative values (as there's some flaw?)

@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.core.read;
 
-
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 /**
@@ -74,7 +71,7 @@ public class ParserScopeMatchingTest extends BaseTest
             fail("Expected an exception for EOF");
         } catch (JsonParseException pe) {
             verifyException(pe, "Unexpected end-of-input");
-        } catch (IOException ie) {
+        } catch (JacksonException ie) {
             // DataInput behaves bit differently
             if (mode == MODE_DATA_INPUT) {
                 verifyException(ie, "end-of-input");

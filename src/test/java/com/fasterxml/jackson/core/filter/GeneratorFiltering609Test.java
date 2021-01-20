@@ -33,7 +33,7 @@ public class GeneratorFiltering609Test
         }
 
         @Override
-        public void writeString(String text) throws IOException {
+        public void writeString(String text) {
             if (text == null) {
                 writeNull();
             } else if (maxStringLength <= 0 || maxStringLength >= text.length()) {
@@ -45,7 +45,7 @@ public class GeneratorFiltering609Test
         }
 
         @Override
-        public void writeFieldName(String name) throws IOException {
+        public void writeFieldName(String name) {
             if (maxStringLength <= 0 || maxStringLength >= name.length()) {
                 super.writeFieldName(name);
             } else {

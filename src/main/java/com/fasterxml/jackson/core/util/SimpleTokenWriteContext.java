@@ -170,9 +170,9 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
      *
      * @return {@code True} if name writing should proceed; {@code false} if not
      *
-     * @throws JsonProcessingException If write fails due to duplicate check
+     * @throws JsonGenerationException If write fails due to duplicate check
      */
-    public boolean writeFieldName(String name) throws JsonProcessingException {
+    public boolean writeFieldName(String name) throws JsonGenerationException {
         if ((_type != TYPE_OBJECT) || _gotFieldId) {
             return false;
         }
@@ -182,7 +182,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
         return true;
     }
 
-    private final void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
+    private final void _checkDup(DupDetector dd, String name) throws JsonGenerationException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
             throw new JsonGenerationException("Duplicate field '"+name+"'",

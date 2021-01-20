@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
@@ -26,16 +27,24 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     {
         @Override
         public InputStream decorate(IOContext ctxt, InputStream in)
-            throws IOException
+            throws JacksonException
         {
-            return new ByteArrayInputStream("123".getBytes("UTF-8"));
+            try {
+                return new ByteArrayInputStream("123".getBytes("UTF-8"));
+            } catch (IOException e) {
+                throw WrappedIOException.construct(e);
+            }
         }
 
         @Override
         public InputStream decorate(IOContext ctxt, byte[] src, int offset, int length)
-            throws IOException
+            throws JacksonException
         {
-            return new ByteArrayInputStream("456".getBytes("UTF-8"));
+            try {
+                return new ByteArrayInputStream("456".getBytes("UTF-8"));
+            } catch (IOException e) {
+                throw WrappedIOException.construct(e);
+            }
         }
 
         @Override
@@ -47,22 +56,30 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     static class SimpleOutputDecorator extends OutputDecorator
     {
         @Override
-        public OutputStream decorate(IOContext ctxt, OutputStream out) throws IOException
+        public OutputStream decorate(IOContext ctxt, OutputStream out) throws JacksonException
         {
-            out.write("123".getBytes("UTF-8"));
-            out.flush();
+            try {
+                out.write("123".getBytes("UTF-8"));
+                out.flush();
+            } catch (IOException e) {
+                throw WrappedIOException.construct(e);
+            }
             return new ByteArrayOutputStream();
         }
 
         @Override
-        public Writer decorate(IOContext ctxt, Writer w) throws IOException
+        public Writer decorate(IOContext ctxt, Writer w) throws JacksonException
         {
-            w.write("567");
-            w.flush();
+            try {
+                w.write("567");
+                w.flush();
+            } catch (IOException e) {
+                throw WrappedIOException.construct(e);
+            }
             return new StringWriter();
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

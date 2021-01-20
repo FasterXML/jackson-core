@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.util;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.math.BigDecimal;
@@ -8,6 +7,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.sym.FieldNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -30,10 +30,21 @@ public class JsonParserDelegate extends JsonParser
         delegate = d;
     }
 
+    @Override public Version version() { return delegate.version(); }
+
+    // // // Public API: basic context access
+
     @Override
-    public ObjectReadContext getObjectReadContext() {
-        return delegate.getObjectReadContext();
-    }
+    public TokenStreamContext getParsingContext() { return delegate.getParsingContext(); }
+    
+    @Override
+    public ObjectReadContext getObjectReadContext() { return delegate.getObjectReadContext(); }
+
+    // // // Public API, input source, location access
+
+    @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
+    @Override public Object getInputSource() { return delegate.getInputSource(); }
 
     @Override
     public Object getCurrentValue() {
@@ -67,8 +78,6 @@ public class JsonParserDelegate extends JsonParser
     @Override public int streamReadFeatures() { return delegate.streamReadFeatures(); }
 
     @Override public FormatSchema getSchema() { return delegate.getSchema(); }
-    @Override public Version version() { return delegate.version(); }
-    @Override public Object getInputSource() { return delegate.getInputSource(); }
 
     /*
     /**********************************************************************
@@ -88,7 +97,7 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    @Override public void close() throws IOException { delegate.close(); }
+    @Override public void close() { delegate.close(); }
     @Override public boolean isClosed() { return delegate.isClosed(); }
 
     /*
@@ -99,19 +108,17 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public JsonToken currentToken() { return delegate.currentToken(); }
     @Override public int currentTokenId() { return delegate.currentTokenId(); }
-    @Override public String currentName() throws IOException { return delegate.currentName(); }
+    @Override public String currentName() { return delegate.currentName(); }
 
     @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }
     @Override public boolean hasTokenId(int id) { return delegate.hasTokenId(id); }
     @Override public boolean hasToken(JsonToken t) { return delegate.hasToken(t); }
 
-    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
-    @Override public TokenStreamContext getParsingContext() { return delegate.getParsingContext(); }
     @Override public boolean isExpectedStartArrayToken() { return delegate.isExpectedStartArrayToken(); }
     @Override public boolean isExpectedStartObjectToken() { return delegate.isExpectedStartObjectToken(); }
     @Override public boolean isExpectedNumberIntToken() { return delegate.isExpectedNumberIntToken(); }
 
-    @Override public boolean isNaN() throws IOException { return delegate.isNaN(); }
+    @Override public boolean isNaN() { return delegate.isNaN(); }
 
     /*
     /**********************************************************************
@@ -122,7 +129,7 @@ public class JsonParserDelegate extends JsonParser
     @Override public void clearCurrentToken() { delegate.clearCurrentToken(); }
     @Override public JsonToken getLastClearedToken() { return delegate.getLastClearedToken(); }
     /*
-    @Override public void overrideCurrentName(String name) throws IOException {
+    @Override public void overrideCurrentName(String name) {
         delegate.overrideCurrentName(name);
     }
     */
@@ -133,12 +140,12 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
-    @Override public JsonToken nextValue() throws IOException { return delegate.nextValue(); }
-    @Override public void finishToken() throws IOException { delegate.finishToken(); }
+    @Override public JsonToken nextToken() throws JacksonException { return delegate.nextToken(); }
+    @Override public JsonToken nextValue() throws JacksonException { return delegate.nextValue(); }
+    @Override public void finishToken() throws JacksonException { delegate.finishToken(); }
 
     @Override
-    public JsonParser skipChildren() throws IOException {
+    public JsonParser skipChildren() throws JacksonException {
         delegate.skipChildren();
         // NOTE: must NOT delegate this method to delegate, needs to be self-reference for chaining
         return this;
@@ -147,12 +154,12 @@ public class JsonParserDelegate extends JsonParser
     // 12-Nov-2017, tatu: These DO work as long as `JsonParserSequence` further overrides
     //     handling
 
-    @Override public String nextFieldName() throws IOException { return delegate.nextFieldName(); }
-    @Override public boolean nextFieldName(SerializableString str) throws IOException { return delegate.nextFieldName(str); }
-    @Override public int nextFieldName(FieldNameMatcher matcher) throws IOException { return delegate.nextFieldName(matcher); }
+    @Override public String nextFieldName() throws JacksonException { return delegate.nextFieldName(); }
+    @Override public boolean nextFieldName(SerializableString str) throws JacksonException { return delegate.nextFieldName(str); }
+    @Override public int nextFieldName(FieldNameMatcher matcher) throws JacksonException { return delegate.nextFieldName(matcher); }
 
     // NOTE: fine without overrides since it does NOT change state
-    @Override public int currentFieldName(FieldNameMatcher matcher) throws IOException { return delegate.currentFieldName(matcher); }
+    @Override public int currentFieldName(FieldNameMatcher matcher) { return delegate.currentFieldName(matcher); }
 
     /*
     /**********************************************************************
@@ -160,12 +167,12 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    @Override public String getText() throws IOException { return delegate.getText();  }
+    @Override public String getText() throws JacksonException { return delegate.getText();  }
     @Override public boolean hasTextCharacters() { return delegate.hasTextCharacters(); }
-    @Override public char[] getTextCharacters() throws IOException { return delegate.getTextCharacters(); }
-    @Override public int getTextLength() throws IOException { return delegate.getTextLength(); }
-    @Override public int getTextOffset() throws IOException { return delegate.getTextOffset(); }
-    @Override public int getText(Writer writer) throws IOException, UnsupportedOperationException { return delegate.getText(writer);  }
+    @Override public char[] getTextCharacters() throws JacksonException { return delegate.getTextCharacters(); }
+    @Override public int getTextLength() throws JacksonException { return delegate.getTextLength(); }
+    @Override public int getTextOffset() throws JacksonException { return delegate.getTextOffset(); }
+    @Override public int getText(Writer writer) throws JacksonException { return delegate.getText(writer);  }
 
     /*
     /**********************************************************************
@@ -174,40 +181,40 @@ public class JsonParserDelegate extends JsonParser
      */
 
     @Override
-    public BigInteger getBigIntegerValue() throws IOException { return delegate.getBigIntegerValue(); }
+    public BigInteger getBigIntegerValue() { return delegate.getBigIntegerValue(); }
 
     @Override
-    public boolean getBooleanValue() throws IOException { return delegate.getBooleanValue(); }
+    public boolean getBooleanValue() throws InputCoercionException { return delegate.getBooleanValue(); }
     
     @Override
-    public byte getByteValue() throws IOException { return delegate.getByteValue(); }
+    public byte getByteValue() throws InputCoercionException { return delegate.getByteValue(); }
 
     @Override
-    public short getShortValue() throws IOException { return delegate.getShortValue(); }
+    public short getShortValue() throws InputCoercionException { return delegate.getShortValue(); }
 
     @Override
-    public BigDecimal getDecimalValue() throws IOException { return delegate.getDecimalValue(); }
+    public BigDecimal getDecimalValue() throws InputCoercionException { return delegate.getDecimalValue(); }
 
     @Override
-    public double getDoubleValue() throws IOException { return delegate.getDoubleValue(); }
+    public double getDoubleValue() throws InputCoercionException { return delegate.getDoubleValue(); }
 
     @Override
-    public float getFloatValue() throws IOException { return delegate.getFloatValue(); }
+    public float getFloatValue() throws InputCoercionException { return delegate.getFloatValue(); }
 
     @Override
-    public int getIntValue() throws IOException { return delegate.getIntValue(); }
+    public int getIntValue() throws InputCoercionException { return delegate.getIntValue(); }
 
     @Override
-    public long getLongValue() throws IOException { return delegate.getLongValue(); }
+    public long getLongValue() throws InputCoercionException { return delegate.getLongValue(); }
 
     @Override
-    public NumberType getNumberType() throws IOException { return delegate.getNumberType(); }
+    public NumberType getNumberType() { return delegate.getNumberType(); }
 
     @Override
-    public Number getNumberValue() throws IOException { return delegate.getNumberValue(); }
+    public Number getNumberValue() throws InputCoercionException { return delegate.getNumberValue(); }
 
     @Override
-    public Number getNumberValueExact() throws IOException { return delegate.getNumberValueExact(); }
+    public Number getNumberValueExact() throws InputCoercionException { return delegate.getNumberValueExact(); }
 
     /*
     /**********************************************************************
@@ -215,16 +222,16 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    @Override public int getValueAsInt() throws IOException { return delegate.getValueAsInt(); }
-    @Override public int getValueAsInt(int defaultValue) throws IOException { return delegate.getValueAsInt(defaultValue); }
-    @Override public long getValueAsLong() throws IOException { return delegate.getValueAsLong(); }
-    @Override public long getValueAsLong(long defaultValue) throws IOException { return delegate.getValueAsLong(defaultValue); }
-    @Override public double getValueAsDouble() throws IOException { return delegate.getValueAsDouble(); }
-    @Override public double getValueAsDouble(double defaultValue) throws IOException { return delegate.getValueAsDouble(defaultValue); }
-    @Override public boolean getValueAsBoolean() throws IOException { return delegate.getValueAsBoolean(); }
-    @Override public boolean getValueAsBoolean(boolean defaultValue) throws IOException { return delegate.getValueAsBoolean(defaultValue); }
-    @Override public String getValueAsString() throws IOException { return delegate.getValueAsString(); }
-    @Override public String getValueAsString(String defaultValue) throws IOException { return delegate.getValueAsString(defaultValue); }
+    @Override public int getValueAsInt() throws InputCoercionException { return delegate.getValueAsInt(); }
+    @Override public int getValueAsInt(int defaultValue) throws InputCoercionException { return delegate.getValueAsInt(defaultValue); }
+    @Override public long getValueAsLong() throws InputCoercionException { return delegate.getValueAsLong(); }
+    @Override public long getValueAsLong(long defaultValue) throws InputCoercionException { return delegate.getValueAsLong(defaultValue); }
+    @Override public double getValueAsDouble() throws InputCoercionException { return delegate.getValueAsDouble(); }
+    @Override public double getValueAsDouble(double defaultValue) throws InputCoercionException { return delegate.getValueAsDouble(defaultValue); }
+    @Override public boolean getValueAsBoolean() { return delegate.getValueAsBoolean(); }
+    @Override public boolean getValueAsBoolean(boolean defaultValue) { return delegate.getValueAsBoolean(defaultValue); }
+    @Override public String getValueAsString(){ return delegate.getValueAsString(); }
+    @Override public String getValueAsString(String defaultValue) { return delegate.getValueAsString(defaultValue); }
 
     /*
     /**********************************************************************
@@ -232,10 +239,9 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
-    @Override public Object getEmbeddedObject() throws IOException { return delegate.getEmbeddedObject(); }
-    @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException { return delegate.getBinaryValue(b64variant); }
-    @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException { return delegate.readBinaryValue(b64variant, out); }
-    @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+    @Override public Object getEmbeddedObject() { return delegate.getEmbeddedObject(); }
+    @Override public byte[] getBinaryValue(Base64Variant b64variant) throws JacksonException { return delegate.getBinaryValue(b64variant); }
+    @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws JacksonException { return delegate.readBinaryValue(b64variant, out); }
 
     /*
     /**********************************************************************
@@ -244,22 +250,22 @@ public class JsonParserDelegate extends JsonParser
      */
 
     @Override
-    public <T> T readValueAs(Class<T> valueType) throws IOException {
+    public <T> T readValueAs(Class<T> valueType) throws JacksonException {
         return delegate.readValueAs(valueType);
     }
 
     @Override
-    public <T> T readValueAs(TypeReference<T> valueTypeRef) throws IOException {
+    public <T> T readValueAs(TypeReference<T> valueTypeRef) throws JacksonException {
         return delegate.readValueAs(valueTypeRef);
     }
 
     @Override
-    public <T> T readValueAs(ResolvedType type) throws IOException {
+    public <T> T readValueAs(ResolvedType type) throws JacksonException {
         return delegate.readValueAs(type);
     }
 
     @Override
-    public <T extends TreeNode> T readValueAsTree() throws IOException {
+    public <T extends TreeNode> T readValueAsTree() throws JacksonException {
         return delegate.readValueAsTree();
     }
 
@@ -271,8 +277,8 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public boolean canReadObjectId() { return delegate.canReadObjectId(); }
     @Override public boolean canReadTypeId() { return delegate.canReadTypeId(); }
-    @Override public Object getObjectId() throws IOException { return delegate.getObjectId(); }
-    @Override public Object getTypeId() throws IOException { return delegate.getTypeId(); }
+    @Override public Object getObjectId() { return delegate.getObjectId(); }
+    @Override public Object getTypeId() { return delegate.getTypeId(); }
 
     /*
     /**********************************************************************

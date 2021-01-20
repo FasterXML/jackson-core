@@ -1,14 +1,10 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 /**
  * Alternative variant of {@link TokenStreamContext}, used when filtering
  * content being read or written (based on {@link TokenFilter}).
- * 
- * @since 2.6
  */
 public class TokenFilterContext extends TokenStreamContext
 {
@@ -18,19 +14,18 @@ public class TokenFilterContext extends TokenStreamContext
     protected final TokenFilterContext _parent;
 
     /*
-    /**********************************************************
-    /* Simple instance reuse slots; speed up things
-    /* a bit (10-15%) for docs with lots of small
-    /* arrays/objects
-    /**********************************************************
+    /**********************************************************************
+    /* Simple instance reuse slots; speed up things a bit (10-15%) for
+    /* docs with lots of small arrays/objects
+    /**********************************************************************
      */
 
     protected TokenFilterContext _child;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -63,11 +58,11 @@ public class TokenFilterContext extends TokenStreamContext
      * included leaf is to be exposed.
      */
     protected boolean _needToHandleName;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected TokenFilterContext(int type, TokenFilterContext parent,
@@ -97,9 +92,9 @@ public class TokenFilterContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static TokenFilterContext createRootContext(TokenFilter filter) {
@@ -128,9 +123,9 @@ public class TokenFilterContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State changes
-    /**********************************************************
+    /**********************************************************************
      */
     
     public TokenFilter setFieldName(String name) throws JsonProcessingException {
@@ -166,10 +161,10 @@ public class TokenFilterContext extends TokenStreamContext
      *
      * @param gen Generator to use to write the property name, if necessary
      *
-     * @throws IOException If there is a problem writing property name (typically
+     * @throws JacksonException If there is a problem writing property name (typically
      *   thrown by {@code JsonGenerator})
      */
-    public void ensureFieldNameWritten(JsonGenerator gen) throws IOException
+    public void ensureFieldNameWritten(JsonGenerator gen) throws JacksonException
     {
         if (_needToHandleName) {
             _needToHandleName = false;
@@ -183,10 +178,10 @@ public class TokenFilterContext extends TokenStreamContext
      *
      * @param gen Generator to use to write the path, if necessary
      *
-     * @throws IOException If there is a problem writing property name (typically
+     * @throws JacksonException If there is a problem writing property name (typically
      *   thrown by {@code JsonGenerator})
      */
-    public void writePath(JsonGenerator gen) throws IOException
+    public void writePath(JsonGenerator gen) throws JacksonException
     {
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
@@ -210,7 +205,7 @@ public class TokenFilterContext extends TokenStreamContext
         }
     }
 
-    private void _writePath(JsonGenerator gen) throws IOException
+    private void _writePath(JsonGenerator gen) throws JacksonException
     {
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
@@ -238,7 +233,7 @@ public class TokenFilterContext extends TokenStreamContext
         }
     }
 
-    public TokenFilterContext closeArray(JsonGenerator gen) throws IOException
+    public TokenFilterContext closeArray(JsonGenerator gen) throws JacksonException
     {
         if (_startHandled) {
             gen.writeEndArray();
@@ -249,7 +244,7 @@ public class TokenFilterContext extends TokenStreamContext
         return _parent;
     }
 
-    public TokenFilterContext closeObject(JsonGenerator gen) throws IOException
+    public TokenFilterContext closeObject(JsonGenerator gen) throws JacksonException
     {
         if (_startHandled) {
             gen.writeEndObject();
@@ -268,9 +263,9 @@ public class TokenFilterContext extends TokenStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors, mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

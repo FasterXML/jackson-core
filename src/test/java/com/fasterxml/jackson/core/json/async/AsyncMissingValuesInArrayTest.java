@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -204,21 +204,21 @@ public class AsyncMissingValuesInArrayTest extends AsyncTestBase
     p.close();
   }
 
-  private void assertEnd(AsyncReaderWrapper p) throws IOException {
+  private void assertEnd(AsyncReaderWrapper p) {
       JsonToken next = p.nextToken();
       assertNull("expected end of stream but found " + next, next);
   }
 
-  private void assertUnexpected(AsyncReaderWrapper p, char c) throws IOException {
+  private void assertUnexpected(AsyncReaderWrapper p, char c) {
       try {
           p.nextToken();
           fail("No exception thrown");
-      } catch (JsonParseException e) {
+      } catch (StreamReadException e) {
           verifyException(e, String.format("Unexpected character ('%s' (code %d))", c, (int) c));
       }
   }
 
-  private AsyncReaderWrapper createParser(JsonFactory f, String doc) throws IOException
+  private AsyncReaderWrapper createParser(JsonFactory f, String doc)
   {
       int bytesPerRead = 3; // should vary but...
       AsyncReaderWrapper p = asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 0);

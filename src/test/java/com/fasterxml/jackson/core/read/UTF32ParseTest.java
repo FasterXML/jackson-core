@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 // Tests from [jackson-core#382]
 public class UTF32ParseTest extends BaseTest
 {
-    private final JsonFactory FACTORY = new JsonFactory();
+    private final JsonFactory FACTORY = newStreamFactory();
     
-    public void testSimpleEOFs() throws Exception
+    public void testSimpleEOFs()
     {
         // 2 spaces
         byte[] data = { 0x00, 0x00, 0x00, 0x20,
@@ -28,7 +29,7 @@ public class UTF32ParseTest extends BaseTest
         }
     }
 
-    public void testSimpleInvalidUTF32() throws Exception
+    public void testSimpleInvalidUTF32()
     {
         // 2 characters, space, then something beyond valid Unicode set
         byte[] data = {
@@ -53,13 +54,14 @@ public class UTF32ParseTest extends BaseTest
         parser.close();
     }
 
-    public void testSimpleSevenNullBytes() throws Exception {
+    public void testSimpleSevenNullBytes()
+    {
         byte[] data = new byte[7];
         JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data);
         try {
             parser.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Illegal character ((CTRL-CHAR, code 0))");
         }
         parser.close();

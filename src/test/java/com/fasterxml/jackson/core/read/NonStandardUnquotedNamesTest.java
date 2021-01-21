@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -47,8 +48,8 @@ public class NonStandardUnquotedNamesTest
         try {
             p.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
-            ; // should fail here
+        } catch (StreamReadException e) {
+            verifyException(e, "Unexpected end-of-input within/between Object entries");
         }
         p.close();
     }

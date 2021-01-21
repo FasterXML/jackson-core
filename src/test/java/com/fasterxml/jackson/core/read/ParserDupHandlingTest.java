@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class ParserDupHandlingTest
@@ -92,7 +93,7 @@ public class ParserDupHandlingTest
     }
 
     private void _testSimpleDupsFail(final String doc, JsonFactory f,
-            int mode, String name) throws Exception
+            int mode, String name)
     {
         JsonParser p = createParser(f, mode, doc);
         JsonToken t = p.nextToken();
@@ -100,7 +101,7 @@ public class ParserDupHandlingTest
         assertTrue(t.isStructStart());
 
         int depth = 1;
-        JsonParseException e = null;
+        StreamReadException e = null;
 
         while (depth > 0) {
             try {
@@ -115,7 +116,7 @@ public class ParserDupHandlingTest
                     break;
                 default:
                 }
-            } catch (JsonParseException e0) {
+            } catch (StreamReadException e0) {
                 e = e0;
                 break;
             }

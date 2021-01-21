@@ -6,15 +6,12 @@
 package com.fasterxml.jackson.core;
 
 /**
- * Intermediate base class for all problems encountered when
- * processing (parsing, generating) JSON content
- * that are not pure I/O problems.
- * Regular {@link java.io.IOException}s will be passed through as is.
- * Sub-class of {@link java.io.IOException} for convenience.
+ * Legacy base class from Jackson 2.x; to be replaced by {@link JacksonException}.
  */
-public class JsonProcessingException extends JacksonException
+public class JsonProcessingException
+    extends JacksonException
 {
-    private final static long serialVersionUID = 123; // eclipse complains otherwise
+    private final static long serialVersionUID = 3L;
 
     protected JsonProcessingException(String msg, JsonLocation loc, Throwable rootCause) {
         super(msg, loc, rootCause);

@@ -1,18 +1,19 @@
 package com.fasterxml.jackson.core.json.async;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncSimpleObjectTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     /*
     /**********************************************************************
@@ -24,7 +25,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
 
     private final static String UNICODE_LONG_NAME = "Unicode-with-"+UNICODE_3BYTES+"-much-longer";
     
-    public void testBooleans() throws IOException
+    public void testBooleans()
     {
         final JsonFactory f = JSON_F;
         byte[] data = _jsonDoc(aposToQuotes(
@@ -42,7 +43,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     }
 
     private void _testBooleans(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         // start with "no token"
@@ -86,13 +87,13 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         try {
             r.getDoubleValue();
             fail("Should not pass");
-        } catch (JsonProcessingException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "Current token (VALUE_TRUE) not numeric");
         }
         try {
             r.parser().getBinaryValue();
             fail("Should not pass");
-        } catch (JsonProcessingException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Current token (VALUE_TRUE) not");
             verifyException(e, "can not access as binary");
         }
@@ -108,7 +109,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     private final double NUMBER_EXP_D = 1024798.125;
     private final BigDecimal NUMBER_EXP_BD = new BigDecimal("1243565768679065.1247305834");
 
-    public void testNumbers() throws IOException
+    public void testNumbers()
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
@@ -136,7 +137,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     }
 
     private void _testNumbers(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         // start with "no token"

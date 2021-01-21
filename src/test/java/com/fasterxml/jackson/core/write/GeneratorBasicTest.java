@@ -153,18 +153,13 @@ public class GeneratorBasicTest
          gen.close();
 
          String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
-
-         try {
-             JsonParser jp = createParserUsingReader(docStr);
+         try (JsonParser jp = createParserUsingReader(docStr)) {
              assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
              assertEquals(1, jp.getIntValue());
              assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
              assertEquals(2, jp.getIntValue());
              assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
              assertEquals(-13, jp.getIntValue());
-             jp.close();
-         } catch (IOException e) {
-             fail("Problem with document ["+docStr+"]: "+e.getMessage());
          }
      }
     

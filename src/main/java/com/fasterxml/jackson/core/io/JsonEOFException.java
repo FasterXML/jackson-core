@@ -1,18 +1,19 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 /**
- * Specialized {@link JsonParseException} that is thrown when end-of-input
+ * Specialized {@link StreamReadException} that is thrown when end-of-input
  * is reached unexpectedly, either within token being decoded, or during
  * skipping of intervening white-space that is not between root-level
  * tokens (that is, is within JSON Object or JSON Array construct).
  */
-public class JsonEOFException extends JsonParseException
+public class JsonEOFException
+    extends StreamReadException
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Type of token that was being decoded, if parser had enough information

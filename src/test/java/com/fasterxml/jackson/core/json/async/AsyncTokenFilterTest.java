@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
@@ -12,7 +11,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 // [core#462], [core#463]
 public class AsyncTokenFilterTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     private final static String INPUT_STRING = aposToQuotes("{'a': 1, 'b': [2, {'c': 3}]}");
     private final static byte[] INPUT_BYTES = utf8Bytes(INPUT_STRING);
@@ -24,7 +23,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     };
 
     // Passes if (but only if) all content is actually available
-    public void testFilteredNonBlockingParserAllContent() throws IOException
+    public void testFilteredNonBlockingParserAllContent()
     {
         NonBlockingJsonParser nbParser = _nonBlockingParser();
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
@@ -42,7 +41,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nbParser.close();
     }
 
-    public void testSkipChildrenFailOnSplit() throws IOException
+    public void testSkipChildrenFailOnSplit()
     {
         NonBlockingJsonParser nbParser = _nonBlockingParser();
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
@@ -53,7 +52,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         try {
             nbParser.skipChildren();
             fail("Should not pass!");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "not enough content available");
             verifyException(e, "skipChildren()");
         }
@@ -61,7 +60,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nbParser.close();
     }
 
-    private NonBlockingJsonParser _nonBlockingParser() throws IOException {
+    private NonBlockingJsonParser _nonBlockingParser() {
         return (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser(ObjectReadContext.empty());
     }
 }

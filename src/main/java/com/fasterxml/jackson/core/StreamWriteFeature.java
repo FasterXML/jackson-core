@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.util.JacksonFeature;
 
 /**
@@ -78,7 +79,7 @@ public enum StreamWriteFeature
      * Feature that determines whether {@link JsonGenerator} will explicitly
      * check that no duplicate JSON Object field names are written.
      * If enabled, generator will check all names within context and report
-     * duplicates by throwing a {@link JsonGenerationException}; if disabled,
+     * duplicates by throwing a {@link StreamWriteException}; if disabled,
      * no such checking will be done. Assumption in latter case is
      * that caller takes care of not trying to write duplicate names.
      *<p>
@@ -93,7 +94,7 @@ public enum StreamWriteFeature
      * Feature that determines what to do if the underlying data format requires knowledge
      * of all properties to output, and if no definition is found for a property that
      * caller tries to write. If enabled, such properties will be quietly ignored;
-     * if disabled, a {@link JsonGenerationException} will be thrown to indicate the
+     * if disabled, a {@link StreamWriteException} will be thrown to indicate the
      * problem.
      * Typically most textual data formats do NOT require schema information (although
      * some do, such as CSV), whereas many binary data formats do require definitions
@@ -105,7 +106,7 @@ public enum StreamWriteFeature
      *<p>
      * Feature is disabled by default, meaning that if the underlying data format
      * requires knowledge of all properties to output, attempts to write an unknown
-     * property will result in a {@link JsonGenerationException}
+     * property will result in a {@link StreamWriteException}
      */
     IGNORE_UNKNOWN(false),
     ;

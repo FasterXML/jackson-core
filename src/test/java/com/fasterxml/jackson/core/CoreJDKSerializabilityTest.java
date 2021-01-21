@@ -2,6 +2,8 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
@@ -87,17 +89,17 @@ public class CoreJDKSerializabilityTest extends BaseTest
     {
         JsonFactory jf = new JsonFactory();
         JsonParser p = jf.createParser(ObjectReadContext.empty(), "  { garbage! }");
-        JsonParseException exc = null;
+        StreamReadException exc = null;
         try {
             p.nextToken();
             p.nextToken();
             fail("Should not get here");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             exc = e;
         }
         p.close();
         byte[] stuff = jdkSerialize(exc);
-        JsonParseException result = jdkDeserialize(stuff);
+        StreamReadException result = jdkDeserialize(stuff);
         assertNotNull(result);
     }
 
@@ -105,24 +107,24 @@ public class CoreJDKSerializabilityTest extends BaseTest
     {
         JsonFactory jf = new JsonFactory();
         JsonGenerator g = jf.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream());
-        JsonGenerationException exc = null;
+        StreamWriteException exc = null;
         g.writeStartObject();
         try {
             g.writeNumber(4);
             fail("Should not get here");
-        } catch (JsonGenerationException e) {
+        } catch (StreamWriteException e) {
             exc = e;
         }
         g.close();
         byte[] stuff = jdkSerialize(exc);
-        JsonGenerationException result = jdkDeserialize(stuff);
+        StreamWriteException result = jdkDeserialize(stuff);
         assertNotNull(result);
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected byte[] jdkSerialize(Object o) throws IOException

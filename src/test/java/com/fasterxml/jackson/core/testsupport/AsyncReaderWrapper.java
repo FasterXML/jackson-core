@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.testsupport;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,14 +17,14 @@ public abstract class AsyncReaderWrapper
         _streamReader = sr;
     }
 
-    public JsonToken currentToken() throws IOException {
+    public JsonToken currentToken() {
         return _streamReader.currentToken();
     }
-    public String currentText() throws IOException {
+    public String currentText() {
         return _streamReader.getText();
     }
 
-    public String currentTextViaCharacters() throws IOException
+    public String currentTextViaCharacters()
     {
         char[] ch = _streamReader.getTextCharacters();
         int start = _streamReader.getTextOffset();
@@ -33,7 +32,7 @@ public abstract class AsyncReaderWrapper
         return new String(ch, start, len);
     }
 
-    public String currentTextViaWriter() throws IOException
+    public String currentTextViaWriter()
     {
         StringWriter sw = new StringWriter();
         int len = _streamReader.getText(sw);
@@ -46,30 +45,30 @@ public abstract class AsyncReaderWrapper
         return str;
     }
 
-    public String currentName() throws IOException {
+    public String currentName() {
         return _streamReader.currentName();
     }
 
     public JsonParser parser() { return _streamReader; }
 
-    public abstract JsonToken nextToken() throws IOException;
+    public abstract JsonToken nextToken();
 
     public TokenStreamContext getParsingContext() {
         return _streamReader.getParsingContext();
     }
 
-    public int getIntValue() throws IOException { return _streamReader.getIntValue(); }
-    public long getLongValue() throws IOException { return _streamReader.getLongValue(); }
-    public float getFloatValue() throws IOException { return _streamReader.getFloatValue(); }
-    public double getDoubleValue() throws IOException { return _streamReader.getDoubleValue(); }
-    public BigInteger getBigIntegerValue() throws IOException { return _streamReader.getBigIntegerValue(); }
-    public BigDecimal getDecimalValue() throws IOException { return _streamReader.getDecimalValue(); }
-    public byte[] getBinaryValue() throws IOException { return _streamReader.getBinaryValue(); }
+    public int getIntValue() { return _streamReader.getIntValue(); }
+    public long getLongValue() { return _streamReader.getLongValue(); }
+    public float getFloatValue() { return _streamReader.getFloatValue(); }
+    public double getDoubleValue() { return _streamReader.getDoubleValue(); }
+    public BigInteger getBigIntegerValue() { return _streamReader.getBigIntegerValue(); }
+    public BigDecimal getDecimalValue() { return _streamReader.getDecimalValue(); }
+    public byte[] getBinaryValue() { return _streamReader.getBinaryValue(); }
 
-    public Number getNumberValue() throws IOException { return _streamReader.getNumberValue(); }
-    public NumberType getNumberType() throws IOException { return _streamReader.getNumberType(); }
+    public Number getNumberValue() { return _streamReader.getNumberValue(); }
+    public NumberType getNumberType() { return _streamReader.getNumberType(); }
 
-    public void close() throws IOException { _streamReader.close(); }
+    public void close() { _streamReader.close(); }
 
     public boolean isClosed() {
         return _streamReader.isClosed();

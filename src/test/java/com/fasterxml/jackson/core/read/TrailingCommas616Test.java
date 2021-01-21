@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -11,29 +12,29 @@ public class TrailingCommas616Test extends BaseTest
             .build();
 
     // [core#616]
-    public void testRootLevelComma616() throws Exception
+    public void testRootLevelComma616()
     {
         _testRootLevel616(MODE_READER);
     }
 
-    public void testRootLevelComma616Bytes() throws Exception
+    public void testRootLevelComma616Bytes()
     {
         _testRootLevel616(MODE_INPUT_STREAM);
         _testRootLevel616(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testRootLevelComma616DataInput() throws Exception
+    public void testRootLevelComma616DataInput()
     {
         _testRootLevel616(MODE_DATA_INPUT);
     }
 
-    private void _testRootLevel616(int mode) throws Exception
+    private void _testRootLevel616(int mode)
     {
         JsonParser p = createParser(JSON_F_ALLOW_MISSING, mode, ",");
         try {
             p.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character (','");
         }
         p.close();

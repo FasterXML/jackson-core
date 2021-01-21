@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 /**
  * Unit tests for verifying that additional <code>JsonParser.Feature</code>
@@ -70,22 +71,16 @@ public class JsonReadFeaturesTest
         final String JSON = "{ test : 3 }";
         final String EXP_ERROR_FRAGMENT = "was expecting double-quote to start";
         JsonFactory f = new JsonFactory();
-        JsonParser p = useStream ?
+        try (JsonParser p = useStream ?
             createParserUsingStream(f, JSON, "UTF-8")
             : createParserUsingReader(f, JSON)
-            ;
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        try {
+            ) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
             p.nextToken();
-        } catch (JsonParseException je) {
+        } catch (StreamReadException je) {
             verifyException(je, EXP_ERROR_FRAGMENT);
-        } finally {
-            p.close();
         }
     }
-
-    // // // Tests for [JACKSON-208]
 
     private void _testTabsDefault(boolean useStream) throws Exception
     {
@@ -93,16 +88,13 @@ public class JsonReadFeaturesTest
                 .disable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS).build();
         // First, let's see that by default unquoted tabs are illegal
         String JSON = "[\"tab:\t\"]";
-        JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {
+        try (JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             p.nextToken();
             p.getText();
             fail("Expected exception");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Illegal unquoted character");
-        } finally {
-            p.close();
         }
     }
 

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -32,7 +33,7 @@ public class ArrayParsingTest
         try {
             p.nextToken();
             fail("Expected a parsing error for missing array close marker");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "expected close marker for ARRAY");
         }
         p.close();
@@ -48,7 +49,7 @@ public class ArrayParsingTest
         try {
             p.nextToken();
             fail("Expected a parsing error for odd character");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "Unexpected character");
         }
         p.close();
@@ -66,7 +67,7 @@ public class ArrayParsingTest
         try {
             p.nextToken();
             fail("Expected a parsing error for missing array close marker");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "expected a value");
         }
         p.close();
@@ -158,7 +159,7 @@ public class ArrayParsingTest
 	        assertToken(JsonToken.VALUE_STRING, p.nextToken());
 	        fail("Expecting exception here");
         }
-        catch(JsonParseException ex){
+        catch (StreamReadException ex){
         	verifyException(ex, "expected a valid value", "expected a value");
         }
         p.close();

@@ -5,6 +5,7 @@
 
 package com.fasterxml.jackson.core;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.Separators;
@@ -53,7 +54,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeRootValueSeparator(JsonGenerator gen) throws JacksonException;
 
@@ -72,7 +73,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeStartObject(JsonGenerator gen) throws JacksonException;
 
@@ -91,7 +92,7 @@ public interface PrettyPrinter
      *   have been output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeEndObject(JsonGenerator gen, int nrOfEntries) throws JacksonException;
 
@@ -107,7 +108,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeObjectEntrySeparator(JsonGenerator gen) throws JacksonException;
 
@@ -123,7 +124,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeObjectFieldValueSeparator(JsonGenerator gen) throws JacksonException;
 
@@ -142,7 +143,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeStartArray(JsonGenerator gen) throws JacksonException;
 
@@ -161,7 +162,7 @@ public interface PrettyPrinter
      *   have been output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeEndArray(JsonGenerator gen, int nrOfValues) throws JacksonException;
 
@@ -177,7 +178,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void writeArrayValueSeparator(JsonGenerator gen) throws JacksonException;
 
@@ -199,7 +200,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void beforeArrayValues(JsonGenerator gen) throws JacksonException;
 
@@ -215,7 +216,7 @@ public interface PrettyPrinter
      * @param gen Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     void beforeObjectEntries(JsonGenerator gen) throws JacksonException;
 }

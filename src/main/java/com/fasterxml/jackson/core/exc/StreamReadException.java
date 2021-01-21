@@ -7,10 +7,10 @@ import com.fasterxml.jackson.core.util.RequestPayload;
  * Intermediate base class for all read-side streaming processing problems, including
  * parsing and input value coercion problems.
  */
-public abstract class StreamReadException
+public class StreamReadException
     extends JsonProcessingException
 {
-    private final static long serialVersionUID = 1L;
+    private final static long serialVersionUID = 3L;
 
     protected transient JsonParser _processor;
 
@@ -37,7 +37,7 @@ public abstract class StreamReadException
         _processor = p;
     }
 
-    protected StreamReadException(String msg, JsonLocation loc, Throwable rootCause) {
+    public StreamReadException(String msg, JsonLocation loc, Throwable rootCause) {
         super(msg);
         if (rootCause != null) {
             initCause(rootCause);
@@ -55,7 +55,10 @@ public abstract class StreamReadException
      *
      * @return This exception instance to allow call chaining
      */
-    public abstract StreamReadException withParser(JsonParser p);
+    public StreamReadException withParser(JsonParser p) {
+        _processor = p;
+        return this;
+    }
 
     /**
      * Fluent method that may be used to assign payload to this exception,
@@ -67,8 +70,11 @@ public abstract class StreamReadException
      *
      * @return This exception instance to allow call chaining
      */
-    public abstract StreamReadException withRequestPayload(RequestPayload payload);
-    
+    public StreamReadException withRequestPayload(RequestPayload payload) {
+        _requestPayload = payload;
+        return this;
+    }
+
     @Override
     public JsonParser getProcessor() {
         return _processor;

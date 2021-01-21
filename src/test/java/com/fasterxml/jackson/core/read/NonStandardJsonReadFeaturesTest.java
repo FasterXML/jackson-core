@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -19,7 +20,7 @@ public class NonStandardJsonReadFeaturesTest
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }
 
-    public void testNonStandardAnyCharQuoting() throws Exception
+    public void testNonStandardAnyCharQuoting()
     {
         _testNonStandarBackslashQuoting(MODE_INPUT_STREAM);
         _testNonStandarBackslashQuoting(MODE_INPUT_STREAM_THROTTLED);
@@ -27,7 +28,7 @@ public class NonStandardJsonReadFeaturesTest
         _testNonStandarBackslashQuoting(MODE_READER);
     }
 
-    public void testLeadingZeroesUTF8() throws Exception {
+    public void testLeadingZeroesUTF8() {
         _testLeadingZeroes(MODE_INPUT_STREAM, false);
         _testLeadingZeroes(MODE_INPUT_STREAM, true);
         _testLeadingZeroes(MODE_INPUT_STREAM_THROTTLED, false);
@@ -38,13 +39,13 @@ public class NonStandardJsonReadFeaturesTest
         _testLeadingZeroes(MODE_DATA_INPUT, true);
     }
 
-    public void testLeadingZeroesReader() throws Exception {
+    public void testLeadingZeroesReader() {
         _testLeadingZeroes(MODE_READER, false);
         _testLeadingZeroes(MODE_READER, true);
     }
 
     // allow NaN
-    public void testAllowNaN() throws Exception {
+    public void testAllowNaN() {
         _testAllowNaN(MODE_INPUT_STREAM);
         _testAllowNaN(MODE_INPUT_STREAM_THROTTLED);
         _testAllowNaN(MODE_DATA_INPUT);
@@ -52,7 +53,7 @@ public class NonStandardJsonReadFeaturesTest
     }
 
     // allow +Inf/-Inf
-    public void testAllowInfinity() throws Exception {
+    public void testAllowInfinity() {
         _testAllowInf(MODE_INPUT_STREAM);
         _testAllowInf(MODE_INPUT_STREAM_THROTTLED);
         _testAllowInf(MODE_DATA_INPUT);
@@ -65,7 +66,7 @@ public class NonStandardJsonReadFeaturesTest
     /****************************************************************
      */
 
-    private void _testNonStandarBackslashQuoting(int mode) throws Exception
+    private void _testNonStandarBackslashQuoting(int mode)
     {
         // first: verify that we get an exception
         final String JSON = quote("\\'");
@@ -74,7 +75,7 @@ public class NonStandardJsonReadFeaturesTest
             p.nextToken();
             p.getText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "unrecognized character escape");
         } finally {
             p.close();
@@ -89,7 +90,7 @@ public class NonStandardJsonReadFeaturesTest
         p.close();
     }
 
-    private void _testLeadingZeroes(int mode, boolean appendSpace) throws Exception
+    private void _testLeadingZeroes(int mode, boolean appendSpace)
     {
         // first: verify that we get an exception
         String JSON = "00003";
@@ -101,7 +102,7 @@ public class NonStandardJsonReadFeaturesTest
             p.nextToken();
             p.getText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "invalid numeric value");
         }
         p.close();
@@ -112,7 +113,7 @@ public class NonStandardJsonReadFeaturesTest
         try {      
             p.nextToken();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "invalid numeric value");
         }
         p.close();
@@ -149,7 +150,7 @@ public class NonStandardJsonReadFeaturesTest
         p.close();
     }
 
-    private void _testAllowNaN(int mode) throws Exception
+    private void _testAllowNaN(int mode)
     {
         final String JSON = "[ NaN]";
 
@@ -159,7 +160,7 @@ public class NonStandardJsonReadFeaturesTest
         try {
             p.nextToken();
             fail("Expected exception");
-        } catch (Exception e) {
+        } catch (StreamReadException e) {
             verifyException(e, "non-standard");
         } finally {
             p.close();
@@ -196,7 +197,7 @@ public class NonStandardJsonReadFeaturesTest
         p.close();
     }
 
-    private void _testAllowInf(int mode) throws Exception
+    private void _testAllowInf(int mode)
     {
         final String JSON = "[ -INF, +INF, +Infinity, Infinity, -Infinity ]";
 
@@ -206,7 +207,7 @@ public class NonStandardJsonReadFeaturesTest
         try {
             p.nextToken();
             fail("Expected exception");
-        } catch (Exception e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Non-standard token '-INF'");
         } finally {
             p.close();

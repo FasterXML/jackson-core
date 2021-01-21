@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 /**
  * Test size of parser error messages
@@ -10,20 +11,20 @@ public class TestMaxErrorSize
 {
     private final static int EXPECTED_MAX_TOKEN_LEN = 256; // ParserBase.MAX_ERROR_TOKEN_LENGTH
     
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
-    public void testLongErrorMessage() throws Exception
+    public void testLongErrorMessage()
     {
         _testLongErrorMessage(MODE_INPUT_STREAM);
         _testLongErrorMessage(MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testLongErrorMessageReader() throws Exception
+    public void testLongErrorMessageReader()
     {
         _testLongErrorMessage(MODE_READER);
     }
 
-    private void _testLongErrorMessage(int mode) throws Exception
+    private void _testLongErrorMessage(int mode)
     {
         final String DOC = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         		+ "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
@@ -34,7 +35,7 @@ public class TestMaxErrorSize
         try {
             jp.nextToken();
             fail("Expected an exception for unrecognized token");
-        } catch (JsonParseException jpe) {
+        } catch (StreamReadException jpe) {
         	String msg = jpe.getMessage();
           final String expectedPrefix = "Unrecognized token '";
           final String expectedSuffix = "...': was expecting";
@@ -47,14 +48,14 @@ public class TestMaxErrorSize
         jp.close();
     }
 
-    public void testShortErrorMessage() throws Exception
+    public void testShortErrorMessage()
     {
         _testShortErrorMessage(MODE_INPUT_STREAM);
         _testShortErrorMessage(MODE_INPUT_STREAM_THROTTLED);
         _testShortErrorMessage(MODE_READER);
     }
 
-    public void _testShortErrorMessage(int mode) throws Exception
+    public void _testShortErrorMessage(int mode)
     {
         final String DOC = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 + "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -63,7 +64,7 @@ public class TestMaxErrorSize
         try {
             jp.nextToken();
             fail("Expected an exception for unrecognized token");
-        } catch (JsonParseException jpe) {
+        } catch (StreamReadException jpe) {
             String msg = jpe.getMessage();
             final String expectedPrefix = "Unrecognized token '";
             final String expectedSuffix = "': was expecting";

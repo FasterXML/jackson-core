@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 
 /**
  * Set of basic unit tests for verifying that the basic generator
@@ -15,7 +16,7 @@ public class StreamWriteFeaturesTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    public void testConfigDefaults() throws IOException
+    public void testConfigDefaults()
     {
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), new StringWriter());
         assertFalse(((JsonGeneratorBase) g).isEnabled(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS));
@@ -30,7 +31,7 @@ public class StreamWriteFeaturesTest
         g.close();
     }
 
-    public void testFieldNameQuoting() throws IOException
+    public void testFieldNameQuoting()
     {
         JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
@@ -46,7 +47,7 @@ public class StreamWriteFeaturesTest
         _testFieldNameQuoting(f, true);
     }
 
-    public void testNonNumericQuoting() throws IOException
+    public void testNonNumericQuoting()
     {
         JsonFactory f = new JsonFactory();
         // by default, quoting should be enabled
@@ -67,7 +68,7 @@ public class StreamWriteFeaturesTest
      * Testing for [JACKSON-176], ability to force serializing numbers
      * as JSON Strings.
      */
-    public void testNumbersAsJSONStrings() throws IOException
+    public void testNumbersAsJSONStrings()
     {
         JsonFactory f = new JsonFactory();
         // by default should output numbers as-is:
@@ -83,7 +84,7 @@ public class StreamWriteFeaturesTest
                 _writeNumbers(f, true));
     }
 
-    public void testBigDecimalAsPlain() throws IOException
+    public void testBigDecimalAsPlain()
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
@@ -103,7 +104,7 @@ public class StreamWriteFeaturesTest
         assertEquals("100", sw.toString());
     }
 
-    public void testBigDecimalAsPlainString() throws Exception
+    public void testBigDecimalAsPlainString()
     {
         JsonFactory f = new JsonFactory();
         BigDecimal ENG = new BigDecimal("1E+2");
@@ -121,11 +122,15 @@ public class StreamWriteFeaturesTest
         g = f.createGenerator(ObjectWriteContext.empty(), bos);
         g.writeNumber(ENG);
         g.close();
-        assertEquals(quote("100"), bos.toString("UTF-8"));
+        try {
+            assertEquals(quote("100"), bos.toString("UTF-8"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // [core#315]
-    public void testTooBigBigDecimal() throws Exception
+    public void testTooBigBigDecimal()
     {
         // 24-Aug-2016, tatu: Initial check limits scale to [-9999,+9999]
         BigDecimal BIG = new BigDecimal("1E+9999");
@@ -163,7 +168,7 @@ public class StreamWriteFeaturesTest
                     try {
                         g.writeNumber(input);
                         fail("Should not have written without exception: "+input);
-                    } catch (JsonGenerationException e) {
+                    } catch (StreamWriteException e) {
                         verifyException(e, "Attempt to write plain `java.math.BigDecimal`");
                         verifyException(e, "illegal scale");
                     }
@@ -173,7 +178,7 @@ public class StreamWriteFeaturesTest
         }
     }
 
-    private String _writeNumbers(JsonFactory f, boolean useBytes) throws IOException
+    private String _writeNumbers(JsonFactory f, boolean useBytes)
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter sw = new StringWriter();
@@ -200,11 +205,11 @@ public class StreamWriteFeaturesTest
         g.writeEndArray();
         g.close();
 
-        return useBytes ? bytes.toString("UTF-8") : sw.toString();
+        return useBytes ? utf8String(bytes) : sw.toString();
     }
 
     // for [core#246]
-    public void testFieldNameQuotingEnabled() throws IOException
+    public void testFieldNameQuotingEnabled()
     {
         // // First, test with default factory, with quoting enabled by default
         
@@ -231,7 +236,7 @@ public class StreamWriteFeaturesTest
     }
 
     private void _testFieldNameQuotingEnabled(JsonFactory f, boolean useBytes,
-            boolean useQuotes, String exp) throws IOException
+            boolean useQuotes, String exp)
     {
         if (useQuotes) {
             f = f.rebuild()
@@ -254,31 +259,9 @@ public class StreamWriteFeaturesTest
         gen.writeEndObject();
         gen.close();
 
-        String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
+        String json = useBytes ? utf8String(bytes) : sw.toString();
         assertEquals(exp, json);
     }
-
-    /*
-    public void testChangeOnGenerator() throws IOException
-    {
-        StringWriter w = new StringWriter();
-
-        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(),w);
-        g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
-        g.writeNumber(123);
-        g.close();
-        assertEquals(quote("123"), w.toString());
-
-        // but also the opposite
-        w = new StringWriter();
-        g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
-        g.enable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
-        g.disable(StreamWriteFeature.WRITE_NUMBERS_AS_STRINGS);
-        g.writeNumber(123);
-        g.close();
-        assertEquals("123", w.toString());
-    }
-    */
 
     /*
     /**********************************************************
@@ -287,7 +270,6 @@ public class StreamWriteFeaturesTest
      */
 
     private void _testFieldNameQuoting(JsonFactory f, boolean quoted)
-        throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
@@ -305,7 +287,6 @@ public class StreamWriteFeaturesTest
         }
     }
     private void _testNonNumericQuoting(JsonFactory f, boolean quoted)
-        throws IOException
     {
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);

@@ -1,29 +1,33 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Unit tests for class {@link JsonReadContext}.
  */
-public class JsonReadContextTest // extends BaseMapTest
+public class JsonReadContextTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
-  @Test(expected = JsonParseException.class)
-  public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws JsonProcessingException
+  public void testSetCurrentNameTwiceWithSameName()
   {
+      final String FIELD_NAME = "4'Du>icate field'";
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, dupDetector, 2441, 2441, 2441);
-      jsonReadContext.setCurrentName("4'Du>icate field'");
-      jsonReadContext.setCurrentName("4'Du>icate field'");
+      jsonReadContext.setCurrentName(FIELD_NAME);
+      try {
+          jsonReadContext.setCurrentName(FIELD_NAME);
+      } catch (StreamReadException e) {
+          verifyException(e, "Duplicate field");
+          verifyException(e, FIELD_NAME);
+      }
   }
 
   @Test
-  public void testSetCurrentName() throws JsonProcessingException {
+  public void testSetCurrentName()
+  {
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(0, 0, (DupDetector) null);
       jsonReadContext.setCurrentName("asd / \" € < - _");
 
@@ -34,8 +38,8 @@ public class JsonReadContextTest // extends BaseMapTest
       assertNull(jsonReadContext.currentName());
   }
 
-  @Test
-  public void testReset() {
+  public void testReset()
+  {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);
 
@@ -51,5 +55,4 @@ public class JsonReadContextTest // extends BaseMapTest
       assertEquals(500, jsonReadContext.getStartLocation(jsonReadContext).getLineNr());
       assertEquals(200, jsonReadContext.getStartLocation(jsonReadContext).getColumnNr());
   }
-
 }

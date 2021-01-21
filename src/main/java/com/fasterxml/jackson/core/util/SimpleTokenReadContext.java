@@ -185,15 +185,19 @@ public class SimpleTokenReadContext extends TokenStreamContext
      *
      * @throws StreamReadException If there is a duplicate name violation
      */
-    public void setCurrentName(String name) throws StreamReadException {
+    public void setCurrentName(String name)
+        throws StreamReadException
+    {
         _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
     }
 
-    protected void _checkDup(DupDetector dd, String name) throws StreamReadException {
+    protected void _checkDup(DupDetector dd, String name)
+        throws StreamReadException
+    {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new JsonParseException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
+            throw new StreamReadException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
                     "Duplicate field '"+name+"'");
         }
     }    

@@ -1,12 +1,14 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -16,7 +18,7 @@ import java.util.*;
 @SuppressWarnings("resource")
 public class SimpleParserTest extends BaseTest
 {
-    public void testInputSourceAccess() throws Exception
+    public void testInputSourceAccess()
     {
         JsonParser p = createParser(MODE_READER, "[ ]");
         Object src = p.getInputSource();
@@ -37,19 +39,19 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testInterningWithStreams() throws Exception
+    public void testInterningWithStreams()
     {
         _testIntern(true, true, "a");
         _testIntern(true, false, "b");
     }
 
-    public void testInterningWithReaders() throws Exception
+    public void testInterningWithReaders()
     {
         _testIntern(false, true, "c");
         _testIntern(false, false, "d");
     }
     
-    private void _testIntern(boolean useStream, boolean enableIntern, String expName) throws IOException
+    private void _testIntern(boolean useStream, boolean enableIntern, String expName)
     {
         JsonFactory f = JsonFactory.builder()
                 .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, enableIntern)
@@ -77,7 +79,7 @@ public class SimpleParserTest extends BaseTest
      * specification (RFC-4627 or later) is properly parsed at
      * high-level, without verifying values.
      */
-    public void testSpecExampleSkipping() throws Exception
+    public void testSpecExampleSkipping()
     {
         _doTestSpec(false);
     }
@@ -87,7 +89,7 @@ public class SimpleParserTest extends BaseTest
      * parsed, and proper values are given for contents of all
      * events/tokens.
      */
-    public void testSpecExampleFully() throws Exception
+    public void testSpecExampleFully()
     {
         _doTestSpec(true);
     }
@@ -96,7 +98,7 @@ public class SimpleParserTest extends BaseTest
      * Unit test that verifies that 3 basic keywords (null, true, false)
      * are properly parsed in various contexts.
      */
-    public void testKeywords() throws Exception
+    public void testKeywords()
     {
         final String DOC = "{\n"
             +"\"key1\" : null,\n"
@@ -119,7 +121,7 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    private void _testKeywords(JsonParser p, boolean checkColumn) throws Exception
+    private void _testKeywords(JsonParser p, boolean checkColumn)
     {
         TokenStreamContext ctxt = p.getParsingContext();
         assertEquals("/", ctxt.toString());
@@ -214,14 +216,14 @@ public class SimpleParserTest extends BaseTest
         assertNull(ctxt.currentName());
     }
 
-    public void testSkipping() throws Exception {
+    public void testSkipping() {
         _testSkipping(MODE_INPUT_STREAM);
         _testSkipping(MODE_INPUT_STREAM_THROTTLED);
         _testSkipping(MODE_READER);
         _testSkipping(MODE_DATA_INPUT);
     }
 
-    private void _testSkipping(int mode) throws Exception
+    private void _testSkipping(int mode)
     {
         // InputData has some limitations to take into consideration
         boolean isInputData = (mode == MODE_DATA_INPUT);
@@ -276,14 +278,14 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testNameEscaping() throws IOException
+    public void testNameEscaping()
     {
         _testNameEscaping(MODE_INPUT_STREAM);
         _testNameEscaping(MODE_READER);
         _testNameEscaping(MODE_DATA_INPUT);
     }
 
-    private void _testNameEscaping(int mode) throws IOException
+    private void _testNameEscaping(int mode)
     {
         final Map<String,String> NAME_MAP = new LinkedHashMap<String,String>();
         NAME_MAP.put("", "");
@@ -328,7 +330,7 @@ public class SimpleParserTest extends BaseTest
      * correctly; mostly to stress-test underlying segment-based
      * text buffer(s).
      */
-    public void testLongText() throws Exception {
+    public void testLongText() {
         // lengths chosen to tease out problems with buffer allocation...
         _testLongText(310);
         _testLongText(7700);
@@ -336,7 +338,7 @@ public class SimpleParserTest extends BaseTest
         _testLongText(96000);
     }
 
-    private void _testLongText(int LEN) throws Exception
+    private void _testLongText(int LEN)
     {
         StringBuilder sb = new StringBuilder(LEN + 100);
         Random r = new Random(LEN);
@@ -414,10 +416,10 @@ public class SimpleParserTest extends BaseTest
      * Simple unit test that verifies that passing in a byte array
      * as source works as expected.
      */
-    public void testBytesAsSource() throws Exception
+    public void testBytesAsSource()
     {
         String JSON = "[ 1, 2, 3, 4 ]";
-        byte[] b = JSON.getBytes("UTF-8");
+        byte[] b = utf8Bytes(JSON);
         int offset = 50;
         int len = b.length;
         byte[] src = new byte[offset + len + offset];
@@ -441,14 +443,14 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testUtf8BOMHandling() throws Exception
+    public void testUtf8BOMHandling() throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         // first, write BOM:
         bytes.write(0xEF);
         bytes.write(0xBB);
         bytes.write(0xBF);
-        bytes.write("[ 1 ]".getBytes("UTF-8"));
+        bytes.write(utf8Bytes("[ 1 ]"));
         byte[] input = bytes.toByteArray();
 
         JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), input);
@@ -474,7 +476,7 @@ public class SimpleParserTest extends BaseTest
     }
 
     // [core#48]
-    public void testSpacesInURL() throws Exception
+    public void testSpacesInURL() throws IOException
     {
         File f = File.createTempFile("pre fix&stuff", ".txt");
         BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
@@ -488,25 +490,25 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testGetValueAsTextBytes() throws Exception
+    public void testGetValueAsTextBytes()
     {
         _testGetValueAsText(MODE_INPUT_STREAM, false);
         _testGetValueAsText(MODE_INPUT_STREAM, true);
     }
 
-    public void testGetValueAsTextDataInput() throws Exception
+    public void testGetValueAsTextDataInput()
     {
         _testGetValueAsText(MODE_DATA_INPUT, false);
         _testGetValueAsText(MODE_DATA_INPUT, true);
     }
     
-    public void testGetValueAsTextChars() throws Exception
+    public void testGetValueAsTextChars()
     {
         _testGetValueAsText(MODE_READER, false);
         _testGetValueAsText(MODE_READER, true);
     }
 
-    private void _testGetValueAsText(int mode, boolean delegate) throws Exception
+    private void _testGetValueAsText(int mode, boolean delegate)
     {
         String JSON = "{\"a\":1,\"b\":true,\"c\":null,\"d\":\"foo\"}";
         JsonParser p = createParser(mode, JSON);
@@ -553,14 +555,14 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testGetTextViaWriter() throws Exception
+    public void testGetTextViaWriter()
     {
         for (int mode : ALL_MODES) {
             _testGetTextViaWriter(mode);
         }
     }
 
-    private void _testGetTextViaWriter(int mode) throws Exception
+    private void _testGetTextViaWriter(int mode)
     {
         final String INPUT_TEXT = "this is a sample text for json parsing using readText() method";
         final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foobar!\"}";
@@ -587,7 +589,7 @@ public class SimpleParserTest extends BaseTest
         parser.close();
     }
 
-    private void _getAndVerifyText(JsonParser p, String exp) throws Exception
+    private void _getAndVerifyText(JsonParser p, String exp)
     {
         Writer writer = new StringWriter();
         int len = p.getText(writer);
@@ -603,7 +605,7 @@ public class SimpleParserTest extends BaseTest
         }
     }
 
-    private void _testLongerReadText(int mode) throws Exception
+    private void _testLongerReadText(int mode)
     {
         StringBuilder builder = new StringBuilder();
         for(int i= 0; i < 1000; i++) {
@@ -632,23 +634,23 @@ public class SimpleParserTest extends BaseTest
      */
 
     // [core#142]
-    public void testHandlingOfInvalidSpaceByteStream() throws Exception {
+    public void testHandlingOfInvalidSpaceByteStream() {
         _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
         _testHandlingOfInvalidSpaceFromResource(true);
     }
     
     // [core#142]
-    public void testHandlingOfInvalidSpaceChars() throws Exception {
+    public void testHandlingOfInvalidSpaceChars() {
         _testHandlingOfInvalidSpace(MODE_READER);
         _testHandlingOfInvalidSpaceFromResource(false);
     }
 
     // [core#142]
-    public void testHandlingOfInvalidSpaceDataInput() throws Exception {
+    public void testHandlingOfInvalidSpaceDataInput() {
         _testHandlingOfInvalidSpace(MODE_DATA_INPUT);
     }
     
-    private void _testHandlingOfInvalidSpace(int mode) throws Exception
+    private void _testHandlingOfInvalidSpace(int mode)
     {
         final String JSON = "{ \u00A0 \"a\":1}";
 
@@ -657,7 +659,7 @@ public class SimpleParserTest extends BaseTest
         try {
             p.nextToken();
             fail("Should have failed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "unexpected character");
             // and correct error code
             verifyException(e, "code 160");
@@ -665,12 +667,13 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    private void _testHandlingOfInvalidSpaceFromResource(boolean useStream) throws Exception
+    private void _testHandlingOfInvalidSpaceFromResource(boolean useStream)
     {
         InputStream in = getClass().getResourceAsStream("/test_0xA0.json");
         JsonParser p = useStream
                 ? JSON_FACTORY.createParser(ObjectReadContext.empty(), in)
-                : JSON_FACTORY.createParser(ObjectReadContext.empty(), new InputStreamReader(in, "UTF-8"));
+                : JSON_FACTORY.createParser(ObjectReadContext.empty(),
+                        new InputStreamReader(in, StandardCharsets.UTF_8));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
@@ -688,7 +691,7 @@ public class SimpleParserTest extends BaseTest
             
             while (p.nextToken()  != null) { }
             fail("Should have failed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "unexpected character");
             // and correct error code
             verifyException(e, "code 160");
@@ -702,7 +705,7 @@ public class SimpleParserTest extends BaseTest
     /**********************************************************
      */
 
-    private void _doTestSpec(boolean verify) throws IOException
+    private void _doTestSpec(boolean verify)
     {
         JsonParser p;
 

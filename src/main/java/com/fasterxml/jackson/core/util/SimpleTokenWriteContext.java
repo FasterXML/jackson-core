@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.json.DupDetector;
 
 /**
@@ -170,9 +171,9 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
      *
      * @return {@code True} if name writing should proceed; {@code false} if not
      *
-     * @throws JsonGenerationException If write fails due to duplicate check
+     * @throws StreamWriteException If write fails due to duplicate check
      */
-    public boolean writeFieldName(String name) throws JsonGenerationException {
+    public boolean writeFieldName(String name) throws StreamWriteException {
         if ((_type != TYPE_OBJECT) || _gotFieldId) {
             return false;
         }
@@ -182,10 +183,10 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
         return true;
     }
 
-    private final void _checkDup(DupDetector dd, String name) throws JsonGenerationException {
+    private final void _checkDup(DupDetector dd, String name) throws StreamWriteException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new JsonGenerationException("Duplicate field '"+name+"'",
+            throw new StreamWriteException("Duplicate field '"+name+"'",
                     ((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null));
         }
     }

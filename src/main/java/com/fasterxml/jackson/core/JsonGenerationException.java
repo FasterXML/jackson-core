@@ -5,46 +5,29 @@
 
 package com.fasterxml.jackson.core;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+
 /**
  * Exception type for exceptions during JSON writing, such as trying
  * to output  content in wrong context (non-matching end-array or end-object,
  * for example).
  */
 public class JsonGenerationException
-    extends JsonProcessingException
+    extends StreamWriteException
 {
-    private final static long serialVersionUID = 123; // eclipse complains otherwise
-
-    protected transient JsonGenerator _processor;
+    private final static long serialVersionUID = 3L;
 
     public JsonGenerationException(Throwable rootCause, JsonGenerator g) {
-        super(rootCause);
-        _processor = g;
+        super(rootCause, g);
     }
 
     public JsonGenerationException(String msg, JsonGenerator g) {
-        super(msg, (JsonLocation) null);
+        super(msg, g);
         _processor = g;
     }
 
     public JsonGenerationException(String msg, Throwable rootCause, JsonGenerator g) {
-        super(msg, null, rootCause);
+        super(msg, rootCause, g);
         _processor = g;
     }
-
-    /**
-     * Fluent method that may be used to assign originating {@link JsonGenerator},
-     * to be accessed using {@link #getProcessor()}.
-     *
-     * @param g Generator to assign
-     *
-     * @return This exception instance (to allow call chaining)
-     */
-    public JsonGenerationException withGenerator(JsonGenerator g) {
-        _processor = g;
-        return this;
-    }
-
-    @Override
-    public JsonGenerator getProcessor() { return _processor; }
 }

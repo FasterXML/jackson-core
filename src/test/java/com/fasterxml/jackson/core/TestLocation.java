@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestLocation extends BaseTest
@@ -23,7 +24,7 @@ public class TestLocation extends BaseTest
         assertTrue(loc2.hashCode() != 0);
     }
 
-    public void testBasicToString() throws Exception
+    public void testBasicToString()
     {
         // no location:
         assertEquals("[Source: UNKNOWN; line: 3, column: 2]",
@@ -39,7 +40,7 @@ public class TestLocation extends BaseTest
 
         // Short byte[]
         assertEquals("[Source: (byte[])\"bytes-source\"; line: 1, column: 2]",
-                new JsonLocation("bytes-source".getBytes("UTF-8"), 10L, 10L, 1, 2).toString());
+                new JsonLocation(utf8Bytes("bytes-source"), 10L, 10L, 1, 2).toString());
 
         // InputStream
         assertEquals("[Source: (ByteArrayInputStream); line: 1, column: 2]",
@@ -55,7 +56,7 @@ public class TestLocation extends BaseTest
                 new JsonLocation(srcRef, 10L, 10L, 1, 2).toString());
     }
 
-    public void testTruncatedSource() throws Exception
+    public void testTruncatedSource()
     {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < JsonLocation.MAX_CONTENT_SNIPPET; ++i) {
@@ -68,13 +69,13 @@ public class TestLocation extends BaseTest
         assertEquals(String.format("(String)\"%s\"[truncated 3 chars]", main), desc);
 
         // and same with bytes
-        loc = new JsonLocation(json.getBytes("UTF-8"), 0L, 0L, 1, 1);
+        loc = new JsonLocation(utf8Bytes(json), 0L, 0L, 1, 1);
         desc = loc.sourceDescription();
         assertEquals(String.format("(byte[])\"%s\"[truncated 3 bytes]", main), desc);
     }
 
     // for [jackson-core#356]
-    public void testDisableSourceInclusion() throws Exception
+    public void testDisableSourceInclusion()
     {
         JsonFactory f = JsonFactory.builder()
                 .disable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
@@ -84,7 +85,7 @@ public class TestLocation extends BaseTest
         try {
             p.nextToken();
             fail("Shouldn't have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "unrecognized token");
             JsonLocation loc = e.getLocation();
             assertNull(loc.getSourceRef());
@@ -93,12 +94,12 @@ public class TestLocation extends BaseTest
         p.close();
 
         // and verify same works for byte-based too
-        p = f.createParser(ObjectReadContext.empty(), "[ foobar ]".getBytes("UTF-8"));
+        p = f.createParser(ObjectReadContext.empty(), utf8Bytes("[ foobar ]"));
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             p.nextToken();
             fail("Shouldn't have passed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "unrecognized token");
             JsonLocation loc = e.getLocation();
             assertNull(loc.getSourceRef());

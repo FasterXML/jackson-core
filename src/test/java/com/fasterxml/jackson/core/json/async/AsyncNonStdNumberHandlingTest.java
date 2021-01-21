@@ -1,21 +1,20 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
 {
-    public void testDefaultsForAsync() throws Exception {
+    public void testDefaultsForAsync() {
         JsonFactory f = new JsonFactory();
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS));
     }
 
-    public void testLeadingZeroesInt() throws Exception
+    public void testLeadingZeroesInt()
     {
         _testLeadingZeroesInt("00003", 3);
         _testLeadingZeroesInt("00003 ", 3);
@@ -38,7 +37,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         _testLeadingZeroesInt("0"+Integer.MAX_VALUE+" ", Integer.MAX_VALUE);
     }
 
-    public void _testLeadingZeroesInt(String valueStr, int value) throws Exception
+    public void _testLeadingZeroesInt(String valueStr, int value)
     {
         // first: verify that we get an exception
 
@@ -49,7 +48,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "invalid numeric value");
         } finally {
             p.close();
@@ -64,7 +63,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testLeadingZeroesFloat() throws Exception
+    public void testLeadingZeroesFloat()
     {
         _testLeadingZeroesFloat("00.25", 0.25);
         _testLeadingZeroesFloat("  00.25", 0.25);
@@ -75,7 +74,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         _testLeadingZeroesFloat("-000.5  ", -0.5);
     }
 
-    private void _testLeadingZeroesFloat(String valueStr, double value) throws Exception
+    private void _testLeadingZeroesFloat(String valueStr, double value)
     {
         // first: verify that we get an exception
         JsonFactory f = new JsonFactory();
@@ -85,7 +84,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "invalid numeric value");
         } finally {
             p.close();
@@ -100,7 +99,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testLeadingPeriodFloat() throws Exception
+    public void testLeadingPeriodFloat()
     {
         _testLeadingPeriodFloat(".25", 0.25, 1);
         _testLeadingPeriodFloat(".25", 0.25, 100);
@@ -115,7 +114,6 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
     }
 
     private void _testLeadingPeriodFloat(String valueStr, double value, int bytesPerRead)
-        throws Exception
     {
         // first: verify that we get an exception
 
@@ -126,7 +124,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character ('.'");
             verifyException(e, "expected a valid value");
         } finally {
@@ -144,13 +142,12 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    private AsyncReaderWrapper createParser(JsonFactory f, String doc) throws IOException
+    private AsyncReaderWrapper createParser(JsonFactory f, String doc)
     {
         return createParser(f, doc, 1);
     }
     
     private AsyncReaderWrapper createParser(JsonFactory f, String doc, int bytesPerRead)
-            throws IOException
     {
         return asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 1);
     }

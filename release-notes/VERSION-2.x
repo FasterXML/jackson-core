@@ -16,7 +16,7 @@ JSON library.
 
 2.13.0 (not yet released)
 
-No changes since 2.12
+#664: Add `StreamWriteException` type to eventually replace `JsonGenerationException`
 
 2.12.1 (08-Jan-2021)
 

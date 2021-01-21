@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
@@ -224,7 +225,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected exception for unrecognized comment");
-        } catch (JsonParseException je) {
+        } catch (StreamReadException je) {
             // Should have something denoting that user may want to enable 'ALLOW_COMMENTS'
             verifyException(je, "ALLOW_COMMENTS");
         }

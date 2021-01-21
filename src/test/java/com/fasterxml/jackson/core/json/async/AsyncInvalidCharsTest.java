@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
@@ -87,7 +88,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         try {
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, verify);
         }
     }
@@ -112,7 +113,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Should have failed");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Illegal character");
             // and correct error code
             verifyException(e, "code 8");

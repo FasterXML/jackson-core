@@ -2,35 +2,37 @@ package com.fasterxml.jackson.core;
 
 import java.io.StringWriter;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestExceptions extends BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
     
     // For [core#10]
     public void testOriginalMesssage()
     {
         final JsonLocation loc = new JsonLocation(null, -1L, 1, 1);
-        JsonProcessingException exc = new JsonParseException(null, "Foobar", loc);
+        StreamReadException exc = new StreamReadException(null, "Foobar", loc);
         String msg = exc.getMessage();
         String orig = exc.getOriginalMessage();
         assertEquals("Foobar", orig);
         assertTrue(msg.length() > orig.length());
 
         // and another
-        JsonProcessingException exc2 = new JsonProcessingException("Second",
+        StreamReadException exc2 = new StreamReadException("Second",
                 loc, exc);
         assertSame(exc, exc2.getCause());
         exc2.clearLocation();
         assertNull(exc2.getLocation());
 
         // and yet with null
-        JsonProcessingException exc3 = new JsonProcessingException(exc);
+        StreamReadException exc3 = new StreamReadException((JsonParser) null, null, exc);
         assertNull(exc3.getOriginalMessage());
         assertEquals("N/A\n at [No location information]", exc3.getMessage());
-        assertTrue(exc3.toString().startsWith("com.fasterxml.jackson.core.JsonProcessingException: N/A"));
+        assertTrue(exc3.toString().startsWith(StreamReadException.class.getName()+": N/A"));
     }
 
     // [core#198]
@@ -38,7 +40,7 @@ public class TestExceptions extends BaseTest
     {
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "{}");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        JsonParseException e = new JsonParseException(p, "Test!");
+        StreamReadException e = new StreamReadException(p, "Test!");
         assertSame(p, e.getProcessor());
         assertEquals("Test!", e.getOriginalMessage());
         JsonLocation loc = e.getLocation();
@@ -54,7 +56,7 @@ public class TestExceptions extends BaseTest
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         g.writeStartObject();
-        JsonGenerationException e = new JsonGenerationException("Test!", g);
+        StreamWriteException e = new StreamWriteException("Test!", g);
         assertSame(g, e.getProcessor());
         assertEquals("Test!", e.getOriginalMessage());
         g.close();

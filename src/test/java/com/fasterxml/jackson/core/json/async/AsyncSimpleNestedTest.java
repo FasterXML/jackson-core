@@ -1,15 +1,14 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncSimpleNestedTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     /*
     /**********************************************************************
@@ -17,7 +16,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    public void testStuffInObject() throws Exception
+    public void testStuffInObject()
     {
         byte[] data = _jsonDoc(aposToQuotes(
                 "{'foobar':[1,2,-999],'emptyObject':{},'emptyArray':[], 'other':{'':null} }"));
@@ -33,7 +32,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testStuffInObject(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_OBJECT, r.nextToken());
@@ -81,7 +80,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertNull(r.parser().nextToken());
     }
 
-    public void testStuffInArray() throws Exception
+    public void testStuffInArray()
     {
         byte[] data = _jsonDoc(aposToQuotes("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
         JsonFactory f = JSON_F;
@@ -96,7 +95,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testStuffInArray(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
@@ -127,7 +126,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     final static String SHORT_NAME = String.format("u-%s", UNICODE_SEGMENT);
     final static String LONG_NAME = String.format("Unicode-with-some-longer-name-%s", UNICODE_SEGMENT);
     
-    public void testStuffInArray2() throws Exception
+    public void testStuffInArray2()
     {
         byte[] data = _jsonDoc(aposToQuotes(String.format(
                 "[{'%s':true},{'%s':false},{'%s':true},{'%s':false}]",
@@ -144,7 +143,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testStuffInArray2(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
@@ -182,7 +181,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    public void testMismatchedArray() throws Exception
+    public void testMismatchedArray()
     {
         byte[] data = _jsonDoc(aposToQuotes("[  }"));
 
@@ -197,19 +196,19 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testMismatchedArray(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         try {
             r.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected close marker '}': expected ']'");
         }
     }
 
-    public void testMismatchedObject() throws Exception
+    public void testMismatchedObject()
     {
         byte[] data = _jsonDoc(aposToQuotes("{ ]"));
 
@@ -224,14 +223,14 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testMismatchedObject(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         try {
             r.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected close marker ']': expected '}'");
         }
     }

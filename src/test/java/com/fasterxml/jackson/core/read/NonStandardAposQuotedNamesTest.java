@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -54,27 +54,21 @@ public class NonStandardAposQuotedNamesTest
     {
         // First, let's see that by default they are not allowed
         String JSON = "[ 'text' ]";
-        JsonParser p = createParser(STD_F, mode, JSON);
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        try {
+        try (JsonParser p = createParser(STD_F, mode, JSON)) {
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             p.nextToken();
             fail("Expected exception");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character ('''");
-        } finally {
-            p.close();
         }
 
         JSON = "{ 'a':1 }";
-        p = createParser(STD_F, mode, JSON);
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        try {
+        try (JsonParser p = createParser(STD_F, mode, JSON)) {
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
             p.nextToken();
             fail("Expected exception");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character ('''");
-        } finally {
-            p.close();
         }
     }
     

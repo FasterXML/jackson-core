@@ -80,11 +80,11 @@ public abstract class JacksonException
     /**
      * Method that allows accessing underlying processor that triggered
      * this exception; typically either {@link JsonParser} or {@link JsonGenerator}
-     * for exceptions that originate from streaming API, but other abstractions
+     * for exceptions that originate from streaming API, but may be other types
      * when thrown by databinding.
      *<p>
-     * Note that it is possible that `null` may be returned if code throwing
-     * exception either has no access to processor; or has not been retrofitted
+     * Note that it is possible that {@code null} may be returned if code throwing
+     * exception either has no access to the processor; or has not been retrofitted
      * to set it; this means that caller needs to take care to check for nulls.
      * Subtypes override this method with co-variant return type, for more
      * type-safe access.

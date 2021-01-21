@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
@@ -13,9 +12,9 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
  */
 public class AsyncScopeMatchingTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
-    public void testUnclosedArray(int mode) throws Exception
+    public void testUnclosedArray() throws Exception
     {
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc("[ 1, 2 "), 0);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -25,13 +24,13 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
 
         try {
             p.nextToken();
-            fail("Expected an exception for unclosed ARRAY (mode: "+mode+")");
-        } catch (JsonParseException pe) {
-            verifyException(pe, "expected close marker for ARRAY");
+            fail("Expected an exception for unclosed ARRAY");
+        } catch (StreamReadException pe) {
+            verifyException(pe, "expected a value token");
         }
     }
 
-    public void testUnclosedObject(int mode) throws Exception
+    public void testUnclosedObject() throws Exception
     {
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc("{ \"key\" : 3  "), 0);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -40,13 +39,13 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
 
         try {
             p.nextToken();
-            fail("Expected an exception for unclosed OBJECT (mode: "+mode+")");
-        } catch (JsonParseException pe) {
-            verifyException(pe, "expected close marker for OBJECT");
+            fail("Expected an exception for unclosed OBJECT");
+        } catch (StreamReadException pe) {
+            verifyException(pe, "expected an Object property name or END_ARRAY");
         }
     }
 
-    public void testEOFInName(int mode) throws Exception
+    public void testEOFInName() throws Exception
     {
         final String JSON = "{ \"abcd";
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc(JSON), 0);
@@ -54,14 +53,8 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected an exception for EOF");
-        } catch (JsonParseException pe) {
+        } catch (StreamReadException pe) {
             verifyException(pe, "Unexpected end-of-input");
-        } catch (IOException ie) {
-            // DataInput behaves bit differently
-            if (mode == MODE_DATA_INPUT) {
-                verifyException(ie, "end-of-input");
-                return;
-            }
         }
     }
 
@@ -75,7 +68,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected an exception for incorrectly closed ARRAY");
-        } catch (JsonParseException pe) {
+        } catch (StreamReadException pe) {
             verifyException(pe, "Unexpected close marker '}': expected ']'");
         }
         p.close();
@@ -91,13 +84,13 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected an exception for incorrectly closed OBJECT");
-        } catch (JsonParseException pe) {
+        } catch (StreamReadException pe) {
             verifyException(pe, "Unexpected close marker ']': expected '}'");
         }
         p.close();
     }
 
-    public void testMisssingColon(int mode) throws Exception
+    public void testMisssingColon() throws Exception
     {
         final String JSON = "{ \"a\" \"b\" }";
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc(JSON), 0);
@@ -108,7 +101,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
             assertToken(JsonToken.FIELD_NAME, p.nextToken());
             p.nextToken();
             fail("Expected an exception for missing semicolon");
-        } catch (JsonParseException pe) {
+        } catch (StreamReadException pe) {
             verifyException(pe, "was expecting a colon");
         }
         p.close();

@@ -685,7 +685,7 @@ public class WriterBasedJsonGenerator
 
     @Override
     public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
@@ -704,7 +704,7 @@ public class WriterBasedJsonGenerator
     @Override
     public int writeBinary(Base64Variant b64variant,
             InputStream data, int dataLength)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
@@ -1296,7 +1296,7 @@ public class WriterBasedJsonGenerator
      * for subset of characters
      */
     private void _writeStringASCII(final int len, final int maxNonEscaped)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         // And then we'll need to verify need for escaping etc:
         int end = _outputTail + len;
@@ -1338,7 +1338,7 @@ public class WriterBasedJsonGenerator
     }
 
     private void _writeSegmentASCII(int end, final int maxNonEscaped)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         final int[] escCodes = _outputEscapes;
         final int escLimit = Math.min(escCodes.length, maxNonEscaped+1);
@@ -1384,7 +1384,7 @@ public class WriterBasedJsonGenerator
 
     private void _writeStringASCII(char[] text, int offset, int len,
             final int maxNonEscaped)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         len += offset; // -> len marks the end from now on
         final int[] escCodes = _outputEscapes;
@@ -1452,7 +1452,7 @@ public class WriterBasedJsonGenerator
      * for subset of characters
      */
     private void _writeStringCustom(final int len)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         // And then we'll need to verify need for escaping etc:
         int end = _outputTail + len;
@@ -1501,7 +1501,7 @@ public class WriterBasedJsonGenerator
     }
 
     private void _writeSegmentCustom(int end)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         final int[] escCodes = _outputEscapes;
         final int maxNonEscaped = (_maximumNonEscapedChar < 1) ? 0xFFFF : _maximumNonEscapedChar;
@@ -1553,7 +1553,7 @@ public class WriterBasedJsonGenerator
     }
 
     private void _writeStringCustom(char[] text, int offset, int len)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         len += offset; // -> len marks the end from now on
         final int[] escCodes = _outputEscapes;
@@ -1624,7 +1624,7 @@ public class WriterBasedJsonGenerator
      */
     
     protected final void _writeBinary(Base64Variant b64variant, byte[] input, int inputPtr, final int inputEnd)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         // Encoding is by chunks of 3 input, 4 output chars, so:
         int safeInputEnd = inputEnd - 3;
@@ -1667,7 +1667,7 @@ public class WriterBasedJsonGenerator
     // write-method called when length is definitely known
     protected final int _writeBinary(Base64Variant b64variant,
             InputStream data, byte[] readBuffer, int bytesLeft)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         int inputPtr = 0;
         int inputEnd = 0;
@@ -1727,7 +1727,7 @@ public class WriterBasedJsonGenerator
     // write method when length is unknown
     protected final int _writeBinary(Base64Variant b64variant,
             InputStream data, byte[] readBuffer)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         int inputPtr = 0;
         int inputEnd = 0;
@@ -1846,7 +1846,7 @@ public class WriterBasedJsonGenerator
      * Uses head and tail pointers (and updates as necessary)
      */
     private void _prependOrWriteCharacterEscape(char ch, int escCode)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         if (escCode >= 0) { // \\N (2 char)
             if (_outputTail >= 2) { // fits, just prepend
@@ -1949,7 +1949,7 @@ public class WriterBasedJsonGenerator
      */
     private int _prependOrWriteCharacterEscape(char[] buffer, int ptr, int end,
             char ch, int escCode)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         if (escCode >= 0) { // \\N (2 char)
             if (ptr > 1 && ptr < end) { // fits, just prepend
@@ -2041,7 +2041,7 @@ public class WriterBasedJsonGenerator
      * end of standard output buffer; or if not possible, write out directly.
      */
     private void _appendCharacterEscape(char ch, int escCode)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         if (escCode >= 0) { // \\N (2 char)
             if ((_outputTail + 2) > _outputEnd) {

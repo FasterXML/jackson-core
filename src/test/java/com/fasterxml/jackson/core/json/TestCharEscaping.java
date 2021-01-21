@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 
 /**
@@ -61,7 +62,7 @@ public class TestCharEscaping
             // and if not, should get it here:
             jp.getText();
             fail("Expected an exception for un-escaped linefeed in string value");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "has to be escaped");
         }
         jp.close();
@@ -150,7 +151,7 @@ public class TestCharEscaping
             jp.nextToken();
             jp.getText();
             fail("Expected an exception for unclosed ARRAY");
-        } catch (JsonParseException jpe) {
+        } catch (StreamReadException jpe) {
             verifyException(jpe, "for character escape");
         }
         jp.close();
@@ -202,7 +203,7 @@ public class TestCharEscaping
         try {
             p.getText();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character");
         }
         p.close();

@@ -14,10 +14,10 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class Surrogate223Test extends BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
     
     // for [core#223]
-    public void testSurrogatesByteBacked() throws Exception
+    public void testSurrogatesByteBacked()
     {
         ByteArrayOutputStream out;
         JsonGenerator g;
@@ -54,7 +54,7 @@ public class Surrogate223Test extends BaseTest
     }
 
     // for [core#223]
-    public void testSurrogatesCharBacked() throws Exception
+    public void testSurrogatesCharBacked()
     {
         Writer out;
         JsonGenerator g;

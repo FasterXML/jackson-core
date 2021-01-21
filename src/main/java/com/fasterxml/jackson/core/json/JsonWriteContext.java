@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 
 /**
  * Extension of {@link TokenStreamContext}, which implements
@@ -173,10 +174,11 @@ public class JsonWriteContext extends TokenStreamContext
      *
      * @return Index of the field entry (0-based)
      *
-     * @throws JsonGenerationException if duplicate check restriction is violated (which
+     * @throws StreamWriteException if duplicate check restriction is violated (which
      *    assumes that duplicate-detection is enabled)
      */
-    public int writeFieldName(String name) throws JsonGenerationException {
+    public int writeFieldName(String name) throws StreamWriteException
+    {
         if ((_type != TYPE_OBJECT) || _gotName) {
             return STATUS_EXPECT_VALUE;
         }
@@ -186,14 +188,15 @@ public class JsonWriteContext extends TokenStreamContext
         return (_index < 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_COMMA;
     }
 
-    private final void _checkDup(DupDetector dd, String name) throws JsonGenerationException {
+    private final void _checkDup(DupDetector dd, String name) throws StreamWriteException
+    {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new JsonGenerationException("Duplicate field '"+name+"'",
+            throw new StreamWriteException("Duplicate field '"+name+"'",
                     ((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null));
         }
     }
-    
+
     public int writeValue() {
         // Most likely, object:
         if (_type == TYPE_OBJECT) {

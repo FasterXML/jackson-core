@@ -1685,21 +1685,20 @@ public abstract class JsonParser
      * @return {@link StreamReadException} constructed
      */
     protected StreamReadException _constructReadException(String msg) {
-        return new JsonParseException(this, msg)
+        return new StreamReadException(this, msg)
             .withRequestPayload(_requestPayload);
     }
 
     protected StreamReadException _constructReadException(String msg, Object arg) {
-        return new JsonParseException(this, String.format(msg, arg))
-            .withRequestPayload(_requestPayload);
+        return _constructReadException(String.format(msg, arg));
     }
 
     protected StreamReadException _constructReadException(String msg, Object arg1, Object arg2) {
-        return new JsonParseException(this, String.format(msg, arg1, arg2))
-            .withRequestPayload(_requestPayload);
+        return _constructReadException(String.format(msg, arg1, arg2));
     }
 
     protected final StreamReadException _constructReadException(String msg, Throwable t) {
-        return new JsonParseException(this, msg, t);
+        return new StreamReadException(this, msg, t)
+                .withRequestPayload(_requestPayload);
     }
 }

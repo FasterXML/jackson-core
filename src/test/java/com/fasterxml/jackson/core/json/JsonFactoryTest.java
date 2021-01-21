@@ -22,7 +22,7 @@ public class JsonFactoryTest
     /**********************************************************************
      */
 
-    final JsonFactory JSON_F = sharedStreamFactory();
+    final JsonFactory JSON_F = newStreamFactory();
 
     public void testStreamWriteFeatures() throws Exception
     {

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -16,7 +17,6 @@ public class ObjectWriteTest
     final TokenStreamFactory JSON_F = newStreamFactory();
 
     public void testEmptyObjectWrite()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -58,7 +58,6 @@ public class ObjectWriteTest
     }
 
     public void testInvalidObjectWrite()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -67,14 +66,13 @@ public class ObjectWriteTest
         try {
             gen.writeEndArray();
             fail("Expected an exception for mismatched array/object write");
-        } catch (JsonGenerationException e) {
+        } catch (StreamWriteException e) {
             verifyException(e, "Current context not Array");
         }
         gen.close();
     }
 
     public void testSimpleObjectWrite()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -106,11 +104,7 @@ public class ObjectWriteTest
         p.close();
     }
 
-    /**
-     * Methods to test functionality added for [JACKSON-26]
-     */
     public void testConvenienceMethods()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -214,11 +208,7 @@ public class ObjectWriteTest
         p.close();
     }
 
-    /**
-     * Tests to cover [JACKSON-164]
-     */
     public void testConvenienceMethodsWithNulls()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);

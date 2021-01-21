@@ -370,9 +370,14 @@ public class NonBlockingJsonParser
         switch (_minorState) {
         case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
             return _eofAsNextToken();
+        case MINOR_FIELD_LEADING_COMMA: // in Object after key/value pair
+            _reportInvalidEOF(": expected an Object property name or END_ARRAY", JsonToken.NOT_AVAILABLE);
+
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
             return _eofAsNextToken();
-//        case MINOR_VALUE_EXPECTING_COMMA: // not fine
+        case MINOR_VALUE_EXPECTING_COMMA:
+            _reportInvalidEOF(": expected a value token", JsonToken.NOT_AVAILABLE);
+            
 //        case MINOR_VALUE_EXPECTING_COLON: // not fine
         case MINOR_VALUE_TOKEN_NULL:
             return _finishKeywordTokenWithEOF("null", _pending32, JsonToken.VALUE_NULL);
@@ -409,7 +414,7 @@ public class NonBlockingJsonParser
             return _valueComplete(JsonToken.VALUE_NUMBER_FLOAT);
 
         case MINOR_NUMBER_EXPONENT_MARKER:
-            _reportInvalidEOF(": was expecting fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
+            _reportInvalidEOF(": expected fraction after exponent marker", JsonToken.VALUE_NUMBER_FLOAT);
 
             // How about comments? 
             // Inside C-comments; not legal
@@ -417,7 +422,7 @@ public class NonBlockingJsonParser
 //        case MINOR_COMMENT_LEADING_SLASH: // not legal, but use default error
         case MINOR_COMMENT_CLOSING_ASTERISK:
         case MINOR_COMMENT_C:
-            _reportInvalidEOF(": was expecting closing '*/' for comment", JsonToken.NOT_AVAILABLE);
+            _reportInvalidEOF(": expected closing '*/' for comment", JsonToken.NOT_AVAILABLE);
 
         case MINOR_COMMENT_CPP:
         case MINOR_COMMENT_YAML:
@@ -426,7 +431,10 @@ public class NonBlockingJsonParser
             
         default:
         }
-        _reportInvalidEOF(": was expecting rest of token (internal state: "+_minorState+")", _currToken);
+
+        // 20-Jan-2021, tatu: There's room for improvement here: 
+        
+        _reportInvalidEOF(": expected rest of token (internal state: "+_minorState+")", _currToken);
         return t; // never gets here
     }
 

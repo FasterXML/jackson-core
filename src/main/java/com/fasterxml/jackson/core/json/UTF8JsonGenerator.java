@@ -880,7 +880,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeBinary(Base64Variant b64variant,
             byte[] data, int offset, int len)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
@@ -899,7 +899,7 @@ public class UTF8JsonGenerator
     @Override
     public int writeBinary(Base64Variant b64variant,
             InputStream data, int dataLength)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
@@ -1758,7 +1758,7 @@ public class UTF8JsonGenerator
     }
 
     private final int _writeCustomEscape(byte[] outputBuffer, int outputPtr, SerializableString esc, int remainingChars)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         byte[] raw = esc.asUnquotedUTF8(); // must be escaped at this point, shouldn't double-quote
         int len = raw.length;
@@ -1772,7 +1772,7 @@ public class UTF8JsonGenerator
     
     private final int _handleLongCustomEscape(byte[] outputBuffer, int outputPtr, int outputEnd,
             byte[] raw, int remainingChars)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         final int len = raw.length;
         if ((outputPtr + len) > outputEnd) {
@@ -1811,7 +1811,7 @@ public class UTF8JsonGenerator
      * chunk writes.
      */
     private final void _writeUTF8Segments(byte[] utf8, int offset, int totalLen)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         do {
             int len = Math.min(_outputMaxContiguous, totalLen);
@@ -1822,7 +1822,7 @@ public class UTF8JsonGenerator
     }
     
     private final void _writeUTF8Segment(byte[] utf8, final int offset, final int len)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         // fast loop to see if escaping is needed; don't copy, just look
         final int[] escCodes = _outputEscapes;
@@ -1845,7 +1845,7 @@ public class UTF8JsonGenerator
     }
 
     private final void _writeUTF8Segment2(final byte[] utf8, int offset, int len)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         int outputPtr = _outputTail;
 
@@ -1886,7 +1886,7 @@ public class UTF8JsonGenerator
     
     protected final void _writeBinary(Base64Variant b64variant,
             byte[] input, int inputPtr, final int inputEnd)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         // Encoding is by chunks of 3 input, 4 output chars, so:
         int safeInputEnd = inputEnd - 3;
@@ -1929,7 +1929,7 @@ public class UTF8JsonGenerator
     // write-method called when length is definitely known
     protected final int _writeBinary(Base64Variant b64variant,
             InputStream data, byte[] readBuffer, int bytesLeft)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         int inputPtr = 0;
         int inputEnd = 0;
@@ -1989,7 +1989,7 @@ public class UTF8JsonGenerator
     // write method when length is unknown
     protected final int _writeBinary(Base64Variant b64variant,
             InputStream data, byte[] readBuffer)
-        throws JacksonException, JsonGenerationException
+        throws JacksonException
     {
         int inputPtr = 0;
         int inputEnd = 0;

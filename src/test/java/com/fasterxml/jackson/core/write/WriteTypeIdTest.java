@@ -3,10 +3,10 @@ package com.fasterxml.jackson.core.write;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.ObjectWriteContext;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 
@@ -15,21 +15,21 @@ public class WriteTypeIdTest
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testNoNativeTypeIdForJson() throws Exception
+    public void testNoNativeTypeIdForJson()
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
-        assertFalse(gen.canWriteTypeId());
-        try {
-            gen.writeTypeId("whatever");
-            fail("Should not pass");
-        } catch (JsonGenerationException e) {
-            verifyException(e, "No native support for writing Type Ids");
+        try (JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw)) {
+            assertFalse(gen.canWriteTypeId());
+            try {
+                gen.writeTypeId("whatever");
+                fail("Should not pass");
+            } catch (StreamWriteException e) {
+                verifyException(e, "No native support for writing Type Ids");
+            }
         }
-        gen.close();
     }
 
-    public void testBasicTypeIdWriteForObject() throws Exception
+    public void testBasicTypeIdWriteForObject()
     {
         final Object data = new Object();
 
@@ -87,7 +87,7 @@ public class WriteTypeIdTest
         assertEquals("{\"value\":{\"number\":42},\"extId\":\"typeId\"}", sw.toString());
     }
 
-    public void testBasicTypeIdWriteForArray() throws Exception
+    public void testBasicTypeIdWriteForArray()
     {
         final Object data = new Object();
 

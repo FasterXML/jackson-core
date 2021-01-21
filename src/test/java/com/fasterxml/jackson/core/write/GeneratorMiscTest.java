@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 public class GeneratorMiscTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     /*
     /**********************************************************
@@ -21,7 +22,7 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
-    public void testIsClosed() throws IOException
+    public void testIsClosed()
     {
         for (int i = 0; i < 2; ++i) {
             boolean stream = ((i & 1) == 0);
@@ -48,7 +49,7 @@ public class GeneratorMiscTest
     /**********************************************************
      */
 
-    public void testRaw() throws IOException
+    public void testRaw()
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -70,7 +71,7 @@ public class GeneratorMiscTest
         jp.close();
     }
 
-    public void testRawValue() throws IOException
+    public void testRawValue()
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
@@ -104,14 +105,14 @@ public class GeneratorMiscTest
     /**
      * Unit test that tries to trigger buffer-boundary conditions
      */
-    public void testLongerObjects() throws Exception
+    public void testLongerObjects()
     {
         _testLongerObjects(JSON_F, 0);
         _testLongerObjects(JSON_F, 1);
         _testLongerObjects(JSON_F, 2);
     }
 
-    public void _testLongerObjects(JsonFactory jf, int mode) throws Exception
+    public void _testLongerObjects(JsonFactory jf, int mode)
     {
         JsonGenerator g;
         ByteArrayOutputStream bout = new ByteArrayOutputStream(200);
@@ -119,7 +120,11 @@ public class GeneratorMiscTest
 
         switch (mode) {
         case 0:
-            g = jf.createGenerator(writeCtxt, new OutputStreamWriter(bout, "UTF-8"));
+            try {
+                g = jf.createGenerator(writeCtxt, new OutputStreamWriter(bout, "UTF-8"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             break;
         case 1:
             g = jf.createGenerator(writeCtxt, bout, JsonEncoding.UTF8);
@@ -190,7 +195,7 @@ public class GeneratorMiscTest
      */
 
     // NOTE: test for binary data under `base64/` tests
-    public void testAsEmbedded() throws Exception
+    public void testAsEmbedded()
     {
         JsonGenerator g;
 
@@ -204,7 +209,7 @@ public class GeneratorMiscTest
         g = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeEmbeddedObject(null);
         g.close();
-        assertEquals("null", bytes.toString("UTF-8"));
+        assertEquals("null", utf8String(bytes));
 
         // also, for fun, try illegal unknown thingy
 
@@ -214,7 +219,7 @@ public class GeneratorMiscTest
             g.writeEmbeddedObject(getClass());
             fail("Expected an exception");
             g.close(); // never gets here
-        } catch (JsonGenerationException e) {
+        } catch (StreamWriteException e) {
             verifyException(e, "No native support for");
         }
     }

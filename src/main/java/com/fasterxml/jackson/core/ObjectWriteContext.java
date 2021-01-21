@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.OutputStream;
 import java.io.Writer;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
@@ -89,7 +90,7 @@ public interface ObjectWriteContext
      * @param value Java value to be serialized
      *
      * @throws WrappedIOException for low-level write problems,
-     * @throws com.fasterxml.jackson.core.JsonGenerationException for encoding problems
+     * @throws StreamWriteException for encoding problems
      * @throws JacksonException (various subtypes) for databinding problems
      */
     public void writeValue(JsonGenerator g, Object value) throws JacksonException;

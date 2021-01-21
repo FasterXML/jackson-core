@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -14,33 +15,33 @@ public class NonStandardNumberParsingTest
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */
-    public void testLeadingDotInDecimal() throws Exception {
+    public void testLeadingDotInDecimal() {
         for (int mode : ALL_MODES) {
             JsonParser p = createParser(mode, " .123 ");
             try {
                 p.nextToken();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('.'");
             }
             p.close();
         }
     }
 
-    public void testLeadingDotInDecimalAllowedAsync() throws Exception {
+    public void testLeadingDotInDecimalAllowedAsync() {
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_DATA_INPUT);
     }
 
-    public void testLeadingDotInDecimalAllowedBytes() throws Exception {
+    public void testLeadingDotInDecimalAllowedBytes() {
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_INPUT_STREAM);
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_INPUT_STREAM_THROTTLED);
     }
 
-    public void testLeadingDotInDecimalAllowedReader() throws Exception {
+    public void testLeadingDotInDecimalAllowedReader() {
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_READER);
     }
 
-    private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode) throws Exception
+    private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode)
     {
         JsonParser p = createParser(f, mode, " .125 ");
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());

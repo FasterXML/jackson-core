@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -366,7 +367,7 @@ public abstract class JsonGenerator
      * a field name is expected.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeStartArray() throws JacksonException;
 
@@ -381,7 +382,7 @@ public abstract class JsonGenerator
      *    (or {@code null} if not known or not applicable)
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeStartArray(Object currentValue) throws JacksonException;
 
@@ -400,7 +401,7 @@ public abstract class JsonGenerator
      *   this is the case (and SHOULD if format itself encodes length)
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeStartArray(Object currentValue, int size) throws JacksonException;
 
@@ -413,7 +414,7 @@ public abstract class JsonGenerator
      * is Array.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeEndArray() throws JacksonException;
 
@@ -427,7 +428,7 @@ public abstract class JsonGenerator
      * a field name is expected.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeStartObject() throws JacksonException;
 
@@ -446,7 +447,7 @@ public abstract class JsonGenerator
      *    (or {@code null} if not known or not applicable)
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeStartObject(Object currentValue) throws JacksonException;
 
@@ -472,7 +473,7 @@ public abstract class JsonGenerator
      *   this is the case (and SHOULD if format itself encodes length)
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeStartObject(Object forValue, int size) throws JacksonException;
 
@@ -487,7 +488,7 @@ public abstract class JsonGenerator
      * for more details).
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeEndObject() throws JacksonException;
 
@@ -503,7 +504,7 @@ public abstract class JsonGenerator
      * @param name Field name to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeFieldName(String name) throws JacksonException;
 
@@ -521,7 +522,7 @@ public abstract class JsonGenerator
      * @param name Pre-encoded field name to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeFieldName(SerializableString name) throws JacksonException;
 
@@ -536,7 +537,7 @@ public abstract class JsonGenerator
      * @param id Field id to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeFieldId(long id) throws JacksonException;
 
@@ -556,7 +557,7 @@ public abstract class JsonGenerator
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeArray(int[] array, int offset, int length) throws JacksonException
     {
@@ -579,7 +580,7 @@ public abstract class JsonGenerator
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeArray(long[] array, int offset, int length) throws JacksonException
     {
@@ -602,7 +603,7 @@ public abstract class JsonGenerator
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeArray(double[] array, int offset, int length) throws JacksonException
     {
@@ -625,7 +626,7 @@ public abstract class JsonGenerator
      * @param length Number of elements in array to write, from `offset` to `offset + len - 1`
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeArray(String[] array, int offset, int length) throws JacksonException
     {
@@ -654,7 +655,7 @@ public abstract class JsonGenerator
      * @param value String value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeString(String value) throws JacksonException;
 
@@ -669,14 +670,14 @@ public abstract class JsonGenerator
      *<p>
      * Note: actual length of content available may exceed {@code len} but
      * can not be less than it: if not enough content available, a
-     * {@link JsonGenerationException} will be thrown.
+     * {@link StreamWriteException} will be thrown.
      *
      * @param reader Reader to use for reading Text value to write
      * @param len Maximum Length of Text value to read (in {@code char}s, non-negative)
      *    if known; {@code -1} to indicate "read and write it all"
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      *    (including the case where {@code reader} does not provide enough content)
      */
     public abstract void writeString(Reader reader, int len) throws JacksonException;
@@ -693,7 +694,7 @@ public abstract class JsonGenerator
      * @param len Length of the String value (in characters) to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeString(char[] buffer, int offset, int len) throws JacksonException;
 
@@ -710,7 +711,7 @@ public abstract class JsonGenerator
      * @param value Pre-encoded String value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeString(SerializableString value) throws JacksonException;
 
@@ -733,7 +734,7 @@ public abstract class JsonGenerator
      * @param len Length of the String value (in characters) to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeRawUTF8String(byte[] buffer, int offset, int len)
         throws JacksonException;
@@ -761,7 +762,7 @@ public abstract class JsonGenerator
      * @param len Length of the String value (in characters) to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeUTF8String(byte[] buffer, int offset, int len)
         throws JacksonException;
@@ -787,7 +788,7 @@ public abstract class JsonGenerator
      * @param text Textual contents to include as-is in output.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeRaw(String text) throws JacksonException;
 
@@ -808,7 +809,7 @@ public abstract class JsonGenerator
      * @param len Length of content (from {@code text}, starting at offset {@code offset}) to output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeRaw(String text, int offset, int len) throws JacksonException;
 
@@ -829,7 +830,7 @@ public abstract class JsonGenerator
      * @param len Length of content (from {@code text}, starting at offset {@code offset}) to output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeRaw(char[] buffer, int offset, int len) throws JacksonException;
 
@@ -848,7 +849,7 @@ public abstract class JsonGenerator
      * @param c Character to included in output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeRaw(char c) throws JacksonException;
 
@@ -872,7 +873,7 @@ public abstract class JsonGenerator
      * @param raw Pre-encoded textual contents to included in output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeRaw(SerializableString raw) throws JacksonException {
         writeRaw(raw.getValue());
@@ -889,7 +890,7 @@ public abstract class JsonGenerator
      * @param text Textual contents to included in output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeRawValue(String text) throws JacksonException;
 
@@ -905,7 +906,7 @@ public abstract class JsonGenerator
      * @param raw Pre-encoded textual contents to included in output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeRawValue(SerializableString raw) throws JacksonException {
         writeRawValue(raw.getValue());
@@ -942,7 +943,7 @@ public abstract class JsonGenerator
      * @param len Length of data to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeBinary(Base64Variant bv,
             byte[] data, int offset, int len) throws JacksonException;
@@ -957,7 +958,7 @@ public abstract class JsonGenerator
      * @param len Length of data to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeBinary(byte[] data, int offset, int len) throws JacksonException {
         writeBinary(Base64Variants.getDefaultVariant(), data, offset, len);
@@ -972,7 +973,7 @@ public abstract class JsonGenerator
      * @param data Buffer that contains binary data to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeBinary(byte[] data) throws JacksonException {
         writeBinary(Base64Variants.getDefaultVariant(), data, 0, data.length);
@@ -994,7 +995,7 @@ public abstract class JsonGenerator
      * @return Number of bytes actually written
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public int writeBinary(InputStream data, int dataLength) throws JacksonException {
         return writeBinary(Base64Variants.getDefaultVariant(), data, dataLength);
@@ -1020,7 +1021,7 @@ public abstract class JsonGenerator
      * @return Number of bytes read from <code>data</code> and written as binary payload
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract int writeBinary(Base64Variant bv,
             InputStream data, int dataLength) throws JacksonException;
@@ -1041,7 +1042,7 @@ public abstract class JsonGenerator
      * @param v Number value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(short v) throws JacksonException;
 
@@ -1055,7 +1056,7 @@ public abstract class JsonGenerator
      * @param v Number value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(int v) throws JacksonException;
 
@@ -1069,7 +1070,7 @@ public abstract class JsonGenerator
      * @param v Number value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(long v) throws JacksonException;
 
@@ -1083,7 +1084,7 @@ public abstract class JsonGenerator
      * @param v Number value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(BigInteger v) throws JacksonException;
 
@@ -1097,7 +1098,7 @@ public abstract class JsonGenerator
      * @param v Number value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(double v) throws JacksonException;
 
@@ -1111,7 +1112,7 @@ public abstract class JsonGenerator
      * @param v Number value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(float v) throws JacksonException;
 
@@ -1125,7 +1126,7 @@ public abstract class JsonGenerator
      * @param v Number value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(BigDecimal v) throws JacksonException;
 
@@ -1152,7 +1153,7 @@ public abstract class JsonGenerator
      *   to just output a String instead (Schema-based formats may require actual
      *   number, for example)
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNumber(String encodedValue) throws JacksonException;
 
@@ -1165,7 +1166,7 @@ public abstract class JsonGenerator
      * @param len Length of the value (in characters) to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeNumber(char[] encodedValueBuffer, int offset, int len) throws JacksonException {
         writeNumber(new String(encodedValueBuffer, offset, len));
@@ -1188,7 +1189,7 @@ public abstract class JsonGenerator
      * @param state Boolean value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeBoolean(boolean state) throws JacksonException;
 
@@ -1200,7 +1201,7 @@ public abstract class JsonGenerator
      * if pretty-printing is enabled.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeNull() throws JacksonException;
 
@@ -1215,7 +1216,7 @@ public abstract class JsonGenerator
      * @param object Native format-specific value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeEmbeddedObject(Object object) throws JacksonException {
         // 01-Sep-2016, tatu: As per [core#318], handle small number of cases
@@ -1247,7 +1248,7 @@ public abstract class JsonGenerator
      * @param id Native Object Id to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream;
+     * @throws StreamWriteException for problems in encoding token stream;
      *   typically if Object ID output is not allowed
      *   (either at all, or specifically in this position in output)
      */
@@ -1262,12 +1263,12 @@ public abstract class JsonGenerator
      * have native type id support; and some may only allow them in
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
-     * a {@link JsonGenerationException} will be thrown.
+     * a {@link StreamWriteException} will be thrown.
      *
      * @param referenced Referenced value, for which Object Id is expected to be written
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream;
+     * @throws StreamWriteException for problems in encoding token stream;
      *   typically if Object ID output is not allowed
      *   (either at all, or specifically in this position in output)
      */
@@ -1282,12 +1283,12 @@ public abstract class JsonGenerator
      * have native type id support; and some may only allow them in
      * certain positions or locations.
      * If output is not allowed by the data format in this position,
-     * a {@link JsonGenerationException} will be thrown.
+     * a {@link StreamWriteException} will be thrown.
      *
      * @param id Native Type Id to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeTypeId(Object id) throws JacksonException {
         throw _constructWriteException("No native support for writing Type Ids");
@@ -1311,7 +1312,7 @@ public abstract class JsonGenerator
      *   {@link #writeTypeSuffix} call
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public WritableTypeId writeTypePrefix(WritableTypeId typeIdDef)
         throws JacksonException
@@ -1424,7 +1425,7 @@ public abstract class JsonGenerator
      * @param pojo General POJO value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeObject(Object pojo) throws JacksonException;
 
@@ -1437,7 +1438,7 @@ public abstract class JsonGenerator
      * @param rootNode {@link TreeNode} to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public abstract void writeTree(TreeNode rootNode) throws JacksonException;
 
@@ -1464,7 +1465,7 @@ public abstract class JsonGenerator
      * @param data Binary value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeBinaryField(String fieldName, byte[] data) throws JacksonException {
         writeFieldName(fieldName);
@@ -1483,7 +1484,7 @@ public abstract class JsonGenerator
      * @param value Boolean value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeBooleanField(String fieldName, boolean value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1501,7 +1502,7 @@ public abstract class JsonGenerator
      * @param fieldName Name of the null-valued field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNullField(String fieldName) throws JacksonException {
         writeFieldName(fieldName);
@@ -1520,7 +1521,7 @@ public abstract class JsonGenerator
      * @param value String value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeStringField(String fieldName, String value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1539,7 +1540,7 @@ public abstract class JsonGenerator
      * @param value Numeric value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNumberField(String fieldName, short value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1558,7 +1559,7 @@ public abstract class JsonGenerator
      * @param value Numeric value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNumberField(String fieldName, int value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1577,7 +1578,7 @@ public abstract class JsonGenerator
      * @param value Numeric value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNumberField(String fieldName, long value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1596,7 +1597,7 @@ public abstract class JsonGenerator
      * @param value Numeric value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNumberField(String fieldName, BigInteger value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1615,7 +1616,7 @@ public abstract class JsonGenerator
      * @param value Numeric value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNumberField(String fieldName, float value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1634,7 +1635,7 @@ public abstract class JsonGenerator
      * @param value Numeric value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNumberField(String fieldName, double value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1654,7 +1655,7 @@ public abstract class JsonGenerator
      * @param value Numeric value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeNumberField(String fieldName, BigDecimal value) throws JacksonException {
         writeFieldName(fieldName);
@@ -1677,7 +1678,7 @@ public abstract class JsonGenerator
      * @param fieldName Name of the Array field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeArrayFieldStart(String fieldName) throws JacksonException {
         writeFieldName(fieldName);
@@ -1700,7 +1701,7 @@ public abstract class JsonGenerator
      * @param fieldName Name of the Object field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeObjectFieldStart(String fieldName) throws JacksonException {
         writeFieldName(fieldName);
@@ -1723,7 +1724,7 @@ public abstract class JsonGenerator
      * @param pojo POJO value of the field to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public final void writeObjectField(String fieldName, Object pojo) throws JacksonException {
         writeFieldName(fieldName);
@@ -1742,7 +1743,7 @@ public abstract class JsonGenerator
      * @param fieldName Name of the field that is being omitted
      *
      * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void writeOmittedField(String fieldName) throws JacksonException { }
 
@@ -1769,7 +1770,7 @@ public abstract class JsonGenerator
      *
      * @throws WrappedIOException if there is an underlying I/O problem (reading or writing)
      * @throws StreamReadException for problems with decoding of token stream
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void copyCurrentEvent(JsonParser p) throws JacksonException
     {
@@ -1876,7 +1877,7 @@ public abstract class JsonGenerator
      *
      * @throws WrappedIOException if there is an underlying I/O problem (reading or writing)
      * @throws StreamReadException for problems with decoding of token stream
-     * @throws JsonGenerationException for problems in encoding token stream
+     * @throws StreamWriteException for problems in encoding token stream
      */
     public void copyCurrentStructure(JsonParser p) throws JacksonException
     {
@@ -2041,10 +2042,10 @@ public abstract class JsonGenerator
 
     /**
      * Helper method used for constructing and throwing
-     * {@link JsonGenerationException} with given base message.
+     * {@link StreamWriteException} with given base message.
      *<p>
      * Note that sub-classes may override this method to add more detail
-     * or use a {@link JsonGenerationException} sub-class.
+     * or use a {@link StreamWriteException} sub-class.
      *
      * @param <T> Bogus type parameter to "return anything" so that compiler
      *   won't complain when chaining calls
@@ -2053,9 +2054,9 @@ public abstract class JsonGenerator
      *
      * @return Does not return at all as exception is always thrown, but nominally returns "anything"
      *
-     * @throws JsonGenerationException that was constructed with given message
+     * @throws StreamWriteException that was constructed with given message
      */
-    protected <T> T _reportError(String msg) throws JsonGenerationException {
+    protected <T> T _reportError(String msg) throws StreamWriteException {
         throw _constructWriteException(msg);
     }
 
@@ -2064,20 +2065,20 @@ public abstract class JsonGenerator
     }
 
     // @since 3.0
-    protected JsonGenerationException _constructWriteException(String msg) {
-        return new JsonGenerationException(msg, this);
+    protected StreamWriteException _constructWriteException(String msg) {
+        return new StreamWriteException(msg, this);
     }
 
-    protected JsonGenerationException _constructWriteException(String msg, Object arg) {
-        return new JsonGenerationException(String.format(msg, arg), this);
+    protected StreamWriteException _constructWriteException(String msg, Object arg) {
+        return _constructWriteException(String.format(msg, arg));
     }
 
-    protected JsonGenerationException _constructWriteException(String msg, Object arg1, Object arg2) {
-        return new JsonGenerationException(String.format(msg, arg1, arg2), this);
+    protected StreamWriteException _constructWriteException(String msg, Object arg1, Object arg2) {
+        return _constructWriteException(String.format(msg, arg1, arg2));
     }
 
-    protected JsonGenerationException _constructWriteException(String msg, Throwable t) {
-        return new JsonGenerationException(msg, t, this);
+    protected StreamWriteException _constructWriteException(String msg, Throwable t) {
+        return new StreamWriteException(msg, t, this);
     }
 
     // @since 3.0

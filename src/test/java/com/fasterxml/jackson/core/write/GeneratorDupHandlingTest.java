@@ -3,20 +3,20 @@ package com.fasterxml.jackson.core.write;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 
 public class GeneratorDupHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    public void testSimpleDupsEagerlyBytes() throws Exception {
+    public void testSimpleDupsEagerlyBytes() {
         _testSimpleDups(true, newStreamFactory());
     }
-    public void testSimpleDupsEagerlyChars() throws Exception {
+    public void testSimpleDupsEagerlyChars() {
         _testSimpleDups(false, newStreamFactory());
     }
 
     @SuppressWarnings("resource")
     protected void _testSimpleDups(boolean useStream, TokenStreamFactory f)
-            throws Exception
     {
         // First: fine, when not checking
         _writeSimple0(_generator(f, useStream), "a");
@@ -30,7 +30,7 @@ public class GeneratorDupHandlingTest
         try {
             _writeSimple0(g1, "a");
             fail("Should have gotten exception");
-        } catch (JsonGenerationException e) {
+        } catch (StreamWriteException e) {
             verifyException(e, "duplicate field 'a'");
         }
 
@@ -39,19 +39,19 @@ public class GeneratorDupHandlingTest
         try {
             _writeSimple1(g2, "x");
             fail("Should have gotten exception");
-        } catch (JsonGenerationException e) {
+        } catch (StreamWriteException e) {
             verifyException(e, "duplicate field 'x'");
         }
     }
 
-    protected JsonGenerator _generator(TokenStreamFactory f, boolean useStream) throws IOException
+    protected JsonGenerator _generator(TokenStreamFactory f, boolean useStream)
     {
         return useStream ?
                 f.createGenerator(ObjectWriteContext.empty(), new ByteArrayOutputStream())
                 : f.createGenerator(ObjectWriteContext.empty(), new StringWriter());
     }
 
-    protected void _writeSimple0(JsonGenerator g, String name) throws IOException
+    protected void _writeSimple0(JsonGenerator g, String name)
     {
         g.writeStartObject();
         g.writeNumberField(name, 1);
@@ -60,7 +60,7 @@ public class GeneratorDupHandlingTest
         g.close();
     }
 
-    protected void _writeSimple1(JsonGenerator g, String name) throws IOException
+    protected void _writeSimple1(JsonGenerator g, String name)
     {
         g.writeStartArray();
         g.writeNumber(3);

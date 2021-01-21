@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 import java.io.*;
@@ -12,11 +13,12 @@ import java.io.*;
 public class ArrayWriteTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    private final JsonFactory JSON_F = newStreamFactory();
+
     public void testEmptyArrayWrite()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
 
         TokenStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
@@ -70,26 +72,24 @@ public class ArrayWriteTest
     }
 
     public void testInvalidArrayWrite()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartArray();
         // Mismatch:
         try {
             gen.writeEndObject();
             fail("Expected an exception for mismatched array/object write");
-        } catch (JsonGenerationException e) {
+        } catch (StreamWriteException e) {
             verifyException(e, "Current context not Object");
         }
         gen.close();
     }
 
     public void testSimpleArrayWrite()
-        throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartArray();
         gen.writeNumber(13);
         gen.writeBoolean(true);
@@ -97,15 +97,15 @@ public class ArrayWriteTest
         gen.writeEndArray();
         gen.close();
         String docStr = sw.toString();
-        JsonParser jp = createParserUsingReader(docStr);
-        assertEquals(JsonToken.START_ARRAY, jp.nextToken());
-        assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals(13, jp.getIntValue());
-        assertEquals(JsonToken.VALUE_TRUE, jp.nextToken());
-        assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("foobar", jp.getText());
-        assertEquals(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(null, jp.nextToken());
-        jp.close();
+        JsonParser p = createParserUsingReader(docStr);
+        assertEquals(JsonToken.START_ARRAY, p.nextToken());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(13, p.getIntValue());
+        assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
+        assertEquals(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("foobar", p.getText());
+        assertEquals(JsonToken.END_ARRAY, p.nextToken());
+        assertEquals(null, p.nextToken());
+        p.close();
     }
 }

@@ -6,13 +6,15 @@ import com.fasterxml.jackson.core.util.RequestPayload;
 /**
  * Intermediate base class for all read-side streaming processing problems, including
  * parsing and input value coercion problems.
+ *<p>
+ * Added in 2.10 to eventually replace {@link com.fasterxml.jackson.core.JsonParseException}.
  *
  * @since 2.10
  */
 public abstract class StreamReadException
     extends JsonProcessingException
 {
-    final static long serialVersionUID = 1L;
+    final static long serialVersionUID = 2L;
 
     protected transient JsonParser _processor;
 
@@ -24,17 +26,17 @@ public abstract class StreamReadException
      */
     protected RequestPayload _requestPayload;
 
-    public StreamReadException(JsonParser p, String msg) {
+    protected StreamReadException(JsonParser p, String msg) {
         super(msg, (p == null) ? null : p.getCurrentLocation());
         _processor = p;
     }
 
-    public StreamReadException(JsonParser p, String msg, Throwable root) {
+    protected StreamReadException(JsonParser p, String msg, Throwable root) {
         super(msg, (p == null) ? null : p.getCurrentLocation(), root);
         _processor = p;
     }
 
-    public StreamReadException(JsonParser p, String msg, JsonLocation loc) {
+    protected StreamReadException(JsonParser p, String msg, JsonLocation loc) {
         super(msg, loc, null);
         _processor = p;
     }

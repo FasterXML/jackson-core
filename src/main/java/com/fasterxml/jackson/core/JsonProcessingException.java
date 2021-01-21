@@ -13,7 +13,7 @@ package com.fasterxml.jackson.core;
  * Sub-class of {@link java.io.IOException} for convenience.
  *<p>
  * Since Jackson 2.12 extends intermediate {@link JacksonException} type
- * instead of directly extending {@link java.io.IOException}
+ * instead of directly extending {@link java.io.IOException}.
  */
 public class JsonProcessingException extends JacksonException
 {
@@ -43,9 +43,9 @@ public class JsonProcessingException extends JacksonException
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -90,9 +90,9 @@ public class JsonProcessingException extends JacksonException
     public Object getProcessor() { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods for sub-classes to use, override
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -105,9 +105,9 @@ public class JsonProcessingException extends JacksonException
     protected String getMessageSuffix() { return null; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides of standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

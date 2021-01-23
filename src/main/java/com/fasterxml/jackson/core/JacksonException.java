@@ -88,10 +88,13 @@ public abstract class JacksonException
      * to set it; this means that caller needs to take care to check for nulls.
      * Subtypes override this method with co-variant return type, for more
      * type-safe access.
+     *<p>
+     * NOTE: In Jackson 2.x, accessor was {@code getProcessor()}: in 3.0 changed to
+     * non-getter to avoid having to annotate for serialization.
      * 
      * @return Originating processor, if available; {@code null} if not.
      */
-    public Object getProcessor() { return null; }
+    public Object processor() { return null; }
 
     /*
     /**********************************************************************
@@ -103,10 +106,14 @@ public abstract class JacksonException
      * Accessor that sub-classes can override to append additional
      * information right after the main message, but before
      * source location information.
+     *<p>
+     * NOTE: In Jackson 2.x, accessor was {@code getMessageSuffix()}: in 3.0 changed to
+     * non-getter to indicate it is not a "regular" getter (although it would not
+     * be serialized anyway due to lower visibility).
      *
-     * @return Message suffix configured, if any; {@code null} if none
+     * @return Message suffix configured to be used, if any; {@code null} if none
      */
-    protected String getMessageSuffix() { return null; }
+    protected String messageSuffix() { return null; }
 
     /*
     /**********************************************************************
@@ -127,7 +134,7 @@ public abstract class JacksonException
             msg = "N/A";
         }
         JsonLocation loc = getLocation();
-        String suffix = getMessageSuffix();
+        String suffix = messageSuffix();
         // mild optimization, if nothing extra is needed:
         if ((loc != null) || suffix != null) {
             StringBuilder sb = new StringBuilder(100);

@@ -30,7 +30,7 @@ public class StreamWriteException
 
     /**
      * Fluent method that may be used to assign originating {@link JsonGenerator},
-     * to be accessed using {@link #getProcessor()}.
+     * to be accessed using {@link #processor()}.
      *
      * @param g Generator to assign
      *
@@ -42,5 +42,5 @@ public class StreamWriteException
     }
 
     @Override
-    public JsonGenerator getProcessor() { return _processor; }
+    public JsonGenerator processor() { return _processor; }
 }

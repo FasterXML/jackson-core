@@ -47,7 +47,7 @@ public class StreamReadException
 
     /**
      * Fluent method that may be used to assign originating {@link JsonParser},
-     * to be accessed using {@link #getProcessor()}.
+     * to be accessed using {@link #processor()}.
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
      *
@@ -76,7 +76,7 @@ public class StreamReadException
     }
 
     @Override
-    public JsonParser getProcessor() {
+    public JsonParser processor() {
         return _processor;
     }
 

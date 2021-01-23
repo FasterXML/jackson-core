@@ -41,7 +41,7 @@ public class TestExceptions extends BaseTest
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "{}");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         StreamReadException e = new StreamReadException(p, "Test!");
-        assertSame(p, e.getProcessor());
+        assertSame(p, e.processor());
         assertEquals("Test!", e.getOriginalMessage());
         JsonLocation loc = e.getLocation();
         assertNotNull(loc);
@@ -57,7 +57,7 @@ public class TestExceptions extends BaseTest
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         g.writeStartObject();
         StreamWriteException e = new StreamWriteException("Test!", g);
-        assertSame(g, e.getProcessor());
+        assertSame(g, e.processor());
         assertEquals("Test!", e.getOriginalMessage());
         g.close();
     }

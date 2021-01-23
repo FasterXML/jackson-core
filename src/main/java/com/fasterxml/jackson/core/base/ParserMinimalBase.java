@@ -987,20 +987,20 @@ public abstract class ParserMinimalBase extends JsonParser
     /* Error reporting, generic
     /**********************************************************************
      */
-    
-    protected final void _reportError(String msg) throws StreamReadException {
+
+    protected void _reportError(String msg) throws StreamReadException {
         throw _constructReadException(msg);
     }
 
-    protected final void _reportError(String msg, Object arg) throws StreamReadException {
+    protected void _reportError(String msg, Object arg) throws StreamReadException {
         throw _constructReadException(String.format(msg, arg));
     }
 
-    protected final void _reportError(String msg, Object arg1, Object arg2) throws StreamReadException {
+    protected void _reportError(String msg, Object arg1, Object arg2) throws StreamReadException {
         throw _constructReadException(String.format(msg, arg1, arg2));
     }
 
-    protected final void _reportError(String msg, Object arg1, Object arg2, Object arg3) throws StreamReadException {
+    protected void _reportError(String msg, Object arg1, Object arg2, Object arg3) throws StreamReadException {
         throw _constructReadException(String.format(msg, arg1, arg2, arg3));
     }
 

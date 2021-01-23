@@ -27,7 +27,7 @@ public class InputCoercionException extends StreamReadException
     
     /**
      * Constructor that uses current parsing location as location, and
-     * sets processor (accessible via {@link #getProcessor()}) to
+     * sets processor (accessible via {@link #processor()}) to
      * specified parser.
      *
      * @param p Parser in use at the point where failure occurred
@@ -44,7 +44,7 @@ public class InputCoercionException extends StreamReadException
 
     /**
      * Fluent method that may be used to assign originating {@link JsonParser},
-     * to be accessed using {@link #getProcessor()}.
+     * to be accessed using {@link #processor()}.
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
      */

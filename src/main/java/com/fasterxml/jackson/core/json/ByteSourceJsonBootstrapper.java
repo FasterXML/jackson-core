@@ -435,14 +435,14 @@ public final class ByteSourceJsonBootstrapper
     /**********************************************************************
      */
 
-    private static JacksonException _createIOFailure(String msg) throws JacksonException {
+    private JacksonException _createIOFailure(String msg) throws JacksonException {
         // 12-Jan-2021, tatu: Couple of alternatives, but since this is before
         //    actual parser created, seems best to simply fake this was "true"
         //    IOException
         return _wrapIOFailure(new IOException(msg));
     }
 
-    private static JacksonException _wrapIOFailure(IOException e) throws JacksonException {
+    private JacksonException _wrapIOFailure(IOException e) throws JacksonException {
         return WrappedIOException.construct(e, this);
     }
 }

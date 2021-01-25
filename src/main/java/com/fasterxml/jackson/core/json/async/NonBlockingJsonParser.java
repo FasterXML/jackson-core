@@ -201,9 +201,9 @@ public class NonBlockingJsonParser
             return _startValue(ch);
 
         case MAJOR_OBJECT_PROPERTY_FIRST: // expect field-name or end-object
-            return _startFieldName(ch);
+            return _startPropertyName(ch);
         case MAJOR_OBJECT_PROPERTY_NEXT: // expect comma + field-name or end-object
-            return _startFieldNameAfterComma(ch);
+            return _startPropertyNameAfterComma(ch);
 
         case MAJOR_OBJECT_VALUE: // expect colon, followed by value
             return _startValueExpectColon(ch);
@@ -242,9 +242,9 @@ public class NonBlockingJsonParser
         case MINOR_ROOT_BOM:
             return _finishBOM(_pending32);
         case MINOR_PROPERTY_LEADING_WS:
-            return _startFieldName(_inputBuffer[_inputPtr++] & 0xFF);
+            return _startPropertyName(_inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_PROPERTY_LEADING_COMMA:
-            return _startFieldNameAfterComma(_inputBuffer[_inputPtr++] & 0xFF);
+            return _startPropertyNameAfterComma(_inputBuffer[_inputPtr++] & 0xFF);
 
         // Field name states
         case MINOR_PROPERTY_NAME:
@@ -522,9 +522,9 @@ public class NonBlockingJsonParser
 
     /**
      * Method that handles initial token type recognition for token
-     * that has to be either FIELD_NAME or END_OBJECT.
+     * that has to be either PROPERTY_NAME or END_OBJECT.
      */
-    private final JsonToken _startFieldName(int ch) throws JacksonException
+    private final JsonToken _startPropertyName(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -551,7 +551,7 @@ public class NonBlockingJsonParser
         return _parseEscapedName(0, 0, 0);
     }
 
-    private final JsonToken _startFieldNameAfterComma(int ch) throws JacksonException
+    private final JsonToken _startPropertyNameAfterComma(int ch) throws JacksonException
     {
         // First: any leading white space?
         if (ch <= 0x0020) {
@@ -1112,9 +1112,9 @@ public class NonBlockingJsonParser
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
         switch (fromMinorState) {
         case MINOR_PROPERTY_LEADING_WS:
-            return _startFieldName(ch);
+            return _startPropertyName(ch);
         case MINOR_PROPERTY_LEADING_COMMA:
-            return _startFieldNameAfterComma(ch);
+            return _startPropertyNameAfterComma(ch);
         case MINOR_VALUE_LEADING_WS:
             return _startValue(ch);
         case MINOR_VALUE_EXPECTING_COMMA:

@@ -301,7 +301,7 @@ public class UTF8DataInputJsonParser
             switch (_currToken.id()) {
                 
             case ID_PROPERTY_NAME:
-                return currentFieldNameInBuffer();
+                return currentNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;

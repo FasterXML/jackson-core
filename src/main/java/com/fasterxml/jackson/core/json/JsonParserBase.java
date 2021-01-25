@@ -309,7 +309,7 @@ public abstract class JsonParserBase
     /**********************************************************************
      */
 
-    protected char[] currentFieldNameInBuffer() {
+    protected char[] currentNameInBuffer() {
         if (_nameCopied) {
             return _nameCopyBuffer;
         }

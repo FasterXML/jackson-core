@@ -467,12 +467,12 @@ public class JsonFactory
      */
 
     @Override
-    public PropertyNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
+    public PropertyNameMatcher constructNameMatcher(List<Named> matches, boolean alreadyInterned) {
         return BinaryNameMatcher.constructFrom(matches, alreadyInterned);
     }
 
     @Override
-    public PropertyNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
+    public PropertyNameMatcher constructCINameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
         return BinaryNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned);
     }

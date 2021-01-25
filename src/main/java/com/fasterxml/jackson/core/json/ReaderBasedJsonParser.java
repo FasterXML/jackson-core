@@ -387,7 +387,7 @@ public class ReaderBasedJsonParser
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
             case ID_PROPERTY_NAME:
-                return currentFieldNameInBuffer();
+                return currentNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;

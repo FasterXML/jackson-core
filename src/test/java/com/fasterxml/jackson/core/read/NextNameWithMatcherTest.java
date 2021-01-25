@@ -20,8 +20,8 @@ public class NextNameWithMatcherTest
 
     private final List<Named> FIELDS_1 = namedFromStrings(NAMES_1);
 
-    private final PropertyNameMatcher MATCHER_CS_1 = JSON_F.constructFieldNameMatcher(FIELDS_1, true);
-    private final PropertyNameMatcher MATCHER_CI_1 = JSON_F.constructCIFieldNameMatcher(FIELDS_1, true,
+    private final PropertyNameMatcher MATCHER_CS_1 = JSON_F.constructNameMatcher(FIELDS_1, true);
+    private final PropertyNameMatcher MATCHER_CI_1 = JSON_F.constructCINameMatcher(FIELDS_1, true,
             new Locale("en", "US"));
 
     private final String DOC_1 = aposToQuotes(

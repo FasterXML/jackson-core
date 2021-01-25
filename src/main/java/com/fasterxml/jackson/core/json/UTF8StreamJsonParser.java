@@ -423,7 +423,7 @@ public class UTF8StreamJsonParser
             switch (_currToken.id()) {
                 
             case ID_PROPERTY_NAME:
-                return currentFieldNameInBuffer();
+                return currentNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
@@ -1141,7 +1141,7 @@ public class UTF8StreamJsonParser
             // !!! TODO 12-Dec-2017, tatu: Should probably try to use symbol table
             //   for cases where quads were decoded ok, but no match?
             /*
-            if (match == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (match == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 throw new RuntimeException("No name match!");
             }
             */

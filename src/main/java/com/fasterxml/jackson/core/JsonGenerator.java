@@ -1398,6 +1398,8 @@ public abstract class JsonGenerator
      * (Object, Array, null, Number, String or Boolean).
      * This is done by delegating call to
      * {@link ObjectWriteContext#writeValue(JsonGenerator, Object)}.
+     *<p>
+     * NOTE: in Jackson 2.x, this method was called {@code writeObject(Object)}.
      *
      * @param pojo Java Object (POJO) value to write
      *

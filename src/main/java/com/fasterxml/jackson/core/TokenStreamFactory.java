@@ -651,7 +651,7 @@ public abstract class TokenStreamFactory
      *
      * @return Case-sensitive {@link PropertyNameMatcher} instance to use
      */
-    public PropertyNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
+    public PropertyNameMatcher constructNameMatcher(List<Named> matches, boolean alreadyInterned) {
         // 15-Nov-2017, tatu: Base implementation that is likely to work fine for
         //    most if not all implementations as it is more difficult to optimize
         return SimpleNameMatcher.constructFrom(null, matches, alreadyInterned);
@@ -668,7 +668,7 @@ public abstract class TokenStreamFactory
      *
      * @return Case-insensitive {@link PropertyNameMatcher} instance to use
      */
-    public PropertyNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
+    public PropertyNameMatcher constructCINameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
         return SimpleNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned);
     }

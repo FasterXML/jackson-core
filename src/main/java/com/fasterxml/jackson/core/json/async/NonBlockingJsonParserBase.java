@@ -446,7 +446,7 @@ public abstract class NonBlockingJsonParserBase
             switch (_currToken.id()) {
                 
             case ID_PROPERTY_NAME:
-                return currentFieldNameInBuffer();
+                return currentNameInBuffer();
             case ID_STRING:
                 // fall through
             case ID_NUMBER_INT:

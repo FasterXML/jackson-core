@@ -257,7 +257,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         assertEquals(1, loc.getLineNr());
         assertEquals(2, loc.getColumnNr());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         loc = p.getTokenLocation();
         assertEquals(1, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());

@@ -141,7 +141,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
             maxNonEscaped = 127;
         }
         _maximumNonEscapedChar = maxNonEscaped;
-        _cfgUnqNames = !JsonWriteFeature.QUOTE_FIELD_NAMES.enabledIn(formatWriteFeatures);
+        _cfgUnqNames = !JsonWriteFeature.QUOTE_PROPERTY_NAMES.enabledIn(formatWriteFeatures);
         _cfgNumbersAsStrings = JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(formatWriteFeatures);
         _rootValueSeparator = rootValueSeparator;
 
@@ -236,8 +236,8 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
    @Override
-    public void writeFieldId(long id) throws JacksonException {
-        writeFieldName(Long.toString(id));
+    public void writePropertyId(long id) throws JacksonException {
+        writeName(Long.toString(id));
     }
 
     /*

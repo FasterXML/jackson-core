@@ -143,7 +143,7 @@ public class Base64GenerationTest
                 break;
             default: // object
                 gen.writeStartObject();
-                gen.writeFieldName("field");
+                gen.writeName("field");
                 gen.writeBinary(b64v, WIKIPEDIA_BASE64_AS_BYTES, 0, WIKIPEDIA_BASE64_AS_BYTES.length);
                 gen.writeEndObject();
                 break;
@@ -161,7 +161,7 @@ public class Base64GenerationTest
                 break;
             default:
                 assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-                assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+                assertEquals(JsonToken.PROPERTY_NAME, jp.nextToken());
                 break;
             }
             assertEquals(JsonToken.VALUE_STRING, jp.nextToken());

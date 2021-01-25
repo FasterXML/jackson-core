@@ -49,7 +49,7 @@ public class SymbolsViaParserTest
         HashSet<String> syms = new HashSet<>();
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         for (int i = 0; i < 50; ++i) {
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             syms.add(p.currentName());
             assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         }
@@ -84,7 +84,7 @@ public class SymbolsViaParserTest
                     ? jsonFactory.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))
                     : jsonFactory.createParser(ObjectReadContext.empty(), doc);
             assertToken(JsonToken.START_OBJECT, parser.nextToken());
-            assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
             assertEquals(field, parser.currentName());
             assertToken(JsonToken.VALUE_STRING, parser.nextToken());
             assertToken(JsonToken.END_OBJECT, parser.nextToken());

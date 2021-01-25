@@ -44,7 +44,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
 
         JsonToken t;
         while ((t = p.nextToken()) != null) {
-            if (t != JsonToken.FIELD_NAME) {
+            if (t != JsonToken.PROPERTY_NAME) {
                 continue;
             }
             String name = p.currentName();
@@ -74,7 +74,7 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
 
         JsonToken t;
         while ((t = p.nextToken()) != null) {
-            if (t != JsonToken.FIELD_NAME) {
+            if (t != JsonToken.PROPERTY_NAME) {
                 continue;
             }
             String name = p.currentName();

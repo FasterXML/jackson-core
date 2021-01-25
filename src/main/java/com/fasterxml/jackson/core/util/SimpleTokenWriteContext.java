@@ -165,15 +165,15 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
      */
     
     /**
-     * Method that writer is to call before it writes a field name.
+     * Method that writer is to call before it writes an Object Property name.
      *
-     * @param name Name of Object property being written
+     * @param name Name of Object property name being written
      *
      * @return {@code True} if name writing should proceed; {@code false} if not
      *
      * @throws StreamWriteException If write fails due to duplicate check
      */
-    public boolean writeFieldName(String name) throws StreamWriteException {
+    public boolean writeName(String name) throws StreamWriteException {
         if ((_type != TYPE_OBJECT) || _gotFieldId) {
             return false;
         }

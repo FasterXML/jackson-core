@@ -2,7 +2,7 @@ package com.fasterxml.jackson.core.filter;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -378,7 +378,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
             break;
 
-        case ID_FIELD_NAME:
+        case ID_PROPERTY_NAME:
             {
                 final String name = delegate.currentName();
                 // note: this will also set 'needToHandleName'
@@ -548,7 +548,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 continue main_loop;
 
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 {
                     final String name = delegate.currentName();
                     f = _headContext.setFieldName(name);
@@ -694,7 +694,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
                 continue main_loop;
 
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 {
                     final String name = delegate.currentName();
                     f = _headContext.setFieldName(name);
@@ -788,7 +788,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
     public JsonToken nextValue() throws JacksonException {
         // Re-implemented same as ParserMinimalBase:
         JsonToken t = nextToken();
-        if (t == JsonToken.FIELD_NAME) {
+        if (t == JsonToken.PROPERTY_NAME) {
             t = nextToken();
         }
         return t;
@@ -834,25 +834,25 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
     @Override
     public String nextFieldName() throws JacksonException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
+        return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
     }
 
     @Override
     public boolean nextFieldName(SerializableString str) throws JacksonException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(currentName());
+        return (nextToken() == JsonToken.PROPERTY_NAME) && str.getValue().equals(currentName());
     }
 
     @Override
-    public int nextFieldName(FieldNameMatcher matcher) throws JacksonException {
+    public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException {
         String str = nextFieldName();
         if (str != null) {
             // 15-Nov-2017, tatu: We can not rely on name being interned here
             return matcher.matchName(str);
         }
         if (hasToken(JsonToken.END_OBJECT)) {
-            return FieldNameMatcher.MATCH_END_OBJECT;
+            return PropertyNameMatcher.MATCH_END_OBJECT;
         }
-        return FieldNameMatcher.MATCH_ODD_TOKEN;
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
     }
 
     /*

@@ -48,11 +48,11 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.currentText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("b", p.currentText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -69,7 +69,7 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.currentText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
@@ -97,11 +97,11 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.currentText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("b", p.currentText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -122,11 +122,11 @@ public class AsyncMissingValuesInObjectTest extends AsyncTestBase
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.currentText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("b", p.currentText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 

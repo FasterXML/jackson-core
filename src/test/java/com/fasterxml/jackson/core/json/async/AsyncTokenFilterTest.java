@@ -31,7 +31,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nbParser.feedInput(INPUT_BYTES, 0, INPUT_BYTES.length);
 
         assertToken(JsonToken.START_OBJECT, filteredParser.nextToken());
-        assertToken(JsonToken.FIELD_NAME, filteredParser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, filteredParser.nextToken());
         assertEquals("a", nbParser.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, filteredParser.nextToken());
         assertEquals(1, nbParser.getIntValue());

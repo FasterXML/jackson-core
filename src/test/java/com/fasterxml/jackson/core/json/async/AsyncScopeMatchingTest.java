@@ -34,7 +34,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
     {
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 3, _jsonDoc("{ \"key\" : 3  "), 0);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
         try {
@@ -98,7 +98,7 @@ public class AsyncScopeMatchingTest extends AsyncTestBase
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             // can be either here, or with next one...
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             p.nextToken();
             fail("Expected an exception for missing semicolon");
         } catch (StreamReadException pe) {

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
 
 /**
- * Interface for implementations used for efficient matching of field names from
+ * Interface for implementations used for efficient matching of Object property names from
  * input stream (via parser) to higher-level abstractions like properties that
  * databind uses. Used to avoid two-phase lookups -- first from input stream to
  * strings; then from strings to entities -- but details may heavily depend on
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.util.Named;
  *
  * @since 3.0
  */
-public abstract class FieldNameMatcher
+public abstract class PropertyNameMatcher
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -29,12 +29,12 @@ public abstract class FieldNameMatcher
     public final static int MATCH_END_OBJECT = -1;
 
     /**
-     * Marker for case where field name encountered but not one of matches.
+     * Marker for case where property name encountered but not one of matches.
      */
     public final static int MATCH_UNKNOWN_NAME = -2;
 
     /**
-     * Marker for case where token encountered is neither <code>FIELD_NAME</code>
+     * Marker for case where token encountered is neither <code>PROPERTY_NAME</code>
      * nor <code>END_OBJECT</code>.
      */
     public final static int MATCH_ODD_TOKEN = -3;
@@ -45,7 +45,7 @@ public abstract class FieldNameMatcher
 
     // // // Backup index, mostly for case-insensitive lookups
 
-    protected final FieldNameMatcher _backupMatcher;
+    protected final PropertyNameMatcher _backupMatcher;
 
     /**
      * Since case-handling is Locale-specific in some (rare) cases, need to hold
@@ -59,8 +59,8 @@ public abstract class FieldNameMatcher
     /**********************************************************************
      */
 
-    protected FieldNameMatcher(Locale locale,
-            FieldNameMatcher backup, String[] nameLookup)
+    protected PropertyNameMatcher(Locale locale,
+            PropertyNameMatcher backup, String[] nameLookup)
     {
         _locale = locale;
         _backupMatcher = backup;
@@ -163,18 +163,19 @@ public abstract class FieldNameMatcher
         return result;
     }
 
-    public static List<String> stringsFromNames(List<Named> fields,
-            final boolean alreadyInterned) {
+    public static List<String> stringsFromNames(List<Named> properties,
+            final boolean alreadyInterned)
+    {
         // 29-Jan-2018, tatu: With seemingly simple definition (commented out) getting
         //   strange "java.lang.NoClassDefFoundError: Could not initialize class java.util.stream.StreamOpFlag"
         //   so having to replace with bit different
         /*
-        return fields.stream()
+        return properties.stream()
                 .map(n -> _fromName(n, alreadyInterned))
                 .collect(Collectors.toList());
                 */
-        ArrayList<String> result = new ArrayList<String>(fields.size());
-        for (Named n : fields) {
+        ArrayList<String> result = new ArrayList<String>(properties.size());
+        for (Named n : properties) {
             result.add(_fromName(n, alreadyInterned));
         }
         return result;

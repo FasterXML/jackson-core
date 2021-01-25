@@ -86,7 +86,7 @@ public class TestExceptions extends BaseTest
 
         p = createParser(mode, "{ \"foo\" : [ ] ");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         try {
@@ -105,7 +105,7 @@ public class TestExceptions extends BaseTest
         } catch (JsonEOFException e) {
             
             verifyException(e, "in field name");
-            assertEquals(JsonToken.FIELD_NAME, e.getTokenBeingDecoded());
+            assertEquals(JsonToken.PROPERTY_NAME, e.getTokenBeingDecoded());
         }
         p.close();
 

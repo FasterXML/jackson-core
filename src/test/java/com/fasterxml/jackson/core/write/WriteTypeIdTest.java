@@ -43,7 +43,7 @@ public class WriteTypeIdTest
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("value", 13);
+        gen.writeNumberProperty("value", 13);
         gen.writeTypeSuffix(typeId);
         gen.close();
         assertEquals("{\"type\":\"typeId\",\"value\":13}", sw.toString());
@@ -54,7 +54,7 @@ public class WriteTypeIdTest
         sw = new StringWriter();
         gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("value", 13);
+        gen.writeNumberProperty("value", 13);
         gen.writeTypeSuffix(typeId);
         gen.close();
 
@@ -66,7 +66,7 @@ public class WriteTypeIdTest
         sw = new StringWriter();
         gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("value", 13);
+        gen.writeNumberProperty("value", 13);
         gen.writeTypeSuffix(typeId);
         gen.close();
         assertEquals("{\"typeId\":{\"value\":13}}", sw.toString());
@@ -78,9 +78,9 @@ public class WriteTypeIdTest
         sw = new StringWriter();
         gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
-        gen.writeFieldName("value");
+        gen.writeName("value");
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("number", 42);
+        gen.writeNumberProperty("number", 42);
         gen.writeTypeSuffix(typeId);
         gen.writeEndObject();
         gen.close();

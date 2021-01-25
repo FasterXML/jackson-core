@@ -50,7 +50,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         assertNull(r.currentToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("a", r.currentText());
         // by default no cheap access to char[] version:
         assertFalse(r.parser().hasTextCharacters());
@@ -63,23 +63,23 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("b", r.currentText());
         assertToken(JsonToken.VALUE_FALSE, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("acdc", r.currentText());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(UNICODE_SHORT_NAME, r.currentText());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("a1234567", r.currentText());
         assertToken(JsonToken.VALUE_FALSE, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(UNICODE_LONG_NAME, r.currentText());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         
@@ -115,9 +115,9 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         JsonFactory f = JSON_F;
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartObject();
-        g.writeNumberField("i1", NUMBER_EXP_I);
-        g.writeNumberField("doubley", NUMBER_EXP_D);
-        g.writeFieldName("biggieDecimal");
+        g.writeNumberProperty("i1", NUMBER_EXP_I);
+        g.writeNumberProperty("doubley", NUMBER_EXP_D);
+        g.writeName("biggieDecimal");
         g.writeNumber(NUMBER_EXP_BD.toString());
         g.writeEndObject();
         g.close();
@@ -144,21 +144,21 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
         assertNull(r.currentToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("i1", r.currentText());
         assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
         assertEquals(NumberType.INT, r.getNumberType());
         assertEquals(NUMBER_EXP_I, r.getIntValue());
         assertEquals((double)NUMBER_EXP_I, r.getDoubleValue());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("doubley", r.currentText());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
         assertEquals(NumberType.DOUBLE, r.getNumberType());
         assertEquals(NUMBER_EXP_D, r.getDoubleValue());
         assertEquals((long) NUMBER_EXP_D, r.getLongValue());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("biggieDecimal", r.currentText());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
         // can't really tell double/BigDecimal apart in plain json

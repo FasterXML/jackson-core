@@ -70,7 +70,7 @@ public class ParserErrorHandlingTest
         // Note that depending on parser impl, we may
         // get the exception early or late...
         try {
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
         } catch (StreamReadException jex) {

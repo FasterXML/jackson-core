@@ -55,10 +55,10 @@ public class GeneratorFailTest
             gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
-        gen.writeFieldName("a");
+        gen.writeName("a");
         
         try {
-            gen.writeFieldName("b");
+            gen.writeName("b");
             gen.flush();
             String json = utf8String(bout);
             fail("Should not have let two consecutive field name writes succeed: output = "+json);
@@ -83,7 +83,7 @@ public class GeneratorFailTest
             gen.writeString("a");
             gen.flush();
             String json = utf8String(bout);
-            fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeFieldName()': output = "+json);
+            fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeName()': output = "+json);
         } catch (StreamWriteException e) {
             verifyException(e, "can not write a String");
         }
@@ -101,10 +101,10 @@ public class GeneratorFailTest
             gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
         }
         try {
-            gen.writeFieldName("a");
+            gen.writeName("a");
             gen.flush();
             String json = utf8String(bout);
-            fail("Should not have let "+gen.getClass().getName()+".writeFieldName() be used in root context: output = "+json);
+            fail("Should not have let "+gen.getClass().getName()+".writeName() be used in root context: output = "+json);
         } catch (StreamWriteException e) {
             verifyException(e, "can not write a field name");
         }

@@ -354,7 +354,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeFieldName(String name) throws JacksonException
+    public void writeName(String name) throws JacksonException
     {
         TokenFilter state = _filterContext.setFieldName(name);
         if (state == null) {
@@ -363,7 +363,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (state == TokenFilter.INCLUDE_ALL) {
             _itemFilter = state;
-            delegate.writeFieldName(name);
+            delegate.writeName(name);
             return;
         }
         state = state.includeProperty(name);
@@ -374,7 +374,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     }
 
     @Override
-    public void writeFieldName(SerializableString name) throws JacksonException
+    public void writeName(SerializableString name) throws JacksonException
     {
         TokenFilter state = _filterContext.setFieldName(name.getValue());
         if (state == null) {
@@ -383,7 +383,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         }
         if (state == TokenFilter.INCLUDE_ALL) {
             _itemFilter = state;
-            delegate.writeFieldName(name);
+            delegate.writeName(name);
             return;
         }
         state = state.includeProperty(name.getValue());
@@ -395,8 +395,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     // 02-Dec-2019, tatu: Not sure what else to do... so use default impl from base class
     @Override
-    public void writeFieldId(long id) throws JacksonException {
-        writeFieldName(Long.toString(id));
+    public void writePropertyId(long id) throws JacksonException {
+        writeName(Long.toString(id));
     }
 
     /*
@@ -839,10 +839,10 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeOmittedField(String fieldName) throws JacksonException {
+    public void writeOmittedProperty(String fieldName) throws JacksonException {
         // Hmmh. Not sure how this would work but...
         if (_itemFilter != null) {
-            delegate.writeOmittedField(fieldName);
+            delegate.writeOmittedProperty(fieldName);
         }
     }
 

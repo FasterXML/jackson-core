@@ -202,7 +202,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
             g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartObject();
-        g.writeFieldName(KEY+"\\");
+        g.writeName(KEY+"\\");
         g.writeBoolean(true);
         g.writeEndObject();
         g.close();
@@ -229,7 +229,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
             g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartObject();
-        g.writeFieldName(STR_IN);
+        g.writeName(STR_IN);
         _writeString(g, STR_IN, stringAsChars);
         g.writeEndObject();
         g.close();

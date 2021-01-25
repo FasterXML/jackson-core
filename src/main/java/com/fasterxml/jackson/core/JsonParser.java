@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
@@ -435,7 +435,7 @@ public abstract class JsonParser
      * to determine type of the next token that is a value type
      * (including JSON Array and Object start/end markers).
      * Or put another way, nextToken() will be called once,
-     * and if {@link JsonToken#FIELD_NAME} is returned, another
+     * and if {@link JsonToken#PROPERTY_NAME} is returned, another
      * time to get the value for the field.
      * Method is most useful for iterating over value entries
      * of JSON objects; field name will still be available
@@ -499,7 +499,7 @@ public abstract class JsonParser
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
-     * verifies whether it is {@link JsonToken#FIELD_NAME}; if it is,
+     * verifies whether it is {@link JsonToken#PROPERTY_NAME}; if it is,
      * returns same as {@link #currentName()}, otherwise null.
      *
      * @return Name of the the {@code JsonToken.FIELD_NAME} parser advanced to, if any;
@@ -512,7 +512,7 @@ public abstract class JsonParser
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
-     * verifies whether it is {@link JsonToken#FIELD_NAME} with specified name
+     * verifies whether it is {@link JsonToken#PROPERTY_NAME} with specified name
      * and returns result of that comparison.
      * It is functionally equivalent to:
      *<pre>
@@ -533,38 +533,38 @@ public abstract class JsonParser
     public abstract boolean nextFieldName(SerializableString str) throws JacksonException;
 
     /**
-     * Method that tries to match next token from stream as {@link JsonToken#FIELD_NAME},
+     * Method that tries to match next token from stream as {@link JsonToken#PROPERTY_NAME},
      * and if so, further match it to one of pre-specified (field) names.
      * If match succeeds, field index (non-negative `int`) is returned; otherwise one of
-     * marker constants from {@link FieldNameMatcher}.
+     * marker constants from {@link PropertyNameMatcher}.
      *
      * @param matcher Matcher that will handle actual matching
      *
      * @return Index of the matched field name, if non-negative, or a negative error
-     *   code otherwise (see {@link FieldNameMatcher} for details)
+     *   code otherwise (see {@link PropertyNameMatcher} for details)
      *
      * @throws WrappedIOException for low-level read issues
      * @throws com.fasterxml.jackson.core.exc.StreamReadException for decoding problems
      *
      * @since 3.0
      */
-    public abstract int nextFieldName(FieldNameMatcher matcher) throws JacksonException;
+    public abstract int nextFieldName(PropertyNameMatcher matcher) throws JacksonException;
 
     /**
      * Method that verifies that the current token (see {@link #currentToken} is
-     * {@link JsonToken#FIELD_NAME} and if so, further match it to one of pre-specified (field) names.
+     * {@link JsonToken#PROPERTY_NAME} and if so, further match it to one of pre-specified (field) names.
      * If match succeeds, field index (non-negative {@code int}) is returned;
      * otherwise one of
-     * marker constants from {@link FieldNameMatcher}.
+     * marker constants from {@link PropertyNameMatcher}.
      *
      * @param matcher Matcher that will handle actual matching
      *
      * @return Index of the matched field name, if non-negative, or a negative error
-     *   code otherwise (see {@link FieldNameMatcher} for details)
+     *   code otherwise (see {@link PropertyNameMatcher} for details)
      *
      * @since 3.0
      */
-    public abstract int currentFieldName(FieldNameMatcher matcher);
+    public abstract int currentFieldName(PropertyNameMatcher matcher);
 
     /*
     /**********************************************************************
@@ -856,7 +856,7 @@ public abstract class JsonParser
 
     /**
      * Method that can be called to get the name associated with
-     * the current token: for {@link JsonToken#FIELD_NAME}s it will
+     * the current token: for {@link JsonToken#PROPERTY_NAME}s it will
      * be the same as what {@link #getText} returns;
      * for field values it will be the preceding field name;
      * and for others (array values, root-level values) null.

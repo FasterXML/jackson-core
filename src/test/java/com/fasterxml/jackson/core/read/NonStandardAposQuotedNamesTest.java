@@ -83,24 +83,24 @@ public class NonStandardAposQuotedNamesTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.getText());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("1", p.getText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("foobar", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("b", p.getText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("_abc\u00A0e'23'", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("d'foo'", p.getText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("\"", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         //assertEquals("\"\"", p.getText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("", p.getText());
@@ -112,35 +112,35 @@ public class NonStandardAposQuotedNamesTest
         JSON = "{'b':1,'array':[{'b':3}],'ob':{'b':4,'x':0,'y':3,'a':false }}";
         p = createParser(APOS_F, mode, JSON);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(4, p.getIntValue());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("x", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(0, p.getIntValue());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("y", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 

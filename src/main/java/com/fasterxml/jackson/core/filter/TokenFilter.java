@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 /**
  * Strategy class that can be implemented to specify actual inclusion/exclusion
  * criteria for filtering, used by {@link FilteringGeneratorDelegate}.
- *
- * @since 2.6
  */
 public class TokenFilter
 {

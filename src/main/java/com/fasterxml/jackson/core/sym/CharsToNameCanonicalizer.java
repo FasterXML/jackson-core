@@ -247,7 +247,7 @@ public final class CharsToNameCanonicalizer
         _seed = seed;
         _tableInfo = null; // not used by child tables
         _flags = flags;
-        _canonicalize = JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(flags);
+        _canonicalize = JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(flags);
 
         // Then copy shared state
         _symbols = parentState.symbols;
@@ -492,7 +492,7 @@ public final class CharsToNameCanonicalizer
         }
 
         String newSymbol = new String(buffer, start, len);
-        if (JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(_flags)) {
+        if (JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(_flags)) {
             newSymbol = InternCache.instance.intern(newSymbol);
         }
         ++_size;

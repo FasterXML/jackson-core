@@ -86,7 +86,7 @@ public class GeneratorCopyTest
         gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         gen.copyCurrentStructure(jp);
         gen.writeEndObject();
 

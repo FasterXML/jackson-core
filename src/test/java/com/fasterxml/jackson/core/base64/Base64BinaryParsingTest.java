@@ -293,7 +293,7 @@ public class Base64BinaryParsingTest
             }
 
             g.writeStartObject();
-            g.writeFieldName("b");
+            g.writeName("b");
             g.writeBinary(data);
             g.writeEndObject();
             g.close();
@@ -307,7 +307,7 @@ public class Base64BinaryParsingTest
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
     
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("b", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             ByteArrayOutputStream result = new ByteArrayOutputStream(size);

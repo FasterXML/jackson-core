@@ -14,7 +14,7 @@ public enum JsonToken
     /* Some notes on implementation:
      *
      * - Entries are to be ordered such that start/end array/object
-     *   markers come first, then field name marker (if any), and
+     *   markers come first, then Property name marker (if any), and
      *   finally scalar value tokens. This is assumed by some
      *   typing checks.
      */
@@ -53,13 +53,13 @@ public enum JsonToken
      * which signals ending of an Array value
      */
     END_ARRAY("]", JsonTokenId.ID_END_ARRAY),
-        
+
     /**
-     * FIELD_NAME is returned when a String token is encountered
-     * as a field name (same lexical value, different function)
+     * PROPERTY_NAME is returned when a String token is encountered
+     * as a property name (same lexical value, different function)
      */
-    FIELD_NAME(null, JsonTokenId.ID_FIELD_NAME),
-    
+    PROPERTY_NAME(null, JsonTokenId.ID_PROPERTY_NAME),
+
     /**
      * Placeholder token returned when the input source has a concept
      * of embedded Object that are not accessible as usual structure
@@ -74,7 +74,7 @@ public enum JsonToken
 
     /**
      * VALUE_STRING is returned when a String token is encountered
-     * in value context (array element, field value, or root-level
+     * in value context (array element, object property value, or root-level
      * stand-alone value)
      */
     VALUE_STRING(null, JsonTokenId.ID_STRING),
@@ -163,7 +163,7 @@ public enum JsonToken
         _isStructEnd = (id == JsonTokenId.ID_END_OBJECT || id == JsonTokenId.ID_END_ARRAY);
 
         _isScalar = !_isStructStart && !_isStructEnd
-                && (id != JsonTokenId.ID_FIELD_NAME)
+                && (id != JsonTokenId.ID_PROPERTY_NAME)
                 && (id != JsonTokenId.ID_NOT_AVAILABLE);
     }
 
@@ -200,8 +200,6 @@ public enum JsonToken
      *
      * @return {@code True} if this token is {@code END_OBJECT} or {@code END_ARRAY},
      *   {@code false} otherwise
-     * 
-     * @since 2.3
      */
     public final boolean isStructEnd() { return _isStructEnd; }
 
@@ -209,7 +207,7 @@ public enum JsonToken
      * Method that can be used to check whether this token represents
      * a valid non-structured value. This means all {@code VALUE_xxx} tokens;
      * excluding {@code START_xxx} and {@code END_xxx} tokens as well
-     * {@code FIELD_NAME}.
+     * {@code PROPERTY_NAME}.
      *
      * @return {@code True} if this token is a scalar value token (one of
      *   {@code VALUE_xxx} tokens), {@code false} otherwise

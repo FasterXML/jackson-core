@@ -36,26 +36,26 @@ public class UTF8JsonGenerator
     private final static byte[] FALSE_BYTES = { 'f', 'a', 'l', 's', 'e' };
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Underlying output stream used for writing JSON content.
      */
-    final protected OutputStream _outputStream;
+    protected final OutputStream _outputStream;
 
     /**
      * Character used for quoting JSON Object property names
      * and String values.
      */
-    final protected byte _quoteChar;
+    protected final byte _quoteChar;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output buffering
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -106,9 +106,9 @@ public class UTF8JsonGenerator
     protected boolean _bufferRecyclable;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public UTF8JsonGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
@@ -171,9 +171,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden configuration methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -188,19 +188,19 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden write methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public void writeFieldName(String name)  throws JacksonException
+    public void writeName(String name)  throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name);
             return;
         }
-        final int status = _tokenWriteContext.writeFieldName(name);
+        final int status = _tokenWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -241,13 +241,13 @@ public class UTF8JsonGenerator
     }
     
     @Override
-    public void writeFieldName(SerializableString name) throws JacksonException
+    public void writeName(SerializableString name) throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name);
             return;
         }
-        final int status = _tokenWriteContext.writeFieldName(name.getValue());
+        final int status = _tokenWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -285,11 +285,11 @@ public class UTF8JsonGenerator
             _outputTail += len;
         }
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, structural
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -418,11 +418,11 @@ public class UTF8JsonGenerator
         _tokenWriteContext = _tokenWriteContext.clearAndGetParent();
     }
 
-    // Specialized version of <code>_writeFieldName</code>, off-lined
+    // Specialized version of <code>_writeName</code>, off-lined
     // to keep the "fast path" as simple (and hopefully fast) as possible.
     protected final void _writePPFieldName(String name) throws JacksonException
     {
-        int status = _tokenWriteContext.writeFieldName(name);
+        int status = _tokenWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -462,7 +462,7 @@ public class UTF8JsonGenerator
 
     protected final void _writePPFieldName(SerializableString name) throws JacksonException
     {
-        final int status = _tokenWriteContext.writeFieldName(name.getValue());
+        final int status = _tokenWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
@@ -492,11 +492,11 @@ public class UTF8JsonGenerator
             _outputBuffer[_outputTail++] = _quoteChar;
         }
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, textual
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -653,9 +653,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, unprocessed ("raw")
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -725,7 +725,6 @@ public class UTF8JsonGenerator
         }
     }
 
-    // since 2.5
     @Override
     public void writeRawValue(SerializableString text) throws JacksonException {
         _verifyValueWrite(WRITE_RAW);
@@ -843,8 +842,6 @@ public class UTF8JsonGenerator
      * Caller has to take care of ensuring there's no split surrogate
      * pair at the end (that is, last char can not be first part of a
      * surrogate char pair).
-     *
-     * @since 2.8.2
      */
     private void _writeRawSegment(char[] cbuf, int offset, int end) throws JacksonException
     {
@@ -872,9 +869,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, base64-encoded binary
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -931,9 +928,9 @@ public class UTF8JsonGenerator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Output method implementations, primitive
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1135,9 +1132,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Implementations for other methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1179,9 +1176,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level output handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1257,9 +1254,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, raw bytes
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final void _writeBytes(byte[] bytes) throws JacksonException
@@ -1300,9 +1297,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, mid-level writing, String segments
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -1375,9 +1372,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, text segments
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1535,10 +1532,10 @@ public class UTF8JsonGenerator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, text segment
     /* with additional escaping (ASCII or such)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1633,10 +1630,10 @@ public class UTF8JsonGenerator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, text segment
     /* with fully custom escaping (and possibly escaping of non-ASCII
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1800,9 +1797,9 @@ public class UTF8JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, "raw UTF-8" segments
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -1879,9 +1876,9 @@ public class UTF8JsonGenerator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, low-level writing, base64 encoded
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected final void _writeBinary(Base64Variant b64variant,
@@ -2076,9 +2073,9 @@ public class UTF8JsonGenerator
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, character escapes/encoding
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**

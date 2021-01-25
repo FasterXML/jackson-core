@@ -133,7 +133,7 @@ public class TestDefaultPrettyPrinter extends BaseTest
         gen.writeNumber(2);
         gen.writeEndArray();
         gen.writeStartObject();
-        gen.writeFieldName("a");
+        gen.writeName("a");
         gen.writeNumber(3);
         gen.writeEndObject();
         gen.close();
@@ -163,9 +163,9 @@ public class TestDefaultPrettyPrinter extends BaseTest
         }
 
         gen.writeStartObject();
-        gen.writeFieldName("name");
+        gen.writeName("name");
         gen.writeString("John Doe");
-        gen.writeFieldName("age");
+        gen.writeName("age");
         gen.writeNumber(3.14);
         gen.writeEndObject();
         gen.close();

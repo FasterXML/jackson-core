@@ -183,13 +183,13 @@ public class GeneratorBasicTest
         }
 
         gen.writeStartObject();
-        gen.writeNumberField("short", (short) 3);
-        gen.writeNumberField("int", 3);
-        gen.writeNumberField("long", 3L);
-        gen.writeNumberField("big", new BigInteger("1707"));
-        gen.writeNumberField("double", 0.25);
-        gen.writeNumberField("float", -0.25f);
-        gen.writeNumberField("decimal", new BigDecimal("17.07"));
+        gen.writeNumberProperty("short", (short) 3);
+        gen.writeNumberProperty("int", 3);
+        gen.writeNumberProperty("long", 3L);
+        gen.writeNumberProperty("big", new BigInteger("1707"));
+        gen.writeNumberProperty("double", 0.25);
+        gen.writeNumberProperty("float", -0.25f);
+        gen.writeNumberProperty("decimal", new BigDecimal("17.07"));
         gen.writeEndObject();
         gen.close();
 
@@ -212,7 +212,7 @@ public class GeneratorBasicTest
         gen.writeStartObject();
         assertTrue(gen.getOutputContext().inObject());
 
-        gen.writeFieldName("a");
+        gen.writeName("a");
         assertEquals("a", gen.getOutputContext().currentName());
 
         gen.writeStartArray();
@@ -221,18 +221,18 @@ public class GeneratorBasicTest
         gen.writeStartObject();
         assertTrue(gen.getOutputContext().inObject());
 
-        gen.writeFieldName("b");
+        gen.writeName("b");
         ctxt = gen.getOutputContext();
         assertEquals("b", ctxt.currentName());
         gen.writeNumber(123);
         assertEquals("b", ctxt.currentName());
 
-        gen.writeFieldName("c");
+        gen.writeName("c");
         assertEquals("c", gen.getOutputContext().currentName());
         gen.writeNumber(5);
 //        assertEquals("c", gen.getOutputContext().currentName());
 
-        gen.writeFieldName("d");
+        gen.writeName("d");
         assertEquals("d", gen.getOutputContext().currentName());
 
         gen.writeStartArray();

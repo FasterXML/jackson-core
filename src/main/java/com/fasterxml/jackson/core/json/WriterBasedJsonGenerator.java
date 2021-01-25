@@ -144,27 +144,27 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeFieldName(String name) throws JacksonException
+    public void writeName(String name) throws JacksonException
     {
-        int status = _tokenWriteContext.writeFieldName(name);
+        int status = _tokenWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
-        _writeFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
+        _writeName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
     }
 
     @Override
-    public void writeFieldName(SerializableString name) throws JacksonException
+    public void writeName(SerializableString name) throws JacksonException
     {
         // Object is a value, need to verify it's allowed
-        int status = _tokenWriteContext.writeFieldName(name.getValue());
+        int status = _tokenWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Can not write a field name, expecting a value");
         }
-        _writeFieldName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
+        _writeName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
     }
 
-    protected final void _writeFieldName(String name, boolean commaBefore) throws JacksonException
+    protected final void _writeName(String name, boolean commaBefore) throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name, commaBefore);
@@ -193,7 +193,7 @@ public class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
     }
 
-    protected final void _writeFieldName(SerializableString name, boolean commaBefore) throws JacksonException
+    protected final void _writeName(SerializableString name, boolean commaBefore) throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
             _writePPFieldName(name, commaBefore);
@@ -218,7 +218,7 @@ public class WriterBasedJsonGenerator
         
         int len = name.appendQuoted(_outputBuffer, _outputTail);
         if (len < 0) {
-            _writeFieldNameTail(name);
+            _writeNameTail(name);
             return;
         }
         _outputTail += len;
@@ -228,7 +228,7 @@ public class WriterBasedJsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
     }
 
-    private final void _writeFieldNameTail(SerializableString name) throws JacksonException
+    private final void _writeNameTail(SerializableString name) throws JacksonException
     {
         final char[] quoted = name.asQuotedChars();
         writeRaw(quoted, 0, quoted.length);
@@ -370,7 +370,7 @@ public class WriterBasedJsonGenerator
         _tokenWriteContext = _tokenWriteContext.clearAndGetParent();
     }
 
-    // Specialized version of <code>_writeFieldName</code>, off-lined
+    // Specialized version of <code>_writeName</code>, off-lined
     // to keep the "fast path" as simple (and hopefully fast) as possible.
     protected final void _writePPFieldName(String name, boolean commaBefore) throws JacksonException
     {

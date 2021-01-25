@@ -121,7 +121,7 @@ public class AsyncRootValuesTest extends AsyncTestBase
 
         // { "a":4 }
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("a", r.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
         assertEquals(4, r.getIntValue());

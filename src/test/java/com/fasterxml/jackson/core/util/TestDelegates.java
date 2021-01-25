@@ -187,7 +187,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertToken(JsonToken.START_OBJECT, del.nextToken());
         assertNull(del.currentValue());
 
-        assertToken(JsonToken.FIELD_NAME, del.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, del.nextToken());
         assertEquals("a", del.currentName());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
@@ -221,7 +221,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         // Basic capabilities for parser:
-        assertTrue(del.canOmitFields());
+        assertTrue(del.canOmitProperties());
         assertFalse(del.canWriteBinaryNatively());
         assertTrue(del.canWriteFormattedNumbers());
         assertFalse(del.canWriteObjectId());
@@ -340,21 +340,21 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     
     public void testNotDelegateCopyMethods() throws IOException
     {
-        JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), "[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = new JsonGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), sw), false) {
+        JsonGenerator g = new JsonGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), sw), false) {
             @Override
-            public void writeFieldName(String name) {
-                super.writeFieldName(name+"-test");
+            public void writeName(String name) {
+                super.writeName(name+"-test");
                 super.writeBoolean(true);
-                super.writeFieldName(name);
+                super.writeName(name);
             }
         };
-        jp.nextToken();
-        jg.copyCurrentStructure(jp);
-        jg.flush();
+        p.nextToken();
+        g.copyCurrentStructure(p);
+        g.flush();
         assertEquals("[{\"a-test\":true,\"a\":[1,2,{\"b-test\":true,\"b\":3}],\"c-test\":true,\"c\":\"d\"},{\"e-test\":true,\"e\":false},null]", sw.toString());
-        jp.close();
-        jg.close();
+        p.close();
+        g.close();
     }
 }

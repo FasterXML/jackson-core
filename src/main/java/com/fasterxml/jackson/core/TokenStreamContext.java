@@ -120,8 +120,8 @@ public abstract class TokenStreamContext
 
     /**
      * Method for accessing simple type description of current context;
-     * either ROOT (for root-level values), OBJECT (for field names and
-     * values of JSON Objects) or ARRAY (for values of JSON Arrays)
+     * either ROOT (for root-level values), OBJECT (for Object property names and
+     * values) or ARRAY (for elements of JSON Arrays)
      * 
      * @return Type description String
      */
@@ -181,21 +181,12 @@ public abstract class TokenStreamContext
     
     /**
      * Method for accessing name associated with the current location.
-     * Non-null for <code>FIELD_NAME</code> and value events that directly
-     * follow field names; null for root level and array values.
+     * Non-null for <code>PROPERTY_NAME</code> and value events that directly
+     * follow Property names; null for root level and array values.
      *
-     * @return Current field name within context, if any; {@code null} if none
+     * @return Current property name within context, if any; {@code null} if none
      */
     public abstract String currentName();
-
-    /**
-     * @return {@code True} if a call to {@link #getCurrentName()} would return non-{@code null}
-     *    name; {@code false} otherwise
-     *
-     * @deprecated Since 3.0 use {@link #currentName} instead
-     */
-    @Deprecated
-    public String getCurrentName() { return currentName(); }
 
     public boolean hasCurrentName() { return currentName() != null; }
 

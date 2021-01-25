@@ -22,7 +22,7 @@ public class StreamWriteFeaturesTest
         assertFalse(((JsonGeneratorBase) g).isEnabled(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS));
         assertFalse(g.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
 
-        assertTrue(g.canOmitFields());
+        assertTrue(g.canOmitProperties());
         assertFalse(g.canWriteBinaryNatively());
         assertTrue(g.canWriteFormattedNumbers());
         assertFalse(g.canWriteObjectId());
@@ -37,12 +37,12 @@ public class StreamWriteFeaturesTest
         // by default, quoting should be enabled
         _testFieldNameQuoting(f, true);
         // can disable it
-        f = f.rebuild().disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+        f = f.rebuild().disable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                 .build();
         _testFieldNameQuoting(f, false);
         // and (re)enable:
         f = f.rebuild()
-                .enable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+                .enable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                 .build();
         _testFieldNameQuoting(f, true);
     }
@@ -224,7 +224,7 @@ public class StreamWriteFeaturesTest
         // // Then with alternatively configured factory
 
         JsonFactory f2 = JsonFactory.builder()
-                .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+                .disable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                 .build();
 
         _testFieldNameQuotingEnabled(f2, true, true, "{\"foo\":1}");
@@ -240,11 +240,11 @@ public class StreamWriteFeaturesTest
     {
         if (useQuotes) {
             f = f.rebuild()
-                    .enable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+                    .enable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                     .build();
         } else {
             f = f.rebuild()
-                    .disable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+                    .disable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                     .build();
         }
 
@@ -254,7 +254,7 @@ public class StreamWriteFeaturesTest
                 : f.createGenerator(ObjectWriteContext.empty(), sw);
 
         gen.writeStartObject();
-        gen.writeFieldName("foo");
+        gen.writeName("foo");
         gen.writeNumber(1);
         gen.writeEndObject();
         gen.close();
@@ -274,7 +274,7 @@ public class StreamWriteFeaturesTest
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartObject();
-        g.writeFieldName("foo");
+        g.writeName("foo");
         g.writeNumber(1);
         g.writeEndObject();
         g.close();
@@ -291,11 +291,11 @@ public class StreamWriteFeaturesTest
         StringWriter sw = new StringWriter();
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartObject();
-        g.writeFieldName("double");
+        g.writeName("double");
         g.writeNumber(Double.NaN);
         g.writeEndObject();
         g.writeStartObject();
-        g.writeFieldName("float");
+        g.writeName("float");
         g.writeNumber(Float.NaN);
         g.writeEndObject();
         g.close();

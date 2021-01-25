@@ -174,8 +174,8 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    @Override public void writeFieldName(SerializableString name) throws JacksonException {
-        writeFieldName(name.getValue());
+    @Override public void writeName(SerializableString name) throws JacksonException {
+        writeName(name.getValue());
     }
 
     //public abstract void writeString(String text);
@@ -249,7 +249,7 @@ public abstract class GeneratorBase extends JsonGenerator
      */
 
     @Override
-    public void writeObject(Object value) throws JacksonException {
+    public void writePOJO(Object value) throws JacksonException {
         if (value == null) {
             // important: call method that does check value write:
             writeNull();

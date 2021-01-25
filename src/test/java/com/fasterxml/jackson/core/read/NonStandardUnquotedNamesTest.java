@@ -9,7 +9,7 @@ public class NonStandardUnquotedNamesTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory UNQUOTED_FIELDS_F = JsonFactory.builder()
-            .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+            .enable(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)
             .build();
 
     public void testSimpleUnquotedBytes() throws Exception {
@@ -77,26 +77,26 @@ public class NonStandardUnquotedNamesTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("@type", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("mytype", p.getText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("#color", p.getText());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(123, p.getIntValue());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("*error*", p.getText());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("hyphen-ated", p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("yes", p.getText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("me+my", p.getText());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
     
@@ -128,7 +128,7 @@ public class NonStandardUnquotedNamesTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < REPS; ++i) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("abc"+(i&127), p.currentName());
             assertToken(((i&1) != 0) ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -143,19 +143,19 @@ public class NonStandardUnquotedNamesTest
         JsonParser p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("_foo", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("$", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("money!", p.getText());
 
         // and then regular quoted one should still work too:
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(" ", p.currentName());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
@@ -169,11 +169,11 @@ public class NonStandardUnquotedNamesTest
         p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("123", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("4", p.currentName());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 

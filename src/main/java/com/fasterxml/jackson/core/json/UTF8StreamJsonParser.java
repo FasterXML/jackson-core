@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.util.*;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -304,7 +304,7 @@ public class UTF8StreamJsonParser
                 }
                 return _textBuffer.contentsToWriter(writer);
             }
-            if (t == JsonToken.FIELD_NAME) {
+            if (t == JsonToken.PROPERTY_NAME) {
                 String n = _parsingContext.currentName();
                 writer.write(n);
                 return n.length();
@@ -335,7 +335,7 @@ public class UTF8StreamJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(null);
@@ -351,7 +351,7 @@ public class UTF8StreamJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(defValue);
@@ -403,7 +403,7 @@ public class UTF8StreamJsonParser
             return null;
         }
         switch (t.id()) {
-        case ID_FIELD_NAME:
+        case ID_PROPERTY_NAME:
             return _parsingContext.currentName();
 
         case ID_STRING:
@@ -422,7 +422,7 @@ public class UTF8StreamJsonParser
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
                 
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return currentFieldNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -447,7 +447,7 @@ public class UTF8StreamJsonParser
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
                 
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return _parsingContext.currentName().length();
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -472,7 +472,7 @@ public class UTF8StreamJsonParser
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return 0;
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -694,7 +694,7 @@ public class UTF8StreamJsonParser
          * (part of) value along with field name to simplify
          * state handling. If so, can and need to use secondary token:
          */
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return _nextAfterName();
         }
         // But if we didn't already have a name, and (partially?) decode number,
@@ -747,7 +747,7 @@ public class UTF8StreamJsonParser
         _updateNameLocation();
         String n = _parseName(i);
         _parsingContext.setCurrentName(n);
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
 
         i = _skipColon();
         _updateLocation();
@@ -889,7 +889,7 @@ public class UTF8StreamJsonParser
         // // // Note: this is almost a verbatim copy of nextToken()
 
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nextAfterName();
             return null;
         }
@@ -939,7 +939,7 @@ public class UTF8StreamJsonParser
         _updateNameLocation();
         final String nameStr = _parseName(i);
         _parsingContext.setCurrentName(nameStr);
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
 
         i = _skipColon();
         _updateLocation();
@@ -996,7 +996,7 @@ public class UTF8StreamJsonParser
     {
         // // // Note: most of code below is copied from nextToken()
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) { // can't have name right after name
+        if (_currToken == JsonToken.PROPERTY_NAME) { // can't have name right after name
             _nextAfterName();
             return false;
         }
@@ -1078,13 +1078,13 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int nextFieldName(FieldNameMatcher matcher) throws JacksonException
+    public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nextAfterName();
-            return FieldNameMatcher.MATCH_ODD_TOKEN;
+            return PropertyNameMatcher.MATCH_ODD_TOKEN;
         }
         if (_tokenIncomplete) {
             _skipString();
@@ -1093,19 +1093,19 @@ public class UTF8StreamJsonParser
         if (i < 0) {
             close();
             _currToken = null;
-            return FieldNameMatcher.MATCH_ODD_TOKEN;
+            return PropertyNameMatcher.MATCH_ODD_TOKEN;
         }
         _binaryValue = null;
 
         if (i == INT_RBRACKET) {
             _closeArrayScope();
             _currToken = JsonToken.END_ARRAY;
-            return FieldNameMatcher.MATCH_ODD_TOKEN;
+            return PropertyNameMatcher.MATCH_ODD_TOKEN;
         }
         if (i == INT_RCURLY) {
             _closeObjectScope();
             _currToken = JsonToken.END_OBJECT;
-            return FieldNameMatcher.MATCH_END_OBJECT;
+            return PropertyNameMatcher.MATCH_END_OBJECT;
         }
 
         // Nope: do we then expect a comma?
@@ -1119,7 +1119,7 @@ public class UTF8StreamJsonParser
                 boolean isEndObject = (i == INT_RCURLY);
                 if (isEndObject || (i == INT_RBRACKET)) {
                     _closeScope(i);
-                    return isEndObject ? FieldNameMatcher.MATCH_END_OBJECT : FieldNameMatcher.MATCH_ODD_TOKEN;
+                    return isEndObject ? PropertyNameMatcher.MATCH_END_OBJECT : PropertyNameMatcher.MATCH_ODD_TOKEN;
                 }
             }
         }
@@ -1127,7 +1127,7 @@ public class UTF8StreamJsonParser
         if (!_parsingContext.inObject()) {
             _updateLocation();
             _nextTokenNotInObject(i);
-            return FieldNameMatcher.MATCH_ODD_TOKEN;
+            return PropertyNameMatcher.MATCH_ODD_TOKEN;
         }
 
         _updateNameLocation();
@@ -1150,7 +1150,7 @@ public class UTF8StreamJsonParser
         }
 
         _parsingContext.setCurrentName(name);
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
         // Otherwise, try again...
 
         i = _skipColon();
@@ -1257,7 +1257,7 @@ public class UTF8StreamJsonParser
 
     private final void _isNextTokenNameYes(int i) throws JacksonException
     {
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
         _updateLocation();
 
         switch (i) {
@@ -1312,7 +1312,7 @@ public class UTF8StreamJsonParser
         String n = _parseName(i);
         _parsingContext.setCurrentName(n);
         final boolean match = n.equals(str.getValue());
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
         i = _skipColon();
         _updateLocation();
 
@@ -1368,7 +1368,7 @@ public class UTF8StreamJsonParser
         return match;
     }
 
-    protected final int _matchName(FieldNameMatcher matcher, int i) throws JacksonException
+    protected final int _matchName(PropertyNameMatcher matcher, int i) throws JacksonException
     {
         if (i != INT_QUOTE) {
             return -1;
@@ -1434,7 +1434,7 @@ public class UTF8StreamJsonParser
         return matcher.matchByQuad(q);
     }
 
-    protected final int _matchMediumName(FieldNameMatcher matcher, int qptr, int q2) throws JacksonException
+    protected final int _matchMediumName(PropertyNameMatcher matcher, int qptr, int q2) throws JacksonException
     {
         final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
@@ -1479,7 +1479,7 @@ public class UTF8StreamJsonParser
         return matcher.matchByQuad(_quad1, q2);
     }
 
-    protected final int _matchMediumName2(FieldNameMatcher matcher, int qptr,
+    protected final int _matchMediumName2(PropertyNameMatcher matcher, int qptr,
             int q3, final int q2) throws JacksonException
     {
         final byte[] input = _inputBuffer;
@@ -1527,7 +1527,7 @@ public class UTF8StreamJsonParser
         return matcher.matchByQuad(_quad1, q2, q3);
     }
 
-    protected final int _matchLongName(FieldNameMatcher matcher, int qptr,
+    protected final int _matchLongName(PropertyNameMatcher matcher, int qptr,
             int q) throws JacksonException
     {
         final byte[] input = _inputBuffer;
@@ -1601,7 +1601,7 @@ public class UTF8StreamJsonParser
     public String nextTextValue() throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1628,7 +1628,7 @@ public class UTF8StreamJsonParser
     public int nextIntValue(int defaultValue) throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1651,7 +1651,7 @@ public class UTF8StreamJsonParser
     public long nextLongValue(long defaultValue) throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1674,7 +1674,7 @@ public class UTF8StreamJsonParser
     public Boolean nextBooleanValue() throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -2256,7 +2256,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\"' for name", JsonToken.FIELD_NAME);
+                _reportInvalidEOF(": was expecting closing '\"' for name", JsonToken.PROPERTY_NAME);
             }
         }
         int i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2356,7 +2356,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2395,7 +2395,7 @@ public class UTF8StreamJsonParser
             return _parseAposName();
         }
         // Allow unquoted names only if feature enabled:
-        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             char c = (char) _decodeCharForError(ch);
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
@@ -2432,7 +2432,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr] & 0xFF;
@@ -2463,7 +2463,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\'' for field name", JsonToken.FIELD_NAME);
+                _reportInvalidEOF(": was expecting closing '\'' for field name", JsonToken.PROPERTY_NAME);
             }
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2541,7 +2541,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2677,7 +2677,7 @@ public class UTF8StreamJsonParser
                     needed = ch = 1; // never really gets this far
                 }
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
                 }
                 
                 // Ok, always need at least one more:
@@ -4099,7 +4099,7 @@ public class UTF8StreamJsonParser
     @Override
     public JsonLocation getTokenLocation()
     {
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
             return new JsonLocation(_getSourceReference(),
                     total, -1L, _nameStartRow, _nameStartCol);

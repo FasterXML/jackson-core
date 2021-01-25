@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.util.Named;
 
 /**
- * Tests for {@link FieldNameMatcher} implementations
+ * Tests for {@link PropertyNameMatcher} implementations
  */
 public class FieldMatchersTest extends BaseTest
 {
@@ -68,7 +68,7 @@ public class FieldMatchersTest extends BaseTest
 
     private void _testCaseSensitive(List<String> names)
     {
-        FieldNameMatcher matcher = SimpleNameMatcher.construct(null, names);
+        PropertyNameMatcher matcher = SimpleNameMatcher.construct(null, names);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
             if (name != null) {
@@ -84,7 +84,7 @@ public class FieldMatchersTest extends BaseTest
     private void _testCaseInsensitive(List<String> names)
     {
         final Locale locale = new Locale("en", "US");
-        FieldNameMatcher matcher = SimpleNameMatcher.constructCaseInsensitive(locale, named(names), true);
+        PropertyNameMatcher matcher = SimpleNameMatcher.constructCaseInsensitive(locale, named(names), true);
         for (int i = 0; i < names.size(); ++i) {
             String name = names.get(i);
             if (name != null) {
@@ -99,7 +99,7 @@ public class FieldMatchersTest extends BaseTest
         }
     }
 
-    private void _expectAnyMatch(FieldNameMatcher matcher, List<String> names, int index)
+    private void _expectAnyMatch(PropertyNameMatcher matcher, List<String> names, int index)
     {     
         String name = names.get(index);
         if (name != null) {
@@ -107,7 +107,7 @@ public class FieldMatchersTest extends BaseTest
         }
     }
 
-    private void _expectAnyMatch(FieldNameMatcher matcher, List<String> names, int index,
+    private void _expectAnyMatch(PropertyNameMatcher matcher, List<String> names, int index,
             String name)
     {
         if (name == null) {
@@ -119,25 +119,25 @@ public class FieldMatchersTest extends BaseTest
         }
     }
 
-    private void _expectNonMatch(FieldNameMatcher matcher, String name)
+    private void _expectNonMatch(PropertyNameMatcher matcher, String name)
     {
         if (name == null) {
             return;
         }
         // make sure to test both intern() and non-intern paths
         int match = matcher.matchName(name);
-        if (match != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+        if (match != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
             fail("Should NOT have any-matched '"+name+"'; did match with index #"+match);
         }
         _expectInternedNonMatch(matcher, name);
     }
 
-    private void _expectInternedNonMatch(FieldNameMatcher matcher, String name)
+    private void _expectInternedNonMatch(PropertyNameMatcher matcher, String name)
     {
         if (name != null) {
             // make sure to test both intern() and non-intern paths
             int match = matcher.matchName(name);
-            if (match != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (match != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 fail("Should NOT have intern-matched '"+name+"'; did match with index #"+match);
             }
         }

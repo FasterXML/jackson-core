@@ -86,16 +86,16 @@ public class UTF8GeneratorTest extends BaseTest
 
         gen.writeStartObject();
 
-        gen.writeFieldName("a");
+        gen.writeName("a");
         gen.writeNumber((int) 123);
 
-        gen.writeFieldName("array");
+        gen.writeName("array");
         gen.writeStartArray();
         gen.writeNumber((short) 1);
         gen.writeNumber((short) 2);
         gen.writeEndArray();
 
-        gen.writeFieldName("escapes");
+        gen.writeName("escapes");
 
         final byte[] raw = SAMPLE_WITH_QUOTES.toString().getBytes("UTF-8");
         gen.writeUTF8String(raw, 0, raw.length);
@@ -106,7 +106,7 @@ public class UTF8GeneratorTest extends BaseTest
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), out.toByteArray());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("escapes", p.currentName());
 
         assertToken(JsonToken.VALUE_STRING, p.nextToken());

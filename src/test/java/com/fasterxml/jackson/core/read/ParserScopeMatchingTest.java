@@ -44,7 +44,7 @@ public class ParserScopeMatchingTest extends BaseTest
     {
         JsonParser p = createParser(mode, "{ \"key\" : 3  ");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
         try {
@@ -166,7 +166,7 @@ public class ParserScopeMatchingTest extends BaseTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
             // can be either here, or with next one...
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             p.nextToken();
             fail("Expected an exception for missing semicolon");
         } catch (StreamReadException pe) {

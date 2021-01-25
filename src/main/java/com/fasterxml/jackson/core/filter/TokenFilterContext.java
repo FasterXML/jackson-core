@@ -168,7 +168,7 @@ public class TokenFilterContext extends TokenStreamContext
     {
         if (_needToHandleName) {
             _needToHandleName = false;
-            gen.writeFieldName(_currentName);
+            gen.writeName(_currentName);
         }
     }
 
@@ -192,13 +192,13 @@ public class TokenFilterContext extends TokenStreamContext
         if (_startHandled) {
             // even if Object started, need to start leaf-level name
             if (_needToHandleName) {
-                gen.writeFieldName(_currentName);
+                gen.writeName(_currentName);
             }
         } else {
             _startHandled = true;
             if (_type == TYPE_OBJECT) {
                 gen.writeStartObject();
-                gen.writeFieldName(_currentName); // we know name must be written
+                gen.writeName(_currentName); // we know name must be written
             } else if (_type == TYPE_ARRAY) {
                 gen.writeStartArray();
             }
@@ -217,7 +217,7 @@ public class TokenFilterContext extends TokenStreamContext
             // even if Object started, need to start leaf-level name
             if (_needToHandleName) {
                 _needToHandleName = false; // at parent must explicitly clear
-                gen.writeFieldName(_currentName);
+                gen.writeName(_currentName);
             }
         } else {
             _startHandled = true;
@@ -225,7 +225,7 @@ public class TokenFilterContext extends TokenStreamContext
                 gen.writeStartObject();
                 if (_needToHandleName) {
                     _needToHandleName = false; // at parent must explicitly clear
-                    gen.writeFieldName(_currentName);
+                    gen.writeName(_currentName);
                 }
             } else if (_type == TYPE_ARRAY) {
                 gen.writeStartArray();
@@ -294,7 +294,7 @@ public class TokenFilterContext extends TokenStreamContext
         // But otherwise at most might have FIELD_NAME
         if (_needToHandleName && (_type == TYPE_OBJECT)) {
             _needToHandleName = false;
-            return JsonToken.FIELD_NAME;
+            return JsonToken.PROPERTY_NAME;
         }
         return null;
     }

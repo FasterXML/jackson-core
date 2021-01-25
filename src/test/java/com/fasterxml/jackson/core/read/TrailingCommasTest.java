@@ -216,11 +216,11 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("b", p.getText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -237,7 +237,7 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
@@ -265,11 +265,11 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("b", p.getText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -347,11 +347,11 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.FIELD_NAME, p.nextToken());
+    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
     assertEquals("b", p.getText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 

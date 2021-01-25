@@ -45,12 +45,12 @@ public class GeneratorFiltering609Test
         }
 
         @Override
-        public void writeFieldName(String name) {
+        public void writeName(String name) {
             if (maxStringLength <= 0 || maxStringLength >= name.length()) {
-                super.writeFieldName(name);
+                super.writeName(name);
             } else {
                 String truncatedName = name.substring(0, maxStringLength);
-                super.writeFieldName(truncatedName);
+                super.writeName(truncatedName);
             }
         }
 
@@ -69,7 +69,7 @@ public class GeneratorFiltering609Test
         g = new StringTruncatingGeneratorDelegate(
                 g, maxStringLength);
         g.writeStartObject();
-        g.writeFieldName("message");
+        g.writeName("message");
         g.writeString("1234567890!");
         g.writeEndObject();
         g.close();

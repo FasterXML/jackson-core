@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 public class TestByteBasedSymbols
     extends com.fasterxml.jackson.core.BaseTest
 {
-    final static String[] FIELD_NAMES = new String[] {
+    final static String[] PROPERTY_NAMES = new String[] {
         "a", "b", "c", "x", "y", "b13", "abcdefg", "a123",
         "a0", "b0", "c0", "d0", "e0", "f0", "g0", "h0",
         "x2", "aa", "ba", "ab", "b31", "___x", "aX", "xxx",
@@ -44,8 +44,8 @@ public class TestByteBasedSymbols
          */
         while (jp0.nextToken() != JsonToken.START_ARRAY) { }
 
-        String doc1 = createDoc(FIELD_NAMES, true);
-        String doc2 = createDoc(FIELD_NAMES, false);
+        String doc1 = createDoc(PROPERTY_NAMES, true);
+        String doc2 = createDoc(PROPERTY_NAMES, false);
 
         // Let's run it twice... shouldn't matter
         for (int x = 0; x < 2; ++x) {
@@ -55,12 +55,12 @@ public class TestByteBasedSymbols
             assertToken(JsonToken.START_OBJECT, jp1.nextToken());
             assertToken(JsonToken.START_OBJECT, jp2.nextToken());
             
-            int len = FIELD_NAMES.length;
+            int len = PROPERTY_NAMES.length;
             for (int i = 0; i < len; ++i) {
-                assertToken(JsonToken.FIELD_NAME, jp1.nextToken());
-                assertToken(JsonToken.FIELD_NAME, jp2.nextToken());
-                assertEquals(FIELD_NAMES[i], jp1.currentName());
-                assertEquals(FIELD_NAMES[len-(i+1)], jp2.currentName());
+                assertToken(JsonToken.PROPERTY_NAME, jp1.nextToken());
+                assertToken(JsonToken.PROPERTY_NAME, jp2.nextToken());
+                assertEquals(PROPERTY_NAMES[i], jp1.currentName());
+                assertEquals(PROPERTY_NAMES[len-(i+1)], jp2.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp1.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp2.nextToken());
                 assertEquals(i, jp1.getIntValue());
@@ -178,18 +178,18 @@ public class TestByteBasedSymbols
         return jf.createParser(ObjectReadContext.empty(), is);
     }
 
-    private String createDoc(String[] fieldNames, boolean add)
+    private String createDoc(String[] propNames, boolean add)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("{ ");
 
-        int len = fieldNames.length;
+        int len = propNames.length;
         for (int i = 0; i < len; ++i) {
             if (i > 0) {
                 sb.append(", ");
             }
             sb.append('"');
-            sb.append(add ? fieldNames[i] : fieldNames[len - (i+1)]);
+            sb.append(add ? propNames[i] : propNames[len - (i+1)]);
             sb.append("\" : ");
             sb.append(i);
         }

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import com.fasterxml.jackson.core.sym.BinaryNameMatcher;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Named;
 
@@ -47,13 +47,13 @@ public class JsonFactory
     public final static String FORMAT_NAME_JSON = "JSON";
 
     /**
-     * Bit field (set of flags) of all parser features that are enabled
+     * Bitfield (set of flags) of all parser features that are enabled
      * by default.
      */
     final static int DEFAULT_JSON_PARSER_FEATURE_FLAGS = JsonReadFeature.collectDefaults();
 
     /**
-     * Bit field (set of flags) of all generator features that are enabled
+     * Bitfield (set of flags) of all generator features that are enabled
      * by default.
      */
     final static int DEFAULT_JSON_GENERATOR_FEATURE_FLAGS = JsonWriteFeature.collectDefaults();
@@ -91,8 +91,8 @@ public class JsonFactory
     protected final int _maximumNonEscapedChar;
 
     /**
-     * Character used for quoting field names (if field name quoting has not
-     * been disabled with {@link JsonWriteFeature#QUOTE_FIELD_NAMES})
+     * Character used for quoting property names (if property name quoting has not
+     * been disabled with {@link JsonWriteFeature#QUOTE_PROPERTY_NAMES})
      * and JSON String values.
      */
     protected final char _quoteChar;
@@ -467,12 +467,12 @@ public class JsonFactory
      */
 
     @Override
-    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
+    public PropertyNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
         return BinaryNameMatcher.constructFrom(matches, alreadyInterned);
     }
 
     @Override
-    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
+    public PropertyNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
         return BinaryNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned);
     }

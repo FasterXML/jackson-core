@@ -39,7 +39,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
 
         assertNull(p.currentToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(name, p.currentName());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -60,17 +60,17 @@ public class AsyncParserNamesTest extends AsyncTestBase
         final ByteQuadsCanonicalizer symbols1 = ((NonBlockingJsonParserBase) p.parser()).symbolTableForTests();
         assertEquals(0, symbols1.size());
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         // field names not intern()ed by default any more in 3.x
         assertEquals(STR1, p.currentName());
 //        assertSame(STR1, p.currentName());
         assertEquals(1, symbols1.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("foobar", p.currentName());
         assertEquals(2, symbols1.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("longername", p.currentName());
         assertEquals(3, symbols1.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -88,16 +88,16 @@ public class AsyncParserNamesTest extends AsyncTestBase
         assertEquals(3, symbols2.size());
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         // field names are interned:
         assertEquals(STR1, p.currentName());
         assertEquals(3, symbols2.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("foobar", p.currentName());
         assertEquals(3, symbols2.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("longername", p.currentName());
         assertEquals(3, symbols2.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -113,7 +113,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
     public void testSymbolTableWithIntern() throws IOException
     {
         JsonFactory internF = JsonFactory.builder()
-                .enable(TokenStreamFactory.Feature.INTERN_FIELD_NAMES)
+                .enable(TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES)
                 .build();
 
         final String STR1 = "a";
@@ -122,15 +122,15 @@ public class AsyncParserNamesTest extends AsyncTestBase
         final ByteQuadsCanonicalizer symbols1 = ((NonBlockingJsonParserBase) p.parser()).symbolTableForTests();
         assertEquals(0, symbols1.size());
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertSame(STR1, p.currentName());
         assertEquals(1, symbols1.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertSame("foobar", p.currentName());
         assertEquals(2, symbols1.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertSame("longername", p.currentName());
         assertEquals(3, symbols1.size());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());

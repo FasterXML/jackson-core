@@ -29,7 +29,7 @@ public class ParserSymbolHandlingTest
 
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         String currName = parser.currentName();
         if (!"\u0000abc".equals(currName)) {
             fail("Expected \\0abc (4 bytes), '"+currName+"' ("+currName.length()+")");
@@ -37,7 +37,7 @@ public class ParserSymbolHandlingTest
         assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(1, parser.getIntValue());
 
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         currName = parser.currentName();
         if (!"abc".equals(currName)) {
             /*

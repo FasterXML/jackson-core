@@ -36,8 +36,8 @@ public abstract class NonBlockingJsonParserBase
      */
     protected final static int MAJOR_ROOT = 1;
 
-    protected final static int MAJOR_OBJECT_FIELD_FIRST = 2;
-    protected final static int MAJOR_OBJECT_FIELD_NEXT = 3;
+    protected final static int MAJOR_OBJECT_PROPERTY_FIRST = 2;
+    protected final static int MAJOR_OBJECT_PROPERTY_NEXT = 3;
 
     protected final static int MAJOR_OBJECT_VALUE = 4;
 
@@ -74,19 +74,19 @@ public abstract class NonBlockingJsonParserBase
      */
     protected final static int MINOR_ROOT_GOT_SEPARATOR = 3;
 
-    // state before field name itself, waiting for quote (or unquoted name)
-    protected final static int MINOR_FIELD_LEADING_WS = 4;
-    // state before field name, expecting comma (or closing curly), then field name
-    protected final static int MINOR_FIELD_LEADING_COMMA = 5;
+    // state before property name itself, waiting for quote (or unquoted name)
+    protected final static int MINOR_PROPERTY_LEADING_WS = 4;
+    // state before property name, expecting comma (or closing curly), then field name
+    protected final static int MINOR_PROPERTY_LEADING_COMMA = 5;
 
     // State within regular (double-quoted) field name
-    protected final static int MINOR_FIELD_NAME = 7;
+    protected final static int MINOR_PROPERTY_NAME = 7;
     // State within regular (double-quoted) field name, within escape (having
     // encountered either just backslash, or backslash and 'u' and 0 - 3 hex digits,
-    protected final static int MINOR_FIELD_NAME_ESCAPE = 8;
+    protected final static int MINOR_PROPERTY_NAME_ESCAPE = 8;
 
-    protected final static int MINOR_FIELD_APOS_NAME = 9;
-    protected final static int MINOR_FIELD_UNQUOTED_NAME = 10;
+    protected final static int MINOR_PROPERTY_APOS_NAME = 9;
+    protected final static int MINOR_PROPERTY_UNQUOTED_NAME = 10;
 
     protected final static int MINOR_VALUE_LEADING_WS = 12;
     protected final static int MINOR_VALUE_EXPECTING_COMMA = 13;
@@ -316,7 +316,7 @@ public abstract class NonBlockingJsonParserBase
             // yes; is or can be made available efficiently as char[]
             return _textBuffer.hasTextAsCharacters();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             // not necessarily; possible but:
             return _nameCopied;
         }
@@ -371,7 +371,7 @@ public abstract class NonBlockingJsonParserBase
         switch (t.id()) {
         case ID_NOT_AVAILABLE:
             return null;
-        case ID_FIELD_NAME:
+        case ID_PROPERTY_NAME:
             return _parsingContext.currentName();
         case ID_STRING:
             // fall through
@@ -391,7 +391,7 @@ public abstract class NonBlockingJsonParserBase
             if (t == JsonToken.VALUE_STRING) {
                 return _textBuffer.contentsToWriter(writer);
             }
-            if (t == JsonToken.FIELD_NAME) {
+            if (t == JsonToken.PROPERTY_NAME) {
                 String n = _parsingContext.currentName();
                 writer.write(n);
                 return n.length();
@@ -421,7 +421,7 @@ public abstract class NonBlockingJsonParserBase
         if (_currToken == JsonToken.VALUE_STRING) {
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(null);
@@ -433,7 +433,7 @@ public abstract class NonBlockingJsonParserBase
         if (_currToken == JsonToken.VALUE_STRING) {
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(defValue);
@@ -445,7 +445,7 @@ public abstract class NonBlockingJsonParserBase
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
                 
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return currentFieldNameInBuffer();
             case ID_STRING:
                 // fall through
@@ -466,7 +466,7 @@ public abstract class NonBlockingJsonParserBase
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
                 
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return _parsingContext.currentName().length();
             case ID_STRING:
                 // fall through
@@ -487,7 +487,7 @@ public abstract class NonBlockingJsonParserBase
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return 0;
             case ID_STRING:
                 // fall through
@@ -560,8 +560,8 @@ public abstract class NonBlockingJsonParserBase
     protected final JsonToken _startObjectScope() throws JacksonException
     {
         _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
-        _majorState = MAJOR_OBJECT_FIELD_FIRST;
-        _majorStateAfterValue = MAJOR_OBJECT_FIELD_NEXT;
+        _majorState = MAJOR_OBJECT_PROPERTY_FIRST;
+        _majorStateAfterValue = MAJOR_OBJECT_PROPERTY_NEXT;
         return (_currToken = JsonToken.START_OBJECT);
     }
 
@@ -574,7 +574,7 @@ public abstract class NonBlockingJsonParserBase
         _parsingContext = ctxt;
         int st;
         if (ctxt.inObject()) {
-            st = MAJOR_OBJECT_FIELD_NEXT;
+            st = MAJOR_OBJECT_PROPERTY_NEXT;
         } else if (ctxt.inArray()) {
             st = MAJOR_ARRAY_ELEMENT_NEXT;
         } else {
@@ -594,7 +594,7 @@ public abstract class NonBlockingJsonParserBase
         _parsingContext = ctxt;
         int st;
         if (ctxt.inObject()) {
-            st = MAJOR_OBJECT_FIELD_NEXT;
+            st = MAJOR_OBJECT_PROPERTY_NEXT;
         } else if (ctxt.inArray()) {
             st = MAJOR_ARRAY_ELEMENT_NEXT;
         } else {
@@ -707,7 +707,7 @@ public abstract class NonBlockingJsonParserBase
                     needed = ch = 1; // never really gets this far
                 }
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
                 }
                 
                 // Ok, always need at least one more:
@@ -791,7 +791,7 @@ public abstract class NonBlockingJsonParserBase
     {
         _majorState = MAJOR_OBJECT_VALUE;
         _parsingContext.setCurrentName(name);
-        return (_currToken = JsonToken.FIELD_NAME);
+        return (_currToken = JsonToken.PROPERTY_NAME);
     }
 
     protected final JsonToken _valueComplete(JsonToken t) throws JacksonException

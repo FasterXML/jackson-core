@@ -12,7 +12,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     public void testLargeUnquotedNames()
     {
         final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)
                 .build();
         StringBuilder sb = new StringBuilder(5000);
         sb.append("[\n");
@@ -49,7 +49,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < reps; ++i) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("abc"+(i&127), p.currentName());
             assertToken(((i&1) != 0) ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -61,7 +61,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     public void testSimpleUnquotedNames()
     {
         final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)
                 .build();
         _testSimpleUnquoted(f, 0, 99);
         _testSimpleUnquoted(f, 0, 5);
@@ -81,19 +81,19 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         AsyncReaderWrapper p = createParser(f, doc, offset, readSize);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("_foo", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("$", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("money!", p.currentText());
 
         // and then regular quoted one should still work too:
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(" ", p.currentName());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
@@ -106,11 +106,11 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         p = createParser(f, "{ 123:true,4:false }", offset, readSize);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("123", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("4", p.currentName());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -196,29 +196,29 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         AsyncReaderWrapper p = createParser(f, JSON, offset, readSize);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentText());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("1", p.currentText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("foobar", p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("b", p.currentText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("_abcde1234", p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("d", p.currentText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("\"", p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("\"\"", p.currentText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("", p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("", p.currentText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(UNINAME, p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(UNIVALUE, p.currentText());
@@ -229,35 +229,35 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
         JSON = "{'b':1,'array':[{'b':3}],'ob':{'b':4,'x':0,'y':'"+UNICODE_SEGMENT+"','a':false }}";
         p = createParser(f, JSON, offset, readSize);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(4, p.getIntValue());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("x", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(0, p.getIntValue());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("y", p.currentName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(UNICODE_SEGMENT, p.currentText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -297,7 +297,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     public void testNonStandardNameChars()
     {
         final JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                .enable(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)
                 .build();
         _testNonStandardNameChars(f, 0, 99);
         _testNonStandardNameChars(f, 0, 6);
@@ -318,26 +318,26 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("@type", p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("mytype", p.currentText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("#color", p.currentText());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(123, p.getIntValue());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("*error*", p.currentText());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("hyphen-ated", p.currentText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("yes", p.currentText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("me+my", p.currentText());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
     

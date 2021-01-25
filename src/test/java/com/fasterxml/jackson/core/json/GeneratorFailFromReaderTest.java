@@ -61,7 +61,7 @@ public class GeneratorFailFromReaderTest
             gen.writeString(reader, -1);
             gen.flush();
             String json = bout.toString("UTF-8");
-            fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeFieldName()': output = "+json);
+            fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeName()': output = "+json);
         } catch (StreamWriteException e) {
             verifyException(e, "can not write a String");
         }
@@ -83,7 +83,7 @@ public class GeneratorFailFromReaderTest
         try {
             String testStr = "aaaaaaaaa";
             StringReader reader = new StringReader(testStr);
-            gen.writeFieldName("a");
+            gen.writeName("a");
             gen.writeString(reader, testStr.length() + 1);
             gen.flush();
             String json = bout.toString("UTF-8");
@@ -107,7 +107,7 @@ public class GeneratorFailFromReaderTest
         gen.writeStartObject();
 
         try {
-            gen.writeFieldName("a");
+            gen.writeName("a");
             gen.writeString(null, -1);
             gen.flush();
             String json = bout.toString("UTF-8");

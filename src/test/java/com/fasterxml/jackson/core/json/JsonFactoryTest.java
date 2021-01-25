@@ -38,25 +38,25 @@ public class JsonFactoryTest
     public void testJsonWriteFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonWriteFeature.QUOTE_FIELD_NAMES)
+                .enable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                 .build();
-        assertTrue(f.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
-        f = f.rebuild().configure(JsonWriteFeature.QUOTE_FIELD_NAMES, false)
+        assertTrue(f.isEnabled(JsonWriteFeature.QUOTE_PROPERTY_NAMES));
+        f = f.rebuild().configure(JsonWriteFeature.QUOTE_PROPERTY_NAMES, false)
                 .build();
-        assertFalse(f.isEnabled(JsonWriteFeature.QUOTE_FIELD_NAMES));
+        assertFalse(f.isEnabled(JsonWriteFeature.QUOTE_PROPERTY_NAMES));
     }
     
     public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(TokenStreamFactory.Feature.INTERN_FIELD_NAMES)
+                .enable(TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES)
                 .build();
-        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
 
         f = f.rebuild()
-                .disable(JsonFactory.Feature.INTERN_FIELD_NAMES)
+                .disable(JsonFactory.Feature.INTERN_PROPERTY_NAMES)
                 .build();
-        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
 
         // by default, should be enabled
         assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
@@ -162,22 +162,22 @@ public class JsonFactoryTest
         // first, verify defaults
 
         // since 3.0:
-        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
         assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertFalse(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
 
         f = f.rebuild()
-                .enable(JsonFactory.Feature.INTERN_FIELD_NAMES)
+                .enable(JsonFactory.Feature.INTERN_PROPERTY_NAMES)
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
                 .build();
         // then change, verify that changes "stick"
-        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
         assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
 
         JsonFactory jf2 = f.copy();
-        assertTrue(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertTrue(jf2.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
         assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
     }

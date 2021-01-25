@@ -50,21 +50,23 @@ public enum JsonReadFeature
      * this is in addition to other acceptable markers.
      *<p>
      * Since JSON specification requires use of double quotes for
-     * field names,
+     * property names,
      * this is a non-standard feature, and as such disabled by default.
      */
     ALLOW_SINGLE_QUOTES(false),
 
     /**
      * Feature that determines whether parser will allow use
-     * of unquoted field names (which is allowed by Javascript,
+     * of unquoted Object property names (which is allowed by Javascript,
      * but not by JSON specification).
      *<p>
      * Since JSON specification requires use of double quotes for
-     * field names,
+     * Object property names,
      * this is a non-standard feature, and as such disabled by default.
+     *<p>
+     * NOTE: in Jackson 2.x, was called {@code ALLOW_UNQUOTED_FIELD_NAMES}
      */
-    ALLOW_UNQUOTED_FIELD_NAMES(false),
+    ALLOW_UNQUOTED_PROPERTY_NAMES(false),
 
     /**
      * Feature that determines whether parser will allow

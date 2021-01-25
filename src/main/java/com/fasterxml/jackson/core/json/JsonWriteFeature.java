@@ -11,15 +11,17 @@ public enum JsonWriteFeature
     // // // Support for non-standard JSON constructs: Quoting/escaping
     
     /**
-     * Feature that determines whether JSON Object field names are
+     * Feature that determines whether JSON Object property names are
      * quoted using double-quotes, as specified by JSON specification
      * or not. Ability to disable quoting was added to support use
      * cases where they are not usually expected, which most commonly
      * occurs when used straight from Javascript.
      *<p>
+     * Note: in Jackson 2.x, was called {@code QUOTE_FIELD_NAMES}
+     *<p>
      * Feature is enabled by default (since it is required by JSON specification).
      */
-    QUOTE_FIELD_NAMES(true),
+    QUOTE_PROPERTY_NAMES(true),
 
     /**
      * Feature that determines whether "NaN" ("not a number", that is, not

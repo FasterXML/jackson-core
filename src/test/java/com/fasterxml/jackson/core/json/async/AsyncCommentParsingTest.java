@@ -116,7 +116,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
             } catch (Exception e) {
                 throw new RuntimeException("Failed on '"+DOC+"' due to "+e, e);
             }
-            assertEquals(JsonToken.FIELD_NAME, t);
+            assertEquals(JsonToken.PROPERTY_NAME, t);
 
             try {
                 t = p.nextToken();
@@ -186,11 +186,11 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         AsyncReaderWrapper p = _createParser(f, DOC, bytesPerRead);
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());

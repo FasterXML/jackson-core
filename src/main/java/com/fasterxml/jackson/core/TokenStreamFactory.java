@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.async.ByteArrayFeeder;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.sym.SimpleNameMatcher;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
@@ -68,31 +68,31 @@ public abstract class TokenStreamFactory
         // // // Symbol handling (interning etc)
         
         /**
-         * Feature that determines whether JSON object field names are
+         * Feature that determines whether JSON object property names are
          * to be canonicalized using {@link String#intern} or not:
-         * if enabled, all field names will be intern()ed (and caller
+         * if enabled, all property names will be intern()ed (and caller
          * can count on this being true for all such names); if disabled,
          * no intern()ing is done. There may still be basic
          * canonicalization (that is, same String will be used to represent
          * all identical object property names for a single document).
          *<p>
          * Note: this setting only has effect if
-         * {@link #CANONICALIZE_FIELD_NAMES} is true -- otherwise no
+         * {@link #CANONICALIZE_PROPERTY_NAMES} is true -- otherwise no
          * canonicalization of any sort is done.
          *<p>
          * This setting is disabled by default since 3.0 (was enabled in 1.x and 2.x)
          */
-        INTERN_FIELD_NAMES(false),
+        INTERN_PROPERTY_NAMES(false),
 
         /**
-         * Feature that determines whether JSON object field names are
+         * Feature that determines whether JSON object property names are
          * to be canonicalized (details of how canonicalization is done
          * then further specified by
-         * {@link #INTERN_FIELD_NAMES}).
+         * {@link #INTERN_PROPERTY_NAMES}).
          *<p>
          * This setting is enabled by default.
          */
-        CANONICALIZE_FIELD_NAMES(true),
+        CANONICALIZE_PROPERTY_NAMES(true),
 
         /**
          * Feature that determines what happens if we encounter a case in symbol
@@ -642,23 +642,23 @@ public abstract class TokenStreamFactory
      */
 
     /**
-     * Factory method for constructing case-sensitive {@link FieldNameMatcher}
+     * Factory method for constructing case-sensitive {@link PropertyNameMatcher}
      * for given names. It will call {@link String#intern} on names unless specified
      * that this has already been done by caller.
      *
      * @param matches Names to match, including both primary names and possible aliases
      * @param alreadyInterned Whether name Strings are already {@code String.intern()ed} or not
      *
-     * @return Case-sensitive {@link FieldNameMatcher} instance to use
+     * @return Case-sensitive {@link PropertyNameMatcher} instance to use
      */
-    public FieldNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
+    public PropertyNameMatcher constructFieldNameMatcher(List<Named> matches, boolean alreadyInterned) {
         // 15-Nov-2017, tatu: Base implementation that is likely to work fine for
         //    most if not all implementations as it is more difficult to optimize
         return SimpleNameMatcher.constructFrom(null, matches, alreadyInterned);
     }
 
     /**
-     * Factory method for constructing case-insensitive {@link FieldNameMatcher}
+     * Factory method for constructing case-insensitive {@link PropertyNameMatcher}
      * for given names. It will call {@link String#intern} on names unless specified
      * that this has already been done by caller.
      *
@@ -666,9 +666,9 @@ public abstract class TokenStreamFactory
      * @param alreadyInterned Whether name Strings are already {@code String.intern()ed} or not
      * @param locale Locale to use for case-handling
      *
-     * @return Case-insensitive {@link FieldNameMatcher} instance to use
+     * @return Case-insensitive {@link PropertyNameMatcher} instance to use
      */
-    public FieldNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
+    public PropertyNameMatcher constructCIFieldNameMatcher(List<Named> matches, boolean alreadyInterned,
             Locale locale) {
         return SimpleNameMatcher.constructCaseInsensitive(locale, matches, alreadyInterned);
     }

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -309,7 +309,7 @@ public abstract class ParserMinimalBase extends JsonParser
         // Implementation should be as trivial as follows; only needs to change if
         // we are to skip other tokens (for example, if comments were exposed as tokens)
         JsonToken t = nextToken();
-        if (t == JsonToken.FIELD_NAME) {
+        if (t == JsonToken.PROPERTY_NAME) {
             t = nextToken();
         }
         return t;
@@ -358,37 +358,37 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override
     public String nextFieldName() throws JacksonException {
-        return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
+        return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
     }
 
     @Override
     public boolean nextFieldName(SerializableString str) throws JacksonException {
-        return (nextToken() == JsonToken.FIELD_NAME) && str.getValue().equals(currentName());
+        return (nextToken() == JsonToken.PROPERTY_NAME) && str.getValue().equals(currentName());
     }
 
     // Base implementation that should work well for most implementations but that
     // is typically overridden for performance optimization purposes
     @Override
-    public int nextFieldName(FieldNameMatcher matcher) throws JacksonException {
+    public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException {
         String str = nextFieldName();
         if (str != null) {
             return matcher.matchName(str);
         }
         if (_currToken == JsonToken.END_OBJECT) {
-            return FieldNameMatcher.MATCH_END_OBJECT;
+            return PropertyNameMatcher.MATCH_END_OBJECT;
         }
-        return FieldNameMatcher.MATCH_ODD_TOKEN;
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
     }
 
     @Override
-    public int currentFieldName(FieldNameMatcher matcher) {
-        if (_currToken == JsonToken.FIELD_NAME) {
+    public int currentFieldName(PropertyNameMatcher matcher) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return matcher.matchName(currentName());
         }
         if (_currToken == JsonToken.END_OBJECT) {
-            return FieldNameMatcher.MATCH_END_OBJECT;
+            return PropertyNameMatcher.MATCH_END_OBJECT;
         }
-        return FieldNameMatcher.MATCH_ODD_TOKEN;
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
     }
 
     /*
@@ -667,7 +667,7 @@ public abstract class ParserMinimalBase extends JsonParser
         if (_currToken == JsonToken.VALUE_STRING) {
             return getText();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {

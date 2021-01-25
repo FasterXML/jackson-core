@@ -8,7 +8,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -156,10 +156,10 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public String nextFieldName() throws JacksonException { return delegate.nextFieldName(); }
     @Override public boolean nextFieldName(SerializableString str) throws JacksonException { return delegate.nextFieldName(str); }
-    @Override public int nextFieldName(FieldNameMatcher matcher) throws JacksonException { return delegate.nextFieldName(matcher); }
+    @Override public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException { return delegate.nextFieldName(matcher); }
 
     // NOTE: fine without overrides since it does NOT change state
-    @Override public int currentFieldName(FieldNameMatcher matcher) { return delegate.currentFieldName(matcher); }
+    @Override public int currentFieldName(PropertyNameMatcher matcher) { return delegate.currentFieldName(matcher); }
 
     /*
     /**********************************************************************

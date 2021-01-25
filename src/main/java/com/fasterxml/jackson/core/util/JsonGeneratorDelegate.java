@@ -17,7 +17,8 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     /**
      * Whether copy methods
-     * ({@link #copyCurrentEvent}, {@link #copyCurrentStructure}, {@link #writeTree} and {@link #writeObject})
+     * ({@link #copyCurrentEvent}, {@link #copyCurrentStructure},
+     * {@link #writeTree} and {@link #writePOJO})
      * are to be called (true), or handled by this object (false).
      */
     protected boolean delegateCopyMethods;
@@ -80,7 +81,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public boolean canWriteBinaryNatively() { return delegate.canWriteBinaryNatively(); }
     
     @Override
-    public boolean canOmitFields() { return delegate.canOmitFields(); }
+    public boolean canOmitProperties() { return delegate.canOmitProperties(); }
 
     @Override
     public boolean canWriteFormattedNumbers() { return delegate.canWriteFormattedNumbers(); }
@@ -153,18 +154,18 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public void writeEndObject() throws JacksonException { delegate.writeEndObject(); }
 
     @Override
-    public void writeFieldName(String name) throws JacksonException {
-        delegate.writeFieldName(name);
+    public void writeName(String name) throws JacksonException {
+        delegate.writeName(name);
     }
 
     @Override
-    public void writeFieldName(SerializableString name) throws JacksonException {
-        delegate.writeFieldName(name);
+    public void writeName(SerializableString name) throws JacksonException {
+        delegate.writeName(name);
     }
 
     @Override
-    public void writeFieldId(long id) throws JacksonException {
-        delegate.writeFieldId(id);
+    public void writePropertyId(long id) throws JacksonException {
+        delegate.writePropertyId(id);
     }
 
     @Override
@@ -310,8 +311,8 @@ public class JsonGeneratorDelegate extends JsonGenerator
     // Sole exception being this method as it is not a "combo" method
     
     @Override
-    public void writeOmittedField(String fieldName) throws JacksonException {
-        delegate.writeOmittedField(fieldName);
+    public void writeOmittedProperty(String fieldName) throws JacksonException {
+        delegate.writeOmittedProperty(fieldName);
     }
 
     /*
@@ -339,9 +340,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
      */
     
     @Override
-    public void writeObject(Object pojo) throws JacksonException {
+    public void writePOJO(Object pojo) throws JacksonException {
         if (delegateCopyMethods) {
-            delegate.writeObject(pojo);
+            delegate.writePOJO(pojo);
             return;
         }
         if (pojo == null) {

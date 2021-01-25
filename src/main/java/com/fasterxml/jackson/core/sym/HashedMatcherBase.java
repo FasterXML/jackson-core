@@ -7,7 +7,7 @@ import java.util.Locale;
  * with Strings.
  */
 public abstract class HashedMatcherBase
-    extends FieldNameMatcher
+    extends PropertyNameMatcher
 {
     private static final long serialVersionUID = 1L;
 
@@ -28,7 +28,7 @@ public abstract class HashedMatcherBase
      */
     
     protected HashedMatcherBase(Locale locale, String[] names, int[] offsets, int mask,
-            FieldNameMatcher backup, String[] nameLookup)
+            PropertyNameMatcher backup, String[] nameLookup)
     {
         super(locale, backup, nameLookup);
         _names = names;
@@ -40,7 +40,7 @@ public abstract class HashedMatcherBase
         this(base._locale, base._names, base._offsets, base._mask, base._backupMatcher, nameLookup);
     }
 
-    protected HashedMatcherBase(HashedMatcherBase base, FieldNameMatcher fallback) {
+    protected HashedMatcherBase(HashedMatcherBase base, PropertyNameMatcher fallback) {
         this(base._locale, base._names, base._offsets, base._mask, fallback, base._nameLookup);
     }
 

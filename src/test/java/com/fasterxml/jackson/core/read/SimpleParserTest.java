@@ -54,15 +54,15 @@ public class SimpleParserTest extends BaseTest
     private void _testIntern(boolean useStream, boolean enableIntern, String expName)
     {
         JsonFactory f = JsonFactory.builder()
-                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, enableIntern)
+                .configure(JsonFactory.Feature.INTERN_PROPERTY_NAMES, enableIntern)
                 .build();
-        assertEquals(enableIntern, f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertEquals(enableIntern, f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
         final String JSON = "{ \""+expName+"\" : 1}";
         JsonParser p = useStream ?
             createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
             
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         // needs to be same of cours
         String actName = p.currentName();
         assertEquals(expName, actName);
@@ -157,7 +157,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals(0, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key1");
         assertEquals("{\"key1\"}", ctxt.toString());
         assertEquals(2, p.getTokenLocation().getLineNr());
@@ -177,7 +177,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals(1, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key2");
         ctxt = p.getParsingContext();
         assertEquals(2, ctxt.getEntryCount());
@@ -187,11 +187,11 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals("key2", ctxt.currentName());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key3");
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key4");
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -308,7 +308,7 @@ public class SimpleParserTest extends BaseTest
             JsonParser p = createParser(mode, DOC);
 
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             // first, sanity check (field name == getText()
             String act = p.currentName();
             assertEquals(act, getAndVerifyText(p));
@@ -369,7 +369,7 @@ public class SimpleParserTest extends BaseTest
         StringWriter sw = new StringWriter(LEN + (LEN >> 2));
         JsonGenerator g = JSON_FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeStartObject();
-        g.writeFieldName("doc");
+        g.writeName("doc");
         g.writeString(VALUE);
         g.writeEndObject();
         g.close();
@@ -388,7 +388,7 @@ public class SimpleParserTest extends BaseTest
                 p = JSON_FACTORY.createParser(ObjectReadContext.empty(), encodeInUTF32BE(DOC));
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("doc", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
@@ -520,26 +520,26 @@ public class SimpleParserTest extends BaseTest
         assertNull(p.getValueAsString());
         assertEquals("foobar", p.getValueAsString("foobar"));
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.getText());
         assertEquals("a", p.getValueAsString());
         assertEquals("a", p.getValueAsString("default"));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("1", p.getValueAsString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.getValueAsString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals("true", p.getValueAsString());
         assertEquals("true", p.getValueAsString("foobar"));
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("c", p.getValueAsString());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         // null token returned as Java null, as per javadoc
         assertNull(p.getValueAsString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("d", p.getValueAsString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("foo", p.getValueAsString("default"));
@@ -568,20 +568,20 @@ public class SimpleParserTest extends BaseTest
         final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foobar!\"}";
         JsonParser parser = createParser(mode, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         assertEquals("a", parser.currentName());
         _getAndVerifyText(parser, "a");
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         _getAndVerifyText(parser, INPUT_TEXT);
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         assertEquals("b", parser.currentName());
         assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
         _getAndVerifyText(parser, "true");
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         assertEquals("c", parser.currentName());
         assertToken(JsonToken.VALUE_NULL, parser.nextToken());
         _getAndVerifyText(parser, "null");
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         assertEquals("d", parser.currentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         _getAndVerifyText(parser, "foobar!");
@@ -615,7 +615,7 @@ public class SimpleParserTest extends BaseTest
         final String JSON = "{\"a\":\""+ longText +"\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
         JsonParser parser = createParser(MODE_READER, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
         assertEquals("a", parser.currentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         
@@ -676,14 +676,14 @@ public class SimpleParserTest extends BaseTest
                         new InputStreamReader(in, StandardCharsets.UTF_8));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("request", p.currentName());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("mac", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             assertNotNull(p.getText());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("data", p.currentName());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 

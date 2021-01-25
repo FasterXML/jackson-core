@@ -279,7 +279,7 @@ public final class ByteSourceJsonBootstrapper
             /* and without canonicalization, byte-based approach is not performant; just use std UTF-8 reader
              * (which is ok for larger input; not so hot for smaller; but this is not a common case)
              */
-            if (JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(factoryFeatures)) {
+            if (JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(factoryFeatures)) {
                 ByteQuadsCanonicalizer can = rootByteSymbols.makeChild(factoryFeatures);
                 return new UTF8StreamJsonParser(readCtxt, _context,
                         streamReadFeatures, formatReadFeatures, _in, can,

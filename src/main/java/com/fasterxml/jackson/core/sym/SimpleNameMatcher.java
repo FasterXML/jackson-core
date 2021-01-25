@@ -5,7 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.util.Named;
 
 /**
- * Basic {@link FieldNameMatcher} that uses case-sensitive match and does
+ * Basic {@link PropertyNameMatcher} that uses case-sensitive match and does
  * not require (or expect) that names passed as arguments have been
  * {@link String#intern}ed.
  */
@@ -61,7 +61,7 @@ public class SimpleNameMatcher
         int[] offsets = new int[allocSize];
         // 20-Dec-2017, tatu: Let's initialize to value "not found" just in case, since `0` would
         //    be valid value, indicating first entry
-        Arrays.fill(offsets, FieldNameMatcher.MATCH_UNKNOWN_NAME); // since we are never called if there's no name involved
+        Arrays.fill(offsets, PropertyNameMatcher.MATCH_UNKNOWN_NAME); // since we are never called if there's no name involved
 
         // Alas: can not easily extract out without tuples or such since names/offsets need resizing...
         final int mask = hashSize-1;

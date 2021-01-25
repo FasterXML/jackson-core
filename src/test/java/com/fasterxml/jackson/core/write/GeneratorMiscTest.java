@@ -154,7 +154,7 @@ public class GeneratorMiscTest
                     } else {
                         name = "__"+index+letter;
                     }
-                    g.writeFieldName(name);
+                    g.writeName(name);
                     g.writeNumber(index-1);
                 }
                 g.writeRaw('\n');
@@ -169,7 +169,7 @@ public class GeneratorMiscTest
         for (int rounds = 0; rounds < 1500; ++rounds) {
         for (int letter = 'a'; letter <= 'z'; ++letter) {
             for (int index = 0; index < 20; ++index) {
-                assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+                assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
                 String name;
                 if (letter > 'f') {
                     name = "X"+letter+index;

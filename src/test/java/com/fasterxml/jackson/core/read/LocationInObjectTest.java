@@ -15,7 +15,7 @@ public class LocationInObjectTest extends BaseTest
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(1L, p.getTokenLocation().getByteOffset());
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(6L, p.getTokenLocation().getByteOffset());
@@ -61,7 +61,7 @@ public class LocationInObjectTest extends BaseTest
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(1L, p.getTokenLocation().getCharOffset());
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(6L, p.getTokenLocation().getCharOffset());

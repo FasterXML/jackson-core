@@ -44,9 +44,9 @@ public interface JsonTokenId
     public final static int ID_END_ARRAY = 4;
 
     /**
-     * Id used to represent {@link JsonToken#FIELD_NAME}
+     * Id used to represent {@link JsonToken#PROPERTY_NAME}
      */
-    public final static int ID_FIELD_NAME = 5;
+    public final static int ID_PROPERTY_NAME = 5;
 
     /**
      * Id used to represent {@link JsonToken#VALUE_STRING}

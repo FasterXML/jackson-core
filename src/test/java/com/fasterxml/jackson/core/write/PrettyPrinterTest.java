@@ -58,10 +58,10 @@ public class PrettyPrinterTest
             JsonGenerator gen = useBytes ? JSON_F.createGenerator(ppContext, bytes)
                     : JSON_F.createGenerator(ppContext, sw);
             gen.writeStartObject();
-            gen.writeFieldName("x");
+            gen.writeName("x");
             gen.writeStartObject();
-            gen.writeNumberField("a", 1);
-            gen.writeNumberField("b", 2);
+            gen.writeNumberProperty("a", 1);
+            gen.writeNumberProperty("b", 2);
             gen.writeEndObject();
             gen.writeEndObject();
             gen.close();
@@ -261,10 +261,10 @@ public class PrettyPrinterTest
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
 
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, jp.nextToken());
         assertEquals("f", jp.getText());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals(JsonToken.PROPERTY_NAME, jp.nextToken());
         assertEquals("f2", jp.getText());
         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
@@ -286,10 +286,10 @@ public class PrettyPrinterTest
         gen.writeEndArray();
 
         gen.writeStartObject();
-        gen.writeFieldName("f");
+        gen.writeName("f");
         gen.writeNull();
         // for better test coverage also use alt method
-        gen.writeFieldName(new SerializedString("f2"));
+        gen.writeName(new SerializedString("f2"));
         gen.writeNull();
         gen.writeEndObject();
 

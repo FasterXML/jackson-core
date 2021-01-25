@@ -162,7 +162,7 @@ public final class BinaryNameMatcher
     public static BinaryNameMatcher constructCaseInsensitive(Locale locale,
             List<Named> fields, boolean alreadyInterned)
     {
-        final List<String> names = FieldNameMatcher.stringsFromNames(fields, alreadyInterned);
+        final List<String> names = PropertyNameMatcher.stringsFromNames(fields, alreadyInterned);
         return _construct(names, SimpleNameMatcher.constructCaseInsensitive(locale, names));
     }
 

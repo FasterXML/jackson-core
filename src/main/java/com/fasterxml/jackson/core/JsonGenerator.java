@@ -292,14 +292,16 @@ public abstract class JsonGenerator
     
     /**
      * Introspection method to call to check whether it is ok to omit
-     * writing of Object fields or not. Most formats do allow omission,
+     * writing of Object properties or not. Most formats do allow omission,
      * but certain positional formats (such as CSV) require output of
-     * placeholders, even if no real values are to be emitted.
+     * place holders, even if no real values are to be emitted.
+     *<p>
+     * NOTE: in Jackson 2.x method was {@code canOmitFields()}.
      *
      * @return {@code True} if this generator is allowed to only write values
-     *   of some Object fields and omit the rest; {@code false} if not
+     *   of some Object properties and omit the rest; {@code false} if not
      */
-    public boolean canOmitFields() { return true; }
+    public boolean canOmitProperties() { return true; }
 
     /**
      * Introspection method to call to check whether it is possible
@@ -339,7 +341,7 @@ public abstract class JsonGenerator
      *<p>
      * Array values can be written in any context where values
      * are allowed: meaning everywhere except for when
-     * a field name is expected.
+     * a property name is expected.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -385,8 +387,7 @@ public abstract class JsonGenerator
      * (character ']'; plus possible white space decoration
      * if pretty-printing is enabled).
      *<p>
-     * Marker can be written if the innermost structured type
-     * is Array.
+     * Marker can be written if the innermost structured type is Array.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -400,7 +401,7 @@ public abstract class JsonGenerator
      *<p>
      * Object values can be written in any context where values
      * are allowed: meaning everywhere except for when
-     * a field name is expected.
+     * a property name is expected.
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
@@ -416,7 +417,7 @@ public abstract class JsonGenerator
      *<p>
      * Object values can be written in any context where values
      * are allowed: meaning everywhere except for when
-     * a field name is expected.
+     * a property name is expected.
      *
      * @param currentValue Java Object that Object being written represents, if any
      *    (or {@code null} if not known or not applicable)
@@ -438,7 +439,7 @@ public abstract class JsonGenerator
      *<p>
      * Object values can be written in any context where values
      * are allowed: meaning everywhere except for when
-     * a field name is expected.
+     * a property name is expected.
      *
      * @param forValue Object value to be written (assigned as "current value" for
      *    the Object context that gets created)
@@ -468,23 +469,23 @@ public abstract class JsonGenerator
     public abstract void writeEndObject() throws JacksonException;
 
     /**
-     * Method for writing a field name (JSON String surrounded by
+     * Method for writing an Object Property name (JSON String surrounded by
      * double quotes: syntactically identical to a JSON String value),
      * possibly decorated by white space if pretty-printing is enabled.
      *<p>
-     * Field names can only be written in Object context (check out
-     * JSON specification for details), when field name is expected
-     * (field names alternate with values).
+     * Property names can only be written in Object context (check out
+     * JSON specification for details), when Object Property name is expected
+     * (property names alternate with values).
      *
-     * @param name Field name to write
+     * @param name Name of the Object Property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public abstract void writeFieldName(String name) throws JacksonException;
+    public abstract void writeName(String name) throws JacksonException;
 
     /**
-     * Method similar to {@link #writeFieldName(String)}, main difference
+     * Method similar to {@link #writeName(String)}, main difference
      * being that it may perform better as some of processing (such as
      * quoting of certain characters, or encoding into external encoding
      * if supported by generator) can be done just once and reused for
@@ -494,27 +495,27 @@ public abstract class JsonGenerator
      * serialized String; implementations are strongly encouraged to make
      * use of more efficient methods argument object has.
      *
-     * @param name Pre-encoded field name to write
+     * @param name Pre-encoded name of the Object Property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public abstract void writeFieldName(SerializableString name) throws JacksonException;
+    public abstract void writeName(SerializableString name) throws JacksonException;
 
     /**
-     * Alternative to {@link #writeFieldName(String)} that may be used
-     * in cases where property key is of numeric type; either where
+     * Alternative to {@link #writeName(String)} that may be used
+     * in cases where Object Property key is of numeric type; usually where
      * underlying format supports such notion (some binary formats do,
-     * unlike JSON), or for convenient conversion into String presentation.
-     * Default implementation will simply convert id into <code>String</code>
-     * and call {@link #writeFieldName(String)}.
+     * unlike JSON).
+     * Default implementation will simply convert id into {@code String}
+     * and call {@link #writeName(String)}.
      *
-     * @param id Field id to write
+     * @param id Property key id to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public abstract void writeFieldId(long id) throws JacksonException;
+    public abstract void writePropertyId(long id) throws JacksonException;
 
     /*
     /**********************************************************************
@@ -622,8 +623,8 @@ public abstract class JsonGenerator
 
     /**
      * Method for outputting a String value. Depending on context
-     * this means either array element, (object) field value or
-     * a stand alone String; but in all cases, String will be
+     * this means either array element, (object) property value or
+     * a stand-alone (root-level value) String; but in all cases, String will be
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
      *
@@ -636,7 +637,7 @@ public abstract class JsonGenerator
 
     /**
      * Method for outputting a String value. Depending on context
-     * this means either array element, (object) field value or
+     * this means either array element, (object) property value or
      * a stand alone String; but in all cases, String will be
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
@@ -659,7 +660,7 @@ public abstract class JsonGenerator
 
     /**
      * Method for outputting a String value. Depending on context
-     * this means either array element, (object) field value or
+     * this means either array element, (object) property value or
      * a stand alone String; but in all cases, String will be
      * surrounded in double quotes, and contents will be properly
      * escaped as required by JSON specification.
@@ -1010,7 +1011,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1024,7 +1025,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1038,7 +1039,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1052,7 +1053,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting given value as JSON number.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1066,7 +1067,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting indicate JSON numeric value.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1080,7 +1081,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting indicate JSON numeric value.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1094,7 +1095,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting indicate JSON numeric value.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1157,7 +1158,7 @@ public abstract class JsonGenerator
      * Method for outputting literal JSON boolean value (one of
      * Strings 'true' and 'false').
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1171,7 +1172,7 @@ public abstract class JsonGenerator
     /**
      * Method for outputting literal JSON null value.
      * Can be called in any context where a value is expected
-     * (Array value, Object field value, root-level value).
+     * (Array value, Object property value, root-level value).
      * Additional white space may be added around the value
      * if pretty-printing is enabled.
      *
@@ -1186,7 +1187,7 @@ public abstract class JsonGenerator
      * more common with binary formats.
      *<p>
      * NOTE: this is NOT the method to call for serializing regular POJOs,
-     * see {@link #writeObject} instead.
+     * see {@link #writePOJO} instead.
      *
      * @param object Native format-specific value to write
      *
@@ -1321,17 +1322,17 @@ public abstract class JsonGenerator
                 // other mechanism, so...
                 break;
             case METADATA_PROPERTY:
-                // must have Object context by now, so simply write as field name
+                // must have Object context by now, so simply write as property name
                 // Note, too, that it's bit tricky, since we must print START_OBJECT that is part
                 // of value first -- and then NOT output it later on: hence return "early"
                 writeStartObject(typeIdDef.forValue);
-                writeStringField(typeIdDef.asProperty, idStr);
+                writeStringProperty(typeIdDef.asProperty, idStr);
                 return typeIdDef;
 
             case WRAPPER_OBJECT:
                 // NOTE: this is wrapper, not directly related to value to output, so don't pass
                 writeStartObject();
-                writeFieldName(idStr);
+                writeName(idStr);
                 break;
             case WRAPPER_ARRAY:
             default: // should never occur but translate as "as-array"
@@ -1369,7 +1370,7 @@ public abstract class JsonGenerator
                 {
                     Object id = typeIdDef.id;
                     String idStr = (id instanceof String) ? (String) id : String.valueOf(id);
-                    writeStringField(typeIdDef.asProperty, idStr);
+                    writeStringProperty(typeIdDef.asProperty, idStr);
                 }
                 break;
             case METADATA_PROPERTY:
@@ -1393,16 +1394,17 @@ public abstract class JsonGenerator
 
     /**
      * Method for writing given Java object (POJO) as tokens into
-     * stream this generator manages.
+     * stream this generator manages; serialization must be a valid JSON Value
+     * (Object, Array, null, Number, String or Boolean).
      * This is done by delegating call to
      * {@link ObjectWriteContext#writeValue(JsonGenerator, Object)}.
      *
-     * @param pojo General POJO value to write
+     * @param pojo Java Object (POJO) value to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public abstract void writeObject(Object pojo) throws JacksonException;
+    public abstract void writePOJO(Object pojo) throws JacksonException;
 
     /**
      * Method for writing given JSON tree (expressed as a tree
@@ -1419,230 +1421,230 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************************
-    /* Public API, convenience field write methods
+    /* Public API, convenience property write methods
     /**********************************************************************
      */
 
     // 25-May-2020, tatu: NOTE! Made `final` on purpose in 3.x to prevent issues
-    //    rising from complexity of overriding only some of methods (writeFieldName()
+    //    rising from complexity of overriding only some of methods (writeName()
     //    and matching writeXxx() for value)
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that contains specified data in base64-encoded form.
      * Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeBinary(value);
      *</pre>
      *
-     * @param fieldName Name of Object field to write
-     * @param data Binary value of the field to write
+     * @param propertyName Name of Object Property to write
+     * @param data Binary value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeBinaryField(String fieldName, byte[] data) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeBinaryProperty(String propertyName, byte[] data) throws JacksonException {
+        writeName(propertyName);
         writeBinary(data);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has a boolean value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeBoolean(value);
      *</pre>
      *
-     * @param fieldName Name of Object field to write
-     * @param value Boolean value of the field to write
+     * @param propertyName Name of Object Property to write
+     * @param value Boolean value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeBooleanField(String fieldName, boolean value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeBooleanProperty(String propertyName, boolean value) throws JacksonException {
+        writeName(propertyName);
         writeBoolean(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has JSON literal value null. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNull();
      *</pre>
      *
-     * @param fieldName Name of the null-valued field to write
+     * @param propertyName Name of the null-valued property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNullField(String fieldName) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNullProperty(String propertyName) throws JacksonException {
+        writeName(propertyName);
         writeNull();
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has a String value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeString(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value String value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value String value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeStringField(String fieldName, String value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeStringProperty(String propertyName, String value) throws JacksonException {
+        writeName(propertyName);
         writeString(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has the specified numeric value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNumber(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value Numeric value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value Numeric value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNumberField(String fieldName, short value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNumberProperty(String propertyName, short value) throws JacksonException {
+        writeName(propertyName);
         writeNumber(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has the specified numeric value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNumber(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value Numeric value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value Numeric value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNumberField(String fieldName, int value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNumberProperty(String propertyName, int value) throws JacksonException {
+        writeName(propertyName);
         writeNumber(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has the specified numeric value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNumber(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value Numeric value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value Numeric value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNumberField(String fieldName, long value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNumberProperty(String propertyName, long value) throws JacksonException {
+        writeName(propertyName);
         writeNumber(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has the specified numeric value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNumber(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value Numeric value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value Numeric value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNumberField(String fieldName, BigInteger value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNumberProperty(String propertyName, BigInteger value) throws JacksonException {
+        writeName(propertyName);
         writeNumber(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has the specified numeric value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNumber(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value Numeric value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value Numeric value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNumberField(String fieldName, float value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNumberProperty(String propertyName, float value) throws JacksonException {
+        writeName(propertyName);
         writeNumber(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has the specified numeric value. Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNumber(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value Numeric value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value Numeric value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNumberField(String fieldName, double value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNumberProperty(String propertyName, double value) throws JacksonException {
+        writeName(propertyName);
         writeNumber(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has the specified numeric value.
      * Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeNumber(value);
      *</pre>
      *
-     * @param fieldName Name of the field to write
-     * @param value Numeric value of the field to write
+     * @param propertyName Name of the property to write
+     * @param value Numeric value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeNumberField(String fieldName, BigDecimal value) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeNumberProperty(String propertyName, BigDecimal value) throws JacksonException {
+        writeName(propertyName);
         writeNumber(value);
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * (that will contain a JSON Array value), and the START_ARRAY marker.
      * Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeStartArray();
      *</pre>
      *<p>
@@ -1650,22 +1652,22 @@ public abstract class JsonGenerator
      * (by calling {#link #writeEndArray}) after writing all values
      * of the value Array.
      *
-     * @param fieldName Name of the Array field to write
+     * @param propertyName Name of the Array property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeArrayFieldStart(String fieldName) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeArrayPropertyStart(String propertyName) throws JacksonException {
+        writeName(propertyName);
         writeStartArray();
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * (that will contain an Object value), and the START_OBJECT marker.
      * Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeStartObject();
      *</pre>
      *<p>
@@ -1673,37 +1675,37 @@ public abstract class JsonGenerator
      * (by calling {#link #writeEndObject}) after writing all
      * entries of the value Object.
      *
-     * @param fieldName Name of the Object field to write
+     * @param propertyName Name of the Object property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeObjectFieldStart(String fieldName) throws JacksonException {
-        writeFieldName(fieldName);
+    public final void writeObjectPropertyStart(String propertyName) throws JacksonException {
+        writeName(propertyName);
         writeStartObject();
     }
 
     /**
-     * Convenience method for outputting a field entry ("member")
+     * Convenience method for outputting an Object entry ("member")
      * that has contents of specific Java object as its value.
      * Equivalent to:
      *<pre>
-     *  writeFieldName(fieldName);
+     *  writeName(propertyName);
      *  writeObject(pojo);
      *</pre>
      *<p>
-     * NOTE: see {@link #writeObject(Object)} for details on how POJO value actually
+     * NOTE: see {@link #writePOJO(Object)} for details on how POJO value actually
      * gets written (uses delegation)
      *
-     * @param fieldName Name of the field to write
-     * @param pojo POJO value of the field to write
+     * @param propertyName Name of the property to write
+     * @param pojo POJO value of the property to write
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public final void writeObjectField(String fieldName, Object pojo) throws JacksonException {
-        writeFieldName(fieldName);
-        writeObject(pojo);
+    public final void writePOJOProperty(String propertyName, Object pojo) throws JacksonException {
+        writeName(propertyName);
+        writePOJO(pojo);
     }
 
     // // // But this method does need to be delegate so...
@@ -1711,16 +1713,16 @@ public abstract class JsonGenerator
     /**
      * Method called to indicate that a property in this position was
      * skipped. It is usually only called for generators that return
-     * <code>false</code> from {@link #canOmitFields()}.
+     * <code>false</code> from {@link #canOmitProperties()}.
      *<p>
      * Default implementation does nothing.
      *
-     * @param fieldName Name of the field that is being omitted
+     * @param propertyName Name of the property that is being omitted
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    public void writeOmittedField(String fieldName) throws JacksonException { }
+    public void writeOmittedProperty(String propertyName) throws JacksonException { }
 
     /*
     /**********************************************************************
@@ -1767,8 +1769,8 @@ public abstract class JsonGenerator
         case ID_END_ARRAY:
             writeEndArray();
             break;
-        case ID_FIELD_NAME:
-            writeFieldName(p.currentName());
+        case ID_PROPERTY_NAME:
+            writeName(p.currentName());
             break;
         case ID_STRING:
             if (p.hasTextCharacters()) {
@@ -1811,7 +1813,7 @@ public abstract class JsonGenerator
             writeNull();
             break;
         case ID_EMBEDDED_OBJECT:
-            writeObject(p.getEmbeddedObject());
+            writePOJO(p.getEmbeddedObject());
             break;
         default:
             throw new IllegalStateException("Internal error: unknown current token, "+t);
@@ -1835,11 +1837,11 @@ public abstract class JsonGenerator
      *   all events up to and including matching (closing)
      *   {@link JsonToken#END_ARRAY} will be copied
      *  </li>
-     * <li>{@link JsonToken#FIELD_NAME} the logical value (which
+     * <li>{@link JsonToken#PROPERTY_NAME} the logical value (which
      *   can consist of a single scalar value; or a sequence of related
      *   events for structured types (JSON Arrays, Objects)) will
      *   be copied along with the name itself. So essentially the
-     *   whole <b>field entry</b> (name and value) will be copied.
+     *   whole <b>Object property</b> (name and value) will be copied.
      *  </li>
      *</ul>
      *<p>
@@ -1857,10 +1859,10 @@ public abstract class JsonGenerator
     public void copyCurrentStructure(JsonParser p) throws JacksonException
     {
         JsonToken t = p.currentToken();
-        // Let's handle field-name separately first
+        // Let's handle property-name separately first
         int id = (t == null) ? ID_NOT_AVAILABLE : t.id();
-        if (id == ID_FIELD_NAME) {
-            writeFieldName(p.currentName());
+        if (id == ID_PROPERTY_NAME) {
+            writeName(p.currentName());
             t = p.nextToken();
             id = (t == null) ? ID_NOT_AVAILABLE : t.id();
             // fall-through to copy the associated value
@@ -1888,8 +1890,8 @@ public abstract class JsonGenerator
         // Mostly copied from `copyCurrentEvent()`, but with added nesting counts
         while ((t = p.nextToken()) != null) {
             switch (t.id()) {
-            case ID_FIELD_NAME:
-                writeFieldName(p.currentName());
+            case ID_PROPERTY_NAME:
+                writeName(p.currentName());
                 break;
 
             case ID_START_ARRAY:
@@ -1956,7 +1958,7 @@ public abstract class JsonGenerator
                 writeNull();
                 break;
             case ID_EMBEDDED_OBJECT:
-                writeObject(p.getEmbeddedObject());
+                writePOJO(p.getEmbeddedObject());
                 break;
             default:
                 throw new IllegalStateException("Internal error: unknown current token, "+t);

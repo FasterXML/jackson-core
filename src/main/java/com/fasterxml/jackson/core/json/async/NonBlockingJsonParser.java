@@ -200,9 +200,9 @@ public class NonBlockingJsonParser
         case MAJOR_ROOT:
             return _startValue(ch);
 
-        case MAJOR_OBJECT_FIELD_FIRST: // expect field-name or end-object
+        case MAJOR_OBJECT_PROPERTY_FIRST: // expect field-name or end-object
             return _startFieldName(ch);
-        case MAJOR_OBJECT_FIELD_NEXT: // expect comma + field-name or end-object
+        case MAJOR_OBJECT_PROPERTY_NEXT: // expect comma + field-name or end-object
             return _startFieldNameAfterComma(ch);
 
         case MAJOR_OBJECT_VALUE: // expect colon, followed by value
@@ -241,19 +241,19 @@ public class NonBlockingJsonParser
         switch (_minorState) {
         case MINOR_ROOT_BOM:
             return _finishBOM(_pending32);
-        case MINOR_FIELD_LEADING_WS:
+        case MINOR_PROPERTY_LEADING_WS:
             return _startFieldName(_inputBuffer[_inputPtr++] & 0xFF);
-        case MINOR_FIELD_LEADING_COMMA:
+        case MINOR_PROPERTY_LEADING_COMMA:
             return _startFieldNameAfterComma(_inputBuffer[_inputPtr++] & 0xFF);
 
         // Field name states
-        case MINOR_FIELD_NAME:
+        case MINOR_PROPERTY_NAME:
             return _parseEscapedName(_quadLength,  _pending32, _pendingBytes);
-        case MINOR_FIELD_NAME_ESCAPE:
+        case MINOR_PROPERTY_NAME_ESCAPE:
             return _finishFieldWithEscape();
-        case MINOR_FIELD_APOS_NAME:
+        case MINOR_PROPERTY_APOS_NAME:
             return _finishAposName(_quadLength,  _pending32, _pendingBytes);
-        case MINOR_FIELD_UNQUOTED_NAME:
+        case MINOR_PROPERTY_UNQUOTED_NAME:
             return _finishUnquotedName(_quadLength,  _pending32, _pendingBytes);
 
         // Value states
@@ -370,7 +370,7 @@ public class NonBlockingJsonParser
         switch (_minorState) {
         case MINOR_ROOT_GOT_SEPARATOR: // fine, just skip some trailing space
             return _eofAsNextToken();
-        case MINOR_FIELD_LEADING_COMMA: // in Object after key/value pair
+        case MINOR_PROPERTY_LEADING_COMMA: // in Object after key/value pair
             _reportInvalidEOF(": expected an Object property name or END_ARRAY", JsonToken.NOT_AVAILABLE);
 
         case MINOR_VALUE_LEADING_WS: // finished at token boundary; probably fine
@@ -530,7 +530,7 @@ public class NonBlockingJsonParser
         if (ch <= 0x0020) {
             ch = _skipWS(ch);
             if (ch <= 0) {
-                _minorState = MINOR_FIELD_LEADING_WS;
+                _minorState = MINOR_PROPERTY_LEADING_WS;
                 return _currToken;
             }
         }
@@ -557,7 +557,7 @@ public class NonBlockingJsonParser
         if (ch <= 0x0020) {
             ch = _skipWS(ch); // will skip through all available ws (and comments)
             if (ch <= 0) {
-                _minorState = MINOR_FIELD_LEADING_COMMA;
+                _minorState = MINOR_PROPERTY_LEADING_COMMA;
                 return _currToken;
             }
         }
@@ -566,16 +566,16 @@ public class NonBlockingJsonParser
                 return _closeObjectScope();
             }
             if (ch == INT_HASH) {
-                return _finishHashComment(MINOR_FIELD_LEADING_COMMA);
+                return _finishHashComment(MINOR_PROPERTY_LEADING_COMMA);
             }
             if (ch == INT_SLASH) {
-                return _startSlashComment(MINOR_FIELD_LEADING_COMMA);
+                return _startSlashComment(MINOR_PROPERTY_LEADING_COMMA);
             }
             _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
         }
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
-            _minorState = MINOR_FIELD_LEADING_WS;
+            _minorState = MINOR_PROPERTY_LEADING_WS;
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
         ch = _inputBuffer[ptr];
@@ -583,7 +583,7 @@ public class NonBlockingJsonParser
         if (ch <= 0x0020) {
             ch = _skipWS(ch);
             if (ch <= 0) {
-                _minorState = MINOR_FIELD_LEADING_WS;
+                _minorState = MINOR_PROPERTY_LEADING_WS;
                 return _currToken;
             }
         }
@@ -1111,9 +1111,9 @@ public class NonBlockingJsonParser
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
         switch (fromMinorState) {
-        case MINOR_FIELD_LEADING_WS:
+        case MINOR_PROPERTY_LEADING_WS:
             return _startFieldName(ch);
-        case MINOR_FIELD_LEADING_COMMA:
+        case MINOR_PROPERTY_LEADING_COMMA:
             return _startFieldNameAfterComma(ch);
         case MINOR_VALUE_LEADING_WS:
             return _startValue(ch);
@@ -1998,7 +1998,7 @@ public class NonBlockingJsonParser
                 _quadLength = qlen;
                 _pending32 = currQuad;
                 _pendingBytes = currQuadBytes;
-                _minorState = MINOR_FIELD_NAME;
+                _minorState = MINOR_PROPERTY_NAME;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
             int ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2029,8 +2029,8 @@ public class NonBlockingJsonParser
                 // Nope, escape sequence
                 ch = _decodeCharEscape();
                 if (ch < 0) { // method has set up state about escape sequence
-                    _minorState = MINOR_FIELD_NAME_ESCAPE;
-                    _minorStateAfterSplit = MINOR_FIELD_NAME;
+                    _minorState = MINOR_PROPERTY_NAME_ESCAPE;
+                    _minorStateAfterSplit = MINOR_PROPERTY_NAME;
                     _quadLength = qlen;
                     _pending32 = currQuad;
                     _pendingBytes = currQuadBytes;
@@ -2108,11 +2108,11 @@ public class NonBlockingJsonParser
         case '#':
             // Careful, since this may alternatively be leading char of unquoted name...
             if (isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
-                return _finishHashComment(MINOR_FIELD_LEADING_WS);
+                return _finishHashComment(MINOR_PROPERTY_LEADING_WS);
             }
             break;
         case '/':
-            return _startSlashComment(MINOR_FIELD_LEADING_WS);
+            return _startSlashComment(MINOR_PROPERTY_LEADING_WS);
         case '\'':
             if (isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
                 return _finishAposName(0, 0, 0);
@@ -2122,7 +2122,7 @@ public class NonBlockingJsonParser
             return _closeArrayScope();
         }
         // allow unquoted names if feature enabled:
-        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             // !!! TODO: Decode UTF-8 characters properly...
 //            char c = (char) _decodeCharForError(ch);
             char c = (char) ch;
@@ -2157,7 +2157,7 @@ public class NonBlockingJsonParser
                 _quadLength = qlen;
                 _pending32 = currQuad;
                 _pendingBytes = currQuadBytes;
-                _minorState = MINOR_FIELD_UNQUOTED_NAME;
+                _minorState = MINOR_PROPERTY_UNQUOTED_NAME;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
             int ch = _inputBuffer[_inputPtr] & 0xFF;
@@ -2203,7 +2203,7 @@ public class NonBlockingJsonParser
                 _quadLength = qlen;
                 _pending32 = currQuad;
                 _pendingBytes = currQuadBytes;
-                _minorState = MINOR_FIELD_APOS_NAME;
+                _minorState = MINOR_PROPERTY_APOS_NAME;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
             int ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2219,8 +2219,8 @@ public class NonBlockingJsonParser
                     // Nope, escape sequence
                     ch = _decodeCharEscape();
                     if (ch < 0) { // method has set up state about escape sequence
-                        _minorState = MINOR_FIELD_NAME_ESCAPE;
-                        _minorStateAfterSplit = MINOR_FIELD_APOS_NAME;
+                        _minorState = MINOR_PROPERTY_NAME_ESCAPE;
+                        _minorStateAfterSplit = MINOR_PROPERTY_APOS_NAME;
                         _quadLength = qlen;
                         _pending32 = currQuad;
                         _pendingBytes = currQuadBytes;
@@ -2294,7 +2294,7 @@ public class NonBlockingJsonParser
         // First: try finishing what wasn't yet:
         int ch = _decodeSplitEscaped(_quoted32, _quotedDigits);
         if (ch < 0) { // ... if possible
-            _minorState = MINOR_FIELD_NAME_ESCAPE;
+            _minorState = MINOR_PROPERTY_NAME_ESCAPE;
             return JsonToken.NOT_AVAILABLE;
         }
         if (_quadLength >= _quadBuffer.length) {
@@ -2335,7 +2335,7 @@ public class NonBlockingJsonParser
             currQuad = ch;
             currQuadBytes = 1;
         }
-        if (_minorStateAfterSplit == MINOR_FIELD_APOS_NAME) {
+        if (_minorStateAfterSplit == MINOR_PROPERTY_APOS_NAME) {
             return _finishAposName(_quadLength, currQuad, currQuadBytes);
         }
         return _parseEscapedName(_quadLength, currQuad, currQuadBytes);

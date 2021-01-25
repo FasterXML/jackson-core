@@ -87,9 +87,9 @@ public class SymbolTableMergingTest
         JsonParser p = _getParser(f, JSON, useBytes);
         // Let's check 2 names
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
 
         // shouldn't update before close or EOF:
         assertEquals(0, useBytes ? f.byteSymbolCount() : f.charSymbolCount());

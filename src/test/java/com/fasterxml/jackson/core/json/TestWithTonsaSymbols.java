@@ -47,7 +47,7 @@ public class TestWithTonsaSymbols
                 : f.createParser(ObjectReadContext.empty(), new StringReader(doc));
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             for (int i = 0; i < FIELD_COUNT; ++i) {
-                assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                 assertEquals(fieldNameFor(i), p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(i, p.getIntValue());

@@ -125,7 +125,7 @@ public class TestCharEscaping
             // note: append spaces so there's no buffer boundary issue
             JsonParser p = createParser(JSON_F, readMode, "{"+inputKey+" : 123456789}       ");
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals(expKey, p.currentName());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(123456789, p.getIntValue());

@@ -36,7 +36,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
                 0);
         assertNull(r.currentToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(fieldName, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
@@ -104,7 +104,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         AsyncReaderWrapper r = asyncForBytes(JSON_F, readSize, doc, offset);
         assertNull(r.currentToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(expName, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         
@@ -118,7 +118,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         AsyncReaderWrapper r = asyncForBytes(JSON_APOS_F, readSize, doc, offset);
         assertNull(r.currentToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(expName, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         

@@ -67,19 +67,19 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
                 : jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         assertNull(jp.currentToken());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         assertEquals("first", jp.currentName());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals("first", jp.currentName()); // still the same...
 //        jp.overrideCurrentName("foobar");
 //        assertEquals("foobar", jp.currentName()); // but not any more!
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         assertEquals("second", jp.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals("second", jp.currentName());
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         assertEquals("third", jp.currentName());
         assertToken(JsonToken.VALUE_FALSE, jp.nextToken());
         assertEquals("third", jp.currentName());

@@ -54,8 +54,8 @@ public class GeneratorDupHandlingTest
     protected void _writeSimple0(JsonGenerator g, String name)
     {
         g.writeStartObject();
-        g.writeNumberField(name, 1);
-        g.writeNumberField(name, 2);
+        g.writeNumberProperty(name, 1);
+        g.writeNumberProperty(name, 2);
         g.writeEndObject();
         g.close();
     }
@@ -65,11 +65,11 @@ public class GeneratorDupHandlingTest
         g.writeStartArray();
         g.writeNumber(3);
         g.writeStartObject();
-        g.writeNumberField("foo", 1);
-        g.writeNumberField("bar", 1);
-        g.writeNumberField(name, 1);
-        g.writeNumberField("bar2", 1);
-        g.writeNumberField(name, 2);
+        g.writeNumberProperty("foo", 1);
+        g.writeNumberProperty("bar", 1);
+        g.writeNumberProperty(name, 1);
+        g.writeNumberProperty("bar2", 1);
+        g.writeNumberProperty(name, 2);
         g.writeEndObject();
         g.writeEndArray();
         g.close();

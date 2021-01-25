@@ -134,7 +134,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
             JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
             g.writeStartObject();
-            g.writeFieldName("binary");
+            g.writeName("binary");
             g.writeBinary(data);
             g.writeEndObject();
             g.close();
@@ -143,7 +143,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             AsyncReaderWrapper p = asyncForBytes(f, readSize, smile, offset);
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertEquals("binary", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             byte[] result = p.getBinaryValue();
@@ -161,7 +161,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             // and second time around, skipping
             p = asyncForBytes(f, readSize, smile, offset);
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());

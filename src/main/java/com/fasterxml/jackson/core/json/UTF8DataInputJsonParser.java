@@ -185,7 +185,7 @@ public class UTF8DataInputJsonParser
                 }
                 return _textBuffer.contentsToWriter(writer);
             }
-            if (t == JsonToken.FIELD_NAME) {
+            if (t == JsonToken.PROPERTY_NAME) {
                 String n = _parsingContext.currentName();
                 writer.write(n);
                 return n.length();
@@ -215,7 +215,7 @@ public class UTF8DataInputJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(null);
@@ -231,7 +231,7 @@ public class UTF8DataInputJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(defValue);
@@ -281,7 +281,7 @@ public class UTF8DataInputJsonParser
             return null;
         }
         switch (t.id()) {
-        case ID_FIELD_NAME:
+        case ID_PROPERTY_NAME:
             return _parsingContext.currentName();
 
         case ID_STRING:
@@ -300,7 +300,7 @@ public class UTF8DataInputJsonParser
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
                 
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return currentFieldNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -329,7 +329,7 @@ public class UTF8DataInputJsonParser
             }
             return _textBuffer.size();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return _parsingContext.currentName().length();
         }
         if (_currToken != null) { // null only before/after document
@@ -347,7 +347,7 @@ public class UTF8DataInputJsonParser
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return 0;
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -561,7 +561,7 @@ public class UTF8DataInputJsonParser
          * state handling. If so, can and need to use secondary token:
          */
         try {
-            if (_currToken == JsonToken.FIELD_NAME) {
+            if (_currToken == JsonToken.PROPERTY_NAME) {
                 return _nextAfterName();
             }
             return _nextToken();
@@ -620,7 +620,7 @@ public class UTF8DataInputJsonParser
         // So first parse the field name itself:
         String n = _parseName(i);
         _parsingContext.setCurrentName(n);
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
 
         i = _skipColon();
 
@@ -771,7 +771,7 @@ public class UTF8DataInputJsonParser
         // // // Note: this is almost a verbatim copy of nextToken()
 
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nextAfterName();
             return null;
         }
@@ -810,7 +810,7 @@ public class UTF8DataInputJsonParser
 
         final String nameStr = _parseName(i);
         _parsingContext.setCurrentName(nameStr);
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
 
         i = _skipColon();
         if (i == INT_QUOTE) {
@@ -867,7 +867,7 @@ public class UTF8DataInputJsonParser
     public String nextTextValue() throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -893,7 +893,7 @@ public class UTF8DataInputJsonParser
     public int nextIntValue(int defaultValue) throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -915,7 +915,7 @@ public class UTF8DataInputJsonParser
     public long nextLongValue(long defaultValue) throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -937,7 +937,7 @@ public class UTF8DataInputJsonParser
     public Boolean nextBooleanValue() throws JacksonException
     {
         // two distinct cases; either got name and we know next type, or 'other'
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1540,7 +1540,7 @@ public class UTF8DataInputJsonParser
         if (ch == '\'' && isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
             return _parseAposName();
         }
-        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             char c = (char) _decodeCharForError(ch);
             _reportUnexpectedChar(c, "was expecting double-quote to start field name");
         }
@@ -1812,7 +1812,7 @@ public class UTF8DataInputJsonParser
                     needed = ch = 1; // never really gets this far
                 }
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
                 }
                 
                 // Ok, always need at least one more:

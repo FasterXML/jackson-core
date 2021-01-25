@@ -177,7 +177,7 @@ public class JsonWriteContext extends TokenStreamContext
      * @throws StreamWriteException if duplicate check restriction is violated (which
      *    assumes that duplicate-detection is enabled)
      */
-    public int writeFieldName(String name) throws StreamWriteException
+    public int writeName(String name) throws StreamWriteException
     {
         if ((_type != TYPE_OBJECT) || _gotName) {
             return STATUS_EXPECT_VALUE;

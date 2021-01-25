@@ -308,7 +308,7 @@ public final class ByteQuadsCanonicalizer
      */
     public ByteQuadsCanonicalizer makeChild(int flags) {
         return new ByteQuadsCanonicalizer(this,
-                JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(flags),
+                JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(flags),
                 _seed,
                 JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(flags),
                 _tableInfo.get());

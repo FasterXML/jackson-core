@@ -311,7 +311,7 @@ public class ReaderBasedJsonParser
                 }
                 return _textBuffer.contentsToWriter(writer);
             }
-            if (t == JsonToken.FIELD_NAME) {
+            if (t == JsonToken.PROPERTY_NAME) {
                 String n = _parsingContext.currentName();
                 writer.write(n);
                 return n.length();
@@ -342,7 +342,7 @@ public class ReaderBasedJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(null);
@@ -357,7 +357,7 @@ public class ReaderBasedJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return currentName();
         }
         return super.getValueAsString(defValue);
@@ -368,7 +368,7 @@ public class ReaderBasedJsonParser
             return null;
         }
         switch (t.id()) {
-        case ID_FIELD_NAME:
+        case ID_PROPERTY_NAME:
             return _parsingContext.currentName();
 
         case ID_STRING:
@@ -386,7 +386,7 @@ public class ReaderBasedJsonParser
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return currentFieldNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -409,7 +409,7 @@ public class ReaderBasedJsonParser
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return _parsingContext.currentName().length();
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -433,7 +433,7 @@ public class ReaderBasedJsonParser
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return 0;
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -664,7 +664,7 @@ public class ReaderBasedJsonParser
          * (part of) value along with field name to simplify
          * state handling. If so, can and need to use secondary token:
          */
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return _nextAfterName();
         }
         // But if we didn't already have a name, and (partially?) decode number,
@@ -711,7 +711,7 @@ public class ReaderBasedJsonParser
             _updateNameLocation();
             String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
             _parsingContext.setCurrentName(name);
-            _currToken = JsonToken.FIELD_NAME;
+            _currToken = JsonToken.PROPERTY_NAME;
             i = _skipColon();
         }
         _updateLocation();
@@ -826,7 +826,7 @@ public class ReaderBasedJsonParser
         // // // Note: most of code below is copied from nextToken()
 
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nextAfterName();
             return false;
         }
@@ -902,7 +902,7 @@ public class ReaderBasedJsonParser
         // // // Note: this is almost a verbatim copy of nextToken() (minus comments)
 
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nextAfterName();
             return null;
         }
@@ -938,7 +938,7 @@ public class ReaderBasedJsonParser
         _updateNameLocation();
         String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
         _parsingContext.setCurrentName(name);
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
         i = _skipColon();
 
         _updateLocation();
@@ -999,7 +999,7 @@ public class ReaderBasedJsonParser
 
     private final void _isNextTokenNameYes(int i) throws JacksonException
     {
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
         _updateLocation();
 
         switch (i) {
@@ -1052,7 +1052,7 @@ public class ReaderBasedJsonParser
         // // // and this is back to standard nextToken()
         String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
         _parsingContext.setCurrentName(name);
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
         i = _skipColon();
         _updateLocation();
         if (i == INT_QUOTE) {
@@ -1172,7 +1172,7 @@ public class ReaderBasedJsonParser
     @Override
     public final String nextTextValue() throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1199,7 +1199,7 @@ public class ReaderBasedJsonParser
     @Override
     public final int nextIntValue(int defaultValue) throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1222,7 +1222,7 @@ public class ReaderBasedJsonParser
     @Override
     public final long nextLongValue(long defaultValue) throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1245,7 +1245,7 @@ public class ReaderBasedJsonParser
     @Override
     public final Boolean nextBooleanValue() throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1771,7 +1771,7 @@ public class ReaderBasedJsonParser
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
                 }
             }
             char c = _inputBuffer[_inputPtr++];
@@ -1832,7 +1832,7 @@ public class ReaderBasedJsonParser
             return _parseAposName();
         }
         // Allow unquoted names if feature enabled:
-        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             _reportUnexpectedChar(i, "was expecting double-quote to start field name");
         }
         final int[] codes = CharTypes.getInputCodeLatin1JsNames();
@@ -2869,7 +2869,7 @@ public class ReaderBasedJsonParser
     @Override
     public JsonLocation getTokenLocation()
     {
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
             return new JsonLocation(_getSourceReference(),
                     -1L, total, _nameStartRow, _nameStartCol);

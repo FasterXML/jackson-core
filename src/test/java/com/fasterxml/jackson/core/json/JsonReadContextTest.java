@@ -13,15 +13,15 @@ public class JsonReadContextTest
 {
   public void testSetCurrentNameTwiceWithSameName()
   {
-      final String FIELD_NAME = "4'Du>icate field'";
+      final String PROP_NAME = "4'Du>icate field'";
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, dupDetector, 2441, 2441, 2441);
-      jsonReadContext.setCurrentName(FIELD_NAME);
+      jsonReadContext.setCurrentName(PROP_NAME);
       try {
-          jsonReadContext.setCurrentName(FIELD_NAME);
+          jsonReadContext.setCurrentName(PROP_NAME);
       } catch (StreamReadException e) {
           verifyException(e, "Duplicate field");
-          verifyException(e, FIELD_NAME);
+          verifyException(e, PROP_NAME);
       }
   }
 

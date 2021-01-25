@@ -24,7 +24,7 @@ public class JsonReadFeaturesTest
     {
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS));
-        assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES));
+        assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES));
         assertFalse(JSON_F.isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES));
     }
     
@@ -109,7 +109,7 @@ public class JsonReadFeaturesTest
         JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(FIELD, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE, p.getText());

@@ -175,12 +175,6 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
     @Override
-    public JsonGenerator setHighestNonEscapedChar(int charCode) {
-        _maximumNonEscapedChar = (charCode < 0) ? 0 : charCode;
-        return this;
-    }
-
-    @Override
     public int getHighestNonEscapedChar() {
         return _maximumNonEscapedChar;
     }

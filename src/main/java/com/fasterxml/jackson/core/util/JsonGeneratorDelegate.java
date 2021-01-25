@@ -115,12 +115,6 @@ public class JsonGeneratorDelegate extends JsonGenerator
       */
 
     @Override
-    public JsonGenerator setHighestNonEscapedChar(int charCode) {
-        delegate.setHighestNonEscapedChar(charCode);
-        return this;
-    }
-
-    @Override
     public int getHighestNonEscapedChar() { return delegate.getHighestNonEscapedChar(); }
 
     @Override

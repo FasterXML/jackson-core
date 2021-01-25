@@ -261,18 +261,18 @@ public class TestCharEscaping
 
     public void testWriteLongCustomEscapes() throws Exception
     {
-        JsonFactory jf = JsonFactory.builder()
-                .characterEscapes(ESC_627)
-                .build(); // must set to trigger bug
         StringBuilder longString = new StringBuilder();
         while (longString.length() < 2000) {
-          longString.append("\u65e5\u672c\u8a9e");
+            longString.append("\u65e5\u672c\u8a9e");
         }
 
+        JsonFactory f = JsonFactory.builder()
+                .characterEscapes(ESC_627)
+                .highestNonEscapedChar(127) // must set to trigger bug
+                .build();
         StringWriter writer = new StringWriter();
         // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
-        JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), writer);
-        gen.setHighestNonEscapedChar(127); // must set to trigger bug
+        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), writer);
         gen.writeString(longString.toString());
         gen.close();
     }

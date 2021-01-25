@@ -198,31 +198,6 @@ public abstract class JsonGenerator
     public FormatSchema getSchema() { return null; }
 
     /**
-     * Method that can be called to request that generator escapes
-     * all character codes above specified code point (if positive value);
-     * or, to not escape any characters except for ones that must be
-     * escaped for the data format (if -1).
-     * To force escaping of all non-ASCII characters, for example,
-     * this method would be called with value of 127.
-     *<p>
-     * Note that generators are NOT required to support setting of value
-     * higher than 127, because there are other ways to affect quoting
-     * (or lack thereof) of character codes between 0 and 127.
-     * Not all generators support concept of escaping, either; if so,
-     * calling this method will have no effect.
-     *<p>
-     * Default implementation does nothing; sub-classes need to redefine
-     * it according to rules of supported data format.
-     * 
-     * @param charCode Either -1 to indicate that no additional escaping
-     *   is to be done; or highest code point not to escape (meaning higher
-     *   ones will be), if positive value.
-     *
-     * @return This generator, to allow call chaining
-     */
-    public JsonGenerator setHighestNonEscapedChar(int charCode) { return this; }
-
-    /**
      * Accessor method for testing what is the highest unescaped character
      * configured for this generator. This may be either positive value
      * (when escaping configuration has been set and is in effect), or

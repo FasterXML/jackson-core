@@ -443,6 +443,6 @@ public final class ByteSourceJsonBootstrapper
     }
 
     private static JacksonException _wrapIOFailure(IOException e) throws JacksonException {
-        return WrappedIOException.construct(e);
+        return WrappedIOException.construct(e, this);
     }
 }

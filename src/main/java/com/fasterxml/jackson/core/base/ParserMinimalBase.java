@@ -1006,7 +1006,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // @since 3.0
     protected JacksonException _wrapIOFailure(IOException e) {
-        return WrappedIOException.construct(e);
+        return WrappedIOException.construct(e, this);
     }
     
     protected final void _throwInternal() {

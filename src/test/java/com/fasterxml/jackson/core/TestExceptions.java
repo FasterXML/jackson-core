@@ -56,7 +56,7 @@ public class TestExceptions extends BaseTest
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         g.writeStartObject();
-        StreamWriteException e = new StreamWriteException("Test!", g);
+        StreamWriteException e = new StreamWriteException(g, "Test!");
         assertSame(g, e.processor());
         assertEquals("Test!", e.getOriginalMessage());
         g.close();

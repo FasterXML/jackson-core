@@ -13,17 +13,17 @@ public class StreamWriteException
 
     protected transient JsonGenerator _processor;
 
-    public StreamWriteException(Throwable rootCause, JsonGenerator g) {
+    public StreamWriteException(JsonGenerator g, Throwable rootCause) {
         super(rootCause);
         _processor = g;
     }
 
-    public StreamWriteException(String msg, JsonGenerator g) {
+    public StreamWriteException(JsonGenerator g, String msg) {
         super(msg);
         _processor = g;
     }
 
-    public StreamWriteException(String msg, Throwable rootCause, JsonGenerator g) {
+    public StreamWriteException(JsonGenerator g, String msg, Throwable rootCause) {
         super(msg, null, rootCause);
         _processor = g;
     }

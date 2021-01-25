@@ -2066,7 +2066,7 @@ public abstract class JsonGenerator
 
     // @since 3.0
     protected StreamWriteException _constructWriteException(String msg) {
-        return new StreamWriteException(msg, this);
+        return new StreamWriteException(this, msg);
     }
 
     protected StreamWriteException _constructWriteException(String msg, Object arg) {
@@ -2078,12 +2078,12 @@ public abstract class JsonGenerator
     }
 
     protected StreamWriteException _constructWriteException(String msg, Throwable t) {
-        return new StreamWriteException(msg, t, this);
+        return new StreamWriteException(this, msg, t);
     }
 
     // @since 3.0
     protected JacksonException _wrapIOFailure(IOException e) {
-        return WrappedIOException.construct(e);
+        return WrappedIOException.construct(e, this);
     }
 
     protected final void _verifyOffsets(int arrayLength, int offset, int length)

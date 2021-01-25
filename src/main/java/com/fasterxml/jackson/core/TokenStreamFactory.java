@@ -1339,7 +1339,7 @@ public abstract class TokenStreamFactory
     }
 
     protected JacksonException _wrapIOFailure(IOException e) {
-        return WrappedIOException.construct(e);
+        return WrappedIOException.construct(e, this);
     }
 
     protected <T> T _unsupported() {

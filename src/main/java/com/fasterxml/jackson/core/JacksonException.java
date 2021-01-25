@@ -94,7 +94,7 @@ public abstract class JacksonException
      * 
      * @return Originating processor, if available; {@code null} if not.
      */
-    public Object processor() { return null; }
+    public abstract Object processor();
 
     /*
     /**********************************************************************

@@ -186,8 +186,8 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     private final void _checkDup(DupDetector dd, String name) throws StreamWriteException {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new StreamWriteException("Duplicate field '"+name+"'",
-                    ((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null));
+            throw new StreamWriteException(((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null),
+                    "Duplicate field '"+name+"'");
         }
     }
     

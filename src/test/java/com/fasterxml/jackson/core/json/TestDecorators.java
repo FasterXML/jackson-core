@@ -32,7 +32,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
             try {
                 return new ByteArrayInputStream("123".getBytes("UTF-8"));
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw WrappedIOException.construct(e, null);
             }
         }
 
@@ -43,7 +43,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
             try {
                 return new ByteArrayInputStream("456".getBytes("UTF-8"));
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw WrappedIOException.construct(e, null);
             }
         }
 
@@ -62,7 +62,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
                 out.write("123".getBytes("UTF-8"));
                 out.flush();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw WrappedIOException.construct(e, null);
             }
             return new ByteArrayOutputStream();
         }
@@ -74,7 +74,7 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
                 w.write("567");
                 w.flush();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw WrappedIOException.construct(e, null);
             }
             return new StringWriter();
         }

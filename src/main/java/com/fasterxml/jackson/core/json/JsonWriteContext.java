@@ -192,8 +192,8 @@ public class JsonWriteContext extends TokenStreamContext
     {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new StreamWriteException("Duplicate field '"+name+"'",
-                    ((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null));
+            throw new StreamWriteException(((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null),
+                    "Duplicate field '"+name+"'");
         }
     }
 

@@ -31,6 +31,9 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /**********************************************************************
      */
 
+    /**
+     * Low-level I/O context used mostly for buffer recycling.
+     */
     protected final IOContext _ioContext;
 
     /**
@@ -38,7 +41,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      * {@link com.fasterxml.jackson.core.json.JsonWriteFeature}s
      * are enabled.
      */
-    protected int _formatWriteFeatures;
+    protected final int _formatWriteFeatures;
 
     /*
     /**********************************************************************
@@ -73,7 +76,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      *<p>
      * NOTE: not all sub-classes make use of this setting.
      */
-    protected int _maximumNonEscapedChar;
+    protected final int _maximumNonEscapedChar;
 
     /*
     /**********************************************************************
@@ -86,7 +89,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      * white space to make results more human-readable) during
      * output. If null, no pretty-printing is done.
      */
-    protected PrettyPrinter _cfgPrettyPrinter;
+    protected final PrettyPrinter _cfgPrettyPrinter;
 
     /**
      * Separator to use, if any, between root-level values.
@@ -97,14 +100,14 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      * Flag that is set if quoting is not to be added around
      * JSON Object property names.
      */
-    protected boolean _cfgUnqNames;
+    protected final boolean _cfgUnqNames;
 
     /**
      * Flag set to indicate that implicit conversion from number
      * to JSON String is needed (as per
      * {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_NUMBERS_AS_STRINGS}).
      */
-    protected boolean _cfgNumbersAsStrings;
+    protected final boolean _cfgNumbersAsStrings;
 
     /*
     /**********************************************************************
@@ -123,7 +126,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /**********************************************************************
      */
 
-    public JsonGeneratorBase(ObjectWriteContext writeCtxt, IOContext ctxt,
+    protected JsonGeneratorBase(ObjectWriteContext writeCtxt, IOContext ctxt,
             int streamWriteFeatures, int formatWriteFeatures,
             SerializableString rootValueSeparator, PrettyPrinter pp,
             CharacterEscapes charEsc, int maxNonEscaped)

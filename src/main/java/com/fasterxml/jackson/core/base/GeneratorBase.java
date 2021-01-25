@@ -139,8 +139,8 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    // public Object getCurrentValue();
-    // public void setCurrentValue(Object v);
+    // public Object currentValue();
+    // public void assignCurrentValue(Object v);
 
     // public TokenStreamContext getOutputContext();
 

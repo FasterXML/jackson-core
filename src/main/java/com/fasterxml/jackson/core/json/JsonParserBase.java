@@ -109,13 +109,13 @@ public abstract class JsonParserBase
     @Override public TokenStreamContext getParsingContext() { return _parsingContext; }
 
     @Override
-    public Object getCurrentValue() {
-        return _parsingContext.getCurrentValue();
+    public Object currentValue() {
+        return _parsingContext.currentValue();
     }
 
     @Override
-    public void setCurrentValue(Object v) {
-        _parsingContext.setCurrentValue(v);
+    public void assignCurrentValue(Object v) {
+        _parsingContext.assignCurrentValue(v);
     }
 
     /**

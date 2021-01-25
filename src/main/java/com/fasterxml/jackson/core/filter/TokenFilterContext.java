@@ -269,10 +269,10 @@ public class TokenFilterContext extends TokenStreamContext
      */
 
     @Override
-    public Object getCurrentValue() { return _currentValue; }
+    public Object currentValue() { return _currentValue; }
 
     @Override
-    public void setCurrentValue(Object v) { }
+    public void assignCurrentValue(Object v) { }
 
     @Override public final TokenFilterContext getParent() { return _parent; }
     @Override public final String currentName() { return _currentName; }

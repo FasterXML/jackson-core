@@ -137,7 +137,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertNull(del.currentToken());
         assertFalse(del.hasCurrentToken());
         assertFalse(del.hasTextCharacters());
-        assertNull(del.getCurrentValue());
+        assertNull(del.currentValue());
         assertNull(del.currentName());
 
         assertToken(JsonToken.START_ARRAY, del.nextToken());
@@ -181,11 +181,11 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertNull(del.getObjectId());
 
         assertToken(JsonToken.VALUE_NULL, del.nextToken());
-        assertNull(del.getCurrentValue());
-        del.setCurrentValue(TOKEN);
+        assertNull(del.currentValue());
+        del.assignCurrentValue(TOKEN);
 
         assertToken(JsonToken.START_OBJECT, del.nextToken());
-        assertNull(del.getCurrentValue());
+        assertNull(del.currentValue());
 
         assertToken(JsonToken.FIELD_NAME, del.nextToken());
         assertEquals("a", del.currentName());
@@ -195,7 +195,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertEquals("foo", del.getText());
         
         assertToken(JsonToken.END_OBJECT, del.nextToken());
-        assertEquals(TOKEN, del.getCurrentValue());
+        assertEquals(TOKEN, del.currentValue());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertArrayEquals(new byte[] { 1, 2 }, del.getBinaryValue());
@@ -248,13 +248,13 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         del.writeString("foo");
 
         // verify that we can actually set/get "current value" as expected, even with delegates
-        assertNull(del.getCurrentValue());
-        del.setCurrentValue(TOKEN);
+        assertNull(del.currentValue());
+        del.assignCurrentValue(TOKEN);
 
         del.writeStartObject(null, 0);
-        assertNull(del.getCurrentValue());
+        assertNull(del.currentValue());
         del.writeEndObject();
-        assertEquals(TOKEN, del.getCurrentValue());
+        assertEquals(TOKEN, del.currentValue());
 
         del.writeStartArray(0);
         del.writeEndArray();
@@ -278,7 +278,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         final Object MARKER = new Object();
         del.writeStartArray(MARKER);
-        assertSame(MARKER, del.getCurrentValue());
+        assertSame(MARKER, del.currentValue());
 
         del.writeArray(new int[] { 1, 2, 3 }, 0, 3);
         del.writeArray(new long[] { 1, 123456, 2 }, 1, 1);
@@ -299,7 +299,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         final Object MARKER = new Object();
         del.writeStartArray(MARKER, 5);
-        assertSame(MARKER, del.getCurrentValue());
+        assertSame(MARKER, del.currentValue());
 
         del.writeNumber((short) 1);
         del.writeNumber(12L);

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
  * mostly content generation issues.
  */
 public class StreamWriteException
-    extends JsonProcessingException
+    extends JacksonException
 {
     private final static long serialVersionUID = 3L;
 
@@ -19,7 +19,7 @@ public class StreamWriteException
     }
 
     public StreamWriteException(String msg, JsonGenerator g) {
-        super(msg, (JsonLocation) null);
+        super(msg);
         _processor = g;
     }
 

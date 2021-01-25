@@ -207,13 +207,13 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     public final TokenStreamContext getOutputContext() { return _tokenWriteContext; }
 
     @Override
-    public final Object getCurrentValue() {
-        return _tokenWriteContext.getCurrentValue();
+    public final Object currentValue() {
+        return _tokenWriteContext.currentValue();
     }
 
     @Override
-    public final void setCurrentValue(Object v) {
-        _tokenWriteContext.setCurrentValue(v);
+    public final void assignCurrentValue(Object v) {
+        _tokenWriteContext.assignCurrentValue(v);
     }
 
     /*

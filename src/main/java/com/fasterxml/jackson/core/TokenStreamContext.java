@@ -193,8 +193,6 @@ public abstract class TokenStreamContext
      *    name; {@code false} otherwise
      *
      * @deprecated Since 3.0 use {@link #currentName} instead
-     *
-     * @since 2.9
      */
     @Deprecated
     public String getCurrentName() { return currentName(); }
@@ -213,18 +211,18 @@ public abstract class TokenStreamContext
      * 
      * @return Currently active value, if one has been assigned.
      */
-    public Object getCurrentValue() {
+    public Object currentValue() {
         return null;
     }
 
     /**
-     * Method to call to pass value to be returned via {@link #getCurrentValue}; typically
-     * called indirectly through {@link JsonParser#setCurrentValue}
-     * or {@link JsonGenerator#setCurrentValue}).
+     * Method to call to pass value to be returned via {@link #currentValue}; typically
+     * called indirectly through {@link JsonParser#assignCurrentValue}
+     * or {@link JsonGenerator#assignCurrentValue}).
      *
      * @param v Current value to assign to this context
      */
-    public void setCurrentValue(Object v) { }
+    public void assignCurrentValue(Object v) { }
 
     /**
      * Factory method for constructing a {@link JsonPointer} that points to the current

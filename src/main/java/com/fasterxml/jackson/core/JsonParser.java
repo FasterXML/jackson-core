@@ -177,7 +177,7 @@ public abstract class JsonParser
     /**
      * Helper method, usually equivalent to:
      *<code>
-     *   getParsingContext().getCurrentValue();
+     *   getParsingContext().currentValue();
      *</code>
      *<p>
      * Note that "current value" is NOT populated (or used) by Streaming parser;
@@ -187,17 +187,17 @@ public abstract class JsonParser
      *
      * @return "Current value" for the current input context this parser has
      */
-    public abstract Object getCurrentValue();
+    public abstract Object currentValue();
 
     /**
      * Helper method, usually equivalent to:
      *<code>
-     *   getParsingContext().setCurrentValue(v);
+     *   getParsingContext().assignCurrentValue(v);
      *</code>
      *
      * @param v "Current value" to assign to the current input context of this parser
      */
-    public abstract void setCurrentValue(Object v);
+    public abstract void assignCurrentValue(Object v);
 
     /*
     /**********************************************************************

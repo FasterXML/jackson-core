@@ -47,13 +47,13 @@ public class JsonParserDelegate extends JsonParser
     @Override public Object getInputSource() { return delegate.getInputSource(); }
 
     @Override
-    public Object getCurrentValue() {
-        return delegate.getCurrentValue();
+    public Object currentValue() {
+        return delegate.currentValue();
     }
 
     @Override
-    public void setCurrentValue(Object v) {
-        delegate.setCurrentValue(v);
+    public void assignCurrentValue(Object v) {
+        delegate.assignCurrentValue(v);
     }
 
     /*

@@ -44,13 +44,13 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     @Override
-    public Object getCurrentValue() {
-        return delegate.getCurrentValue();
+    public Object currentValue() {
+        return delegate.currentValue();
     }
 
     @Override
-    public void setCurrentValue(Object v) {
-        delegate.setCurrentValue(v);
+    public void assignCurrentValue(Object v) {
+        delegate.assignCurrentValue(v);
     }
 
     /*

@@ -240,17 +240,17 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     @Override
-    public void setCurrentValue(Object v) {
+    public void assignCurrentValue(Object v) {
         TokenStreamContext ctxt = getParsingContext();
         if (ctxt != null) {
-            ctxt.setCurrentValue(v);
+            ctxt.assignCurrentValue(v);
         }
     }
 
     @Override
-    public Object getCurrentValue() {
+    public Object currentValue() {
         TokenStreamContext ctxt = getParsingContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
+        return (ctxt == null) ? null : ctxt.currentValue();
     }
 
     /**

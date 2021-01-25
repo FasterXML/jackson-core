@@ -118,7 +118,7 @@ public abstract class JsonGenerator
     /**
      * Helper method, usually equivalent to:
      *<code>
-     *   getOutputContext().getCurrentValue();
+     *   getOutputContext().currentValue();
      *</code>
      *<p>
      * Note that "current value" is NOT populated (or used) by Streaming generator;
@@ -128,12 +128,12 @@ public abstract class JsonGenerator
      *
      * @return "Current value" for the current context this generator has
      */
-    public abstract Object getCurrentValue();
+    public abstract Object currentValue();
 
     /**
      * Helper method, usually equivalent to:
      *<code>
-     *   getOutputContext().setCurrentValue(v);
+     *   getOutputContext().assignCurrentValue(v);
      *</code>
      * used to assign "current value" for the current context of this generator.
      * It is usually assigned and used by higher level data-binding functionality
@@ -141,7 +141,7 @@ public abstract class JsonGenerator
      *
      * @param v "Current value" to assign to the current output context of this generator
      */
-    public abstract void setCurrentValue(Object v);
+    public abstract void assignCurrentValue(Object v);
 
     /*
     /**********************************************************************

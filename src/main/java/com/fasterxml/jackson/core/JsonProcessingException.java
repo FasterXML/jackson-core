@@ -8,6 +8,7 @@ package com.fasterxml.jackson.core;
 /**
  * Legacy base class from Jackson 2.x; to be replaced by {@link JacksonException}.
  */
+@Deprecated
 public class JsonProcessingException
     extends JacksonException
 {

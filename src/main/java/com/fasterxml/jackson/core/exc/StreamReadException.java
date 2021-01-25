@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.util.RequestPayload;
  * parsing and input value coercion problems.
  */
 public class StreamReadException
-    extends JsonProcessingException
+    extends JacksonException
 {
     private final static long serialVersionUID = 3L;
 
@@ -23,7 +23,7 @@ public class StreamReadException
     protected RequestPayload _requestPayload;
 
     public StreamReadException(JsonParser p, String msg) {
-        super(msg, (p == null) ? null : p.getCurrentLocation());
+        super(msg, (p == null) ? null : p.getCurrentLocation(), null);
         _processor = p;
     }
 

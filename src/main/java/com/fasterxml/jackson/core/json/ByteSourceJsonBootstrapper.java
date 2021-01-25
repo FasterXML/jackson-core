@@ -442,7 +442,7 @@ public final class ByteSourceJsonBootstrapper
         return _wrapIOFailure(new IOException(msg));
     }
 
-    private JacksonException _wrapIOFailure(IOException e) throws JacksonException {
-        return WrappedIOException.construct(e, this);
+    private static JacksonException _wrapIOFailure(IOException e) throws JacksonException {
+        return WrappedIOException.construct(e, null);
     }
 }

@@ -186,7 +186,7 @@ public class UTF8DataInputJsonParser
                 return _textBuffer.contentsToWriter(writer);
             }
             if (t == JsonToken.PROPERTY_NAME) {
-                String n = _parsingContext.currentName();
+                String n = _streamReadContext.currentName();
                 writer.write(n);
                 return n.length();
             }
@@ -282,7 +282,7 @@ public class UTF8DataInputJsonParser
         }
         switch (t.id()) {
         case ID_PROPERTY_NAME:
-            return _parsingContext.currentName();
+            return _streamReadContext.currentName();
 
         case ID_STRING:
             // fall through
@@ -330,7 +330,7 @@ public class UTF8DataInputJsonParser
             return _textBuffer.size();
         }
         if (_currToken == JsonToken.PROPERTY_NAME) {
-            return _parsingContext.currentName().length();
+            return _streamReadContext.currentName().length();
         }
         if (_currToken != null) { // null only before/after document
             if (_currToken.isNumeric()) {
@@ -594,9 +594,9 @@ public class UTF8DataInputJsonParser
         }
 
         // Nope: do we then expect a comma?
-        if (_parsingContext.expectComma()) {
+        if (_streamReadContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
             }
             i = _skipWS();
 
@@ -613,12 +613,12 @@ public class UTF8DataInputJsonParser
          * Object contexts, since the intermediate 'expect-value'
          * state is never retained.
          */
-        if (!_parsingContext.inObject()) {
+        if (!_streamReadContext.inObject()) {
             return _nextTokenNotInObject(i);
         }
         // So first parse the property name itself:
         String n = _parseName(i);
-        _parsingContext.setCurrentName(n);
+        _streamReadContext.setCurrentName(n);
         _currToken = JsonToken.PROPERTY_NAME;
 
         i = _skipColon();
@@ -688,10 +688,10 @@ public class UTF8DataInputJsonParser
         }
         switch (i) {
         case '[':
-            _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_ARRAY);
         case '{':
-            _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_OBJECT);
         case 't':
             _matchToken("true", 1);
@@ -732,9 +732,9 @@ public class UTF8DataInputJsonParser
         
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
-            _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
         } else if (t == JsonToken.START_OBJECT) {
-            _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
         }
         return (_currToken = t);
     }
@@ -787,9 +787,9 @@ public class UTF8DataInputJsonParser
         }
 
         // Nope: do we then expect a comma?
-        if (_parsingContext.expectComma()) {
+        if (_streamReadContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+                _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
             }
             i = _skipWS();
 
@@ -802,13 +802,13 @@ public class UTF8DataInputJsonParser
             }
 
         }
-        if (!_parsingContext.inObject()) {
+        if (!_streamReadContext.inObject()) {
             _nextTokenNotInObject(i);
             return null;
         }
 
         final String nameStr = _parseName(i);
-        _parsingContext.setCurrentName(nameStr);
+        _streamReadContext.setCurrentName(nameStr);
         _currToken = JsonToken.PROPERTY_NAME;
 
         i = _skipColon();
@@ -879,9 +879,9 @@ public class UTF8DataInputJsonParser
                 return _textBuffer.contentsAsString();
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return null;
         }
@@ -901,9 +901,9 @@ public class UTF8DataInputJsonParser
                 return getIntValue();
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return defaultValue;
         }
@@ -923,9 +923,9 @@ public class UTF8DataInputJsonParser
                 return getLongValue();
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return defaultValue;
         }
@@ -948,9 +948,9 @@ public class UTF8DataInputJsonParser
                 return Boolean.FALSE;
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return null;
         }
@@ -1041,7 +1041,7 @@ public class UTF8DataInputJsonParser
         }
         _textBuffer.setCurrentLength(outPtr);
         // As per [core#105], need separating space between root values; check here
-        if (_parsingContext.inRoot()) {
+        if (_streamReadContext.inRoot()) {
             _verifyRootSpace();
         } else {
             _nextByte = c;
@@ -1088,7 +1088,7 @@ public class UTF8DataInputJsonParser
         _textBuffer.setCurrentLength(outPtr);
         // As per [core#105], need separating space between root values; check here
         _nextByte = c;
-        if (_parsingContext.inRoot()) {
+        if (_streamReadContext.inRoot()) {
             _verifyRootSpace();
         }
         // And there we have it!
@@ -1186,7 +1186,7 @@ public class UTF8DataInputJsonParser
         // Ok; unless we hit end-of-input, need to push last char read back
         // As per #105, need separating space between root values; check here
         _nextByte = c;
-        if (_parsingContext.inRoot()) {
+        if (_streamReadContext.inRoot()) {
             _verifyRootSpace();
         }
         _textBuffer.setCurrentLength(outPtr);
@@ -2064,13 +2064,13 @@ public class UTF8DataInputJsonParser
         // Most likely an error, unless we are to allow single-quote-strings
         switch (c) {
         case ']':
-            if (!_parsingContext.inArray()) {
+            if (!_streamReadContext.inArray()) {
                 break;
             }
             // fall through
         case ',':
             // 11-May-2020, tatu: [core#616] No commas in root level
-            if (!_parsingContext.inRoot()) {
+            if (!_streamReadContext.inRoot()) {
                 if (isEnabled(JsonReadFeature.ALLOW_MISSING_VALUES)) {
 //                   _inputPtr--;
                         _nextByte = c;
@@ -2933,17 +2933,17 @@ public class UTF8DataInputJsonParser
 
     private void _closeScope(int i) throws StreamReadException {
         if (i == INT_RBRACKET) {
-            if (!_parsingContext.inArray()) {
+            if (!_streamReadContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.clearAndGetParent();
+            _streamReadContext = _streamReadContext.clearAndGetParent();
             _currToken = JsonToken.END_ARRAY;
         }
         if (i == INT_RCURLY) {
-            if (!_parsingContext.inObject()) {
+            if (!_streamReadContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.clearAndGetParent();
+            _streamReadContext = _streamReadContext.clearAndGetParent();
             _currToken = JsonToken.END_OBJECT;
         }
     }

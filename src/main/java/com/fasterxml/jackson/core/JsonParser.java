@@ -366,24 +366,10 @@ public abstract class JsonParser
     /**********************************************************************
      */
 
-    /**
-     * Method for enabling specified parser feature
-     * (check {@link StreamReadFeature} for list of features)
-     *
-     * @param f Feature to enable
-     *
-     * @return This parser, to allow call chaining
-     */
-//    public abstract JsonParser enable(StreamReadFeature f);
+    // 25-Jan-2021, tatu: Was needed by jax-rs providers until recently,
+    //  but should no longer be needed at all. Leaving here for a bit longer.
 
-    /**
-     * Method for disabling specified  feature
-     * (check {@link StreamReadFeature} for list of features)
-     *
-     * @param f Feature to disable
-     *
-     * @return This parser, to allow call chaining
-     */
+//    public abstract JsonParser enable(StreamReadFeature f);
 //    public abstract JsonParser disable(StreamReadFeature f);
 
     /**

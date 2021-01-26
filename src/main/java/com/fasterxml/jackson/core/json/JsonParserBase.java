@@ -43,7 +43,7 @@ public abstract class JsonParserBase
      * Information about parser context, context in which
      * the next token is to be parsed (root, array, object).
      */
-    protected JsonReadContext _parsingContext;
+    protected JsonReadContext _streamReadContext;
 
     /**
      * Secondary token related to the next token after current one;
@@ -84,7 +84,7 @@ public abstract class JsonParserBase
         _formatReadFeatures = formatReadFeatures;
         DupDetector dups = StreamReadFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamReadFeatures)
                 ? DupDetector.rootDetector(this) : null;
-        _parsingContext = JsonReadContext.createRootContext(dups);
+        _streamReadContext = JsonReadContext.createRootContext(dups);
     }
 
     /*
@@ -107,16 +107,16 @@ public abstract class JsonParserBase
     /**********************************************************************
      */
 
-    @Override public TokenStreamContext streamReadContext() { return _parsingContext; }
+    @Override public TokenStreamContext streamReadContext() { return _streamReadContext; }
 
     @Override
     public Object currentValue() {
-        return _parsingContext.currentValue();
+        return _streamReadContext.currentValue();
     }
 
     @Override
     public void assignCurrentValue(Object v) {
-        _parsingContext.assignCurrentValue(v);
+        _streamReadContext.assignCurrentValue(v);
     }
 
     /**
@@ -126,12 +126,12 @@ public abstract class JsonParserBase
     @Override public String currentName() {
         // [JACKSON-395]: start markers require information from parent
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
-            JsonReadContext parent = _parsingContext.getParent();
+            JsonReadContext parent = _streamReadContext.getParent();
             if (parent != null) {
                 return parent.currentName();
             }
         }
-        return _parsingContext.currentName();
+        return _streamReadContext.currentName();
     }
 
     @Override
@@ -314,7 +314,7 @@ public abstract class JsonParserBase
         if (_nameCopied) {
             return _nameCopyBuffer;
         }
-        final String name = _parsingContext.currentName();
+        final String name = _streamReadContext.currentName();
         final int nameLen = name.length();
         if (_nameCopyBuffer.length < nameLen) {
             _nameCopyBuffer = new char[Math.max(32, nameLen)];

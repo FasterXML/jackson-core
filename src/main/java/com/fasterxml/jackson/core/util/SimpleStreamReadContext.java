@@ -4,12 +4,19 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.DupDetector;
 
-public class SimpleTokenReadContext extends TokenStreamContext
+/**
+ * Basic implementation of {@link TokenStreamContext} useful for most
+ * format backend {@link JsonParser} implementations
+ * (with notable exception of JSON that needs bit more advanced state).
+ *
+ * @since 3.0
+ */
+public class SimpleStreamReadContext extends TokenStreamContext
 {
     /**
      * Parent context for this context; null for root context.
      */
-    protected final SimpleTokenReadContext _parent;
+    protected final SimpleStreamReadContext _parent;
 
     // // // Optional duplicate detection
 
@@ -22,7 +29,7 @@ public class SimpleTokenReadContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    protected SimpleTokenReadContext _childToRecycle;
+    protected SimpleStreamReadContext _childToRecycle;
 
     /*
     /**********************************************************************
@@ -43,7 +50,7 @@ public class SimpleTokenReadContext extends TokenStreamContext
     /**********************************************************
      */
 
-    public SimpleTokenReadContext(int type, SimpleTokenReadContext parent, DupDetector dups,
+    public SimpleStreamReadContext(int type, SimpleStreamReadContext parent, DupDetector dups,
              int lineNr, int colNr) {
         super();
         _parent = parent;
@@ -82,18 +89,18 @@ public class SimpleTokenReadContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    public static SimpleTokenReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
-        return new SimpleTokenReadContext(TYPE_ROOT, null, dups, lineNr, colNr);
+    public static SimpleStreamReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
+        return new SimpleStreamReadContext(TYPE_ROOT, null, dups, lineNr, colNr);
     }
 
-    public static SimpleTokenReadContext createRootContext(DupDetector dups) {
+    public static SimpleStreamReadContext createRootContext(DupDetector dups) {
         return createRootContext(1, 0, dups);
     }
     
-    public SimpleTokenReadContext createChildArrayContext(int lineNr, int colNr) {
-        SimpleTokenReadContext ctxt = _childToRecycle;
+    public SimpleStreamReadContext createChildArrayContext(int lineNr, int colNr) {
+        SimpleStreamReadContext ctxt = _childToRecycle;
         if (ctxt == null) {
-            _childToRecycle = ctxt = new SimpleTokenReadContext(TYPE_ARRAY, this,
+            _childToRecycle = ctxt = new SimpleStreamReadContext(TYPE_ARRAY, this,
                     (_dups == null) ? null : _dups.child(), lineNr, colNr);
         } else {
             ctxt.reset(TYPE_ARRAY, lineNr, colNr);
@@ -101,10 +108,10 @@ public class SimpleTokenReadContext extends TokenStreamContext
         return ctxt;
     }
 
-    public SimpleTokenReadContext createChildObjectContext(int lineNr, int colNr) {
-        SimpleTokenReadContext ctxt = _childToRecycle;
+    public SimpleStreamReadContext createChildObjectContext(int lineNr, int colNr) {
+        SimpleStreamReadContext ctxt = _childToRecycle;
         if (ctxt == null) {
-            _childToRecycle = ctxt = new SimpleTokenReadContext(TYPE_OBJECT, this,
+            _childToRecycle = ctxt = new SimpleStreamReadContext(TYPE_OBJECT, this,
                     (_dups == null) ? null : _dups.child(), lineNr, colNr);
             return ctxt;
         }
@@ -125,7 +132,7 @@ public class SimpleTokenReadContext extends TokenStreamContext
 
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
-    @Override public SimpleTokenReadContext getParent() { return _parent; }
+    @Override public SimpleStreamReadContext getParent() { return _parent; }
 
     @Override
     public JsonLocation getStartLocation(Object srcRef) {
@@ -150,7 +157,7 @@ public class SimpleTokenReadContext extends TokenStreamContext
      *
      * @return Parent context of this context node, if any; {@code null} for root context
      */
-    public SimpleTokenReadContext clearAndGetParent() {
+    public SimpleStreamReadContext clearAndGetParent() {
         _currentValue = null;
         // could also clear the current name, but seems cheap enough to leave?
         return _parent;

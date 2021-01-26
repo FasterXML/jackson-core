@@ -5,18 +5,18 @@ import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.json.DupDetector;
 
 /**
- * Basic implementation of {@code TokenStreamContext} useful for most
- * format backends (with notable exception of JSON that needs bit more
- * advanced state).
+ * Basic implementation of {@link TokenStreamContext} useful for most
+ * format backend {@link JsonGenerator} implementations
+ * (with notable exception of JSON that needs bit more advanced state).
  *
  * @since 3.0
  */
-public final class SimpleTokenWriteContext extends TokenStreamContext
+public final class SimpleStreamWriteContext extends TokenStreamContext
 {
     /**
      * Parent context for this context; null for root context.
      */
-    protected final SimpleTokenWriteContext _parent;
+    protected final SimpleStreamWriteContext _parent;
 
     // // // Optional duplicate detection
 
@@ -29,7 +29,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    protected SimpleTokenWriteContext _childToRecycle;
+    protected SimpleStreamWriteContext _childToRecycle;
 
     /*
     /**********************************************************************
@@ -39,15 +39,15 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
 
     /**
      * Name of the property of which value is to be written; only
-     * used for OBJECT contexts
+     * used for OBJECT contexts.
      */
     protected String _currentName;
 
     protected Object _currentValue;
 
     /**
-     * Marker used to indicate that we just wrote a property name
-     * and now expect a value to write
+     * Marker used to indicate that we just wrote a property name (or possibly
+     * property id for some backends) and now expect a value to write.
      */
     protected boolean _gotFieldId;
 
@@ -57,8 +57,8 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    protected SimpleTokenWriteContext(int type, SimpleTokenWriteContext parent, DupDetector dups,
-            Object currentValue) {
+    protected SimpleStreamWriteContext(int type, SimpleStreamWriteContext parent,
+            DupDetector dups, Object currentValue) {
         super();
         _type = type;
         _parent = parent;
@@ -67,7 +67,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
         _currentValue = currentValue;
     }
 
-    private SimpleTokenWriteContext reset(int type, Object currentValue) {
+    private SimpleStreamWriteContext reset(int type, Object currentValue) {
         _type = type;
         _index = -1;
         _currentName = null;
@@ -77,7 +77,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
         return this;
     }
 
-    public SimpleTokenWriteContext withDupDetector(DupDetector dups) {
+    public SimpleStreamWriteContext withDupDetector(DupDetector dups) {
         _dups = dups;
         return this;
     }
@@ -98,24 +98,24 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     /**********************************************************************
      */
 
-    public static SimpleTokenWriteContext createRootContext(DupDetector dd) {
-        return new SimpleTokenWriteContext(TYPE_ROOT, null, dd, null);
+    public static SimpleStreamWriteContext createRootContext(DupDetector dd) {
+        return new SimpleStreamWriteContext(TYPE_ROOT, null, dd, null);
     }
 
-    public SimpleTokenWriteContext createChildArrayContext(Object currentValue) {
-        SimpleTokenWriteContext ctxt = _childToRecycle;
+    public SimpleStreamWriteContext createChildArrayContext(Object currentValue) {
+        SimpleStreamWriteContext ctxt = _childToRecycle;
         if (ctxt == null) {
-            _childToRecycle = ctxt = new SimpleTokenWriteContext(TYPE_ARRAY, this,
+            _childToRecycle = ctxt = new SimpleStreamWriteContext(TYPE_ARRAY, this,
                     (_dups == null) ? null : _dups.child(), currentValue);
             return ctxt;
         }
         return ctxt.reset(TYPE_ARRAY, currentValue);
     }
 
-    public SimpleTokenWriteContext createChildObjectContext(Object currentValue) {
-        SimpleTokenWriteContext ctxt = _childToRecycle;
+    public SimpleStreamWriteContext createChildObjectContext(Object currentValue) {
+        SimpleStreamWriteContext ctxt = _childToRecycle;
         if (ctxt == null) {
-            _childToRecycle = ctxt = new SimpleTokenWriteContext(TYPE_OBJECT, this,
+            _childToRecycle = ctxt = new SimpleStreamWriteContext(TYPE_OBJECT, this,
                     (_dups == null) ? null : _dups.child(), currentValue);
             return ctxt;
         }
@@ -128,7 +128,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     /**********************************************************************
      */
     
-    @Override public final SimpleTokenWriteContext getParent() { return _parent; }
+    @Override public final SimpleStreamWriteContext getParent() { return _parent; }
     @Override public final String currentName() {
         // 15-Aug-2019, tatu: Should NOT check this status because otherwise name
         //    in parent context is not accessible after new structured scope started
@@ -148,7 +148,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
      *
      * @return Parent context of this context node, if any; {@code null} for root context
      */
-    public SimpleTokenWriteContext clearAndGetParent() {
+    public SimpleStreamWriteContext clearAndGetParent() {
         _currentValue = null;
         // could also clear the current name, but seems cheap enough to leave?
         return _parent;

@@ -151,12 +151,16 @@ public abstract class JsonGenerator
     /**********************************************************************
      */
 
+    // 25-Jan-2021, tatu: Still called by `ClassUtil` of jackson-databind, to
+    //    prevent secondary issues when closing generator. Should probably figure
+    //    out alternate means of safe closing...
+
     /**
      * Method for enabling or disabling specified feature:
      * check {@link StreamWriteFeature} for list of available features.
      *<p>
      * NOTE: mostly left in 3.0 just to support disabling of
-     * {@link StreamWriteFeature#AUTO_CLOSE_CONTENT}.
+     * {@link StreamWriteFeature#AUTO_CLOSE_CONTENT} by {@code jackson-databind}
      *
      * @param f Feature to enable or disable
      * @param state Whether to enable the feature ({@code true}) or disable ({@code false})

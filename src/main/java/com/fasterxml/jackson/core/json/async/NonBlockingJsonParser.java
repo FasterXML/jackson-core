@@ -571,7 +571,7 @@ public class NonBlockingJsonParser
             if (ch == INT_SLASH) {
                 return _startSlashComment(MINOR_PROPERTY_LEADING_COMMA);
             }
-            _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+            _reportUnexpectedChar(ch, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
         }
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
@@ -629,7 +629,7 @@ public class NonBlockingJsonParser
         }
         _updateTokenLocation();
         // 17-Sep-2019, tatu: [core#563] Need to call this to update index within array
-        _parsingContext.expectComma();
+        _streamReadContext.expectComma();
 
         if (ch == INT_QUOTE) {
             return _startString();
@@ -708,11 +708,11 @@ public class NonBlockingJsonParser
             if (ch == INT_HASH) {
                 return _finishHashComment(MINOR_VALUE_EXPECTING_COMMA);
             }
-            _reportUnexpectedChar(ch, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+            _reportUnexpectedChar(ch, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
         }
 
         // 17-Sep-2019, tatu: [core#563] Need to call this to update index within array
-        _parsingContext.expectComma();
+        _streamReadContext.expectComma();
 
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
@@ -925,7 +925,7 @@ public class NonBlockingJsonParser
     {
         switch (ch) {
         case INT_RBRACKET:
-            if (!_parsingContext.inArray()) {
+            if (!_streamReadContext.inArray()) {
                 break;
             }
             // fall through
@@ -934,7 +934,7 @@ public class NonBlockingJsonParser
             //   we may allow "missing values", that is, encountering a trailing
             //   comma or closing marker where value would be expected
             // 11-May-2020, tatu: [core#616] No commas in root level
-            if (!_parsingContext.inRoot()) {
+            if (!_streamReadContext.inRoot()) {
                 if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                     --_inputPtr;
                     return _valueComplete(JsonToken.VALUE_NULL);

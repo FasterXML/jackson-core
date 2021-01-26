@@ -118,7 +118,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     /**
      * Object that keeps track of the current contextual state of the generator.
      */
-    protected JsonWriteContext _tokenWriteContext;
+    protected JsonWriteContext _streamWriteContext;
 
     /*
     /**********************************************************************
@@ -149,7 +149,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
         final DupDetector dups = StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
                 ? DupDetector.rootDetector(this) : null;
-        _tokenWriteContext = JsonWriteContext.createRootContext(dups);
+        _streamWriteContext = JsonWriteContext.createRootContext(dups);
 
         // 03-Oct-2017, tatu: Not clean (shouldn't call non-static methods from ctor),
         //    but for now best way to avoid code duplication
@@ -201,16 +201,16 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
     
     @Override
-    public final TokenStreamContext streamWriteContext() { return _tokenWriteContext; }
+    public final TokenStreamContext streamWriteContext() { return _streamWriteContext; }
 
     @Override
     public final Object currentValue() {
-        return _tokenWriteContext.currentValue();
+        return _streamWriteContext.currentValue();
     }
 
     @Override
     public final void assignCurrentValue(Object v) {
-        _tokenWriteContext.assignCurrentValue(v);
+        _streamWriteContext.assignCurrentValue(v);
     }
 
     /*
@@ -261,9 +261,9 @@ public abstract class JsonGeneratorBase extends GeneratorBase
             break;
         case JsonWriteContext.STATUS_OK_AS_IS:
             // First entry, but of which context?
-            if (_tokenWriteContext.inArray()) {
+            if (_streamWriteContext.inArray()) {
                 _cfgPrettyPrinter.beforeArrayValues(this);
-            } else if (_tokenWriteContext.inObject()) {
+            } else if (_streamWriteContext.inObject()) {
                 _cfgPrettyPrinter.beforeObjectEntries(this);
             }
             break;
@@ -279,6 +279,6 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     protected void _reportCantWriteValueExpectName(String typeMsg) throws JacksonException
     {
         throw _constructWriteException("Cannot %s, expecting a property name (context: %s)",
-                typeMsg, _tokenWriteContext.typeDesc());
+                typeMsg, _streamWriteContext.typeDesc());
     }
 }

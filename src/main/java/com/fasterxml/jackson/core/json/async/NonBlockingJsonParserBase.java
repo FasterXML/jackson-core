@@ -372,7 +372,7 @@ public abstract class NonBlockingJsonParserBase
         case ID_NOT_AVAILABLE:
             return null;
         case ID_PROPERTY_NAME:
-            return _parsingContext.currentName();
+            return _streamReadContext.currentName();
         case ID_STRING:
             // fall through
         case ID_NUMBER_INT:
@@ -392,7 +392,7 @@ public abstract class NonBlockingJsonParserBase
                 return _textBuffer.contentsToWriter(writer);
             }
             if (t == JsonToken.PROPERTY_NAME) {
-                String n = _parsingContext.currentName();
+                String n = _streamReadContext.currentName();
                 writer.write(n);
                 return n.length();
             }
@@ -467,7 +467,7 @@ public abstract class NonBlockingJsonParserBase
             switch (_currToken.id()) {
                 
             case ID_PROPERTY_NAME:
-                return _parsingContext.currentName().length();
+                return _streamReadContext.currentName().length();
             case ID_STRING:
                 // fall through
             case ID_NUMBER_INT:
@@ -551,7 +551,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _startArrayScope() throws JacksonException
     {
-        _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
+        _streamReadContext = _streamReadContext.createChildArrayContext(-1, -1);
         _majorState = MAJOR_ARRAY_ELEMENT_FIRST;
         _majorStateAfterValue = MAJOR_ARRAY_ELEMENT_NEXT;
         return (_currToken = JsonToken.START_ARRAY);
@@ -559,7 +559,7 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _startObjectScope() throws JacksonException
     {
-        _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
+        _streamReadContext = _streamReadContext.createChildObjectContext(-1, -1);
         _majorState = MAJOR_OBJECT_PROPERTY_FIRST;
         _majorStateAfterValue = MAJOR_OBJECT_PROPERTY_NEXT;
         return (_currToken = JsonToken.START_OBJECT);
@@ -567,11 +567,11 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _closeArrayScope() throws JacksonException
     {
-        if (!_parsingContext.inArray()) {
+        if (!_streamReadContext.inArray()) {
             _reportMismatchedEndMarker(']', '}');
         }
-        JsonReadContext ctxt = _parsingContext.getParent();
-        _parsingContext = ctxt;
+        JsonReadContext ctxt = _streamReadContext.getParent();
+        _streamReadContext = ctxt;
         int st;
         if (ctxt.inObject()) {
             st = MAJOR_OBJECT_PROPERTY_NEXT;
@@ -587,11 +587,11 @@ public abstract class NonBlockingJsonParserBase
 
     protected final JsonToken _closeObjectScope() throws JacksonException
     {
-        if (!_parsingContext.inObject()) {
+        if (!_streamReadContext.inObject()) {
             _reportMismatchedEndMarker('}', ']');
         }
-        JsonReadContext ctxt = _parsingContext.getParent();
-        _parsingContext = ctxt;
+        JsonReadContext ctxt = _streamReadContext.getParent();
+        _streamReadContext = ctxt;
         int st;
         if (ctxt.inObject()) {
             st = MAJOR_OBJECT_PROPERTY_NEXT;
@@ -780,7 +780,7 @@ public abstract class NonBlockingJsonParserBase
     // input feeder has indicated no more input will be forthcoming.
     protected final JsonToken _eofAsNextToken() throws JacksonException {
         _majorState = MAJOR_CLOSED;
-        if (!_parsingContext.inRoot()) {
+        if (!_streamReadContext.inRoot()) {
             _handleEOF();
         }
         close();
@@ -790,7 +790,7 @@ public abstract class NonBlockingJsonParserBase
     protected final JsonToken _fieldComplete(String name) throws JacksonException
     {
         _majorState = MAJOR_OBJECT_VALUE;
-        _parsingContext.setCurrentName(name);
+        _streamReadContext.setCurrentName(name);
         return (_currToken = JsonToken.PROPERTY_NAME);
     }
 

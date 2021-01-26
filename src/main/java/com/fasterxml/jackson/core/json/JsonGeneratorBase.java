@@ -278,7 +278,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
 
     protected void _reportCantWriteValueExpectName(String typeMsg) throws JacksonException
     {
-        throw _constructWriteException("Can not %s, expecting a property name (context: %s)",
+        throw _constructWriteException("Cannot %s, expecting a property name (context: %s)",
                 typeMsg, _tokenWriteContext.typeDesc());
     }
 }

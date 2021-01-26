@@ -148,7 +148,7 @@ public class WriterBasedJsonGenerator
     {
         int status = _tokenWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a property name, expecting a value");
+            _reportError("Cannot write a property name, expecting a value");
         }
         _writeName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
     }
@@ -159,7 +159,7 @@ public class WriterBasedJsonGenerator
         // Object is a value, need to verify it's allowed
         int status = _tokenWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a property name, expecting a value");
+            _reportError("Cannot write a property name, expecting a value");
         }
         _writeName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
     }

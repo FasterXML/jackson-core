@@ -202,7 +202,7 @@ public class UTF8JsonGenerator
         }
         final int status = _tokenWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a property name, expecting a value");
+            _reportError("Cannot write a property name, expecting a value");
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) { // need comma
             if (_outputTail >= _outputEnd) {
@@ -249,7 +249,7 @@ public class UTF8JsonGenerator
         }
         final int status = _tokenWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a property name, expecting a value");
+            _reportError("Cannot write a property name, expecting a value");
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) {
             if (_outputTail >= _outputEnd) {
@@ -424,7 +424,7 @@ public class UTF8JsonGenerator
     {
         int status = _tokenWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a property name, expecting a value");
+            _reportError("Cannot write a property name, expecting a value");
         }
         if ((status == JsonWriteContext.STATUS_OK_AFTER_COMMA)) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);
@@ -464,7 +464,7 @@ public class UTF8JsonGenerator
     {
         final int status = _tokenWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
-            _reportError("Can not write a property name, expecting a value");
+            _reportError("Cannot write a property name, expecting a value");
         }
         if (status == JsonWriteContext.STATUS_OK_AFTER_COMMA) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);

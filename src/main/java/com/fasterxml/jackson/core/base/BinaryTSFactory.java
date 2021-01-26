@@ -211,10 +211,10 @@ public abstract class BinaryTSFactory
             IOContext ioCtxt, OutputStream out) throws JacksonException;
 
     protected <T> T _nonByteSource() throws JacksonException {
-        throw new UnsupportedOperationException("Can not create parser for character-based (not byte-based) source");
+        throw new UnsupportedOperationException("Cannot create parser for character-based (not byte-based) source");
     }
 
     protected <T> T _nonByteTarget() throws JacksonException {
-        throw new UnsupportedOperationException("Can not create generator for character-based (not byte-based) target");
+        throw new UnsupportedOperationException("Cannot create generator for character-based (not byte-based) target");
     }
 }

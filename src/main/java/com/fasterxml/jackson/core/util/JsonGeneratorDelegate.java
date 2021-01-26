@@ -87,8 +87,8 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public boolean canWriteFormattedNumbers() { return delegate.canWriteFormattedNumbers(); }
 
     @Override
-    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
-        return delegate.getWriteCapabilities();
+    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
+        return delegate.streamWriteCapabilities();
     }
 
     /*
@@ -348,7 +348,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         if (pojo == null) {
             writeNull();
         } else {
-            getObjectWriteContext().writeValue(this, pojo);
+            objectWriteContext().writeValue(this, pojo);
         }
     }
     
@@ -362,7 +362,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
         if (tree == null) {
             writeNull();
         } else {
-            getObjectWriteContext().writeTree(this, tree);
+            objectWriteContext().writeTree(this, tree);
         }
     }
 
@@ -398,8 +398,8 @@ public class JsonGeneratorDelegate extends JsonGenerator
     /**********************************************************************
      */
 
-    @Override public TokenStreamContext getOutputContext() { return delegate.getOutputContext(); }
-    @Override public ObjectWriteContext getObjectWriteContext() { return delegate.getObjectWriteContext(); }
+    @Override public TokenStreamContext streamWriteContext() { return delegate.streamWriteContext(); }
+    @Override public ObjectWriteContext objectWriteContext() { return delegate.objectWriteContext(); }
 
     /*
     /**********************************************************************

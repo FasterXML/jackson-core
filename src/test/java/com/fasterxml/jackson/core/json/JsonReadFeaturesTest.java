@@ -59,9 +59,9 @@ public class JsonReadFeaturesTest
         assertFalse(p.canReadTypeId());
 
         // [core#619]:
-        assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES));
-        assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.SCALARS_AS_OBJECTS));
-        assertFalse(p.getReadCapabilities().isEnabled(StreamReadCapability.UNTYPED_SCALARS));
+        assertFalse(p.streamReadCapabilities().isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES));
+        assertFalse(p.streamReadCapabilities().isEnabled(StreamReadCapability.SCALARS_AS_OBJECTS));
+        assertFalse(p.streamReadCapabilities().isEnabled(StreamReadCapability.UNTYPED_SCALARS));
 
         p.close();
     }

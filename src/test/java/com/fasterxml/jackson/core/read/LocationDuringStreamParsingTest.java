@@ -50,7 +50,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
     private void testInitialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingStream(test.json, "UTF8");
-        JsonLocation loc = p.getCurrentLocation();
+        JsonLocation loc = p.currentLocation();
         p.close();
 
         assertLocation(loc, at(1, 1, 0));
@@ -70,7 +70,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
 
     private void assertCurrentLocation(JsonParser p, LocData loc)
     {
-        assertLocation(p.getCurrentLocation(), loc);
+        assertLocation(p.currentLocation(), loc);
     }
 
     private void assertTokenLocation(JsonParser p, LocData loc)

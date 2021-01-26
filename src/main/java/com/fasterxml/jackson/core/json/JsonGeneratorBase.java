@@ -167,7 +167,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
     public boolean isEnabled(JsonWriteFeature f) { return f.enabledIn(_formatWriteFeatures); }
 
     @Override
-    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
+    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
         return DEFAULT_WRITE_CAPABILITIES;
     }
 
@@ -201,7 +201,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
     
     @Override
-    public final TokenStreamContext getOutputContext() { return _tokenWriteContext; }
+    public final TokenStreamContext streamWriteContext() { return _tokenWriteContext; }
 
     @Override
     public final Object currentValue() {

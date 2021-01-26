@@ -179,22 +179,22 @@ public class JsonParserSequence extends JsonParserDelegate
      */
 
     @Override
-    public String nextFieldName() throws JacksonException {
+    public String nextName() throws JacksonException {
         // NOTE: call `nextToken()` to handle delegation
         return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
     }
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws JacksonException {
+    public boolean nextName(SerializableString str) throws JacksonException {
         // NOTE: call `nextToken()` to handle delegation
         return (nextToken() == JsonToken.PROPERTY_NAME)
                 && str.getValue().equals(currentName());
     }
 
     @Override
-    public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException {
+    public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException {
         // NOTE: call `nextToken()` to handle delegation
-        String str = nextFieldName();
+        String str = nextName();
         if (str != null) {
             // 15-Nov-2017, tatu: Can not assume intern()ing aspects when delegating...
             return matcher.matchName(str);

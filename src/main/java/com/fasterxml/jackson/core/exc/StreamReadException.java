@@ -23,12 +23,12 @@ public class StreamReadException
     protected RequestPayload _requestPayload;
 
     public StreamReadException(JsonParser p, String msg) {
-        super(msg, (p == null) ? null : p.getCurrentLocation(), null);
+        super(msg, (p == null) ? null : p.currentLocation(), null);
         _processor = p;
     }
 
     public StreamReadException(JsonParser p, String msg, Throwable root) {
-        super(msg, (p == null) ? null : p.getCurrentLocation(), root);
+        super(msg, (p == null) ? null : p.currentLocation(), root);
         _processor = p;
     }
 

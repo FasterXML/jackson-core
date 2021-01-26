@@ -41,7 +41,7 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
         assertNull(r.nextToken());
-        JsonLocation loc = r.parser().getCurrentLocation();
+        JsonLocation loc = r.parser().currentLocation();
         assertEquals(2, loc.getLineNr());
         assertEquals(1, loc.getColumnNr());
     }

@@ -144,7 +144,7 @@ public abstract class GeneratorBase extends JsonGenerator
 
     // public TokenStreamContext getOutputContext();
 
-    @Override public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }
+    @Override public ObjectWriteContext objectWriteContext() { return _objectWriteContext; }
 
     /*
     /**********************************************************************

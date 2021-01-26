@@ -27,6 +27,7 @@ JSON library.
 #495: Create `StreamReadFeature` to move non-json specific `JsonParser.Feature`s to
 #496: Create `StreamWriteFeature` to take over non-json-specific `JsonGenerator.Feature`s
 #551: Remove `JsonGenerator.setPrettyPrinter()` from 3.0
+#670: Replace references to "field" in `JsonGenerator`, `JsonParser` method names with "property"
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

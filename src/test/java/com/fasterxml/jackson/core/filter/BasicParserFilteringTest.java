@@ -507,7 +507,7 @@ public class BasicParserFilteringTest extends BaseTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("ob", p.currentName());
 
-        assertEquals(p0.getCurrentLocation(), p.getCurrentLocation());
+        assertEquals(p0.currentLocation(), p.currentLocation());
         
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("value", p.currentName());

@@ -35,15 +35,15 @@ public class JsonParserDelegate extends JsonParser
     // // // Public API: basic context access
 
     @Override
-    public TokenStreamContext getParsingContext() { return delegate.getParsingContext(); }
+    public TokenStreamContext streamReadContext() { return delegate.streamReadContext(); }
     
     @Override
-    public ObjectReadContext getObjectReadContext() { return delegate.getObjectReadContext(); }
+    public ObjectReadContext objectReadContext() { return delegate.objectReadContext(); }
 
     // // // Public API, input source, location access
 
     @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
-    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
+    @Override public JsonLocation currentLocation() { return delegate.currentLocation(); }
     @Override public Object getInputSource() { return delegate.getInputSource(); }
 
     @Override
@@ -62,6 +62,7 @@ public class JsonParserDelegate extends JsonParser
     /**********************************************************************
      */
 
+    /*
     @Override
     public JsonParser enable(StreamReadFeature f) {
         delegate.enable(f);
@@ -73,6 +74,7 @@ public class JsonParserDelegate extends JsonParser
         delegate.disable(f);
         return this;
     }
+    */
  
     @Override public boolean isEnabled(StreamReadFeature f) { return delegate.isEnabled(f); }
     @Override public int streamReadFeatures() { return delegate.streamReadFeatures(); }
@@ -87,9 +89,9 @@ public class JsonParserDelegate extends JsonParser
 
     @Override public boolean canParseAsync() { return delegate.canParseAsync(); }
 
-    @Override public NonBlockingInputFeeder getNonBlockingInputFeeder() { return delegate.getNonBlockingInputFeeder(); }
+    @Override public NonBlockingInputFeeder nonBlockingInputFeeder() { return delegate.nonBlockingInputFeeder(); }
 
-    @Override public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() { return delegate.getReadCapabilities(); }
+    @Override public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() { return delegate.streamReadCapabilities(); }
 
     /*
     /**********************************************************************
@@ -154,12 +156,12 @@ public class JsonParserDelegate extends JsonParser
     // 12-Nov-2017, tatu: These DO work as long as `JsonParserSequence` further overrides
     //     handling
 
-    @Override public String nextFieldName() throws JacksonException { return delegate.nextFieldName(); }
-    @Override public boolean nextFieldName(SerializableString str) throws JacksonException { return delegate.nextFieldName(str); }
-    @Override public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException { return delegate.nextFieldName(matcher); }
+    @Override public String nextName() throws JacksonException { return delegate.nextName(); }
+    @Override public boolean nextName(SerializableString str) throws JacksonException { return delegate.nextName(str); }
+    @Override public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException { return delegate.nextNameMatch(matcher); }
 
     // NOTE: fine without overrides since it does NOT change state
-    @Override public int currentFieldName(PropertyNameMatcher matcher) { return delegate.currentFieldName(matcher); }
+    @Override public int currentNameMatch(PropertyNameMatcher matcher) { return delegate.currentNameMatch(matcher); }
 
     /*
     /**********************************************************************

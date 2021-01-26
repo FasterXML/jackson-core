@@ -63,43 +63,43 @@ public class NextNameWithMatcherTest
     private void _verifyDoc1(JsonParser p, PropertyNameMatcher matcher,
             List<String> names) throws Exception
     {
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.START_OBJECT, p.currentToken());
 
-        assertEquals(1, p.nextFieldName(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
+        assertEquals(1, p.nextNameMatch(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
         assertEquals(names.get(1), p.currentName());
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(4, p.getIntValue());
 
-        assertEquals(0, p.nextFieldName(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
+        assertEquals(0, p.nextNameMatch(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
         assertEquals(names.get(0), p.currentName());
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.VALUE_TRUE, p.currentToken());
 
-        assertEquals(2, p.nextFieldName(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
+        assertEquals(2, p.nextNameMatch(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
         assertEquals(names.get(2), p.currentName());
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
         assertEquals("Billy-Bob Burger", p.getText());
 
-        assertEquals(PropertyNameMatcher.MATCH_UNKNOWN_NAME, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_UNKNOWN_NAME, p.nextNameMatch(matcher));
         assertEquals("extra", p.currentName());
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.START_ARRAY, p.currentToken());
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(0, p.getIntValue());
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.END_ARRAY, p.currentToken());
 
-        assertEquals(3, p.nextFieldName(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
+        assertEquals(3, p.nextNameMatch(matcher)); // ("enabled", "a", "longerName", "otherStuff3")
         assertEquals(names.get(3), p.currentName());
-        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_ODD_TOKEN, p.nextNameMatch(matcher));
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.currentToken());
         assertEquals(0.25, p.getDoubleValue());
 
-        assertEquals(PropertyNameMatcher.MATCH_END_OBJECT, p.nextFieldName(matcher));
+        assertEquals(PropertyNameMatcher.MATCH_END_OBJECT, p.nextNameMatch(matcher));
         assertToken(JsonToken.END_OBJECT, p.currentToken());
 
         p.close();

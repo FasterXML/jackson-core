@@ -325,7 +325,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public JsonLocation getCurrentLocation()
+    public JsonLocation currentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         // Since we track CR and LF separately, max should gives us right answer

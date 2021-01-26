@@ -93,10 +93,12 @@ public abstract class JsonParser
      * array or object (for highlighting purposes, or error reporting).
      * Contexts can also be used for simple xpath-like matching of
      * input, if so desired.
+     *<p>
+     * NOTE: method was called {@code getParsingContext()} in Jackson 2.x
      *
      * @return Stream output context ({@link TokenStreamContext}) associated with this parser
      */
-    public abstract TokenStreamContext getParsingContext();
+    public abstract TokenStreamContext streamReadContext();
 
     /**
      * Accessor for context object provided by higher level data-binding
@@ -111,7 +113,7 @@ public abstract class JsonParser
      *
      * @since 3.0
      */
-    public abstract ObjectReadContext getObjectReadContext();
+    public abstract ObjectReadContext objectReadContext();
 
     /*
     /**********************************************************************
@@ -144,10 +146,12 @@ public abstract class JsonParser
      * and others only return {@link JsonLocation#NA} due to not having access
      * to input location information (when delegating actual decoding work
      * to other library)
+     *<p>
+     * NOTE: this method was called {@code getCurrentLocation()} in Jackson 2.x.
      *
      * @return Location of the last processed input unit (byte or character)
      */
-    public abstract JsonLocation getCurrentLocation();
+    public abstract JsonLocation currentLocation();
 
     /**
      * Method that can be used to get access to object that is used
@@ -246,7 +250,7 @@ public abstract class JsonParser
      * it may not be changed after construction.
      *<p>
      * If non-blocking decoding is {@code true}, it is possible to call
-     * {@link #getNonBlockingInputFeeder()} to obtain object to use
+     * {@link #nonBlockingInputFeeder()} to obtain object to use
      * for feeding input; otherwise (<code>false</code> returned)
      * input is read by blocking.
      * 
@@ -261,7 +265,7 @@ public abstract class JsonParser
      *
      * @return Input feeder to use with non-blocking (async) parsing
      */
-    public NonBlockingInputFeeder getNonBlockingInputFeeder() {
+    public NonBlockingInputFeeder nonBlockingInputFeeder() {
         return null;
     }
 
@@ -270,10 +274,8 @@ public abstract class JsonParser
      * underlying data format being read (directly or indirectly).
      *
      * @return Set of read capabilities for content to read via this parser
-     *
-     * @since 2.12
      */
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+    public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
         return DEFAULT_READ_CAPABILITIES;
     }
 
@@ -372,7 +374,7 @@ public abstract class JsonParser
      *
      * @return This parser, to allow call chaining
      */
-    public abstract JsonParser enable(StreamReadFeature f);
+//    public abstract JsonParser enable(StreamReadFeature f);
 
     /**
      * Method for disabling specified  feature
@@ -382,7 +384,7 @@ public abstract class JsonParser
      *
      * @return This parser, to allow call chaining
      */
-    public abstract JsonParser disable(StreamReadFeature f);
+//    public abstract JsonParser disable(StreamReadFeature f);
 
     /**
      * Method for checking whether specified {@link StreamReadFeature} is enabled.
@@ -501,6 +503,8 @@ public abstract class JsonParser
      * Method that fetches next token (as if calling {@link #nextToken}) and
      * verifies whether it is {@link JsonToken#PROPERTY_NAME}; if it is,
      * returns same as {@link #currentName()}, otherwise null.
+     *<P>
+     * NOTE: in Jackson 2.x method was called {@code nextFieldName()}
      *
      * @return Name of the the {@code JsonToken.PROPERTY_NAME} parser advanced to, if any;
      *   {@code null} if next token is of some other type
@@ -508,7 +512,7 @@ public abstract class JsonParser
      * @throws JacksonException for low-level read issues
      * @throws com.fasterxml.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract String nextFieldName() throws JacksonException;
+    public abstract String nextName() throws JacksonException;
 
     /**
      * Method that fetches next token (as if calling {@link #nextToken}) and
@@ -520,6 +524,8 @@ public abstract class JsonParser
      *</pre>
      * but may be faster for parser to verify, and can therefore be used if caller
      * expects to get such a property name from input next.
+     *<P>
+     * NOTE: in Jackson 2.x method was called {@code nextFieldName()}
      *
      * @param str Property name to compare next token to (if next token is
      *   <code>JsonToken.PROPERTY_NAME</code>)
@@ -530,7 +536,7 @@ public abstract class JsonParser
      * @throws JacksonException for low-level read issues
      * @throws com.fasterxml.jackson.core.exc.StreamReadException for decoding problems
      */
-    public abstract boolean nextFieldName(SerializableString str) throws JacksonException;
+    public abstract boolean nextName(SerializableString str) throws JacksonException;
 
     /**
      * Method that tries to match next token from stream as {@link JsonToken#PROPERTY_NAME},
@@ -548,14 +554,14 @@ public abstract class JsonParser
      *
      * @since 3.0
      */
-    public abstract int nextFieldName(PropertyNameMatcher matcher) throws JacksonException;
+    public abstract int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException;
 
     /**
-     * Method that verifies that the current token (see {@link #currentToken} is
-     * {@link JsonToken#PROPERTY_NAME} and if so, further match it to one of pre-specified (field) names.
-     * If match succeeds, property index (non-negative {@code int}) is returned;
-     * otherwise one of
-     * marker constants from {@link PropertyNameMatcher}.
+     * Method that verifies that the current token (see {@link #currentToken}) is
+     * {@link JsonToken#PROPERTY_NAME} and if so, further match that associated name
+     * (see {@link #currentName}) to one of pre-specified (property) names.
+     * If there is a match succeeds, the property index (non-negative {@code int}) is returned;
+     * otherwise one of marker constants from {@link PropertyNameMatcher} is returned.
      *
      * @param matcher Matcher that will handle actual matching
      *
@@ -564,7 +570,7 @@ public abstract class JsonParser
      *
      * @since 3.0
      */
-    public abstract int currentFieldName(PropertyNameMatcher matcher);
+    public abstract int currentNameMatch(PropertyNameMatcher matcher);
 
     /*
     /**********************************************************************
@@ -690,14 +696,6 @@ public abstract class JsonParser
      *   if the current token has been explicitly cleared.
      */
     public abstract JsonToken currentToken();
-
-    /**
-     * @return Type of the token this parser currently points to
-     *
-     * @deprecated Since 3.0 use {@link #currentToken} instead.
-     */
-    @Deprecated
-    public JsonToken getCurrentToken() { return currentToken(); }
 
     /**
      * Method similar to {@link #currentToken()} but that returns an
@@ -860,6 +858,8 @@ public abstract class JsonParser
      * be the same as what {@link #getText} returns;
      * for Object property values it will be the preceding property name;
      * and for others (array element, root-level values) null.
+     *<p>
+     * NOTE: this method was called {@code getCurrentName()} in Jackson 2.x.
      *
      * @return Name of the current property name, if any, in the parsing context ({@code null} if none)
      */

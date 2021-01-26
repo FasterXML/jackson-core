@@ -21,7 +21,7 @@ public class ObjectWriteTest
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
 
-        TokenStreamContext ctxt = gen.getOutputContext();
+        TokenStreamContext ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());
@@ -30,7 +30,7 @@ public class ObjectWriteTest
 
         gen.writeStartObject();
 
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertFalse(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertTrue(ctxt.inObject());
@@ -39,7 +39,7 @@ public class ObjectWriteTest
 
         gen.writeEndObject();
 
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());

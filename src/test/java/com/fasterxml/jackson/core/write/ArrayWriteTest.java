@@ -20,7 +20,7 @@ public class ArrayWriteTest
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
 
-        TokenStreamContext ctxt = gen.getOutputContext();
+        TokenStreamContext ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());
@@ -29,7 +29,7 @@ public class ArrayWriteTest
 
         gen.writeStartArray();
 
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertFalse(ctxt.inRoot());
         assertTrue(ctxt.inArray());
         assertFalse(ctxt.inObject());
@@ -38,7 +38,7 @@ public class ArrayWriteTest
 
         gen.writeEndArray();
 
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue("Should be in root, was "+ctxt.typeDesc(), ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertFalse(ctxt.inObject());

@@ -34,7 +34,7 @@ public class AsyncReaderWrapperForByteArray extends AsyncReaderWrapper
         JsonToken token;
 
         while ((token = _streamReader.nextToken()) == JsonToken.NOT_AVAILABLE) {
-            ByteArrayFeeder feeder = (ByteArrayFeeder) _streamReader.getNonBlockingInputFeeder();
+            ByteArrayFeeder feeder = (ByteArrayFeeder) _streamReader.nonBlockingInputFeeder();
             if (!feeder.needMoreInput()) {
                 throw new StreamReadException(null, "Got NOT_AVAILABLE, could not feed more input");
             }

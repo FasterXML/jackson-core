@@ -160,10 +160,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public boolean isExpectedStartArrayToken() { return _currToken == JsonToken.START_ARRAY; }
     @Override public boolean isExpectedStartObjectToken() { return _currToken == JsonToken.START_OBJECT; }
 
-    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
+    @Override public JsonLocation currentLocation() { return delegate.currentLocation(); }
 
     @Override
-    public TokenStreamContext getParsingContext() {
+    public TokenStreamContext streamReadContext() {
         return _filterContext();
     }
 
@@ -833,18 +833,18 @@ public class FilteringParserDelegate extends JsonParserDelegate
      */
 
     @Override
-    public String nextFieldName() throws JacksonException {
+    public String nextName() throws JacksonException {
         return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
     }
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws JacksonException {
+    public boolean nextName(SerializableString str) throws JacksonException {
         return (nextToken() == JsonToken.PROPERTY_NAME) && str.getValue().equals(currentName());
     }
 
     @Override
-    public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException {
-        String str = nextFieldName();
+    public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException {
+        String str = nextName();
         if (str != null) {
             // 15-Nov-2017, tatu: We can not rely on name being interned here
             return matcher.matchName(str);

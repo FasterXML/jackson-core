@@ -75,7 +75,7 @@ public class NonBlockingJsonParser
      */
 
     @Override
-    public ByteArrayFeeder getNonBlockingInputFeeder() {
+    public ByteArrayFeeder nonBlockingInputFeeder() {
         return this;
     }
 
@@ -128,7 +128,7 @@ public class NonBlockingJsonParser
      * implementation
      */
 
-//    public boolean nextFieldName(SerializableString str) throws JacksonException
+//    public boolean nextName(SerializableString str) throws JacksonException
 //    public String nextTextValue() throws JacksonException
 //    public int nextIntValue(int defaultValue) throws JacksonException
 //    public long nextLongValue(long defaultValue) throws JacksonException

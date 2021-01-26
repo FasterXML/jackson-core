@@ -1002,7 +1002,7 @@ public abstract class TokenStreamFactory
     /**
      * Optional method for constructing parser for non-blocking parsing
      * via {@link com.fasterxml.jackson.core.async.ByteArrayFeeder}
-     * interface (accessed using {@link JsonParser#getNonBlockingInputFeeder()}
+     * interface (accessed using {@link JsonParser#nonBlockingInputFeeder()}
      * from constructed instance).
      *<p>
      * If this factory does not support non-blocking parsing (either at all,

@@ -63,10 +63,12 @@ public abstract class JsonGenerator
     /**
      * Accessor for context object that provides information about low-level
      * logical position withing output token stream.
+     *<p>
+     * NOTE: method was called {@code getOutputContext()} in Jackson 2.x
      *
      * @return Stream output context ({@link TokenStreamContext}) associated with this generator
      */
-    public abstract TokenStreamContext getOutputContext();
+    public abstract TokenStreamContext streamWriteContext();
 
     /**
      * Accessor for context object provided by higher-level databinding
@@ -78,7 +80,7 @@ public abstract class JsonGenerator
      *
      * @since 3.0
      */
-    public abstract ObjectWriteContext getObjectWriteContext();
+    public abstract ObjectWriteContext objectWriteContext();
 
     /**
      * Method that can be used to get access to object that is used
@@ -326,7 +328,7 @@ public abstract class JsonGenerator
      *
      * @return Set of read capabilities for content to generate via this generator
      */
-    public abstract JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities();
+    public abstract JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities();
 
     /*
     /**********************************************************************

@@ -123,7 +123,7 @@ public class SimpleParserTest extends BaseTest
 
     private void _testKeywords(JsonParser p, boolean checkColumn)
     {
-        TokenStreamContext ctxt = p.getParsingContext();
+        TokenStreamContext ctxt = p.streamReadContext();
         assertEquals("/", ctxt.toString());
         assertTrue(ctxt.inRoot());
         assertFalse(ctxt.inArray());
@@ -150,7 +150,7 @@ public class SimpleParserTest extends BaseTest
             assertEquals(1, loc.getColumnNr());
         }
 
-        ctxt = p.getParsingContext();
+        ctxt = p.streamReadContext();
         assertFalse(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertTrue(ctxt.inObject());
@@ -162,7 +162,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals("{\"key1\"}", ctxt.toString());
         assertEquals(2, p.getTokenLocation().getLineNr());
 
-        ctxt = p.getParsingContext();
+        ctxt = p.streamReadContext();
         assertFalse(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertTrue(ctxt.inObject());
@@ -173,13 +173,13 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         assertEquals("key1", ctxt.currentName());
 
-        ctxt = p.getParsingContext();
+        ctxt = p.streamReadContext();
         assertEquals(1, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key2");
-        ctxt = p.getParsingContext();
+        ctxt = p.streamReadContext();
         assertEquals(2, ctxt.getEntryCount());
         assertEquals(1, ctxt.getCurrentIndex());
         assertEquals("key2", ctxt.currentName());
@@ -195,7 +195,7 @@ public class SimpleParserTest extends BaseTest
         verifyFieldName(p, "key4");
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        ctxt = p.getParsingContext();
+        ctxt = p.streamReadContext();
         assertTrue(ctxt.inArray());
         assertNull(ctxt.currentName());
         assertEquals("key4", ctxt.getParent().currentName());
@@ -207,11 +207,11 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        ctxt = p.getParsingContext();
+        ctxt = p.streamReadContext();
         assertTrue(ctxt.inObject());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        ctxt = p.getParsingContext();
+        ctxt = p.streamReadContext();
         assertTrue(ctxt.inRoot());
         assertNull(ctxt.currentName());
     }

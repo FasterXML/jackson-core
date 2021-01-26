@@ -749,23 +749,23 @@ public class UTF8DataInputJsonParser
 
     /*
     /**********************************************************************
-    /* Public API, traversal, nextXxxValue/nextFieldName
+    /* Public API, traversal, nextXxxValue/nextName
     /**********************************************************************
      */
 
     // Can not implement without look-ahead...
-//    public boolean nextFieldName(SerializableString str) throws JacksonException
+//    public boolean nextName(SerializableString str) throws JacksonException
 
     @Override
-    public String nextFieldName() throws JacksonException {
+    public String nextName() throws JacksonException {
         try {
-            return _nextFieldName();
+            return _nextName();
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }
     }
 
-    private final String _nextFieldName() throws IOException
+    private final String _nextName() throws IOException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
 
@@ -2918,7 +2918,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public JsonLocation getCurrentLocation() {
+    public JsonLocation currentLocation() {
         // No column tracking since we do not have pointers, DataInput has no offset
         final int col = -1;
         return new JsonLocation(_getSourceReference(), -1L, -1L,

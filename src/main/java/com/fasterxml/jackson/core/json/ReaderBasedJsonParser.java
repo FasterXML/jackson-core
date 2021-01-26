@@ -821,7 +821,7 @@ public class ReaderBasedJsonParser
      */
 
     @Override
-    public boolean nextFieldName(SerializableString sstr) throws JacksonException
+    public boolean nextName(SerializableString sstr) throws JacksonException
     {
         // // // Note: most of code below is copied from nextToken()
 
@@ -897,7 +897,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public String nextFieldName() throws JacksonException
+    public String nextName() throws JacksonException
     {
         // // // Note: this is almost a verbatim copy of nextToken() (minus comments)
 
@@ -2879,7 +2879,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public JsonLocation getCurrentLocation() {
+    public JsonLocation currentLocation() {
         final int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_getSourceReference(),
                 -1L, _currInputProcessed + _inputPtr,

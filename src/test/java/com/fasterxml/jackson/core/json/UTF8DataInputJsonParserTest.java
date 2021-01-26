@@ -35,7 +35,7 @@ public class UTF8DataInputJsonParserTest extends BaseTest
                 ioContext, 100, 0, dataInputStream, null, -2624);
 
         try {
-            uTF8DataInputJsonParser.nextFieldName();
+            uTF8DataInputJsonParser.nextName();
             fail("Expecting exception: IOException");
         } catch (JacksonException e) {
             assertEquals(JsonParser.class.getName(), e.getStackTrace()[0].getClassName());
@@ -72,7 +72,7 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
                 ioContext, 42, 0, dataInputStream, byteQuadsCanonicalizer, 0);
         assertEquals(0, uTF8DataInputJsonParser.getTextOffset());
-        assertNull(uTF8DataInputJsonParser.nextFieldName());
+        assertNull(uTF8DataInputJsonParser.nextName());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class UTF8DataInputJsonParserTest extends BaseTest
         DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
         UTF8DataInputJsonParser uTF8DataInputJsonParser = new UTF8DataInputJsonParser(ObjectReadContext.empty(),
                 ioContext, 42, 0, dataInputStream, ByteQuadsCanonicalizer.createRoot(), 0);
-        uTF8DataInputJsonParser.nextFieldName();
+        uTF8DataInputJsonParser.nextName();
 
         assertNull(uTF8DataInputJsonParser.getObjectId());
         assertEquals(1, uTF8DataInputJsonParser.getTextLength());

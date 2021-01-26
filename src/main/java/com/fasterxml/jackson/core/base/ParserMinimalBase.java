@@ -203,6 +203,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     // from base class:
 
+    /*
     @Override
     public JsonParser enable(StreamReadFeature f) {
         _streamReadFeatures |= f.getMask();
@@ -214,6 +215,7 @@ public abstract class ParserMinimalBase extends JsonParser
         _streamReadFeatures &= ~f.getMask();
         return this;
     }
+    */
 
     @Override
     public boolean isEnabled(StreamReadFeature f) { return f.enabledIn(_streamReadFeatures); }
@@ -228,7 +230,7 @@ public abstract class ParserMinimalBase extends JsonParser
     public int streamReadFeatures() { return _streamReadFeatures; }
 
     @Override
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+    public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
         return DEFAULT_READ_CAPABILITIES;
     }
 
@@ -256,7 +258,7 @@ public abstract class ParserMinimalBase extends JsonParser
     //  public abstract JsonLocation getCurrentLocation();
 
     @Override
-    public ObjectReadContext getObjectReadContext() {
+    public ObjectReadContext objectReadContext() {
         return _objectReadContext;
     }
 
@@ -357,20 +359,20 @@ public abstract class ParserMinimalBase extends JsonParser
      */
 
     @Override
-    public String nextFieldName() throws JacksonException {
+    public String nextName() throws JacksonException {
         return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
     }
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws JacksonException {
+    public boolean nextName(SerializableString str) throws JacksonException {
         return (nextToken() == JsonToken.PROPERTY_NAME) && str.getValue().equals(currentName());
     }
 
     // Base implementation that should work well for most implementations but that
     // is typically overridden for performance optimization purposes
     @Override
-    public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException {
-        String str = nextFieldName();
+    public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException {
+        String str = nextName();
         if (str != null) {
             return matcher.matchName(str);
         }
@@ -381,7 +383,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
-    public int currentFieldName(PropertyNameMatcher matcher) {
+    public int currentNameMatch(PropertyNameMatcher matcher) {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             return matcher.matchName(currentName());
         }

@@ -1204,7 +1204,7 @@ public class UTF8JsonGenerator
         if ((_outputBuffer != null)
             && isEnabled(StreamWriteFeature.AUTO_CLOSE_CONTENT)) {
             while (true) {
-                TokenStreamContext ctxt = getOutputContext();
+                TokenStreamContext ctxt = streamWriteContext();
                 if (ctxt.inArray()) {
                     writeEndArray();
                 } else if (ctxt.inObject()) {

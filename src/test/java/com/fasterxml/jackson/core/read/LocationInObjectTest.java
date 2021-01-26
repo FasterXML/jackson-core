@@ -20,18 +20,18 @@ public class LocationInObjectTest extends BaseTest
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(6L, p.getTokenLocation().getByteOffset());
 
-        assertEquals("f2", p.nextFieldName());
+        assertEquals("f2", p.nextName());
         assertEquals(11L, p.getTokenLocation().getByteOffset());
         assertEquals(JsonToken.START_OBJECT, p.nextValue());
         assertEquals(16L, p.getTokenLocation().getByteOffset());
 
-        assertEquals("f3", p.nextFieldName());
+        assertEquals("f3", p.nextName());
         assertEquals(17L, p.getTokenLocation().getByteOffset());
         assertEquals(JsonToken.VALUE_STRING, p.nextValue());
         assertEquals(22L, p.getTokenLocation().getByteOffset());
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
 
-        assertEquals("f4", p.nextFieldName());
+        assertEquals("f4", p.nextName());
         assertEquals(28L, p.getTokenLocation().getByteOffset());
         assertEquals(JsonToken.START_ARRAY, p.nextValue());
         assertEquals(33L, p.getTokenLocation().getByteOffset());
@@ -43,7 +43,7 @@ public class LocationInObjectTest extends BaseTest
         assertEquals(39L, p.getTokenLocation().getByteOffset());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
 
-        assertEquals("f5", p.nextFieldName());
+        assertEquals("f5", p.nextName());
         assertEquals(46L, p.getTokenLocation().getByteOffset());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(51L, p.getTokenLocation().getByteOffset());
@@ -66,18 +66,18 @@ public class LocationInObjectTest extends BaseTest
         assertEquals(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(6L, p.getTokenLocation().getCharOffset());
 
-        assertEquals("f2", p.nextFieldName());
+        assertEquals("f2", p.nextName());
         assertEquals(11L, p.getTokenLocation().getCharOffset());
         assertEquals(JsonToken.START_OBJECT, p.nextValue());
         assertEquals(16L, p.getTokenLocation().getCharOffset());
 
-        assertEquals("f3", p.nextFieldName());
+        assertEquals("f3", p.nextName());
         assertEquals(17L, p.getTokenLocation().getCharOffset());
         assertEquals(JsonToken.VALUE_STRING, p.nextValue());
         assertEquals(22L, p.getTokenLocation().getCharOffset());
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
 
-        assertEquals("f4", p.nextFieldName());
+        assertEquals("f4", p.nextName());
         assertEquals(28L, p.getTokenLocation().getCharOffset());
         assertEquals(JsonToken.START_ARRAY, p.nextValue());
         assertEquals(33L, p.getTokenLocation().getCharOffset());
@@ -89,7 +89,7 @@ public class LocationInObjectTest extends BaseTest
         assertEquals(39L, p.getTokenLocation().getCharOffset());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
 
-        assertEquals("f5", p.nextFieldName());
+        assertEquals("f5", p.nextName());
         assertEquals(46L, p.getTokenLocation().getCharOffset());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(51L, p.getTokenLocation().getCharOffset());

@@ -241,7 +241,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override
     public void assignCurrentValue(Object v) {
-        TokenStreamContext ctxt = getParsingContext();
+        TokenStreamContext ctxt = streamReadContext();
         if (ctxt != null) {
             ctxt.assignCurrentValue(v);
         }
@@ -249,7 +249,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     @Override
     public Object currentValue() {
-        TokenStreamContext ctxt = getParsingContext();
+        TokenStreamContext ctxt = streamReadContext();
         return (ctxt == null) ? null : ctxt.currentValue();
     }
 
@@ -363,7 +363,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     @Override
     protected void _handleEOF() throws JacksonException {
-        TokenStreamContext parsingContext = getParsingContext();
+        TokenStreamContext parsingContext = streamReadContext();
         if ((parsingContext != null) && !parsingContext.inRoot()) {
             String marker = parsingContext.inArray() ? "Array" : "Object";
             _reportInvalidEOF(String.format(

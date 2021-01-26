@@ -54,7 +54,7 @@ public abstract class AsyncReaderWrapper
     public abstract JsonToken nextToken();
 
     public TokenStreamContext getParsingContext() {
-        return _streamReader.getParsingContext();
+        return _streamReader.streamReadContext();
     }
 
     public int getIntValue() { return _streamReader.getIntValue(); }

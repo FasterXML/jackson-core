@@ -289,19 +289,19 @@ public class TrailingCommasTest extends BaseTest {
     JsonParser p = createParser(factory, mode, json);
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
-    assertEquals("a", p.nextFieldName());
+    assertEquals("a", p.nextName());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertEquals("b", p.nextFieldName());
+    assertEquals("b", p.nextName());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
     if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
-      assertEquals(null, p.nextFieldName());
+      assertEquals(null, p.nextName());
       assertToken(JsonToken.END_OBJECT, p.currentToken());
       assertEnd(p);
     } else {
       try {
-        p.nextFieldName();
+        p.nextName();
         fail("No exception thrown");
       } catch (Exception e) {
         verifyException(e, "Unexpected character ('}' (code 125))");
@@ -318,19 +318,19 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertTrue(p.nextFieldName(new SerializedString("a")));
+    assertTrue(p.nextName(new SerializedString("a")));
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertTrue(p.nextFieldName(new SerializedString("b")));
+    assertTrue(p.nextName(new SerializedString("b")));
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
     if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
-      assertFalse(p.nextFieldName(new SerializedString("c")));
+      assertFalse(p.nextName(new SerializedString("c")));
       assertToken(JsonToken.END_OBJECT, p.currentToken());
       assertEnd(p);
     } else {
       try {
-        p.nextFieldName(new SerializedString("c"));
+        p.nextName(new SerializedString("c"));
         fail("No exception thrown");
       } catch (Exception e) {
         verifyException(e, "Unexpected character ('}' (code 125))");

@@ -257,7 +257,7 @@ public class UTF8NamesParseTest
         SerializedString id = new SerializedString("id");
         JsonParser parser = createParser(mode, doc);
         assertEquals(parser.nextToken(), JsonToken.START_OBJECT);
-        assertTrue(parser.nextFieldName(id));
+        assertTrue(parser.nextName(id));
         assertEquals(parser.nextToken(), JsonToken.VALUE_NUMBER_INT);
         assertEquals(parser.nextToken(), JsonToken.END_OBJECT);
         parser.close();

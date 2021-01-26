@@ -879,12 +879,12 @@ public class UTF8StreamJsonParser
 
     /*
     /**********************************************************************
-    /* Public API, traversal, nextFieldName() variants
+    /* Public API, traversal, nextName() variants
     /**********************************************************************
      */
 
     @Override
-    public String nextFieldName() throws JacksonException
+    public String nextName() throws JacksonException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
 
@@ -992,7 +992,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public boolean nextFieldName(SerializableString str) throws JacksonException
+    public boolean nextName(SerializableString str) throws JacksonException
     {
         // // // Note: most of code below is copied from nextToken()
         _numTypesValid = NR_UNKNOWN;
@@ -1078,7 +1078,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public int nextFieldName(PropertyNameMatcher matcher) throws JacksonException
+    public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException
     {
         // // // Note: this is almost a verbatim copy of nextToken()
         _numTypesValid = NR_UNKNOWN;
@@ -4110,7 +4110,7 @@ public class UTF8StreamJsonParser
 
     // As per [core#108], must ensure we call the right method
     @Override
-    public JsonLocation getCurrentLocation()
+    public JsonLocation currentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_getSourceReference(),

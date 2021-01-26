@@ -125,7 +125,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
     
     @Override
-    public TokenStreamContext getOutputContext() {
+    public TokenStreamContext streamWriteContext() {
         /* 11-Apr-2015, tatu: Choice is between pre- and post-filter context;
          *   let's expose post-filter context that correlates with the view
          *   of caller.

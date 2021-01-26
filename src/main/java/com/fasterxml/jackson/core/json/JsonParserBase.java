@@ -96,7 +96,7 @@ public abstract class JsonParserBase
     @Override public Version version() { return PackageVersion.VERSION; }
 
     @Override
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+    public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
         // For now, JSON settings do not differ from general defaults:
         return DEFAULT_READ_CAPABILITIES;
     }
@@ -107,7 +107,7 @@ public abstract class JsonParserBase
     /**********************************************************************
      */
 
-    @Override public TokenStreamContext getParsingContext() { return _parsingContext; }
+    @Override public TokenStreamContext streamReadContext() { return _parsingContext; }
 
     @Override
     public Object currentValue() {
@@ -345,7 +345,7 @@ public abstract class JsonParserBase
 
     // Promoted from `ParserBase` in 3.0
     protected void _reportMismatchedEndMarker(int actCh, char expCh) throws StreamReadException {
-        TokenStreamContext ctxt = getParsingContext();
+        TokenStreamContext ctxt = streamReadContext();
         _reportError(String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
                 (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));

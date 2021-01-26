@@ -206,66 +206,66 @@ public class GeneratorBasicTest
     {
         StringWriter sw = new StringWriter();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
-        TokenStreamContext ctxt = gen.getOutputContext();
+        TokenStreamContext ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inRoot());
 
         gen.writeStartObject();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
 
         gen.writeName("a");
-        assertEquals("a", gen.getOutputContext().currentName());
+        assertEquals("a", gen.streamWriteContext().currentName());
 
         gen.writeStartArray();
-        assertTrue(gen.getOutputContext().inArray());
+        assertTrue(gen.streamWriteContext().inArray());
 
         gen.writeStartObject();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
 
         gen.writeName("b");
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertEquals("b", ctxt.currentName());
         gen.writeNumber(123);
         assertEquals("b", ctxt.currentName());
 
         gen.writeName("c");
-        assertEquals("c", gen.getOutputContext().currentName());
+        assertEquals("c", gen.streamWriteContext().currentName());
         gen.writeNumber(5);
 //        assertEquals("c", gen.getOutputContext().currentName());
 
         gen.writeName("d");
-        assertEquals("d", gen.getOutputContext().currentName());
+        assertEquals("d", gen.streamWriteContext().currentName());
 
         gen.writeStartArray();
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inArray());
         assertEquals(0, ctxt.getCurrentIndex());
         assertEquals(0, ctxt.getEntryCount());
 
         gen.writeBoolean(true);
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inArray());
         // NOTE: index still refers to currently output entry
         assertEquals(0, ctxt.getCurrentIndex());
         assertEquals(1, ctxt.getEntryCount());
 
         gen.writeNumber(3);
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inArray());
         assertEquals(1, ctxt.getCurrentIndex());
         assertEquals(2, ctxt.getEntryCount());
         
         gen.writeEndArray();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
         
         gen.writeEndObject();
-        assertTrue(gen.getOutputContext().inArray());
+        assertTrue(gen.streamWriteContext().inArray());
 
         gen.writeEndArray();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
 
         gen.writeEndObject();
 
-        assertTrue(gen.getOutputContext().inRoot());
+        assertTrue(gen.streamWriteContext().inRoot());
         
         gen.close();
     }

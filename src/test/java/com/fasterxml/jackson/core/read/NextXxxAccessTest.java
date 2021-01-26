@@ -128,35 +128,35 @@ public class NextXxxAccessTest
         final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
         JsonParser p = createParser(mode, DOC);
         final SerializedString NAME = new SerializedString("name");
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.START_OBJECT, p.currentToken());
         assertEquals(JsonTokenId.ID_START_OBJECT, p.currentTokenId());
-        assertTrue(p.nextFieldName(NAME));
+        assertTrue(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals(NAME.getValue(), p.currentName());
         assertEquals(NAME.getValue(), p.getText());
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(123, p.getIntValue());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         // do NOT check number value, to enforce skipping
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("x", p.currentName());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.END_OBJECT, p.currentToken());
 
         if (mode != MODE_DATA_INPUT) {
-            assertFalse(p.nextFieldName(NAME));
+            assertFalse(p.nextName(NAME));
             assertNull(p.currentToken());
         }
         p.close();
@@ -164,30 +164,30 @@ public class NextXxxAccessTest
         // Actually, try again with slightly different sequence...
         p = createParser(mode, DOC);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertFalse(p.nextFieldName(new SerializedString("Nam")));
+        assertFalse(p.nextName(new SerializedString("Nam")));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals(NAME.getValue(), p.currentName());
         assertEquals(NAME.getValue(), p.getText());
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(123, p.getIntValue());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("x", p.currentName());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.END_OBJECT, p.currentToken());
         if (mode != MODE_DATA_INPUT) {
-            assertFalse(p.nextFieldName(NAME));
+            assertFalse(p.nextName(NAME));
             assertNull(p.currentToken());
         }
         p.close();
@@ -198,32 +198,32 @@ public class NextXxxAccessTest
         final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
         JsonParser p = createParser(mode, DOC);
         SerializableString NAME = new SerializedString("name");
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.START_OBJECT, p.currentToken());
-        assertTrue(p.nextFieldName(NAME));
+        assertTrue(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals(NAME.getValue(), p.currentName());
         assertEquals(NAME.getValue(), p.getText());
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(123, p.getIntValue());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("x", p.currentName());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
-        assertFalse(p.nextFieldName(NAME));
+        assertFalse(p.nextName(NAME));
         assertToken(JsonToken.END_OBJECT, p.currentToken());
         if (mode != MODE_DATA_INPUT) {
-            assertFalse(p.nextFieldName(NAME));
+            assertFalse(p.nextName(NAME));
             assertNull(p.currentToken());
         }
         p.close();
@@ -233,32 +233,32 @@ public class NextXxxAccessTest
     {
         final String DOC = "{\"name\":123,\"name2\":14,\"x\":\"name\"}";
         JsonParser p = createParser(mode, DOC);
-        assertNull(p.nextFieldName());
+        assertNull(p.nextName());
         assertToken(JsonToken.START_OBJECT, p.currentToken());
-        assertEquals("name", p.nextFieldName());
+        assertEquals("name", p.nextName());
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("name", p.currentName());
         assertEquals("name", p.getText());
-        assertNull(p.nextFieldName());
+        assertNull(p.nextName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
         assertEquals(123, p.getIntValue());
 
-        assertEquals("name2", p.nextFieldName());
+        assertEquals("name2", p.nextName());
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("name2", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
 
-        assertEquals("x", p.nextFieldName());
+        assertEquals("x", p.nextName());
         assertToken(JsonToken.PROPERTY_NAME, p.currentToken());
         assertEquals("x", p.currentName());
 
-        assertNull(p.nextFieldName());
+        assertNull(p.nextName());
         assertToken(JsonToken.VALUE_STRING, p.currentToken());
 
-        assertNull(p.nextFieldName());
+        assertNull(p.nextName());
         assertToken(JsonToken.END_OBJECT, p.currentToken());
         if (mode != MODE_DATA_INPUT) {
-            assertNull(p.nextFieldName());
+            assertNull(p.nextName());
             assertNull(p.currentToken());
         }
         p.close();
@@ -270,11 +270,11 @@ public class NextXxxAccessTest
         JsonParser p = createParser(mode, DOC);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertTrue(p.nextFieldName(new SerializedString("name")));
+        assertTrue(p.nextName(new SerializedString("name")));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(-123, p.getIntValue());
 
-        assertTrue(p.nextFieldName(new SerializedString("name2")));
+        assertTrue(p.nextName(new SerializedString("name2")));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(99, p.getIntValue());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -290,11 +290,11 @@ public class NextXxxAccessTest
         JsonParser p = createParser(mode, DOC);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertTrue(p.nextFieldName(new SerializedString("name")));
+        assertTrue(p.nextName(new SerializedString("name")));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
 
-        assertTrue(p.nextFieldName(new SerializedString("name2")));
+        assertTrue(p.nextName(new SerializedString("name2")));
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         if (mode != MODE_DATA_INPUT) {
@@ -308,10 +308,10 @@ public class NextXxxAccessTest
         final String DOC = "{\n  \"name\" : \n  [\n  ]\n   }";
         JsonParser p = createParser(mode, DOC);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertTrue(p.nextFieldName(new SerializedString("name")));
+        assertTrue(p.nextName(new SerializedString("name")));
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertFalse(p.nextFieldName(new SerializedString("x")));
+        assertFalse(p.nextName(new SerializedString("x")));
         assertToken(JsonToken.END_ARRAY, p.currentToken());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         if (mode != MODE_DATA_INPUT) {
@@ -333,10 +333,10 @@ public class NextXxxAccessTest
         assertEquals("123", p.nextTextValue());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
-        assertNull(p.nextFieldName());
+        assertNull(p.nextName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.currentToken());
 
-        assertEquals("c", p.nextFieldName());
+        assertEquals("c", p.nextName());
         
         assertNull(p.nextTextValue());
         assertToken(JsonToken.START_ARRAY, p.currentToken());
@@ -372,7 +372,7 @@ public class NextXxxAccessTest
         assertEquals("b", p.currentName());
         assertEquals(5, p.nextIntValue(0));
 
-        assertEquals("c", p.nextFieldName());
+        assertEquals("c", p.nextName());
         
         assertEquals(0, p.nextIntValue(0));
         assertToken(JsonToken.START_ARRAY, p.currentToken());
@@ -408,7 +408,7 @@ public class NextXxxAccessTest
         assertEquals("b", p.currentName());
         assertEquals(-59L, p.nextLongValue(0L));
 
-        assertEquals("c", p.nextFieldName());
+        assertEquals("c", p.nextName());
         
         assertEquals(0L, p.nextLongValue(0L));
         assertToken(JsonToken.START_ARRAY, p.currentToken());
@@ -444,7 +444,7 @@ public class NextXxxAccessTest
         assertEquals("b", p.currentName());
         assertEquals(Boolean.TRUE, p.nextBooleanValue());
 
-        assertEquals("c", p.nextFieldName());
+        assertEquals("c", p.nextName());
         
         assertNull(p.nextBooleanValue());
         assertToken(JsonToken.START_ARRAY, p.currentToken());
@@ -483,7 +483,7 @@ public class NextXxxAccessTest
             assertEquals(JsonToken.START_OBJECT, parser.nextToken());
 
             // These will succeed
-            assertTrue(parser.nextFieldName(fieldName));
+            assertTrue(parser.nextName(fieldName));
 
             parser.nextLongValue(-1);
             assertEquals(JsonToken.END_OBJECT, parser.nextToken());
@@ -492,7 +492,7 @@ public class NextXxxAccessTest
         assertEquals(JsonToken.START_OBJECT, parser.nextToken());
 
         // This will fail
-        assertTrue(parser.nextFieldName(fieldName));
+        assertTrue(parser.nextName(fieldName));
         parser.close();
     }
 
@@ -502,7 +502,7 @@ public class NextXxxAccessTest
         SerializableString fieldName = new SerializedString("field");
         JsonParser parser = createParser(mode, DOC);
         assertEquals(JsonToken.START_OBJECT, parser.nextToken());
-        assertTrue(parser.nextFieldName(fieldName));
+        assertTrue(parser.nextName(fieldName));
         assertEquals(JsonToken.VALUE_STRING, parser.nextToken());
         assertEquals("value", parser.getText());
         assertEquals(JsonToken.END_OBJECT, parser.nextToken());
@@ -541,7 +541,7 @@ public class NextXxxAccessTest
         for (int i = 0; i < count; ++i) {
             int exp = rnd.nextInt();
             SerializableString expName = new SerializedString("f"+exp);
-            assertTrue(parser.nextFieldName(expName));
+            assertTrue(parser.nextName(expName));
             assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
             assertEquals(exp % 1000, parser.getIntValue());
         }

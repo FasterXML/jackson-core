@@ -49,12 +49,12 @@ public class JsonParserClosedCaseTest {
 
     @Test
     public void testNullReturnedOnClosedParserOnNextFieldName() throws Exception {
-        Assert.assertNull(parser.nextFieldName());
+        Assert.assertNull(parser.nextName());
     }
 
     @Test
     public void testFalseReturnedOnClosedParserOnNextFieldNameSerializedString() throws Exception {
-        Assert.assertFalse(parser.nextFieldName(new SerializedString("")));
+        Assert.assertFalse(parser.nextName(new SerializedString("")));
     }
 
     @Test

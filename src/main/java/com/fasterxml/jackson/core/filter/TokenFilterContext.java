@@ -29,7 +29,7 @@ public class TokenFilterContext extends TokenStreamContext
      */
     
     /**
-     * Name of the field of which value is to be parsed; only
+     * Name of the property of which value is to be parsed; only
      * used for OBJECT contexts
      */
     protected String _currentName;
@@ -128,7 +128,7 @@ public class TokenFilterContext extends TokenStreamContext
     /**********************************************************************
      */
     
-    public TokenFilter setFieldName(String name) {
+    public TokenFilter setPropertyName(String name) {
         _currentName = name;
         _needToHandleName = true;
         return _filter;

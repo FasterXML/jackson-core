@@ -63,7 +63,7 @@ public class DefaultPrettyPrinter
 
     /**
      * By default we will add spaces around colons used to
-     * separate object fields and values.
+     * separate Object property names and values.
      * If disabled, will not use spaces around colon.
      */
     protected boolean _spacesInObjectEntries = true;
@@ -225,7 +225,7 @@ public class DefaultPrettyPrinter
      */
     public DefaultPrettyPrinter withSeparators(Separators separators) {
         _separators = separators;
-        _objectFieldValueSeparatorWithSpaces = " " + separators.getObjectFieldValueSeparator() + " ";
+        _objectFieldValueSeparatorWithSpaces = " " + separators.getObjectNameValueSeparator() + " ";
         return this;
     }
 
@@ -274,7 +274,7 @@ public class DefaultPrettyPrinter
     }
 
     /**
-     * Method called after an object field has been output, but
+     * Method called after the object property name has been output, but
      * before the value is output.
      *<p>
      * Default handling (without pretty-printing) will output a single
@@ -288,7 +288,7 @@ public class DefaultPrettyPrinter
         if (_spacesInObjectEntries) {
             g.writeRaw(_objectFieldValueSeparatorWithSpaces);
         } else {
-            g.writeRaw(_separators.getObjectFieldValueSeparator());
+            g.writeRaw(_separators.getObjectNameValueSeparator());
         }
     }
 

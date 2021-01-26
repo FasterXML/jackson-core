@@ -86,7 +86,7 @@ public class MinimalPrettyPrinter
     }
 
     /**
-     * Method called after an object field has been output, but
+     * Method called after the Object property name has been output, but
      * before the value is output.
      *<p>
      * Default handling will just output a single
@@ -95,7 +95,7 @@ public class MinimalPrettyPrinter
     @Override
     public void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException
     {
-        g.writeRaw(_separators.getObjectFieldValueSeparator());
+        g.writeRaw(_separators.getObjectNameValueSeparator());
     }
     
     /**

@@ -20,7 +20,7 @@ public class JsonReadContextTest
       try {
           jsonReadContext.setCurrentName(PROP_NAME);
       } catch (StreamReadException e) {
-          verifyException(e, "Duplicate field");
+          verifyException(e, "Duplicate Object property \"");
           verifyException(e, PROP_NAME);
       }
   }

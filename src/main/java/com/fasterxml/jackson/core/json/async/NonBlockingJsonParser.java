@@ -200,9 +200,9 @@ public class NonBlockingJsonParser
         case MAJOR_ROOT:
             return _startValue(ch);
 
-        case MAJOR_OBJECT_PROPERTY_FIRST: // expect field-name or end-object
+        case MAJOR_OBJECT_PROPERTY_FIRST: // expect property-name or end-object
             return _startPropertyName(ch);
-        case MAJOR_OBJECT_PROPERTY_NEXT: // expect comma + field-name or end-object
+        case MAJOR_OBJECT_PROPERTY_NEXT: // expect comma + property-name or end-object
             return _startPropertyNameAfterComma(ch);
 
         case MAJOR_OBJECT_VALUE: // expect colon, followed by value

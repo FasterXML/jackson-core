@@ -44,7 +44,7 @@ public class JsonWriteContext extends TokenStreamContext
      */
 
     /**
-     * Name of the field of which value is to be written; only
+     * Name of the Object property of which value is to be written; only
      * used for OBJECT contexts
      */
     protected String _currentName;
@@ -172,7 +172,7 @@ public class JsonWriteContext extends TokenStreamContext
      *
      * @param name Property name being written
      *
-     * @return Index of the field entry (0-based)
+     * @return Index of the Object property (0-based)
      *
      * @throws StreamWriteException if duplicate check restriction is violated (which
      *    assumes that duplicate-detection is enabled)
@@ -193,7 +193,7 @@ public class JsonWriteContext extends TokenStreamContext
         if (dd.isDup(name)) {
             Object src = dd.getSource();
             throw new StreamWriteException(((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null),
-                    "Duplicate field '"+name+"'");
+                    "Duplicate Object property \""+name+"\"");
         }
     }
 

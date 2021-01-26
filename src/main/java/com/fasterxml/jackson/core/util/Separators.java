@@ -13,9 +13,9 @@ public class Separators implements Serializable
 {
     private static final long serialVersionUID = 1;
 
-    private final char objectFieldValueSeparator;
-    private final char objectEntrySeparator;
-    private final char arrayValueSeparator;
+    private final char _objectNameValueSeparator;
+    private final char _objectEntrySeparator;
+    private final char _arrayElementSeparator;
 
     public static Separators createDefaultInstance() {
         return new Separators();
@@ -27,35 +27,35 @@ public class Separators implements Serializable
 
     public Separators(char objectFieldValueSeparator,
             char objectEntrySeparator, char arrayValueSeparator) {
-        this.objectFieldValueSeparator = objectFieldValueSeparator;
-        this.objectEntrySeparator = objectEntrySeparator;
-        this.arrayValueSeparator = arrayValueSeparator;
+        _objectNameValueSeparator = objectFieldValueSeparator;
+        _objectEntrySeparator = objectEntrySeparator;
+        _arrayElementSeparator = arrayValueSeparator;
     }
     
     public Separators withObjectFieldValueSeparator(char sep) {
-        return (objectFieldValueSeparator == sep) ? this
-                : new Separators(sep, objectEntrySeparator, arrayValueSeparator);
+        return (_objectNameValueSeparator == sep) ? this
+                : new Separators(sep, _objectEntrySeparator, _arrayElementSeparator);
     }
 
     public Separators withObjectEntrySeparator(char sep) {
-        return (objectEntrySeparator == sep) ? this
-                : new Separators(objectFieldValueSeparator, sep, arrayValueSeparator);
+        return (_objectEntrySeparator == sep) ? this
+                : new Separators(_objectNameValueSeparator, sep, _arrayElementSeparator);
     }
 
     public Separators withArrayValueSeparator(char sep) {
-        return (arrayValueSeparator == sep) ? this
-                : new Separators(objectFieldValueSeparator, objectEntrySeparator, sep);
+        return (_arrayElementSeparator == sep) ? this
+                : new Separators(_objectNameValueSeparator, _objectEntrySeparator, sep);
     }
 
-    public char getObjectFieldValueSeparator() {
-        return objectFieldValueSeparator;
+    public char getObjectNameValueSeparator() {
+        return _objectNameValueSeparator;
     }
 
     public char getObjectEntrySeparator() {
-        return objectEntrySeparator;
+        return _objectEntrySeparator;
     }
 
     public char getArrayValueSeparator() {
-        return arrayValueSeparator;
+        return _arrayElementSeparator;
     }
 }

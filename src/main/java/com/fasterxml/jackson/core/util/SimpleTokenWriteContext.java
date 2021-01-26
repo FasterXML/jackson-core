@@ -38,7 +38,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
      */
 
     /**
-     * Name of the field of which value is to be written; only
+     * Name of the property of which value is to be written; only
      * used for OBJECT contexts
      */
     protected String _currentName;
@@ -187,7 +187,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
         if (dd.isDup(name)) {
             Object src = dd.getSource();
             throw new StreamWriteException(((src instanceof JsonGenerator) ? ((JsonGenerator) src) : null),
-                    "Duplicate field '"+name+"'");
+                    "Duplicate Object property \""+name+"\"");
         }
     }
     

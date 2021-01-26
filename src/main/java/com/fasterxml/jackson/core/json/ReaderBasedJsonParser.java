@@ -1878,7 +1878,7 @@ public class ReaderBasedJsonParser
 
     protected String _parseAposName() throws JacksonException
     {
-        // Note: mostly copy of_parseFieldName
+        // Note: mostly copy of _parseName()
         int ptr = _inputPtr;
         int hash = _hashSeed;
         final int inputLen = _inputEnd;

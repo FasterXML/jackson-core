@@ -12,7 +12,7 @@ import java.util.Iterator;
  * the core package knows them (which is very little): mostly
  * needed to allow {@link ObjectReadContext} and {@link ObjectWriteContext}
  * to have some level of interoperability.
- * Most functionality is within <code>JsonNode</code>
+ * Most functionality is within {@code JsonNode}
  * base class in {@code databind} package.
  */
 public interface TreeNode
@@ -47,10 +47,10 @@ public interface TreeNode
     /**
      * Method that returns number of child nodes this node contains:
      * for Array nodes, number of child elements, for Object nodes,
-     * number of fields, and for all other nodes 0.
+     * number of properties, and for all other nodes 0.
      *
      * @return For non-container nodes returns 0; for arrays number of
-     *   contained elements, and for objects number of fields.
+     *   contained elements, and for objects number of properties.
      */
     int size();
 
@@ -146,20 +146,18 @@ public interface TreeNode
      */
 
     /**
-     * Method for accessing value of the specified field of
-     * an object node. If this node is not an object (or it
-     * does not have a value for specified property name), or
-     * if there is no field with such name, null is returned.
+     * Method for accessing value of the specified property of
+     * an Object node. If this node is not an Object (or it
+     * does not have a value for specified property) {@code null} is returned.
      *<p>
      * NOTE: handling of explicit null values may vary between
-     * implementations; some trees may retain explicit nulls, others
-     * not.
+     * implementations; some trees may retain explicit nulls, others not.
      *
-     * @param propertyName Name of the property (of Object node) to access
+     * @param propertyName Name of the property to access
      *
      * @return Node that represent value of the specified property,
      *   if this node is an Object and has value for the specified
-     *   field; {@code null} otherwise.
+     *   property; {@code null} otherwise.
      */
     TreeNode get(String propertyName);
 
@@ -184,18 +182,18 @@ public interface TreeNode
     TreeNode get(int index);
 
     /**
-     * Method for accessing value of the specified field of
-     * an object node.
+     * Method for accessing value of the specified property of
+     * an Object node.
      * For other nodes, a "missing node" (virtual node
      * for which {@link #isMissingNode} returns true) is returned.
      *
-     * @param fieldName Name of the field (of Object node) to access
+     * @param propertyName Name of the property to access
      *
-     * @return Node that represent value of the specified field,
-     *   if this node is an object and has value for the specified field;
+     * @return Node that represent value of the specified Object property,
+     *   if this node is an object and has value for the specified property;
      *   otherwise "missing node" is returned.
      */
-    TreeNode path(String fieldName);
+    TreeNode path(String propertyName);
 
     /**
      * Method for accessing value of the specified element of
@@ -220,11 +218,11 @@ public interface TreeNode
     TreeNode path(int index);
     
     /**
-     * Method for accessing names of all fields for this node, iff
+     * Method for accessing names of all properties for this node, iff
      * this node is an Object node. Number of property names accessible
      * will be {@link #size}.
      *
-     * @return An iterator for traversing names of all fields this Object node
+     * @return An iterator for traversing names of all properties this Object node
      *   has (if Object node); empty {@link Iterator} otherwise (never {@code null}).
      */
     Iterator<String> propertyNames();

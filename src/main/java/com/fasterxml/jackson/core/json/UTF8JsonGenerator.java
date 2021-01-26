@@ -197,7 +197,7 @@ public class UTF8JsonGenerator
     public void writeName(String name)  throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name);
+            _writePPName(name);
             return;
         }
         final int status = _tokenWriteContext.writeName(name);
@@ -244,7 +244,7 @@ public class UTF8JsonGenerator
     public void writeName(SerializableString name) throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name);
+            _writePPName(name);
             return;
         }
         final int status = _tokenWriteContext.writeName(name.getValue());
@@ -418,9 +418,9 @@ public class UTF8JsonGenerator
         _tokenWriteContext = _tokenWriteContext.clearAndGetParent();
     }
 
-    // Specialized version of <code>_writeName</code>, off-lined
+    // Specialized version of {@code _writeName}, off-lined
     // to keep the "fast path" as simple (and hopefully fast) as possible.
-    protected final void _writePPFieldName(String name) throws JacksonException
+    protected final void _writePPName(String name) throws JacksonException
     {
         int status = _tokenWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
@@ -460,7 +460,7 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
     }
 
-    protected final void _writePPFieldName(SerializableString name) throws JacksonException
+    protected final void _writePPName(SerializableString name) throws JacksonException
     {
         final int status = _tokenWriteContext.writeName(name.getValue());
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {

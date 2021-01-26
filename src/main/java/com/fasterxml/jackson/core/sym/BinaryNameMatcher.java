@@ -147,9 +147,9 @@ public final class BinaryNameMatcher
     /**********************************************************************
      */
 
-    public static BinaryNameMatcher constructFrom(List<Named> fields, boolean alreadyInterned)
+    public static BinaryNameMatcher constructFrom(List<Named> propertyNames, boolean alreadyInterned)
     {
-        return construct(stringsFromNames(fields, alreadyInterned));
+        return construct(stringsFromNames(propertyNames, alreadyInterned));
     }
 
     public static BinaryNameMatcher construct(List<String> symbols)
@@ -160,9 +160,9 @@ public final class BinaryNameMatcher
     }
 
     public static BinaryNameMatcher constructCaseInsensitive(Locale locale,
-            List<Named> fields, boolean alreadyInterned)
+            List<Named> propertyNames, boolean alreadyInterned)
     {
-        final List<String> names = PropertyNameMatcher.stringsFromNames(fields, alreadyInterned);
+        final List<String> names = PropertyNameMatcher.stringsFromNames(propertyNames, alreadyInterned);
         return _construct(names, SimpleNameMatcher.constructCaseInsensitive(locale, names));
     }
 

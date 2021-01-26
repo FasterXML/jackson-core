@@ -32,14 +32,14 @@ public class SimpleNameMatcher
      * matching from `String`.
      *
      * @param locale Locale to use (relevant for case-insensitive matchers)
-     * @param fields Names to match
+     * @param propertyNames Names to match
      * @param alreadyInterned Whether underlying Strings have been {@code String.intern()}ed or not
      *
      * @return Matcher constructed
      */
     public static SimpleNameMatcher constructFrom(Locale locale,
-            List<Named> fields, boolean alreadyInterned) {
-        return construct(locale, stringsFromNames(fields, alreadyInterned));
+            List<Named> propertyNames, boolean alreadyInterned) {
+        return construct(locale, stringsFromNames(propertyNames, alreadyInterned));
     }
 
     /**
@@ -47,14 +47,14 @@ public class SimpleNameMatcher
      * matching from `String`.
      *
      * @param locale Locale to use (relevant for case-insensitive matchers)
-     * @param fieldNames Names to match
+     * @param propertyNames Names to match
      *
      * @return Matcher constructed
      */
-    public static SimpleNameMatcher construct(Locale locale, List<String> fieldNames)
+    public static SimpleNameMatcher construct(Locale locale, List<String> propertyNames)
     {
-        final int fieldCount = fieldNames.size();
-        final int hashSize = _findSize(fieldCount);
+        final int nameCount = propertyNames.size();
+        final int hashSize = _findSize(nameCount);
         final int allocSize = hashSize + (hashSize>>1);
 
         String[] names = new String[allocSize];
@@ -67,8 +67,8 @@ public class SimpleNameMatcher
         final int mask = hashSize-1;
         int spillPtr = names.length;
 
-        for (int i = 0, fcount = fieldNames.size(); i < fcount; ++i) {
-            String name = fieldNames.get(i);
+        for (int i = 0, fcount = propertyNames.size(); i < fcount; ++i) {
+            String name = propertyNames.get(i);
             if (name == null) {
                 continue;
             }
@@ -97,8 +97,8 @@ public class SimpleNameMatcher
     }
 
     public static SimpleNameMatcher constructCaseInsensitive(Locale locale,
-            List<Named> fields, boolean alreadyInterned) {
-        return constructCaseInsensitive(locale, stringsFromNames(fields, alreadyInterned));
+            List<Named> propertyNames, boolean alreadyInterned) {
+        return constructCaseInsensitive(locale, stringsFromNames(propertyNames, alreadyInterned));
     }
 
     public static SimpleNameMatcher constructCaseInsensitive(Locale locale,

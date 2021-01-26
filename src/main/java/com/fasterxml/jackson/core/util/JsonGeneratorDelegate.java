@@ -291,28 +291,28 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     /*
     /**********************************************************************
-    /* Public API, convenience field-write methods
+    /* Public API, convenience property-write methods
     /**********************************************************************
      */
 
     // 04-Oct-2019, tatu: Reminder: these should NOT be delegated, unless matching
     //    methods in `FilteringGeneratorDelegate` are re-defined to "split" calls again
 
-//    public void writeBinaryField(String fieldName, byte[] data) throws JacksonException {
-//    public void writeBooleanField(String fieldName, boolean value) throws JacksonException {
-//    public void writeNullField(String fieldName) throws JacksonException {
-//    public void writeStringField(String fieldName, String value) throws JacksonException {
-//    public void writeNumberField(String fieldName, short value) throws JacksonException {
+//    public void writeBinaryProperty(String propName, byte[] data) throws JacksonException {
+//    public void writeBooleanProperty(String propName, boolean value) throws JacksonException {
+//    public void writeNullProperty(String propName) throws JacksonException {
+//    public void writeStringProperty(String propName, String value) throws JacksonException {
+//    public void writeNumberProperty(String propName, short value) throws JacksonException {
 
-//    public void writeArrayFieldStart(String fieldName) throws JacksonException {
-//    public void writeObjectFieldStart(String fieldName) throws JacksonException {
-//    public void writeObjectField(String fieldName, Object pojo) throws JacksonException {
+//    public void writeArrayPropertyStart(String propName) throws JacksonException {
+//    public void writeObjectPropertyStart(String propName) throws JacksonException {
+//    public void writePOJOProperty(String propName, Object pojo) throws JacksonException {
 
     // Sole exception being this method as it is not a "combo" method
     
     @Override
-    public void writeOmittedProperty(String fieldName) throws JacksonException {
-        delegate.writeOmittedProperty(fieldName);
+    public void writeOmittedProperty(String propName) throws JacksonException {
+        delegate.writeOmittedProperty(propName);
     }
 
     /*
@@ -368,7 +368,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     /*
     /**********************************************************************
-    /* Public API, convenience field write methods
+    /* Public API, convenience property write methods
     /**********************************************************************
      */
 

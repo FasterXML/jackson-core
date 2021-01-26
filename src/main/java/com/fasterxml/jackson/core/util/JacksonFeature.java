@@ -26,7 +26,7 @@ public interface JacksonFeature
     /**
      * Convenience method for checking whether feature is enabled in given bitmask.
      *
-     * @param flags Bit field that contains a set of enabled features of this type
+     * @param flags Bitfield that contains a set of enabled features of this type
      *
      * @return True if this feature is enabled in passed bit field
      */

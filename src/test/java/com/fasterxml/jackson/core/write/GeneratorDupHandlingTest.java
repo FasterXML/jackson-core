@@ -31,7 +31,7 @@ public class GeneratorDupHandlingTest
             _writeSimple0(g1, "a");
             fail("Should have gotten exception");
         } catch (StreamWriteException e) {
-            verifyException(e, "duplicate field 'a'");
+            verifyException(e, "duplicate Object property \"a\"");
         }
 
         JsonGenerator g2;
@@ -40,7 +40,7 @@ public class GeneratorDupHandlingTest
             _writeSimple1(g2, "x");
             fail("Should have gotten exception");
         } catch (StreamWriteException e) {
-            verifyException(e, "duplicate field 'x'");
+            verifyException(e, "duplicate Object property \"x\"");
         }
     }
 

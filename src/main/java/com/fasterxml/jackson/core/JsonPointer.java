@@ -260,13 +260,13 @@ public class JsonPointer
 
     /**
      * @return True if the root selector matches property name (that is, could
-     * match field value of JSON Object node)
+     *    match Property value of Object node)
      */
     public boolean mayMatchProperty() { return _matchingPropertyName != null; }
 
     /**
      * @return True if the root selector matches element index (that is, could
-     * match an element of JSON Array node)
+     *    match an element of Array node)
      */
     public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 

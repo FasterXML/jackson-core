@@ -167,7 +167,7 @@ public class WriterBasedJsonGenerator
     protected final void _writeName(String name, boolean commaBefore) throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name, commaBefore);
+            _writePPName(name, commaBefore);
             return;
         }
         // for fast+std case, need to output up to 2 chars, comma, dquote
@@ -196,7 +196,7 @@ public class WriterBasedJsonGenerator
     protected final void _writeName(SerializableString name, boolean commaBefore) throws JacksonException
     {
         if (_cfgPrettyPrinter != null) {
-            _writePPFieldName(name, commaBefore);
+            _writePPName(name, commaBefore);
             return;
         }
         // for fast+std case, need to output up to 2 chars, comma, dquote
@@ -372,7 +372,7 @@ public class WriterBasedJsonGenerator
 
     // Specialized version of <code>_writeName</code>, off-lined
     // to keep the "fast path" as simple (and hopefully fast) as possible.
-    protected final void _writePPFieldName(String name, boolean commaBefore) throws JacksonException
+    protected final void _writePPName(String name, boolean commaBefore) throws JacksonException
     {
         if (commaBefore) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);
@@ -395,7 +395,7 @@ public class WriterBasedJsonGenerator
         }
     }
 
-    protected final void _writePPFieldName(SerializableString name, boolean commaBefore) throws JacksonException
+    protected final void _writePPName(SerializableString name, boolean commaBefore) throws JacksonException
     {
         if (commaBefore) {
             _cfgPrettyPrinter.writeObjectEntrySeparator(this);

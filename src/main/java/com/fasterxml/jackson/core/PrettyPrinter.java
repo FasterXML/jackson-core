@@ -51,12 +51,12 @@ public interface PrettyPrinter
      * to output some other suitable and nice-looking separator
      * (tab(s), space(s), linefeed(s) or any combination thereof).
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeRootValueSeparator(JsonGenerator gen) throws JacksonException;
+    void writeRootValueSeparator(JsonGenerator g) throws JacksonException;
 
     // // Object handling
 
@@ -70,12 +70,12 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeStartObject(JsonGenerator gen) throws JacksonException;
+    void writeStartObject(JsonGenerator g) throws JacksonException;
 
     /**
      * Method called after an Object value has been completely output
@@ -87,7 +87,7 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      * @param nrOfEntries Number of direct members of the Object that
      *   have been output
      *
@@ -105,15 +105,15 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeObjectEntrySeparator(JsonGenerator gen) throws JacksonException;
+    void writeObjectEntrySeparator(JsonGenerator g) throws JacksonException;
 
     /**
-     * Method called after an object field has been output, but
+     * Method called after an Object property name has been output, but
      * before the value is output.
      *<p>
      * Default handling (without pretty-printing) will output a single
@@ -121,12 +121,12 @@ public interface PrettyPrinter
      * to output a colon as well, but can surround that with other
      * (white-space) decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeObjectFieldValueSeparator(JsonGenerator gen) throws JacksonException;
+    void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException;
 
     // // // Array handling
 
@@ -140,12 +140,12 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeStartArray(JsonGenerator gen) throws JacksonException;
+    void writeStartArray(JsonGenerator g) throws JacksonException;
 
     /**
      * Method called after an Array value has been completely output
@@ -157,7 +157,7 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      * @param nrOfValues Number of direct members of the array that
      *   have been output
      *
@@ -175,12 +175,12 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeArrayValueSeparator(JsonGenerator gen) throws JacksonException;
+    void writeArrayValueSeparator(JsonGenerator g) throws JacksonException;
 
     /*
     /**********************************************************************
@@ -197,12 +197,12 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void beforeArrayValues(JsonGenerator gen) throws JacksonException;
+    void beforeArrayValues(JsonGenerator g) throws JacksonException;
 
     /**
      * Method called after object start marker has been output,
@@ -213,10 +213,10 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      *
-     * @param gen Generator used for output
+     * @param g Generator used for output
      *
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void beforeObjectEntries(JsonGenerator gen) throws JacksonException;
+    void beforeObjectEntries(JsonGenerator g) throws JacksonException;
 }

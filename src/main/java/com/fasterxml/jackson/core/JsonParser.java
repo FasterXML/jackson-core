@@ -436,7 +436,7 @@ public abstract class JsonParser
      * (including JSON Array and Object start/end markers).
      * Or put another way, nextToken() will be called once,
      * and if {@link JsonToken#PROPERTY_NAME} is returned, another
-     * time to get the value for the field.
+     * time to get the value of the property.
      * Method is most useful for iterating over value entries
      * of JSON objects; Object property name will still be available
      * by calling {@link #currentName} when parser points to
@@ -535,7 +535,7 @@ public abstract class JsonParser
     /**
      * Method that tries to match next token from stream as {@link JsonToken#PROPERTY_NAME},
      * and if so, further match it to one of pre-specified (field) names.
-     * If match succeeds, field index (non-negative `int`) is returned; otherwise one of
+     * If match succeeds, property index (non-negative `int`) is returned; otherwise one of
      * marker constants from {@link PropertyNameMatcher}.
      *
      * @param matcher Matcher that will handle actual matching
@@ -553,7 +553,7 @@ public abstract class JsonParser
     /**
      * Method that verifies that the current token (see {@link #currentToken} is
      * {@link JsonToken#PROPERTY_NAME} and if so, further match it to one of pre-specified (field) names.
-     * If match succeeds, field index (non-negative {@code int}) is returned;
+     * If match succeeds, property index (non-negative {@code int}) is returned;
      * otherwise one of
      * marker constants from {@link PropertyNameMatcher}.
      *
@@ -858,10 +858,10 @@ public abstract class JsonParser
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#PROPERTY_NAME}s it will
      * be the same as what {@link #getText} returns;
-     * for field values it will be the preceding property name;
-     * and for others (array values, root-level values) null.
+     * for Object property values it will be the preceding property name;
+     * and for others (array element, root-level values) null.
      *
-     * @return Name of the current field in the parsing context
+     * @return Name of the current property name, if any, in the parsing context ({@code null} if none)
      */
     public abstract String currentName();
 

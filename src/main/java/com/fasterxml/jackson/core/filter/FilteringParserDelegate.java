@@ -382,7 +382,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             {
                 final String name = delegate.currentName();
                 // note: this will also set 'needToHandleName'
-                f = _headContext.setFieldName(name);
+                f = _headContext.setPropertyName(name);
                 if (f == TokenFilter.INCLUDE_ALL) {
                     _itemFilter = f;
                     return (_currToken = t);
@@ -551,7 +551,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             case ID_PROPERTY_NAME:
                 {
                     final String name = delegate.currentName();
-                    f = _headContext.setFieldName(name);
+                    f = _headContext.setPropertyName(name);
                     if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
                         return (_currToken = t);
@@ -697,7 +697,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
             case ID_PROPERTY_NAME:
                 {
                     final String name = delegate.currentName();
-                    f = _headContext.setFieldName(name);
+                    f = _headContext.setPropertyName(name);
                     if (f == TokenFilter.INCLUDE_ALL) {
                         _itemFilter = f;
                         return _nextBuffered(buffRoot);
@@ -720,7 +720,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                         } else {
                             // edge case: if no more matches allowed, reset filter
                             // to initial state to prevent missing a token in next iteration
-                            _itemFilter = _headContext.setFieldName(name);
+                            _itemFilter = _headContext.setPropertyName(name);
                         }
                     }
                 }

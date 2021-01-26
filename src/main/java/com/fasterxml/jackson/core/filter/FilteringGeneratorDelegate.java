@@ -356,7 +356,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeName(String name) throws JacksonException
     {
-        TokenFilter state = _filterContext.setFieldName(name);
+        TokenFilter state = _filterContext.setPropertyName(name);
         if (state == null) {
             _itemFilter = null;
             return;
@@ -376,7 +376,7 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     @Override
     public void writeName(SerializableString name) throws JacksonException
     {
-        TokenFilter state = _filterContext.setFieldName(name.getValue());
+        TokenFilter state = _filterContext.setPropertyName(name.getValue());
         if (state == null) {
             _itemFilter = null;
             return;
@@ -834,15 +834,15 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     /**********************************************************************
-    /* Overridden field methods
+    /* Overridden property write methods
     /**********************************************************************
      */
 
     @Override
-    public void writeOmittedProperty(String fieldName) throws JacksonException {
+    public void writeOmittedProperty(String propertyName) throws JacksonException {
         // Hmmh. Not sure how this would work but...
         if (_itemFilter != null) {
-            delegate.writeOmittedProperty(fieldName);
+            delegate.writeOmittedProperty(propertyName);
         }
     }
 

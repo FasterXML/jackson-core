@@ -126,6 +126,6 @@ public class ParserDupHandlingTest
         if (e == null) {
             fail("Should have caught exception for dup");
         }
-        verifyException(e, "duplicate field '"+name+"'");
+        verifyException(e, "duplicate Object Property \""+name+"\"");
     }
 }

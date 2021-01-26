@@ -94,7 +94,7 @@ public interface PrettyPrinter
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeEndObject(JsonGenerator gen, int nrOfEntries) throws JacksonException;
+    void writeEndObject(JsonGenerator g, int nrOfEntries) throws JacksonException;
 
     /**
      * Method called after an Object entry (field:value) has been completely
@@ -164,7 +164,7 @@ public interface PrettyPrinter
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeEndArray(JsonGenerator gen, int nrOfValues) throws JacksonException;
+    void writeEndArray(JsonGenerator g, int nrOfValues) throws JacksonException;
 
     /**
      * Method called after an array value has been completely

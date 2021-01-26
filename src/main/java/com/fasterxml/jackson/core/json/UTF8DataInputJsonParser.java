@@ -1001,7 +1001,7 @@ public class UTF8DataInputJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws IOException for low-level I/O
      * @throws StreamReadException for decoding problems
      */
     protected JsonToken _parsePosNumber(int c) throws IOException
@@ -1531,7 +1531,7 @@ public class UTF8DataInputJsonParser
      *
      * @return Name decoded, if allowed and successful
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws IOException for low-level I/O problem
      * @throws StreamReadException for decoding problems
      */
     protected String _handleOddName(int ch) throws IOException
@@ -1997,7 +1997,7 @@ public class UTF8DataInputJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws IOException for low-level I/O problem
      * @throws StreamReadException for decoding problems
      */
     protected void _skipString() throws IOException
@@ -2055,7 +2055,7 @@ public class UTF8DataInputJsonParser
      *
      * @return Token that was successfully decoded (if successful)
      *
-     * @throws WrappedIOException for low-level read issues
+     * @throws IOException for low-level I/O
      * @throws StreamReadException for decoding problems
      */
     protected JsonToken _handleUnexpectedValue(int c)
@@ -2794,6 +2794,8 @@ public class UTF8DataInputJsonParser
      * @param b64variant Type of base64 encoding expected in context
      *
      * @return Fully decoded value of base64 content
+     * 
+     * @throws IOException for low-level I/O problem
      */
     @SuppressWarnings("resource")
     protected final byte[] _decodeBase64(Base64Variant b64variant) throws IOException

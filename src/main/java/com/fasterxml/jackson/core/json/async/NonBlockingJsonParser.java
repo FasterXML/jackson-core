@@ -516,7 +516,7 @@ public class NonBlockingJsonParser
 
     /*
     /**********************************************************************
-    /* Second-level decoding, primary field name decoding
+    /* Second-level decoding, primary property name decoding
     /**********************************************************************
      */
 
@@ -800,7 +800,7 @@ public class NonBlockingJsonParser
                 return _finishHashComment(MINOR_VALUE_EXPECTING_COLON);
             }
             // can not omit colon here
-            _reportUnexpectedChar(ch, "was expecting a colon to separate field name and value");
+            _reportUnexpectedChar(ch, "was expecting a colon to separate property name and value");
         }
         int ptr = _inputPtr;
         if (ptr >= _inputEnd) {
@@ -2097,7 +2097,7 @@ public class NonBlockingJsonParser
 
     /**
      * Method called when we see non-white space character other
-     * than double quote, when expecting a field name.
+     * than double quote, when expecting a property name.
      * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
      */
@@ -2126,14 +2126,14 @@ public class NonBlockingJsonParser
             // !!! TODO: Decode UTF-8 characters properly...
 //            char c = (char) _decodeCharForError(ch);
             char c = (char) ch;
-            _reportUnexpectedChar(c, "was expecting double-quote to start field name");
+            _reportUnexpectedChar(c, "was expecting double-quote to start property name");
         }
         // Also: note that although we use a different table here, it does NOT handle UTF-8
         // decoding. It'll just pass those high-bit codes as acceptable for later decoding.
         final int[] codes = CharTypes.getInputCodeUtf8JsNames();
         // Also: must start with a valid character...
         if (codes[ch] != 0) {
-            _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
+            _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start property name");
         }
 
         return _finishUnquotedName(0, ch, 1);

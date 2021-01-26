@@ -660,8 +660,8 @@ public class ReaderBasedJsonParser
     @Override
     public final JsonToken nextToken() throws JacksonException
     {
-        /* First: field names are special -- we will always tokenize
-         * (part of) value along with field name to simplify
+        /* First: Object Property names are special -- we will always tokenize
+         * (part of) value along with the property name to simplify
          * state handling. If so, can and need to use secondary token:
          */
         if (_currToken == JsonToken.PROPERTY_NAME) {
@@ -707,7 +707,7 @@ public class ReaderBasedJsonParser
          */
         boolean inObject = _parsingContext.inObject();
         if (inObject) {
-            // First, field name itself:
+            // First, the property name itself:
             _updateNameLocation();
             String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
             _parsingContext.setCurrentName(name);
@@ -1771,7 +1771,7 @@ public class ReaderBasedJsonParser
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
+                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             char c = _inputBuffer[_inputPtr++];
@@ -1814,11 +1814,11 @@ public class ReaderBasedJsonParser
 
     /**
      * Method called when we see non-white space character other
-     * than double quote, when expecting a field name.
+     * than double quote, when expecting an Object property name.
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      *
-     * @param i First undecoded character of possible "odd name" to decode
+     * @param i First not-yet-decoded character of possible "odd name" to decode
      *
      * @return Name decoded, if allowed and successful
      *
@@ -1833,7 +1833,7 @@ public class ReaderBasedJsonParser
         }
         // Allow unquoted names if feature enabled:
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
-            _reportUnexpectedChar(i, "was expecting double-quote to start field name");
+            _reportUnexpectedChar(i, "was expecting double-quote to start property name");
         }
         final int[] codes = CharTypes.getInputCodeLatin1JsNames();
         final int maxCode = codes.length;
@@ -1847,7 +1847,7 @@ public class ReaderBasedJsonParser
             firstOk = Character.isJavaIdentifierPart((char) i);
         }
         if (!firstOk) {
-            _reportUnexpectedChar(i, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
+            _reportUnexpectedChar(i, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start property name");
         }
         int ptr = _inputPtr;
         int hash = _hashSeed;
@@ -2281,7 +2281,7 @@ public class ReaderBasedJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
-                    _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+                    _reportUnexpectedChar(i, "was expecting a colon to separate property name and value");
                 }
                 gotColon = true;
                 continue;

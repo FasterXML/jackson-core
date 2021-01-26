@@ -156,7 +156,7 @@ public class TokenFilterContext extends TokenStreamContext
     }
 
     /**
-     * Method called to ensure that field name, if present, has been written;
+     * Method called to ensure that the property name, if present, has been written;
      * may result (but does not always) in a call using given generator
      *
      * @param gen Generator to use to write the property name, if necessary
@@ -164,7 +164,7 @@ public class TokenFilterContext extends TokenStreamContext
      * @throws JacksonException If there is a problem writing property name (typically
      *   thrown by {@code JsonGenerator})
      */
-    public void ensureFieldNameWritten(JsonGenerator gen) throws JacksonException
+    public void ensurePropertyNameWritten(JsonGenerator gen) throws JacksonException
     {
         if (_needToHandleName) {
             _needToHandleName = false;
@@ -291,7 +291,7 @@ public class TokenFilterContext extends TokenStreamContext
             // Note: root should never be unhandled
             return JsonToken.START_ARRAY;
         }
-        // But otherwise at most might have FIELD_NAME
+        // But otherwise at most might have PROPERTY_NAME
         if (_needToHandleName && (_type == TYPE_OBJECT)) {
             _needToHandleName = false;
             return JsonToken.PROPERTY_NAME;

@@ -168,7 +168,7 @@ public class SimpleTokenReadContext extends TokenStreamContext
 
     /**
      * Method to call to advance index within current context: to be called
-     * when a new token found within current context (field name for objects,
+     * when a new token found within current context (property name for objects,
      * value for root and array contexts)
      *
      * @return Index after increment

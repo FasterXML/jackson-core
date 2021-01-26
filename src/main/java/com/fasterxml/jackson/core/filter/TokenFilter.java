@@ -31,9 +31,9 @@ public class TokenFilter
         INCLUDE_ALL_AND_PATH,
         /**
          * Tokens will be included if any non-null filter is returned.
-         * The exception is if a field name returns a non-null filter,
-         * but the field value returns a null filter. In this case the
-         * field name and value will both be omitted.
+         * The exception is if a property name returns a non-null filter,
+         * but the property value returns a null filter. In this case the
+         * property name and value will both be omitted.
          */
         INCLUDE_NON_NULL
     }

@@ -253,7 +253,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     // with the sole exception of 
                     /*
                     t = delegate.getCurrentToken();
-                    if (t != JsonToken.FIELD_NAME) {
+                    if (t != JsonToken.PROPERTY_NAME) {
                         _currToken = t;
                         return t;
                     }
@@ -359,7 +359,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 }
             }
             // note: inclusion of surrounding Object handled separately via
-            // FIELD_NAME
+            // PROPERTY_NAME
             break;
 
         case ID_END_ARRAY:
@@ -618,7 +618,7 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
             // One simplification here: we know for a fact that the item filter is
             // neither null nor 'include all', for most cases; the only exception
-            // being FIELD_NAME handling
+            // being PROPERTY_NAME handling
 
             switch (t.id()) {
             case ID_START_ARRAY:

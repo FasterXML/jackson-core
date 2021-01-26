@@ -148,20 +148,20 @@ public interface TreeNode
     /**
      * Method for accessing value of the specified field of
      * an object node. If this node is not an object (or it
-     * does not have a value for specified field name), or
+     * does not have a value for specified property name), or
      * if there is no field with such name, null is returned.
      *<p>
      * NOTE: handling of explicit null values may vary between
      * implementations; some trees may retain explicit nulls, others
      * not.
      *
-     * @param fieldName Name of the field (of Object node) to access
+     * @param propertyName Name of the property (of Object node) to access
      *
-     * @return Node that represent value of the specified field,
+     * @return Node that represent value of the specified property,
      *   if this node is an Object and has value for the specified
      *   field; {@code null} otherwise.
      */
-    TreeNode get(String fieldName);
+    TreeNode get(String propertyName);
 
     /**
      * Method for accessing value of the specified element of
@@ -221,13 +221,13 @@ public interface TreeNode
     
     /**
      * Method for accessing names of all fields for this node, iff
-     * this node is an Object node. Number of field names accessible
+     * this node is an Object node. Number of property names accessible
      * will be {@link #size}.
      *
      * @return An iterator for traversing names of all fields this Object node
      *   has (if Object node); empty {@link Iterator} otherwise (never {@code null}).
      */
-    Iterator<String> fieldNames();
+    Iterator<String> propertyNames();
 
     /**
      * Method for locating node specified by given JSON pointer instances.

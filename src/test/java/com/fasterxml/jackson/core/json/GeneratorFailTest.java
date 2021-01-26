@@ -61,9 +61,9 @@ public class GeneratorFailTest
             gen.writeName("b");
             gen.flush();
             String json = utf8String(bout);
-            fail("Should not have let two consecutive field name writes succeed: output = "+json);
+            fail("Should not have let two consecutive property name writes succeed: output = "+json);
         } catch (StreamWriteException e) {
-            verifyException(e, "can not write a field name, expecting a value");
+            verifyException(e, "can not write a property name, expecting a value");
         }
         gen.close();
     }
@@ -106,7 +106,7 @@ public class GeneratorFailTest
             String json = utf8String(bout);
             fail("Should not have let "+gen.getClass().getName()+".writeName() be used in root context: output = "+json);
         } catch (StreamWriteException e) {
-            verifyException(e, "can not write a field name");
+            verifyException(e, "can not write a property name");
         }
         gen.close();
     }

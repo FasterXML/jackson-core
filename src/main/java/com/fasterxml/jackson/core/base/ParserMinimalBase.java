@@ -352,7 +352,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /*
     /**********************************************************************
-    /* JsonParser impl: stream iteration, field names
+    /* JsonParser impl: stream iteration, property names
     /**********************************************************************
      */
 

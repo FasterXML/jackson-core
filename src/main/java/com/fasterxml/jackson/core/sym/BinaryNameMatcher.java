@@ -772,7 +772,7 @@ public final class BinaryNameMatcher
     }
 
     private static int _decodeLast(byte[] b, int offset, int bytes) {
-        // 22-Nov-2017, tatu: Padding apparently not used with fully binary field names,
+        // 22-Nov-2017, tatu: Padding apparently not used with fully binary property names,
         //     unlike with JSON. May or may not want to change this in future.
         int value = b[offset++] & 0xFF;
         switch (bytes) {

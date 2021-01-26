@@ -938,8 +938,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
         } else if (_inclusion == Inclusion.INCLUDE_NON_NULL) {
-            // path has already been written, except for maybe field name
-            _filterContext.ensureFieldNameWritten(delegate);
+            // path has already been written, except for maybe property name
+            _filterContext.ensurePropertyNameWritten(delegate);
         }
         // also: if no multiple matches desired, short-cut checks
         if (isMatch && !_allowMultipleMatches) {
@@ -961,8 +961,8 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
             _filterContext.writePath(delegate);
         } else if (_inclusion == Inclusion.INCLUDE_NON_NULL) {
-            // path has already been written, except for maybe field name
-            _filterContext.ensureFieldNameWritten(delegate);
+            // path has already been written, except for maybe property name
+            _filterContext.ensurePropertyNameWritten(delegate);
         }
         // also: if no multiple matches desired, short-cut checks
         if (!_allowMultipleMatches) {

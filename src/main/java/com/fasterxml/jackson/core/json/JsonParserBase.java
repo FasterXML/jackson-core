@@ -12,7 +12,8 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 /**
- * Another intermediate base class aimed at ONLY json-backed parser.
+ * Another intermediate base class, only used by actual JSON-backed parser
+ * implementations.
  *
  * @since 3.0
  */
@@ -47,7 +48,7 @@ public abstract class JsonParserBase
     /**
      * Secondary token related to the next token after current one;
      * used if its type is known. This may be value token that
-     * follows FIELD_NAME, for example.
+     * follows {@link JsonToken#PROPERTY_NAME}, for example.
      */
     protected JsonToken _nextToken;
 
@@ -58,14 +59,14 @@ public abstract class JsonParserBase
      */
 
     /**
-     * Temporary buffer that is needed if field name is accessed
+     * Temporary buffer that is needed if an Object property name is accessed
      * using {@link #getTextCharacters} method (instead of String
      * returning alternatives)
      */
     private char[] _nameCopyBuffer = NO_CHARS;
 
     /**
-     * Flag set to indicate whether the field name is available
+     * Flag set to indicate whether the Object property name is available
      * from the name copy buffer or not (in addition to its String
      * representation  being available via read context)
      */

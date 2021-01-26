@@ -438,7 +438,7 @@ public abstract class JsonParser
      * and if {@link JsonToken#PROPERTY_NAME} is returned, another
      * time to get the value for the field.
      * Method is most useful for iterating over value entries
-     * of JSON objects; field name will still be available
+     * of JSON objects; Object property name will still be available
      * by calling {@link #currentName} when parser points to
      * the value.
      *
@@ -493,7 +493,7 @@ public abstract class JsonParser
 
     /*
     /**********************************************************************
-    /* Public API, iterating accessors: field names
+    /* Public API, iterating accessors: property names
     /**********************************************************************
      */
 
@@ -502,7 +502,7 @@ public abstract class JsonParser
      * verifies whether it is {@link JsonToken#PROPERTY_NAME}; if it is,
      * returns same as {@link #currentName()}, otherwise null.
      *
-     * @return Name of the the {@code JsonToken.FIELD_NAME} parser advanced to, if any;
+     * @return Name of the the {@code JsonToken.PROPERTY_NAME} parser advanced to, if any;
      *   {@code null} if next token is of some other type
      *
      * @throws JacksonException for low-level read issues
@@ -516,15 +516,15 @@ public abstract class JsonParser
      * and returns result of that comparison.
      * It is functionally equivalent to:
      *<pre>
-     *  return (nextToken() == JsonToken.FIELD_NAME) &amp;&amp; str.getValue().equals(currentName());
+     *  return (nextToken() == JsonToken.PROPERTY_NAME) &amp;&amp; str.getValue().equals(currentName());
      *</pre>
      * but may be faster for parser to verify, and can therefore be used if caller
      * expects to get such a property name from input next.
      *
      * @param str Property name to compare next token to (if next token is
-     *   <code>JsonToken.FIELD_NAME</code>)
+     *   <code>JsonToken.PROPERTY_NAME</code>)
      *
-     * @return {@code True} if parser advanced to {@code JsonToken.FIELD_NAME} with
+     * @return {@code True} if parser advanced to {@code JsonToken.PROPERTY_NAME} with
      *    specified name; {@code false} otherwise (different token or non-matching name)
      *
      * @throws JacksonException for low-level read issues
@@ -540,7 +540,7 @@ public abstract class JsonParser
      *
      * @param matcher Matcher that will handle actual matching
      *
-     * @return Index of the matched field name, if non-negative, or a negative error
+     * @return Index of the matched property name, if non-negative, or a negative error
      *   code otherwise (see {@link PropertyNameMatcher} for details)
      *
      * @throws WrappedIOException for low-level read issues
@@ -559,7 +559,7 @@ public abstract class JsonParser
      *
      * @param matcher Matcher that will handle actual matching
      *
-     * @return Index of the matched field name, if non-negative, or a negative error
+     * @return Index of the matched property name, if non-negative, or a negative error
      *   code otherwise (see {@link PropertyNameMatcher} for details)
      *
      * @since 3.0
@@ -858,20 +858,12 @@ public abstract class JsonParser
      * Method that can be called to get the name associated with
      * the current token: for {@link JsonToken#PROPERTY_NAME}s it will
      * be the same as what {@link #getText} returns;
-     * for field values it will be the preceding field name;
+     * for field values it will be the preceding property name;
      * and for others (array values, root-level values) null.
      *
      * @return Name of the current field in the parsing context
      */
     public abstract String currentName();
-
-    /**
-     * @return Name of the current field in the parsing context
-     *
-     * @deprecated Since 3.0 use {@link #currentName} instead
-     */
-    @Deprecated
-    public String getCurrentName() { return currentName(); }
 
     /**
      * Method for accessing textual representation of the current token;

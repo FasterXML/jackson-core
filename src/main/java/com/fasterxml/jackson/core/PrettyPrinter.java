@@ -206,9 +206,9 @@ public interface PrettyPrinter
 
     /**
      * Method called after object start marker has been output,
-     * and right before the field name of the first entry is
+     * and right before the Name of the first property is
      * to be output.
-     * It is <b>not</b> called for objects without entries.
+     * It is <b>not</b> called for objects without properties.
      *<p>
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.

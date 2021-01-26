@@ -46,7 +46,7 @@ public final class SimpleTokenWriteContext extends TokenStreamContext
     protected Object _currentValue;
 
     /**
-     * Marker used to indicate that we just wrote a field name
+     * Marker used to indicate that we just wrote a property name
      * and now expect a value to write
      */
     protected boolean _gotFieldId;

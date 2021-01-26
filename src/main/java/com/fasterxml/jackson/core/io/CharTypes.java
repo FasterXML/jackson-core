@@ -63,7 +63,7 @@ public final class CharTypes
     }
 
     /**
-     * To support non-default (and -standard) unquoted field names mode,
+     * To support non-default (and non-standard) unquoted Object Property names mode,
      * need to have alternate checking.
      * Basically this is list of 8-bit ASCII characters that are legal
      * as part of Javascript identifier
@@ -79,9 +79,8 @@ public final class CharTypes
                 table[i] = 0;
             }
         }
-        /* As per [JACKSON-267], '@', '#' and '*' are also to be accepted as well.
-         * And '-' (for hyphenated names); and '+' for sake of symmetricity...
-         */
+        // Also: '@', '#' and '*' are also to be accepted as well.
+        // And '-' (for hyphenated names); and '+' for sake of symmetricity...
         table['@'] = 0;
         table['#'] = 0;
         table['*'] = 0;

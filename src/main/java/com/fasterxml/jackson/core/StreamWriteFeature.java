@@ -77,7 +77,7 @@ public enum StreamWriteFeature
 
     /**
      * Feature that determines whether {@link JsonGenerator} will explicitly
-     * check that no duplicate JSON Object field names are written.
+     * check that no duplicate JSON Object Property names are written.
      * If enabled, generator will check all names within context and report
      * duplicates by throwing a {@link StreamWriteException}; if disabled,
      * no such checking will be done. Assumption in latter case is

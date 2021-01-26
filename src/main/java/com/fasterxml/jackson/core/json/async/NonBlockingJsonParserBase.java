@@ -76,12 +76,12 @@ public abstract class NonBlockingJsonParserBase
 
     // state before property name itself, waiting for quote (or unquoted name)
     protected final static int MINOR_PROPERTY_LEADING_WS = 4;
-    // state before property name, expecting comma (or closing curly), then field name
+    // state before property name, expecting comma (or closing curly), then property name
     protected final static int MINOR_PROPERTY_LEADING_COMMA = 5;
 
-    // State within regular (double-quoted) field name
+    // State within regular (double-quoted) property name
     protected final static int MINOR_PROPERTY_NAME = 7;
-    // State within regular (double-quoted) field name, within escape (having
+    // State within regular (double-quoted) property name, within escape (having
     // encountered either just backslash, or backslash and 'u' and 0 - 3 hex digits,
     protected final static int MINOR_PROPERTY_NAME_ESCAPE = 8;
 
@@ -132,12 +132,12 @@ public abstract class NonBlockingJsonParserBase
     
     /*
     /**********************************************************************
-    /* Helper objects, symbols (field names)
+    /* Helper objects, symbols (property names)
     /**********************************************************************
      */
 
     /**
-     * Symbol table that contains field names encountered so far
+     * Symbol table that contains property names encountered so far
      */
     final protected ByteQuadsCanonicalizer _symbols;
 
@@ -707,7 +707,7 @@ public abstract class NonBlockingJsonParserBase
                     needed = ch = 1; // never really gets this far
                 }
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
+                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
                 
                 // Ok, always need at least one more:

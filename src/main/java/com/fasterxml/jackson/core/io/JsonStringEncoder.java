@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.util.TextBuffer;
 
 /**
  * Helper class used for efficient encoding of JSON String values (including
- * JSON field names) into Strings or UTF-8 byte arrays.
+ * JSON property names) into Strings or UTF-8 byte arrays.
  *<p>
  * Note that methods in here are somewhat optimized, but not ridiculously so.
  * Reason is that conversion method results are expected to be cached so that

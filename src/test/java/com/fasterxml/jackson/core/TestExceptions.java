@@ -104,7 +104,7 @@ public class TestExceptions extends BaseTest
             fail("Should get exception");
         } catch (JsonEOFException e) {
             
-            verifyException(e, "in field name");
+            verifyException(e, "in property name");
             assertEquals(JsonToken.PROPERTY_NAME, e.getTokenBeingDecoded());
         }
         p.close();

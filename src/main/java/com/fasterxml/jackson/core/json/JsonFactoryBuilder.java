@@ -19,7 +19,7 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
     protected int _maximumNonEscapedChar;
 
     /**
-     * Character used for quoting field names (if field name quoting has not
+     * Character used for quoting Object Property names (if name quoting has not
      * been disabled with {@link JsonWriteFeature#QUOTE_PROPERTY_NAMES})
      * and JSON String values.
      */
@@ -183,14 +183,14 @@ public class JsonFactoryBuilder extends DecorableTSFBuilder<JsonFactory, JsonFac
 
     /**
      * Method that allows specifying an alternate
-     * character used for quoting field names (if field name quoting has not
+     * character used for quoting Object Property names (if name quoting has not
      * been disabled with {@link JsonWriteFeature#QUOTE_PROPERTY_NAMES})
      * and JSON String values.
      *<p>
      * Default value is double-quote ({@code "}); typical alternative is
      * single-quote/apostrophe ({@code '}).
      *
-     * @param ch Character to use for quoting field names and JSON String values.
+     * @param ch Character to use for quoting Object Property names and JSON String values.
      *
      * @return This builder instance (to allow call chaining)
      */

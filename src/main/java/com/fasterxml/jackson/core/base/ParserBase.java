@@ -119,7 +119,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * Buffer that contains contents of String values, including
-     * field names if necessary (name split across boundary,
+     * property names if necessary (name split across boundary,
      * contains escape sequence, or access needed to char array)
      */
     protected final TextBuffer _textBuffer;

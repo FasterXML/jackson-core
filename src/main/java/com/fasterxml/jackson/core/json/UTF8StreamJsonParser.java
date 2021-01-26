@@ -39,7 +39,7 @@ public class UTF8StreamJsonParser
      */
 
     /**
-     * Symbol table that contains field names encountered so far
+     * Symbol table that contains property names encountered so far
      */
     protected final ByteQuadsCanonicalizer _symbols;
 
@@ -690,8 +690,8 @@ public class UTF8StreamJsonParser
     @Override
     public JsonToken nextToken() throws JacksonException
     {
-        /* First: field names are special -- we will always tokenize
-         * (part of) value along with field name to simplify
+        /* First: property names are special -- we will always tokenize
+         * (part of) value along with property name to simplify
          * state handling. If so, can and need to use secondary token:
          */
         if (_currToken == JsonToken.PROPERTY_NAME) {
@@ -743,7 +743,7 @@ public class UTF8StreamJsonParser
             _updateLocation();
             return _nextTokenNotInObject(i);
         }
-        // So first parse the field name itself:
+        // So first parse the property name itself:
         _updateNameLocation();
         String n = _parseName(i);
         _parsingContext.setCurrentName(n);
@@ -2356,7 +2356,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
+                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2377,7 +2377,7 @@ public class UTF8StreamJsonParser
 
     /**
      * Method called when we see non-white space character other
-     * than double quote, when expecting a field name.
+     * than double quote, when expecting a property name.
      * In standard mode will just throw an exception; but
      * in non-standard modes may be able to parse name.
      *
@@ -2397,7 +2397,7 @@ public class UTF8StreamJsonParser
         // Allow unquoted names only if feature enabled:
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             char c = (char) _decodeCharForError(ch);
-            _reportUnexpectedChar(c, "was expecting double-quote to start field name");
+            _reportUnexpectedChar(c, "was expecting double-quote to start property name");
         }
         /* Also: note that although we use a different table here,
          * it does NOT handle UTF-8 decoding. It'll just pass those
@@ -2406,7 +2406,7 @@ public class UTF8StreamJsonParser
         final int[] codes = CharTypes.getInputCodeUtf8JsNames();
         // Also: must start with a valid character...
         if (codes[ch] != 0) {
-            _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
+            _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start property name");
         }
 
         // Ok, now; instead of ultra-optimizing parsing here (as with regular
@@ -2432,7 +2432,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
+                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr] & 0xFF;
@@ -2463,7 +2463,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\'' for field name", JsonToken.PROPERTY_NAME);
+                _reportInvalidEOF(": was expecting closing '\'' for property name", JsonToken.PROPERTY_NAME);
             }
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2541,7 +2541,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
+                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2677,7 +2677,7 @@ public class UTF8StreamJsonParser
                     needed = ch = 1; // never really gets this far
                 }
                 if ((ix + needed) > byteLen) {
-                    _reportInvalidEOF(" in field name", JsonToken.PROPERTY_NAME);
+                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
                 
                 // Ok, always need at least one more:
@@ -3488,7 +3488,7 @@ public class UTF8StreamJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
-                    _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+                    _reportUnexpectedChar(i, "was expecting a colon to separate property name and value");
                 }
                 gotColon = true;
             } else if (i != INT_SPACE) {

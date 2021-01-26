@@ -34,7 +34,7 @@ public enum StreamReadFeature
     
     /**
      * Feature that determines whether {@link JsonParser} will explicitly
-     * check that no duplicate JSON Object field names are encountered.
+     * check that no duplicate JSON Object Property names are encountered.
      * If enabled, parser will check all names within context and report
      * duplicates by throwing a {@link StreamReadException}; if disabled,
      * parser will not do such checking. Assumption in latter case is

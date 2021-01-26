@@ -89,7 +89,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         }
 
         @Override
-        public Iterator<String> fieldNames() {
+        public Iterator<String> propertyNames() {
             return null;
         }
 

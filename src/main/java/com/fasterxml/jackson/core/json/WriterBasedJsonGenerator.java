@@ -122,7 +122,7 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public Object streamWriteTarget() {
+    public Object streamWriteOutputTarget() {
         return _writer;
     }
 

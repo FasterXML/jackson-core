@@ -101,7 +101,7 @@ public abstract class JsonGenerator
      *
      * @return Output target this generator was configured with
      */
-    public abstract Object streamWriteTarget();
+    public abstract Object streamWriteOutputTarget();
 
     /**
      * Method for verifying amount of content that is buffered by generator

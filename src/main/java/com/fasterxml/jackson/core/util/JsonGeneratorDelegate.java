@@ -62,7 +62,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 
     @Override public FormatSchema getSchema() { return delegate.getSchema(); }
     @Override public Version version() { return delegate.version(); }
-    @Override public Object streamWriteTarget() { return delegate.streamWriteTarget(); }
+    @Override public Object streamWriteOutputTarget() { return delegate.streamWriteOutputTarget(); }
     @Override public int streamWriteOutputBuffered() { return delegate.streamWriteOutputBuffered(); }
 
     /*

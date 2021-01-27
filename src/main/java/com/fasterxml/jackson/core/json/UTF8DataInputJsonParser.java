@@ -127,7 +127,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public Object streamReadSource() {
+    public Object streamReadInputSource() {
         return _inputData;
     }
 

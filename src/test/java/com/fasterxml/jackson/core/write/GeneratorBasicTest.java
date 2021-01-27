@@ -274,12 +274,12 @@ public class GeneratorBasicTest
     {
         OutputStream out = new ByteArrayOutputStream();
         JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
-        assertSame(out, gen.streamWriteTarget());
+        assertSame(out, gen.streamWriteOutputTarget());
         gen.close();
 
         StringWriter sw = new StringWriter();
         gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
-        assertSame(sw, gen.streamWriteTarget());
+        assertSame(sw, gen.streamWriteOutputTarget());
         gen.close();
     }
 

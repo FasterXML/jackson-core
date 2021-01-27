@@ -21,19 +21,19 @@ public class SimpleParserTest extends BaseTest
     public void testInputSourceAccess()
     {
         JsonParser p = createParser(MODE_READER, "[ ]");
-        Object src = p.streamReadSource();
+        Object src = p.streamReadInputSource();
         assertNotNull(src);
         assertTrue(src instanceof Reader);
         p.close();
 
         p = createParser(MODE_INPUT_STREAM, "[ ]");
-        src = p.streamReadSource();
+        src = p.streamReadInputSource();
         assertNotNull(src);
         assertTrue(src instanceof InputStream);
         p.close();
 
         p = createParser(MODE_DATA_INPUT, "[ ]");
-        src = p.streamReadSource();
+        src = p.streamReadInputSource();
         assertNotNull(src);
         assertTrue(src instanceof DataInput);
         p.close();

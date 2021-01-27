@@ -174,7 +174,7 @@ public abstract class JsonParser
      *
      * @return Input source this parser was configured with
      */
-    public abstract Object streamReadSource();
+    public abstract Object streamReadInputSource();
 
     /*
     /**********************************************************************

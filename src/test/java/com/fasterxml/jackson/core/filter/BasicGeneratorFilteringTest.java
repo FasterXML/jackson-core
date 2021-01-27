@@ -181,7 +181,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 );
 
         // Hmmh. Should we get access to eventual target?
-        assertSame(w, gen.streamWriteTarget());
+        assertSame(w, gen.streamWriteOutputTarget());
         assertNotNull(gen.getFilterContext());
         assertSame(filter, gen.getFilter());
 
@@ -203,7 +203,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 );
 
         // Hmmh. Should we get access to eventual target?
-        assertSame(w, gen.streamWriteTarget());
+        assertSame(w, gen.streamWriteOutputTarget());
         assertNotNull(gen.getFilterContext());
         assertSame(filter, gen.getFilter());
 

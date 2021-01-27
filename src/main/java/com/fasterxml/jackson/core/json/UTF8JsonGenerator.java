@@ -177,7 +177,7 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public Object streamWriteTarget() {
+    public Object streamWriteOutputTarget() {
         return _outputStream;
     }
 

@@ -289,7 +289,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public Object streamReadSource() {
+    public Object streamReadInputSource() {
         // since input is "pushed", to traditional source...
         return null;
     }

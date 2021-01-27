@@ -26,6 +26,7 @@ JSON library.
 #456: Add `JsonParser.readAsValue(ResolvedType)`
 #492: Ensure primitive type names in error message enclosed in backticks
 #551: Remove `JsonGenerator.setPrettyPrinter()` from 3.0
+#663: Rename `JsonEOFException` as `UnexpectedEndOfInputException`
 #670: Replace references to "field" in `JsonGenerator`, `JsonParser` method names with "property"
 #671: Replace `getCurrentLocation()`/`getTokenLocation()` with
   `currentLocation()`/`currentTokenLocation()`

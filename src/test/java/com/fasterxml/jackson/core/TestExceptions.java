@@ -2,9 +2,9 @@ package com.fasterxml.jackson.core;
 
 import java.io.StringWriter;
 
+import com.fasterxml.jackson.core.exc.UnexpectedEndOfInputException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestExceptions extends BaseTest
@@ -79,7 +79,7 @@ public class TestExceptions extends BaseTest
         try {
             p.nextToken();
             fail("Should get exception");
-        } catch (JsonEOFException e) {
+        } catch (UnexpectedEndOfInputException e) {
             verifyException(e, "close marker for Array");
         }
         p.close();
@@ -92,7 +92,7 @@ public class TestExceptions extends BaseTest
         try {
             p.nextToken();
             fail("Should get exception");
-        } catch (JsonEOFException e) {
+        } catch (UnexpectedEndOfInputException e) {
             verifyException(e, "close marker for Object");
         }
         p.close();
@@ -102,7 +102,7 @@ public class TestExceptions extends BaseTest
         try {
             p.nextToken();
             fail("Should get exception");
-        } catch (JsonEOFException e) {
+        } catch (UnexpectedEndOfInputException e) {
             
             verifyException(e, "in property name");
             assertEquals(JsonToken.PROPERTY_NAME, e.getTokenBeingDecoded());
@@ -114,7 +114,7 @@ public class TestExceptions extends BaseTest
         try {
             p.nextToken();
             fail("Should get exception");
-        } catch (JsonEOFException e) {
+        } catch (UnexpectedEndOfInputException e) {
             verifyException(e, "unexpected end-of-input");
             verifyException(e, "Object entries");
         }

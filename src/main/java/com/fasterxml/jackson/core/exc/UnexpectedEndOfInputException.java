@@ -1,16 +1,15 @@
-package com.fasterxml.jackson.core.io;
+package com.fasterxml.jackson.core.exc;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 
 /**
  * Specialized {@link StreamReadException} that is thrown when end-of-input
- * is reached unexpectedly, either within token being decoded, or during
- * skipping of intervening white-space that is not between root-level
- * tokens (that is, is within JSON Object or JSON Array construct).
+ * is reached unexpectedly, usually within token being decoded, but possibly
+ * within intervening non-token content (for formats that have that, such
+ * as whitespace for textual formats)
  */
-public class JsonEOFException
+public class UnexpectedEndOfInputException
     extends StreamReadException
 {
     private static final long serialVersionUID = 3L;
@@ -21,7 +20,7 @@ public class JsonEOFException
      */
     protected final JsonToken _token;
     
-    public JsonEOFException(JsonParser p, JsonToken token, String msg) {
+    public UnexpectedEndOfInputException(JsonParser p, JsonToken token, String msg) {
         super(p, msg);
         _token = token;
     }

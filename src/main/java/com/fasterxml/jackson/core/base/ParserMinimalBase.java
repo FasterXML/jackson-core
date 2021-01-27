@@ -7,9 +7,9 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.exc.UnexpectedEndOfInputException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
-import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
@@ -896,7 +896,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected void _reportInvalidEOF(String msg, JsonToken currToken) throws StreamReadException {
-        throw new JsonEOFException(this, currToken, "Unexpected end-of-input"+msg);
+        throw new UnexpectedEndOfInputException(this, currToken, "Unexpected end-of-input"+msg);
     }
 
     protected void _reportMissingRootWS(int ch) throws StreamReadException {

@@ -181,7 +181,7 @@ public class UTF8StreamJsonParser
     }
 
     @Override
-    public Object getInputSource() {
+    public Object streamReadSource() {
         return _inputStream;
     }
 
@@ -4097,7 +4097,7 @@ public class UTF8StreamJsonParser
 
     // As per [core#108], must ensure we call the right method
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentTokenLocation()
     {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);

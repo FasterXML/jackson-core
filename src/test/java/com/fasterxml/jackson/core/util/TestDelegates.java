@@ -237,7 +237,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         
         del.writeStartArray();
 
-        assertEquals(1, del.getOutputBuffered());
+        assertEquals(1, del.streamWriteOutputBuffered());
 
         del.writeNumber(13);
         del.writeNumber(BigInteger.ONE);

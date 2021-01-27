@@ -127,7 +127,7 @@ public class UTF8DataInputJsonParser
     }
 
     @Override
-    public Object getInputSource() {
+    public Object streamReadSource() {
         return _inputData;
     }
 
@@ -2903,7 +2903,7 @@ public class UTF8DataInputJsonParser
      */
 
     @Override
-    public JsonLocation getTokenLocation() {
+    public JsonLocation currentTokenLocation() {
         // 03-Jan-2020, tatu: Should probably track this, similar to how
         //   streaming parsers do it, but... not done yet
 

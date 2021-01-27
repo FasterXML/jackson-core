@@ -75,7 +75,7 @@ public class LocationDuringStreamParsingTest extends BaseTest
 
     private void assertTokenLocation(JsonParser p, LocData loc)
     {
-        assertLocation(p.getTokenLocation(), loc);
+        assertLocation(p.currentTokenLocation(), loc);
     }
 
     private void assertLocation(JsonLocation pLoc, LocData loc)

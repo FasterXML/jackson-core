@@ -56,7 +56,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
          * "out of stream" (not part of input).
          */
 
-        JsonLocation loc = p.parser().getTokenLocation();
+        JsonLocation loc = p.parser().currentTokenLocation();
         // so if BOM was consider in-stream (part of input), this should expect 3:
         // (NOTE: this is location for START_ARRAY token, now)
         assertEquals(-1, loc.getCharOffset());

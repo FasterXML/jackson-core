@@ -42,9 +42,9 @@ public class JsonParserDelegate extends JsonParser
 
     // // // Public API, input source, location access
 
-    @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+    @Override public JsonLocation currentTokenLocation() { return delegate.currentTokenLocation(); }
     @Override public JsonLocation currentLocation() { return delegate.currentLocation(); }
-    @Override public Object getInputSource() { return delegate.getInputSource(); }
+    @Override public Object streamReadSource() { return delegate.streamReadSource(); }
 
     @Override
     public Object currentValue() {

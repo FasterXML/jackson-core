@@ -21,19 +21,19 @@ public class SimpleParserTest extends BaseTest
     public void testInputSourceAccess()
     {
         JsonParser p = createParser(MODE_READER, "[ ]");
-        Object src = p.getInputSource();
+        Object src = p.streamReadSource();
         assertNotNull(src);
         assertTrue(src instanceof Reader);
         p.close();
 
         p = createParser(MODE_INPUT_STREAM, "[ ]");
-        src = p.getInputSource();
+        src = p.streamReadSource();
         assertNotNull(src);
         assertTrue(src instanceof InputStream);
         p.close();
 
         p = createParser(MODE_DATA_INPUT, "[ ]");
-        src = p.getInputSource();
+        src = p.streamReadSource();
         assertNotNull(src);
         assertTrue(src instanceof DataInput);
         p.close();
@@ -143,7 +143,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals("/", ctxt.toString());
 
         assertTrue(p.hasCurrentToken());
-        JsonLocation loc = p.getTokenLocation();
+        JsonLocation loc = p.currentTokenLocation();
         assertNotNull(loc);
         assertEquals(1, loc.getLineNr());
         if (checkColumn) {
@@ -160,7 +160,7 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         verifyFieldName(p, "key1");
         assertEquals("{\"key1\"}", ctxt.toString());
-        assertEquals(2, p.getTokenLocation().getLineNr());
+        assertEquals(2, p.currentTokenLocation().getLineNr());
 
         ctxt = p.streamReadContext();
         assertFalse(ctxt.inRoot());
@@ -456,7 +456,7 @@ public class SimpleParserTest extends BaseTest
         JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), input);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
-        JsonLocation loc = p.getTokenLocation();
+        JsonLocation loc = p.currentTokenLocation();
         assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -468,7 +468,7 @@ public class SimpleParserTest extends BaseTest
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         // same BOM, but DataInput is more restrictive so can skip but offsets
         // are not reliable...
-        loc = p.getTokenLocation();
+        loc = p.currentTokenLocation();
         assertNotNull(loc);
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());

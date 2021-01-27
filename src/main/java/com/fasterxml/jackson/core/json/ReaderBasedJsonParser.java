@@ -175,7 +175,7 @@ public class ReaderBasedJsonParser
         return count;
     }
 
-    @Override public Object getInputSource() { return _reader; }
+    @Override public Object streamReadSource() { return _reader; }
 
     protected char getNextChar(String eofMsg, JsonToken forToken) throws JacksonException {
         if (_inputPtr >= _inputEnd) {
@@ -2867,7 +2867,7 @@ public class ReaderBasedJsonParser
      */
 
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentTokenLocation()
     {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);

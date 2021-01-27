@@ -177,12 +177,12 @@ public class UTF8JsonGenerator
      */
 
     @Override
-    public Object getOutputTarget() {
+    public Object streamWriteTarget() {
         return _outputStream;
     }
 
     @Override
-    public int getOutputBuffered() {
+    public int streamWriteOutputBuffered() {
         // Assuming tail is always valid, set to 0 on close
         return _outputTail;
     }

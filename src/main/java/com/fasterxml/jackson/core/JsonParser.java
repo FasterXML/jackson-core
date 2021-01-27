@@ -131,10 +131,12 @@ public abstract class JsonParser
      * return {@link JsonLocation#NA} due to not having access
      * to input location information (when delegating actual decoding work
      * to other library)
+     *<p>
+     * NOTE: was named {@code getTokenLocation()} in Jackson 2.x.
      *
      * @return Starting location of the token parser currently points to
      */
-    public abstract JsonLocation getTokenLocation();
+    public abstract JsonLocation currentTokenLocation();
 
     /**
      * Method that returns location of the last processed character;
@@ -167,10 +169,12 @@ public abstract class JsonParser
      *<p>
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
+     *<p>
+     * NOTE: was named {@code getInputSource()} in Jackson 2.x.
      *
      * @return Input source this parser was configured with
      */
-    public abstract Object getInputSource();
+    public abstract Object streamReadSource();
 
     /*
     /**********************************************************************

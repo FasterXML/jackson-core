@@ -122,12 +122,12 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public Object getOutputTarget() {
+    public Object streamWriteTarget() {
         return _writer;
     }
 
     @Override
-    public int getOutputBuffered() {
+    public int streamWriteOutputBuffered() {
         // Assuming tail and head are kept but... trust and verify:
         int len = _outputTail - _outputHead;
         return Math.max(0, len);

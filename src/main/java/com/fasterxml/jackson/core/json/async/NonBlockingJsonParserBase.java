@@ -289,7 +289,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public Object getInputSource() {
+    public Object streamReadSource() {
         // since input is "pushed", to traditional source...
         return null;
     }
@@ -336,7 +336,7 @@ public abstract class NonBlockingJsonParserBase
     }
 
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentTokenLocation()
     {
         return new JsonLocation(_getSourceReference(),
                 _tokenInputTotal, -1L, _tokenInputRow, _tokenInputCol);

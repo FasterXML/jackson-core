@@ -96,10 +96,12 @@ public abstract class JsonGenerator
      *<p>
      * In general use of this accessor should be considered as
      * "last effort", i.e. only used if no other mechanism is applicable.
+     *<p>
+     * NOTE: was named {@code getOutputTarget()} in Jackson 2.x.
      *
      * @return Output target this generator was configured with
      */
-    public abstract Object getOutputTarget();
+    public abstract Object streamWriteTarget();
 
     /**
      * Method for verifying amount of content that is buffered by generator
@@ -111,11 +113,13 @@ public abstract class JsonGenerator
      * {@code char} for {@link java.io.Writer}),
      * but may differ if buffering is done before encoding.
      * Default JSON-backed implementations do use matching units.
+     *<p>
+     * NOTE: was named {@code getOutputBuffered()} in Jackson 2.x.
      *
      * @return Amount of content buffered in internal units, if amount known and
      *    accessible; -1 if not accessible.
      */
-    public abstract int getOutputBuffered();
+    public abstract int streamWriteOutputBuffered();
 
     /**
      * Helper method, usually equivalent to:

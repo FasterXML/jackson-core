@@ -17,6 +17,8 @@ JSON library.
 2.13.0 (not yet released)
 
 #664: Add `StreamWriteException` type to eventually replace `JsonGenerationException`
+#671: Add `getCurrentLocation()`/`getTokenLocation()` to replace
+  `currentLocation()`/`currentTokenLocation()`
 
 2.12.1 (08-Jan-2021)
 

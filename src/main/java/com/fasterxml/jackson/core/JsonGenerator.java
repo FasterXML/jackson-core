@@ -1408,8 +1408,6 @@ public abstract class JsonGenerator
      * (Object, Array, null, Number, String or Boolean).
      * This is done by delegating call to
      * {@link ObjectWriteContext#writeValue(JsonGenerator, Object)}.
-     *<p>
-     * NOTE: in Jackson 2.x, this method was called {@code writeObject(Object)}.
      *
      * @param pojo Java Object (POJO) value to write
      *
@@ -1442,7 +1440,7 @@ public abstract class JsonGenerator
     //    and matching writeXxx() for value)
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that contains specified data in base64-encoded form.
      * Equivalent to:
      *<pre>
@@ -1462,7 +1460,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has a boolean value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1481,7 +1479,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has JSON literal value null. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1499,7 +1497,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has a String value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1518,7 +1516,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has the specified numeric value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1537,7 +1535,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has the specified numeric value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1556,7 +1554,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has the specified numeric value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1575,7 +1573,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has the specified numeric value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1594,7 +1592,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has the specified numeric value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1613,7 +1611,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has the specified numeric value. Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1632,7 +1630,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * that has the specified numeric value.
      * Equivalent to:
      *<pre>
@@ -1652,7 +1650,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * (that will contain a JSON Array value), and the START_ARRAY marker.
      * Equivalent to:
      *<pre>
@@ -1675,7 +1673,7 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
+     * Convenience method for outputting an Object property
      * (that will contain an Object value), and the START_OBJECT marker.
      * Equivalent to:
      *<pre>
@@ -1698,8 +1696,8 @@ public abstract class JsonGenerator
     }
 
     /**
-     * Convenience method for outputting an Object entry ("member")
-     * that has contents of specific Java object as its value.
+     * Convenience method for outputting am Object property
+     * that has contents of specific Java object (POJO) as its value.
      * Equivalent to:
      *<pre>
      *  writeName(propertyName);
@@ -1707,7 +1705,7 @@ public abstract class JsonGenerator
      *</pre>
      *<p>
      * NOTE: see {@link #writePOJO(Object)} for details on how POJO value actually
-     * gets written (uses delegation)
+     * gets written (uses delegation).
      *
      * @param propertyName Name of the property to write
      * @param pojo POJO value of the property to write
@@ -1727,7 +1725,8 @@ public abstract class JsonGenerator
      * skipped. It is usually only called for generators that return
      * <code>false</code> from {@link #canOmitProperties()}.
      *<p>
-     * Default implementation does nothing.
+     * Default implementation does nothing; method is overriden by some format
+     * backends.
      *
      * @param propertyName Name of the property that is being omitted
      *

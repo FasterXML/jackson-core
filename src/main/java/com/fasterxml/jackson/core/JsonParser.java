@@ -130,9 +130,7 @@ public abstract class JsonParser
      * implementation will try their best): some implementations may only
      * return {@link JsonLocation#NA} due to not having access
      * to input location information (when delegating actual decoding work
-     * to other library)
-     *<p>
-     * NOTE: was named {@code getTokenLocation()} in Jackson 2.x.
+     * to other library).
      *
      * @return Starting location of the token parser currently points to
      */
@@ -147,9 +145,7 @@ public abstract class JsonParser
      * report specific boundary locations (start or end locations of tokens)
      * and others only return {@link JsonLocation#NA} due to not having access
      * to input location information (when delegating actual decoding work
-     * to other library)
-     *<p>
-     * NOTE: this method was called {@code getCurrentLocation()} in Jackson 2.x.
+     * to other library).
      *
      * @return Location of the last processed input unit (byte or character)
      */
@@ -848,8 +844,6 @@ public abstract class JsonParser
      * be the same as what {@link #getText} returns;
      * for Object property values it will be the preceding property name;
      * and for others (array element, root-level values) null.
-     *<p>
-     * NOTE: this method was called {@code getCurrentName()} in Jackson 2.x.
      *
      * @return Name of the current property name, if any, in the parsing context ({@code null} if none)
      */

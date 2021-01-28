@@ -18,7 +18,7 @@ public class AsyncLocationTest extends AsyncTestBase
 
         feeder.feedInput(input, 2, 3);
         assertEquals(JsonToken.START_ARRAY, parser.nextToken());
-        assertEquals(1, parser.getCurrentLocation().getByteOffset());
+        assertEquals(1, parser.currentLocation().getByteOffset());
         assertEquals(1, parser.getTokenLocation().getByteOffset());
         assertEquals(1, parser.getCurrentLocation().getLineNr());
         assertEquals(1, parser.getTokenLocation().getLineNr());

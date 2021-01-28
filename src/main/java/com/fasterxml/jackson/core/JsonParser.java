@@ -682,22 +682,8 @@ public abstract class JsonParser
     public abstract JsonStreamContext getParsingContext();
 
     /**
-     * Method that return the <b>starting</b> location of the current
-     * token; that is, position of the first character from input
-     * that starts the current token.
-     *<p>
-     * Note that the location is not guaranteed to be accurate (although most
-     * implementation will try their best): some implementations may only
-     * return {@link JsonLocation#NA} due to not having access
-     * to input location information (when delegating actual decoding work
-     * to other library)
-     *
-     * @return Starting location of the token parser currently points to
-     */
-    public abstract JsonLocation getTokenLocation();
-
-    /**
-     * Method that returns location of the last processed character;
+     * Method that returns location of the last processed input unit (character
+     * or byte) from the input;
      * usually for error reporting purposes.
      *<p>
      * Note that the location is not guaranteed to be accurate (although most
@@ -708,8 +694,50 @@ public abstract class JsonParser
      * to other library)
      *
      * @return Location of the last processed input unit (byte or character)
+     *
+     * @since 2.13
+     */
+    public JsonLocation currentLocation() {
+        return getCurrentLocation();
+    }
+
+    /**
+     * Method that return the <b>starting</b> location of the current
+     * (most recently returned)
+     * token; that is, the position of the first input unit (character or byte) from input
+     * that starts the current token.
+     *<p>
+     * Note that the location is not guaranteed to be accurate (although most
+     * implementation will try their best): some implementations may only
+     * return {@link JsonLocation#NA} due to not having access
+     * to input location information (when delegating actual decoding work
+     * to other library)
+     *
+     * @return Starting location of the token parser currently points to
+     *
+     * @since 2.13 (will eventually replace {@link #getTokenLocation})
+     */
+    public JsonLocation currentTokenLocation() {
+        return getTokenLocation();
+    }
+
+    // TODO: deprecate in 2.14 or later
+    /**
+     * Alias for {@link #currentLocation()}, to be deprecated in later
+     * Jackson 2.x versions (and removed from Jackson 3.0).
+     *
+     * @return Location of the last processed input unit (byte or character)
      */
     public abstract JsonLocation getCurrentLocation();
+
+    // TODO: deprecate in 2.14 or later
+    /**
+     * Alias for {@link #currentTokenLocation()}, to be deprecated in later
+     * Jackson 2.x versions (and removed from Jackson 3.0).
+     *
+     * @return Starting location of the token parser currently points to
+     */
+    public abstract JsonLocation getTokenLocation();
 
     /*
     /**********************************************************

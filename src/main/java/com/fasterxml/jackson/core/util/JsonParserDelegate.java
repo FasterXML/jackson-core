@@ -37,9 +37,9 @@ public class JsonParserDelegate extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public void setCodec(ObjectCodec c) { delegate.setCodec(c); }
@@ -86,9 +86,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public Object getInputSource() { return delegate.getInputSource(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Capability introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public boolean requiresCustomCodec() { return delegate.requiresCustomCodec(); }
@@ -96,45 +96,18 @@ public class JsonParserDelegate extends JsonParser
     @Override public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() { return delegate.getReadCapabilities(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Closeable impl
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public void close() throws IOException { delegate.close(); }
     @Override public boolean isClosed() { return delegate.isClosed(); }
 
     /*
-    /**********************************************************
-    /* Public API, token accessors
-    /**********************************************************
-     */
-
-    @Override public JsonToken currentToken() { return delegate.currentToken(); }
-    @Override public int currentTokenId() { return delegate.currentTokenId(); }
-    
-    @Override public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
-
-    @Deprecated // since 2.12
-    @Override public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
-
-    @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }
-    @Override public boolean hasTokenId(int id) { return delegate.hasTokenId(id); }
-    @Override public boolean hasToken(JsonToken t) { return delegate.hasToken(t); }
-
-    @Override public String getCurrentName() throws IOException { return delegate.getCurrentName(); }
-    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
-    @Override public JsonStreamContext getParsingContext() { return delegate.getParsingContext(); }
-    @Override public boolean isExpectedStartArrayToken() { return delegate.isExpectedStartArrayToken(); }
-    @Override public boolean isExpectedStartObjectToken() { return delegate.isExpectedStartObjectToken(); }
-    @Override public boolean isExpectedNumberIntToken() { return delegate.isExpectedNumberIntToken(); }
-
-    @Override public boolean isNaN() throws IOException { return delegate.isNaN(); }
-
-    /*
-    /**********************************************************
-    /* Public API, token state overrides
-    /**********************************************************
+    /**********************************************************************
+    /* Public API, state override methods
+    /**********************************************************************
      */
     
     @Override public void clearCurrentToken() { delegate.clearCurrentToken(); }
@@ -142,9 +115,52 @@ public class JsonParserDelegate extends JsonParser
     @Override public void overrideCurrentName(String name) { delegate.overrideCurrentName(name); }
 
     /*
-    /**********************************************************
-    /* Public API, access to token information, text
-    /**********************************************************
+    /**********************************************************************
+    /* Public API, state/location accessors
+    /**********************************************************************
+     */
+
+    @Override public JsonStreamContext getParsingContext() { return delegate.getParsingContext(); }
+    
+    @Override public JsonToken currentToken() { return delegate.currentToken(); }
+    @Override public int currentTokenId() { return delegate.currentTokenId(); }
+    @Override public String currentName() throws IOException { return delegate.currentName(); }
+
+    @Override public JsonLocation currentLocation() { return delegate.getCurrentLocation(); }
+    @Override public JsonLocation currentTokenLocation() { return delegate.getTokenLocation(); }
+
+    // TODO: deprecate in 2.14 or later
+    @Override public JsonToken getCurrentToken() { return delegate.getCurrentToken(); }
+    @Deprecated // since 2.12
+    @Override public int getCurrentTokenId() { return delegate.getCurrentTokenId(); }
+    // TODO: deprecate in 2.14 or later
+    @Override public String getCurrentName() throws IOException { return delegate.getCurrentName(); }
+
+    // TODO: deprecate in 2.14 or later
+    @Override public JsonLocation getCurrentLocation() { return delegate.getCurrentLocation(); }
+    // TODO: deprecate in 2.14 or later
+    @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
+
+    /*
+    /**********************************************************************
+    /* Public API, token accessors
+    /**********************************************************************
+     */
+
+    @Override public boolean hasCurrentToken() { return delegate.hasCurrentToken(); }
+    @Override public boolean hasTokenId(int id) { return delegate.hasTokenId(id); }
+    @Override public boolean hasToken(JsonToken t) { return delegate.hasToken(t); }
+
+    @Override public boolean isExpectedStartArrayToken() { return delegate.isExpectedStartArrayToken(); }
+    @Override public boolean isExpectedStartObjectToken() { return delegate.isExpectedStartObjectToken(); }
+    @Override public boolean isExpectedNumberIntToken() { return delegate.isExpectedNumberIntToken(); }
+
+    @Override public boolean isNaN() throws IOException { return delegate.isNaN(); }
+
+    /*
+    /**********************************************************************
+    /* Public API, access to token textual content
+    /**********************************************************************
      */
 
     @Override public String getText() throws IOException { return delegate.getText();  }
@@ -155,9 +171,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public int getText(Writer writer) throws IOException, UnsupportedOperationException { return delegate.getText(writer);  }
 
     /*
-    /**********************************************************
-    /* Public API, access to token information, numeric
-    /**********************************************************
+    /**********************************************************************
+    /* Public API, access to token numeric values
+    /**********************************************************************
      */
     
     @Override
@@ -197,9 +213,9 @@ public class JsonParserDelegate extends JsonParser
     public Number getNumberValueExact() throws IOException { return delegate.getNumberValueExact(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, coercion/conversion
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public int getValueAsInt() throws IOException { return delegate.getValueAsInt(); }
@@ -214,15 +230,14 @@ public class JsonParserDelegate extends JsonParser
     @Override public String getValueAsString(String defaultValue) throws IOException { return delegate.getValueAsString(defaultValue); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token values, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public Object getEmbeddedObject() throws IOException { return delegate.getEmbeddedObject(); }
     @Override public byte[] getBinaryValue(Base64Variant b64variant) throws IOException { return delegate.getBinaryValue(b64variant); }
     @Override public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException { return delegate.readBinaryValue(b64variant, out); }
-    @Override public JsonLocation getTokenLocation() { return delegate.getTokenLocation(); }
 
     @Override public JsonToken nextToken() throws IOException { return delegate.nextToken(); }
 
@@ -238,9 +253,9 @@ public class JsonParserDelegate extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, Native Ids (type, object)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public boolean canReadObjectId() { return delegate.canReadObjectId(); }
@@ -249,9 +264,9 @@ public class JsonParserDelegate extends JsonParser
     @Override public Object getTypeId() throws IOException { return delegate.getTypeId(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

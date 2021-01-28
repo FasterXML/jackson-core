@@ -63,14 +63,14 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override public Object getOutputTarget() { return delegate.getOutputTarget(); }
     @Override public int getOutputBuffered() { return delegate.getOutputBuffered(); }
 
-    @Override
-    public void setCurrentValue(Object v) {
-        delegate.setCurrentValue(v);
-    }
+    @Override public void assignCurrentValue(Object v) { delegate.assignCurrentValue(v); }
+    @Override public Object currentValue() { return delegate.currentValue(); }
 
+    // TODO: deprecate in 2.14 or later
     @Override
-    public Object currentValue() { return delegate.currentValue(); }
+    public void setCurrentValue(Object v) { delegate.setCurrentValue(v); }
 
+    // TODO: deprecate in 2.14 or later
     @Override
     public Object getCurrentValue() { return delegate.getCurrentValue(); }
 

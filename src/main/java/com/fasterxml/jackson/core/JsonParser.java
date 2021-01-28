@@ -718,7 +718,23 @@ public abstract class JsonParser
      * @since 2.13 (added as replacement for older {@link #getCurrentValue()}
      */
     public Object currentValue() {
+        // TODO: implement directly in 2.14 or later, make getCurrentValue() call this
         return getCurrentValue();
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getParsingContext().setCurrentValue(v);
+     *</code>
+     *
+     * @param v Current value to assign for the current input context of this parser
+     *
+     * @since 2.13 (added as replacement for older {@link #setCurrentValue}
+     */
+    public void assignCurrentValue(Object v) {
+        // TODO: implement directly in 2.14 or later, make setCurrentValue() call this
+        setCurrentValue(v);
     }
 
     // TODO: deprecate in 2.14 or later
@@ -733,15 +749,12 @@ public abstract class JsonParser
         return (ctxt == null) ? null : ctxt.getCurrentValue();
     }
 
+    // TODO: deprecate in 2.14 or later
     /**
-     * Helper method, usually equivalent to:
-     *<code>
-     *   getParsingContext().setCurrentValue(v);
-     *</code>
+     * Alias for {@link #assignCurrentValue}, to be deprecated in later
+     * Jackson 2.x versions (and removed from Jackson 3.0).
      *
      * @param v Current value to assign for the current input context of this parser
-     * 
-     * @since 2.5
      */
     public void setCurrentValue(Object v) {
         JsonStreamContext ctxt = getParsingContext();

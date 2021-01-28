@@ -17,7 +17,7 @@ JSON library.
 
 3.0.0 (not yet released)
 
-#378: Change default for `TokenStreamFactory.Feature.INTERN_FIELD_NAMES` to `false`
+#378: Change default for `TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES` to `false`
 #402: Remove dataformat-auto-detection functionality
 #411: Rename `JsonStreamContext` as `TokenStreamContext`
 #413: Remove `ObjectCodec`: replace with `ObjectWriteContext` / `ObjectReadContext`

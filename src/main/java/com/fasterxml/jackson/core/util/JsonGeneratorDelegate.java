@@ -24,9 +24,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     protected boolean delegateCopyMethods;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonGeneratorDelegate(JsonGenerator d) {
@@ -55,9 +55,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, metadata
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override public ObjectCodec getCodec() { return delegate.getCodec(); }
@@ -74,9 +74,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override public int getOutputBuffered() { return delegate.getOutputBuffered(); }
 
     /*
-    /**********************************************************
-    /* Public API, capability introspection (since 2.3, mostly)
-    /**********************************************************
+    /**********************************************************************
+    /* Public API, capability introspection
+    /**********************************************************************
      */
 
     @Override
@@ -103,9 +103,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -149,9 +149,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuring generator
-    /**********************************************************
+    /**********************************************************************
       */
 
     @Override
@@ -186,9 +186,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
         return this; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, structural
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -257,9 +257,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, text/String values
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -283,9 +283,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public void writeUTF8String(byte[] text, int offset, int length) throws IOException { delegate.writeUTF8String(text, offset, length); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, binary/raw content
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -319,9 +319,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException { return delegate.writeBinary(b64variant, data, dataLength); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, other value types
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -358,9 +358,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public void writeNull() throws IOException { delegate.writeNull(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, convenience field-write methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     // 04-Oct-2019, tatu: Reminder: these should NOT be delegated, unless matching
@@ -375,6 +375,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
 //    public void writeArrayFieldStart(String fieldName) throws IOException {
 //    public void writeObjectFieldStart(String fieldName) throws IOException {
 //    public void writeObjectField(String fieldName, Object pojo) throws IOException {
+//    public void writePOJOField(String fieldName, Object pojo) throws IOException {
 
     // Sole exception being this method as it is not a "combo" method
     
@@ -384,9 +385,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, Native Ids
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -402,11 +403,16 @@ public class JsonGeneratorDelegate extends JsonGenerator
     public void writeEmbeddedObject(Object object) throws IOException { delegate.writeEmbeddedObject(object); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, serializing Java objects
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
+    @Override // since 2.13
+    public void writePOJO(Object pojo) throws IOException {
+        writeObject(pojo);
+    }
+
     @Override
     public void writeObject(Object pojo) throws IOException {
         if (delegateCopyMethods) {
@@ -444,17 +450,17 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, convenience field write methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // These are fine, just delegate to other methods...
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, copy-through methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -470,34 +476,28 @@ public class JsonGeneratorDelegate extends JsonGenerator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, context access
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonStreamContext getOutputContext() { return delegate.getOutputContext(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, buffer handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override public void flush() throws IOException { delegate.flush(); }
     @Override public void close() throws IOException { delegate.close(); }
 
-    /*
-    /**********************************************************
-    /* Closeable implementation
-    /**********************************************************
-     */
-    
     @Override public boolean isClosed() { return delegate.isClosed(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Deprecated // since 2.11

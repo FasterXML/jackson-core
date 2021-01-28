@@ -19,6 +19,7 @@ JSON library.
 #664: Add `StreamWriteException` type to eventually replace `JsonGenerationException`
 #671: Add `getCurrentLocation()`/`getTokenLocation()` to replace
   `currentLocation()`/`currentTokenLocation()`
+#673: Replace `JsonGenerator.writeObject()` (and related) with `writePOJO()`
 
 2.12.1 (08-Jan-2021)
 

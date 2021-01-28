@@ -2007,17 +2007,32 @@ public abstract class JsonGenerator
      */
 
     /**
-     * Method for writing given Java object (POJO) as Json.
+     * Method for writing given Java object (POJO) as JSON.
      * Exactly how the object gets written depends on object
-     * in question (ad on codec, its configuration); for most
-     * beans it will result in JSON Object, but for others JSON
+     * in question (and on codec, its configuration); for
+     * typical POJOs it will result in JSON Object, but for others JSON
      * Array, or String or numeric value (and for nulls, JSON
-     * null literal.
-     * <b>NOTE</b>: generator must have its <b>object codec</b>
+     * null literal).
+     * <b>NOTE</b>: generator must have its {@code ObjectCodec}
      * set to non-null value; for generators created by a mapping
      * factory this is the case, for others not.
      *
-     * @param pojo General POJO value to write
+     * @param pojo Java value (usually POJO) to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
+     *
+     * @since 2.13 (to eventually replace {@link #writeObject(Object)}
+     */
+    public void writePOJO(Object pojo) throws IOException {
+        writeObject(pojo);
+    }
+
+    // TODO: deprecate in 2.14 or later
+    /**
+     * Older alias for {@link #writePOJO(Object)}
+     *
+     * @param pojo Java value (usually POJO) to write
      *
      * @throws IOException if there is either an underlying I/O problem or encoding
      *    issue at format layer
@@ -2320,6 +2335,20 @@ public abstract class JsonGenerator
      *<p>
      * NOTE: actual serialization of POJO value requires assigned {@code ObjectCodec}
      * and will delegate to that (usually {@code ObjectMapper} of databind layer)
+     *
+     * @param fieldName Name of the field to write
+     * @param pojo POJO value of the field to write
+     *
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
+     */
+    public void writePOJOField(String fieldName, Object pojo) throws IOException {
+        writeObjectField(fieldName, pojo);
+    }
+
+    // TODO: deprecate in 2.14 or later
+    /**
+     * Older alias for {@link #writePOJOField}
      *
      * @param fieldName Name of the field to write
      * @param pojo POJO value of the field to write

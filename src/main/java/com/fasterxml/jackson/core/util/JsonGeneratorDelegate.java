@@ -44,19 +44,9 @@ public class JsonGeneratorDelegate extends JsonGenerator
         this.delegateCopyMethods = delegateCopyMethods;
     }
 
-    @Override
-    public Object getCurrentValue() {
-        return delegate.getCurrentValue();
-    }
-
-    @Override
-    public void setCurrentValue(Object v) {
-        delegate.setCurrentValue(v);
-    }
-
     /*
     /**********************************************************************
-    /* Public API, metadata
+    /* Public API, metadata/state access
     /**********************************************************************
      */
     
@@ -72,6 +62,17 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override public Version version() { return delegate.version(); }
     @Override public Object getOutputTarget() { return delegate.getOutputTarget(); }
     @Override public int getOutputBuffered() { return delegate.getOutputBuffered(); }
+
+    @Override
+    public void setCurrentValue(Object v) {
+        delegate.setCurrentValue(v);
+    }
+
+    @Override
+    public Object currentValue() { return delegate.currentValue(); }
+
+    @Override
+    public Object getCurrentValue() { return delegate.getCurrentValue(); }
 
     /*
     /**********************************************************************

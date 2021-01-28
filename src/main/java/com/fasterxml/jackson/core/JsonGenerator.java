@@ -327,7 +327,7 @@ public abstract class JsonGenerator
 
     /*
     /**********************************************************************
-    /* Public API, output configuration, state access
+    /* Public API, state, output configuration access
     /**********************************************************************
      */
 
@@ -373,7 +373,16 @@ public abstract class JsonGenerator
      *
      * @return "Current value" associated with the current context (state) of this generator
      *
-     * @since 2.5
+     * @since 2.13 (added as replacement for older {@link #getCurrentValue()}
+     */
+    public abstract Object currentValue();
+
+    // TODO: deprecate in 2.14 or later
+    /**
+     * Alias for {@link #currentValue()}, to be deprecated in later
+     * Jackson 2.x versions (and removed from Jackson 3.0).
+     *
+     * @return Location of the last processed input unit (byte or character)
      */
     public Object getCurrentValue() {
         JsonStreamContext ctxt = getOutputContext();
@@ -387,7 +396,7 @@ public abstract class JsonGenerator
      *</code>
      *
      * @param v Current value to assign for the current context of this generator
-     * 
+     *
      * @since 2.5
      */
     public void setCurrentValue(Object v) {

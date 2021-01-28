@@ -430,43 +430,6 @@ public abstract class JsonParser
     public Object getInputSource() { return null; }
 
     /**
-     * Helper method, usually equivalent to:
-     *<code>
-     *   getParsingContext().getCurrentValue();
-     *</code>
-     *<p>
-     * Note that "current value" is NOT populated (or used) by Streaming parser;
-     * it is only used by higher-level data-binding functionality.
-     * The reason it is included here is that it can be stored and accessed hierarchically,
-     * and gets passed through data-binding.
-     *
-     * @return "Current value" associated with the current input context (state) of this parser
-     *
-     * @since 2.5
-     */
-    public Object getCurrentValue() {
-        JsonStreamContext ctxt = getParsingContext();
-        return (ctxt == null) ? null : ctxt.getCurrentValue();
-    }
-
-    /**
-     * Helper method, usually equivalent to:
-     *<code>
-     *   getParsingContext().setCurrentValue(v);
-     *</code>
-     *
-     * @param v Current value to assign for the current input context of this parser
-     * 
-     * @since 2.5
-     */
-    public void setCurrentValue(Object v) {
-        JsonStreamContext ctxt = getParsingContext();
-        if (ctxt != null) {
-            ctxt.setCurrentValue(v);
-        }
-    }
-
-    /**
      * Sets the payload to be passed if {@link JsonParseException} is thrown.
      *
      * @param payload Payload to pass
@@ -738,6 +701,54 @@ public abstract class JsonParser
      * @return Starting location of the token parser currently points to
      */
     public abstract JsonLocation getTokenLocation();
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getParsingContext().getCurrentValue();
+     *</code>
+     *<p>
+     * Note that "current value" is NOT populated (or used) by Streaming parser;
+     * it is only used by higher-level data-binding functionality.
+     * The reason it is included here is that it can be stored and accessed hierarchically,
+     * and gets passed through data-binding.
+     *
+     * @return "Current value" associated with the current input context (state) of this parser
+     *
+     * @since 2.13 (added as replacement for older {@link #getCurrentValue()}
+     */
+    public Object currentValue() {
+        return getCurrentValue();
+    }
+
+    // TODO: deprecate in 2.14 or later
+    /**
+     * Alias for {@link #currentValue()}, to be deprecated in later
+     * Jackson 2.x versions (and removed from Jackson 3.0).
+     *
+     * @return Location of the last processed input unit (byte or character)
+     */
+    public Object getCurrentValue() {
+        JsonStreamContext ctxt = getParsingContext();
+        return (ctxt == null) ? null : ctxt.getCurrentValue();
+    }
+
+    /**
+     * Helper method, usually equivalent to:
+     *<code>
+     *   getParsingContext().setCurrentValue(v);
+     *</code>
+     *
+     * @param v Current value to assign for the current input context of this parser
+     * 
+     * @since 2.5
+     */
+    public void setCurrentValue(Object v) {
+        JsonStreamContext ctxt = getParsingContext();
+        if (ctxt != null) {
+            ctxt.setCurrentValue(v);
+        }
+    }
 
     /*
     /**********************************************************
@@ -1196,9 +1207,10 @@ public abstract class JsonParser
         return getCurrentTokenId();
     }
 
+    // TODO: deprecate in 2.14 or later
     /**
      * Alias for {@link #currentToken()}, may be deprecated sometime after
-     * Jackson 2.12 (will be removed from 3.0).
+     * Jackson 2.13 (will be removed from 3.0).
      *
      * @return Type of the token this parser currently points to,
      *   if any: null before any tokens have been read, and
@@ -1206,7 +1218,7 @@ public abstract class JsonParser
     public abstract JsonToken getCurrentToken();
 
     /**
-     * Alias for {@link #currentTokenId()}.
+     * Deprecated alias for {@link #currentTokenId()}.
      *
      * @return {@code int} matching one of constants from {@link JsonTokenId}.
      *
@@ -1385,8 +1397,9 @@ public abstract class JsonParser
     /**********************************************************
      */
 
+    // TODO: deprecate in 2.14 or later
     /**
-     * See {@link #currentName()}.
+     * Alias of {@link #currentName()}.
      *
      * @return Name of the current field in the parsing context
      *

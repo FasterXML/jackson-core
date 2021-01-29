@@ -297,9 +297,12 @@ public abstract class JsonGenerator
      *   Content
      *   (this is typically determined by capabilities of the underlying format);
      *   {@code false} if not
+     *
+     * @deprecated In 3.0, will be removed before final
      */
+    @Deprecated
     public boolean canWriteBinaryNatively() { return false; }
-    
+
     /**
      * Introspection method to call to check whether it is ok to omit
      * writing of Object properties or not. Most formats do allow omission,

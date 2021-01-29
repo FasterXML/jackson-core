@@ -77,6 +77,7 @@ public class JsonGeneratorDelegate extends JsonGenerator
     @Override
     public boolean canWriteObjectId() { return delegate.canWriteObjectId(); }
 
+    @Deprecated
     @Override
     public boolean canWriteBinaryNatively() { return delegate.canWriteBinaryNatively(); }
     

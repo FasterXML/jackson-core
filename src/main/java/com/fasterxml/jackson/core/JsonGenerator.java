@@ -286,24 +286,6 @@ public abstract class JsonGenerator
     public boolean canWriteTypeId() { return false; }
 
     /**
-     * Introspection method that may be called to see if the underlying
-     * data format supports "native" binary data; that is, an efficient
-     * output of binary content without encoding.
-     *<p>
-     * Default implementation returns false; overridden by data formats
-     * that do support native binary content.
-     *
-     * @return {@code True} if this generator is capable of writing "raw" Binary
-     *   Content
-     *   (this is typically determined by capabilities of the underlying format);
-     *   {@code false} if not
-     *
-     * @deprecated In 3.0, will be removed before final
-     */
-    @Deprecated
-    public boolean canWriteBinaryNatively() { return false; }
-
-    /**
      * Introspection method to call to check whether it is ok to omit
      * writing of Object properties or not. Most formats do allow omission,
      * but certain positional formats (such as CSV) require output of

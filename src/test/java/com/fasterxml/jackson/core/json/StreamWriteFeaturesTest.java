@@ -23,7 +23,6 @@ public class StreamWriteFeaturesTest
         assertFalse(g.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
 
         assertTrue(g.canOmitProperties());
-        assertTrue(g.canWriteFormattedNumbers());
         assertFalse(g.canWriteObjectId());
         assertFalse(g.canWriteTypeId());
         

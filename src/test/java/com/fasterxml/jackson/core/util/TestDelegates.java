@@ -222,7 +222,6 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
         // Basic capabilities for parser:
         assertTrue(del.canOmitProperties());
-        assertTrue(del.canWriteFormattedNumbers());
         assertFalse(del.canWriteObjectId());
         assertFalse(del.canWriteTypeId());
         assertEquals(g0.version(), del.version());

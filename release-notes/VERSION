@@ -30,8 +30,8 @@ JSON library.
 #670: Replace references to "field" in `JsonGenerator`, `JsonParser` method names with "property"
 #671: Replace `getCurrentLocation()`/`getTokenLocation()` with
   `currentLocation()`/`currentTokenLocation()`
-#676: Remove `JsonGenerator.canWriteBinaryNatively()` (replaced by
-  `StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY`
+#676: Remove `JsonGenerator.canWriteBinaryNatively()`, `canWriteFormattedNumbers()`
+  (replaced by `StreamWriteCapability` equivalents)
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

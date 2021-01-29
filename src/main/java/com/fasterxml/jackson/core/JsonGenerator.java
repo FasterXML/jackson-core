@@ -299,23 +299,6 @@ public abstract class JsonGenerator
     public boolean canOmitProperties() { return true; }
 
     /**
-     * Introspection method to call to check whether it is possible
-     * to write numbers using {@link #writeNumber(java.lang.String)}
-     * using possible custom format, or not. Typically textual formats
-     * allow this (and JSON specifically does), whereas binary formats
-     * do not allow this (except by writing them as Strings).
-     * Usual reason for calling this method is to check whether custom
-     * formatting of numbers may be applied by higher-level code (databinding)
-     * or not.
-     *
-     * @return {@code True} if this generator is capable of writing "formatted"
-     *   numbers (and if so, need to be passed using
-     *   {@link #writeNumber(String)}, that is, passed as {@code String});
-     *   {@code false} if not
-     */
-    public boolean canWriteFormattedNumbers() { return false; }
-
-    /**
      * Accessor for getting metadata on capabilities of this generator, based on
      * underlying data format being read (directly or indirectly).
      *

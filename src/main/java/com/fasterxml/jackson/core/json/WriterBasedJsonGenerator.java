@@ -133,10 +133,6 @@ public class WriterBasedJsonGenerator
         return Math.max(0, len);
     }
 
-    // json does allow this so
-    @Override
-    public boolean canWriteFormattedNumbers() { return true; }
-
     /*
     /**********************************************************************
     /* Overridden methods

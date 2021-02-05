@@ -8,28 +8,24 @@ import java.math.BigDecimal;
 public final class BigDecimalParser {
 
     private final char[] chars;
-    private final int off;
     private final int len;
 
-    BigDecimalParser(char[] chars, int off, int len) {
+    BigDecimalParser(char[] chars) {
         this.chars = chars;
-        this.off = off;
-        this.len = len;
+        len = chars.length;
     }
 
     BigDecimal parse() throws NumberFormatException {
         try {
-            if (len < 500) {
-                return new BigDecimal(chars, off, len);
+            if (chars.length < 500) {
+                return new BigDecimal(chars);
             }
 
-            int splitLen = len / 10;
+            int splitLen = chars.length / 10;
             return parseBigDecimal(splitLen);
 
         } catch (NumberFormatException e) {
-            String val = new String(chars, off, len);
-
-            throw new NumberFormatException("Value \"" + val + "\" can not be represented as BigDecimal."
+            throw new NumberFormatException("Value \"" + new String(chars) + "\" can not be represented as BigDecimal."
                     + " Reason: " + e.getMessage());
         }
     }
@@ -43,7 +39,7 @@ public final class BigDecimalParser {
         int dotIdx = -1;
         int scale = 0;
 
-        for (int i = off; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             char c = chars[i];
             switch (c) {
             case '+':

@@ -316,12 +316,15 @@ public final class NumberInput
         return parseBigDecimal(ch);
     }
 
-    public static BigDecimal parseBigDecimal(char[] ch) throws NumberFormatException {
-        return parseBigDecimal(ch, 0, ch.length);
+    public static BigDecimal parseBigDecimal(char[] ch, int off, int len) throws NumberFormatException {
+        char[] copy = new char[len];
+        System.arraycopy(ch, off, copy, 0, len);
+
+        return parseBigDecimal(copy);
     }
 
-    public static BigDecimal parseBigDecimal(char[] ch, int off, int len) throws NumberFormatException {
-        BigDecimalParser parser = new BigDecimalParser(ch, off, len);
+    public static BigDecimal parseBigDecimal(char[] ch) throws NumberFormatException {
+        BigDecimalParser parser = new BigDecimalParser(ch);
 
         return parser.parse();
     }

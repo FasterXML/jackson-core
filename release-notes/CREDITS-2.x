@@ -257,3 +257,7 @@ Jendrik Johannes (jjohannes@github)
 Jonathan Haber (jhaber@github)
   * Contributed #573: More customizable TokenFilter inclusion (using `Tokenfilter.Inclusion`)
   (2.12.0)
+
+Ferenc Csaky (ferenc-csaky@github)
+  * Contributed #677: Introduce O(n^1.5) BigDecimal parser implementation
+  (2.13.0)

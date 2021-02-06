@@ -22,6 +22,8 @@ JSON library.
 #673: Replace `JsonGenerator.writeObject()` (and related) with `writePOJO()`
 #674: Replace `getCurrentValue()`/`setCurrentValue()` with
   `currentValue()`/`assignCurrentValue()` in `JsonParser`/`JsonGenerator
+#677: Introduce O(n^1.5) BigDecimal parser implementation
+ (contributed by Ferenc C)
 
 2.12.1 (08-Jan-2021)
 

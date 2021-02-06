@@ -495,12 +495,12 @@ public class NumberParsingTest
         }) {
             final String DOC = "[ "+asText+" ]";
 
-            try (JsonParser p = createParser(mode, DOC)) {
-                assertToken(JsonToken.START_ARRAY, p.nextToken());
-                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-                final BigDecimal exp = new BigDecimal(asText);
-                assertEquals(exp, p.getDecimalValue());
-            }
+            JsonParser p = createParser(mode, DOC);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            final BigDecimal exp = new BigDecimal(asText);
+            assertEquals(exp, p.getDecimalValue());
+            p.close();
         }
     }
 

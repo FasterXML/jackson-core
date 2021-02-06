@@ -1,36 +1,62 @@
 package com.fasterxml.jackson.core.io;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
-// Based on a great idea of Eric Obermühlner to use a tree of smaller BigDecimals for parsing really big numbers
-// with O(n^1.5) complexity instead of O(n^2) when using the constructor for a decimal representation from JDK 8/11:
+// Based on a great idea of Eric Obermühlner to use a tree of smaller BigDecimals for parsing
+// really big numbers with O(n^1.5) complexity instead of O(n^2) when using the constructor
+// for a decimal representation from JDK 8/11:
+//
 // https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f
-public final class BigDecimalParser {
 
+/**
+ * Helper class used to implement more optimized parsing of {@link BigDecimal} for REALLY
+ * big values (over 500 characters)
+ *<p>
+ * Based on ideas from this
+ * <a href="https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f">this
+ * git commit</a>.
+ *
+ * @since 2.13 
+ */
+public final class BigDecimalParser
+{
     private final char[] chars;
-    private final int len;
 
     BigDecimalParser(char[] chars) {
         this.chars = chars;
-        len = chars.length;
     }
 
-    BigDecimal parse() throws NumberFormatException {
+    public static BigDecimal parse(String valueStr) {
+        return parse(valueStr.toCharArray());
+    }
+
+    public static BigDecimal parse(char[] chars, int off, int len) {
+        if (off > 0 || len != chars.length) {
+            chars = Arrays.copyOfRange(chars, off, off+len);
+        }
+        return parse(chars);
+    }
+
+    public static BigDecimal parse(char[] chars) {
+        final int len = chars.length;
         try {
-            if (chars.length < 500) {
+            if (len < 500) {
                 return new BigDecimal(chars);
             }
-
-            int splitLen = chars.length / 10;
-            return parseBigDecimal(splitLen);
-
+            return new BigDecimalParser(chars).parseBigDecimal(len / 10);
         } catch (NumberFormatException e) {
-            throw new NumberFormatException("Value \"" + new String(chars) + "\" can not be represented as BigDecimal."
-                    + " Reason: " + e.getMessage());
+            String desc = e.getMessage();
+            // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:
+            if (desc == null) {
+                desc = "Not a valid number representation";
+            }
+            throw new NumberFormatException("Value \"" + new String(chars)
+                    + "\" can not be represented as `java.math.BigDecimal`, reason: " + desc);
         }
     }
 
-    private BigDecimal parseBigDecimal(int splitLen) {
+    private BigDecimal parseBigDecimal(final int splitLen) {
         boolean numHasSign = false;
         boolean expHasSign = false;
         boolean neg = false;
@@ -38,6 +64,7 @@ public final class BigDecimalParser {
         int expIdx = -1;
         int dotIdx = -1;
         int scale = 0;
+        final int len = chars.length;
 
         for (int i = 0; i < len; i++) {
             char c = chars[i];

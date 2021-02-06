@@ -443,18 +443,26 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
-    public void testBigBigDecimals() throws Exception
+    public void testBigBigDecimalsBytes() throws Exception
     {
         _testBigBigDecimals(MODE_INPUT_STREAM);
         _testBigBigDecimals(MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    public void testBigBigDecimalsChars() throws Exception
+    {
         _testBigBigDecimals(MODE_READER);
+    }
+
+    public void testBigBigDecimalsDataInput() throws Exception
+    {
         _testBigBigDecimals(MODE_DATA_INPUT);
     }
 
     private void _testBigBigDecimals(int mode) throws Exception
     {
-        for (String asText : new String[] {
- "50.01610253934481930774151441507943554511027782188707463024288149352877602369090537"
+        final String BASE_FRACTION =
+ "01610253934481930774151441507943554511027782188707463024288149352877602369090537"
 +"80583522838238149455840874862907649203136651528841378405339370751798532555965157588"
 +"51877960056849468879933122908090021571162427934915567330612627267701300492535817858"
 +"36107216979078343419634586362681098115326893982589327952357032253344676618872460059"
@@ -475,17 +483,24 @@ public class NumberParsingTest
 +"64318433253572997833038335632174050981747563310524775762280529871176578487487324067"
 +"90242862159403953039896125568657481354509805409457993946220531587293505986329150608"
 +"18702520420240989908678141379300904169936776618861221839938283876222332124814830207"
-+"073816864076428273177778788053613345444299361357958409716099682468768353446625063"
++"073816864076428273177778788053613345444299361357958409716099682468768353446625063";
 
-
+        for (String asText : new String[] {
+                "50."+BASE_FRACTION,
+                "-37."+BASE_FRACTION,
+                "0.00"+BASE_FRACTION,
+                "-0.012"+BASE_FRACTION,
+                "9999998."+BASE_FRACTION,
+                "-8888392."+BASE_FRACTION,
         }) {
             final String DOC = "[ "+asText+" ]";
 
-            JsonParser p = createParser(mode, DOC);
-            assertToken(JsonToken.START_ARRAY, p.nextToken());
-            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            final BigDecimal exp = new BigDecimal(asText);
-            assertEquals(exp, p.getDecimalValue());
+            try (JsonParser p = createParser(mode, DOC)) {
+                assertToken(JsonToken.START_ARRAY, p.nextToken());
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                final BigDecimal exp = new BigDecimal(asText);
+                assertEquals(exp, p.getDecimalValue());
+            }
         }
     }
 

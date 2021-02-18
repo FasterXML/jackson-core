@@ -9,7 +9,7 @@ package com.fasterxml.jackson.core;
 public abstract class JacksonException
     extends RuntimeException
 {
-    private final static long serialVersionUID = 123; // eclipse complains otherwise
+    private final static long serialVersionUID = 3L; // eclipse complains otherwise
 
     protected JsonLocation _location;
 
@@ -34,6 +34,12 @@ public abstract class JacksonException
     protected JacksonException(String msg, JsonLocation loc, Throwable rootCause) {
         super(msg, rootCause);
         _location = (loc == null) ? JsonLocation.NA : loc;
+    }
+
+    // @since 3.0
+    public JacksonException withCause(Throwable cause) {
+        initCause(cause);
+        return this;
     }
 
     /**

@@ -190,7 +190,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
                     "Duplicate Object property \""+name+"\"");
         }
     }
-    
+
     public boolean writeValue() {
         // Only limitation is with OBJECTs:
         if (_type == TYPE_OBJECT) {

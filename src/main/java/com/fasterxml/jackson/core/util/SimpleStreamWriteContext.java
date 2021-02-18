@@ -49,7 +49,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
      * Marker used to indicate that we just wrote a property name (or possibly
      * property id for some backends) and now expect a value to write.
      */
-    protected boolean _gotFieldId;
+    protected boolean _gotPropertyId;
 
     /*
     /**********************************************************************
@@ -71,7 +71,7 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
         _type = type;
         _index = -1;
         _currentName = null;
-        _gotFieldId = false;
+        _gotPropertyId = false;
         _currentValue = currentValue;
         if (_dups != null) { _dups.reset(); }
         return this;
@@ -132,11 +132,11 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
     @Override public final String currentName() {
         // 15-Aug-2019, tatu: Should NOT check this status because otherwise name
         //    in parent context is not accessible after new structured scope started
-//        if (_gotFieldId) { ... }
+//        if (_gotPropertyId) { ... }
         return _currentName;
     }
 
-    @Override public boolean hasCurrentName() { return _gotFieldId; }
+    @Override public boolean hasCurrentName() { return _gotPropertyId; }
 
     /**
      * Method that can be used to both clear the accumulated references
@@ -174,10 +174,10 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
      * @throws StreamWriteException If write fails due to duplicate check
      */
     public boolean writeName(String name) throws StreamWriteException {
-        if ((_type != TYPE_OBJECT) || _gotFieldId) {
+        if ((_type != TYPE_OBJECT) || _gotPropertyId) {
             return false;
         }
-        _gotFieldId = true;
+        _gotPropertyId = true;
         _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
         return true;
@@ -194,10 +194,10 @@ public final class SimpleStreamWriteContext extends TokenStreamContext
     public boolean writeValue() {
         // Only limitation is with OBJECTs:
         if (_type == TYPE_OBJECT) {
-            if (!_gotFieldId) {
+            if (!_gotPropertyId) {
                 return false;
             }
-            _gotFieldId = false;
+            _gotPropertyId = false;
         }
         ++_index;
         return true;

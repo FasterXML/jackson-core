@@ -42,6 +42,16 @@ public interface ObjectWriteContext
      */
     public PrettyPrinter getPrettyPrinter();
 
+    /**
+     * Accessor similar to {@link #getPrettyPrinter()} but which only indicates whether
+     * a non-{@code null} instance would be constructed if requested, or not.
+     * This is useful for backends that have custom pretty-printing instead of relying on
+     * Jackson standard mechanism.
+     *
+     * @return True if {@link #getPrettyPrinter()} would return non-{@code null}; false otherwise.
+     */
+    public boolean hasPrettyPrinter();
+
     public SerializableString getRootValueSeparator(SerializableString defaultSeparator);
 
     public int getStreamWriteFeatures(int defaults);
@@ -113,6 +123,11 @@ public interface ObjectWriteContext
 
         @Override
         public PrettyPrinter getPrettyPrinter() { return null; }
+
+        @Override
+        public boolean hasPrettyPrinter() {
+            return getPrettyPrinter() != null;
+        }
 
         @Override
         public SerializableString getRootValueSeparator(SerializableString defaultSeparator) {

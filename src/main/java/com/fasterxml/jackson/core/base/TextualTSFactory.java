@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.base;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -93,6 +94,16 @@ public abstract class TextualTSFactory
         IOContext ioCtxt = _createContext(f, true);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, _fileInputStream(f)));
+    }
+
+    @Override
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            Path p) throws JacksonException
+    {
+        // true, since we create InputStream from Path
+        IOContext ioCtxt = _createContext(p, true);
+        return _createParser(readCtxt, ioCtxt,
+                _decorate(ioCtxt, _pathInputStream(p)));
     }
 
     @Override
@@ -226,6 +237,20 @@ public abstract class TextualTSFactory
     {
         final OutputStream out = _fileOutputStream(f);
         final IOContext ioCtxt = _createContext(f, true, enc);
+        if (enc == JsonEncoding.UTF8) {
+            return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+        }
+        return _createGenerator(writeCtxt, ioCtxt,
+                _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
+    }
+
+    @Override
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
+            Path p, JsonEncoding enc)
+        throws JacksonException
+    {
+        final OutputStream out = _pathOutputStream(p);
+        final IOContext ioCtxt = _createContext(p, true, enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
         }

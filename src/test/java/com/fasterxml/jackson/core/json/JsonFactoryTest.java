@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -199,5 +201,160 @@ public class JsonFactoryTest
         g.writeNumber(3);
         g.close();
         assertEquals("1/2/3", w.toString());
+    }
+
+    public void test_createGenerator_OutputStream() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonGenerator jsonGenerator = new JsonFactory()
+                .createGenerator(ObjectWriteContext.empty(), outputStream);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the stream has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_createGenerator_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        JsonGenerator jsonGenerator = new JsonFactory()
+                .createGenerator(ObjectWriteContext.empty(), path.toFile(), JsonEncoding.UTF8);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_createGenerator_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        JsonGenerator jsonGenerator = new JsonFactory()
+                .createGenerator(ObjectWriteContext.empty(), path, JsonEncoding.UTF8);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_createGenerator_Writer() throws Exception
+    {
+        Writer writer = new StringWriter();
+        JsonGenerator jsonGenerator = new JsonFactory()
+                .createGenerator(ObjectWriteContext.empty(), writer);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(writer.toString(), "\"value\"");
+
+        // the writer has not been closed by close
+        writer.append('1');
+    }
+
+    public void test_createGenerator_DataOutput() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DataOutput dataOutput = new DataOutputStream(outputStream);
+        JsonGenerator jsonGenerator = new JsonFactory()
+                .createGenerator(ObjectWriteContext.empty(), dataOutput);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the data output has not been closed by close
+        dataOutput.write(1);
+    }
+
+    public void test_createParser_InputStream() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), inputStream);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), path.toFile());
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), path);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_Url() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), path.toUri().toURL());
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_Reader() throws Exception
+    {
+        Reader reader = new StringReader("\"value\"");
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), reader);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_ByteArray() throws Exception
+    {
+        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), bytes);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_String() throws Exception
+    {
+        String string = "\"value\"";
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), string);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_CharArray() throws Exception
+    {
+        char[] chars = "\"value\"".toCharArray();
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), chars);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_DataInput() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        DataInput dataInput = new DataInputStream(inputStream);
+        JsonParser jsonParser = new JsonFactory()
+                .createParser(ObjectReadContext.empty(), dataInput);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
     }
 }

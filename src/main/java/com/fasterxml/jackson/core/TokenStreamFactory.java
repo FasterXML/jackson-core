@@ -7,6 +7,8 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 
@@ -704,6 +706,32 @@ public abstract class TokenStreamFactory
             File f) throws JacksonException;
 
     /**
+     * Method for constructing parser instance to decode
+     * contents of specified path.
+     *<p>
+     * Encoding is auto-detected from contents according to JSON
+     * specification recommended mechanism. Json specification
+     * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
+     * so auto-detection implemented only for this charsets.
+     * For other charsets use {@link #createParser(java.io.Reader)}.
+     *<p>
+     * Underlying input stream (needed for reading contents)
+     * will be <b>owned</b> (and managed, i.e. closed as need be) by
+     * the parser, since caller has no access to it.
+     *
+     * @param readCtxt Object read context to use
+     * @param p Path that contains content to parse
+     *
+     * @return Parser constructed
+     *
+     * @throws JacksonException If parser construction or initialization fails
+     *
+     * @since 3.0
+     */
+    public abstract JsonParser createParser(ObjectReadContext readCtxt,
+            Path p) throws JacksonException;
+
+    /**
      * Method for constructing JSON parser instance to decode
      * contents of resource reference by given URL.
      *
@@ -1132,6 +1160,30 @@ public abstract class TokenStreamFactory
         throws JacksonException;
 
     /**
+     * Method for constructing generator that writes contents
+     * to specified path, overwriting contents it might have (or creating
+     * it if such path does not yet exist).
+     *<p>
+     * Underlying stream <b>is owned</b> by the generator constructed,
+     * i.e. generator will handle closing of path when
+     * {@link JsonGenerator#close} is called.
+     *
+     * @param writeCtxt Object-binding context where applicable; used for providing contextual
+     *    configuration
+     * @param p Path to write contents to
+     * @param enc Character set encoding to use (usually {@link JsonEncoding#UTF8})
+     *
+     * @return Generator constructed
+     *
+     * @throws JacksonException If generator construction or initialization fails
+     *
+     * @since 3.0
+     */
+    public abstract JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Path p,
+            JsonEncoding enc)
+        throws JacksonException;
+
+    /**
      * Method for constructing generator that writes content into specified {@link DataOutput},
      * using UTF-8 encoding (with formats where encoding is user-configurable).
      *
@@ -1329,10 +1381,28 @@ public abstract class TokenStreamFactory
         }
     }
 
+    protected InputStream _pathInputStream(Path p) throws JacksonException
+    {
+        try {
+            return Files.newInputStream(p);
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+    }
+
     protected OutputStream _fileOutputStream(File f) throws JacksonException
     {
         try {
             return new FileOutputStream(f);
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+    }
+
+    protected OutputStream _pathOutputStream(Path p) throws JacksonException
+    {
+        try {
+            return Files.newOutputStream(p);
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }

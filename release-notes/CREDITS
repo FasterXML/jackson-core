@@ -5,3 +5,7 @@ core component, version 3.x
 (note: for older credits, check out `CREDITS-2.x`)
 
 Tatu Saloranta, tatu.saloranta@iki.fi: author
+
+Sven Döring (sdoeringNew@github)
+ * Contributed #680: Allow use of `java.nio.file.Path` as parser source, generator target
+  (3.0.0)

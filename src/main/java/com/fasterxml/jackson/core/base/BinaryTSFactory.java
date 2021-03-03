@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.base;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Path;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
@@ -63,19 +64,35 @@ public abstract class BinaryTSFactory
      */
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, File f) throws JacksonException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            File f) throws JacksonException
+    {
         final InputStream in = _fileInputStream(f);
         // true, since we create InputStream from File
         final IOContext ioCtxt = _createContext(f, true);
-        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        return _createParser(readCtxt, ioCtxt,
+                _decorate(ioCtxt, in));
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt, URL url) throws JacksonException {
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            Path p) throws JacksonException
+    {
+        // true, since we create InputStream from Path
+        IOContext ioCtxt = _createContext(p, true);
+        return _createParser(readCtxt, ioCtxt,
+                _decorate(ioCtxt, _pathInputStream(p)));
+    }
+
+    @Override
+    public JsonParser createParser(ObjectReadContext readCtxt,
+            URL url) throws JacksonException
+    {
         // true, since we create InputStream from URL
         IOContext ioCtxt = _createContext(url, true);
         InputStream in = _optimizedStreamFromURL(url);
-        return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
+        return _createParser(readCtxt, ioCtxt,
+                _decorate(ioCtxt, in));
     }
 
     @Override
@@ -121,7 +138,7 @@ public abstract class BinaryTSFactory
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
-    
+
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
             IOContext ioCtxt, InputStream in) throws JacksonException;
 
@@ -137,26 +154,6 @@ public abstract class BinaryTSFactory
     /**********************************************************************
      */
 
-    /*
-    @Override
-    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
-        throws JacksonException
-    {
-        // false -> we won't manage the stream unless explicitly directed to
-        IOContext ioCtxt = _createContext(out, false, enc);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(ioCtxt, out));
-    }
-
-    @Override
-    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException
-    {
-        OutputStream out = new FileOutputStream(f);
-        // true -> yes, we have to manage the stream since we created it
-        IOContext ioCtxt = _createContext(out, true, enc);
-        return _createGenerator(EMPTY_WRITE_CONTEXT, ioCtxt, _decorate(ioCtxt, out));
-    }
-    */
-
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
             OutputStream out, JsonEncoding enc)
@@ -169,7 +166,8 @@ public abstract class BinaryTSFactory
 
     @Override
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
-            Writer w) throws JacksonException {
+            Writer w) throws JacksonException
+    {
         return _nonByteTarget();
     }
 
@@ -180,6 +178,16 @@ public abstract class BinaryTSFactory
         final OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         final IOContext ioCtxt = _createContext(out, true, enc);
+        return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+    }
+
+    @Override
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt,
+            Path p, JsonEncoding enc)
+        throws JacksonException
+    {
+        final OutputStream out = _pathOutputStream(p);
+        final IOContext ioCtxt = _createContext(p, true, enc);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
     }
 

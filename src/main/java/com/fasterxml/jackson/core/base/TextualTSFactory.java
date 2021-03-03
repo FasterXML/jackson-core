@@ -184,7 +184,7 @@ public abstract class TextualTSFactory
         IOContext ioCtxt = _createContext(in, false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
-    
+
     protected abstract JsonParser _createParser(ObjectReadContext readCtxt,
             IOContext ctxt, InputStream in) throws JacksonException;
 

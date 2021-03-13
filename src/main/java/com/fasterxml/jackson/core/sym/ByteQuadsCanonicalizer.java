@@ -53,7 +53,7 @@ public final class ByteQuadsCanonicalizer
      * names for almost any case, while preventing ballooning for cases where names
      * are unique (or close thereof).
      */
-    final static int MAX_ENTRIES_FOR_REUSE = 6000;
+    protected final static int MAX_ENTRIES_FOR_REUSE = 6000;
 
     /*
     /**********************************************************
@@ -65,7 +65,7 @@ public final class ByteQuadsCanonicalizer
      * Reference to the root symbol table, for child tables, so
      * that they can merge table information back as necessary.
      */
-    final protected ByteQuadsCanonicalizer _parent;
+    protected final ByteQuadsCanonicalizer _parent;
 
     /**
      * Member that is only used by the root table instance: root
@@ -73,7 +73,7 @@ public final class ByteQuadsCanonicalizer
      * may return new state if they add entries to the table.
      * Child tables do NOT use the reference.
      */
-    final protected AtomicReference<TableInfo> _tableInfo;
+    protected final AtomicReference<TableInfo> _tableInfo;
     
     /**
      * Seed value we use as the base to make hash codes non-static between
@@ -82,8 +82,8 @@ public final class ByteQuadsCanonicalizer
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
      */
-    final protected int _seed;
-    
+    protected final int _seed;
+
     /*
     /**********************************************************
     /* Configuration
@@ -97,7 +97,7 @@ public final class ByteQuadsCanonicalizer
      * NOTE: non-final to allow disabling intern()ing in case of excessive
      * collisions.
      */
-    protected boolean _intern;
+    protected final boolean _intern;
 
     /**
      * Flag that indicates whether we should throw an exception if enough 
@@ -212,7 +212,7 @@ public final class ByteQuadsCanonicalizer
      */
 
     /**
-     * Constructor used for creating per-<code>JsonFactory</code> "root"
+     * Constructor used for creating per-{@code TokeanStreamFactory} "root"
      * symbol tables: ones used for merging and sharing common symbols
      * 
      * @param sz Initial primary hash area size
@@ -220,11 +220,17 @@ public final class ByteQuadsCanonicalizer
      * @param seed Random seed valued used to make it more difficult to cause
      *   collisions (used for collision-based DoS attacks).
      */
-    private ByteQuadsCanonicalizer(int sz, boolean intern, int seed, boolean failOnDoS) {
+    private ByteQuadsCanonicalizer(int sz, int seed)
+    {
+        // Settings to distinguish parent table: no parent
         _parent = null;
+        _count = 0;
+
+        // and mark as shared just in case to prevent modifications
+        _hashShared = true;
         _seed = seed;
-        _intern = intern;
-        _failOnDoS = failOnDoS;
+        _intern = false;
+        _failOnDoS = true;
         // Sanity check: let's now allow hash sizes below certain minimum value
         if (sz < MIN_HASH_SIZE) {
             sz = MIN_HASH_SIZE;
@@ -245,8 +251,9 @@ public final class ByteQuadsCanonicalizer
     /**
      * Constructor used when creating a child instance
      */
-    private ByteQuadsCanonicalizer(ByteQuadsCanonicalizer parent, boolean intern,
-            int seed, boolean failOnDoS, TableInfo state)
+    private ByteQuadsCanonicalizer(ByteQuadsCanonicalizer parent, int seed,
+            TableInfo state,
+            boolean intern, boolean failOnDoS)
     {
         _parent = parent;
         _seed = seed;
@@ -268,6 +275,48 @@ public final class ByteQuadsCanonicalizer
         _longNameOffset = state.longNameOffset;
 
         // and then set other state to reflect sharing status
+        _hashShared = true;
+    }
+
+    /**
+     * Alternate constructor used in cases where a "placeholder" child
+     * instance is needed when symbol table is not really used, but
+     * caller needs a non-null placeholder to keep code functioning
+     * with minimal awareness of distinction (all lookups fail to match
+     * any name without error; add methods should NOT be called).
+     *
+     * @since 2.13
+     */
+    private ByteQuadsCanonicalizer(TableInfo state)
+    {
+        _parent = null;
+        _seed = 0;
+        _intern = false;
+        _failOnDoS = true;
+        _tableInfo = null; // not used by child tables
+
+        // Then copy minimal pieces of shared state; only enough to guarantee
+        // we will neither find anything nor fail -- primary hash is enough
+        // for that purpose
+
+        _count = -1;
+
+        _hashArea = state.mainHash;
+        _names = state.names;
+
+        _hashSize = state.size;
+
+        // But otherwise can just use markers towards end of table to
+        // indicate error if access was attempted
+        final int end = _hashArea.length;
+        _secondaryStart = end;
+        _tertiaryStart = end;
+        _tertiaryShift = 1; //  bogus
+
+        _spilloverEnd = end;
+        _longNameOffset = end;
+
+        // just in case something failed, to ensure copying would be done
         _hashShared = true;
     }
 
@@ -295,7 +344,7 @@ public final class ByteQuadsCanonicalizer
     // Factory method that should only be called from unit tests, where seed
     // value should remain the same.
     protected static ByteQuadsCanonicalizer createRoot(int seed) {
-        return new ByteQuadsCanonicalizer(DEFAULT_T_SIZE, true, seed, true);
+        return new ByteQuadsCanonicalizer(DEFAULT_T_SIZE, seed);
     }
 
     /**
@@ -307,11 +356,31 @@ public final class ByteQuadsCanonicalizer
      * @return Actual canonicalizer instance that can be used by a parser
      */
     public ByteQuadsCanonicalizer makeChild(int flags) {
-        return new ByteQuadsCanonicalizer(this,
+        return new ByteQuadsCanonicalizer(this, _seed,
+                _tableInfo.get(),
                 JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(flags),
-                _seed,
-                JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(flags),
-                _tableInfo.get());
+                JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(flags));
+    }
+
+    /**
+     * Method similar to {@link #makeChild} but one that only creates real
+     * instance of {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature#CANONICALIZE_PROPERTY_NAMES} is
+     * enabled: otherwise a "bogus" instance is created.
+     *
+     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature}s enabled.
+     *
+     * @return Actual canonicalizer instance that can be used by a parser if (and only if)
+     *    canonicalization is enabled; otherwise a non-null "placeholder" instance.
+     */
+    public ByteQuadsCanonicalizer makeChildOrPlaceholder(int flags) {
+        if (JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(flags)) {
+            // inlined "makeChild()"
+            return new ByteQuadsCanonicalizer(this, _seed,
+                    _tableInfo.get(),
+                    JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(flags),
+                    JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(flags));
+        }
+        return new ByteQuadsCanonicalizer(_tableInfo.get());
     }
 
     /**
@@ -387,7 +456,18 @@ public final class ByteQuadsCanonicalizer
     public boolean maybeDirty() { return !_hashShared; }
 
     public int hashSeed() { return _seed; }
-    
+
+    /**
+     * @return True for "real", canonicalizing child tables; false for
+     *    root table as well as placeholder "child" tables.
+     *
+     * @since 2.13
+     */
+    public boolean isCanonicalizing() {
+        // couple of options, but for now missing parent linkage simplest:
+        return _parent != null;
+    }
+
     /**
      * Method mostly needed by unit tests; calculates number of
      * entries that are in the primary slot set. These are
@@ -872,6 +952,15 @@ public final class ByteQuadsCanonicalizer
     private void _verifySharing()
     {
         if (_hashShared) {
+            // 12-Mar-2021, tatu: prevent modifying of "placeholder" and
+            //   parent tables
+            if (_parent == null) {
+                if (_count == 0) { // root
+                    throw new IllegalStateException("Cannot add names to Root symbol table");
+                }
+                throw new IllegalStateException("Cannot add names to Placeholder symbol table");
+            }
+
             _hashArea = Arrays.copyOf(_hashArea, _hashArea.length);
             _names = Arrays.copyOf(_names, _names.length);
             _hashShared = false;

@@ -588,6 +588,14 @@ public abstract class BaseTest
         return sb.toString();
     }
 
+    protected int[] calcQuads(String word) {
+        try {
+            return calcQuads(word.getBytes("UTF-8"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected int[] calcQuads(byte[] wordBytes) {
         int blen = wordBytes.length;
         int[] result = new int[(blen + 3) / 4];

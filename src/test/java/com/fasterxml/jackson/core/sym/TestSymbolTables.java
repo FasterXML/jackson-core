@@ -48,6 +48,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         final int SEED = 33333;
         ByteQuadsCanonicalizer symbols =
                 ByteQuadsCanonicalizer.createRoot(SEED).makeChild(JsonFactory.Feature.collectDefaults());
+        assertTrue(symbols.isCanonicalizing());
 
         final int COUNT = 12000;
         for (int i = 0; i < COUNT; ++i) {
@@ -57,7 +58,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         }
         assertEquals(COUNT, symbols.size());
         assertEquals(16384, symbols.bucketCount());
-        
+
         // fragile, but essential to verify low collision counts;
         // anywhere between 70-80% primary matches
         assertEquals(8534, symbols.primaryCount());
@@ -178,7 +179,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     {
         while (p.nextToken() != null) { }
     }
-    
+
     private ByteQuadsCanonicalizer _findSymbols(JsonParser p) throws Exception
     {
         Field syms = p.getClass().getDeclaredField("_symbols");

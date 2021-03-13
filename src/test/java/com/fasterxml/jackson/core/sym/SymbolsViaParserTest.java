@@ -5,9 +5,8 @@ import java.util.HashSet;
 
 import com.fasterxml.jackson.core.*;
 
-/**
- * Tests that use symbol table functionality through parser.
- */
+// Tests to guarad against [core#213]: does not verify symbol tables
+// directly but only indirect issue(s).
 public class SymbolsViaParserTest
     extends com.fasterxml.jackson.core.BaseTest
 {

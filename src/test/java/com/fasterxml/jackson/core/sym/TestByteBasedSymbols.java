@@ -31,9 +31,8 @@ public class TestByteBasedSymbols
         // MUST share a single json factory
         JsonFactory jf = new JsonFactory();
 
-        /* First things first: parse a dummy doc to populate
-         * shared symbol table with some stuff
-         */
+        // First things first: parse a dummy doc to populate
+        // shared symbol table with some stuff
         String DOC0 = "{ \"a\" : 1, \"x\" : [ ] }";
         JsonParser jp0 = createParser(jf, DOC0);
 

@@ -7,6 +7,8 @@ package com.fasterxml.jackson.core;
 
 import java.nio.charset.StandardCharsets;
 
+import com.fasterxml.jackson.core.io.InputSourceReference;
+
 /**
  * Object that encapsulates Location information used for reporting
  * parsing (or potentially generation) errors, as well as current location
@@ -15,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class JsonLocation
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L; // in 2.13
 
     /**
      * Include at most first 500 characters/bytes from contents; should be enough
@@ -28,7 +30,8 @@ public class JsonLocation
      * Shared immutable "N/A location" that can be returned to indicate
      * that no location information is available.
      */
-    public final static JsonLocation NA = new JsonLocation(null, -1L, -1L, -1, -1);
+    public final static JsonLocation NA = new JsonLocation(InputSourceReference.unknown(),
+            -1L, -1L, -1, -1);
 
     private final static String NO_LOCATION_DESC = "[No location information]";
 
@@ -39,30 +42,61 @@ public class JsonLocation
     protected final int _columnNr;
 
     /**
-     * Displayable description for input source: file path, URL.
-     *<p>
-     * NOTE: <code>transient</code> so that Location itself is Serializable.
+     * Reference to input source; never null (but may be that of
+     * {@link InputSourceReference#unknown()}).
      */
-    final transient Object _sourceRef;
+    protected final InputSourceReference _inputSource;
 
-    public JsonLocation(Object srcRef, long totalChars, int lineNr, int colNr)
+    public JsonLocation(InputSourceReference inputSource, long totalChars,
+            int lineNr, int colNr)
     {
-        /* Unfortunately, none of legal encodings are straight single-byte
-         * encodings. Could determine offset for UTF-16/UTF-32, but the
-         * most important one is UTF-8...
-         * so for now, we'll just not report any real byte count
-         */
-        this(srcRef, -1L, totalChars, lineNr, colNr);
+        this(inputSource, -1L, totalChars, lineNr, colNr);
     }
 
-    public JsonLocation(Object sourceRef, long totalBytes, long totalChars,
+    public JsonLocation(InputSourceReference inputSource, long totalBytes, long totalChars,
             int lineNr, int columnNr)
     {
-        _sourceRef = sourceRef;
+        // 14-Mar-2021, tatu: Defensive programming, but also for convenience...
+        if (inputSource == null) {
+            inputSource = InputSourceReference.unknown();
+        }
+        _inputSource = inputSource;
         _totalBytes = totalBytes;
         _totalChars = totalChars;
         _lineNr = lineNr;
         _columnNr = columnNr;
+    }
+
+    @Deprecated
+    public JsonLocation(Object srcRef, long totalChars, int lineNr, int columnNr) {
+        this(_wrap(srcRef), totalChars, lineNr, columnNr);
+    }
+
+    @Deprecated
+    public JsonLocation(Object srcRef, long totalBytes, long totalChars,
+            int lineNr, int columnNr) {
+        this(_wrap(srcRef), totalBytes, totalChars, lineNr, columnNr);
+    }
+
+    protected static InputSourceReference _wrap(Object srcRef) {
+        if (srcRef instanceof InputSourceReference) {
+            return (InputSourceReference) srcRef;
+        }
+        return new InputSourceReference(false, srcRef);
+    }
+
+    /**
+     * Accessor for information about the original input source content is being
+     * read from. Returned reference is never {@code null} but may not contain
+     * useful information.
+     *<p>
+     * NOTE: not getter, on purpose, to avoid inlusion if serialized using
+     * default Jackson serializer.
+     *
+     * @return Object with information about input source.
+     */
+    public InputSourceReference inputSource() {
+        return _inputSource;
     }
 
     /**
@@ -74,8 +108,13 @@ public class JsonLocation
      * construct the parser instance.
      *
      * @return Source reference this location was constructed with, if any; {@code null} if none
+     *
+     * @deprecated Since 2.13 Use {@link #inputSource} instead
      */
-    public Object getSourceRef() { return _sourceRef; }
+    @Deprecated
+    public Object getSourceRef() {
+        return _inputSource.getSource();
+    }
 
     /**
      * @return Line number of the location (1-based)
@@ -124,7 +163,7 @@ public class JsonLocation
     @Override
     public int hashCode()
     {
-        int hash = (_sourceRef == null) ? 1 : _sourceRef.hashCode();
+        int hash = (_inputSource == null) ? 1 : 2;
         hash ^= _lineNr;
         hash += _columnNr;
         hash ^= (int) _totalChars;
@@ -140,9 +179,9 @@ public class JsonLocation
         if (!(other instanceof JsonLocation)) return false;
         JsonLocation otherLoc = (JsonLocation) other;
 
-        if (_sourceRef == null) {
-            if (otherLoc._sourceRef != null) return false;
-        } else if (!_sourceRef.equals(otherLoc._sourceRef)) return false;
+        if (_inputSource == null) {
+            if (otherLoc._inputSource != null) return false;
+        } else if (!_inputSource.equals(otherLoc._inputSource)) return false;
 
         return (_lineNr == otherLoc._lineNr)
             && (_columnNr == otherLoc._columnNr)
@@ -179,7 +218,7 @@ public class JsonLocation
 
     protected StringBuilder _appendSourceDesc(StringBuilder sb)
     {
-        final Object srcRef = _sourceRef;
+        final Object srcRef = _inputSource.getSource();
 
         if (srcRef == null) {
             sb.append("UNKNOWN");

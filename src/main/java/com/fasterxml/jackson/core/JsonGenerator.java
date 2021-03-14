@@ -31,7 +31,7 @@ public abstract class JsonGenerator
     implements Closeable, Flushable, Versioned
 {
     /**
-     * Default set of {@link StreamReadCapability}ies that may be used as
+     * Default set of {@link StreamWriteCapability}ies that may be used as
      * basis for format-specific readers (or as bogus instance if non-null
      * set needs to be passed).
      *
@@ -41,7 +41,7 @@ public abstract class JsonGenerator
         = JacksonFeatureSet.fromDefaults(StreamWriteCapability.values());
 
     /**
-     * Default set of {@link StreamReadCapability}ies for typical textual formats,
+     * Default set of {@link StreamWriteCapability}ies for typical textual formats,
      * to use either as-is, or as a base with possible differences.
      *
      * @since 2.12
@@ -50,7 +50,7 @@ public abstract class JsonGenerator
         = DEFAULT_WRITE_CAPABILITIES.with(StreamWriteCapability.CAN_WRITE_FORMATTED_NUMBERS);
 
     /**
-     * Default set of {@link StreamReadCapability}ies for typical binary formats,
+     * Default set of {@link StreamWriteCapability}ies for typical binary formats,
      * to use either as-is, or as a base with possible differences.
      *
      * @since 2.12

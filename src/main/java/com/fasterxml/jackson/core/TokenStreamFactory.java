@@ -20,9 +20,9 @@ public abstract class TokenStreamFactory
     private static final long serialVersionUID = 2;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Capability introspection
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -92,9 +92,9 @@ public abstract class TokenStreamFactory
     public abstract Class<? extends FormatFeature> getFormatWriteFeatureType();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Format detection functionality
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -123,9 +123,9 @@ public abstract class TokenStreamFactory
     public abstract String getFormatName();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration access
-    /**********************************************************
+    /**********************************************************************
      */
 
     public abstract boolean isEnabled(JsonParser.Feature f);
@@ -138,9 +138,9 @@ public abstract class TokenStreamFactory
     public abstract int getFormatGeneratorFeatures();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, parsers
-    /**********************************************************
+    /**********************************************************************
      */
 
     public abstract JsonParser createParser(byte[] data) throws IOException;
@@ -157,9 +157,9 @@ public abstract class TokenStreamFactory
     public abstract JsonParser createNonBlockingByteArrayParser() throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods, generators
-    /**********************************************************
+    /**********************************************************************
      */
 
     public abstract JsonGenerator createGenerator(DataOutput out, JsonEncoding enc) throws IOException;
@@ -170,9 +170,9 @@ public abstract class TokenStreamFactory
     public abstract JsonGenerator createGenerator(Writer w) throws IOException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal factory methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected OutputStream _createDataOutputWrapper(DataOutput out) {

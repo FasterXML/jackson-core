@@ -3,13 +3,16 @@ package com.fasterxml.jackson.core;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import com.fasterxml.jackson.core.io.InputSourceReference;
+
 public class TestLocation extends BaseTest
 {
     static class Foobar { }
 
     public void testBasics()
     {
-        JsonLocation loc1 = new JsonLocation("src", 10L, 10L, 1, 2);
+        JsonLocation loc1 = new JsonLocation(_sourceRef("src"),
+                10L, 10L, 1, 2);
         JsonLocation loc2 = new JsonLocation(null, 10L, 10L, 3, 2);
         assertEquals(loc1, loc1);
         assertFalse(loc1.equals(null));
@@ -29,28 +32,30 @@ public class TestLocation extends BaseTest
 
         // Short String
         assertEquals("[Source: (String)\"string-source\"; line: 1, column: 2]",
-                new JsonLocation("string-source", 10L, 10L, 1, 2).toString());
+                new JsonLocation(_sourceRef("string-source"), 10L, 10L, 1, 2).toString());
 
         // Short char[]
         assertEquals("[Source: (char[])\"chars-source\"; line: 1, column: 2]",
-                new JsonLocation("chars-source".toCharArray(), 10L, 10L, 1, 2).toString());
+                new JsonLocation(_sourceRef("chars-source".toCharArray()), 10L, 10L, 1, 2).toString());
 
         // Short byte[]
         assertEquals("[Source: (byte[])\"bytes-source\"; line: 1, column: 2]",
-                new JsonLocation("bytes-source".getBytes("UTF-8"), 10L, 10L, 1, 2).toString());
+                new JsonLocation(_sourceRef("bytes-source".getBytes("UTF-8")),
+                        10L, 10L, 1, 2).toString());
 
         // InputStream
         assertEquals("[Source: (ByteArrayInputStream); line: 1, column: 2]",
-                new JsonLocation(new ByteArrayInputStream(new byte[0]), 10L, 10L, 1, 2).toString());
+                new JsonLocation(_sourceRef(new ByteArrayInputStream(new byte[0])),
+                        10L, 10L, 1, 2).toString());
 
         // Class<?> that specifies source type
         assertEquals("[Source: (InputStream); line: 1, column: 2]",
-                new JsonLocation(InputStream.class, 10L, 10L, 1, 2).toString());
+                new JsonLocation(_sourceRef(InputStream.class), 10L, 10L, 1, 2).toString());
 
         // misc other
         Foobar srcRef = new Foobar();
         assertEquals("[Source: ("+srcRef.getClass().getName()+"); line: 1, column: 2]",
-                new JsonLocation(srcRef, 10L, 10L, 1, 2).toString());
+                new JsonLocation(_sourceRef(srcRef), 10L, 10L, 1, 2).toString());
     }
 
     public void testTruncatedSource() throws Exception
@@ -61,12 +66,12 @@ public class TestLocation extends BaseTest
         }
         String main = sb.toString();
         String json = main + "yyy";
-        JsonLocation loc = new JsonLocation(json, 0L, 0L, 1, 1);
+        JsonLocation loc = new JsonLocation(_sourceRef(json), 0L, 0L, 1, 1);
         String desc = loc.sourceDescription();
         assertEquals(String.format("(String)\"%s\"[truncated 3 chars]", main), desc);
 
         // and same with bytes
-        loc = new JsonLocation(json.getBytes("UTF-8"), 0L, 0L, 1, 1);
+        loc = new JsonLocation(_sourceRef(json.getBytes("UTF-8")), 0L, 0L, 1, 1);
         desc = loc.sourceDescription();
         assertEquals(String.format("(byte[])\"%s\"[truncated 3 bytes]", main), desc);
     }
@@ -104,5 +109,9 @@ public class TestLocation extends BaseTest
             assertEquals("UNKNOWN", loc.sourceDescription());
         }
         p.close();
+    }
+
+    private InputSourceReference _sourceRef(Object rawSrc) {
+        return InputSourceReference.rawSource(rawSrc);
     }
 }

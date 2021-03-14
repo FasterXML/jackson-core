@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
@@ -79,6 +80,16 @@ public class TestJDKSerializability extends BaseTest
         assertEquals(loc.getLineNr(), loc2.getLineNr());
         assertEquals(loc.getColumnNr(), loc2.getColumnNr());
         jp.close();
+    }
+
+    public void testSourceReference() throws Exception
+    {
+        InputSourceReference ref = new InputSourceReference(true, "text");
+        
+        byte[] stuff = jdkSerialize(ref);
+        InputSourceReference ref2 = jdkDeserialize(stuff);
+        assertNotNull(ref2);
+        assertSame(ref2, InputSourceReference.unknown());
     }
 
     public void testParseException() throws Exception

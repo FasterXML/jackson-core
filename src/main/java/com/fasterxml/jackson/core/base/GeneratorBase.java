@@ -53,7 +53,7 @@ public abstract class GeneratorBase extends JsonGenerator
      * @since 2.7.7
      */
     protected final static int MAX_BIG_DECIMAL_SCALE = 9999;
-    
+
     /*
     /**********************************************************
     /* Configuration

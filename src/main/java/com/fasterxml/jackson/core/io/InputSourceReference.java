@@ -89,6 +89,10 @@ public class InputSourceReference
      *    raw source without offsets; 
      */
     public static InputSourceReference rawSource(Object rawSource) {
+        // 14-Mar-2021, tatu: Just to avoid russian-doll-nesting, let's:
+        if (rawSource instanceof InputSourceReference) {
+            return (InputSourceReference) rawSource;
+        }
         return new InputSourceReference(false, rawSource);
     }
 

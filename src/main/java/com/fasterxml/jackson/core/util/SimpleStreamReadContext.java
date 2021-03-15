@@ -46,9 +46,9 @@ public class SimpleStreamReadContext extends TokenStreamContext
     protected int _columnNr;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instance construction, config, reuse
-    /**********************************************************
+    /**********************************************************************
      */
 
     public SimpleStreamReadContext(int type, SimpleStreamReadContext parent, DupDetector dups,
@@ -136,10 +136,10 @@ public class SimpleStreamReadContext extends TokenStreamContext
     @Override public SimpleStreamReadContext getParent() { return _parent; }
 
     @Override
-    public JsonLocation getStartLocation(Object srcRef) {
+    public JsonLocation startLocation(InputSourceReference srcRef) {
         // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
-        return new JsonLocation(InputSourceReference.rawSource(srcRef),
+        return new JsonLocation(srcRef,
                 totalChars, _lineNr, _columnNr);
     }
 

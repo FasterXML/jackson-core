@@ -370,7 +370,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _reportInvalidEOF(String.format(
                     ": expected close marker for %s (start marker at %s)",
                     marker,
-                    parsingContext.getStartLocation(_getSourceReference())),
+                    parsingContext.startLocation(_sourceReference())),
                     null);
         }
     }
@@ -903,14 +903,6 @@ public abstract class ParserBase extends ParserMinimalBase
     /* Internal/package methods: other
     /**********************************************************************
      */
-
-    @Deprecated // remove from 3.0
-    protected Object _getSourceReference() {
-        if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
-            return _ioContext.sourceReference().getSource();
-        }
-        return null;
-    }
 
     /**
      * Helper method used to encapsulate logic of including (or not) of

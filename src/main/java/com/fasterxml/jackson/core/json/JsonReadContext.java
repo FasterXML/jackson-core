@@ -160,7 +160,7 @@ public final class JsonReadContext extends TokenStreamContext
     @Override public JsonReadContext getParent() { return _parent; }
 
     @Override
-    public JsonLocation getStartLocation(Object srcRef) {
+    public JsonLocation startLocation(InputSourceReference srcRef) {
         // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
         return new JsonLocation(InputSourceReference.rawSource(srcRef),

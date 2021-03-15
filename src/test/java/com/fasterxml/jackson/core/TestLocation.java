@@ -91,7 +91,7 @@ public class TestLocation extends BaseTest
         } catch (StreamReadException e) {
             verifyException(e, "unrecognized token");
             JsonLocation loc = e.getLocation();
-            assertNull(loc.getSourceRef());
+            assertNull(loc.inputSource().getSource());
             assertEquals("UNKNOWN", loc.sourceDescription());
         }
         p.close();
@@ -105,7 +105,7 @@ public class TestLocation extends BaseTest
         } catch (StreamReadException e) {
             verifyException(e, "unrecognized token");
             JsonLocation loc = e.getLocation();
-            assertNull(loc.getSourceRef());
+            assertNull(loc.inputSource().getSource());
             assertEquals("UNKNOWN", loc.sourceDescription());
         }
         p.close();

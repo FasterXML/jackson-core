@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 
 import org.junit.Test;
 
@@ -41,18 +42,19 @@ public class JsonReadContextTest{
   public void testReset() {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);
+      final InputSourceReference bogusSrc = InputSourceReference.unknown();
 
       assertTrue(jsonReadContext.inRoot());
       assertEquals("root", jsonReadContext.typeDesc());
-      assertEquals(1, jsonReadContext.getStartLocation(jsonReadContext).getLineNr());
-      assertEquals(0, jsonReadContext.getStartLocation(jsonReadContext).getColumnNr());
+      assertEquals(1, jsonReadContext.startLocation(bogusSrc).getLineNr());
+      assertEquals(0, jsonReadContext.startLocation(bogusSrc).getColumnNr());
 
       jsonReadContext.reset(200, 500, 200);
 
       assertFalse(jsonReadContext.inRoot());
       assertEquals("?", jsonReadContext.typeDesc());
-      assertEquals(500, jsonReadContext.getStartLocation(jsonReadContext).getLineNr());
-      assertEquals(200, jsonReadContext.getStartLocation(jsonReadContext).getColumnNr());
+      assertEquals(500, jsonReadContext.startLocation(bogusSrc).getLineNr());
+      assertEquals(200, jsonReadContext.startLocation(bogusSrc).getColumnNr());
   }
 
 }

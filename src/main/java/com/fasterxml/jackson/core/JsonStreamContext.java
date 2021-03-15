@@ -6,6 +6,7 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.io.CharTypes;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 
 /**
  * Shared base class for streaming processing contexts used during
@@ -279,21 +280,27 @@ public abstract class JsonStreamContext
      * read or written. Often used for error reporting purposes.
      * Implementations that do not keep track of such location are expected to return
      * {@link JsonLocation#NA}; this is what the default implementation does.
-     *<p>
-     * NOTE: demoted from <code>JsonReadContext</code> in 2.9, to allow use for
-     * "non-standard" read contexts.
      *
      * @param srcRef Source reference needed to construct location instance
      *
      * @return Location pointing to the point where the context
      *   start marker was found (or written); never `null`.
      *
-     * @since 2.9
+     * @since 2.13
      */
-    public JsonLocation getStartLocation(Object srcRef) {
+    public JsonLocation startLocation(InputSourceReference srcRef) {
         return JsonLocation.NA;
     }
 
+    /**
+     * @since 2.9
+     * @deprecated Since 2.13 use {@link #startLocation} instead
+     */
+    @Deprecated
+    public JsonLocation getStartLocation(Object srcRef) {
+        return JsonLocation.NA;
+    }
+    
     /**
      * Overridden to provide developer readable "JsonPath" representation
      * of the context.

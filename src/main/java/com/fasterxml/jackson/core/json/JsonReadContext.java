@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 
 /**
  * Extension of {@link JsonStreamContext}, which implements
@@ -158,10 +159,16 @@ public final class JsonReadContext extends JsonStreamContext
     @Override public JsonReadContext getParent() { return _parent; }
 
     @Override
-    public JsonLocation getStartLocation(Object srcRef) {
+    public JsonLocation startLocation(InputSourceReference srcRef) {
         // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
         return new JsonLocation(srcRef, totalChars, _lineNr, _columnNr);
+    }
+
+    @Override
+    @Deprecated // since 2.13
+    public JsonLocation getStartLocation(Object rawSrc) {
+        return startLocation(InputSourceReference.rawSource(rawSrc));
     }
 
     /*

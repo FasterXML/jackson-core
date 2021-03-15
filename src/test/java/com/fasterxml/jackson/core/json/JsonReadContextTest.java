@@ -1,45 +1,39 @@
 package com.fasterxml.jackson.core.json;
 
+import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.InputSourceReference;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * Unit tests for class {@link JsonReadContext}.
- *
- * @date 2017-08-01
- * @see JsonReadContext
- *
- **/
-public class JsonReadContextTest{
-
-  @Test(expected = JsonParseException.class)
-  public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws JsonProcessingException {
+ */
+public class JsonReadContextTest extends BaseTest
+{
+  public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
+  {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, dupDetector, 2441, 2441, 2441);
-      jsonReadContext.setCurrentName("4'Du>icate field'");
-      jsonReadContext.setCurrentName("4'Du>icate field'");
+      jsonReadContext.setCurrentName("dupField");
+      try {
+          jsonReadContext.setCurrentName("dupField");
+          fail("Should not pass");
+      } catch (JsonParseException e) {
+          verifyException(e, "Duplicate field 'dupField'");
+      }
   }
 
-  @Test
-  public void testSetCurrentName() throws JsonProcessingException {
+  public void testSetCurrentName() throws Exception
+  {
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(0, 0, (DupDetector) null);
-      jsonReadContext.setCurrentName("asd / \" € < - _");
-
-      assertEquals("asd / \" € < - _", jsonReadContext.getCurrentName());
-
+      jsonReadContext.setCurrentName("abc");
+      assertEquals("abc", jsonReadContext.getCurrentName());
       jsonReadContext.setCurrentName(null);
-
       assertNull(jsonReadContext.getCurrentName());
   }
 
-  @Test
-  public void testReset() {
+  public void testReset()
+  {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);
       final InputSourceReference bogusSrc = InputSourceReference.unknown();

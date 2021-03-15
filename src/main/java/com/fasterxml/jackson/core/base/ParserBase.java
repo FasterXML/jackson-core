@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
@@ -389,7 +390,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     @Override
     public JsonLocation getTokenLocation() {
-        return new JsonLocation(_getSourceReference(),
+        return new JsonLocation(_sourceReference(),
                 -1L, getTokenCharacterOffset(), // bytes, chars
                 getTokenLineNr(),
                 getTokenColumnNr());
@@ -402,7 +403,7 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override
     public JsonLocation getCurrentLocation() {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_getSourceReference(),
+        return new JsonLocation(_sourceReference(),
                 -1L, _currInputProcessed + _inputPtr, // bytes, chars
                 _currInputRow, col);
     }
@@ -1071,7 +1072,8 @@ public abstract class ParserBase extends ParserMinimalBase
         JsonReadContext ctxt = getParsingContext();
         _reportError(String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
-                (char) actCh, expCh, ctxt.typeDesc(), ctxt.getStartLocation(_getSourceReference())));
+                (char) actCh, expCh, ctxt.typeDesc(),
+                ctxt.getStartLocation(_getSourceReference())));
     }
 
     @SuppressWarnings("deprecation")
@@ -1244,6 +1246,17 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     /**
+     * @since 2.9
+     * @deprecated Since 2.13, use {@link #_sourceReference()} instead.
+     */
+    protected Object _getSourceReference() {
+        if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
+            return _ioContext.getSourceReference();
+        }
+        return null;
+    }
+
+    /**
      * Helper method used to encapsulate logic of including (or not) of
      * "source reference" when constructing {@link JsonLocation} instances.
      *
@@ -1251,9 +1264,9 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @since 2.9
      */
-    protected Object _getSourceReference() {
+    protected InputSourceReference _sourceReference() {
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
-            return _ioContext.getSourceReference();
+            return _ioContext.sourceReference();
         }
         return null;
     }

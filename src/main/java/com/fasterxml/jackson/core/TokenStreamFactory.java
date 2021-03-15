@@ -1232,7 +1232,7 @@ public abstract class TokenStreamFactory
      *
      * @throws JacksonException If generator construction or initialization fails
      */
-    @Deprecated
+    @Deprecated // since 3.0
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
         throws JacksonException {
         return createGenerator(ObjectWriteContext.empty(), out, enc);
@@ -1248,7 +1248,7 @@ public abstract class TokenStreamFactory
      *
      * @throws JacksonException If generator construction or initialization fails
      */
-    @Deprecated
+    @Deprecated // since 3.0
     public JsonGenerator createGenerator(OutputStream out) throws JacksonException {
         return createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
     }
@@ -1270,7 +1270,7 @@ public abstract class TokenStreamFactory
      *
      * @throws JacksonException If generator construction or initialization fails
      */
-    @Deprecated
+    @Deprecated // since 3.0
     public JsonGenerator createGenerator(Writer w) throws JacksonException {
         return createGenerator(ObjectWriteContext.empty(), w);
     }

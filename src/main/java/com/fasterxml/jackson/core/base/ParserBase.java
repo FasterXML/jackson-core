@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
@@ -903,15 +904,23 @@ public abstract class ParserBase extends ParserMinimalBase
     /**********************************************************************
      */
 
+    @Deprecated // remove from 3.0
+    protected Object _getSourceReference() {
+        if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
+            return _ioContext.sourceReference().getSource();
+        }
+        return null;
+    }
+
     /**
      * Helper method used to encapsulate logic of including (or not) of
      * "source reference" when constructing {@link JsonLocation} instances.
      *
      * @return Source reference object, if any; {@code null} if none
      */
-    protected Object _getSourceReference() {
+    protected InputSourceReference _sourceReference() {
         if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
-            return _ioContext.getSourceReference();
+            return _ioContext.sourceReference();
         }
         return null;
     }

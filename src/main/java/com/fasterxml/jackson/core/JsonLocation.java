@@ -67,24 +67,6 @@ public class JsonLocation
         _columnNr = columnNr;
     }
 
-    @Deprecated
-    public JsonLocation(Object srcRef, long totalChars, int lineNr, int columnNr) {
-        this(_wrap(srcRef), totalChars, lineNr, columnNr);
-    }
-
-    @Deprecated
-    public JsonLocation(Object srcRef, long totalBytes, long totalChars,
-            int lineNr, int columnNr) {
-        this(_wrap(srcRef), totalBytes, totalChars, lineNr, columnNr);
-    }
-
-    protected static InputSourceReference _wrap(Object srcRef) {
-        if (srcRef instanceof InputSourceReference) {
-            return (InputSourceReference) srcRef;
-        }
-        return new InputSourceReference(false, srcRef);
-    }
-
     /**
      * Accessor for information about the original input source content is being
      * read from. Returned reference is never {@code null} but may not contain

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.util;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.json.DupDetector;
 
 /**
@@ -138,7 +139,8 @@ public class SimpleStreamReadContext extends TokenStreamContext
     public JsonLocation getStartLocation(Object srcRef) {
         // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
-        return new JsonLocation(srcRef, totalChars, _lineNr, _columnNr);
+        return new JsonLocation(InputSourceReference.rawSource(srcRef),
+                totalChars, _lineNr, _columnNr);
     }
 
     /*

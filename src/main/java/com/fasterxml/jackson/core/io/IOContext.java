@@ -125,9 +125,24 @@ public class IOContext
     /**********************************************************************
      */
 
+    /**
+     * @deprecated Since 2.13, use {@link #sourceReference()} instead
+     * @return "Raw" source reference
+     */
     public Object getSourceReference() { return _sourceRef; }
+
     public JsonEncoding getEncoding() { return _encoding; }
     public boolean isResourceManaged() { return _managedResource; }
+
+    /**
+     * Accessor for getting (some) information about input source, mostly
+     * usable for error reporting purposes.
+     * 
+     * @return Reference to input source
+     */
+    public InputSourceReference sourceReference() {
+        return InputSourceReference.rawSource(_sourceRef);
+    }
 
     /*
     /**********************************************************************

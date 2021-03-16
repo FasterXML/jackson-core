@@ -1932,7 +1932,8 @@ public class JsonFactory
      * @return I/O context created
      */
     protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged);
+        return new IOContext(_getBufferRecycler(), InputSourceReference.rawSource(srcRef),
+                resourceManaged);
     }
 
     /**
@@ -1948,7 +1949,8 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
-        return new IOContext(_getBufferRecycler(), srcRef, false);
+        return new IOContext(_getBufferRecycler(), InputSourceReference.rawSource(srcRef),
+                false);
     }
 
     /*

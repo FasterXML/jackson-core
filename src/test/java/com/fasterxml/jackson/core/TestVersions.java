@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.json.*;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
@@ -46,7 +47,6 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
     }
 
     private IOContext getIOContext() {
-        return new IOContext(new BufferRecycler(), null, false);
+        return new IOContext(new BufferRecycler(), InputSourceReference.unknown(), false);
     }
 }
-

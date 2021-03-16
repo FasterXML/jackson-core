@@ -1310,7 +1310,8 @@ public abstract class TokenStreamFactory
      * @return Context constructed
      */
     protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged, null);
+        return new IOContext(_getBufferRecycler(),
+                InputSourceReference.rawSource(srcRef), resourceManaged, null);
     }
 
     /**
@@ -1325,7 +1326,8 @@ public abstract class TokenStreamFactory
      */
     protected IOContext _createContext(Object srcRef, boolean resourceManaged,
             JsonEncoding enc) {
-        return new IOContext(_getBufferRecycler(), srcRef, resourceManaged, enc);
+        return new IOContext(_getBufferRecycler(),
+                InputSourceReference.rawSource(srcRef), resourceManaged, enc);
     }
 
     protected OutputStream _createDataOutputWrapper(DataOutput out) {

@@ -11,10 +11,8 @@ public class UTF8WriterTest
 {
     public void testSimple() throws Exception
     {
-        BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt = new IOContext(rec, null, false);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        UTF8Writer w = new UTF8Writer(ctxt, out);
+        UTF8Writer w = new UTF8Writer(_ioContext(), out);
 
         String str = "AB\u00A0\u1AE9\uFFFC";
         char[] ch = str.toCharArray();
@@ -42,10 +40,8 @@ public class UTF8WriterTest
 
     public void testSimpleAscii() throws Exception
     {
-        BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt = new IOContext(rec, null, false);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        UTF8Writer w = new UTF8Writer(ctxt, out);
+        UTF8Writer w = new UTF8Writer(_ioContext(), out);
 
         String str = "abcdefghijklmnopqrst\u00A0";
         char[] ch = str.toCharArray();
@@ -63,10 +59,8 @@ public class UTF8WriterTest
     
     public void testFlushAfterClose() throws Exception
     {
-        BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt = new IOContext(rec, null, false);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        UTF8Writer w = new UTF8Writer(ctxt, out);
+        UTF8Writer w = new UTF8Writer(_ioContext(), out);
         
         w.write('X');
         char[] ch = { 'Y' };
@@ -84,10 +78,8 @@ public class UTF8WriterTest
 
     public void testSurrogatesOk() throws Exception
     {
-        BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt = new IOContext(rec, null, false);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        UTF8Writer w = new UTF8Writer(ctxt, out);
+        UTF8Writer w = new UTF8Writer(_ioContext(), out);
 
         // First, valid case, char by char
         w.write(0xD83D);
@@ -99,9 +91,8 @@ public class UTF8WriterTest
         Assert.assertArrayEquals(EXP_SURROGATES, out.toByteArray());
 
         // and then as String
-        ctxt = new IOContext(rec, null, false);
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(ctxt, out);
+        w = new UTF8Writer(_ioContext(), out);
         w.write("\uD83D\uDE03");
         w.close();
         assertEquals(4, out.size());
@@ -112,13 +103,11 @@ public class UTF8WriterTest
     public void testSurrogatesFail() throws Exception
     {
         BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt;
         ByteArrayOutputStream out;
         UTF8Writer w;
 
-        ctxt = new IOContext(rec, null, false);
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(ctxt, out);
+        w = new UTF8Writer( _ioContext(rec), out);
         try {
             w.write(0xDE03);
             fail("should not pass");
@@ -126,9 +115,8 @@ public class UTF8WriterTest
             verifyException(e, "Unmatched second part");
         }
 
-        ctxt = new IOContext(rec, null, false);
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(ctxt, out);
+        w = new UTF8Writer(_ioContext(rec), out);
         w.write(0xD83D);
         try {
             w.write('a');
@@ -137,9 +125,8 @@ public class UTF8WriterTest
             verifyException(e, "Broken surrogate pair");
         }
 
-        ctxt = new IOContext(rec, null, false);
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(ctxt, out);
+        w = new UTF8Writer(_ioContext(rec), out);
         try {
             w.write("\uDE03");
             fail("should not pass");
@@ -147,14 +134,21 @@ public class UTF8WriterTest
             verifyException(e, "Unmatched second part");
         }
         
-        ctxt = new IOContext(rec, null, false);
         out = new ByteArrayOutputStream();
-        w = new UTF8Writer(ctxt, out);
+        w = new UTF8Writer(_ioContext(rec), out);
         try {
             w.write("\uD83Da");
             fail("should not pass");
         } catch (IOException e) {
             verifyException(e, "Broken surrogate pair");
         }
+    }
+
+    private IOContext _ioContext() {
+        return _ioContext(new BufferRecycler());
+    }
+
+    private IOContext _ioContext(BufferRecycler br) {
+        return new IOContext(br, InputSourceReference.unknown(), false);
     }
 }

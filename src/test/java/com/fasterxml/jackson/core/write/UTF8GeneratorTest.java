@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
@@ -18,7 +19,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(new BufferRecycler(), bytes, true);
+        IOContext ioc = new IOContext(new BufferRecycler(),
+                InputSourceReference.rawSource(bytes), true);
         JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
                 JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
                 0, '"');

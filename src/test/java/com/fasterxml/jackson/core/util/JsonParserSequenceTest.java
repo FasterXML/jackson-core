@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -17,15 +18,15 @@ import java.io.InputStream;
 /**
  * Unit tests for class {@link JsonParserSequence}.
  *
- * @date 2017-09-18
  * @see JsonParserSequence
- **/
+ */
 @SuppressWarnings("resource")
 public class JsonParserSequenceTest extends BaseTest
 {
     @Test
     public void testClose() throws IOException {
-        IOContext ioContext = new IOContext(new BufferRecycler(), this, true);
+        IOContext ioContext = new IOContext(new BufferRecycler(),
+                InputSourceReference.rawSource(this), true);
         ReaderBasedJsonParser readerBasedJsonParser = new ReaderBasedJsonParser(
                 ObjectReadContext.empty(),
                 ioContext,
@@ -43,7 +44,8 @@ public class JsonParserSequenceTest extends BaseTest
     @Test
     public void testSkipChildren() throws IOException {
         JsonParser[] jsonParserArray = new JsonParser[3];
-        IOContext ioContext = new IOContext(new BufferRecycler(), jsonParserArray, true);
+        IOContext ioContext = new IOContext(new BufferRecycler(),
+                InputSourceReference.rawSource(jsonParserArray), true);
         byte[] byteArray = new byte[8];
         InputStream byteArrayInputStream = new ByteArrayInputStream(byteArray, 0, (byte) 58);
         UTF8StreamJsonParser uTF8StreamJsonParser = new UTF8StreamJsonParser(ObjectReadContext.empty(),

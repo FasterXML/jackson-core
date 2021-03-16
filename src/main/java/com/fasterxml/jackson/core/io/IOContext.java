@@ -24,7 +24,7 @@ public class IOContext
      * Reference to the source object, which can be used for displaying
      * location information
      */
-    protected final Object _sourceRef;
+    protected final InputSourceReference _inputSource;
 
     /**
      * Encoding used by the underlying stream, if known.
@@ -98,20 +98,24 @@ public class IOContext
     /**********************************************************************
      */
 
-    public IOContext(BufferRecycler br, Object sourceRef, boolean managedResource)
-    {
-        _bufferRecycler = br;
-        _sourceRef = sourceRef;
-        _managedResource = managedResource;
-    }
-
-    public IOContext(BufferRecycler br, Object sourceRef, boolean managedResource,
+    /**
+     * Main constructor to use.
+     * 
+     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param sourceRef Input source reference for location reporting
+     * @param managedResource Whether input source is managed (owned) by Jackson library
+     */
+    public IOContext(BufferRecycler br, InputSourceReference sourceRef, boolean managedResource,
             JsonEncoding enc)
     {
         _bufferRecycler = br;
-        _sourceRef = sourceRef;
+        _inputSource = sourceRef;
         _managedResource = managedResource;
         _encoding = enc;
+    }
+
+    public IOContext(BufferRecycler br, InputSourceReference sourceRef, boolean managedResource) {
+        this(br, sourceRef, managedResource, null);
     }
 
     public IOContext setEncoding(JsonEncoding enc) {
@@ -125,12 +129,6 @@ public class IOContext
     /**********************************************************************
      */
 
-    /**
-     * @deprecated Since 2.13, use {@link #sourceReference()} instead
-     * @return "Raw" source reference
-     */
-    public Object getSourceReference() { return _sourceRef; }
-
     public JsonEncoding getEncoding() { return _encoding; }
     public boolean isResourceManaged() { return _managedResource; }
 
@@ -141,7 +139,7 @@ public class IOContext
      * @return Reference to input source
      */
     public InputSourceReference sourceReference() {
-        return InputSourceReference.rawSource(_sourceRef);
+        return _inputSource;
     }
 
     /*
@@ -174,8 +172,6 @@ public class IOContext
      * @param minSize Minimum size of the buffer to recycle or allocate
      *
      * @return Allocated or recycled byte buffer
-     *
-     * @since 2.4
      */
     public byte[] allocReadIOBuffer(int minSize) {
         _verifyAlloc(_readIOBuffer);
@@ -202,8 +198,6 @@ public class IOContext
      * @param minSize Minimum size of the buffer to recycle or allocate
      *
      * @return Allocated or recycled byte buffer
-     *
-     * @since 2.4
      */
     public byte[] allocWriteEncodingBuffer(int minSize) {
         _verifyAlloc(_writeEncodingBuffer);
@@ -230,8 +224,6 @@ public class IOContext
      * @param minSize Minimum size of the buffer to recycle or allocate
      *
      * @return Allocated or recycled byte buffer
-     *
-     * @since 2.9
      */
     public byte[] allocBase64Buffer(int minSize) {
         _verifyAlloc(_base64Buffer);
@@ -243,7 +235,6 @@ public class IOContext
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
     }
 
-    // @since 2.4
     public char[] allocTokenBuffer(int minSize) {
         _verifyAlloc(_tokenCBuffer);
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, minSize));

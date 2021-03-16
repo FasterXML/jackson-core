@@ -46,4 +46,3 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
         assertEquals(PackageVersion.VERSION, v);
     }
 }
-

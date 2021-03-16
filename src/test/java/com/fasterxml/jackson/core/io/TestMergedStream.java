@@ -11,7 +11,7 @@ public class TestMergedStream
     public void testSimple() throws Exception
     {
         BufferRecycler rec = new BufferRecycler();
-        IOContext ctxt = new IOContext(rec, null, false);
+        IOContext ctxt = new IOContext(rec, InputSourceReference.UNKNOWN_INPUT, false);
         // bit complicated; must use recyclable buffer...
         byte[] first = ctxt.allocReadIOBuffer();
         System.arraycopy("ABCDE".getBytes("UTF-8"), 0, first, 99, 5);

@@ -1269,7 +1269,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
             return _ioContext.sourceReference();
         }
-        return null;
+        return InputSourceReference.unknown();
     }
 
     protected static int[] growArrayBy(int[] arr, int more)

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.*;
 public class UTF32ParseTest extends BaseTest
 {
     private final JsonFactory FACTORY = new JsonFactory();
-    
+
     public void testSimpleEOFs() throws Exception
     {
         // 2 spaces

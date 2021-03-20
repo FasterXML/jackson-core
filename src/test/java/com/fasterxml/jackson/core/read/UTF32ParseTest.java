@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 public class UTF32ParseTest extends BaseTest
 {
     private final JsonFactory FACTORY = newStreamFactory();
-    
-    public void testSimpleEOFs()
+
+    public void testSimpleEOFs() throws Exception
     {
         // 2 spaces
         byte[] data = { 0x00, 0x00, 0x00, 0x20,

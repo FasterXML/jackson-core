@@ -24,6 +24,8 @@ JSON library.
   `currentValue()`/`assignCurrentValue()` in `JsonParser`/`JsonGenerator
 #677: Introduce O(n^1.5) BigDecimal parser implementation
  (contributed by Ferenc C)
+#687:  ByteQuadsCanonicalizer.addName(String, int, int) has incorrect handling
+  for case of q2 == null
 
 2.12.2 (03-Mar-2021)
 2.12.1 (08-Jan-2021)

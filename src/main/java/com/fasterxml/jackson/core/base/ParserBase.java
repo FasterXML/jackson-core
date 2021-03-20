@@ -914,6 +914,6 @@ public abstract class ParserBase extends ParserMinimalBase
         if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
             return _ioContext.sourceReference();
         }
-        return null;
+        return InputSourceReference.unknown();
     }
 }

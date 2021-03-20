@@ -882,8 +882,13 @@ public final class ByteQuadsCanonicalizer
         if (_intern) {
             name = InternCache.instance.intern(name);
         }
-        int hash = (q2 == 0) ? calcHash(q1) : calcHash(q1, q2);
-        int offset = _findOffsetForAdd(hash);
+
+        // 20-Mar-2021, tatu: For some reason, pre-2.13 there was logic
+        //    to support "only one quad" case. Not sure why, does not make sense;
+        //    removed from 2.13.0.
+//        int hash = (q2 == 0) ? calcHash(q1) : calcHash(q1, q2);
+        final int hash = calcHash(q1, q2);
+        final int offset = _findOffsetForAdd(hash);
         _hashArea[offset] = q1;
         _hashArea[offset+1] = q2;
         _hashArea[offset+3] = 2;

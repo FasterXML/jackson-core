@@ -537,7 +537,7 @@ public final class CharsToNameCanonicalizer
             if (_overflows.get(bucketIndex)) {
                 // Has happened once already for this bucket index, so probably not coincidental...
                 if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_flags)) {
-                    reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
+                    _reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
                 }
                 // but even if we don't fail, we will stop canonicalizing as safety measure
                 // (so as not to cause problems with PermGen)
@@ -712,7 +712,7 @@ public final class CharsToNameCanonicalizer
      *
      * @since 2.1
      */
-    protected void reportTooManyCollisions(int maxLen) {
+    protected void _reportTooManyCollisions(int maxLen) {
         throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
                 +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
     }

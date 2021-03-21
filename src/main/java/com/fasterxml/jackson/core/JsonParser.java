@@ -8,7 +8,6 @@ package com.fasterxml.jackson.core;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
@@ -19,7 +18,6 @@ import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
  * Base class that defines public API for reading JSON content.
@@ -45,17 +43,6 @@ public abstract class JsonParser
      */
     protected final static JacksonFeatureSet<StreamReadCapability> DEFAULT_READ_CAPABILITIES
         = JacksonFeatureSet.fromDefaults(StreamReadCapability.values());
-
-    /*
-    /**********************************************************************
-    /* Minimal configuration state
-    /**********************************************************************
-     */
-
-    /**
-     * Optional container that holds the request payload which will be displayed on JSON parsing error.
-     */
-    protected transient RequestPayload _requestPayload;
 
     /*
     /**********************************************************************
@@ -202,40 +189,6 @@ public abstract class JsonParser
      * @param v "Current value" to assign to the current input context of this parser
      */
     public abstract void assignCurrentValue(Object v);
-
-    /*
-    /**********************************************************************
-    /* Attaching additional metadata: request payload
-    /**********************************************************************
-     */
-
-    /**
-     * Sets the payload to be passed if {@link StreamReadException} is thrown.
-     *
-     * @param payload to assign
-     */
-    public void setRequestPayloadOnError(RequestPayload payload) {
-        _requestPayload = payload;
-    }
-
-    /**
-     * Sets the {@code byte[]} request payload and the charset needed to decode it
-     *
-     * @param payload Payload to pass
-     * @param charset Character encoding for (lazily) decoding payload
-     */
-    public void setRequestPayloadOnError(byte[] payload, Charset charset) {
-        _requestPayload = (payload == null) ? null : new RequestPayload(payload, charset);
-    }
-
-    /**
-     * Sets the String request payload
-     *
-     * @param payload to assign
-     */
-    public void setRequestPayloadOnError(String payload) {
-        _requestPayload = (payload == null) ? null : new RequestPayload(payload);
-    }
 
     /*
     /**********************************************************************
@@ -1661,8 +1614,7 @@ public abstract class JsonParser
      * @return {@link StreamReadException} constructed
      */
     protected StreamReadException _constructReadException(String msg) {
-        return new StreamReadException(this, msg)
-            .withRequestPayload(_requestPayload);
+        return new StreamReadException(this, msg);
     }
 
     protected StreamReadException _constructReadException(String msg, Object arg) {
@@ -1674,7 +1626,6 @@ public abstract class JsonParser
     }
 
     protected final StreamReadException _constructReadException(String msg, Throwable t) {
-        return new StreamReadException(this, msg, t)
-                .withRequestPayload(_requestPayload);
+        return new StreamReadException(this, msg, t);
     }
 }

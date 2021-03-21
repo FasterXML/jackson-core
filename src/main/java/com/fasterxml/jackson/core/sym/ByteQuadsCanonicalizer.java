@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.sym;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;

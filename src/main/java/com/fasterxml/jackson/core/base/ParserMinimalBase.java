@@ -980,10 +980,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
-        return new InputCoercionException(this, msg, inputType, targetType)
-            .withRequestPayload(_requestPayload);
+        return new InputCoercionException(this, msg, inputType, targetType);
     }
-    
+
     /*
     /**********************************************************************
     /* Error reporting, generic

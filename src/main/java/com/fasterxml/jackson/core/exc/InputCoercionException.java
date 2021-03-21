@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.exc;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
  * Exception type for read-side problems that are not direct decoding ("parsing")
@@ -51,12 +50,6 @@ public class InputCoercionException extends StreamReadException
     @Override
     public InputCoercionException withParser(JsonParser p) {
         _processor = p;
-        return this;
-    }
-
-    @Override
-    public InputCoercionException withRequestPayload(RequestPayload p) {
-        _requestPayload = p;
         return this;
     }
 

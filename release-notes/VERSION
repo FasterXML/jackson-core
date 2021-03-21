@@ -35,6 +35,7 @@ JSON library.
   (replaced by `StreamWriteCapability` equivalents)
 #680: Allow use of `java.nio.file.Path` as parser source, generator target
  (contributed by Sven D)
+#689: Remove existing "request payload" functionality
 - Rename `JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT` as `AUTO_CLOSE_CONTENT`
 - Add `TreeCodec.nullNode()`, `TreeNode.isNull()` methods
 - Change the way `JsonLocation.NA` is included in exception messages

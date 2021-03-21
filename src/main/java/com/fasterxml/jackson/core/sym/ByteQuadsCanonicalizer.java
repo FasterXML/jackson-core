@@ -3,6 +3,8 @@ package com.fasterxml.jackson.core.sym;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
@@ -1314,10 +1316,13 @@ public final class ByteQuadsCanonicalizer
         if (_hashSize <= 1024) { // would have spill-over area of 128 entries
             return;
         }
-        throw new IllegalStateException("Spill-over slots in symbol table with "+_count
-                +" entries, hash area of "+_hashSize+" slots is now full (all "
-                +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions."
-                +" You can disable the check via `JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
+        // 20-Mar-2021, tatu: [core#686]: should use Jackson-specific exception
+        //    (to use new "processing limit" exception when available)
+        throw new StreamReadException(null,
+"Spill-over slots in symbol table with "+_count
++" entries, hash area of "+_hashSize+" slots is now full (all "
++(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions."
++" You can disable the check via `TokenStreamFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
     }
 
     static int _calcTertiaryShift(int primarySlots)

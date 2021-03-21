@@ -63,8 +63,9 @@ public class TestHashCollisionChars
                 ;
             }
             fail("Should have failed");
-        } catch (IllegalStateException e) {
-            verifyException(e, "hash collision");
+        } catch (JacksonException e) {
+            verifyException(e, "Longest collision chain in symbol table");
+            verifyException(e, "suspect a DoS attack");
         }
         p.close();
 

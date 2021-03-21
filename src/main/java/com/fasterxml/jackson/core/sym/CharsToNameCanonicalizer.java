@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
@@ -531,7 +532,7 @@ public final class CharsToNameCanonicalizer
             if (_overflows.get(bucketIndex)) {
                 // Has happened once already for this bucket index, so probably not coincidental...
                 if (JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(_flags)) {
-                    reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
+                    _reportTooManyCollisions(MAX_COLL_CHAIN_LENGTH);
                 }
                 // but even if we don't fail, we will stop canonicalizing as safety measure
                 // (so as not to cause problems with PermGen)
@@ -700,9 +701,13 @@ public final class CharsToNameCanonicalizer
         }
     }
 
-    protected void reportTooManyCollisions(int maxLen) {
-        throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
-                +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
+    // 20-Mar-2021, tatu: [core#686]: should use Jackson-specific exception
+    //    (to use new "processing limit" exception when available)
+    protected void _reportTooManyCollisions(int maxLen) {
+        throw new StreamReadException(null,
+"Longest collision chain in symbol table (of size "+_size
++") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions."
++" You can disable the check via `TokenStreamFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
     }
 
     // Diagnostics method that will verify that internal data structures are consistent;

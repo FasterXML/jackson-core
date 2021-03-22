@@ -1304,31 +1304,67 @@ public abstract class TokenStreamFactory
      * Overridable factory method that actually instantiates desired
      * context object.
      *
-     * @param srcRef Source reference to use (relevant to {@code JsonLocation} construction)
+     * @param contentRef Source reference to use (relevant to {@code JsonLocation} construction)
      * @param resourceManaged Whether input/output buffers used are managed by this factory
      *
      * @return Context constructed
      */
-    protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
+    protected IOContext _createContext(InputSourceReference contentRef, boolean resourceManaged) {
+        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, null);
+    }
+
+    @Deprecated
+    protected IOContext _createContext(Object contentRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(),
-                InputSourceReference.rawSource(srcRef), resourceManaged, null);
+                _createSourceOrTargetReference(contentRef), resourceManaged, null);
     }
 
     /**
      * Overridable factory method that actually instantiates desired
      * context object.
      *
-     * @param srcRef Source reference to use (relevant to {@code JsonLocation} construction)
+     * @param contentRef Source reference to use (relevant to {@code JsonLocation} construction)
      * @param resourceManaged Whether input/output buffers used are managed by this factory
      * @param enc Character encoding defined to be used/expected
      *
      * @return Context constructed
      */
-    protected IOContext _createContext(Object srcRef, boolean resourceManaged,
+    protected IOContext _createContext(InputSourceReference contentRef, boolean resourceManaged,
+            JsonEncoding enc) {
+        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, enc);
+    }
+
+    @Deprecated
+    protected IOContext _createContext(Object contentRef, boolean resourceManaged,
             JsonEncoding enc) {
         return new IOContext(_getBufferRecycler(),
-                InputSourceReference.rawSource(srcRef), resourceManaged, enc);
+                _createSourceOrTargetReference(contentRef), resourceManaged, enc);
     }
+
+    /**
+     * Overridable factory method for constructing {@link InputSourceReference}
+     * to pass to parser or generator being created; used in cases where no offset
+     * or length is applicable (either irrelevant, or full contents assumed).
+     *
+     * @param contentRef Underlying input source (parser) or target (generator)
+     *
+     * @return InputSourceReference instance to use
+     */
+    protected abstract InputSourceReference _createSourceOrTargetReference(Object contentRef);
+
+    /**
+     * Overridable factory method for constructing {@link InputSourceReference}
+     * to pass to parser or generator being created; used in cases where input
+     * comes in a static buffer with relevant offset and length.
+     *
+     * @param contentRef Underlying input source (parser) or target (generator)
+     * @param offset Offset of content in buffer ({@code rawSource})
+     * @param length Length of content in buffer ({@code rawSource})
+     *
+     * @return InputSourceReference instance to use
+     */
+    protected abstract InputSourceReference _createSourceOrTargetReference(Object contentRef,
+            int offset, int length);
 
     protected OutputStream _createDataOutputWrapper(DataOutput out) {
         return new DataOutputAsStream(out);

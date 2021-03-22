@@ -6,6 +6,7 @@ import java.nio.file.Path;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 
 /**
  * Intermediate {@link TokenStreamFactory} sub-class used as the base for
@@ -189,6 +190,27 @@ public abstract class BinaryTSFactory
         final OutputStream out = _pathOutputStream(p);
         final IOContext ioCtxt = _createContext(p, true, enc);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
+    }
+
+    /*
+    /**********************************************************************
+    /* Factory methods: context objects
+    /**********************************************************************
+     */
+
+    @Override
+    protected InputSourceReference _createSourceOrTargetReference(Object contentRef) {
+        // false -> not textual
+        return new InputSourceReference(false, contentRef);
+    }
+
+    @Override
+    protected InputSourceReference _createSourceOrTargetReference(Object contentRef,
+            int offset, int length)
+    {
+        // false -> not textual
+        return new InputSourceReference(false,
+                contentRef, offset, length);
     }
 
     /*

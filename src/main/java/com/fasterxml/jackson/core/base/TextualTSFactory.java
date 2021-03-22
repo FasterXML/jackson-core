@@ -6,6 +6,7 @@ import java.nio.file.Path;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.io.UTF8Writer;
 
 /**
@@ -256,6 +257,27 @@ public abstract class TextualTSFactory
         }
         return _createGenerator(writeCtxt, ioCtxt,
                 _decorate(ioCtxt, _createWriter(ioCtxt, out, enc)));
+    }
+
+    /*
+    /**********************************************************************
+    /* Factory methods: context objects
+    /**********************************************************************
+     */
+
+    @Override
+    protected InputSourceReference _createSourceOrTargetReference(Object contentRef) {
+        // true -> is textual
+        return new InputSourceReference(true, contentRef);
+    }
+
+    @Override
+    protected InputSourceReference _createSourceOrTargetReference(Object contentRef,
+            int offset, int length)
+    {
+        // true -> is textual
+        return new InputSourceReference(true,
+                contentRef, offset, length);
     }
 
     /*

@@ -1912,10 +1912,9 @@ public class JsonFactory
      */
     public BufferRecycler _getBufferRecycler()
     {
-        /* 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
-         *   scheme, for cases where it is considered harmful (possibly
-         *   on Android, for example)
-         */
+        // 23-Apr-2015, tatu: Let's allow disabling of buffer recycling
+        //   scheme, for cases where it is considered harmful (possibly
+        //   on Android, for example)
         if (Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING.enabledIn(_factoryFeatures)) {
             return BufferRecyclers.getBufferRecycler();
         }
@@ -1926,16 +1925,32 @@ public class JsonFactory
      * Overridable factory method that actually instantiates desired
      * context object.
      *
-     * @param srcRef Source reference to use for diagnostics, exception messages
-     * @param resourceManaged Whether input buffer is managed by this factory or not
+     * @param srcOrTargetRef Source/target reference to use for diagnostics, exception messages
+     * @param resourceManaged Whether input/output buffer is managed by this factory or not
      *
      * @return I/O context created
      */
-    protected IOContext _createContext(Object srcRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(), InputSourceReference.rawSource(srcRef),
-                resourceManaged);
+    protected IOContext _createContext(InputSourceReference srcOrTargetRef, boolean resourceManaged) {
+        return new IOContext(_getBufferRecycler(), srcOrTargetRef, resourceManaged);
     }
 
+    /**
+     * Deprecated variant of {@link #_createContext(Object, boolean)}
+     *
+     * @param srcOrTargetRef "Raw" source/target reference
+     * @param resourceManaged Whether input/output buffer is managed by this factory or not
+     *
+     * @return I/O context created
+     *
+     * @deprecated Since 2.13.0
+     */
+    @Deprecated
+    protected IOContext _createContext(Object srcOrTargetRef, boolean resourceManaged) {
+        return new IOContext(_getBufferRecycler(),
+                _createSourceOrTargetReference(srcOrTargetRef),
+                resourceManaged);
+    }
+    
     /**
      * Overridable factory method that actually instantiates desired
      * context object for async (non-blocking) parsing
@@ -1949,8 +1964,48 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
-        return new IOContext(_getBufferRecycler(), InputSourceReference.rawSource(srcRef),
+        return new IOContext(_getBufferRecycler(),
+                _createSourceOrTargetReference(srcRef),
                 false);
+    }
+
+    /**
+     * Overridable factory method for constructing {@link InputSourceReference}
+     * to pass to parser or generator being created; used in cases where no offset
+     * or length is applicable (either irrelevant, or full contents assumed).
+     *
+     * @param contentRef Underlying input source (parser) or target (generator)
+     *
+     * @return InputSourceReference instance to use
+     *
+     * @since 2.13
+     */
+    protected InputSourceReference _createSourceOrTargetReference(Object contentRef) {
+        // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
+        //    indicator of textual vs binary format:
+        return new InputSourceReference(!canHandleBinaryNatively(), contentRef);
+    }
+
+    /**
+     * Overridable factory method for constructing {@link InputSourceReference}
+     * to pass to parser or generator being created; used in cases where input
+     * comes in a static buffer with relevant offset and length.
+     *
+     * @param contentRef Underlying input source (parser) or target (generator)
+     * @param offset Offset of content in buffer ({@code rawSource})
+     * @param length Length of content in buffer ({@code rawSource})
+     *
+     * @return InputSourceReference instance to use
+     *
+     * @since 2.13
+     */
+    protected InputSourceReference _createSourceOrTargetReference(Object contentRef,
+            int offset, int length)
+    {
+        // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
+        //    indicator of textual vs binary format:
+        return new InputSourceReference(!canHandleBinaryNatively(),
+                contentRef, offset, length);
     }
 
     /*

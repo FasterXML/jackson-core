@@ -1025,7 +1025,7 @@ public class JsonFactory
     @Override
     public JsonParser createParser(File f) throws IOException, JsonParseException {
         // true, since we create InputStream from File
-        IOContext ctxt = _createContext(f, true);
+        IOContext ctxt = _createContext(_createContentReference(f), true);
         InputStream in = new FileInputStream(f);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
@@ -1053,7 +1053,7 @@ public class JsonFactory
     @Override
     public JsonParser createParser(URL url) throws IOException, JsonParseException {
         // true, since we create InputStream from URL
-        IOContext ctxt = _createContext(url, true);
+        IOContext ctxt = _createContext(_createContentReference(url), true);
         InputStream in = _optimizedStreamFromURL(url);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
@@ -1081,7 +1081,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(InputStream in) throws IOException, JsonParseException {
-        IOContext ctxt = _createContext(in, false);
+        IOContext ctxt = _createContext(_createContentReference(in), false);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
     
@@ -1102,7 +1102,7 @@ public class JsonFactory
     @Override
     public JsonParser createParser(Reader r) throws IOException, JsonParseException {
         // false -> we do NOT own Reader (did not create it)
-        IOContext ctxt = _createContext(r, false);
+        IOContext ctxt = _createContext(_createContentReference(r), false);
         return _createParser(_decorate(r, ctxt), ctxt);
     }
 
@@ -1114,7 +1114,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(byte[] data) throws IOException, JsonParseException {
-        IOContext ctxt = _createContext(data, true);
+        IOContext ctxt = _createContext(_createContentReference(data), true);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ctxt, data, 0, data.length);
             if (in != null) {
@@ -1136,7 +1136,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException, JsonParseException {
-        IOContext ctxt = _createContext(data, true);
+        IOContext ctxt = _createContext(_createContentReference(data, offset, len), true);
         // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ctxt, data, offset, len);
@@ -1162,7 +1162,7 @@ public class JsonFactory
             // is too long for us to copy it over
             return createParser(new StringReader(content));
         }
-        IOContext ctxt = _createContext(content, true);
+        IOContext ctxt = _createContext(_createContentReference(content), true);
         char[] buf = ctxt.allocTokenBuffer(strLen);
         content.getChars(0, strLen, buf, 0);
         return _createParser(buf, 0, strLen, ctxt, true);
@@ -1189,7 +1189,8 @@ public class JsonFactory
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
             return createParser(new CharArrayReader(content, offset, len));
         }
-        return _createParser(content, offset, len, _createContext(content, true),
+        return _createParser(content, offset, len,
+                _createContext(_createContentReference(content, offset, len), true),
                 // important: buffer is NOT recyclable, as it's from caller
                 false);
     }
@@ -1205,7 +1206,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(DataInput in) throws IOException {
-        IOContext ctxt = _createContext(in, false);
+        IOContext ctxt = _createContext(_createContentReference(in), false);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
 
@@ -1275,7 +1276,7 @@ public class JsonFactory
         throws IOException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ctxt = _createContext(out, false);
+        IOContext ctxt = _createContext(_createContentReference(out), false);
         ctxt.setEncoding(enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(_decorate(out, ctxt), ctxt);
@@ -1314,7 +1315,7 @@ public class JsonFactory
      */
     @Override
     public JsonGenerator createGenerator(Writer w) throws IOException {
-        IOContext ctxt = _createContext(w, false);
+        IOContext ctxt = _createContext(_createContentReference(w), false);
         return _createGenerator(_decorate(w, ctxt), ctxt);
     }
     
@@ -1339,7 +1340,7 @@ public class JsonFactory
     {
         OutputStream out = new FileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
-        IOContext ctxt = _createContext(out, true);
+        IOContext ctxt = _createContext(_createContentReference(out), true);
         ctxt.setEncoding(enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(_decorate(out, ctxt), ctxt);
@@ -1925,33 +1926,33 @@ public class JsonFactory
      * Overridable factory method that actually instantiates desired
      * context object.
      *
-     * @param srcOrTargetRef Source/target reference to use for diagnostics, exception messages
+     * @param contentRef Source/target reference to use for diagnostics, exception messages
      * @param resourceManaged Whether input/output buffer is managed by this factory or not
      *
      * @return I/O context created
      */
-    protected IOContext _createContext(InputSourceReference srcOrTargetRef, boolean resourceManaged) {
+    protected IOContext _createContext(InputSourceReference contentRef, boolean resourceManaged) {
         // 21-Mar-2021, tatu: Bit of defensive coding for backwards compatibility
-        if (srcOrTargetRef == null) {
-            srcOrTargetRef = InputSourceReference.unknown();
+        if (contentRef == null) {
+            contentRef = InputSourceReference.unknown();
         }
-        return new IOContext(_getBufferRecycler(), srcOrTargetRef, resourceManaged);
+        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged);
     }
 
     /**
      * Deprecated variant of {@link #_createContext(Object, boolean)}
      *
-     * @param srcOrTargetRef "Raw" source/target reference
+     * @param rawContentRef "Raw" source/target reference
      * @param resourceManaged Whether input/output buffer is managed by this factory or not
      *
      * @return I/O context created
      *
-     * @deprecated Since 2.13.0
+     * @deprecated Since 2.13
      */
-    @Deprecated
-    protected IOContext _createContext(Object srcOrTargetRef, boolean resourceManaged) {
+    @Deprecated // @since 2.13
+    protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(),
-                _createContentReference(srcOrTargetRef),
+                _createContentReference(rawContentRef),
                 resourceManaged);
     }
 

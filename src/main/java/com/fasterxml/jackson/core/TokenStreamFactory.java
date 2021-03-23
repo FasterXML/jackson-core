@@ -1197,7 +1197,8 @@ public abstract class TokenStreamFactory
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out) throws JacksonException {
+    public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, DataOutput out)
+            throws JacksonException {
         return createGenerator(writeCtxt, _createDataOutputWrapper(out));
     }
 
@@ -1313,12 +1314,6 @@ public abstract class TokenStreamFactory
         return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, null);
     }
 
-    @Deprecated
-    protected IOContext _createContext(Object contentRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(),
-                _createSourceOrTargetReference(contentRef), resourceManaged, null);
-    }
-
     /**
      * Overridable factory method that actually instantiates desired
      * context object.
@@ -1334,13 +1329,6 @@ public abstract class TokenStreamFactory
         return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, enc);
     }
 
-    @Deprecated
-    protected IOContext _createContext(Object contentRef, boolean resourceManaged,
-            JsonEncoding enc) {
-        return new IOContext(_getBufferRecycler(),
-                _createSourceOrTargetReference(contentRef), resourceManaged, enc);
-    }
-
     /**
      * Overridable factory method for constructing {@link InputSourceReference}
      * to pass to parser or generator being created; used in cases where no offset
@@ -1350,7 +1338,7 @@ public abstract class TokenStreamFactory
      *
      * @return InputSourceReference instance to use
      */
-    protected abstract InputSourceReference _createSourceOrTargetReference(Object contentRef);
+    protected abstract InputSourceReference _createContentReference(Object contentRef);
 
     /**
      * Overridable factory method for constructing {@link InputSourceReference}
@@ -1363,7 +1351,7 @@ public abstract class TokenStreamFactory
      *
      * @return InputSourceReference instance to use
      */
-    protected abstract InputSourceReference _createSourceOrTargetReference(Object contentRef,
+    protected abstract InputSourceReference _createContentReference(Object contentRef,
             int offset, int length);
 
     protected OutputStream _createDataOutputWrapper(DataOutput out) {

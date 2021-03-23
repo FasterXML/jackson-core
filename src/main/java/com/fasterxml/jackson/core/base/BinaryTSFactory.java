@@ -70,7 +70,7 @@ public abstract class BinaryTSFactory
     {
         final InputStream in = _fileInputStream(f);
         // true, since we create InputStream from File
-        final IOContext ioCtxt = _createContext(f, true);
+        final IOContext ioCtxt = _createContext(_createContentReference(f), true);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, in));
     }
@@ -80,7 +80,7 @@ public abstract class BinaryTSFactory
             Path p) throws JacksonException
     {
         // true, since we create InputStream from Path
-        IOContext ioCtxt = _createContext(p, true);
+        IOContext ioCtxt = _createContext(_createContentReference(p), true);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, _pathInputStream(p)));
     }
@@ -90,7 +90,7 @@ public abstract class BinaryTSFactory
             URL url) throws JacksonException
     {
         // true, since we create InputStream from URL
-        IOContext ioCtxt = _createContext(url, true);
+        IOContext ioCtxt = _createContext(_createContentReference(url), true);
         InputStream in = _optimizedStreamFromURL(url);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, in));
@@ -98,7 +98,7 @@ public abstract class BinaryTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, InputStream in) throws JacksonException {
-        IOContext ioCtxt = _createContext(in, false);
+        IOContext ioCtxt = _createContext(_createContentReference(in), false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
@@ -111,7 +111,8 @@ public abstract class BinaryTSFactory
     public JsonParser createParser(ObjectReadContext readCtxt, 
             byte[] data, int offset, int len) throws JacksonException
     {
-        IOContext ioCtxt = _createContext(data, true, null);
+        IOContext ioCtxt = _createContext(_createContentReference(data, offset, len),
+                true, null);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
             if (in != null) {
@@ -136,7 +137,7 @@ public abstract class BinaryTSFactory
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt, 
             DataInput in) throws JacksonException {
-        IOContext ioCtxt = _createContext(in, false);
+        IOContext ioCtxt = _createContext(_createContentReference(in), false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
@@ -161,7 +162,7 @@ public abstract class BinaryTSFactory
         throws JacksonException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ioCtxt = _createContext(out, false, enc);
+        IOContext ioCtxt = _createContext(_createContentReference(out), false, enc);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
     }
 
@@ -178,7 +179,7 @@ public abstract class BinaryTSFactory
     {
         final OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
-        final IOContext ioCtxt = _createContext(out, true, enc);
+        final IOContext ioCtxt = _createContext(_createContentReference(out), true, enc);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
     }
 
@@ -188,7 +189,7 @@ public abstract class BinaryTSFactory
         throws JacksonException
     {
         final OutputStream out = _pathOutputStream(p);
-        final IOContext ioCtxt = _createContext(p, true, enc);
+        final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
     }
 
@@ -199,19 +200,19 @@ public abstract class BinaryTSFactory
      */
 
     @Override
-    protected InputSourceReference _createSourceOrTargetReference(Object contentRef) {
+    protected InputSourceReference _createContentReference(Object contentRef) {
         // false -> not textual
         return new InputSourceReference(false, contentRef);
     }
 
     @Override
-    protected InputSourceReference _createSourceOrTargetReference(Object contentRef,
+    protected InputSourceReference _createContentReference(Object contentRef,
             int offset, int length)
     {
         // false -> not textual
         return new InputSourceReference(false,
                 contentRef, offset, length);
-    }
+    }    
 
     /*
     /**********************************************************************

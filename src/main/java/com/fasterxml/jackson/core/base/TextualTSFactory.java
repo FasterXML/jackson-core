@@ -88,57 +88,58 @@ public abstract class TextualTSFactory
      */
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt,
-            File f) throws JacksonException
+    public JsonParser createParser(ObjectReadContext readCtxt, File f)
+        throws JacksonException
     {
         // true, since we create InputStream from File
-        IOContext ioCtxt = _createContext(f, true);
+        IOContext ioCtxt = _createContext(_createContentReference(f), true);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, _fileInputStream(f)));
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt,
-            Path p) throws JacksonException
+    public JsonParser createParser(ObjectReadContext readCtxt, Path p)
+        throws JacksonException
     {
         // true, since we create InputStream from Path
-        IOContext ioCtxt = _createContext(p, true);
+        IOContext ioCtxt = _createContext(_createContentReference(p), true);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, _pathInputStream(p)));
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt,
-            URL url) throws JacksonException
+    public JsonParser createParser(ObjectReadContext readCtxt, URL url)
+        throws JacksonException
     {
         // true, since we create InputStream from URL
-        IOContext ioCtxt = _createContext(url, true);
+        IOContext ioCtxt = _createContext(_createContentReference(url), true);
         return _createParser(readCtxt, ioCtxt,
                 _decorate(ioCtxt, _optimizedStreamFromURL(url)));
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt,
-            InputStream in) throws JacksonException
+    public JsonParser createParser(ObjectReadContext readCtxt, InputStream in)
+        throws JacksonException
     {
-        IOContext ioCtxt = _createContext(in, false);
+        IOContext ioCtxt = _createContext(_createContentReference(in), false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt,
-            Reader r) throws JacksonException
+    public JsonParser createParser(ObjectReadContext readCtxt, Reader r)
+        throws JacksonException
     {
         // false -> we do NOT own Reader (did not create it)
-        IOContext ioCtxt = _createContext(r, false);
+        IOContext ioCtxt = _createContext(_createContentReference(r), false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, r));
     }
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            byte[] data, int offset, int len) throws JacksonException
+            byte[] data, int offset, int len)
+        throws JacksonException
     {
-        IOContext ioCtxt = _createContext(data, true);
+        IOContext ioCtxt = _createContext(_createContentReference(data, offset, len), true);
         if (_inputDecorator != null) {
             InputStream in = _inputDecorator.decorate(ioCtxt, data, offset, len);
             if (in != null) {
@@ -149,8 +150,8 @@ public abstract class TextualTSFactory
     }
 
     @Override
-    public JsonParser createParser(ObjectReadContext readCtxt,
-            String content) throws JacksonException
+    public JsonParser createParser(ObjectReadContext readCtxt, String content)
+        throws JacksonException
     {
         final int strLen = content.length();
         // Actually, let's use this for medium-sized content, up to 64kB chunk (32kb char)
@@ -159,7 +160,7 @@ public abstract class TextualTSFactory
             // is too long for us to copy it over
             return createParser(readCtxt, new StringReader(content));
         }
-        IOContext ioCtxt = _createContext(content, true);
+        IOContext ioCtxt = _createContext(_createContentReference(content), true);
         char[] buf = ioCtxt.allocTokenBuffer(strLen);
         content.getChars(0, strLen, buf, 0);
         return _createParser(readCtxt, ioCtxt, buf, 0, strLen, true);
@@ -167,12 +168,14 @@ public abstract class TextualTSFactory
 
     @Override
     public JsonParser createParser(ObjectReadContext readCtxt,
-            char[] content, int offset, int len) throws JacksonException
+            char[] content, int offset, int len)
+        throws JacksonException
     {
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
             return createParser(readCtxt, new CharArrayReader(content, offset, len));
         }
-        return _createParser(readCtxt, _createContext(content, true),
+        return _createParser(readCtxt,
+                _createContext(_createContentReference(content, offset, len), true),
                 content, offset, len,
                 // important: buffer is NOT recyclable, as it's from caller
                 false);
@@ -182,7 +185,7 @@ public abstract class TextualTSFactory
     public JsonParser createParser(ObjectReadContext readCtxt, 
             DataInput in) throws JacksonException
     {
-        IOContext ioCtxt = _createContext(in, false);
+        IOContext ioCtxt = _createContext(_createContentReference(in), false);
         return _createParser(readCtxt, ioCtxt, _decorate(ioCtxt, in));
     }
 
@@ -215,7 +218,7 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         // false -> we won't manage the stream unless explicitly directed to
-        IOContext ioCtxt = _createContext(out, false, enc);
+        IOContext ioCtxt = _createContext(_createContentReference(out), false, enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
         }
@@ -227,7 +230,7 @@ public abstract class TextualTSFactory
     public JsonGenerator createGenerator(ObjectWriteContext writeCtxt, Writer w)
         throws JacksonException
     {
-        IOContext ioCtxt = _createContext(w, false);
+        IOContext ioCtxt = _createContext(_createContentReference(w), false);
         return _createGenerator(writeCtxt, ioCtxt, _decorate(ioCtxt, w));
     }
 
@@ -237,7 +240,7 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         final OutputStream out = _fileOutputStream(f);
-        final IOContext ioCtxt = _createContext(f, true, enc);
+        final IOContext ioCtxt = _createContext(_createContentReference(f), true, enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
         }
@@ -251,7 +254,7 @@ public abstract class TextualTSFactory
         throws JacksonException
     {
         final OutputStream out = _pathOutputStream(p);
-        final IOContext ioCtxt = _createContext(p, true, enc);
+        final IOContext ioCtxt = _createContext(_createContentReference(p), true, enc);
         if (enc == JsonEncoding.UTF8) {
             return _createUTF8Generator(writeCtxt, ioCtxt, _decorate(ioCtxt, out));
         }
@@ -266,19 +269,19 @@ public abstract class TextualTSFactory
      */
 
     @Override
-    protected InputSourceReference _createSourceOrTargetReference(Object contentRef) {
-        // true -> is textual
+    protected InputSourceReference _createContentReference(Object contentRef) {
+        // true -> textual
         return new InputSourceReference(true, contentRef);
     }
 
     @Override
-    protected InputSourceReference _createSourceOrTargetReference(Object contentRef,
+    protected InputSourceReference _createContentReference(Object contentRef,
             int offset, int length)
     {
-        // true -> is textual
+        // true -> textual
         return new InputSourceReference(true,
                 contentRef, offset, length);
-    }
+    }    
 
     /*
     /**********************************************************************

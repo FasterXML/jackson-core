@@ -1931,6 +1931,10 @@ public class JsonFactory
      * @return I/O context created
      */
     protected IOContext _createContext(InputSourceReference srcOrTargetRef, boolean resourceManaged) {
+        // 21-Mar-2021, tatu: Bit of defensive coding for backwards compatibility
+        if (srcOrTargetRef == null) {
+            srcOrTargetRef = InputSourceReference.unknown();
+        }
         return new IOContext(_getBufferRecycler(), srcOrTargetRef, resourceManaged);
     }
 
@@ -1950,7 +1954,7 @@ public class JsonFactory
                 _createSourceOrTargetReference(srcOrTargetRef),
                 resourceManaged);
     }
-    
+
     /**
      * Overridable factory method that actually instantiates desired
      * context object for async (non-blocking) parsing

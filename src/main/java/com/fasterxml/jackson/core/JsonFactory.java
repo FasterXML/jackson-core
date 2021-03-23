@@ -1951,7 +1951,7 @@ public class JsonFactory
     @Deprecated
     protected IOContext _createContext(Object srcOrTargetRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(),
-                _createSourceOrTargetReference(srcOrTargetRef),
+                _createContentReference(srcOrTargetRef),
                 resourceManaged);
     }
 
@@ -1969,7 +1969,7 @@ public class JsonFactory
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
         return new IOContext(_getBufferRecycler(),
-                _createSourceOrTargetReference(srcRef),
+                _createContentReference(srcRef),
                 false);
     }
 
@@ -1978,38 +1978,41 @@ public class JsonFactory
      * to pass to parser or generator being created; used in cases where no offset
      * or length is applicable (either irrelevant, or full contents assumed).
      *
-     * @param contentRef Underlying input source (parser) or target (generator)
+     * @param contentAccessor Access to underlying content; depends on source/target,
+     *    as well as content representation
      *
      * @return InputSourceReference instance to use
      *
      * @since 2.13
      */
-    protected InputSourceReference _createSourceOrTargetReference(Object contentRef) {
+    protected InputSourceReference _createContentReference(Object contentAccessor) {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
-        return new InputSourceReference(!canHandleBinaryNatively(), contentRef);
+        return new InputSourceReference(!canHandleBinaryNatively(), contentAccessor);
     }
 
     /**
      * Overridable factory method for constructing {@link InputSourceReference}
-     * to pass to parser or generator being created; used in cases where input
-     * comes in a static buffer with relevant offset and length.
+     * to pass to parser or generator being created; used in cases where content
+     * is available in a static buffer with relevant offset and length (mostly
+     * when reading from {@code byte[]}, {@code char[]} or {@code String}).
      *
-     * @param contentRef Underlying input source (parser) or target (generator)
-     * @param offset Offset of content in buffer ({@code rawSource})
-     * @param length Length of content in buffer ({@code rawSource})
+     * @param contentAccessor Access to underlying content; depends on source/target,
+     *    as well as content representation
+     * @param offset Offset of content
+     * @param length Length of content
      *
      * @return InputSourceReference instance to use
      *
      * @since 2.13
      */
-    protected InputSourceReference _createSourceOrTargetReference(Object contentRef,
+    protected InputSourceReference _createContentReference(Object contentAccessor,
             int offset, int length)
     {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
         return new InputSourceReference(!canHandleBinaryNatively(),
-                contentRef, offset, length);
+                contentAccessor, offset, length);
     }
 
     /*

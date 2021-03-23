@@ -1263,7 +1263,7 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @return Source reference object, if any; {@code null} if none
      *
-     * @since 2.9
+     * @since 2.13
      */
     protected InputSourceReference _sourceReference() {
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {

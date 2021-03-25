@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.core.fuzz;
 
+import java.io.ByteArrayInputStream;
 import java.io.CharConversionException;
 import java.io.InputStream;
 
@@ -42,6 +43,24 @@ public class Fuzz32208UTF32ParseTest extends BaseTest
         _testFuzz32208Direct(991);
     }
 
+    public void testFuzz32208DirectSingleByte() throws Exception
+    {
+        UTF32Reader r = new UTF32Reader(null, new ByteArrayInputStream(DOC),
+                new byte[500], 0, 0, false);
+
+        int count = 0;
+        try {
+            int ch;
+            while ((ch = r.read()) >= 0) {
+                count += ch;
+            }
+            fail("Should have failed, got all "+count+" characters, last 0x"+Integer.toHexString(ch));
+        } catch (CharConversionException e) {
+            verifyException(e, "Invalid UTF-32 character ");
+        }
+        r.close();
+    }
+
     private void _testFuzz32208Direct(int readSize) throws Exception
     {
         InputStream in = new ThrottledInputStream(DOC, readSize);
@@ -68,7 +87,6 @@ public class Fuzz32208UTF32ParseTest extends BaseTest
         } catch (CharConversionException e) {
             verifyException(e, "Invalid UTF-32 character ");
         }
-
         r.close();
     }
 }

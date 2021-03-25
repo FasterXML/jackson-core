@@ -261,3 +261,8 @@ Jonathan Haber (jhaber@github)
 Ferenc Csaky (ferenc-csaky@github)
   * Contributed #677: Introduce O(n^1.5) BigDecimal parser implementation
   (2.13.0)
+
+Fabian Meumertzheim (fmeum@github)
+  * Reported #692: UTF32Reader ArrayIndexOutOfBoundsException
+  (2.13.0)
+

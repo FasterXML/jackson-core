@@ -26,6 +26,8 @@ JSON library.
  (contributed by Ferenc C)
 #687:  ByteQuadsCanonicalizer.addName(String, int, int) has incorrect handling
   for case of q2 == null
+#692: UTF32Reader ArrayIndexOutOfBoundsException
+ (reported by Fabian M)
 
 2.12.2 (03-Mar-2021)
 2.12.1 (08-Jan-2021)

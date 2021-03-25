@@ -14,11 +14,11 @@ public class UTF32Reader extends Reader
      * to the same as xml (to basically limit UTF-8 max byte sequence
      * length to 4)
      */
-    final protected static int LAST_VALID_UNICODE_CHAR = 0x10FFFF;
+    protected final static int LAST_VALID_UNICODE_CHAR = 0x10FFFF;
 
-    final protected static char NC = (char) 0;
+    protected final static char NC = (char) 0;
 
-    final protected IOContext _context;
+    protected final IOContext _context;
 
     protected InputStream _in;
 
@@ -53,11 +53,11 @@ public class UTF32Reader extends Reader
     protected int _byteCount;
 
     protected final boolean _managedBuffers;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public UTF32Reader(IOContext ctxt, InputStream in, boolean autoClose,
@@ -73,9 +73,9 @@ public class UTF32Reader extends Reader
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -110,7 +110,8 @@ public class UTF32Reader extends Reader
     }
     
     @Override
-    public int read(char[] cbuf, int start, int len) throws IOException {
+    public int read(char[] cbuf, int start, int len) throws IOException
+    {
         // Already EOF?
         if (_buffer == null) { return -1; }
         if (len < 1) { return len; }
@@ -146,7 +147,7 @@ public class UTF32Reader extends Reader
         final int lastValidInputStart = (_length - 4);
         
         main_loop:
-        while (outPtr < outEnd) {
+        while ((outPtr < outEnd) && (_ptr <= lastValidInputStart)) {
             int ptr = _ptr;
             int hi, lo;
 
@@ -178,9 +179,6 @@ public class UTF32Reader extends Reader
                 }
             }
             cbuf[outPtr++] = (char) lo;
-            if (_ptr > lastValidInputStart) {
-                break main_loop;
-            }
         }
         int actualLen = (outPtr - start);
         _charCount += actualLen;
@@ -188,9 +186,9 @@ public class UTF32Reader extends Reader
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private void reportUnexpectedEOF(int gotBytes, int needed) throws IOException {
@@ -222,9 +220,8 @@ public class UTF32Reader extends Reader
             }
             _length = available;
         } else {
-            /* Ok; here we can actually reasonably expect an EOF,
-             * so let's do a separate read right away:
-             */
+            // Ok; here we can actually reasonably expect an EOF,
+            // so let's do a separate read right away:
             _ptr = 0;
             int count = (_in == null) ? -1 : _in.read(_buffer);
             if (count < 1) {
@@ -241,9 +238,7 @@ public class UTF32Reader extends Reader
             _length = count;
         }
 
-        /* Need at least 4 bytes; if we don't get that many, it's an
-         * error.
-         */
+        // Need at least 4 bytes; if we don't get that many, it's an error.
         while (_length < 4) {
             int count = (_in == null) ? -1 : _in.read(_buffer, _length, _buffer.length - _length);
             if (count < 1) {
@@ -270,7 +265,9 @@ public class UTF32Reader extends Reader
         byte[] buf = _buffer;
         if (buf != null) {
             _buffer = null;
-            _context.releaseReadIOBuffer(buf);
+            if (_context != null) { // tests pass null
+                _context.releaseReadIOBuffer(buf);
+            }
         }
     }
 

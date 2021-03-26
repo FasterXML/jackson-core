@@ -29,6 +29,7 @@ JSON library.
 #692: UTF32Reader ArrayIndexOutOfBoundsException
  (reported by Fabian M)
 
+2.12.3 (not yet released)
 2.12.2 (03-Mar-2021)
 2.12.1 (08-Jan-2021)
 

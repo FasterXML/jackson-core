@@ -8,7 +8,7 @@ public class TestIOContext
     public void testAllocations() throws Exception
     {
         IOContext ctxt = new IOContext(new BufferRecycler(),
-                InputSourceReference.rawSource("N/A"), true);
+                ContentReference.rawReference("N/A"), true);
 
         /* I/O Read buffer */
 

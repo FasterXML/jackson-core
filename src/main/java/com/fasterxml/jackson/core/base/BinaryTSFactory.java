@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
  * Intermediate {@link TokenStreamFactory} sub-class used as the base for
@@ -200,17 +200,17 @@ public abstract class BinaryTSFactory
      */
 
     @Override
-    protected InputSourceReference _createContentReference(Object contentRef) {
+    protected ContentReference _createContentReference(Object contentRef) {
         // false -> not textual
-        return new InputSourceReference(false, contentRef);
+        return new ContentReference(false, contentRef);
     }
 
     @Override
-    protected InputSourceReference _createContentReference(Object contentRef,
+    protected ContentReference _createContentReference(Object contentRef,
             int offset, int length)
     {
         // false -> not textual
-        return new InputSourceReference(false,
+        return new ContentReference(false,
                 contentRef, offset, length);
     }    
 

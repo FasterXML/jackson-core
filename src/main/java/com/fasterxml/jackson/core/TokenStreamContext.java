@@ -6,7 +6,7 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.io.CharTypes;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
  * Shared base class for streaming processing contexts used during
@@ -252,7 +252,7 @@ public abstract class TokenStreamContext
      * @return Location pointing to the point where the context
      *   start marker was found (or written); never `null`.
      */
-    public JsonLocation startLocation(InputSourceReference srcRef) {
+    public JsonLocation startLocation(ContentReference srcRef) {
         return JsonLocation.NA;
     }
 

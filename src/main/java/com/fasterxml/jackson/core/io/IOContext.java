@@ -24,7 +24,7 @@ public class IOContext
      * Reference to the source object, which can be used for displaying
      * location information
      */
-    protected final InputSourceReference _inputSource;
+    protected final ContentReference _contentReference;
 
     /**
      * Encoding used by the underlying stream, if known.
@@ -102,20 +102,20 @@ public class IOContext
      * Main constructor to use.
      * 
      * @param br BufferRecycler to use, if any ({@code null} if none)
-     * @param sourceRef Input source reference for location reporting
+     * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      */
-    public IOContext(BufferRecycler br, InputSourceReference sourceRef, boolean managedResource,
+    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource,
             JsonEncoding enc)
     {
         _bufferRecycler = br;
-        _inputSource = sourceRef;
+        _contentReference = contentRef;
         _managedResource = managedResource;
         _encoding = enc;
     }
 
-    public IOContext(BufferRecycler br, InputSourceReference sourceRef, boolean managedResource) {
-        this(br, sourceRef, managedResource, null);
+    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource) {
+        this(br, contentRef, managedResource, null);
     }
 
     public IOContext setEncoding(JsonEncoding enc) {
@@ -138,8 +138,8 @@ public class IOContext
      * 
      * @return Reference to input source
      */
-    public InputSourceReference sourceReference() {
-        return _inputSource;
+    public ContentReference contentReference() {
+        return _contentReference;
     }
 
     /*

@@ -149,6 +149,6 @@ public class UTF8WriterTest
     }
 
     private IOContext _ioContext(BufferRecycler br) {
-        return new IOContext(br, InputSourceReference.unknown(), false);
+        return new IOContext(br, ContentReference.unknown(), false);
     }
 }

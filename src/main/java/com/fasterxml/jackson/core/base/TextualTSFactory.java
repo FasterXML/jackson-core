@@ -6,7 +6,7 @@ import java.nio.file.Path;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.UTF8Writer;
 
 /**
@@ -269,17 +269,17 @@ public abstract class TextualTSFactory
      */
 
     @Override
-    protected InputSourceReference _createContentReference(Object contentRef) {
+    protected ContentReference _createContentReference(Object contentRef) {
         // true -> textual
-        return new InputSourceReference(true, contentRef);
+        return new ContentReference(true, contentRef);
     }
 
     @Override
-    protected InputSourceReference _createContentReference(Object contentRef,
+    protected ContentReference _createContentReference(Object contentRef,
             int offset, int length)
     {
         // true -> textual
-        return new InputSourceReference(true,
+        return new ContentReference(true,
                 contentRef, offset, length);
     }    
 

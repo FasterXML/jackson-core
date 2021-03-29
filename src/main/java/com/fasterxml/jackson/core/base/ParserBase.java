@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.TextBuffer;
@@ -910,10 +910,10 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @return Source reference object, if any; {@code null} if none
      */
-    protected InputSourceReference _sourceReference() {
+    protected ContentReference _sourceReference() {
         if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
-            return _ioContext.sourceReference();
+            return _ioContext.contentReference();
         }
-        return InputSourceReference.unknown();
+        return ContentReference.unknown();
     }
 }

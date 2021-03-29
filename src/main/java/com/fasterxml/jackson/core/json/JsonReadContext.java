@@ -2,7 +2,7 @@ package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
  * Extension of {@link TokenStreamContext}, which implements
@@ -160,10 +160,10 @@ public final class JsonReadContext extends TokenStreamContext
     @Override public JsonReadContext getParent() { return _parent; }
 
     @Override
-    public JsonLocation startLocation(InputSourceReference srcRef) {
+    public JsonLocation startLocation(ContentReference srcRef) {
         // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
-        return new JsonLocation(InputSourceReference.rawSource(srcRef),
+        return new JsonLocation(ContentReference.rawReference(srcRef),
                 totalChars, _lineNr, _columnNr);
     }
 

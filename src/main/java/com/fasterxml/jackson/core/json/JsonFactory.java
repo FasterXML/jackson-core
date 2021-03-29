@@ -340,7 +340,7 @@ public class JsonFactory
 
     protected IOContext _createNonBlockingContext(Object srcRef) {
         return new IOContext(_getBufferRecycler(),
-                InputSourceReference.rawSource(srcRef), false);
+                ContentReference.rawReference(srcRef), false);
     }    
 
     /*

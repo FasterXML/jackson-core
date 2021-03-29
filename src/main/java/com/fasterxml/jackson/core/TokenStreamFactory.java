@@ -1310,7 +1310,7 @@ public abstract class TokenStreamFactory
      *
      * @return Context constructed
      */
-    protected IOContext _createContext(InputSourceReference contentRef, boolean resourceManaged) {
+    protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
         return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, null);
     }
 
@@ -1324,13 +1324,13 @@ public abstract class TokenStreamFactory
      *
      * @return Context constructed
      */
-    protected IOContext _createContext(InputSourceReference contentRef, boolean resourceManaged,
+    protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged,
             JsonEncoding enc) {
         return new IOContext(_getBufferRecycler(), contentRef, resourceManaged, enc);
     }
 
     /**
-     * Overridable factory method for constructing {@link InputSourceReference}
+     * Overridable factory method for constructing {@link ContentReference}
      * to pass to parser or generator being created; used in cases where no offset
      * or length is applicable (either irrelevant, or full contents assumed).
      *
@@ -1338,10 +1338,10 @@ public abstract class TokenStreamFactory
      *
      * @return InputSourceReference instance to use
      */
-    protected abstract InputSourceReference _createContentReference(Object contentRef);
+    protected abstract ContentReference _createContentReference(Object contentRef);
 
     /**
-     * Overridable factory method for constructing {@link InputSourceReference}
+     * Overridable factory method for constructing {@link ContentReference}
      * to pass to parser or generator being created; used in cases where input
      * comes in a static buffer with relevant offset and length.
      *
@@ -1351,7 +1351,7 @@ public abstract class TokenStreamFactory
      *
      * @return InputSourceReference instance to use
      */
-    protected abstract InputSourceReference _createContentReference(Object contentRef,
+    protected abstract ContentReference _createContentReference(Object contentRef,
             int offset, int length);
 
     protected OutputStream _createDataOutputWrapper(DataOutput out) {

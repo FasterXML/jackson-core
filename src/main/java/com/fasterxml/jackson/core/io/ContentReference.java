@@ -5,27 +5,28 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
- * Abstraction that encloses information about input source (streaming or
- * not) for the purpose of including pertinent information in
+ * Abstraction that encloses information about content being processed --
+ * input source or output targe, streaming or
+ * not -- for the purpose of including pertinent information in
  * location (see {@link com.fasterxml.jackson.core.JsonLocation})
  * objections, most commonly to be printed out as part of {@code Exception}
  * messages.
  *
  * @since 2.13
  */
-public class InputSourceReference
+public class ContentReference
     // sort of: we will read back as "UNKNOWN_INPUT"
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    protected final static InputSourceReference UNKNOWN_INPUT =
-            new InputSourceReference(false, null);
+    protected final static ContentReference UNKNOWN_CONTENT =
+            new ContentReference(false, null);
 
     /**
      * Reference to the actual underlying source.
      */
-    protected final transient Object _rawSource;
+    protected final transient Object _rawContent;
 
     /**
      * For static input sources, indicates offset from the beginning
@@ -46,23 +47,23 @@ public class InputSourceReference
      * this is taken to mean, by default, that a snippet of content may be
      * displayed for exception messages. 
      */
-    protected final boolean _textualContent;
+    protected final boolean _isContentTextual;
 
     /*
     /**********************************************************************
     /* Life-cycle
     /**********************************************************************
-     */    
+     */
 
-    public InputSourceReference(boolean textualContent, Object rawSource) {
-        this(textualContent, rawSource, -1, -1);
+    public ContentReference(boolean isContentTextual, Object rawContent) {
+        this(isContentTextual, rawContent, -1, -1);
     }
 
-    public InputSourceReference(boolean textualContent, Object rawSource,
+    public ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length)
     {
-        _textualContent = textualContent;
-        _rawSource = rawSource;
+        _isContentTextual = isContentTextual;
+        _rawContent = rawContent;
         _offset = offset;
         _length = length;
     }
@@ -74,8 +75,8 @@ public class InputSourceReference
      * @return Placeholder "unknown" (or "empty") instance to use instead of
      *    {@code null} reference
      */
-    public static InputSourceReference unknown() {
-        return UNKNOWN_INPUT;
+    public static ContentReference unknown() {
+        return UNKNOWN_CONTENT;
     }
 
     /**
@@ -83,17 +84,17 @@ public class InputSourceReference
      * input sources for which only minimal amount of information is available.
      * Assumed not to contain textual content (no snippet displayed).
      * 
-     * @param rawSource Underlying raw input source
+     * @param rawContent Underlying raw content access
      *
-     * @return Instance with minimal information about source (basically just
-     *    raw source without offsets; 
+     * @return Instance with minimal information about content (basically just
+     *    raw content reference without offsets; 
      */
-    public static InputSourceReference rawSource(Object rawSource) {
+    public static ContentReference rawReference(Object rawContent) {
         // 14-Mar-2021, tatu: Just to avoid russian-doll-nesting, let's:
-        if (rawSource instanceof InputSourceReference) {
-            return (InputSourceReference) rawSource;
+        if (rawContent instanceof ContentReference) {
+            return (ContentReference) rawContent;
         }
-        return new InputSourceReference(false, rawSource);
+        return new ContentReference(false, rawContent);
     }
 
     /*
@@ -114,7 +115,7 @@ public class InputSourceReference
     }    
 
     protected Object readResolve() {
-        return UNKNOWN_INPUT;
+        return UNKNOWN_CONTENT;
     }    
 
     /*
@@ -124,11 +125,11 @@ public class InputSourceReference
      */    
 
     public boolean hasTextualContent() {
-        return _textualContent;
+        return _isContentTextual;
     }
 
     public Object getSource() {
-        return _rawSource;
+        return _rawContent;
     }
 
     /*
@@ -145,9 +146,9 @@ public class InputSourceReference
     {
         if (other == this) return true;
         if (other == null) return false;
-        if (!(other instanceof InputSourceReference)) return false;
-        InputSourceReference otherSrc = (InputSourceReference) other;
+        if (!(other instanceof ContentReference)) return false;
+        ContentReference otherSrc = (ContentReference) other;
 
-        return _rawSource == otherSrc._rawSource;
+        return _rawContent == otherSrc._rawContent;
     }
 }

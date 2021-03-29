@@ -7,7 +7,7 @@ package com.fasterxml.jackson.core;
 
 import java.nio.charset.Charset;
 
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
  * Object that encapsulates Location information used for reporting
@@ -35,7 +35,7 @@ public class JsonLocation
      * NOTE: before 2.9, Location was given as String "N/A"; with 2.9 it was
      * removed so that source should be indicated as "UNKNOWN".
      */
-    public final static JsonLocation NA = new JsonLocation(InputSourceReference.unknown(),
+    public final static JsonLocation NA = new JsonLocation(ContentReference.unknown(),
             -1L, -1L, -1, -1);
 
     protected final long _totalBytes;
@@ -46,24 +46,24 @@ public class JsonLocation
 
     /**
      * Reference to input source; never null (but may be that of
-     * {@link InputSourceReference#unknown()}).
+     * {@link ContentReference#unknown()}).
      *
      * @since 2.13 (before we have {@code _sourceRef} (Object-valued)
      */
-    protected final InputSourceReference _inputSource;
+    protected final ContentReference _inputSource;
 
-    public JsonLocation(InputSourceReference inputSource, long totalChars,
+    public JsonLocation(ContentReference inputSource, long totalChars,
             int lineNr, int colNr)
     {
         this(inputSource, -1L, totalChars, lineNr, colNr);
     }
 
-    public JsonLocation(InputSourceReference inputSource, long totalBytes, long totalChars,
+    public JsonLocation(ContentReference inputSource, long totalBytes, long totalChars,
             int lineNr, int columnNr)
     {
         // 14-Mar-2021, tatu: Defensive programming, but also for convenience...
         if (inputSource == null) {
-            inputSource = InputSourceReference.unknown();
+            inputSource = ContentReference.unknown();
         }
         _inputSource = inputSource;
         _totalBytes = totalBytes;
@@ -83,11 +83,11 @@ public class JsonLocation
         this(_wrap(srcRef), totalBytes, totalChars, lineNr, columnNr);
     }
 
-    protected static InputSourceReference _wrap(Object srcRef) {
-        if (srcRef instanceof InputSourceReference) {
-            return (InputSourceReference) srcRef;
+    protected static ContentReference _wrap(Object srcRef) {
+        if (srcRef instanceof ContentReference) {
+            return (ContentReference) srcRef;
         }
-        return new InputSourceReference(false, srcRef);
+        return new ContentReference(false, srcRef);
     }
 
     /**
@@ -102,7 +102,7 @@ public class JsonLocation
      *
      * @since 2.13 (to replace {@code getSourceRef})
      */
-    public InputSourceReference inputSource() {
+    public ContentReference inputSource() {
         return _inputSource;
     }
 

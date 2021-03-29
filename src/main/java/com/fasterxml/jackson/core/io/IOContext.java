@@ -24,12 +24,12 @@ public class IOContext
      * Reference to the source object, which can be used for displaying
      * location information
      */
-    protected final InputSourceReference _inputSource;
+    protected final ContentReference _contentReference;
 
     /**
      * Old, deprecated "raw" reference to input source.
      *
-     * @deprecated Since 2.13, use {@link #_inputSource} instead
+     * @deprecated Since 2.13, use {@link #_contentReference} instead
      */
     @Deprecated
     protected final Object _sourceRef;
@@ -110,22 +110,22 @@ public class IOContext
      * Main constructor to use.
      * 
      * @param br BufferRecycler to use, if any ({@code null} if none)
-     * @param sourceRef Input source reference for location reporting
+     * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
      * @since 2.13
      */
-    public IOContext(BufferRecycler br, InputSourceReference sourceRef, boolean managedResource)
+    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
         _bufferRecycler = br;
-        _inputSource = sourceRef;
-        _sourceRef = sourceRef.getSource();
+        _contentReference = contentRef;
+        _sourceRef = contentRef.getSource();
         _managedResource = managedResource;
     }
 
     @Deprecated // since 2.13
-    public IOContext(BufferRecycler br, Object rawSource, boolean managedResource) {
-        this(br, InputSourceReference.rawSource(rawSource), managedResource);
+    public IOContext(BufferRecycler br, Object rawContent, boolean managedResource) {
+        this(br, ContentReference.rawReference(rawContent), managedResource);
     }
 
     public void setEncoding(JsonEncoding enc) {
@@ -154,12 +154,12 @@ public class IOContext
      *
      * @since 2.13
      */
-    public InputSourceReference sourceReference() {
-        return _inputSource;
+    public ContentReference contentReference() {
+        return _contentReference;
     }
 
     /**
-     * @deprecated Since 2.13, use {@link #sourceReference()} instead
+     * @deprecated Since 2.13, use {@link #contentReference()} instead
      * @return "Raw" source reference
      */
     @Deprecated

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.core;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
 /**
@@ -84,12 +84,12 @@ public class TestJDKSerializability extends BaseTest
 
     public void testSourceReference() throws Exception
     {
-        InputSourceReference ref = new InputSourceReference(true, "text");
+        ContentReference ref = new ContentReference(true, "text");
         
         byte[] stuff = jdkSerialize(ref);
-        InputSourceReference ref2 = jdkDeserialize(stuff);
+        ContentReference ref2 = jdkDeserialize(stuff);
         assertNotNull(ref2);
-        assertSame(ref2, InputSourceReference.unknown());
+        assertSame(ref2, ContentReference.unknown());
     }
 
     public void testParseException() throws Exception

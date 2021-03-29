@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
@@ -1252,7 +1252,7 @@ public abstract class ParserBase extends ParserMinimalBase
     @Deprecated
     protected Object _getSourceReference() {
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
-            return _ioContext.sourceReference().getSource();
+            return _ioContext.contentReference().getSource();
         }
         return null;
     }
@@ -1265,11 +1265,11 @@ public abstract class ParserBase extends ParserMinimalBase
      *
      * @since 2.13
      */
-    protected InputSourceReference _sourceReference() {
+    protected ContentReference _sourceReference() {
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
-            return _ioContext.sourceReference();
+            return _ioContext.contentReference();
         }
-        return InputSourceReference.unknown();
+        return ContentReference.unknown();
     }
 
     protected static int[] growArrayBy(int[] arr, int more)

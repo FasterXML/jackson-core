@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 
 public class TestLocation extends BaseTest
 {
@@ -111,7 +111,7 @@ public class TestLocation extends BaseTest
         p.close();
     }
 
-    private InputSourceReference _sourceRef(Object rawSrc) {
-        return InputSourceReference.rawSource(rawSrc);
+    private ContentReference _sourceRef(Object rawSrc) {
+        return ContentReference.rawReference(rawSrc);
     }
 }

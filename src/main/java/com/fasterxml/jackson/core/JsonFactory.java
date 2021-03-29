@@ -1033,14 +1033,12 @@ public class JsonFactory
     /**
      * Method for constructing JSON parser instance to parse
      * contents of resource reference by given URL.
-     *
      *<p>
      * Encoding is auto-detected from contents according to JSON
      * specification recommended mechanism. Json specification
      * supports only UTF-8, UTF-16 and UTF-32 as valid encodings,
      * so auto-detection implemented only for this charsets.
      * For other charsets use {@link #createParser(java.io.Reader)}.
-     *
      *<p>
      * Underlying input stream (needed for reading contents)
      * will be <b>owned</b> (and managed, i.e. closed as need be) by
@@ -1931,10 +1929,10 @@ public class JsonFactory
      *
      * @return I/O context created
      */
-    protected IOContext _createContext(InputSourceReference contentRef, boolean resourceManaged) {
+    protected IOContext _createContext(ContentReference contentRef, boolean resourceManaged) {
         // 21-Mar-2021, tatu: Bit of defensive coding for backwards compatibility
         if (contentRef == null) {
-            contentRef = InputSourceReference.unknown();
+            contentRef = ContentReference.unknown();
         }
         return new IOContext(_getBufferRecycler(), contentRef, resourceManaged);
     }
@@ -1975,7 +1973,7 @@ public class JsonFactory
     }
 
     /**
-     * Overridable factory method for constructing {@link InputSourceReference}
+     * Overridable factory method for constructing {@link ContentReference}
      * to pass to parser or generator being created; used in cases where no offset
      * or length is applicable (either irrelevant, or full contents assumed).
      *
@@ -1986,14 +1984,14 @@ public class JsonFactory
      *
      * @since 2.13
      */
-    protected InputSourceReference _createContentReference(Object contentAccessor) {
+    protected ContentReference _createContentReference(Object contentAccessor) {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
-        return new InputSourceReference(!canHandleBinaryNatively(), contentAccessor);
+        return new ContentReference(!canHandleBinaryNatively(), contentAccessor);
     }
 
     /**
-     * Overridable factory method for constructing {@link InputSourceReference}
+     * Overridable factory method for constructing {@link ContentReference}
      * to pass to parser or generator being created; used in cases where content
      * is available in a static buffer with relevant offset and length (mostly
      * when reading from {@code byte[]}, {@code char[]} or {@code String}).
@@ -2007,12 +2005,12 @@ public class JsonFactory
      *
      * @since 2.13
      */
-    protected InputSourceReference _createContentReference(Object contentAccessor,
+    protected ContentReference _createContentReference(Object contentAccessor,
             int offset, int length)
     {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
-        return new InputSourceReference(!canHandleBinaryNatively(),
+        return new ContentReference(!canHandleBinaryNatively(),
                 contentAccessor, offset, length);
     }
 

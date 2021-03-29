@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core.json;
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
  * Unit tests for class {@link JsonReadContext}.
@@ -36,7 +36,7 @@ public class JsonReadContextTest extends BaseTest
   {
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(dupDetector);
-      final InputSourceReference bogusSrc = InputSourceReference.unknown();
+      final ContentReference bogusSrc = ContentReference.unknown();
 
       assertTrue(jsonReadContext.inRoot());
       assertEquals("root", jsonReadContext.typeDesc());

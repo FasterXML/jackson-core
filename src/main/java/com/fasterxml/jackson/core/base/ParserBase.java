@@ -370,7 +370,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _reportInvalidEOF(String.format(
                     ": expected close marker for %s (start marker at %s)",
                     marker,
-                    parsingContext.startLocation(_sourceReference())),
+                    parsingContext.startLocation(_contentReference())),
                     null);
         }
     }
@@ -906,11 +906,11 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * Helper method used to encapsulate logic of including (or not) of
-     * "source reference" when constructing {@link JsonLocation} instances.
+     * "content reference" when constructing {@link JsonLocation} instances.
      *
      * @return Source reference object, if any; {@code null} if none
      */
-    protected ContentReference _sourceReference() {
+    protected ContentReference _contentReference() {
         if (isEnabled(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)) {
             return _ioContext.contentReference();
         }

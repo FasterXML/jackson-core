@@ -45,22 +45,22 @@ public class JsonLocation
      * Reference to input source; never null (but may be that of
      * {@link ContentReference#unknown()}).
      */
-    protected final ContentReference _inputSource;
+    protected final ContentReference _contentReference;
 
-    public JsonLocation(ContentReference inputSource, long totalChars,
+    public JsonLocation(ContentReference contentRef, long totalChars,
             int lineNr, int colNr)
     {
-        this(inputSource, -1L, totalChars, lineNr, colNr);
+        this(contentRef, -1L, totalChars, lineNr, colNr);
     }
 
-    public JsonLocation(ContentReference inputSource, long totalBytes, long totalChars,
+    public JsonLocation(ContentReference contentRef, long totalBytes, long totalChars,
             int lineNr, int columnNr)
     {
         // 14-Mar-2021, tatu: Defensive programming, but also for convenience...
-        if (inputSource == null) {
-            inputSource = ContentReference.unknown();
+        if (contentRef == null) {
+            contentRef = ContentReference.unknown();
         }
-        _inputSource = inputSource;
+        _contentReference = contentRef;
         _totalBytes = totalBytes;
         _totalChars = totalChars;
         _lineNr = lineNr;
@@ -77,8 +77,8 @@ public class JsonLocation
      *
      * @return Object with information about input source.
      */
-    public ContentReference inputSource() {
-        return _inputSource;
+    public ContentReference contentReference() {
+        return _contentReference;
     }
 
     /**
@@ -91,11 +91,11 @@ public class JsonLocation
      *
      * @return Source reference this location was constructed with, if any; {@code null} if none
      *
-     * @deprecated Since 2.13 Use {@link #inputSource} instead
+     * @deprecated Since 2.13 Use {@link #contentReference} instead
      */
     @Deprecated
     public Object getSourceRef() {
-        return _inputSource.getSource();
+        return _contentReference.getRawContent();
     }
 
     /**
@@ -145,7 +145,7 @@ public class JsonLocation
     @Override
     public int hashCode()
     {
-        int hash = (_inputSource == null) ? 1 : 2;
+        int hash = (_contentReference == null) ? 1 : 2;
         hash ^= _lineNr;
         hash += _columnNr;
         hash ^= (int) _totalChars;
@@ -161,9 +161,9 @@ public class JsonLocation
         if (!(other instanceof JsonLocation)) return false;
         JsonLocation otherLoc = (JsonLocation) other;
 
-        if (_inputSource == null) {
-            if (otherLoc._inputSource != null) return false;
-        } else if (!_inputSource.equals(otherLoc._inputSource)) return false;
+        if (_contentReference == null) {
+            if (otherLoc._contentReference != null) return false;
+        } else if (!_contentReference.equals(otherLoc._contentReference)) return false;
 
         return (_lineNr == otherLoc._lineNr)
             && (_columnNr == otherLoc._columnNr)
@@ -200,7 +200,7 @@ public class JsonLocation
 
     protected StringBuilder _appendSourceDesc(StringBuilder sb)
     {
-        final Object srcRef = _inputSource.getSource();
+        final Object srcRef = _contentReference.getRawContent();
 
         if (srcRef == null) {
             sb.append("UNKNOWN");

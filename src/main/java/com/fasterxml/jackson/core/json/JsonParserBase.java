@@ -348,7 +348,7 @@ public abstract class JsonParserBase
         TokenStreamContext ctxt = streamReadContext();
         _reportError(String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
-                (char) actCh, expCh, ctxt.typeDesc(), ctxt.startLocation(_sourceReference())));
+                (char) actCh, expCh, ctxt.typeDesc(), ctxt.startLocation(_contentReference())));
     }
 
     // Method called to report a problem with unquoted control character.

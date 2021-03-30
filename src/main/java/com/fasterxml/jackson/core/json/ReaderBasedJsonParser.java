@@ -2871,17 +2871,17 @@ public class ReaderBasedJsonParser
     {
         if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
-            return new JsonLocation(_sourceReference(),
+            return new JsonLocation(_contentReference(),
                     -1L, total, _nameStartRow, _nameStartCol);
         }
-        return new JsonLocation(_sourceReference(),
+        return new JsonLocation(_contentReference(),
                 -1L, _tokenInputTotal-1, _tokenInputRow, _tokenInputCol);
     }
 
     @Override
     public JsonLocation currentLocation() {
         final int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_sourceReference(),
+        return new JsonLocation(_contentReference(),
                 -1L, _currInputProcessed + _inputPtr,
                 _currInputRow, col);
     }

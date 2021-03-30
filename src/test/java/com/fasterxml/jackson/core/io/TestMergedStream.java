@@ -17,7 +17,7 @@ public class TestMergedStream
         System.arraycopy("ABCDE".getBytes("UTF-8"), 0, first, 99, 5);
         byte[] second = "FGHIJ".getBytes("UTF-8");
 
-        assertNull(ctxt.contentReference().getSource());
+        assertNull(ctxt.contentReference().getRawContent());
         assertFalse(ctxt.isResourceManaged());
         ctxt.setEncoding(JsonEncoding.UTF8);
         MergedStream ms = new MergedStream(ctxt, new ByteArrayInputStream(second),

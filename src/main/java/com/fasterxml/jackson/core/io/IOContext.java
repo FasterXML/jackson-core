@@ -119,7 +119,7 @@ public class IOContext
     {
         _bufferRecycler = br;
         _contentReference = contentRef;
-        _sourceRef = contentRef.getSource();
+        _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
     }
 

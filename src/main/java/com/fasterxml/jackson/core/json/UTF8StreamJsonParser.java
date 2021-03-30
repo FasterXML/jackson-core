@@ -3798,10 +3798,10 @@ public class UTF8StreamJsonParser
     {
         if (_currToken == JsonToken.FIELD_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
-            return new JsonLocation(_sourceReference(),
+            return new JsonLocation(_contentReference(),
                     total, -1L, _nameStartRow, _nameStartCol);
         }
-        return new JsonLocation(_sourceReference(),
+        return new JsonLocation(_contentReference(),
                 _tokenInputTotal-1, -1L, _tokenInputRow, _tokenInputCol);
     }
 
@@ -3810,7 +3810,7 @@ public class UTF8StreamJsonParser
     public JsonLocation getCurrentLocation()
     {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_sourceReference(),
+        return new JsonLocation(_contentReference(),
                 _currInputProcessed + _inputPtr, -1L, // bytes, chars
                 _currInputRow, col);
     }

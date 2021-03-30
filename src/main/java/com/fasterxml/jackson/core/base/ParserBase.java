@@ -390,7 +390,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
     @Override
     public JsonLocation getTokenLocation() {
-        return new JsonLocation(_sourceReference(),
+        return new JsonLocation(_contentReference(),
                 -1L, getTokenCharacterOffset(), // bytes, chars
                 getTokenLineNr(),
                 getTokenColumnNr());
@@ -403,7 +403,7 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override
     public JsonLocation getCurrentLocation() {
         int col = _inputPtr - _currInputRowStart + 1; // 1-based
-        return new JsonLocation(_sourceReference(),
+        return new JsonLocation(_contentReference(),
                 -1L, _currInputProcessed + _inputPtr, // bytes, chars
                 _currInputRow, col);
     }
@@ -494,7 +494,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _reportInvalidEOF(String.format(
                     ": expected close marker for %s (start marker at %s)",
                     marker,
-                    _parsingContext.startLocation(_sourceReference())),
+                    _parsingContext.startLocation(_contentReference())),
                     null);
         }
     }
@@ -1073,7 +1073,7 @@ public abstract class ParserBase extends ParserMinimalBase
         _reportError(String.format(
                 "Unexpected close marker '%s': expected '%c' (for %s starting at %s)",
                 (char) actCh, expCh, ctxt.typeDesc(),
-                ctxt.startLocation(_sourceReference())));
+                ctxt.startLocation(_contentReference())));
     }
 
     @SuppressWarnings("deprecation")
@@ -1247,25 +1247,25 @@ public abstract class ParserBase extends ParserMinimalBase
 
     /**
      * @since 2.9
-     * @deprecated Since 2.13, use {@link #_sourceReference()} instead.
+     * @deprecated Since 2.13, use {@link #_contentReference()} instead.
      */
     @Deprecated
     protected Object _getSourceReference() {
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
-            return _ioContext.contentReference().getSource();
+            return _ioContext.contentReference().getRawContent();
         }
         return null;
     }
 
     /**
      * Helper method used to encapsulate logic of including (or not) of
-     * "source reference" when constructing {@link JsonLocation} instances.
+     * "content reference" when constructing {@link JsonLocation} instances.
      *
      * @return Source reference object, if any; {@code null} if none
      *
      * @since 2.13
      */
-    protected ContentReference _sourceReference() {
+    protected ContentReference _contentReference() {
         if (JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION.enabledIn(_features)) {
             return _ioContext.contentReference();
         }

@@ -1980,7 +1980,7 @@ public class JsonFactory
      * @param contentAccessor Access to underlying content; depends on source/target,
      *    as well as content representation
      *
-     * @return InputSourceReference instance to use
+     * @return Reference instance to use
      *
      * @since 2.13
      */
@@ -2001,7 +2001,7 @@ public class JsonFactory
      * @param offset Offset of content
      * @param length Length of content
      *
-     * @return InputSourceReference instance to use
+     * @return Reference instance to use
      *
      * @since 2.13
      */

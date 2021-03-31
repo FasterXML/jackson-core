@@ -87,7 +87,7 @@ public class JsonLocation
         if (srcRef instanceof ContentReference) {
             return (ContentReference) srcRef;
         }
-        return new ContentReference(false, srcRef);
+        return ContentReference.construct(false, srcRef);
     }
 
     /**
@@ -234,29 +234,35 @@ public class JsonLocation
             tn = "char[]";
         }
         sb.append('(').append(tn).append(')');
-        // and then, include (part of) contents for selected types:
-        int len;
-        String charStr = " chars";
 
-        if (srcRef instanceof CharSequence) {
-            CharSequence cs = (CharSequence) srcRef;
-            len = cs.length();
-            len -= _append(sb, cs.subSequence(0, Math.min(len, MAX_CONTENT_SNIPPET)).toString());
-        } else if (srcRef instanceof char[]) {
-            char[] ch = (char[]) srcRef;
-            len = ch.length;
-            len -= _append(sb, new String(ch, 0, Math.min(len, MAX_CONTENT_SNIPPET)));
-        } else if (srcRef instanceof byte[]) {
-            byte[] b = (byte[]) srcRef;
-            int maxLen = Math.min(b.length, MAX_CONTENT_SNIPPET);
-            _append(sb, new String(b, 0, maxLen, Charset.forName("UTF-8")));
-            len = b.length - maxLen;
-            charStr = " bytes";
+        // and then, include (part of) contents for selected types
+        // (never for binary-format data)
+        if (_contentReference.hasTextualContent()) {
+            int len;
+            String charStr = " chars";
+    
+            if (srcRef instanceof CharSequence) {
+                CharSequence cs = (CharSequence) srcRef;
+                len = cs.length();
+                len -= _append(sb, cs.subSequence(0, Math.min(len, MAX_CONTENT_SNIPPET)).toString());
+            } else if (srcRef instanceof char[]) {
+                char[] ch = (char[]) srcRef;
+                len = ch.length;
+                len -= _append(sb, new String(ch, 0, Math.min(len, MAX_CONTENT_SNIPPET)));
+            } else if (srcRef instanceof byte[]) {
+                byte[] b = (byte[]) srcRef;
+                int maxLen = Math.min(b.length, MAX_CONTENT_SNIPPET);
+                _append(sb, new String(b, 0, maxLen, Charset.forName("UTF-8")));
+                len = b.length - maxLen;
+                charStr = " bytes";
+            } else {
+                len = 0;
+            }
+            if (len > 0) {
+                sb.append("[truncated ").append(len).append(charStr).append(']');
+            }
         } else {
-            len = 0;
-        }
-        if (len > 0) {
-            sb.append("[truncated ").append(len).append(charStr).append(']');
+            
         }
         return sb;
     }

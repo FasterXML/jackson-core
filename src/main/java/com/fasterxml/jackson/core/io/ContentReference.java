@@ -59,11 +59,11 @@ public class ContentReference
     /**********************************************************************
      */
 
-    public ContentReference(boolean isContentTextual, Object rawContent) {
+    protected ContentReference(boolean isContentTextual, Object rawContent) {
         this(isContentTextual, rawContent, -1, -1);
     }
 
-    public ContentReference(boolean isContentTextual, Object rawContent,
+    protected ContentReference(boolean isContentTextual, Object rawContent,
             int offset, int length)
     {
         _isContentTextual = isContentTextual;
@@ -83,6 +83,15 @@ public class ContentReference
         return UNKNOWN_CONTENT;
     }
 
+    public static ContentReference construct(boolean isContentTextual, Object rawContent) {
+        return new ContentReference(isContentTextual, rawContent);
+    }
+
+    public static ContentReference construct(boolean isContentTextual, Object rawContent,
+            int offset, int length) {
+        return new ContentReference(isContentTextual, rawContent, offset, length);
+    }
+
     /**
      * Factory method for legacy code to use for constructing instances to
      * content about which only minimal amount of information is available.
@@ -91,10 +100,10 @@ public class ContentReference
      * @param rawContent Underlying raw content access
      *
      * @return Instance with minimal information about content (basically just
-     *    raw content reference without offsets; 
+     *    raw content reference without offsets
      */
     public static ContentReference rawReference(Object rawContent) {
-        // 14-Mar-2021, tatu: Just to avoid russian-doll-nesting, let's:
+        // Just to avoid russian-doll-nesting, let's:
         if (rawContent instanceof ContentReference) {
             return (ContentReference) rawContent;
         }
@@ -135,6 +144,9 @@ public class ContentReference
     public Object getRawContent() {
         return _rawContent;
     }
+
+    public int contentOffset() { return _offset; }
+    public int contentLength() { return _length; }
 
     /*
     /**********************************************************************

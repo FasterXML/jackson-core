@@ -1987,7 +1987,7 @@ public class JsonFactory
     protected ContentReference _createContentReference(Object contentAccessor) {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
-        return new ContentReference(!canHandleBinaryNatively(), contentAccessor);
+        return ContentReference.construct(!canHandleBinaryNatively(), contentAccessor);
     }
 
     /**
@@ -2010,7 +2010,7 @@ public class JsonFactory
     {
         // 21-Mar-2021, tatu: For now assume "canHandleBinaryNatively()" is reliable
         //    indicator of textual vs binary format:
-        return new ContentReference(!canHandleBinaryNatively(),
+        return ContentReference.construct(!canHandleBinaryNatively(),
                 contentAccessor, offset, length);
     }
 

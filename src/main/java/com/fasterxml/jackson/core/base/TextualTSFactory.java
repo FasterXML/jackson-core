@@ -271,7 +271,7 @@ public abstract class TextualTSFactory
     @Override
     protected ContentReference _createContentReference(Object contentRef) {
         // true -> textual
-        return new ContentReference(true, contentRef);
+        return ContentReference.construct(true, contentRef);
     }
 
     @Override
@@ -279,16 +279,15 @@ public abstract class TextualTSFactory
             int offset, int length)
     {
         // true -> textual
-        return new ContentReference(true,
-                contentRef, offset, length);
-    }    
+        return ContentReference.construct(true, contentRef, offset, length);
+    }
 
     /*
     /**********************************************************************
     /* Factory methods: abstract, for sub-classes to implement
     /**********************************************************************
      */
-    
+
     /**
      * Overridable factory method that actually instantiates generator for
      * given {@link Writer} and context object.

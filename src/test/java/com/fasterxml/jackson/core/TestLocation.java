@@ -51,12 +51,12 @@ public class TestLocation extends BaseTest
 
         // Class<?> that specifies source type
         assertEquals("[Source: (InputStream); line: 1, column: 2]",
-                new JsonLocation(_sourceRef(InputStream.class), 10L, 10L, 1, 2).toString());
+                new JsonLocation(_rawSourceRef(InputStream.class), 10L, 10L, 1, 2).toString());
 
         // misc other
         Foobar srcRef = new Foobar();
         assertEquals("[Source: ("+srcRef.getClass().getName()+"); line: 1, column: 2]",
-                new JsonLocation(_sourceRef(srcRef), 10L, 10L, 1, 2).toString());
+                new JsonLocation(_rawSourceRef(srcRef), 10L, 10L, 1, 2).toString());
     }
 
     public void testTruncatedSource()
@@ -111,7 +111,23 @@ public class TestLocation extends BaseTest
         p.close();
     }
 
-    private ContentReference _sourceRef(Object rawSrc) {
+    private ContentReference _sourceRef(String rawSrc) {
+        return ContentReference.construct(true, rawSrc, 0, rawSrc.length());
+    }
+
+    private ContentReference _sourceRef(char[] rawSrc) {
+        return ContentReference.construct(true, rawSrc, 0, rawSrc.length);
+    }
+
+    private ContentReference _sourceRef(byte[] rawSrc) {
+        return ContentReference.construct(true, rawSrc, 0, rawSrc.length);
+    }
+
+    private ContentReference _sourceRef(InputStream rawSrc) {
+        return ContentReference.construct(true, rawSrc, -1, -1);
+    }
+
+    private ContentReference _rawSourceRef(Object rawSrc) {
         return ContentReference.rawReference(rawSrc);
     }
 }

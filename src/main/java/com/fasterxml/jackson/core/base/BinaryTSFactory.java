@@ -202,7 +202,7 @@ public abstract class BinaryTSFactory
     @Override
     protected ContentReference _createContentReference(Object contentRef) {
         // false -> not textual
-        return new ContentReference(false, contentRef);
+        return ContentReference.construct(false, contentRef);
     }
 
     @Override
@@ -210,8 +210,7 @@ public abstract class BinaryTSFactory
             int offset, int length)
     {
         // false -> not textual
-        return new ContentReference(false,
-                contentRef, offset, length);
+        return ContentReference.construct(false, contentRef, offset, length);
     }    
 
     /*

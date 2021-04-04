@@ -62,7 +62,7 @@ public class JsonFactory
         implements JacksonFeature // since 2.12
     {
         // // // Symbol handling (interning etc)
-        
+
         /**
          * Feature that determines whether JSON object field names are
          * to be canonicalized using {@link String#intern} or not:

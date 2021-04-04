@@ -201,11 +201,48 @@ public class JsonLocation
         return appendOffsetDescription(new StringBuilder(40)).toString();
     }
 
-    public StringBuilder appendOffsetDescription(StringBuilder sb) {
-        sb.append("line: ");
-        sb.append(_lineNr);
-        sb.append(", column: ");
-        sb.append(_columnNr);
+    // @since 2.13
+    public StringBuilder appendOffsetDescription(StringBuilder sb)
+    {
+        // 04-Apr-2021, tatu: [core#694] For binary content, we have no line
+        //    number or column position indicators; try using what we do have
+        //    (if anything)
+
+        if (_contentReference.hasTextualContent()) {
+            sb.append("line: ");
+            // should be 1-based, but consider -1 to be canonical "got none"
+            if (_lineNr >= 0) {
+                sb.append(_lineNr);
+            } else {
+                sb.append("UNKNOWN");
+            }
+            sb.append(", column: ");
+            if (_columnNr >= 0) { // same here
+                sb.append(_columnNr);
+            } else {
+                sb.append("UNKNOWN");
+            }
+        } else {
+            // 04-Apr-2021, tatu: Ideally byte formats would not need line/column
+            //    info, but for backwards-compatibility purposes (Jackson 2.x),
+            //    will leave logic here
+            if (_lineNr > 0) { // yes, require 1-based in case of allegedly binary content
+                sb.append("line: ").append(_lineNr);
+                if (_columnNr > 0) {
+                    sb.append(", column: ");
+                    sb.append(_columnNr);
+                }
+            } else {
+                sb.append("byte offset: #");
+                // For binary formats, total bytes should be the canonical offset
+                // for token/current location
+                if (_totalBytes >= 0) {
+                    sb.append(_totalBytes);
+                } else {
+                    sb.append("UNKNOWN");
+                }
+            }
+        }
         return sb;
     }
 

@@ -26,7 +26,7 @@ public class TestLocation extends BaseTest
 
     public void testBasicToString() throws Exception
     {
-        // no location:
+        // no location; presumed to be Binary due to defaulting
         assertEquals("[Source: UNKNOWN; line: 3, column: 2]",
                 new JsonLocation(null, 10L, 10L, 3, 2).toString());
 
@@ -50,12 +50,12 @@ public class TestLocation extends BaseTest
 
         // Class<?> that specifies source type
         assertEquals("[Source: (InputStream); line: 1, column: 2]",
-                new JsonLocation(_rawSourceRef(InputStream.class), 10L, 10L, 1, 2).toString());
+                new JsonLocation(_rawSourceRef(true, InputStream.class), 10L, 10L, 1, 2).toString());
 
         // misc other
         Foobar srcRef = new Foobar();
         assertEquals("[Source: ("+srcRef.getClass().getName()+"); line: 1, column: 2]",
-                new JsonLocation(_rawSourceRef(srcRef), 10L, 10L, 1, 2).toString());
+                new JsonLocation(_rawSourceRef(true, srcRef), 10L, 10L, 1, 2).toString());
     }
 
     public void testTruncatedSource() throws Exception
@@ -127,7 +127,7 @@ public class TestLocation extends BaseTest
         return ContentReference.construct(true, rawSrc, -1, -1);
     }
 
-    private ContentReference _rawSourceRef(Object rawSrc) {
-        return ContentReference.rawReference(rawSrc);
+    private ContentReference _rawSourceRef(boolean textual, Object rawSrc) {
+        return ContentReference.rawReference(textual, rawSrc);
     }
 }

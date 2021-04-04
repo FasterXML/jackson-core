@@ -31,6 +31,8 @@ JSON library.
   for case of q2 == null
 #692: UTF32Reader ArrayIndexOutOfBoundsException
  (reported by Fabian M)
+#694: Improve exception/JsonLocation handling for binary content: don't
+  show content, include byte offset
 
 2.12.3 (not yet released)
 2.12.2 (03-Mar-2021)

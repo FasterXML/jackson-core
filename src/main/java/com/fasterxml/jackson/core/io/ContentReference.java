@@ -24,6 +24,9 @@ public class ContentReference
     /**
      * Constant that may be used when source/target content is not known
      * (or not exposed).
+     *<p>
+     * NOTE: As of 2.13 assume to contain Binary content, meaning that no
+     * content snippets will be included.
      */
     protected final static ContentReference UNKNOWN_CONTENT =
             new ContentReference(false, null);
@@ -107,17 +110,25 @@ public class ContentReference
      * content about which only minimal amount of information is available.
      * Assumed not to contain textual content (no snippet displayed).
      *
+     * @param isContentTextual Is raw content assumed to have textual content
+     *    ({@code true}) or binary ({@code false})
      * @param rawContent Underlying raw content access
      *
      * @return Instance with minimal information about content (basically just
      *    raw content reference without offsets
      */
-    public static ContentReference rawReference(Object rawContent) {
+    public static ContentReference rawReference(boolean isContentTextual,
+            Object rawContent)
+    {
         // Just to avoid russian-doll-nesting, let's:
         if (rawContent instanceof ContentReference) {
             return (ContentReference) rawContent;
         }
-        return new ContentReference(false, rawContent);
+        return new ContentReference(isContentTextual, rawContent);
+    }
+
+    public static ContentReference rawReference(Object rawContent) {
+        return rawReference(false, rawContent);
     }
 
     /*

@@ -5,8 +5,6 @@
 
 package com.fasterxml.jackson.core;
 
-import java.nio.charset.StandardCharsets;
-
 import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
@@ -18,13 +16,6 @@ public class JsonLocation
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 2L; // in 2.13
-
-    /**
-     * Include at most first 500 characters/bytes from contents; should be enough
-     * to give context, but not cause unfortunate side effects in things like
-     * logs.
-     */
-    public static final int MAX_CONTENT_SNIPPET = 500;
 
     /**
      * Shared immutable "N/A location" that can be returned to indicate
@@ -47,6 +38,20 @@ public class JsonLocation
      */
     protected final ContentReference _contentReference;
 
+    /**
+     * Lazily constructed description for source; constructed if and
+     * when {@link #sourceDescription()} is called, retained.
+     *
+     * @since 2.13
+     */
+    protected transient String _sourceDescription;
+
+    /*
+    /**********************************************************************
+    /* Life cycle
+    /**********************************************************************
+     */
+
     public JsonLocation(ContentReference contentRef, long totalChars,
             int lineNr, int colNr)
     {
@@ -67,6 +72,12 @@ public class JsonLocation
         _columnNr = columnNr;
     }
 
+    /*
+    /**********************************************************************
+    /* Simple accessors
+    /**********************************************************************
+     */
+
     /**
      * Accessor for information about the original input source content is being
      * read from. Returned reference is never {@code null} but may not contain
@@ -82,63 +93,75 @@ public class JsonLocation
     }
 
     /**
-     * Reference to the original resource being read, if one available.
-     * For example, when a parser has been constructed by passing
-     * a {@link java.io.File} instance, this method would return
-     * that File. Will return null if no such reference is available,
-     * for example when {@link java.io.InputStream} was used to
-     * construct the parser instance.
+     * Access for getting line number of this location, if available.
+     * Note that line number is typically not available for binary formats.
      *
-     * @return Source reference this location was constructed with, if any; {@code null} if none
-     *
-     * @deprecated Since 2.13 Use {@link #contentReference} instead
-     */
-    @Deprecated
-    public Object getSourceRef() {
-        return _contentReference.getRawContent();
-    }
-
-    /**
-     * @return Line number of the location (1-based)
+     * @return Line number of the location (1-based), if available; {@code -1} if not.
      */
     public int getLineNr() { return _lineNr; }
 
     /**
-     * @return Column number of the location (1-based)
+     * Access for getting column position of this location, if available.
+     * Note that column position is typically not available for binary formats.
+     *
+     * @return Column position of the location (1-based), if available; {@code -1} if not.
      */
     public int getColumnNr() { return _columnNr; }
 
     /**
      * @return Character offset within underlying stream, reader or writer,
-     *   if available; -1 if not.
+     *   if available; {@code -1} if not.
      */
     public long getCharOffset() { return _totalChars; }
 
     /**
      * @return Byte offset within underlying stream, reader or writer,
-     *   if available; -1 if not.
+     *   if available; {@code -1} if not.
      */
-    public long getByteOffset()
-    {
-        return _totalBytes;
-    }
+    public long getByteOffset() { return _totalBytes; }
 
     /**
      * Accessor for getting a textual description of source reference
-     * (Object returned by {@link #getSourceRef()}), as included in
+     * (Object returned by {@link #contentReference()}), as included in
      * description returned by {@link #toString()}.
+     *<p>
+     * Note: implementation will simply call
+     * {@link ContentReference#buildSourceDescription()})
      *<p>
      * NOTE: not added as a "getter" to prevent it from getting serialized.
      *
-     * @return Description of the source reference (see {@link #getSourceRef()}
+     * @return Description of the source reference (see {@link #contentReference()}
      */
     public String sourceDescription() {
-        return _appendSourceDesc(new StringBuilder(100)).toString();
+        // 04-Apr-2021, tatu: Construct lazily but retain
+        if (_sourceDescription == null) {
+            _sourceDescription = _contentReference.buildSourceDescription();
+        }
+        return _sourceDescription;
+    }
+
+    /**
+     * Accessor for a brief summary of Location offsets (line number, column position,
+     * or byte offset, if available).
+     *
+     * @return Description of available relevant location offsets; combination of
+     *    line number and column position or byte offset
+     */
+    public String offsetDescription() {
+        return appendOffsetDescription(new StringBuilder(40)).toString();
+    }
+
+    public StringBuilder appendOffsetDescription(StringBuilder sb) {
+        sb.append("line: ");
+        sb.append(_lineNr);
+        sb.append(", column: ");
+        sb.append(_columnNr);
+        return sb;
     }
 
     /*
     /**********************************************************************
-    /* Std method overrides
+    /* Standard method overrides
     /**********************************************************************
      */
 
@@ -163,129 +186,42 @@ public class JsonLocation
 
         if (_contentReference == null) {
             if (otherLoc._contentReference != null) return false;
-        } else if (!_contentReference.equals(otherLoc._contentReference)) return false;
+        } else if (!_contentReference.equals(otherLoc._contentReference)) {
+            return false;
+        }
 
         return (_lineNr == otherLoc._lineNr)
             && (_columnNr == otherLoc._columnNr)
             && (_totalChars == otherLoc._totalChars)
-            && (getByteOffset() == otherLoc.getByteOffset())
+            && (_totalBytes == otherLoc._totalBytes)
             ;
     }
 
     @Override
     public String toString()
     {
-        // 23-Sep-2020, tatu: Let's not bother printing out non-existing location info
         if (this == NA) {
             return NO_LOCATION_DESC;
         }
-        return toString(new StringBuilder(80)).toString();
+        final String srcDesc = sourceDescription();
+        StringBuilder sb = new StringBuilder(40 + srcDesc.length())
+                .append("[Source: ")
+                .append(srcDesc)
+                .append("; ");
+        return appendOffsetDescription(sb)
+                .append(']')
+                .toString();
     }
 
-    public StringBuilder toString(StringBuilder sb) {
-        // 23-Sep-2020, tatu: Let's not bother printing out non-existing location info
-        if (this == NA) {
-            sb.append(NO_LOCATION_DESC);
-        } else {
-            sb.append("[Source: ");
-            _appendSourceDesc(sb);
-            sb.append("; line: ");
-            sb.append(_lineNr);
-            sb.append(", column: ");
-            sb.append(_columnNr);
-            sb.append(']');
-        }
-        return sb;
-    }
-
-    protected StringBuilder _appendSourceDesc(StringBuilder sb)
+    public StringBuilder toString(StringBuilder sb)
     {
-        final Object srcRef = _contentReference.getRawContent();
-
-        if (srcRef == null) {
-            sb.append("UNKNOWN");
-            return sb;
+        if (this == NA) {
+            return sb.append(NO_LOCATION_DESC);
         }
-        // First, figure out what name to use as source type
-        Class<?> srcType = (srcRef instanceof Class<?>) ?
-                ((Class<?>) srcRef) : srcRef.getClass();
-        String tn = srcType.getName();
-        // standard JDK types without package
-        if (tn.startsWith("java.")) {
-            tn = srcType.getSimpleName();
-        } else if (srcRef instanceof byte[]) { // then some other special cases
-            tn = "byte[]";
-        } else if (srcRef instanceof char[]) {
-            tn = "char[]";
-        }
-        sb.append('(').append(tn).append(')');
-
-        // and then, include (part of) contents for selected types
-        // (never for binary-format data)
-        if (_contentReference.hasTextualContent()) {
-            // First, retrieve declared offset+length for content; handle
-            // negative markers (can't do more for general case)
-            int offset, length;
-            offset = _contentReference.contentOffset();
-            if (offset < 0) {
-                offset = 0;
-                length = 0;
-            } else {
-                length = Math.max(0, _contentReference.contentLength());
-            }
-
-            String unitStr = " chars";
-            String trimmed;
-
-            if (srcRef instanceof CharSequence) {
-                trimmed = _truncate((CharSequence) srcRef, offset, length);
-            } else if (srcRef instanceof char[]) {
-                trimmed = _truncate((char[]) srcRef, offset, length);
-            } else if (srcRef instanceof byte[]) {
-                trimmed = _truncate((byte[]) srcRef, offset, length);
-                unitStr = " bytes";
-            } else {
-                trimmed = null;
-            }
-            if (trimmed != null) {
-                _append(sb, trimmed);
-                final int truncLen = length - trimmed.length();
-                if (truncLen > 0) {
-                    sb.append("[truncated ").append(truncLen).append(unitStr).append(']');
-                }
-            }
-        } else {
-            // What should we do with binary content?
-        }
-        return sb;
-    }
-
-    private String _truncate(CharSequence cs, int start, int length) {
-        final int fullLength = cs.length();
-        start = Math.min(start, fullLength);
-        length = Math.min(Math.min(length, fullLength - start),
-                MAX_CONTENT_SNIPPET);
-        return cs.subSequence(start, start+length).toString();
-    }
-
-    private String _truncate(char[] cs, int start, int length) {
-        final int fullLength = cs.length;
-        start = Math.min(start, fullLength);
-        length = Math.min(Math.min(length, fullLength - start),
-                MAX_CONTENT_SNIPPET);
-        return new String(cs, start, length);
-    }
-
-    private String _truncate(byte[] b, int start, int length) {
-        final int fullLength = b.length;
-        start = Math.min(start, fullLength);
-        length = Math.min(Math.min(length, fullLength - start),
-                MAX_CONTENT_SNIPPET);
-        return new String(b, start, length, StandardCharsets.UTF_8);
-    }
-
-    private int _append(StringBuilder sb, String content) {
-        sb.append('"').append(content).append('"');
-        return content.length();
+        sb.append("[Source: ")
+                .append(sourceDescription())
+                .append("; ");
+        return appendOffsetDescription(sb)
+                .append(']');
     }
 }

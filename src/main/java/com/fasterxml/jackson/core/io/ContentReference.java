@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.io;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.charset.Charset;
 
 /**
  * Abstraction that encloses information about content being processed --
@@ -26,6 +27,15 @@ public class ContentReference
      */
     protected final static ContentReference UNKNOWN_CONTENT =
             new ContentReference(false, null);
+
+    /**
+     * Include at most first 500 characters/bytes from contents; should be enough
+     * to give context, but not cause unfortunate side effects in things like
+     * logs.
+     *
+     * @since 2.9
+     */
+    public static final int DEFAULT_MAX_CONTENT_SNIPPET = 500;
 
     /**
      * Reference to the actual underlying content.
@@ -125,11 +135,11 @@ public class ContentReference
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         // nop: but must override the method
-    }    
+    }
 
     protected Object readResolve() {
         return UNKNOWN_CONTENT;
-    }    
+    }
 
     /*
     /**********************************************************************
@@ -147,6 +157,137 @@ public class ContentReference
 
     public int contentOffset() { return _offset; }
     public int contentLength() { return _length; }
+
+    /**
+     * Internal accessor, overridable, used for checking length (in units in
+     * which content is counted, either bytes or chars) to use for truncation
+     * (so as not to include full content for humongous sources or targets)
+     *
+     * @return Maximum content snippet to include before truncating
+     */
+    protected int maxContentSnippetLength() {
+        return DEFAULT_MAX_CONTENT_SNIPPET;
+    }
+
+    /*
+    /**********************************************************************
+    /* Method for constructing descriptions
+    /**********************************************************************
+     */    
+
+    /**
+     * Method for constructing a "source description" when content represented
+     * by this reference is read.
+     *
+     * @return Description constructed
+     */
+    public String buildSourceDescription() {
+        return appendSourceDescription(new StringBuilder(200)).toString();
+    }
+
+    /**
+     * Method for appending a "source description" when content represented
+     * by this reference is read.
+     *
+     * @param sb StringBuilder to append description to
+     *
+     * @return StringBuilder passed as argument (for call chaining)
+     */
+    public StringBuilder appendSourceDescription(StringBuilder sb)
+    {
+        final Object srcRef = getRawContent();
+
+        if (srcRef == null) {
+            sb.append("UNKNOWN");
+            return sb;
+        }
+        // First, figure out what name to use as source type
+        Class<?> srcType = (srcRef instanceof Class<?>) ?
+                ((Class<?>) srcRef) : srcRef.getClass();
+        String tn = srcType.getName();
+        // standard JDK types without package
+        if (tn.startsWith("java.")) {
+            tn = srcType.getSimpleName();
+        } else if (srcRef instanceof byte[]) { // then some other special cases
+            tn = "byte[]";
+        } else if (srcRef instanceof char[]) {
+            tn = "char[]";
+        }
+        sb.append('(').append(tn).append(')');
+
+        // and then, include (part of) contents for selected types
+        // (never for binary-format data)
+        if (hasTextualContent()) {
+            // First, retrieve declared offset+length for content; handle
+            // negative markers (can't do more for general case)
+            int offset, length;
+            offset = contentOffset();
+            if (offset < 0) {
+                offset = 0;
+                length = 0;
+            } else {
+                length = Math.max(0, contentLength());
+            }
+
+            String unitStr = " chars";
+            String trimmed;
+
+            if (srcRef instanceof CharSequence) {
+                trimmed = _truncate((CharSequence) srcRef, offset, length);
+            } else if (srcRef instanceof char[]) {
+                trimmed = _truncate((char[]) srcRef, offset, length);
+            } else if (srcRef instanceof byte[]) {
+                trimmed = _truncate((byte[]) srcRef, offset, length);
+                unitStr = " bytes";
+            } else {
+                trimmed = null;
+            }
+            if (trimmed != null) {
+                _append(sb, trimmed);
+                final int truncLen = length - trimmed.length();
+                if (truncLen > 0) {
+                    sb.append("[truncated ").append(truncLen).append(unitStr).append(']');
+                }
+            }
+        } else {
+            // What should we do with binary content? Indicate length, if plausible
+            if (srcRef instanceof byte[]) {
+                sb.append('[')
+                    .append(((byte[]) srcRef).length)
+                    .append(" bytes]");
+            }
+        }
+        return sb;
+    }
+
+    private String _truncate(CharSequence cs, int start, int length) {
+        final int fullLength = cs.length();
+        start = Math.min(start, fullLength);
+        length = Math.min(Math.min(length, fullLength - start),
+                maxContentSnippetLength());
+        return cs.subSequence(start, start+length).toString();
+    }
+
+    private String _truncate(char[] cs, int start, int length) {
+        final int fullLength = cs.length;
+        start = Math.min(start, fullLength);
+        length = Math.min(Math.min(length, fullLength - start),
+                maxContentSnippetLength());
+        return new String(cs, start, length);
+    }
+
+    private String _truncate(byte[] b, int start, int length) {
+        final int fullLength = b.length;
+        start = Math.min(start, fullLength);
+        length = Math.min(Math.min(length, fullLength - start),
+                maxContentSnippetLength());
+        return new String(b, start, length, Charset.forName("UTF-8"));
+    }
+
+    private int _append(StringBuilder sb, String content) {
+        sb.append('"').append(content).append('"');
+        return content.length();
+    }
 
     /*
     /**********************************************************************

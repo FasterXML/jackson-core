@@ -46,7 +46,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**********************************************************
      */
 
-    final protected IOContext _ioContext;
+    protected final IOContext _ioContext;
 
     /*
     /**********************************************************

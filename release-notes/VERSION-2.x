@@ -16,6 +16,9 @@ JSON library.
 
 2.13.0 (not yet released)
 
+#652: Misleading exception for input source when processing byte buffer
+  with start offset
+ (reported by Greg W)
 #664: Add `StreamWriteException` type to eventually replace `JsonGenerationException`
 #671: Replace `getCurrentLocation()`/`getTokenLocation()` with
   `currentLocation()`/`currentTokenLocation()` in `JsonParser`

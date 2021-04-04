@@ -3619,7 +3619,10 @@ public class UTF8StreamJsonParser
             char c = (char) _decodeCharForError(i);
             if (!Character.isJavaIdentifierPart(c)) {
                 // 11-Jan-2016, tatu: note: we will fully consume the character,
-                // included or not, so if recovery was possible, it'd be off-by-one...
+                //   included or not, so if recovery was possible, it'd be off-by-one...
+                // 04-Apr-2021, tatu: ... and the reason we can't do much about it is
+                //   because it may be multi-byte UTF-8 character (and even if saved
+                //   offset, on buffer boundary it would not work, still)
                 break;
             }
             sb.append(c);

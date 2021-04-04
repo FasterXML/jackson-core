@@ -258,6 +258,11 @@ Jonathan Haber (jhaber@github)
   * Contributed #573: More customizable TokenFilter inclusion (using `Tokenfilter.Inclusion`)
   (2.12.0)
 
+Greg Wittel (gwittel@github)
+  * Reported #652: Misleading exception for input source when processing byte buffer
+    with start offset
+  (2.13.0)
+
 Ferenc Csaky (ferenc-csaky@github)
   * Contributed #677: Introduce O(n^1.5) BigDecimal parser implementation
   (2.13.0)
@@ -265,4 +270,3 @@ Ferenc Csaky (ferenc-csaky@github)
 Fabian Meumertzheim (fmeum@github)
   * Reported #692: UTF32Reader ArrayIndexOutOfBoundsException
   (2.13.0)
-

@@ -144,10 +144,13 @@ public class ReaderBasedJsonParser
     {
         super(ctxt, features);
         _reader = r;
+        _objectCodec = codec;
         _inputBuffer = inputBuffer;
         _inputPtr = start;
         _inputEnd = end;
-        _objectCodec = codec;
+        _currInputRowStart = start;
+        // If we have offset, need to omit that from byte offset, so:
+        _currInputProcessed = -start;
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = bufferRecyclable;

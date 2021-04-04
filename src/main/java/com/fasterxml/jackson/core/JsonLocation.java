@@ -83,7 +83,7 @@ public class JsonLocation
      * read from. Returned reference is never {@code null} but may not contain
      * useful information.
      *<p>
-     * NOTE: not getter, on purpose, to avoid inlusion if serialized using
+     * NOTE: not getter, on purpose, to avoid inclusion if serialized using
      * default Jackson serializer.
      *
      * @return Object with information about input source.

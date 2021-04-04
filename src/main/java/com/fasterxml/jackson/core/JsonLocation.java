@@ -173,24 +173,15 @@ public class JsonLocation
                 sb.append("UNKNOWN");
             }
         } else {
-            // 04-Apr-2021, tatu: Ideally byte formats would not need line/column
-            //    info, but for backwards-compatibility purposes (Jackson 2.x),
-            //    will leave logic here
-            if (_lineNr > 0) { // yes, require 1-based in case of allegedly binary content
-                sb.append("line: ").append(_lineNr);
-                if (_columnNr > 0) {
-                    sb.append(", column: ");
-                    sb.append(_columnNr);
-                }
+            // 04-Apr-2021, tatu: Jackson 2.x had compatibility checks here; 3.x
+            //    assumes binary content always implies byte offsets
+            sb.append("byte offset: #");
+            // For binary formats, total bytes should be the canonical offset
+            // for token/current location
+            if (_totalBytes >= 0) {
+                sb.append(_totalBytes);
             } else {
-                sb.append("byte offset: #");
-                // For binary formats, total bytes should be the canonical offset
-                // for token/current location
-                if (_totalBytes >= 0) {
-                    sb.append(_totalBytes);
-                } else {
-                    sb.append("UNKNOWN");
-                }
+                sb.append("UNKNOWN");
             }
         }
         return sb;

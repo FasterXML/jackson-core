@@ -29,7 +29,7 @@ public class TestLocation extends BaseTest
     public void testBasicToString()
     {
         // no location; presumed to be Binary due to defaulting
-        assertEquals("[Source: UNKNOWN; line: 3, column: 2]",
+        assertEquals("[Source: UNKNOWN; byte offset: #10]",
                 new JsonLocation(null, 10L, 10L, 3, 2).toString());
 
         // Short String

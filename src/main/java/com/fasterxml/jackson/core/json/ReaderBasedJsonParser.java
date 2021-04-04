@@ -124,6 +124,9 @@ public class ReaderBasedJsonParser
         _inputBuffer = inputBuffer;
         _inputPtr = start;
         _inputEnd = end;
+        _currInputRowStart = start;
+        // If we have offset, need to omit that from byte offset, so:
+        _currInputProcessed = -start;
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = bufferRecyclable;

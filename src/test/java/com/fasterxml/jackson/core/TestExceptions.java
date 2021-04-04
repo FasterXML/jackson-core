@@ -122,4 +122,44 @@ public class TestExceptions extends BaseTest
 
         // any other cases we'd like to test?
     }
+
+    public void testContentSnippetWithOffset() throws Exception
+    {
+        JsonParser p;
+        final String json = a2q("{'k1':'v1'}\n[broken]\n");
+        final byte[] jsonB = utf8Bytes(json);
+        final int lfIndex = json.indexOf("\n");
+        final int start = lfIndex+1;
+        final int len = json.length() - start;
+
+        p = JSON_F.createParser(ObjectReadContext.empty(), jsonB, start, len);
+        // for byte-based, will be after character that follows token:
+        // (and alas cannot be easily fixed)
+        _testContentSnippetWithOffset(p, 9, "(byte[])\"[broken]\n\"");
+        p.close();
+
+        final char[] jsonC = json.toCharArray();
+        p = JSON_F.createParser(ObjectReadContext.empty(), jsonC, start, len);
+        // for char-based we get true offset at end of token
+        _testContentSnippetWithOffset(p, 8, "(char[])\"[broken]\n\"");
+        p.close();
+    }
+
+    private void _testContentSnippetWithOffset(final JsonParser p,
+            int expColumn, String expContent) throws Exception
+    {
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Should not pass");
+        } catch (StreamReadException e) {
+            verifyException(e, "Unrecognized token 'broken'");
+            JsonLocation loc = e.getLocation();
+            assertEquals(1, loc.getLineNr());
+            assertEquals(expColumn, loc.getColumnNr());
+            final String srcDesc = loc.sourceDescription();
+
+            assertEquals(expContent, srcDesc);
+        }
+    }
 }

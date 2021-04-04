@@ -223,31 +223,65 @@ public class JsonLocation
         // and then, include (part of) contents for selected types
         // (never for binary-format data)
         if (_contentReference.hasTextualContent()) {
-            int len;
-            String charStr = " chars";
+            // First, retrieve declared offset+length for content; handle
+            // negative markers (can't do more for general case)
+            int offset, length;
+            offset = _contentReference.contentOffset();
+            if (offset < 0) {
+                offset = 0;
+                length = 0;
+            } else {
+                length = Math.max(0, _contentReference.contentLength());
+            }
+
+            String unitStr = " chars";
+            String trimmed;
 
             if (srcRef instanceof CharSequence) {
-                CharSequence cs = (CharSequence) srcRef;
-                len = cs.length();
-                len -= _append(sb, cs.subSequence(0, Math.min(len, MAX_CONTENT_SNIPPET)).toString());
+                trimmed = _truncate((CharSequence) srcRef, offset, length);
             } else if (srcRef instanceof char[]) {
-                char[] ch = (char[]) srcRef;
-                len = ch.length;
-                len -= _append(sb, new String(ch, 0, Math.min(len, MAX_CONTENT_SNIPPET)));
+                trimmed = _truncate((char[]) srcRef, offset, length);
             } else if (srcRef instanceof byte[]) {
-                byte[] b = (byte[]) srcRef;
-                int maxLen = Math.min(b.length, MAX_CONTENT_SNIPPET);
-                _append(sb, new String(b, 0, maxLen, StandardCharsets.UTF_8));
-                len = b.length - maxLen;
-                charStr = " bytes";
+                trimmed = _truncate((byte[]) srcRef, offset, length);
+                unitStr = " bytes";
             } else {
-                len = 0;
+                trimmed = null;
             }
-            if (len > 0) {
-                sb.append("[truncated ").append(len).append(charStr).append(']');
+            if (trimmed != null) {
+                _append(sb, trimmed);
+                final int truncLen = length - trimmed.length();
+                if (truncLen > 0) {
+                    sb.append("[truncated ").append(truncLen).append(unitStr).append(']');
+                }
             }
+        } else {
+            // What should we do with binary content?
         }
         return sb;
+    }
+
+    private String _truncate(CharSequence cs, int start, int length) {
+        final int fullLength = cs.length();
+        start = Math.min(start, fullLength);
+        length = Math.min(Math.min(length, fullLength - start),
+                MAX_CONTENT_SNIPPET);
+        return cs.subSequence(start, start+length).toString();
+    }
+
+    private String _truncate(char[] cs, int start, int length) {
+        final int fullLength = cs.length;
+        start = Math.min(start, fullLength);
+        length = Math.min(Math.min(length, fullLength - start),
+                MAX_CONTENT_SNIPPET);
+        return new String(cs, start, length);
+    }
+
+    private String _truncate(byte[] b, int start, int length) {
+        final int fullLength = b.length;
+        start = Math.min(start, fullLength);
+        length = Math.min(Math.min(length, fullLength - start),
+                MAX_CONTENT_SNIPPET);
+        return new String(b, start, length, StandardCharsets.UTF_8);
     }
 
     private int _append(StringBuilder sb, String content) {

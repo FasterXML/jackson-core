@@ -143,6 +143,11 @@ public class TestExceptions extends BaseTest
         // for char-based we get true offset at end of token
         _testContentSnippetWithOffset(p, 8, "(char[])\"[broken]\n\"");
         p.close();
+
+        p = JSON_F.createParser(json.substring(start));
+        // for char-based we get true offset at end of token
+        _testContentSnippetWithOffset(p, 8, "(String)\"[broken]\n\"");
+        p.close();
     }
 
     private void _testContentSnippetWithOffset(final JsonParser p,

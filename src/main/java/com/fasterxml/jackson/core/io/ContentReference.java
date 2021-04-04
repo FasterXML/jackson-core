@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core.io;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Abstraction that encloses information about content being processed --
@@ -218,35 +218,27 @@ public class ContentReference
         // and then, include (part of) contents for selected types
         // (never for binary-format data)
         if (hasTextualContent()) {
-            // First, retrieve declared offset+length for content; handle
-            // negative markers (can't do more for general case)
-            int offset, length;
-            offset = contentOffset();
-            if (offset < 0) {
-                offset = 0;
-                length = 0;
-            } else {
-                length = Math.max(0, contentLength());
-            }
-
             String unitStr = " chars";
             String trimmed;
 
+            // poor man's tuple...
+            final int maxLen = maxContentSnippetLength();
+            int[] offsets = new int[] { contentOffset(), contentLength() };
+
             if (srcRef instanceof CharSequence) {
-                trimmed = _truncate((CharSequence) srcRef, offset, length);
+                trimmed = _truncate((CharSequence) srcRef, offsets, maxLen);
             } else if (srcRef instanceof char[]) {
-                trimmed = _truncate((char[]) srcRef, offset, length);
+                trimmed = _truncate((char[]) srcRef, offsets, maxLen);
             } else if (srcRef instanceof byte[]) {
-                trimmed = _truncate((byte[]) srcRef, offset, length);
+                trimmed = _truncate((byte[]) srcRef, offsets, maxLen);
                 unitStr = " bytes";
             } else {
                 trimmed = null;
             }
             if (trimmed != null) {
                 _append(sb, trimmed);
-                final int truncLen = length - trimmed.length();
-                if (truncLen > 0) {
-                    sb.append("[truncated ").append(truncLen).append(unitStr).append(']');
+                if (offsets[1] > maxLen) {
+                    sb.append("[truncated ").append(offsets[1] - maxLen).append(unitStr).append(']');
                 }
             }
         } else {
@@ -260,28 +252,45 @@ public class ContentReference
         return sb;
     }
 
-    private String _truncate(CharSequence cs, int start, int length) {
-        final int fullLength = cs.length();
-        start = Math.min(start, fullLength);
-        length = Math.min(Math.min(length, fullLength - start),
-                maxContentSnippetLength());
-        return cs.subSequence(start, start+length).toString();
+    private String _truncate(CharSequence cs, int[] offsets, int maxSnippetLen) {
+        _truncateOffsets(offsets, cs.length());
+        final int start = offsets[0];
+        final int length = Math.min(offsets[1], maxSnippetLen);
+        return cs.subSequence(start, start + length).toString();
     }
 
-    private String _truncate(char[] cs, int start, int length) {
-        final int fullLength = cs.length;
-        start = Math.min(start, fullLength);
-        length = Math.min(Math.min(length, fullLength - start),
-                maxContentSnippetLength());
+    private String _truncate(char[] cs, int[] offsets, int maxSnippetLen) {
+        _truncateOffsets(offsets, cs.length);
+        final int start = offsets[0];
+        final int length = Math.min(offsets[1], maxSnippetLen);
         return new String(cs, start, length);
     }
 
-    private String _truncate(byte[] b, int start, int length) {
-        final int fullLength = b.length;
-        start = Math.min(start, fullLength);
-        length = Math.min(Math.min(length, fullLength - start),
-                maxContentSnippetLength());
-        return new String(b, start, length, Charset.forName("UTF-8"));
+    private String _truncate(byte[] b, int[] offsets, int maxSnippetLen) {
+        _truncateOffsets(offsets, b.length);
+        final int start = offsets[0];
+        final int length = Math.min(offsets[1], maxSnippetLen);
+        return new String(b, start, length, StandardCharsets.UTF_8);
+    }
+
+    // Method that is given alleged start/offset pair and needs to adjust
+    // these to fit
+    private void _truncateOffsets(int[] offsets, int actualLength) {
+        int start = offsets[0];
+        // first, move start to be within area
+        if (start < 0) { // means effectively "start at beginning"
+            start = 0;
+        } else if (start >= actualLength) {
+            start = actualLength;
+        }
+        offsets[0] = start;
+
+        // And then ensure that we obey maximum physical length restriction
+        int length = offsets[1];
+        final int maxLength = actualLength - start;
+        if ((length < 0) || (length > maxLength)) {
+            offsets[1] = maxLength;
+        }
     }
 
     private int _append(StringBuilder sb, String content) {

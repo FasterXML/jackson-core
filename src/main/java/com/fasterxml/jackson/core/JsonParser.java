@@ -1625,6 +1625,11 @@ public abstract class JsonParser
         return _constructReadException(String.format(msg, arg1, arg2));
     }
 
+    protected StreamReadException _constructReadException(String msg,
+            Object arg1, Object arg2, Object arg3) {
+        return _constructReadException(String.format(msg, arg1, arg2, arg3));
+    }
+
     protected final StreamReadException _constructReadException(String msg, Throwable t) {
         return new StreamReadException(this, msg, t);
     }

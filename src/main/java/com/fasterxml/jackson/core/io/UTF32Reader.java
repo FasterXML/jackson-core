@@ -199,7 +199,16 @@ public class UTF32Reader extends Reader
      * @return True, if enough bytes were read to allow decoding of at least
      *   one full character; false if EOF was encountered instead.
      */
-    private boolean loadMore(int available) throws IOException {
+    private boolean loadMore(int available) throws IOException
+    {
+        // 06-Apr-2021, tatu: If no InputStream (either due to closure or
+        //    input being passed direcly in buffer) let's NOT bother
+        //    trying to read (can't).
+        //    Similarly, without read buffer cannot really read...
+        if ((_in == null) || (_buffer == null)) {
+            return false;
+        }
+
         _byteCount += (_length - available);
 
         // Bytes that need to be moved to the beginning of buffer?
@@ -213,7 +222,7 @@ public class UTF32Reader extends Reader
             // Ok; here we can actually reasonably expect an EOF,
             // so let's do a separate read right away:
             _ptr = 0;
-            int count = (_in == null) ? -1 : _in.read(_buffer);
+            int count = _in.read(_buffer);
             if (count < 1) {
                 _length = 0;
                 if (count < 0) { // -1
@@ -230,7 +239,7 @@ public class UTF32Reader extends Reader
 
         // Need at least 4 bytes; if we don't get that many, it's an error.
         while (_length < 4) {
-            int count = (_in == null) ? -1 : _in.read(_buffer, _length, _buffer.length - _length);
+            int count = _in.read(_buffer, _length, _buffer.length - _length);
             if (count < 1) {
                 if (count < 0) { // -1, EOF... no good!
                     if (_managedBuffers) {
@@ -262,7 +271,9 @@ public class UTF32Reader extends Reader
     }
 
     private void reportBounds(char[] cbuf, int start, int len) throws IOException {
-        throw new ArrayIndexOutOfBoundsException("read(buf,"+start+","+len+"), cbuf["+cbuf.length+"]");
+        throw new ArrayIndexOutOfBoundsException(String.format(
+                "read(buf,%d,%d), cbuf[%d]",
+                start, len, cbuf.length));
     }
 
     private void reportStrangeStream() throws IOException {

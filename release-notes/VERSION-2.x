@@ -19,6 +19,7 @@ JSON library.
 #652: Misleading exception for input source when processing byte buffer
   with start offset
  (reported by Greg W)
+#658: Escape contents of source document snippet for `JsonLocation._appendSourceDesc()`
 #664: Add `StreamWriteException` type to eventually replace `JsonGenerationException`
 #671: Replace `getCurrentLocation()`/`getTokenLocation()` with
   `currentLocation()`/`currentTokenLocation()` in `JsonParser`

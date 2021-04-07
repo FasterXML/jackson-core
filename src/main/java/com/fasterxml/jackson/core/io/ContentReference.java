@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
  * @since 2.13
  */
 public class ContentReference
-    // sort of: we will read back as "UNKNOWN_INPUT"
+    // sort of: we will read back as "UNKNOWN"
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -253,31 +253,36 @@ public class ContentReference
                 }
             }
         } else {
-            // What should we do with binary content? Indicate length, if plausible
+            // What should we do with binary content? Indicate length, if possible
             if (srcRef instanceof byte[]) {
+                int length = contentLength();
+                // -1 is marker for "till the end" (should we consider offset then, too?)
+                if (length < 0) {
+                    length = ((byte[]) srcRef).length;
+                }
                 sb.append('[')
-                    .append(((byte[]) srcRef).length)
+                    .append(length)
                     .append(" bytes]");
             }
         }
         return sb;
     }
 
-    private String _truncate(CharSequence cs, int[] offsets, int maxSnippetLen) {
+    protected String _truncate(CharSequence cs, int[] offsets, int maxSnippetLen) {
         _truncateOffsets(offsets, cs.length());
         final int start = offsets[0];
         final int length = Math.min(offsets[1], maxSnippetLen);
         return cs.subSequence(start, start + length).toString();
     }
 
-    private String _truncate(char[] cs, int[] offsets, int maxSnippetLen) {
+    protected String _truncate(char[] cs, int[] offsets, int maxSnippetLen) {
         _truncateOffsets(offsets, cs.length);
         final int start = offsets[0];
         final int length = Math.min(offsets[1], maxSnippetLen);
         return new String(cs, start, length);
     }
 
-    private String _truncate(byte[] b, int[] offsets, int maxSnippetLen) {
+    protected String _truncate(byte[] b, int[] offsets, int maxSnippetLen) {
         _truncateOffsets(offsets, b.length);
         final int start = offsets[0];
         final int length = Math.min(offsets[1], maxSnippetLen);
@@ -286,7 +291,7 @@ public class ContentReference
 
     // Method that is given alleged start/offset pair and needs to adjust
     // these to fit
-    private void _truncateOffsets(int[] offsets, int actualLength) {
+    protected void _truncateOffsets(int[] offsets, int actualLength) {
         int start = offsets[0];
         // first, move start to be within area
         if (start < 0) { // means effectively "start at beginning"
@@ -304,11 +309,36 @@ public class ContentReference
         }
     }
 
-    private int _append(StringBuilder sb, String content) {
-        sb.append('"').append(content).append('"');
+    protected int _append(StringBuilder sb, String content) {
+        sb.append('"');
+        // [core#658]: make sure to escape non-printable
+        for (int i = 0, end = content.length(); i < end; ++i) {
+            // 06-Apr-2021, tatu: Gee... there is no "Character.isPrintable()",
+            //   and from what I can see things get rather complicated trying
+            //   to figure out proper way. Hence, we'll do this
+            char ch = content.charAt(i);
+            if (!Character.isISOControl(ch) || !_appendEscaped(sb, ch)) {
+                sb.append(ch);
+            }
+        }
+        sb.append('"');
         return content.length();
     }
 
+    protected boolean _appendEscaped(StringBuilder sb, int ctrlChar) {
+        // We'll escape most, but NOT regular CR or LF
+        if (ctrlChar == '\r' || ctrlChar == '\n') {
+            return false;
+        }
+        sb.append('\\');
+        sb.append('u');
+        sb.append(CharTypes.hexToChar((ctrlChar >> 12) & 0xF));
+        sb.append(CharTypes.hexToChar((ctrlChar >> 8) & 0xF));
+        sb.append(CharTypes.hexToChar((ctrlChar >> 4) & 0xF));
+        sb.append(CharTypes.hexToChar(ctrlChar & 0xF));
+        return true;
+    }
+    
     /*
     /**********************************************************************
     /* Standard method overrides

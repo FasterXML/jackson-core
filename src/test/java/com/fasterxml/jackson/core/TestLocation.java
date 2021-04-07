@@ -77,6 +77,16 @@ public class TestLocation extends BaseTest
         assertEquals(String.format("(byte[])\"%s\"[truncated 3 bytes]", main), desc);
     }
 
+    // for [jackson-core#658]
+    public void testEscapeNonPrintable() throws Exception
+    {
+        final String DOC = "[ \"tab:[\t]/null:[\0]\" ]";
+        JsonLocation loc = new JsonLocation(_sourceRef(DOC), 0L, 0L, -1, -1);
+        final String sourceDesc = loc.sourceDescription();
+        assertEquals(String.format("(String)\"[ \"tab:[%s]/null:[%s]\" ]\"",
+                "\\u0009", "\\u0000"), sourceDesc);
+    }
+
     // for [jackson-core#356]
     public void testDisableSourceInclusion()
     {

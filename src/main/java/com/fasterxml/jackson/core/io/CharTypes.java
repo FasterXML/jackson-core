@@ -231,6 +231,21 @@ public final class CharTypes
         return sHexValues[ch & 0xFF];
     }
 
+    // @since 2.13
+    public static char hexToChar(int ch)
+    {
+        return HC[ch];
+    }
+
+    /**
+     * Helper method for appending JSON-escaped version of contents
+     * into specific {@link StringBuilder}, using default JSON specification
+     * mandated minimum escaping rules.
+     *
+     * @param sb Buffer to append escaped contents in
+     *
+     * @param content Unescaped String value to append with escaping applied
+     */
     public static void appendQuoted(StringBuilder sb, String content)
     {
         final int[] escCodes = sOutputEscapes128;
@@ -272,7 +287,13 @@ public final class CharTypes
         return (byte[]) HB.clone();
     }
 
-    // @since 2.10
+    /**
+     * Helper used for lazy initialization of alternative escape (quoting)
+     * table, used for escaping content that uses non-standard quote
+     * character (usually apostrophe).
+     *
+     * @since 2.10
+     */
     private static class AltEscapes {
         public final static AltEscapes instance = new AltEscapes();
 

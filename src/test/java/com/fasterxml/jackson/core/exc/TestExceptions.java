@@ -1,10 +1,8 @@
-package com.fasterxml.jackson.core;
+package com.fasterxml.jackson.core.exc;
 
 import java.io.StringWriter;
 
-import com.fasterxml.jackson.core.exc.UnexpectedEndOfInputException;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestExceptions extends BaseTest
@@ -22,7 +20,7 @@ public class TestExceptions extends BaseTest
         assertTrue(msg.length() > orig.length());
 
         // and another
-        StreamReadException exc2 = new StreamReadException("Second",
+        StreamReadException exc2 = new StreamReadException((JsonParser) null, "Second",
                 loc, exc);
         assertSame(exc, exc2.getCause());
         exc2.clearLocation();
@@ -144,7 +142,7 @@ public class TestExceptions extends BaseTest
         _testContentSnippetWithOffset(p, 8, "(char[])\"[broken]\n\"");
         p.close();
 
-        p = JSON_F.createParser(json.substring(start));
+        p = JSON_F.createParser(ObjectReadContext.empty(), json.substring(start));
         // for char-based we get true offset at end of token
         _testContentSnippetWithOffset(p, 8, "(String)\"[broken]\n\"");
         p.close();

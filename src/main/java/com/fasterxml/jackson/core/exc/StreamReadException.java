@@ -28,12 +28,15 @@ public class StreamReadException
         _processor = p;
     }
 
-    public StreamReadException(String msg, JsonLocation loc, Throwable rootCause) {
-        super(msg);
-        if (rootCause != null) {
-            initCause(rootCause);
-        }
-        _location = loc;
+    protected StreamReadException(JsonParser p, String msg, JsonLocation loc,
+            Throwable rootCause) {
+        super(msg, loc, rootCause);
+        _processor = p;
+    }
+
+    @Deprecated // @since 3.0 -- is this still in use?
+    protected StreamReadException(String msg, JsonLocation loc, Throwable rootCause) {
+        super(msg, loc, rootCause);
     }
 
     /**

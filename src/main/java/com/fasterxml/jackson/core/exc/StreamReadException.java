@@ -41,12 +41,15 @@ public abstract class StreamReadException
         _processor = p;
     }
 
+    // @since 2.13
+    protected StreamReadException(JsonParser p, String msg, JsonLocation loc,
+            Throwable rootCause) {
+        super(msg, loc, rootCause);
+        _processor = p;
+    }
+
     protected StreamReadException(String msg, JsonLocation loc, Throwable rootCause) {
-        super(msg);
-        if (rootCause != null) {
-            initCause(rootCause);
-        }
-        _location = loc;
+        super(msg, loc, rootCause);
     }
 
     /**

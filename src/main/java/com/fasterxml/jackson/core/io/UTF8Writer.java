@@ -68,9 +68,8 @@ public final class UTF8Writer extends Writer
 
             out.close();
 
-            /* Let's 'flush' orphan surrogate, no matter what; but only
-             * after cleanly closing everything else.
-             */
+            // Let's 'flush' orphan surrogate, no matter what; but only
+            // after cleanly closing everything else.
             int code = _surrogate;
             _surrogate = 0;
             if (code > 0) {

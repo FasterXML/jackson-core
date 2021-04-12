@@ -35,7 +35,7 @@ JSON library.
 #694: Improve exception/JsonLocation handling for binary content: don't
   show content, include byte offset
 
-2.12.3 (not yet released)
+2.12.3 (12-Apr-2021)
 2.12.2 (03-Mar-2021)
 2.12.1 (08-Jan-2021)
 

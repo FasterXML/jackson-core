@@ -17,9 +17,9 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 public class WriterBasedJsonGenerator
     extends JsonGeneratorImpl
 {
-    final protected static int SHORT_WRITE = 32;
+    protected final static int SHORT_WRITE = 32;
 
-    final protected static char[] HEX_CHARS = CharTypes.copyHexChars();
+    protected final static char[] HEX_CHARS = CharTypes.copyHexChars();
 
     /*
     /**********************************************************
@@ -27,7 +27,7 @@ public class WriterBasedJsonGenerator
     /**********************************************************
      */
 
-    final protected Writer _writer;
+    protected final Writer _writer;
 
     /**
      * Character used for quoting JSON Object property names
@@ -979,9 +979,7 @@ public class WriterBasedJsonGenerator
     {
         super.close();
 
-        /* 05-Dec-2008, tatu: To add [JACKSON-27], need to close open
-         *   scopes.
-         */
+        // 05-Dec-2008, tatu: To add [JACKSON-27], need to close open scopes
         // First: let's see that we still have buffers...
         if (_outputBuffer != null
             && isEnabled(Feature.AUTO_CLOSE_JSON_CONTENT)) {

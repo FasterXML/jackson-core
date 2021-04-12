@@ -9,7 +9,7 @@ before_install: "git clone -b travis `git config --get remote.origin.url` target
 after_success:
   - "mvn deploy --settings target/travis/settings.xml"
 
-# whitelist
+# Limit branches built
 branches:
   only:
     - master

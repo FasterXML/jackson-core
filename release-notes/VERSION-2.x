@@ -34,6 +34,7 @@ JSON library.
  (reported by Fabian M)
 #694: Improve exception/JsonLocation handling for binary content: don't
   show content, include byte offset
+- Add `mvnw` wrapper
 
 2.12.3 (12-Apr-2021)
 2.12.2 (03-Mar-2021)

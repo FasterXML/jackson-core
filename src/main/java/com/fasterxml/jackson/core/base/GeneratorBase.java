@@ -349,7 +349,8 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     {
         // First is known to be valid, but how about the other?
         if (surr2 < SURR2_FIRST || surr2 > SURR2_LAST) {
-            String msg = "Incomplete surrogate pair: first char 0x"+Integer.toHexString(surr1)+", second 0x"+Integer.toHexString(surr2);
+            String msg = String.format(
+"Incomplete surrogate pair: first char 0x%04X, second 0x%04X", surr1, surr2);
             _reportError(msg);
         }
         int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);

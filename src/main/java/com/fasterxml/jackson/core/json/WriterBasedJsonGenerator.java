@@ -430,37 +430,32 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeString(Reader reader, int len) throws IOException {
+    public void writeString(Reader reader, final int len) throws IOException
+    {
         _verifyValueWrite(WRITE_STRING);
         if (reader == null) {
             _reportError("null reader");
             return; // just to block warnings by lgtm.com
         }
         int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
-        //Add leading quote
-        if ((_outputTail + len) >= _outputEnd) {
+        // Add leading quote
+        if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
 
         final char[] buf = _allocateCopyBuffer();
-        //read
         while (toRead > 0) {
             int toReadNow = Math.min(toRead, buf.length);
             int numRead = reader.read(buf, 0, toReadNow);
             if (numRead <= 0) {
                 break;
             }
-            if ((_outputTail + len) >= _outputEnd) {
-                _flushBuffer();
-            }
             _writeString(buf, 0, numRead);
-
-            //decrease tracker
             toRead -= numRead;
         }
-        //Add trailing quote
-        if ((_outputTail + len) >= _outputEnd) {
+        // Add trailing quote
+        if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;

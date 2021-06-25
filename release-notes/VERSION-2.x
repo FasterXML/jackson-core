@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.12.4 (not yet released)
+
+#702: `ArrayOutOfBoundException` at `WriterBasedJsonGenerator.writeString(Reader, int)`
+ (reported by Jeffrey Y)
+
 2.12.3 (12-Apr-2021)
 2.12.2 (03-Mar-2021)
 2.12.1 (08-Jan-2021)

@@ -257,3 +257,7 @@ Jendrik Johannes (jjohannes@github)
 Jonathan Haber (jhaber@github)
   * Contributed #573: More customizable TokenFilter inclusion (using `Tokenfilter.Inclusion`)
   (2.12.0)
+
+Jeffrey Ye (jeffreye@github)
+  * Reported #702: `ArrayOutOfBoundException` at `WriterBasedJsonGenerator.writeString(Reader, int)`
+  (2.12.4)

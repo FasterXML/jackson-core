@@ -258,6 +258,10 @@ Jonathan Haber (jhaber@github)
   * Contributed #573: More customizable TokenFilter inclusion (using `Tokenfilter.Inclusion`)
   (2.12.0)
 
+Jeffrey Ye (jeffreye@github)
+  * Reported #702: `ArrayOutOfBoundException` at `WriterBasedJsonGenerator.writeString(Reader, int)`
+  (2.12.4)
+
 Greg Wittel (gwittel@github)
   * Reported #652: Misleading exception for input source when processing byte buffer
     with start offset

@@ -20,8 +20,8 @@ public class StringGenerationFromReaderTest
         "Longer text & other stuff:\twith some\r\n\r\n random linefeeds etc added in to cause some \"special\" handling \\\\ to occur...\n"
     };
 
-    private final JsonFactory FACTORY = new JsonFactory();
-    
+    private final JsonFactory FACTORY = newStreamFactory();
+
     public void testBasicEscaping() throws Exception
     {
         doTestBasicEscaping();
@@ -30,9 +30,10 @@ public class StringGenerationFromReaderTest
     // for [core#194]
     public void testMediumStringsBytes() throws Exception
     {
+        final JsonFactory jsonF = new JsonFactory();
         for (int mode : ALL_BINARY_MODES) {
-            for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
-                _testMediumStrings(mode, size);
+            for (int size : new int[] { 1100, 2300, 3800, 7500, 19000, 33333 }) {
+                _testMediumStrings(jsonF, mode, size);
             }
         }
     }
@@ -40,18 +41,18 @@ public class StringGenerationFromReaderTest
     // for [core#194]
     public void testMediumStringsChars() throws Exception
     {
+        final JsonFactory jsonF = new JsonFactory();
         for (int mode : ALL_TEXT_MODES) {
-            for (int size : new int[] { 1100, 2300, 3800, 7500, 19000 }) {
-                _testMediumStrings(mode, size);
+            for (int size : new int[] { 1100, 2300, 3800, 7500, 19000, 33333 }) {
+                _testMediumStrings(jsonF, mode, size);
             }
         }
     }
 
     public void testLongerRandomSingleChunk() throws Exception
     {
-        /* Let's first generate 100k of pseudo-random characters, favoring
-         * 7-bit ascii range
-         */
+        // Let's first generate 100k of pseudo-random characters, favoring
+        // 7-bit ascii range
         for (int mode : ALL_TEXT_MODES) {
             for (int round = 0; round < 80; ++round) {
                 String content = generateRandom(75000+round);
@@ -62,9 +63,8 @@ public class StringGenerationFromReaderTest
 
     public void testLongerRandomMultiChunk() throws Exception
     {
-        /* Let's first generate 100k of pseudo-random characters, favoring
-         * 7-bit ascii range
-         */
+        // Let's first generate 100k of pseudo-random characters, favoring
+        // 7-bit ascii range
         for (int mode : ALL_TEXT_MODES) {
             for (int round = 0; round < 70; ++round) {
                 String content = generateRandom(73000+round);
@@ -74,9 +74,9 @@ public class StringGenerationFromReaderTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private String _generareMediumText(int minLen)
@@ -126,14 +126,15 @@ public class StringGenerationFromReaderTest
         return sb.toString();
     }
 
-    private void _testMediumStrings(int readMode, int length) throws Exception
+    private void _testMediumStrings(JsonFactory jsonF,
+            int readMode, int length) throws Exception
     {
         String text = _generareMediumText(length);
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = (readMode != MODE_READER) ? FACTORY.createGenerator(ObjectWriteContext.empty(), bytes)
-                : FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = (readMode != MODE_READER) ? jsonF.createGenerator(ObjectWriteContext.empty(), bytes)
+                : jsonF.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartArray();
 
         StringReader reader = new StringReader(text);
@@ -143,9 +144,9 @@ public class StringGenerationFromReaderTest
 
         JsonParser p;
         if (readMode == MODE_READER) {
-            p = FACTORY.createParser(ObjectReadContext.empty(), sw.toString());
+            p = jsonF.createParser(ObjectReadContext.empty(), sw.toString());
         } else {
-            p = createParser(FACTORY, readMode, bytes.toByteArray());
+            p = createParser(jsonF, readMode, bytes.toByteArray());
         }
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -153,7 +154,7 @@ public class StringGenerationFromReaderTest
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
-    
+
     private void doTestBasicEscaping() throws Exception
     {
         for (int i = 0; i < SAMPLES.length; ++i) {

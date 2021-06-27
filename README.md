@@ -22,7 +22,7 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 
 ## Status
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-core.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-core)
+[![Build (github)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
 [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core)
 [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme)
@@ -123,4 +123,3 @@ Note that the main differences compared to 1.0 core jar are:
 * Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
 * [Jackson (portal)](https://github.com/FasterXML/jackson) has links to all FasterXML-maintained "official" Jackson components
 * [Jackson Docs](https://github.com/FasterXML/jackson-docs) is the portal/hub for all kinds of Jackson documentation
-

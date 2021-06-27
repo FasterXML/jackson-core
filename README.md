@@ -1,26 +1,32 @@
 # Overview
 
 This project contains core low-level incremental ("streaming") parser and generator abstractions used by
-[Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
+[Jackson Data Processor](https://github.com/FasterXML/jackson).
 It also includes the default implementation of handler types (parser, generator) that handle JSON format.
 The core abstractions are not JSON specific, although naming does contain 'JSON' in many places, due to historical reasons. Only packages that specifically contain word 'json' are JSON-specific.
 
 This package is the base on which [Jackson data-binding](https://github.com/FasterXML/jackson-databind) package builds on.
-It is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+It is licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 Alternate data format implementations (like
-[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformat-smile),
+[Smile (binary JSON)](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/smile),
 [XML](https://github.com/FasterXML/jackson-dataformat-xml),
-[CSV](https://github.com/FasterXML/jackson-dataformat-csv))
-and [CBOR](https://github.com/FasterXML/jackson-dataformat-cbor)
+[CSV](https://github.com/FasterXML/jackson-dataformats-text/tree/master/csv),
+[Protobuf](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/protobuf),
+and [CBOR](https://github.com/FasterXML/jackson-dataformats-binary/tree/master/cbor))
 also build on this base package, implementing the core interfaces,
 making it possible to use standard [data-binding package](https://github.com/FasterXML/jackson-databind) regardless of underlying data format.
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository.
+Project contains versions 2.0 and above: source code for earlier (1.x) versions can be found from
+[Jackson-1](../../../jackson-1) github repo.
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-core.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-core) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
-[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-core)
-[![Coverage Status](https://coveralls.io/repos/github/FasterXML/jackson-core/badge.svg?branch=master)](https://coveralls.io/github/FasterXML/jackson-core?branch=master)
+## Status
+
+[![Build (github)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-core/actions/workflows/main.yml)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-core)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core)
+[![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme)
+[![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-core.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-core)
 
 # Get it!
 
@@ -33,9 +39,9 @@ To use the package, you need to use following Maven dependency:
 
 ```xml
 <dependency>
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-core</artifactId>
-  <version>${jackson-core-version}</version>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>${jackson.version.core}</version>
 </dependency>
 ```
 
@@ -46,7 +52,7 @@ Package has no external dependencies, except for testing (which uses `JUnit`).
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/) or [Wiki](../../wiki).
+For non-Maven use cases, you download jars from [Central Maven repository](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/).
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
@@ -85,11 +91,26 @@ An example can be found from [Reading and Writing Event Streams](http://www.cowt
 
 -----
 
+## Support
+
+### Community support
+
+Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](../../../jackson#participation-contributing) for full details.
+
+### Enterprise support
+
+Available as part of the Tidelift Subscription.
+
+The maintainers of `jackson-core` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
+
+-----
+
 # Further reading
 
 ## Differences from Jackson 1.x
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
+Project contains versions 2.0 and above: source code for the latest 1.x version (1.9.13) is available from
+[FasterXML/jackson-1](https://github.com/FasterXML/jackson-1) repo (unmaintained).
 
 Note that the main differences compared to 1.0 core jar are:
 
@@ -100,6 +121,5 @@ Note that the main differences compared to 1.0 core jar are:
 ## Links
 
 * Project  [Wiki](../../wiki) has JavaDocs and links to downloadable artifacts
-* [Jackson Github Hub](https://github.com/FasterXML/jackson) has links to all official Jackson components
-* [Jackson Github Doc](https://github.com/FasterXML/jackson-docs) is the hub for official Jackson documentation
-
+* [Jackson (portal)](https://github.com/FasterXML/jackson) has links to all FasterXML-maintained "official" Jackson components
+* [Jackson Docs](https://github.com/FasterXML/jackson-docs) is the portal/hub for all kinds of Jackson documentation

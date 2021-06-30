@@ -78,16 +78,17 @@ public final class CharsToNameCanonicalizer
     /**
      * Also: to thwart attacks based on hash collisions (which may or may not
      * be cheap to calculate), we will need to detect "too long"
-     * collision chains. Let's start with static value of 100 entries
-     * for the longest legal chain.
+     * collision chains.
+     * Started with static value of 100 entries for the longest legal chain,
+     * but increased in Jackson 2.13 to 150 to work around specific test case.
      *<p>
      * Note: longest chain we have been able to produce without malicious
      * intent has been 38 (with "com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
      * our setting should be reasonable here.
      * 
-     * @since 2.1
+     * @since 2.1 (changed in 2.13)
      */
-    static final int MAX_COLL_CHAIN_LENGTH = 100;
+    static final int MAX_COLL_CHAIN_LENGTH = 150;
 
     /*
     /**********************************************************

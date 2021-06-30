@@ -11,6 +11,9 @@ import com.fasterxml.jackson.core.io.SerializedString;
  * Usually this class is not instantiated directly, but instead
  * method {@link JsonGenerator#useDefaultPrettyPrinter} is
  * used, which will use an instance of this class for operation.
+ *
+ * If you override this class, take note of {@link Instantiatable},
+ * as subclasses will still create an instance of DefaultPrettyPrinter.
  */
 @SuppressWarnings("serial")
 public class DefaultPrettyPrinter

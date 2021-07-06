@@ -36,7 +36,7 @@ JSON library.
   show content, include byte offset
 - Add `mvnw` wrapper
 
-2.12.4 (not yet released)
+2.12.4 (06-Jul-2021)
 
 #702: `ArrayOutOfBoundException` at `WriterBasedJsonGenerator.writeString(Reader, int)`
  (reported by Jeffrey Y)

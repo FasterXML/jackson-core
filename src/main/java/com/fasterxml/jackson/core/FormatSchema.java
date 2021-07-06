@@ -12,6 +12,9 @@ package com.fasterxml.jackson.core;
  * Basic JSON-based parsers and generators do not use schemas, but some data
  * formats (like many binary data formats like Thrift, protobuf) mandate
  * use of schemas.
+ * Others like CSV and Java Properties may optionally use schemas (and/or use simple
+ * default schema to use if caller does not specify one) which specifies
+ * some aspects of structuring content.
  *<p>
  * Since there is little commonality between schemas for different data formats,
  * this interface does not define much meaningful functionality for accessing

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Abstraction that encloses information about content being processed --
@@ -12,8 +13,6 @@ import java.nio.charset.StandardCharsets;
  * location (see {@link com.fasterxml.jackson.core.JsonLocation})
  * objections, most commonly to be printed out as part of {@code Exception}
  * messages.
- *
- * @since 2.13
  */
 public class ContentReference
     // sort of: we will read back as "UNKNOWN"
@@ -357,5 +356,11 @@ public class ContentReference
         ContentReference otherSrc = (ContentReference) other;
 
         return _rawContent == otherSrc._rawContent;
+    }
+
+    // Just to appease LGTM...
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(_rawContent);
     }
 }

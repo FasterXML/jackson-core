@@ -217,7 +217,6 @@ public final class ByteQuadsCanonicalizer
      * symbol tables: ones used for merging and sharing common symbols
      * 
      * @param sz Initial primary hash area size
-     * @param intern Whether Strings contained should be {@link String#intern}ed
      * @param seed Random seed valued used to make it more difficult to cause
      *   collisions (used for collision-based DoS attacks).
      */

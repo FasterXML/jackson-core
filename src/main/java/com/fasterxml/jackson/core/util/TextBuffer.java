@@ -221,7 +221,7 @@ public final class TextBuffer
         } else if (_currentSegment == null) {
             _currentSegment = buf(1);
         }
-        _currentSegment[0] = ch;
+        _currentSegment[0] = ch; // lgtm [java/dereferenced-value-may-be-null]
         _currentSize = _segmentSize = 1;
     }
     

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 /**
  * Abstraction that encloses information about content being processed --
@@ -357,5 +358,11 @@ public class ContentReference
         ContentReference otherSrc = (ContentReference) other;
 
         return _rawContent == otherSrc._rawContent;
+    }
+
+    // Just to appease LGTM...
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(_rawContent);
     }
 }

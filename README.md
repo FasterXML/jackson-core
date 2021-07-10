@@ -59,6 +59,10 @@ For non-Maven use cases, you download jars from [Central Maven repository](https
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
+Jackson 2.10 and above include `module-info.class` definitions so the jar is also a proper Java module (JPMS).
+
+Jackson 2.12 and above include additional Gradle 6 Module Metadata for version alignment with Gradle.
+
 -----
 # Use it!
 
@@ -67,12 +71,19 @@ Core jar is also a functional OSGi bundle, with proper import/export declaration
 Usage typically starts with creation of a reusable (and thread-safe, once configured) `JsonFactory` instance:
 
 ```java
+// Builder-style since 2.10:
+JsonFactory factory = JsonFactory.builder()
+// configure, if necessary:
+     .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+     .build();
+
+// older 2.x mechanism, still supported for 2.x
 JsonFactory factory = new JsonFactory();
 // configure, if necessary:
-factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+factory.enable(JsonReadFeature.ALLOW_JAVA_COMMENTS);
 ```
 
-Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](https://github.com/FasterXML/jackson-databind)) handy; if so, you can do:
+Alternatively, you have an `ObjectMapper` (from [Jackson Databind package](https://github.com/FasterXML/jackson-databind)) handy; if so, you can do:
 
 ```java
 JsonFactory factory = objectMapper.getFactory();

@@ -71,12 +71,19 @@ Jackson 2.12 and above include additional Gradle 6 Module Metadata for version a
 Usage typically starts with creation of a reusable (and thread-safe, once configured) `JsonFactory` instance:
 
 ```java
+// Builder-style since 2.10:
+JsonFactory factory = JsonFactory.builder()
+// configure, if necessary:
+     .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+     .build();
+
+// older 2.x mechanism, still supported for 2.x
 JsonFactory factory = new JsonFactory();
 // configure, if necessary:
-factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
+factory.enable(JsonReadFeature.ALLOW_JAVA_COMMENTS);
 ```
 
-Alternatively, you have a `ObjectMapper` (from [Jackson Databind package](https://github.com/FasterXML/jackson-databind)) handy; if so, you can do:
+Alternatively, you have an `ObjectMapper` (from [Jackson Databind package](https://github.com/FasterXML/jackson-databind)) handy; if so, you can do:
 
 ```java
 JsonFactory factory = objectMapper.getFactory();

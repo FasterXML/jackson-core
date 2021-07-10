@@ -59,6 +59,10 @@ For non-Maven use cases, you download jars from [Central Maven repository](https
 
 Core jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
+Jackson 2.10 and above include `module-info.class` definitions so the jar is also a proper Java module (JPMS).
+
+Jackson 2.12 and above include additional Gradle 6 Module Metadata for version alignment with Gradle.
+
 -----
 # Use it!
 

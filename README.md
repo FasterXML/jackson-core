@@ -31,6 +31,11 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 | CodeQ (LGTM.com) | [![LGTM alerts](https://img.shields.io/lgtm/alerts/g/FasterXML/jackson-core.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-core/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/FasterXML/jackson-core.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-core/context:java) |
 | CodeQ (ClusterFuzz) | [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-core.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-core) |
 
+Experimental:
+
+[![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=2.13)]
+(https://codecov.io/github/FasterXML/jackson-core?branch=2.13)
+
 # Get it!
 
 ## Maven

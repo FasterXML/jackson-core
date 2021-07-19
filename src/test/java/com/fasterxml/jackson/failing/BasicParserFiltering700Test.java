@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 @SuppressWarnings("resource")
 public class BasicParserFiltering700Test extends BaseTest
@@ -45,13 +46,12 @@ public class BasicParserFiltering700Test extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("value", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(12, p.getIntValue());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
 
-        assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.nextToken());
 
         p.close();

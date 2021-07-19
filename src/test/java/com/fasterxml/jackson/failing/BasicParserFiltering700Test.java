@@ -31,8 +31,8 @@ public class BasicParserFiltering700Test extends BaseTest
 
     private final JsonFactory JSON_F = new JsonFactory();
 
-    // for [core#700]
-    public void testSkippingSimple() throws Exception
+    // [core#700], simplified
+    public void testSkippingRootLevel() throws Exception
     {
         final String json = a2q("{'@type':'yyy','value':12}");
         // should become: {"value":12}
@@ -56,15 +56,44 @@ public class BasicParserFiltering700Test extends BaseTest
         p.close();
     }
 
-    // Full test:
+    // [core#700], medium test
+    public void testSkippingOneNested() throws Exception
+    {
+        final String json = a2q("{'value':{'@type':'yyy','a':12}}");
+        // should become: {"value":{"a":12}}
+        JsonParser p0 = JSON_F.createParser(json);
+        JsonParser p = new FilteringParserDelegate(p0,
+                new NoTypeFilter(),
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true // multipleMatches
+        );
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("value", p.currentName());
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertEquals("a", p.currentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+        assertEquals(12, p.getIntValue());
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        assertNull(p.nextToken());
+
+        p.close();
+    }
+
+    // [core#700], full test
 /*
-    // for [core#700]
     public void testSkippingForSingleWithPath() throws Exception
     {
         final String json = a2q(
- //               "{'@type':'xxx','value':{'@type':'yyy','a':12,'b':34}}");
-    "{'value':{'@type':'yyy','a':12,'b':34}}");
-        // should become: {"value":{"a":12,"b":34"}}
+ //               "{'@type':'xxx','value':{'@type':'yyy','a':12}}");
+    "{'value':{'@type':'yyy','a':12}}");
+        // should become: {"value":{"a":12}}
 
         JsonParser p0 = JSON_F.createParser(json);
         JsonParser p = new FilteringParserDelegate(p0,

@@ -269,15 +269,14 @@ public class FilteringParserDelegate extends JsonParserDelegate
                         return t;
                     }
 
+                    // 19-Jul-2021, tatu: [core#700]: following was commented out?!
                     // Almost! Most likely still have the current token;
-                    // with the sole exception of 
-                    /*
-                    t = delegate.getCurrentToken();
+                    // with the sole exception of FIELD_NAME
+                    t = delegate.currentToken();
                     if (t != JsonToken.FIELD_NAME) {
                         _currToken = t;
                         return t;
                     }
-                    */
                     break;
                 }
                 // If not, traverse down the context chain
@@ -589,8 +588,13 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                     _itemFilter = f;
                     if (f == TokenFilter.INCLUDE_ALL) {
-                        if (_verifyAllowedMatches() && _inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
-                            return (_currToken = t);
+                        if (_verifyAllowedMatches()) {
+                            if (_inclusion == Inclusion.INCLUDE_ALL_AND_PATH) {
+                                return (_currToken = t);
+                            }
+                        } else {
+                            delegate.nextToken();
+                            delegate.skipChildren();
                         }
                         continue main_loop;
                     }

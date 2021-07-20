@@ -88,13 +88,10 @@ public class BasicParserFiltering700Test extends BaseTest
     }
 
     // [core#700], full test
-/*
     public void testSkippingForSingleWithPath() throws Exception
     {
-        final String json = a2q(
- //               "{'@type':'xxx','value':{'@type':'yyy','a':12}}");
-    "{'value':{'@type':'yyy','a':12}}");
-        // should become: {"value":{"a":12}}
+        final String json = a2q("{'@type':'xxx','value':{'@type':'yyy','a':99}}");
+        // should become: {"value":{"a":99}}
 
         JsonParser p0 = JSON_F.createParser(json);
         JsonParser p = new FilteringParserDelegate(p0,
@@ -103,29 +100,21 @@ public class BasicParserFiltering700Test extends BaseTest
                 true // multipleMatches
         );
 
-//        String filtered = readAndWrite(JSON_F, p);
-//        System.out.println("->\n"+filtered);
-
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("value", p.currentName());
+        assertEquals("value", p.getCurrentName());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(12, p.getIntValue());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("b", p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(34, p.getIntValue());
-        assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertEquals(99, p.getIntValue());
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
 
-        assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());
+        assertEquals(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.nextToken());
 
         p.close();
     }
-    */
 }

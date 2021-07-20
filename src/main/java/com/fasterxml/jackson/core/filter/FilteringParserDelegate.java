@@ -865,11 +865,44 @@ public class FilteringParserDelegate extends JsonParserDelegate
     /**********************************************************
      */
 
-    @Override public String getText() throws IOException { return delegate.getText();  }
-    @Override public boolean hasTextCharacters() { return delegate.hasTextCharacters(); }
-    @Override public char[] getTextCharacters() throws IOException { return delegate.getTextCharacters(); }
-    @Override public int getTextLength() throws IOException { return delegate.getTextLength(); }
-    @Override public int getTextOffset() throws IOException { return delegate.getTextOffset(); }
+    // 19-Jul-2021, tatu: Cannot quite just delegate these methods due to oddity
+    //   of property name token, which may be buffered.
+
+    @Override public String getText() throws IOException {
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return currentName();
+        }
+        return delegate.getText();
+    }
+
+    @Override public boolean hasTextCharacters() {
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return false;
+        }
+        return delegate.hasTextCharacters();
+    }
+
+    @Override public char[] getTextCharacters() throws IOException {
+        // Not optimal but is correct, unlike delegating (as underlying stream
+        // may point to something else due to buffering)
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return currentName().toCharArray();
+        }
+        return delegate.getTextCharacters();
+    }
+
+    @Override public int getTextLength() throws IOException {
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return currentName().length();
+        }
+        return delegate.getTextLength();
+    }
+    @Override public int getTextOffset() throws IOException {
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return 0;
+        }
+        return delegate.getTextOffset();
+    }
 
     /*
     /**********************************************************
@@ -924,9 +957,20 @@ public class FilteringParserDelegate extends JsonParserDelegate
     @Override public double getValueAsDouble(double defaultValue) throws IOException { return delegate.getValueAsDouble(defaultValue); }
     @Override public boolean getValueAsBoolean() throws IOException { return delegate.getValueAsBoolean(); }
     @Override public boolean getValueAsBoolean(boolean defaultValue) throws IOException { return delegate.getValueAsBoolean(defaultValue); }
-    @Override public String getValueAsString() throws IOException { return delegate.getValueAsString(); }
-    @Override public String getValueAsString(String defaultValue) throws IOException { return delegate.getValueAsString(defaultValue); }
-    
+
+    @Override public String getValueAsString() throws IOException {
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return currentName();
+        }
+        return delegate.getValueAsString();
+    }
+    @Override public String getValueAsString(String defaultValue) throws IOException {
+        if (_currToken == JsonToken.FIELD_NAME) {
+            return currentName();
+        }
+        return delegate.getValueAsString(defaultValue);
+    }
+
     /*
     /**********************************************************
     /* Public API, access to token values, other

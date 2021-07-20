@@ -102,11 +102,11 @@ public class BasicParserFiltering700Test extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("value", p.getCurrentName());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals("value", p.currentName());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(99, p.getIntValue());

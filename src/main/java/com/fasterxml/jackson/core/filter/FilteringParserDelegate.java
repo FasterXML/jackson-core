@@ -828,6 +828,65 @@ public class FilteringParserDelegate extends JsonParserDelegate
             }
         }
     }
+    /*
+    /**********************************************************************
+    /* Public API, access to token information, text; cannot simply delegate
+    /* due to access via `JsonToken.PROPERTY_NAME`
+    /**********************************************************************
+     */
+
+    // 19-Jul-2021, tatu: Cannot quite just delegate these methods due to oddity
+    //   of property name token, which may be buffered.
+
+    @Override public String getText() throws JacksonException {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName();
+        }
+        return delegate.getText();
+    }
+
+    @Override public boolean hasTextCharacters() {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return false;
+        }
+        return delegate.hasTextCharacters();
+    }
+
+    @Override public char[] getTextCharacters() throws JacksonException {
+        // Not optimal but is correct, unlike delegating (as underlying stream
+        // may point to something else due to buffering)
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName().toCharArray();
+        }
+        return delegate.getTextCharacters();
+    }
+
+    @Override public int getTextLength() throws JacksonException {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName().length();
+        }
+        return delegate.getTextLength();
+    }
+    @Override public int getTextOffset() throws JacksonException {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return 0;
+        }
+        return delegate.getTextOffset();
+    }
+
+    @Override public String getValueAsString() throws JacksonException {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName();
+        }
+        return delegate.getValueAsString();
+    }
+
+    @Override public String getValueAsString(String defaultValue) throws JacksonException {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName();
+        }
+        return delegate.getValueAsString(defaultValue);
+    }
 
     /*
     /**********************************************************************

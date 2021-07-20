@@ -88,6 +88,12 @@ public class ParserFiltering700Test extends BaseTest
     // [core#700], full test
     public void testSkippingForSingleWithPath() throws Exception
     {
+        _testSkippingForSingleWithPath(false);
+        _testSkippingForSingleWithPath(true);
+    }
+
+    private void _testSkippingForSingleWithPath(boolean useNextName) throws Exception
+    {
         final String json = a2q("{'@type':'xxx','value':{'@type':'yyy','a':99}}");
         // should become: {"value":{"a":99}}
 
@@ -100,15 +106,24 @@ public class ParserFiltering700Test extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("value", p.currentName());
-
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals("a", p.currentName());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(99, p.getIntValue());
-        assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        if (useNextName) {
+            assertEquals("value", p.nextName());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertEquals("a", p.nextName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(99, p.getIntValue());
+            assertNull(p.nextName());
+            assertEquals(JsonToken.END_OBJECT, p.currentToken());
+        } else {
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals("value", p.currentName());
+            assertToken(JsonToken.START_OBJECT, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertEquals("a", p.currentName());
+            assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(99, p.getIntValue());
+            assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        }
 
         assertEquals(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.nextToken());

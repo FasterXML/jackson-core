@@ -14,16 +14,11 @@ public class ParserFiltering700Test extends BaseTest
             }
             return this;
         }
-
-        @Override
-        protected boolean _includeScalar() {
-            return true;
-        }
     }
 
     /*
     /**********************************************************************
-    /* Test methods
+    /* Test methods, [core#700]
     /**********************************************************************
      */
 
@@ -145,6 +140,12 @@ public class ParserFiltering700Test extends BaseTest
         p.close();
     }
 
+    /*
+    /**********************************************************************
+    /* Helper methods
+    /**********************************************************************
+     */
+    
     private JsonParser _createParser(TokenStreamFactory f, String json) throws Exception {
         return f.createParser(json);
     }

@@ -7,8 +7,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
  * Default {@link PrettyPrinter} implementation that uses 2-space
  * indentation with platform-default linefeeds.
  * Usually this class is not instantiated directly, but instead
- * method {@link JsonGenerator#useDefaultPrettyPrinter} is
- * used, which will use an instance of this class for operation.
+ * instantiated by {@code JsonFactory} or databind level mapper.
  *<p>
  * If you override this class, take note of {@link Instantiatable},
  * as subclasses will still create an instance of DefaultPrettyPrinter.

@@ -34,6 +34,8 @@ JSON library.
  (reported by Fabian M)
 #694: Improve exception/JsonLocation handling for binary content: don't
   show content, include byte offset
+#700: Unable to ignore properties when deserializing. TokenFilter seems broken
+ (reported by xiazuojie@github)
 - Add `mvnw` wrapper
 
 2.12.4 (06-Jul-2021)

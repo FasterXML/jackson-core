@@ -1,12 +1,10 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.filter;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
-import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
 @SuppressWarnings("resource")
-public class BasicParserFiltering700Test extends BaseTest
+public class ParserFiltering700Test extends BaseTest
 {
     static class NoTypeFilter extends TokenFilter {
         @Override
@@ -29,14 +27,14 @@ public class BasicParserFiltering700Test extends BaseTest
     /**********************************************************************
      */
 
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     // [core#700], simplified
     public void testSkippingRootLevel() throws Exception
     {
         final String json = a2q("{'@type':'yyy','value':12}");
         // should become: {"value":12}
-        JsonParser p0 = JSON_F.createParser(json);
+        JsonParser p0 = _createParser(JSON_F, json);
         JsonParser p = new FilteringParserDelegate(p0,
                 new NoTypeFilter(),
                 Inclusion.INCLUDE_ALL_AND_PATH,
@@ -61,7 +59,7 @@ public class BasicParserFiltering700Test extends BaseTest
     {
         final String json = a2q("{'value':{'@type':'yyy','a':12}}");
         // should become: {"value":{"a":12}}
-        JsonParser p0 = JSON_F.createParser(json);
+        JsonParser p0 = _createParser(JSON_F, json);
         JsonParser p = new FilteringParserDelegate(p0,
                 new NoTypeFilter(),
                 Inclusion.INCLUDE_ALL_AND_PATH,
@@ -92,7 +90,7 @@ public class BasicParserFiltering700Test extends BaseTest
         final String json = a2q("{'@type':'xxx','value':{'@type':'yyy','a':99}}");
         // should become: {"value":{"a":99}}
 
-        JsonParser p0 = JSON_F.createParser(json);
+        JsonParser p0 = _createParser(JSON_F, json);
         JsonParser p = new FilteringParserDelegate(p0,
                 new NoTypeFilter(),
                 Inclusion.INCLUDE_ALL_AND_PATH,
@@ -115,5 +113,9 @@ public class BasicParserFiltering700Test extends BaseTest
         assertNull(p.nextToken());
 
         p.close();
+    }
+
+    private JsonParser _createParser(TokenStreamFactory f, String json) throws Exception {
+        return f.createParser(json);
     }
 }

@@ -184,10 +184,21 @@ public class FilteringParserDelegate extends JsonParserDelegate
     public JsonStreamContext getParsingContext() {
         return _filterContext();
     }
-    
+
     // !!! TODO: Verify it works as expected: copied from standard JSON parser impl
     @Override
     public String getCurrentName() throws IOException {
+        JsonStreamContext ctxt = _filterContext();
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            JsonStreamContext parent = ctxt.getParent();
+            return (parent == null) ? null : parent.getCurrentName();
+        }
+        return ctxt.getCurrentName();
+    }
+
+    // 2.13: IMPORTANT! Must override along with older getCurrentName()
+    @Override
+    public String currentName() throws IOException {
         JsonStreamContext ctxt = _filterContext();
         if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
             JsonStreamContext parent = ctxt.getParent();
@@ -215,10 +226,9 @@ public class FilteringParserDelegate extends JsonParserDelegate
 
     @Override
     public void overrideCurrentName(String name) {
-        /* 14-Apr-2015, tatu: Not sure whether this can be supported, and if so,
-         *    what to do with it... Delegation won't work for sure, so let's for
-         *    now throw an exception
-         */
+        // 14-Apr-2015, tatu: Not sure whether this can be supported, and if so,
+        //    what to do with it... Delegation won't work for sure, so let's for
+        //    now throw an exception
         throw new UnsupportedOperationException("Can not currently override name during filtering read");
     }
 
@@ -940,5 +950,4 @@ public class FilteringParserDelegate extends JsonParserDelegate
         }
         return _headContext;
     }
-  
 }

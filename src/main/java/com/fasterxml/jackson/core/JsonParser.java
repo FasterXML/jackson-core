@@ -1403,7 +1403,7 @@ public abstract class JsonParser
      * @param name Name to use as the current name; may be null.
      */
     public abstract void overrideCurrentName(String name);
-    
+
     /*
     /**********************************************************
     /* Public API, access to token information, text

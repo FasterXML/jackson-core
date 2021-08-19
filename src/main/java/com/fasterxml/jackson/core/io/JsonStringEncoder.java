@@ -30,8 +30,14 @@ public final class JsonStringEncoder
     private final static int SURR2_FIRST = 0xDC00;
     private final static int SURR2_LAST = 0xDFFF;
 
-    private final static int INITIAL_CHAR_BUFFER_SIZE = 120;
-    private final static int INITIAL_BYTE_BUFFER_SIZE = 200;
+    // 18-Aug-2021, tatu: [core#712] Change to more dynamic allocation; try
+    //    to estimate ok initial encoding buffer, switch to segmented for
+    //    possible (but rare) big content
+
+    final static int MIN_CHAR_BUFFER_SIZE = 16;
+    final static int MAX_CHAR_BUFFER_SIZE = 32000; // use segments beyond
+    final static int MIN_BYTE_BUFFER_SIZE = 24;
+    final static int MAX_BYTE_BUFFER_SIZE = 32000; // use segments beyond
 
     /*
     /**********************************************************************
@@ -70,11 +76,11 @@ public final class JsonStringEncoder
      */
     public char[] quoteAsCharArray(CharSequence input)
     {
-        char[] outputBuffer = new char[INITIAL_CHAR_BUFFER_SIZE];
+        final int inputLen = input.length();
+        char[] outputBuffer = new char[_initialCharBufSize(inputLen)];
         final int[] escCodes = CharTypes.get7BitOutputEscapes();
         final int escCodeCount = escCodes.length;
         int inPtr = 0;
-        final int inputLen = input.length();
         TextBuffer textBuffer = null;
         int outPtr = 0;
         char[] qbuf = null;
@@ -190,7 +196,7 @@ public final class JsonStringEncoder
         int inputPtr = 0;
         int inputEnd = text.length();
         int outputPtr = 0;
-        byte[] outputBuffer = new byte[INITIAL_BYTE_BUFFER_SIZE];
+        byte[] outputBuffer = new byte[_initialByteBufSize(inputEnd)];
         ByteArrayBuilder bb = null;
         
         main:
@@ -296,7 +302,7 @@ public final class JsonStringEncoder
         int inputPtr = 0;
         int inputEnd = text.length();
         int outputPtr = 0;
-        byte[] outputBuffer = new byte[INITIAL_BYTE_BUFFER_SIZE];
+        byte[] outputBuffer = new byte[_initialByteBufSize(inputEnd)];
         int outputEnd = outputBuffer.length;
         ByteArrayBuilder bb = null;
 
@@ -442,5 +448,23 @@ public final class JsonStringEncoder
 
     private static void _illegal(int c) {
         throw new IllegalArgumentException(UTF8Writer.illegalSurrogateDesc(c));
+    }
+
+    // non-private for unit test access
+    static int _initialCharBufSize(int strLen) {
+        // char->char won't expand but we need to give some room for escaping
+        // like 1/8 (12.5% expansion) but cap addition to something modest
+        final int estimated = Math.max(MIN_CHAR_BUFFER_SIZE,
+                strLen + Math.min(6 + (strLen >> 3), 1000));
+        return Math.min(estimated, MAX_CHAR_BUFFER_SIZE);
+    }
+
+    // non-private for unit test access
+    static int _initialByteBufSize(int strLen) {
+        // char->byte for UTF-8 can expand size by x3 itself, and escaping
+        // more... but let's use lower factor of 1.5
+        final int doubled = Math.max(MIN_BYTE_BUFFER_SIZE, strLen + 6 + (strLen>>1));
+        // but use upper bound for humongous cases (segmented)
+        return Math.min(doubled, MAX_BYTE_BUFFER_SIZE);
     }
 }

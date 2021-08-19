@@ -36,6 +36,7 @@ JSON library.
   show content, include byte offset
 #700: Unable to ignore properties when deserializing. TokenFilter seems broken
  (reported by xiazuojie@github)
+#712: Optimize array allocation by `JsonStringEncoder`
 - Add `mvnw` wrapper
 
 2.12.4 (06-Jul-2021)

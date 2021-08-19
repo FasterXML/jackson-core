@@ -14,7 +14,9 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.12.0 (not yet released)
+(not yet released)
+
+#712: (partial) Optimize array allocation by JsonStringEncoder
 
 2.11.4 (12-Dec-2020)
 

@@ -30,8 +30,9 @@ public final class JsonStringEncoder
     private final static int SURR2_FIRST = 0xDC00;
     private final static int SURR2_LAST = 0xDFFF;
 
-    private final static int INITIAL_CHAR_BUFFER_SIZE = 120;
-    private final static int INITIAL_BYTE_BUFFER_SIZE = 200;
+    // 18-Aug-2021, tatu: [core#712] use bit lower defaults for 2.11/2.12
+    private final static int INITIAL_CHAR_BUFFER_SIZE = 30;
+    private final static int INITIAL_BYTE_BUFFER_SIZE = 60;
 
     /*
     /**********************************************************************

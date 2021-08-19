@@ -130,13 +130,55 @@ public class TestJsonStringEncoder
         assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", output.toString());
     }
 
+    // [core#712]: simple sanity checks for calculation logic
+    public void testByteBufferDefaultSize()
+    {
+        // byte size is simple, x2 except below buffer size 24
+        assertEquals(JsonStringEncoder.MIN_BYTE_BUFFER_SIZE,
+                JsonStringEncoder._initialByteBufSize(1));
+        assertEquals(JsonStringEncoder.MIN_BYTE_BUFFER_SIZE,
+                JsonStringEncoder._initialByteBufSize(11));
+
+        assertEquals(36, JsonStringEncoder._initialByteBufSize(20));
+        assertEquals(73, JsonStringEncoder._initialByteBufSize(45));
+        assertEquals(1506, JsonStringEncoder._initialByteBufSize(1000));
+        assertEquals(9006, JsonStringEncoder._initialByteBufSize(6000));
+
+        // and up to max initial size
+        assertEquals(JsonStringEncoder.MAX_BYTE_BUFFER_SIZE,
+                JsonStringEncoder._initialByteBufSize(JsonStringEncoder.MAX_BYTE_BUFFER_SIZE + 1));
+        assertEquals(JsonStringEncoder.MAX_BYTE_BUFFER_SIZE,
+                JsonStringEncoder._initialByteBufSize(999999));
+    }
+
+    // [core#712]: simple sanity checks for calculation logic
+    public void testCharBufferDefaultSize()
+    {
+        // char[] bit more complex, starts with minimum size of 16
+        assertEquals(JsonStringEncoder.MIN_CHAR_BUFFER_SIZE,
+                JsonStringEncoder._initialCharBufSize(1));
+        assertEquals(JsonStringEncoder.MIN_CHAR_BUFFER_SIZE,
+                JsonStringEncoder._initialCharBufSize(8));
+
+        // and then grows by ~5%
+        assertEquals(62, JsonStringEncoder._initialCharBufSize(50));
+        assertEquals(118, JsonStringEncoder._initialCharBufSize(100));
+        assertEquals(1131, JsonStringEncoder._initialCharBufSize(1000));
+        assertEquals(9000, JsonStringEncoder._initialCharBufSize(8000));
+
+        // up to max, simi
+        assertEquals(JsonStringEncoder.MAX_CHAR_BUFFER_SIZE,
+                JsonStringEncoder._initialCharBufSize(32000));
+        assertEquals(JsonStringEncoder.MAX_CHAR_BUFFER_SIZE,
+                JsonStringEncoder._initialCharBufSize(900000));
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    
     private String generateRandom(int length)
     {
         StringBuilder sb = new StringBuilder(length);

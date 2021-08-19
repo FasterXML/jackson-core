@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+(not yet released)
+
+#712: (partial) Optimize array allocation by JsonStringEncoder
+
 2.12.4 (06-Jul-2021)
 
 #702: `ArrayOutOfBoundException` at `WriterBasedJsonGenerator.writeString(Reader, int)`

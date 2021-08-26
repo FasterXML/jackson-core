@@ -2,15 +2,11 @@ package com.fasterxml.jackson.core.util;
 
 import java.lang.ref.SoftReference;
 
-import com.fasterxml.jackson.core.io.JsonStringEncoder;
-
 /**
  * Helper entity used to control access to simple buffer recyling scheme used for
  * some encoding, decoding tasks.
  *
  * @see BufferRecycler
- *
- * @since 2.9.2
  */
 public class BufferRecyclers
 {
@@ -97,71 +93,5 @@ public class BufferRecyclers
             return _bufferRecyclerTracker.releaseBuffers();
         }
         return -1;
-    }
-
-    /*
-    /**********************************************************************
-    /* Obsolete things re-introduced in 2.12.5 after accidental direct
-    /* removal from 2.10.0
-    /**********************************************************************
-     */
-
-    /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} instead.
-     *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
-     */
-    @Deprecated
-    public static JsonStringEncoder getJsonStringEncoder() {
-        return JsonStringEncoder.getInstance();
-    }
-
-    /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code encodeAsUTF8()}) instead.
-     *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
-     */
-    @Deprecated
-    public static byte[] encodeAsUTF8(String text) {
-        return JsonStringEncoder.getInstance().encodeAsUTF8(text);
-    }
-
-    /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code quoteAsString()}) instead.
-     *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
-     */
-    @Deprecated
-    public static char[] quoteAsJsonText(String rawText) {
-        return JsonStringEncoder.getInstance().quoteAsString(rawText);
-    }
-
-    /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code quoteAsString()}) instead.
-     *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
-     */
-    @Deprecated
-    public static void quoteAsJsonText(CharSequence input, StringBuilder output) {
-        JsonStringEncoder.getInstance().quoteAsString(input, output);
-    }
-
-    /**
-     * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
-     * {@code quoteAsUTF8()}) instead.
-     *
-     * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
-     *    in 2.12.5, to be removed from 3.0)
-     */
-    @Deprecated
-    public static byte[] quoteAsJsonUTF8(String rawText) {
-        return JsonStringEncoder.getInstance().quoteAsUTF8(rawText);
     }
 }

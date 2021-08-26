@@ -16,7 +16,9 @@ JSON library.
 
 (not yet released)
 
-#712: (partial) Optimize array allocation by JsonStringEncoder
+#712: (partial) Optimize array allocation by `JsonStringEncoder`
+#713: Add back accidentally removed `JsonStringEncoder` related methods in
+  `BufferRecyclers` (like `getJsonStringEncoder()`)
 
 2.12.4 (06-Jul-2021)
 

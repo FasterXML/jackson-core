@@ -6,6 +6,8 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 
+import static com.fasterxml.jackson.core.filter.BasicGeneratorFilteringTest.*;
+
 @SuppressWarnings("resource")
 public class BasicParserFilteringTest extends BaseTest
 {
@@ -559,5 +561,108 @@ public class BasicParserFilteringTest extends BaseTest
         p.skipChildren();
         assertEquals(JsonToken.END_OBJECT, p.getCurrentToken());
         assertNull(p.nextToken());
+    }
+
+    public void testIncludeEmptyArrayIfNotFiltered() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'empty_array':[],'filtered_array':[5]}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(aposToQuotes("{'empty_array':[]}"), readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyArray() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'empty_array':[],'filtered_array':[5]}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(aposToQuotes("{'empty_array':[],'filtered_array':[]}"), readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyObjectIfNotFiltered() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'empty_object':{},'filtered_object':{'foo':5}}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(aposToQuotes("{'empty_object':{}}"), readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyObject() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'empty_object':{},'filtered_object':{'foo':5}}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(aposToQuotes("{'empty_object':{},'filtered_object':{}}"), readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyArrayInObjectIfNotFiltered() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[5]}}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(aposToQuotes("{'object_with_empty_array':{'foo':[]}}"), readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyArrayInObject() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[5]}}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(
+                aposToQuotes("{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[]}}"),
+                readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyObjectInArrayIfNotFiltered() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'array_with_empty_object':[{}],'array_with_filtered_object':[{'foo':5}]}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(aposToQuotes("{'array_with_empty_object':[{}]}"), readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyObjectInArray() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "{'array_with_empty_object':[{}],'array_with_filtered_object':[{'foo':5}]}"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(
+                aposToQuotes("{'array_with_empty_object':[{}],'array_with_filtered_object':[{}]}"),
+                readAndWrite(JSON_F, p));
+    }
+
+    public void testIncludeEmptyArrayIfNotFilteredAfterFiltered() throws Exception {
+        JsonParser p0 = JSON_F.createParser(aposToQuotes(
+                "[5, {'empty_array':[],'filtered_array':[5]}]"));
+        JsonParser p = new FilteringParserDelegate(p0,
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                false // multipleMatches
+        );
+        assertEquals(aposToQuotes("[{'empty_array':[]}]"), readAndWrite(JSON_F, p));
     }
 }

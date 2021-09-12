@@ -432,6 +432,14 @@ public class TokenFilter
         return _includeScalar();
     }
 
+    public boolean includeEmptyArray(boolean contentsFiltered) {
+        return false;
+    }
+
+    public boolean includeEmptyObject(boolean contentsFiltered) {
+        return false;
+    }
+
     /*
     /**********************************************************
     /* Overrides

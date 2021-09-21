@@ -2122,7 +2122,7 @@ public abstract class JsonParser
      * JSON Strings map naturally; scalar values get converted to
      * their textual representation.
      * If representation can not be converted to a String value (including structured types
-     * like Objects and Arrays and null token), default value of
+     * like Objects and Arrays and {@code null} token), default value of
      * <b>null</b> will be returned; no exceptions are thrown.
      *
      * @return {@link String} value current token is converted to, if possible; {@code null} otherwise
@@ -2142,7 +2142,7 @@ public abstract class JsonParser
      * JSON Strings map naturally; scalar values get converted to
      * their textual representation.
      * If representation can not be converted to a String value (including structured types
-     * like Objects and Arrays and null token), specified default value
+     * like Objects and Arrays and {@code null} token), specified default value
      * will be returned; no exceptions are thrown.
      *
      * @param def Default value to return if conversion to {@code String} is not possible

@@ -250,7 +250,7 @@ public abstract class TokenStreamContext
      * @param srcRef Source reference needed to construct location instance
      *
      * @return Location pointing to the point where the context
-     *   start marker was found (or written); never `null`.
+     *   start marker was found (or written); never {@code null}.
      */
     public JsonLocation startLocation(ContentReference srcRef) {
         return JsonLocation.NA;

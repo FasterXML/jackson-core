@@ -284,7 +284,7 @@ public abstract class JsonStreamContext
      * @param srcRef Source reference needed to construct location instance
      *
      * @return Location pointing to the point where the context
-     *   start marker was found (or written); never `null`.
+     *   start marker was found (or written); never {@code null}.
      *
      * @since 2.13
      */
@@ -293,6 +293,9 @@ public abstract class JsonStreamContext
     }
 
     /**
+     * @param srcRef Source reference needed to construct location instance
+     * @return Location pointing to the point where the context
+     *   start marker was found (or written); never {@code null}.
      * @since 2.9
      * @deprecated Since 2.13 use {@link #startLocation} instead
      */

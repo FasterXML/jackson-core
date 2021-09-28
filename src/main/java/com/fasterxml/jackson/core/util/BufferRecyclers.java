@@ -109,6 +109,8 @@ public class BufferRecyclers
     /**
      * Not to be used any more: call {@link JsonStringEncoder#getInstance()} instead.
      *
+     * @return {@code JsonStringEncoder} instance to use.
+     *
      * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
      *    in 2.12.5, to be removed from 3.0)
      */
@@ -120,6 +122,9 @@ public class BufferRecyclers
     /**
      * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
      * {@code encodeAsUTF8()}) instead.
+     *
+     * @param text String to encode
+     * @return String encoded as UTF-8 bytes.
      *
      * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
      *    in 2.12.5, to be removed from 3.0)

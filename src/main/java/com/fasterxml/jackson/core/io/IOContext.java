@@ -104,6 +104,7 @@ public class IOContext
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
+     * @param enc Encoding in use
      */
     public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource,
             JsonEncoding enc)

@@ -138,6 +138,10 @@ public class BufferRecyclers
      * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
      * {@code quoteAsString()}) instead.
      *
+     * @param rawText String to quote
+     *
+     * @return Quoted text as {@code char[]}
+     *
      * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
      *    in 2.12.5, to be removed from 3.0)
      */
@@ -150,6 +154,9 @@ public class BufferRecyclers
      * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
      * {@code quoteAsString()}) instead.
      *
+     * @param input Textual content to quote
+     * @param output Builder to append quoted content
+     *
      * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
      *    in 2.12.5, to be removed from 3.0)
      */
@@ -161,6 +168,10 @@ public class BufferRecyclers
     /**
      * Not to be used any more: call {@link JsonStringEncoder#getInstance()} (and then
      * {@code quoteAsUTF8()}) instead.
+     *
+     * @param rawText String to quote
+     *
+     * @return Quoted text as {@code byte[]}
      *
      * @deprecated Since 2.10 (note: was accidentally removed but reintroduced as deprecated
      *    in 2.12.5, to be removed from 3.0)

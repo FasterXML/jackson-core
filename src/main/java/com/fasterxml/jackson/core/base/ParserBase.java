@@ -1246,6 +1246,7 @@ public abstract class ParserBase extends ParserMinimalBase
      */
 
     /**
+     * @return Source reference
      * @since 2.9
      * @deprecated Since 2.13, use {@link #_contentReference()} instead.
      */

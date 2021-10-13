@@ -2000,10 +2000,9 @@ public class ReaderBasedJsonParser
             int i = (int) c;
             if (i <= '\\') {
                 if (i == '\\') {
-                    /* Although chars outside of BMP are to be escaped as
-                     * an UTF-16 surrogate pair, does that affect decoding?
-                     * For now let's assume it does not.
-                     */
+                    // Although chars outside of BMP are to be escaped as
+                    // an UTF-16 surrogate pair, does that affect decoding?
+                    // For now let's assume it does not.
                     c = _decodeEscaped();
                 } else if (i <= '\'') {
                     if (i == '\'') {

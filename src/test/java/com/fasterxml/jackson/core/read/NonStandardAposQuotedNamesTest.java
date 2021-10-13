@@ -161,4 +161,62 @@ public class NonStandardAposQuotedNamesTest
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
+
+    // [core#721]: specific issue with enclosed unescaped double quotes
+    public void testSingleQuotedKeys721() throws Exception
+    {
+        // empty
+        _testSingleQuotedKeys721("{ '\"\"': 'value'}", "\"\"");
+        // non-empty
+        _testSingleQuotedKeys721("{ '\"key\"': 'value'}", "\"key\"");
+    }
+
+    private void _testSingleQuotedKeys721(String doc, String expKey) throws Exception
+    {
+        _testSingleQuotedKeys721(MODE_READER, doc, expKey);
+        _testSingleQuotedKeys721(MODE_INPUT_STREAM, doc, expKey);
+        _testSingleQuotedKeys721(MODE_INPUT_STREAM_THROTTLED, doc, expKey);
+        _testSingleQuotedKeys721(MODE_DATA_INPUT, doc, expKey);
+    }
+
+    private void _testSingleQuotedKeys721(int mode, String doc, String expKey) throws Exception
+    {
+        JsonParser p = createParser(APOS_F, mode, doc);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertEquals(expKey, p.nextFieldName());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("value", p.getText());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
+    }
+
+    // [core#721]: specific issue with enclosed unescaped double quotes
+    public void testSingleQuotedValues721() throws Exception
+    {
+        // empty
+        _testSingleQuotedValues721("{ \"bar\": '\"\"'}", "\"\"");
+        // non-empty
+        _testSingleQuotedValues721("{ \"bar\": '\"stuff\"'}", "\"stuff\"");
+    }
+
+    private void _testSingleQuotedValues721(String doc, String expValue) throws Exception
+    {
+        _testSingleQuotedValues721(MODE_READER, doc, expValue);
+        _testSingleQuotedValues721(MODE_INPUT_STREAM, doc, expValue);
+        _testSingleQuotedValues721(MODE_INPUT_STREAM_THROTTLED, doc, expValue);
+        _testSingleQuotedValues721(MODE_DATA_INPUT, doc, expValue);
+    }
+
+    private void _testSingleQuotedValues721(int mode, String doc, String expValue) throws Exception
+    {
+        JsonParser p = createParser(APOS_F, mode, doc);
+
+        assertToken(JsonToken.START_OBJECT, p.nextToken());
+        assertEquals("bar", p.nextFieldName());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(expValue, p.getText());
+        assertToken(JsonToken.END_OBJECT, p.nextToken());
+        p.close();
+    }
 }

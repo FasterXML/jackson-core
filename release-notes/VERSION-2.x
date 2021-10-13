@@ -18,6 +18,11 @@ JSON library.
 
 No changes since 2.13
 
+2.13.1 (not yet released)
+
+#713: Incorrect parsing of single-quoted surrounded String values containing double quotes
+ (reported by wcarmon@github)
+
 2.13.0 (30-Sep-2021)
 
 #652: Misleading exception for input source when processing byte buffer

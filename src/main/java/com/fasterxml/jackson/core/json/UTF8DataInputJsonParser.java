@@ -2139,7 +2139,10 @@ public class UTF8DataInputJsonParser
                     if (c == '\'') {
                         break main_loop;
                     }
-                    if (codes[c] != 0) {
+                    if ((codes[c] != 0)
+                        // 13-Oct-2021, tatu: [core#721] Alas, regular quote is included as
+                        //    special, need to ignore here
+                            && (c != INT_QUOTE)) {
                         break ascii_loop;
                     }
                     outBuf[outPtr++] = (char) c;

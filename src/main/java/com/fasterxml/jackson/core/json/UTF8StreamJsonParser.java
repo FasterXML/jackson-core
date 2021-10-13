@@ -2180,7 +2180,7 @@ public class UTF8StreamJsonParser
                 break;
             }
             // additional check to skip handling of double-quotes
-            if ((codes[ch] != 0) && (ch != '"')) {
+            if ((codes[ch] != 0) && (ch != INT_QUOTE)) {
                 if (ch != '\\') {
                     // Unquoted white space?
                     // As per [JACKSON-208], call can now return:
@@ -2770,16 +2770,17 @@ public class UTF8StreamJsonParser
                 }
                 while (_inputPtr < max) {
                     c = (int) inputBuffer[_inputPtr++] & 0xFF;
-                    if (c == INT_APOS || codes[c] != 0) {
+                    if (c == INT_APOS) {
+                        break main_loop;
+                    }
+                    if ((codes[c] != 0)
+                        // 13-Oct-2021, tatu: [core#721] Alas, regular quote is included as
+                        //    special, need to ignore here
+                            && (c != INT_QUOTE)) {
                         break ascii_loop;
                     }
                     outBuf[outPtr++] = (char) c;
                 }
-            }
-
-            // Ok: end marker, escape or multi-byte?
-            if (c == INT_APOS) {
-                break main_loop;
             }
 
             switch (codes[c]) {

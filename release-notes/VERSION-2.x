@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.12.6 (not yet released)
+
+#713: Incorrect parsing of single-quoted surrounded String values containing double quotes
+ (reported by wcarmon@github)
+
 2.12.5 (27-Aug-2021)
 
 #712: (partial) Optimize array allocation by `JsonStringEncoder`

@@ -184,7 +184,7 @@ public class NonStandardAposQuotedNamesTest
         JsonParser p = createParser(APOS_F, mode, doc);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(expKey, p.nextFieldName());
+        assertEquals(expKey, p.nextName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("value", p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -213,7 +213,7 @@ public class NonStandardAposQuotedNamesTest
         JsonParser p = createParser(APOS_F, mode, doc);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals("bar", p.nextFieldName());
+        assertEquals("bar", p.nextName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(expValue, p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());

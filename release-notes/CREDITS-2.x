@@ -274,3 +274,7 @@ Ferenc Csaky (ferenc-csaky@github)
 Fabian Meumertzheim (fmeum@github)
   * Reported #692: UTF32Reader ArrayIndexOutOfBoundsException
   (2.13.0)
+
+Ilya Golovin (ilgo0413@github)
+  * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
+  (2.14.0)

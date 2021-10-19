@@ -321,6 +321,64 @@ public class JsonPointer
     }
 
     /**
+     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
+     * It is not recommended to overuse the method.
+     *
+     * Mutant factory method that will return
+     *<ul>
+     * <li>`this` instance if `property` is null or empty String, OR
+     *  </li>
+     * <li>Newly constructed {@link JsonPointer} instance that starts with all segments
+     *    of `this`, followed by new segment of 'property' name.
+     *  </li>
+     *</ul>
+     *
+     * 'property' format is starting separator (optional, added automatically if not provided) and new segment name.
+     *
+     * @param property new segment property name
+     *
+     * @return Either `this` instance, or a newly created combination, as per description above.
+     */
+    public JsonPointer appendProperty(String property) {
+        if (property == null || property.isEmpty()) {
+            return this;
+        }
+        if (property.charAt(0) != SEPARATOR) {
+            property = SEPARATOR + property;
+        }
+        String currentJsonPointer = _asString;
+        if (currentJsonPointer.endsWith("/")) {
+            //removes final slash
+            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
+        }
+        return compile(currentJsonPointer + property);
+    }
+
+    /**
+     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
+     * It is not recommended to overuse the method.
+     *
+     * Mutant factory method that will return newly constructed {@link JsonPointer} instance that starts with all
+     * segments of `this`, followed by new segment of element 'index'. Element 'index' should be non-negative.
+     *
+     * @param index new segment element index
+     *
+     * @return Newly created combination, as per description above.
+     * @throws IllegalArgumentException if element index is negative
+     */
+    public JsonPointer appendIndex(int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("Negative index cannot be appended");
+        }
+        String currentJsonPointer = _asString;
+        if (currentJsonPointer.endsWith("/")) {
+            //removes final slash
+            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
+        }
+        return compile(currentJsonPointer + SEPARATOR + index);
+    }
+
+    /**
      * Method that may be called to see if the pointer head (first segment)
      * would match property (of a JSON Object) with given name.
      *

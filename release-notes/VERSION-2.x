@@ -16,7 +16,8 @@ JSON library.
 
 2.14.0 (not yet released)
 
-No changes since 2.13
+#684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
+ (contributed by Ilya G)
 
 2.13.1 (not yet released)
 

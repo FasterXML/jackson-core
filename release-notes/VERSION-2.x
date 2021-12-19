@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.13.1 (not yet released)
+2.13.1 (19-Dec-2021)
 
 #713: Incorrect parsing of single-quoted surrounded String values containing double quotes
  (reported by wcarmon@github)

@@ -2468,13 +2468,17 @@ public abstract class JsonGenerator
         }
         case ID_NUMBER_FLOAT:
         {
-            NumberType n = p.getNumberType();
-            if (n == NumberType.BIG_DECIMAL) {
-                writeNumber(p.getDecimalValue());
-            } else if (n == NumberType.FLOAT) {
-                writeNumber(p.getFloatValue());
+            if (p.getReadCapabilities().isEnabled(StreamReadCapability.EXACT_FLOATS)) {
+                NumberType n = p.getNumberType();
+                if (n == NumberType.BIG_DECIMAL) {
+                    writeNumber(p.getDecimalValue());
+                } else if (n == NumberType.FLOAT) {
+                    writeNumber(p.getFloatValue());
+                } else {
+                    writeNumber(p.getDoubleValue());
+                }
             } else {
-                writeNumber(p.getDoubleValue());
+                writeNumber(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
             }
             break;
         }

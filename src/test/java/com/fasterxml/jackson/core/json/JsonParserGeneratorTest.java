@@ -21,7 +21,7 @@ public class JsonParserGeneratorTest
         generator.copyCurrentEvent(parser);
         parser.close();
         generator.close();
-        String actual = stringWriter.toString(); // "Infinity"
+        String actual = stringWriter.toString();
         assertEquals(input, actual);
     }
 }

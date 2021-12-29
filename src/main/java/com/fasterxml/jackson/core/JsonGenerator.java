@@ -2468,17 +2468,13 @@ public abstract class JsonGenerator
         }
         case ID_NUMBER_FLOAT:
         {
-            if (p.getReadCapabilities().isEnabled(StreamReadCapability.EXACT_FLOATS)) {
-                NumberType n = p.getNumberType();
-                if (n == NumberType.BIG_DECIMAL) {
-                    writeNumber(p.getDecimalValue());
-                } else if (n == NumberType.FLOAT) {
-                    writeNumber(p.getFloatValue());
-                } else {
-                    writeNumber(p.getDoubleValue());
-                }
+            NumberType n = p.getNumberType();
+            if (n == NumberType.BIG_DECIMAL) {
+                writeNumber(p.getDecimalValue());
+            } else if (n == NumberType.FLOAT) {
+                writeNumber(p.getFloatValue());
             } else {
-                writeNumber(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
+                writeNumber(p.getDoubleValue());
             }
             break;
         }
@@ -2617,17 +2613,13 @@ public abstract class JsonGenerator
             }
             case ID_NUMBER_FLOAT:
             {
-                if (p.getReadCapabilities().isEnabled(StreamReadCapability.EXACT_FLOATS)) {
-                    NumberType n = p.getNumberType();
-                    if (n == NumberType.BIG_DECIMAL) {
-                        writeNumber(p.getDecimalValue());
-                    } else if (n == NumberType.FLOAT) {
-                        writeNumber(p.getFloatValue());
-                    } else {
-                        writeNumber(p.getDoubleValue());
-                    }
+                NumberType n = p.getNumberType();
+                if (n == NumberType.BIG_DECIMAL) {
+                    writeNumber(p.getDecimalValue());
+                } else if (n == NumberType.FLOAT) {
+                    writeNumber(p.getFloatValue());
                 } else {
-                    writeNumber(p.getTextCharacters(), p.getTextOffset(), p.getTextLength());
+                    writeNumber(p.getDoubleValue());
                 }
                 break;
             }

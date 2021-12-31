@@ -8,15 +8,13 @@ package com.fasterxml.jackson.core.type;
  * MUST be of type <code>JavaType</code> from "databind" bundle -- this
  * abstraction is only needed so that types can be passed through
  * {@link com.fasterxml.jackson.core.JsonParser#readValueAs} methods.
- * 
- * @since 2.0
  */
 public abstract class ResolvedType
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, simple property accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -54,8 +52,6 @@ public abstract class ResolvedType
      * <code>Optional</code> types (in JDK8, Guava).
      *
      * @return {@code True} if this is a "referential" type, {@code false} if not
-     *
-     * @since 2.6
      */
     public boolean isReferenceType() {
         return getReferencedType() != null;
@@ -64,9 +60,9 @@ public abstract class ResolvedType
     public abstract boolean isMapLikeType();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, type parameter access
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -76,17 +72,6 @@ public abstract class ResolvedType
      * @return {@code True} if this type has generic type parameters, {@code false} if not
      */
     public abstract boolean hasGenericTypes();
-
-    /**
-     * @deprecated Since 2.7: does not have meaning as parameters depend on type
-     *    resolved.
-     *
-     * @return Type-erased class of something not usable at this point
-     */
-    @Deprecated // since 2.7
-    public Class<?> getParameterSource() {
-        return null;
-    }
 
     /**
      * Method for accessing key type for this type, assuming type
@@ -110,8 +95,6 @@ public abstract class ResolvedType
      * type references, if any.
      * 
      * @return Referenced type, if any; {@code null} if not.
-     * 
-     * @since 2.6
      */
     public abstract ResolvedType getReferencedType();
     
@@ -134,24 +117,11 @@ public abstract class ResolvedType
      *    exists (no exception thrown)
      */
     public abstract ResolvedType containedType(int index);
-    
-    /**
-     * Method for accessing name of type variable in indicated
-     * position. If no name is bound, will use placeholders (derived
-     * from 0-based index); if no type variable or argument exists
-     * with given index, null is returned.
-     * 
-     * @param index Index of contained type to return
-     * 
-     * @return Contained type at index, or null if no such type
-     *    exists (no exception thrown)
-     */
-    public abstract String containedTypeName(int index);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

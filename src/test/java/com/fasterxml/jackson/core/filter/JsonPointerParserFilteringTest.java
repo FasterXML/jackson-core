@@ -4,6 +4,7 @@ import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.BaseTest
 {
@@ -60,12 +61,12 @@ public class JsonPointerParserFilteringTest extends com.fasterxml.jackson.core.B
     void _assert(String input, String pathExpr, TokenFilter.Inclusion inclusion, String exp)
         throws Exception
     {
-        JsonParser p0 = JSON_F.createParser(input);
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), input);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
                 new JsonPointerBasedFilter(pathExpr),
                 inclusion, false);
         StringWriter w = new StringWriter();
-        JsonGenerator g = JSON_F.createGenerator(w);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
 
         try {
             while (p.nextToken() != null) {

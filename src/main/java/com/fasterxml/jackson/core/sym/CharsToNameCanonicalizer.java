@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -118,8 +119,6 @@ public final class CharsToNameCanonicalizer
      * instance.
      * This is done for security reasons, to avoid potential DoS attack via
      * hash collisions.
-     * 
-     * @since 2.1
      */
     final protected int _seed;
 
@@ -178,8 +177,6 @@ public final class CharsToNameCanonicalizer
      * We need to keep track of the longest collision list; this is needed
      * both to indicate problems with attacks and to allow flushing for
      * other cases.
-     * 
-     * @since 2.1
      */
     protected int _longestCollisionList;
 
@@ -213,8 +210,6 @@ public final class CharsToNameCanonicalizer
      * collision buckets that have overflowed once: this is used
      * to detect likely attempts at denial-of-service attacks that
      * uses hash collisions.
-     * 
-     * @since 2.4
      */
     protected BitSet _overflows;
 
@@ -254,7 +249,7 @@ public final class CharsToNameCanonicalizer
         _seed = seed;
         _tableInfo = null; // not used by child tables
         _flags = flags;
-        _canonicalize = JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(flags);
+        _canonicalize = JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(flags);
 
         // Then copy shared state
         _symbols = parentState.symbols;
@@ -281,7 +276,7 @@ public final class CharsToNameCanonicalizer
      */
 
     /**
-     * Method called to create root canonicalizer for a {@link com.fasterxml.jackson.core.JsonFactory}
+     * Method called to create root canonicalizer for a {@link com.fasterxml.jackson.core.json.JsonFactory}
      * instance. Root instance is never used directly; its main use is for
      * storing and sharing underlying symbol arrays as needed.
      *
@@ -312,7 +307,7 @@ public final class CharsToNameCanonicalizer
      * on which only makeChild/mergeChild are called, but instance itself
      * is not used as a symbol table.
      *
-     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.JsonFactory.Feature}s enabled.
+     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature}s enabled.
      *
      * @return Actual canonicalizer instance that can be used by a parser
      */
@@ -499,7 +494,7 @@ public final class CharsToNameCanonicalizer
         }
 
         String newSymbol = new String(buffer, start, len);
-        if (JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(_flags)) {
+        if (JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(_flags)) {
             newSymbol = InternCache.instance.intern(newSymbol);
         }
         ++_size;
@@ -634,10 +629,9 @@ public final class CharsToNameCanonicalizer
         final int size = _symbols.length;
         int newSize = size + size;
 
-        /* 12-Mar-2010, tatu: Let's actually limit maximum size we are
-         *    prepared to use, to guard against OOME in case of unbounded
-         *    name sets (unique [non-repeating] names)
-         */
+        // 12-Mar-2010, tatu: Let's actually limit maximum size we are
+        //    prepared to use, to guard against OOME in case of unbounded
+        //    name sets (unique [non-repeating] names)
         if (newSize > MAX_T_SIZE) {
             // If this happens, there's no point in either growing or shrinking hash areas.
             // Rather, let's just cut our losses and stop canonicalizing.
@@ -708,23 +702,17 @@ public final class CharsToNameCanonicalizer
         }
     }
 
-    /**
-     * @param maxLen Maximum allowed length of collision chain
-     *
-     * @since 2.1
-     */
+    // 20-Mar-2021, tatu: [core#686]: should use Jackson-specific exception
+    //    (to use new "processing limit" exception when available)
     protected void _reportTooManyCollisions(int maxLen) {
-        throw new IllegalStateException("Longest collision chain in symbol table (of size "+_size
-                +") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions");
+        throw new StreamReadException(null,
+"Longest collision chain in symbol table (of size "+_size
++") now exceeds maximum, "+maxLen+" -- suspect a DoS attack based on hash collisions."
++" You can disable the check via `TokenStreamFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
     }
 
-    // since 2.10, for tests only
-    /**
-     * Diagnostics method that will verify that internal data structures are consistent;
-     * not meant as user-facing method but only for test suites and possible troubleshooting.
-     *
-     * @since 2.10
-     */
+    // Diagnostics method that will verify that internal data structures are consistent;
+    // not meant as user-facing method but only for test suites and possible troubleshooting.
     protected void verifyInternalConsistency() {
         int count = 0;
         final int size = _symbols.length;
@@ -837,8 +825,6 @@ public final class CharsToNameCanonicalizer
      * Immutable value class used for sharing information as efficiently
      * as possible, by only require synchronization of reference manipulation
      * but not access to contents.
-     * 
-     * @since 2.8.7
      */
     private final static class TableInfo
     {

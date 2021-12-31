@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 // Tests mostly for [core#229]
 public class LocationInArrayTest extends com.fasterxml.jackson.core.BaseTest
@@ -23,31 +24,31 @@ public class LocationInArrayTest extends com.fasterxml.jackson.core.BaseTest
         final String DOC = "  [10, 251,\n   3  ]";
 
         // first, char based:
-        p = useBytes ? JSON_F.createParser(DOC.getBytes("UTF-8"))
-                : JSON_F.createParser(DOC.toCharArray());
+        p = useBytes ? JSON_F.createParser(ObjectReadContext.empty(), DOC.getBytes("UTF-8"))
+                : JSON_F.createParser(ObjectReadContext.empty(), DOC.toCharArray());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        _assertLocation(useBytes, p.getTokenLocation(), 2L, 1, 3);
-        _assertLocation(useBytes, p.getCurrentLocation(), 3L, 1, 4);
+        _assertLocation(useBytes, p.currentTokenLocation(), 2L, 1, 3);
+        _assertLocation(useBytes, p.currentLocation(), 3L, 1, 4);
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        _assertLocation(useBytes, p.getTokenLocation(), 3L, 1, 4);
+        _assertLocation(useBytes, p.currentTokenLocation(), 3L, 1, 4);
         assertEquals(10, p.getIntValue()); // just to ensure read proceeds to end
         // 2-digits so
-        _assertLocation(useBytes, p.getCurrentLocation(), 5L, 1, 6);
+        _assertLocation(useBytes, p.currentLocation(), 5L, 1, 6);
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        _assertLocation(useBytes, p.getTokenLocation(), 7L, 1, 8);
+        _assertLocation(useBytes, p.currentTokenLocation(), 7L, 1, 8);
         assertEquals(251, p.getIntValue()); // just to ensure read proceeds to end
-        _assertLocation(useBytes, p.getCurrentLocation(), 10L, 1, 11);
+        _assertLocation(useBytes, p.currentLocation(), 10L, 1, 11);
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        _assertLocation(useBytes, p.getTokenLocation(), 15L, 2, 4);
+        _assertLocation(useBytes, p.currentTokenLocation(), 15L, 2, 4);
         assertEquals(3, p.getIntValue());
-        _assertLocation(useBytes, p.getCurrentLocation(), 16L, 2, 5);
+        _assertLocation(useBytes, p.currentLocation(), 16L, 2, 5);
 
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        _assertLocation(useBytes, p.getTokenLocation(), 18L, 2, 7);
-        _assertLocation(useBytes, p.getCurrentLocation(), 19L, 2, 8);
+        _assertLocation(useBytes, p.currentTokenLocation(), 18L, 2, 7);
+        _assertLocation(useBytes, p.currentLocation(), 19L, 2, 8);
         
         p.close();
     }

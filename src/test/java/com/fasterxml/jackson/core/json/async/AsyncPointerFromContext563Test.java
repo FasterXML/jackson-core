@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.json.async;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncPointerFromContext563Test extends AsyncTestBase
@@ -38,13 +39,13 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
 
         assertEquals("", p.getParsingContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // a
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // a
         assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // array
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // array
         assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
@@ -62,7 +63,7 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
         assertEquals("/array/3", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/array/4", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // obInArray
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // obInArray
         assertEquals("/array/4/obInArray", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 4
         assertEquals("/array/4/obInArray", p.getParsingContext().pathAsPointer().toString());
@@ -71,11 +72,11 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
         assertToken(JsonToken.END_ARRAY, p.nextToken()); // /array
         assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // ob
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // ob
         assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // first
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // first
         assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
@@ -85,11 +86,11 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
         assertEquals("/ob/first/1", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // second
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // second
         assertEquals("/ob/second", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/ob/second", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // sub
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // sub
         assertEquals("/ob/second/sub", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 37
         assertEquals("/ob/second/sub", p.getParsingContext().pathAsPointer().toString());
@@ -98,7 +99,7 @@ public class AsyncPointerFromContext563Test extends AsyncTestBase
         assertToken(JsonToken.END_OBJECT, p.nextToken()); // /ob
         assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // b
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // b
         assertEquals("/b", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals("/b", p.getParsingContext().pathAsPointer().toString());

@@ -2,6 +2,8 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.JacksonException;
+
 /**
  * Handler class that can be used to decorate output destinations.
  * Typical use is to use a filter abstraction (filtered output stream,
@@ -13,7 +15,7 @@ public abstract class OutputDecorator
     implements java.io.Serializable // since 2.1
 {
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating generator for given {@link OutputStream}, when this decorator
      * has been registered.
      * 
@@ -23,12 +25,12 @@ public abstract class OutputDecorator
      * @return OutputStream to use; either passed in argument, or something that
      *   calls it
      *
-     * @throws IOException if construction of decorated {@link OutputStream} fails
+     * @throws JacksonException if construction of decorated {@link OutputStream} fails
      */
-    public abstract OutputStream decorate(IOContext ctxt, OutputStream out) throws IOException;
+    public abstract OutputStream decorate(IOContext ctxt, OutputStream out) throws JacksonException;
 
     /**
-     * Method called by {@link com.fasterxml.jackson.core.JsonFactory} instance when
+     * Method called by {@link com.fasterxml.jackson.core.json.JsonFactory} instance when
      * creating generator for given {@link Writer}, when this decorator
      * has been registered.
      * 
@@ -37,7 +39,7 @@ public abstract class OutputDecorator
      * 
      * @return Writer to use; either passed in argument, or something that calls it
      *
-     * @throws IOException if construction of decorated {@link Writer} fails
+     * @throws JacksonException if construction of decorated {@link Writer} fails
      */
-    public abstract Writer decorate(IOContext ctxt, Writer w) throws IOException;
+    public abstract Writer decorate(IOContext ctxt, Writer w) throws JacksonException;
 }

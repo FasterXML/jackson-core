@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.core.testsupport;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 /**
  * Helper class used with async parser
@@ -30,14 +29,14 @@ public class AsyncReaderWrapperForByteArray extends AsyncReaderWrapper
     }
 
     @Override
-    public JsonToken nextToken() throws IOException
+    public JsonToken nextToken()
     {
         JsonToken token;
 
         while ((token = _streamReader.nextToken()) == JsonToken.NOT_AVAILABLE) {
-            ByteArrayFeeder feeder = (ByteArrayFeeder) _streamReader.getNonBlockingInputFeeder();
+            ByteArrayFeeder feeder = (ByteArrayFeeder) _streamReader.nonBlockingInputFeeder();
             if (!feeder.needMoreInput()) {
-                throw new IOException("Got NOT_AVAILABLE, could not feed more input");
+                throw new StreamReadException(null, "Got NOT_AVAILABLE, could not feed more input");
             }
             int amount = Math.min(_bytesPerFeed, _end - _offset);
             if (amount < 1) { // end-of-input?

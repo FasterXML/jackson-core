@@ -2,13 +2,14 @@ package com.fasterxml.jackson.core.read;
 
 import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class NumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory FACTORY = sharedStreamFactory();
+    private final TokenStreamFactory FACTORY = sharedStreamFactory();
 
     /*
     /**********************************************************************
@@ -28,7 +29,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
-    public void testSimpleBoolean() throws Exception
+    public void testSimpleBoolean()
     {
         _testSimpleBoolean(MODE_INPUT_STREAM);
         _testSimpleBoolean(MODE_INPUT_STREAM_THROTTLED);
@@ -36,7 +37,7 @@ public class NumberParsingTest
         _testSimpleBoolean(MODE_DATA_INPUT);
     }
 
-    private void _testSimpleBoolean(int mode) throws Exception
+    private void _testSimpleBoolean(int mode)
     {
         JsonParser p = createParser(mode, "[ true ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -52,7 +53,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
-    public void testSimpleInt() throws Exception
+    public void testSimpleInt()
     {
         for (int EXP_I : new int[] { 1234, -999, 0, 1, -2, 123456789 }) {
             _testSimpleInt(EXP_I, MODE_INPUT_STREAM);
@@ -62,7 +63,7 @@ public class NumberParsingTest
         }
     }
 
-    private void _testSimpleInt(int EXP_I, int mode) throws Exception
+    private void _testSimpleInt(int EXP_I, int mode)
     {
         String DOC = "[ "+EXP_I+" ]";
         JsonParser p = createParser(mode, DOC);
@@ -134,7 +135,7 @@ public class NumberParsingTest
         p.close();
     }
 
-    public void testIntRange() throws Exception
+    public void testIntRange()
     {
         // let's test with readers and streams, separate code paths:
         for (int mode : ALL_MODES) {
@@ -152,7 +153,7 @@ public class NumberParsingTest
         }
     }
 
-    public void testIntParsing() throws Exception
+    public void testIntParsing()
     {
         char[] testChars = "123456789".toCharArray();
 
@@ -174,7 +175,7 @@ public class NumberParsingTest
         assertEquals(0, NumberInput.parseInt(testChars, 1, 1));
     }
 
-    public void testIntParsingWithStrings() throws Exception
+    public void testIntParsingWithStrings()
     {
         assertEquals(3, NumberInput.parseInt("3"));
         assertEquals(0, NumberInput.parseInt("0"));
@@ -195,7 +196,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
-    public void testSimpleLong() throws Exception
+    public void testSimpleLong()
     {
         _testSimpleLong(MODE_INPUT_STREAM);
         _testSimpleLong(MODE_INPUT_STREAM_THROTTLED);
@@ -203,7 +204,7 @@ public class NumberParsingTest
         _testSimpleLong(MODE_DATA_INPUT);
     }
 
-    private void _testSimpleLong(int mode) throws Exception
+    private void _testSimpleLong(int mode)
     {
         long EXP_L = 12345678907L;
         
@@ -228,7 +229,7 @@ public class NumberParsingTest
         p.close();
     }
 
-    public void testLongRange() throws Exception
+    public void testLongRange()
     {
         for (int mode : ALL_MODES) {
             long belowMinInt = -1L + Integer.MIN_VALUE;
@@ -258,14 +259,14 @@ public class NumberParsingTest
         }
     }
 
-    public void testLongParsing() throws Exception
+    public void testLongParsing()
     {
         char[] testChars = "123456789012345678".toCharArray();
 
         assertEquals(123456789012345678L, NumberInput.parseLong(testChars, 0, testChars.length));
     }
 
-    public void testLongBoundsChecks() throws Exception
+    public void testLongBoundsChecks()
     {
         String minLong = String.valueOf(Long.MIN_VALUE).substring(1);
         String belowMinLong = BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE)
@@ -307,7 +308,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
     
-    public void testBigDecimalRange() throws Exception
+    public void testBigDecimalRange()
     {
         for (int mode : ALL_MODES) {
             // let's test first values outside of Long range
@@ -330,7 +331,7 @@ public class NumberParsingTest
     }
 
     // for [core#78]
-    public void testBigNumbers() throws Exception
+    public void testBigNumbers()
     {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 520; ++i) { // input buffer is 512 bytes by default
@@ -355,7 +356,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
     
-    public void testSimpleDouble() throws Exception
+    public void testSimpleDouble()
     {
         final String[] INPUTS = new String[] {
             "1234.00", "2.1101567E-16", "1.0e5", "0.0", "1.0", "-1.0", 
@@ -390,7 +391,7 @@ public class NumberParsingTest
                 try {
                     t = p.nextToken();
                 } catch (Exception e) {
-                    throw new Exception("Failed to parse input '"+STR+"' (parser of type "+p.getClass().getSimpleName()+")", e);
+                    throw new RuntimeException("Failed to parse input '"+STR+"' (parser of type "+p.getClass().getSimpleName()+")", e);
                 }
                 
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
@@ -403,7 +404,7 @@ public class NumberParsingTest
         }
     }
 
-    public void testFloatBoundary146Chars() throws Exception
+    public void testFloatBoundary146Chars()
     {
         final char[] arr = new char[50005];
         for(int i = 500; i != 9000; ++i) {
@@ -414,13 +415,13 @@ public class NumberParsingTest
           arr[i + 3] = '-';
           arr[i + 4] = '1';
           CharArrayReader r = new CharArrayReader(arr, 0, i+5);
-          JsonParser p = FACTORY.createParser(r);
+          JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), r);
           assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
           p.close();
         }
     }
 
-    public void testFloatBoundary146Bytes() throws Exception
+    public void testFloatBoundary146Bytes()
     {
         final byte[] arr = new byte[50005];
         for(int i = 500; i != 9000; ++i) {
@@ -431,7 +432,7 @@ public class NumberParsingTest
             arr[i + 3] = '-';
             arr[i + 4] = '1';
             ByteArrayInputStream in = new ByteArrayInputStream(arr, 0, i+5);
-            JsonParser p = FACTORY.createParser(in);
+            JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), in);
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             p.close();
         }
@@ -510,7 +511,7 @@ public class NumberParsingTest
     /**********************************************************************
      */
 
-    public void testNumbers() throws Exception
+    public void testNumbers()
     {
         _testNumbers(MODE_INPUT_STREAM);
         _testNumbers(MODE_INPUT_STREAM_THROTTLED);
@@ -518,7 +519,7 @@ public class NumberParsingTest
         _testNumbers(MODE_DATA_INPUT);
     }
     
-    private void _testNumbers(int mode) throws Exception
+    private void _testNumbers(int mode)
     {
         final String DOC = "[ -13, 8100200300, 13.5, 0.00010, -2.033 ]";
 
@@ -538,8 +539,8 @@ public class NumberParsingTest
         try {
             /*int x =*/ p.getIntValue();
             fail("Expected an exception for overflow");
-        } catch (Exception e) {
-            verifyException(e, "out of range of int");
+        } catch (InputCoercionException e) {
+            verifyException(e, "out of range of `int`");
         }
         assertEquals(8100200300.0, p.getDoubleValue());
         assertEquals("8100200300", p.getText());
@@ -572,7 +573,7 @@ public class NumberParsingTest
      * Method that tries to test that number parsing works in cases where
      * input is split between buffer boundaries.
      */
-    public void testParsingOfLongerSequences() throws Exception
+    public void testParsingOfLongerSequences()
     {
         double[] values = new double[] { 0.01, -10.5, 2.1e9, 4.0e-8 };
         StringBuilder sb = new StringBuilder();
@@ -612,7 +613,7 @@ public class NumberParsingTest
             if (input == 0) {
                 p = createParserUsingStream(DOC, "UTF-8");
             } else {
-                p = FACTORY.createParser(DOC);
+                p = FACTORY.createParser(ObjectReadContext.empty(), DOC);
             }
 
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -628,7 +629,7 @@ public class NumberParsingTest
     }
 
     // [jackson-core#157]
-    public void testLongNumbers() throws Exception
+    public void testLongNumbers()
     {
         StringBuilder sb = new StringBuilder(9000);
         for (int i = 0; i < 9000; ++i) {
@@ -641,12 +642,12 @@ public class NumberParsingTest
         _testLongNumbers(f, NUM, true);
     }
     
-    private void _testLongNumbers(JsonFactory f, String num, boolean useStream) throws Exception
+    private void _testLongNumbers(JsonFactory f, String num, boolean useStream)
     {
         final String doc = "[ "+num+" ]";
         JsonParser p = useStream
-                ? f.createParser(doc.getBytes("UTF-8"))
-                        : f.createParser(doc);
+                ? f.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
+                        : f.createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(num, p.getText());
@@ -654,7 +655,7 @@ public class NumberParsingTest
     }
 
     // and alternate take on for #157 (with negative num)
-    public void testLongNumbers2() throws Exception
+    public void testLongNumbers2()
     {
         StringBuilder input = new StringBuilder();
         // test this with negative
@@ -668,11 +669,11 @@ public class NumberParsingTest
         _testIssue160LongNumbers(f, DOC, true);
     }
 
-    private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream) throws Exception
+    private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream)
     {
         JsonParser p = useStream
-                ? FACTORY.createParser(doc.getBytes("UTF-8"))
-                        : FACTORY.createParser(doc);
+                ? FACTORY.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
+                        : FACTORY.createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         BigInteger v = p.getBigIntegerValue();
         assertNull(p.nextToken());
@@ -684,18 +685,17 @@ public class NumberParsingTest
      * Method that tries to test that number parsing works in cases where
      * input is split between buffer boundaries.
      */
-    public void testParsingOfLongerSequencesWithNonNumeric() throws Exception
+    public void testParsingOfLongerSequencesWithNonNumeric()
     {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
-                .build();
+        JsonFactory f = streamFactoryBuilder()
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS).build();
         _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM);
         _testParsingOfLongerSequencesWithNonNumeric(f, MODE_INPUT_STREAM_THROTTLED);
         _testParsingOfLongerSequencesWithNonNumeric(f, MODE_READER);
         _testParsingOfLongerSequencesWithNonNumeric(f, MODE_DATA_INPUT);
     }
 
-    private void _testParsingOfLongerSequencesWithNonNumeric(JsonFactory f, int mode) throws Exception
+    private void _testParsingOfLongerSequencesWithNonNumeric(JsonFactory f, int mode)
     {
         double[] values = new double[] {
                 0.01, -10.5, 2.1e9, 4.0e-8,
@@ -740,14 +740,14 @@ public class NumberParsingTest
     /**********************************************************
      */
 
-    public void testInvalidBooleanAccess() throws Exception {
+    public void testInvalidBooleanAccess() {
         _testInvalidBooleanAccess(MODE_INPUT_STREAM);
         _testInvalidBooleanAccess(MODE_INPUT_STREAM_THROTTLED);
         _testInvalidBooleanAccess(MODE_READER);
         _testInvalidBooleanAccess(MODE_DATA_INPUT);
     }
 
-    private void _testInvalidBooleanAccess(int mode) throws Exception
+    private void _testInvalidBooleanAccess(int mode)
     {
         JsonParser p = createParser(mode, "[ \"abc\" ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -755,20 +755,20 @@ public class NumberParsingTest
         try {
             p.getBooleanValue();
             fail("Expected error trying to call getBooleanValue on non-boolean value");
-        } catch (JsonParseException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "not of boolean type");
         }
         p.close();
     }
 
-    public void testInvalidIntAccess() throws Exception {
+    public void testInvalidIntAccess() {
         _testInvalidIntAccess(MODE_INPUT_STREAM);
         _testInvalidIntAccess(MODE_INPUT_STREAM_THROTTLED);
         _testInvalidIntAccess(MODE_READER);
         _testInvalidIntAccess(MODE_DATA_INPUT);
     }
     
-    private void _testInvalidIntAccess(int mode) throws Exception
+    private void _testInvalidIntAccess(int mode)
     {
         JsonParser p = createParser(mode, "[ \"abc\" ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -776,20 +776,20 @@ public class NumberParsingTest
         try {
             p.getIntValue();
             fail("Expected error trying to call getIntValue on non-numeric value");
-        } catch (JsonParseException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "can not use numeric value accessors");
         }
         p.close();
     }
 
-    public void testInvalidLongAccess() throws Exception {
+    public void testInvalidLongAccess() {
         _testInvalidLongAccess(MODE_INPUT_STREAM);
         _testInvalidLongAccess(MODE_INPUT_STREAM_THROTTLED);
         _testInvalidLongAccess(MODE_READER);
         _testInvalidLongAccess(MODE_DATA_INPUT);
     }
     
-    private void _testInvalidLongAccess(int mode) throws Exception
+    private void _testInvalidLongAccess(int mode)
     {
         JsonParser p = createParser(mode, "[ false ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -797,14 +797,14 @@ public class NumberParsingTest
         try {
             p.getLongValue();
             fail("Expected error trying to call getLongValue on non-numeric value");
-        } catch (JsonParseException e) {
+        } catch (InputCoercionException e) {
             verifyException(e, "can not use numeric value accessors");
         }
         p.close();
     }
 
     // [core#317]
-    public void testLongerFloatingPoint() throws Exception
+    public void testLongerFloatingPoint()
     {
         StringBuilder input = new StringBuilder();
         for (int i = 1; i < 201; i++) {
@@ -816,29 +816,30 @@ public class NumberParsingTest
         // test out with both Reader and ByteArrayInputStream
         JsonParser p;
 
-        p = FACTORY.createParser(new StringReader(DOC));
+        p = FACTORY.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         _testLongerFloat(p, DOC);
         p.close();
         
-        p = FACTORY.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")));
+        p = FACTORY.createParser(ObjectReadContext.empty(),
+                new ByteArrayInputStream(utf8Bytes(DOC)));
         _testLongerFloat(p, DOC);
         p.close();
     }
 
-    private void _testLongerFloat(JsonParser p, String text) throws IOException
+    private void _testLongerFloat(JsonParser p, String text)
     {
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(text, p.getText());
         assertNull(p.nextToken());
     }
 
-    public void testInvalidNumber() throws Exception {
+    public void testInvalidNumber() {
         for (int mode : ALL_MODES) {
             JsonParser p = createParser(mode, " -foo ");
             try {
                 p.nextToken();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('f'");
             }
             p.close();

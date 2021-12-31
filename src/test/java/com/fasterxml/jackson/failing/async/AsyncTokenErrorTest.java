@@ -1,16 +1,16 @@
 package com.fasterxml.jackson.failing.async;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncTokenErrorTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
-    public void testInvalidKeywordsStartOk() throws Exception
+    public void testInvalidKeywordsStartOk()
     {
         _doTestInvalidKeyword("nul");
         _doTestInvalidKeyword("nulla");
@@ -23,14 +23,14 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         _doTestInvalidKeyword("trueenough");
     }
 
-    public void testInvalidKeywordsStartFail() throws Exception
+    public void testInvalidKeywordsStartFail()
     {
         _doTestInvalidKeyword("Null");
         _doTestInvalidKeyword("False");
         _doTestInvalidKeyword("C");
     }
 
-    private void _doTestInvalidKeyword(String value) throws IOException
+    private void _doTestInvalidKeyword(String value)
     {
         String doc = "{ \"key1\" : "+value+" }";
         AsyncReaderWrapper p = _createParser(doc);
@@ -38,10 +38,10 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         // Note that depending on parser impl, we may
         // get the exception early or late...
         try {
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "Unrecognized token");
             verifyException(jex, value);
         } finally {
@@ -54,7 +54,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "Unrecognized token");
             verifyException(jex, value);
         } finally {
@@ -62,58 +62,58 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         }
     }
 
-    public void testMangledRootInts() throws Exception
+    public void testMangledRootInts()
     {
         AsyncReaderWrapper p = _createParser("123true");
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t+"; number: "+p.getNumberValue());
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
         p.close();
     }
 
-    public void testMangledRootFloats() throws Exception
+    public void testMangledRootFloats()
     {
         // Also test with floats
         AsyncReaderWrapper p = _createParser("1.5false");
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t+"; number: "+p.getNumberValue());
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
         p.close();
     }
 
-    public void testMangledNonRootInts() throws Exception
+    public void testMangledNonRootInts()
     {
         AsyncReaderWrapper p = _createParser("[ 123true ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
         p.close();
     }
 
-    public void testMangledNonRootFloats() throws Exception
+    public void testMangledNonRootFloats()
     {
         AsyncReaderWrapper p = _createParser("[ 1.5false ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
         p.close();
     }
 
-    private AsyncReaderWrapper _createParser(String doc) throws IOException
+    private AsyncReaderWrapper _createParser(String doc)
     {
         return asyncForBytes(JSON_F, 1, _jsonDoc(doc), 1);
     }

@@ -1,0 +1,28 @@
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'/Users/tatu/jackson/jackson-core/src/main/java:/Users/tatu/jackson/jackson-core/target/generated-sources'
+-author
+-bottom
+'Copyright &#169; 2008&#x2013;2021 <a href="http://fasterxml.com/">FasterXML</a>. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/Users/tatu/jackson/jackson-core/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'Jackson-core 3.0.0-SNAPSHOT API'
+-link
+'https://docs.oracle.com/en/java/javase/11/docs/api'
+-link
+'http://fasterxml.github.com/jackson-annotations/javadoc/3.0'
+-link
+'http://fasterxml.github.com/jackson-core/javadoc/3.0'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' '/Users/tatu/jackson/jackson-core/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'Jackson-core 3.0.0-SNAPSHOT API'

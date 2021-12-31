@@ -5,8 +5,6 @@ package com.fasterxml.jackson.core.util;
  * settings and capabilities exposed as something that can be internally
  * represented as bit sets.
  * Designed to be used with {@link JacksonFeatureSet}.
- *
- * @since 2.12
  */
 public interface JacksonFeature
 {
@@ -28,7 +26,7 @@ public interface JacksonFeature
     /**
      * Convenience method for checking whether feature is enabled in given bitmask.
      *
-     * @param flags Bit field that contains a set of enabled features of this type
+     * @param flags Bitfield that contains a set of enabled features of this type
      *
      * @return True if this feature is enabled in passed bit field
      */

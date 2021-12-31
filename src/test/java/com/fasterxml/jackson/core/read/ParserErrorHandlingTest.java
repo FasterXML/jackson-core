@@ -1,26 +1,24 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 
 public class ParserErrorHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    public void testInvalidKeywordsBytes() throws Exception {
+    public void testInvalidKeywordsBytes() {
         _testInvalidKeywords(MODE_INPUT_STREAM);
         _testInvalidKeywords(MODE_INPUT_STREAM_THROTTLED);
         _testInvalidKeywords(MODE_DATA_INPUT);
     }
 
-    public void testInvalidKeywordsChars() throws Exception {
+    public void testInvalidKeywordsChars() {
         _testInvalidKeywords(MODE_READER);
     }
 
     // Tests for [core#105] ("eager number parsing misses errors")
-    public void testMangledIntsBytes() throws Exception {
+    public void testMangledIntsBytes() {
         _testMangledNumbersInt(MODE_INPUT_STREAM);
         _testMangledNumbersInt(MODE_INPUT_STREAM_THROTTLED);
 
@@ -29,7 +27,7 @@ public class ParserErrorHandlingTest
 //        _testMangledNumbersInt(MODE_DATA_INPUT);
     }
 
-    public void testMangledFloatsBytes() throws Exception {
+    public void testMangledFloatsBytes() {
         _testMangledNumbersFloat(MODE_INPUT_STREAM);
         _testMangledNumbersFloat(MODE_INPUT_STREAM_THROTTLED);
 
@@ -37,7 +35,7 @@ public class ParserErrorHandlingTest
         _testMangledNumbersFloat(MODE_DATA_INPUT);
     }
 
-    public void testMangledNumbersChars() throws Exception {
+    public void testMangledNumbersChars() {
         _testMangledNumbersInt(MODE_READER);
         _testMangledNumbersFloat(MODE_READER);
     }
@@ -48,7 +46,7 @@ public class ParserErrorHandlingTest
     /**********************************************************
      */
     
-    private void _testInvalidKeywords(int mode) throws Exception
+    private void _testInvalidKeywords(int mode)
     {
         doTestInvalidKeyword1(mode, "nul");
         doTestInvalidKeyword1(mode, "Null");
@@ -65,7 +63,6 @@ public class ParserErrorHandlingTest
     }
 
     private void doTestInvalidKeyword1(int mode, String value)
-        throws IOException
     {
         String doc = "{ \"key1\" : "+value+" }";
         JsonParser p = createParser(mode, doc);
@@ -73,10 +70,10 @@ public class ParserErrorHandlingTest
         // Note that depending on parser impl, we may
         // get the exception early or late...
         try {
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "Unrecognized token");
             verifyException(jex, value);
         } finally {
@@ -89,7 +86,7 @@ public class ParserErrorHandlingTest
         try {
             p.nextToken();
             fail("Expected an exception for malformed value keyword");
-        } catch (JsonParseException jex) {
+        } catch (StreamReadException jex) {
             verifyException(jex, "Unrecognized token");
             verifyException(jex, value);
         } finally {
@@ -97,26 +94,26 @@ public class ParserErrorHandlingTest
         }
     }
 
-    private void _testMangledNumbersInt(int mode) throws Exception
+    private void _testMangledNumbersInt(int mode)
     {
         JsonParser p = createParser(mode, "123true");
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
         p.close();
     }
 
-    private void _testMangledNumbersFloat(int mode) throws Exception
+    private void _testMangledNumbersFloat(int mode)
     {
         // Also test with floats
         JsonParser p = createParser(mode, "1.5false");
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "expected space");
         }
         p.close();

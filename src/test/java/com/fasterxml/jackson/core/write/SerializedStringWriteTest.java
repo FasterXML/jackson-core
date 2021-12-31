@@ -15,7 +15,7 @@ public class SerializedStringWriteTest
     final static String VALUE_WITH_QUOTES = "\"Value\"";
     final static String VALUE2 = _generateLongName(9000);
     
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final TokenStreamFactory JSON_F = newStreamFactory();
     
     private final SerializedString quotedName = new SerializedString(NAME_WITH_QUOTES);
     private final SerializedString latin1Name = new SerializedString(NAME_WITH_LATIN1);
@@ -24,36 +24,38 @@ public class SerializedStringWriteTest
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         _writeSimple(gen);
         gen.close();
         String json = sw.toString();
-        _verifySimple(JSON_F.createParser(json));
+        _verifySimple(JSON_F.createParser(ObjectReadContext.empty(), json));
 
         // then using UTF-8
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        gen = JSON_F.createGenerator(out, JsonEncoding.UTF8);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         _writeSimple(gen);
         gen.close();
         byte[] jsonB = out.toByteArray();
-        _verifySimple(JSON_F.createParser(jsonB));
+        _verifySimple(JSON_F.createParser(ObjectReadContext.empty(), jsonB));
     }
 
     public void testSimpleValues() throws Exception
     {
         // First using char-backed generator
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         _writeSimpleValues(gen);
         gen.close();
-        _verifySimpleValues(JSON_F.createParser(new StringReader(sw.toString())));
+        _verifySimpleValues(JSON_F.createParser(ObjectReadContext.empty(),
+                new StringReader(sw.toString())));
 
         // then using UTF-8
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        gen = JSON_F.createGenerator(out, JsonEncoding.UTF8);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
         _writeSimpleValues(gen);
         gen.close();
-        _verifySimpleValues(JSON_F.createParser(new ByteArrayInputStream(out.toByteArray())));
+        _verifySimpleValues(JSON_F.createParser(ObjectReadContext.empty(),
+                new ByteArrayInputStream(out.toByteArray())));
     }
 
     /*
@@ -68,16 +70,16 @@ public class SerializedStringWriteTest
         gen.writeStartArray();
 
         gen.writeStartObject();
-        gen.writeFieldName(quotedName);
+        gen.writeName(quotedName);
         gen.writeString("a");
-        gen.writeFieldName(latin1Name);
+        gen.writeName(latin1Name);
         gen.writeString("b");
         gen.writeEndObject();
 
         gen.writeStartObject();
-        gen.writeFieldName(latin1Name);
+        gen.writeName(latin1Name);
         gen.writeString("c");
-        gen.writeFieldName(quotedName);
+        gen.writeName(quotedName);
         gen.writeString("d");
         gen.writeEndObject();
         
@@ -89,16 +91,16 @@ public class SerializedStringWriteTest
         // Let's just write an array of 2 objects
         gen.writeStartArray();
         gen.writeStartObject();
-        gen.writeFieldName(NAME_WITH_QUOTES);
+        gen.writeName(NAME_WITH_QUOTES);
         gen.writeString(new SerializedString(VALUE_WITH_QUOTES));
-        gen.writeFieldName(NAME_WITH_LATIN1);
+        gen.writeName(NAME_WITH_LATIN1);
         gen.writeString(VALUE2);
         gen.writeEndObject();
 
         gen.writeStartObject();
-        gen.writeFieldName(NAME_WITH_LATIN1);
+        gen.writeName(NAME_WITH_LATIN1);
         gen.writeString(VALUE_WITH_QUOTES);
-        gen.writeFieldName(NAME_WITH_QUOTES);
+        gen.writeName(NAME_WITH_QUOTES);
         gen.writeString(new SerializedString(VALUE2));
         gen.writeEndObject();
 
@@ -110,22 +112,22 @@ public class SerializedStringWriteTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_QUOTES, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("a", p.getText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_LATIN1, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("b", p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_LATIN1, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("c", p.getText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_QUOTES, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("d", p.getText());
@@ -140,22 +142,22 @@ public class SerializedStringWriteTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_QUOTES, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE_WITH_QUOTES, p.getText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_LATIN1, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE2, p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_LATIN1, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE_WITH_QUOTES, p.getText());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals(NAME_WITH_QUOTES, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE2, p.getText());

@@ -23,9 +23,9 @@ public class TestUnicode extends com.fasterxml.jackson.core.BaseTest
     {
         byte[] json = "{\"text\":\"\uD83D\uDE03\"}".getBytes("UTF-8");
         // first
-        JsonParser jp = f.createParser(json);
+        JsonParser jp = f.createParser(ObjectReadContext.empty(), json);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         if (checkText) {
             assertEquals("text", jp.getText());
         }

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class ParserSymbolHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -23,21 +24,21 @@ public class ParserSymbolHandlingTest
     private void _testSymbolsWithNull(JsonFactory f, boolean useBytes) throws Exception
     {
         final String INPUT = "{\"\\u0000abc\" : 1, \"abc\":2}";
-        JsonParser parser = useBytes ? f.createParser(INPUT.getBytes("UTF-8"))
-                : f.createParser(INPUT);
+        JsonParser parser = useBytes ? f.createParser(ObjectReadContext.empty(), INPUT.getBytes("UTF-8"))
+                : f.createParser(ObjectReadContext.empty(), INPUT);
 
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        String currName = parser.getCurrentName();
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        String currName = parser.currentName();
         if (!"\u0000abc".equals(currName)) {
             fail("Expected \\0abc (4 bytes), '"+currName+"' ("+currName.length()+")");
         }
         assertToken(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(1, parser.getIntValue());
 
-        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
-        currName = parser.getCurrentName();
+        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
+        currName = parser.currentName();
         if (!"abc".equals(currName)) {
             /*
             for (int i = 0; i < currName.length(); ++i) {

@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncSimpleNestedTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final JsonFactory JSON_F = newStreamFactory();
 
     /*
     /**********************************************************************
@@ -16,7 +16,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    public void testStuffInObject() throws Exception
+    public void testStuffInObject()
     {
         byte[] data = _jsonDoc(aposToQuotes(
                 "{'foobar':[1,2,-999],'emptyObject':{},'emptyArray':[], 'other':{'':null} }"));
@@ -32,13 +32,13 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testStuffInObject(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         assertFalse(r.parser().hasTextCharacters());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("foobar", r.currentName());
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         assertEquals("[", r.currentText());
@@ -50,21 +50,21 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertEquals(-999, r.getIntValue());
         assertToken(JsonToken.END_ARRAY, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("emptyObject", r.currentName());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
         
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("emptyArray", r.currentName());
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         assertToken(JsonToken.END_ARRAY, r.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("other", r.currentName());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("", r.currentName());
         assertToken(JsonToken.VALUE_NULL, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
@@ -74,13 +74,13 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         // another twist: close in the middle, verify
         r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         r.parser().close();
         assertTrue(r.parser().isClosed());
         assertNull(r.parser().nextToken());
     }
 
-    public void testStuffInArray() throws Exception
+    public void testStuffInArray()
     {
         byte[] data = _jsonDoc(aposToQuotes("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
         JsonFactory f = JSON_F;
@@ -95,7 +95,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testStuffInArray(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
@@ -104,7 +104,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         assertEquals("{", r.currentText());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("moreStuff", r.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
         assertEquals(0L, r.getLongValue());
@@ -115,7 +115,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
         assertToken(JsonToken.END_ARRAY, r.nextToken());
 
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals("extraOrdinary", r.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, r.nextToken());
         assertEquals(23, r.getIntValue());
@@ -126,7 +126,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     final static String SHORT_NAME = String.format("u-%s", UNICODE_SEGMENT);
     final static String LONG_NAME = String.format("Unicode-with-some-longer-name-%s", UNICODE_SEGMENT);
     
-    public void testStuffInArray2() throws Exception
+    public void testStuffInArray2()
     {
         byte[] data = _jsonDoc(aposToQuotes(String.format(
                 "[{'%s':true},{'%s':false},{'%s':true},{'%s':false}]",
@@ -143,31 +143,31 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testStuffInArray2(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
 
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(SHORT_NAME, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
 
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(LONG_NAME, r.currentName());
         assertToken(JsonToken.VALUE_FALSE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
 
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(LONG_NAME, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
 
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(SHORT_NAME, r.currentName());
         assertToken(JsonToken.VALUE_FALSE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
@@ -181,7 +181,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     /**********************************************************************
      */
 
-    public void testMismatchedArray() throws Exception
+    public void testMismatchedArray()
     {
         byte[] data = _jsonDoc(aposToQuotes("[  }"));
 
@@ -196,19 +196,19 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testMismatchedArray(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         try {
             r.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected close marker '}': expected ']'");
         }
     }
 
-    public void testMismatchedObject() throws Exception
+    public void testMismatchedObject()
     {
         byte[] data = _jsonDoc(aposToQuotes("{ ]"));
 
@@ -223,14 +223,14 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     }
 
     private void _testMismatchedObject(JsonFactory f,
-            byte[] data, int offset, int readSize) throws IOException
+            byte[] data, int offset, int readSize)
     {
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, offset);
         assertToken(JsonToken.START_OBJECT, r.nextToken());
         try {
             r.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected close marker ']': expected '}'");
         }
     }

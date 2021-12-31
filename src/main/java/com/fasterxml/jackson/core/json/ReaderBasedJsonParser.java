@@ -3,7 +3,8 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -17,33 +18,19 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
  * conversion tasks.
  */
 public class ReaderBasedJsonParser
-    extends ParserBase
+    extends JsonParserBase
 {
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_TRAILING_COMMA = Feature.ALLOW_TRAILING_COMMA.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_LEADING_ZEROS = Feature.ALLOW_NUMERIC_LEADING_ZEROS.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_NON_NUM_NUMBERS = Feature.ALLOW_NON_NUMERIC_NUMBERS.getMask();
-
-    @SuppressWarnings("deprecation")
-    private final static int FEAT_MASK_ALLOW_MISSING = Feature.ALLOW_MISSING_VALUES.getMask();
-    private final static int FEAT_MASK_ALLOW_SINGLE_QUOTES = Feature.ALLOW_SINGLE_QUOTES.getMask();
-    private final static int FEAT_MASK_ALLOW_UNQUOTED_NAMES = Feature.ALLOW_UNQUOTED_FIELD_NAMES.getMask();
-
-    private final static int FEAT_MASK_ALLOW_JAVA_COMMENTS = Feature.ALLOW_COMMENTS.getMask();
-    private final static int FEAT_MASK_ALLOW_YAML_COMMENTS = Feature.ALLOW_YAML_COMMENTS.getMask();
+    private final static int FEAT_MASK_TRAILING_COMMA = JsonReadFeature.ALLOW_TRAILING_COMMA.getMask();
+    private final static int FEAT_MASK_ALLOW_MISSING = JsonReadFeature.ALLOW_MISSING_VALUES.getMask();
 
     // Latin1 encoding is not supported, but we do use 8-bit subset for
     // pre-processing task, to simplify first pass, keep it fast.
     protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Input configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -69,21 +56,19 @@ public class ReaderBasedJsonParser
     protected boolean _bufferRecyclable;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected ObjectCodec _objectCodec;
+    protected final CharsToNameCanonicalizer _symbols;
 
-    final protected CharsToNameCanonicalizer _symbols;
-
-    final protected int _hashSeed;
+    protected final int _hashSeed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Parsing state
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -98,25 +83,17 @@ public class ReaderBasedJsonParser
      * name token was read. Used for calculating token location when requested;
      * combined with {@link #_currInputProcessed}, may be updated appropriately
      * as needed.
-     *
-     * @since 2.7
      */
     protected long _nameStartOffset;
 
-    /**
-     * @since 2.7
-     */
     protected int _nameStartRow;
 
-    /**
-     * @since 2.7
-     */
     protected int _nameStartCol;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -124,27 +101,26 @@ public class ReaderBasedJsonParser
      * (or needs to, in case of bootstrapping having read some of contents)
      * and it may or may not be recyclable use standard recycle context.
      *
+     * @param readCtxt Object read context to use
      * @param ctxt I/O context to use
-     * @param features Standard stream read features enabled
+     * @param stdFeatures Standard stream read features enabled
+     * @param formatFeatures Format-specific read features enabled
      * @param r Reader used for reading actual content, if any; {@code null} if none
-     * @param codec {@code ObjectCodec} to delegate object deserialization to
      * @param st Name canonicalizer to use
      * @param inputBuffer Input buffer to read initial content from (before Reader)
      * @param start Pointer in {@code inputBuffer} that has the first content character to decode
      * @param end Pointer past the last content character in {@code inputBuffer}
      * @param bufferRecyclable Whether {@code inputBuffer} passed is managed by Jackson core
      *    (and thereby needs recycling)
-     *
-     * @since 2.4
      */
-    public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
-            ObjectCodec codec, CharsToNameCanonicalizer st,
+    public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+            int stdFeatures, int formatFeatures, Reader r,
+            CharsToNameCanonicalizer st,
             char[] inputBuffer, int start, int end,
             boolean bufferRecyclable)
     {
-        super(ctxt, features);
+        super(readCtxt, ctxt, stdFeatures, formatFeatures);
         _reader = r;
-        _objectCodec = codec;
         _inputBuffer = inputBuffer;
         _inputPtr = start;
         _inputEnd = end;
@@ -160,59 +136,51 @@ public class ReaderBasedJsonParser
      * Constructor called when input comes as a {@link java.io.Reader}, and buffer allocation
      * can be done using default mechanism.
      *
+     * @param readCtxt Object read context to use
      * @param ctxt I/O context to use
-     * @param features Standard stream read features enabled
+     * @param stdFeatures Standard stream read features enabled
+     * @param formatFeatures Format-specific read features enabled
      * @param r Reader used for reading actual content, if any; {@code null} if none
-     * @param codec {@code ObjectCodec} to delegate object deserialization to
      * @param st Name canonicalizer to use
      */
-    public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,
-        ObjectCodec codec, CharsToNameCanonicalizer st)
+    public ReaderBasedJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+            int stdFeatures, int formatFeatures, Reader r,
+            CharsToNameCanonicalizer st)
     {
-        super(ctxt, features);
+        super(readCtxt, ctxt, stdFeatures, formatFeatures);
         _reader = r;
         _inputBuffer = ctxt.allocTokenBuffer();
         _inputPtr = 0;
         _inputEnd = 0;
-        _objectCodec = codec;
         _symbols = st;
         _hashSeed = st.hashSeed();
         _bufferRecyclable = true;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Base method defs, overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public ObjectCodec getCodec() { return _objectCodec; }
-    @Override public void setCodec(ObjectCodec c) { _objectCodec = c; }
-
-    @Override // @since 2.12
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
-        return JSON_READ_CAPABILITIES;
-    }
-
     @Override
-    public int releaseBuffered(Writer w) throws IOException {
+    public int releaseBuffered(Writer w) throws JacksonException {
         int count = _inputEnd - _inputPtr;
         if (count < 1) { return 0; }
         // let's just advance ptr to end
         int origPtr = _inputPtr;
         _inputPtr += count;
-        w.write(_inputBuffer, origPtr, count);
+        try {
+            w.write(_inputBuffer, origPtr, count);
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
         return count;
     }
 
-    @Override public Object getInputSource() { return _reader; }
+    @Override public Object streamReadInputSource() { return _reader; }
 
-    @Deprecated // since 2.8
-    protected char getNextChar(String eofMsg) throws IOException {
-        return getNextChar(eofMsg, null);
-    }
-    
-    protected char getNextChar(String eofMsg, JsonToken forToken) throws IOException {
+    protected char getNextChar(String eofMsg, JsonToken forToken) throws JacksonException {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
                 _reportInvalidEOF(eofMsg, forToken);
@@ -222,7 +190,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    protected void _closeInput() throws IOException {
+    protected void _closeInput() {
         /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()
          *   on the underlying Reader, unless we "own" it, or auto-closing
          *   feature is enabled.
@@ -231,8 +199,12 @@ public class ReaderBasedJsonParser
          *   means that buffer recycling won't work correctly.
          */
         if (_reader != null) {
-            if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_SOURCE)) {
-                _reader.close();
+            if (_ioContext.isResourceManaged() || isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE)) {
+                try {
+                    _reader.close();
+                } catch (IOException e) {
+                    throw _wrapIOFailure(e);
+                }
             }
             _reader = null;
         }
@@ -245,7 +217,7 @@ public class ReaderBasedJsonParser
      * separately (if need be).
      */
     @Override
-    protected void _releaseBuffers() throws IOException
+    protected void _releaseBuffers()
     {
         super._releaseBuffers();
         // merge new symbols, if any
@@ -261,19 +233,24 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level access, supporting
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected void _loadMoreGuaranteed() throws IOException {
+    protected void _loadMoreGuaranteed() throws JacksonException {
         if (!_loadMore()) { _reportInvalidEOF(); }
     }
     
-    protected boolean _loadMore() throws IOException
+    protected boolean _loadMore() throws JacksonException
     {
         if (_reader != null) {
-            int count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
+            int count;
+            try {
+                count = _reader.read(_inputBuffer, 0, _inputBuffer.length);
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
             if (count > 0) {
                 final int bufSize = _inputEnd;
                 _currInputProcessed += bufSize;
@@ -293,16 +270,16 @@ public class ReaderBasedJsonParser
             _closeInput();
             // Should never return 0, so let's fail
             if (count == 0) {
-                throw new IOException("Reader returned 0 characters when trying to read "+_inputEnd);
+                _reportBadReader(_inputBuffer.length);
             }
         }
         return false;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, data access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -312,7 +289,7 @@ public class ReaderBasedJsonParser
      * Method can be called for any event.
      */
     @Override
-    public final String getText() throws IOException
+    public final String getText() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -324,38 +301,42 @@ public class ReaderBasedJsonParser
         return _getText2(_currToken);
     }
 
-    @Override // since 2.8
-    public int getText(Writer writer) throws IOException
+    @Override
+    public int getText(Writer writer) throws JacksonException
     {
-        JsonToken t = _currToken;
-        if (t == JsonToken.VALUE_STRING) {
-            if (_tokenIncomplete) {
-                _tokenIncomplete = false;
-                _finishString(); // only strings can be incomplete
-            }
-            return _textBuffer.contentsToWriter(writer);
-        }
-        if (t == JsonToken.FIELD_NAME) {
-            String n = _parsingContext.getCurrentName();
-            writer.write(n);
-            return n.length();
-        }
-        if (t != null) {
-            if (t.isNumeric()) {
+        final JsonToken t = _currToken;
+
+        try {
+            if (t == JsonToken.VALUE_STRING) {
+                if (_tokenIncomplete) {
+                    _tokenIncomplete = false;
+                    _finishString(); // only strings can be incomplete
+                }
                 return _textBuffer.contentsToWriter(writer);
             }
-            char[] ch = t.asCharArray();
-            writer.write(ch);
-            return ch.length;
+            if (t == JsonToken.PROPERTY_NAME) {
+                String n = _streamReadContext.currentName();
+                writer.write(n);
+                return n.length();
+            }
+            if (t != null) {
+                if (t.isNumeric()) {
+                    return _textBuffer.contentsToWriter(writer);
+                }
+                char[] ch = t.asCharArray();
+                writer.write(ch);
+                return ch.length;
+            }
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
         }
         return 0;
     }
     
     // // // Let's override default impls for improved performance
 
-    // @since 2.1
     @Override
-    public final String getValueAsString() throws IOException
+    public final String getValueAsString() throws JacksonException
     {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
@@ -364,15 +345,14 @@ public class ReaderBasedJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName();
         }
         return super.getValueAsString(null);
     }
 
-    // @since 2.1
     @Override
-    public final String getValueAsString(String defValue) throws IOException {
+    public final String getValueAsString(String defValue) throws JacksonException {
         if (_currToken == JsonToken.VALUE_STRING) {
             if (_tokenIncomplete) {
                 _tokenIncomplete = false;
@@ -380,8 +360,8 @@ public class ReaderBasedJsonParser
             }
             return _textBuffer.contentsAsString();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName();
         }
         return super.getValueAsString(defValue);
     }
@@ -391,8 +371,8 @@ public class ReaderBasedJsonParser
             return null;
         }
         switch (t.id()) {
-        case ID_FIELD_NAME:
-            return _parsingContext.getCurrentName();
+        case ID_PROPERTY_NAME:
+            return _streamReadContext.currentName();
 
         case ID_STRING:
             // fall through
@@ -405,23 +385,12 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final char[] getTextCharacters() throws IOException
+    public final char[] getTextCharacters() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
-                if (!_nameCopied) {
-                    String name = _parsingContext.getCurrentName();
-                    int nameLen = name.length();
-                    if (_nameCopyBuffer == null) {
-                        _nameCopyBuffer = _ioContext.allocNameCopyBuffer(nameLen);
-                    } else if (_nameCopyBuffer.length < nameLen) {
-                        _nameCopyBuffer = new char[nameLen];
-                    }
-                    name.getChars(0, nameLen, _nameCopyBuffer, 0);
-                    _nameCopied = true;
-                }
-                return _nameCopyBuffer;
+            case ID_PROPERTY_NAME:
+                return currentNameInBuffer();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
@@ -439,12 +408,12 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final int getTextLength() throws IOException
+    public final int getTextLength() throws JacksonException
     {
         if (_currToken != null) { // null only before/after document
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
-                return _parsingContext.getCurrentName().length();
+            case ID_PROPERTY_NAME:
+                return _streamReadContext.currentName().length();
             case ID_STRING:
                 if (_tokenIncomplete) {
                     _tokenIncomplete = false;
@@ -462,12 +431,12 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public final int getTextOffset() throws IOException
+    public final int getTextOffset() throws JacksonException
     {
         // Most have offset of 0, only some may have other values:
         if (_currToken != null) {
             switch (_currToken.id()) {
-            case ID_FIELD_NAME:
+            case ID_PROPERTY_NAME:
                 return 0;
             case ID_STRING:
                 if (_tokenIncomplete) {
@@ -485,7 +454,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
+    public byte[] getBinaryValue(Base64Variant b64variant) throws JacksonException
     {
         if ((_currToken == JsonToken.VALUE_EMBEDDED_OBJECT) && (_binaryValue != null)) {
             return _binaryValue;
@@ -498,11 +467,11 @@ public class ReaderBasedJsonParser
             try {
                 _binaryValue = _decodeBase64(b64variant);
             } catch (IllegalArgumentException iae) {
-                throw _constructError("Failed to decode VALUE_STRING as base64 ("+b64variant+"): "+iae.getMessage());
+                throw _constructReadException("Failed to decode VALUE_STRING as base64 (%s): %s",
+                        b64variant, iae.getMessage());
             }
-            /* let's clear incomplete only now; allows for accessing other
-             * textual content in error cases
-             */
+            // let's clear incomplete only now; allows for accessing other
+            // textual content in error cases
             _tokenIncomplete = false;
         } else { // may actually require conversion...
             if (_binaryValue == null) {
@@ -516,12 +485,16 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws JacksonException
     {
         // if we have already read the token, just use whatever we may have
         if (!_tokenIncomplete || _currToken != JsonToken.VALUE_STRING) {
             byte[] b = getBinaryValue(b64variant);
-            out.write(b);
+            try {
+                out.write(b);
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
             return b.length;
         }
         // otherwise do "real" incremental parsing...
@@ -533,7 +506,7 @@ public class ReaderBasedJsonParser
         }
     }
 
-    protected int _readBinary(Base64Variant b64variant, OutputStream out, byte[] buffer) throws IOException
+    protected int _readBinary(Base64Variant b64variant, OutputStream out, byte[] buffer) throws JacksonException
     {
         int outputPtr = 0;
         final int outputEnd = buffer.length - 3;
@@ -562,7 +535,11 @@ public class ReaderBasedJsonParser
             // enough room? If not, flush
             if (outputPtr > outputEnd) {
                 outputCount += outputPtr;
-                out.write(buffer, 0, outputPtr);
+                try {
+                    out.write(buffer, 0, outputPtr);
+                } catch (IOException e) {
+                    throw _wrapIOFailure(e);
+                }
                 outputPtr = 0;
             }
 
@@ -590,7 +567,7 @@ public class ReaderBasedJsonParser
             // First branch: can get padding (-> 1 byte)
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
-                    // as per [JACKSON-631], could also just be 'missing'  padding
+                    // could also just be missing padding
                     if (ch == '"') {
                         decodedData >>= 4;
                         buffer[outputPtr++] = (byte) decodedData;
@@ -610,7 +587,7 @@ public class ReaderBasedJsonParser
                     ch = _inputBuffer[_inputPtr++];
                     if (!b64variant.usesPaddingChar(ch)) {
                         if (_decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
-                            throw reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
+                            _reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
                         }
                     }
                     // Got 12 bits, only need 8, need to shift
@@ -629,7 +606,7 @@ public class ReaderBasedJsonParser
             bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 if (bits != Base64Variant.BASE64_VALUE_PADDING) {
-                    // as per [JACKSON-631], could also just be 'missing'  padding
+                    // as per could also just be missing padding
                     if (ch == '"') {
                         decodedData >>= 2;
                         buffer[outputPtr++] = (byte) (decodedData >> 8);
@@ -664,15 +641,19 @@ public class ReaderBasedJsonParser
         _tokenIncomplete = false;
         if (outputPtr > 0) {
             outputCount += outputPtr;
-            out.write(buffer, 0, outputPtr);
+            try {
+                out.write(buffer, 0, outputPtr);
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
         }
         return outputCount;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, traversal
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -680,13 +661,13 @@ public class ReaderBasedJsonParser
      *   to indicate end-of-input
      */
     @Override
-    public final JsonToken nextToken() throws IOException
+    public final JsonToken nextToken() throws JacksonException
     {
-        /* First: field names are special -- we will always tokenize
-         * (part of) value along with field name to simplify
+        /* First: Object Property names are special -- we will always tokenize
+         * (part of) value along with the property name to simplify
          * state handling. If so, can and need to use secondary token:
          */
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             return _nextAfterName();
         }
         // But if we didn't already have a name, and (partially?) decode number,
@@ -712,11 +693,11 @@ public class ReaderBasedJsonParser
         }
 
         // Nope: do we then expect a comma?
-        if (_parsingContext.expectComma()) {
+        if (_streamReadContext.expectComma()) {
             i = _skipComma(i);
 
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return _currToken;
@@ -727,13 +708,13 @@ public class ReaderBasedJsonParser
         /* And should we now have a name? Always true for Object contexts, since
          * the intermediate 'expect-value' state is never retained.
          */
-        boolean inObject = _parsingContext.inObject();
+        boolean inObject = _streamReadContext.inObject();
         if (inObject) {
-            // First, field name itself:
+            // First, the property name itself:
             _updateNameLocation();
             String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
-            _parsingContext.setCurrentName(name);
-            _currToken = JsonToken.FIELD_NAME;
+            _streamReadContext.setCurrentName(name);
+            _currToken = JsonToken.PROPERTY_NAME;
             i = _skipColon();
         }
         _updateLocation();
@@ -749,13 +730,13 @@ public class ReaderBasedJsonParser
             break;
         case '[':
             if (!inObject) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             }
             t = JsonToken.START_ARRAY;
             break;
         case '{':
             if (!inObject) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             t = JsonToken.START_OBJECT;
             break;
@@ -821,15 +802,15 @@ public class ReaderBasedJsonParser
         
         // Also: may need to start new context?
         if (t == JsonToken.START_ARRAY) {
-            _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
         } else if (t == JsonToken.START_OBJECT) {
-            _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
         }
         return (_currToken = t);
     }
 
     @Override
-    public void finishToken() throws IOException {
+    public void finishToken() throws JacksonException {
         if (_tokenIncomplete) {
             _tokenIncomplete = false;
             _finishString(); // only strings can be incomplete
@@ -837,19 +818,18 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, nextXxx() overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
-    // Implemented since 2.7
     @Override
-    public boolean nextFieldName(SerializableString sstr) throws IOException
+    public boolean nextName(SerializableString sstr) throws JacksonException
     {
         // // // Note: most of code below is copied from nextToken()
 
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nextAfterName();
             return false;
         }
@@ -870,11 +850,11 @@ public class ReaderBasedJsonParser
             return false;
         }
 
-        if (_parsingContext.expectComma()) {
+        if (_streamReadContext.expectComma()) {
             i = _skipComma(i);
 
             // Was that a trailing comma?
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return false;
@@ -882,7 +862,7 @@ public class ReaderBasedJsonParser
             }
         }
 
-        if (!_parsingContext.inObject()) {
+        if (!_streamReadContext.inObject()) {
             _updateLocation();
             _nextTokenNotInObject(i);
             return false;
@@ -903,7 +883,7 @@ public class ReaderBasedJsonParser
                     int ptr = _inputPtr;
                     while (true) {
                         if (ptr == end) { // yes, match!
-                            _parsingContext.setCurrentName(sstr.getValue());
+                            _streamReadContext.setCurrentName(sstr.getValue());
                             _isNextTokenNameYes(_skipColonFast(ptr+1));
                             return true;
                         }
@@ -920,12 +900,12 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public String nextFieldName() throws IOException
+    public String nextName() throws JacksonException
     {
         // // // Note: this is almost a verbatim copy of nextToken() (minus comments)
 
         _numTypesValid = NR_UNKNOWN;
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nextAfterName();
             return null;
         }
@@ -943,16 +923,16 @@ public class ReaderBasedJsonParser
             _closeScope(i);
             return null;
         }
-        if (_parsingContext.expectComma()) {
+        if (_streamReadContext.expectComma()) {
             i = _skipComma(i);
-            if ((_features & FEAT_MASK_TRAILING_COMMA) != 0) {
+            if ((_formatReadFeatures & FEAT_MASK_TRAILING_COMMA) != 0) {
                 if ((i == INT_RBRACKET) || (i == INT_RCURLY)) {
                     _closeScope(i);
                     return null;
                 }
             }
         }
-        if (!_parsingContext.inObject()) {
+        if (!_streamReadContext.inObject()) {
             _updateLocation();
             _nextTokenNotInObject(i);
             return null;
@@ -960,8 +940,8 @@ public class ReaderBasedJsonParser
 
         _updateNameLocation();
         String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
-        _parsingContext.setCurrentName(name);
-        _currToken = JsonToken.FIELD_NAME;
+        _streamReadContext.setCurrentName(name);
+        _currToken = JsonToken.PROPERTY_NAME;
         i = _skipColon();
 
         _updateLocation();
@@ -1020,9 +1000,9 @@ public class ReaderBasedJsonParser
         return name;
     }
 
-    private final void _isNextTokenNameYes(int i) throws IOException
+    private final void _isNextTokenNameYes(int i) throws JacksonException
     {
-        _currToken = JsonToken.FIELD_NAME;
+        _currToken = JsonToken.PROPERTY_NAME;
         _updateLocation();
 
         switch (i) {
@@ -1070,12 +1050,12 @@ public class ReaderBasedJsonParser
         _nextToken = _handleOddValue(i);
     }
 
-    protected boolean _isNextTokenNameMaybe(int i, String nameToMatch) throws IOException
+    protected boolean _isNextTokenNameMaybe(int i, String nameToMatch) throws JacksonException
     {
         // // // and this is back to standard nextToken()
         String name = (i == INT_QUOTE) ? _parseName() : _handleOddName(i);
-        _parsingContext.setCurrentName(name);
-        _currToken = JsonToken.FIELD_NAME;
+        _streamReadContext.setCurrentName(name);
+        _currToken = JsonToken.PROPERTY_NAME;
         i = _skipColon();
         _updateLocation();
         if (i == INT_QUOTE) {
@@ -1130,7 +1110,7 @@ public class ReaderBasedJsonParser
         return nameToMatch.equals(name);
     }
 
-    private final JsonToken _nextTokenNotInObject(int i) throws IOException
+    private final JsonToken _nextTokenNotInObject(int i) throws JacksonException
     {
         if (i == INT_QUOTE) {
             _tokenIncomplete = true;
@@ -1138,10 +1118,10 @@ public class ReaderBasedJsonParser
         }
         switch (i) {
         case '[':
-            _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_ARRAY);
         case '{':
-            _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+            _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             return (_currToken = JsonToken.START_OBJECT);
         case 't':
             _matchToken("true", 1);
@@ -1182,10 +1162,10 @@ public class ReaderBasedJsonParser
 // case ']':  // 11-May-2020, tatu: related to [core#616], this should never be reached
         case ',':
             // 11-May-2020, tatu: [core#616] No commas in root level
-            if (!_parsingContext.inRoot()) {
-                if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
+            if (!_streamReadContext.inRoot()) {
+                if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                     --_inputPtr;
-                    return (_currToken = JsonToken.VALUE_NULL);
+                    return (_currToken = JsonToken.VALUE_NULL);  
                 }
             }
         }
@@ -1193,9 +1173,9 @@ public class ReaderBasedJsonParser
     }
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public final String nextTextValue() throws IOException
+    public final String nextTextValue() throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1208,9 +1188,9 @@ public class ReaderBasedJsonParser
                 return _textBuffer.contentsAsString();
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return null;
         }
@@ -1220,9 +1200,9 @@ public class ReaderBasedJsonParser
 
     // note: identical to one in Utf8StreamParser
     @Override
-    public final int nextIntValue(int defaultValue) throws IOException
+    public final int nextIntValue(int defaultValue) throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1231,9 +1211,9 @@ public class ReaderBasedJsonParser
                 return getIntValue();
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return defaultValue;
         }
@@ -1243,9 +1223,9 @@ public class ReaderBasedJsonParser
 
     // note: identical to one in Utf8StreamParser
     @Override
-    public final long nextLongValue(long defaultValue) throws IOException
+    public final long nextLongValue(long defaultValue) throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1254,9 +1234,9 @@ public class ReaderBasedJsonParser
                 return getLongValue();
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return defaultValue;
         }
@@ -1266,9 +1246,9 @@ public class ReaderBasedJsonParser
 
     // note: identical to one in UTF8StreamJsonParser
     @Override
-    public final Boolean nextBooleanValue() throws IOException
+    public final Boolean nextBooleanValue() throws JacksonException
     {
-        if (_currToken == JsonToken.FIELD_NAME) { // mostly copied from '_nextAfterName'
+        if (_currToken == JsonToken.PROPERTY_NAME) { // mostly copied from '_nextAfterName'
             _nameCopied = false;
             JsonToken t = _nextToken;
             _nextToken = null;
@@ -1280,9 +1260,9 @@ public class ReaderBasedJsonParser
                 return Boolean.FALSE;
             }
             if (t == JsonToken.START_ARRAY) {
-                _parsingContext = _parsingContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildArrayContext(_tokenInputRow, _tokenInputCol);
             } else if (t == JsonToken.START_OBJECT) {
-                _parsingContext = _parsingContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
+                _streamReadContext = _streamReadContext.createChildObjectContext(_tokenInputRow, _tokenInputCol);
             }
             return null;
         }
@@ -1296,16 +1276,15 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, number parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
-    // @since 2.11, [core#611]
-    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
+    protected final JsonToken _parseFloatThatStartsWithPeriod() throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
-        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleOddValue('.');
         }
         return _parseFloat(INT_PERIOD, _inputPtr-1, _inputPtr, false, 0);
@@ -1331,10 +1310,10 @@ public class ReaderBasedJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
-    protected final JsonToken _parsePosNumber(int ch) throws IOException
+    protected final JsonToken _parsePosNumber(int ch) throws JacksonException
     {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),
@@ -1379,7 +1358,7 @@ public class ReaderBasedJsonParser
         --ptr; // need to push back following separator
         _inputPtr = ptr;
         // As per #105, need separating space between root values; check here
-        if (_parsingContext.inRoot()) {
+        if (_streamReadContext.inRoot()) {
             _verifyRootSpace(ch);
         }
         int len = ptr-startPtr;
@@ -1388,7 +1367,7 @@ public class ReaderBasedJsonParser
     }
 
     private final JsonToken _parseFloat(int ch, int startPtr, int ptr, boolean neg, int intLen)
-        throws IOException
+        throws JacksonException
     {
         final int inputLen = _inputEnd;
         int fractLen = 0;
@@ -1408,7 +1387,7 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
-                reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
             }
         }
         int expLen = 0;
@@ -1436,13 +1415,13 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
-                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+                _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
             }
         }
         --ptr; // need to push back following separator
         _inputPtr = ptr;
         // As per #105, need separating space between root values; check here
-        if (_parsingContext.inRoot()) {
+        if (_streamReadContext.inRoot()) {
             _verifyRootSpace(ch);
         }
         int len = ptr-startPtr;
@@ -1451,7 +1430,7 @@ public class ReaderBasedJsonParser
         return resetFloat(neg, intLen, fractLen, expLen);
     }
 
-    protected final JsonToken _parseNegNumber() throws IOException
+    protected final JsonToken _parseNegNumber() throws JacksonException
     {
         int ptr = _inputPtr;
         int startPtr = ptr-1; // to include sign/digit already read
@@ -1491,7 +1470,7 @@ public class ReaderBasedJsonParser
         }
         --ptr;
         _inputPtr = ptr;
-        if (_parsingContext.inRoot()) {
+        if (_streamReadContext.inRoot()) {
             _verifyRootSpace(ch);
         }
         int len = ptr-startPtr;
@@ -1512,10 +1491,10 @@ public class ReaderBasedJsonParser
      * @return Type of token decoded, usually {@link JsonToken#VALUE_NUMBER_INT}
      *    or {@link JsonToken#VALUE_NUMBER_FLOAT}
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
-    private final JsonToken _parseNumber2(boolean neg, int startPtr) throws IOException
+    private final JsonToken _parseNumber2(boolean neg, int startPtr) throws JacksonException
     {
         _inputPtr = neg ? (startPtr+1) : startPtr;
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
@@ -1585,7 +1564,7 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
-                reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
+                _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
             }
         }
 
@@ -1598,7 +1577,7 @@ public class ReaderBasedJsonParser
             outBuf[outPtr++] = c;
             // Not optional, can require that we get one more char
             c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                : getNextChar("expected a digit for number exponent");
+                : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             // Sign indicator?
             if (c == '-' || c == '+') {
                 if (outPtr >= outBuf.length) {
@@ -1608,7 +1587,7 @@ public class ReaderBasedJsonParser
                 outBuf[outPtr++] = c;
                 // Likewise, non optional:
                 c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                    : getNextChar("expected a digit for number exponent");
+                    : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             }
 
             exp_loop:
@@ -1627,14 +1606,14 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
-                reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
+                _reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
             }
         }
 
         // Ok; unless we hit end-of-input, need to push last char read back
         if (!eof) {
             --_inputPtr;
-            if (_parsingContext.inRoot()) {
+            if (_streamReadContext.inRoot()) {
                 _verifyRootSpace(c);
             }
         }
@@ -1645,7 +1624,7 @@ public class ReaderBasedJsonParser
 
     // Method called when we have seen one zero, and want to ensure
     // it is not followed by another
-    private final char _verifyNoLeadingZeroes() throws IOException
+    private final char _verifyNoLeadingZeroes() throws JacksonException
     {
         // Fast case first:
         if (_inputPtr < _inputEnd) {
@@ -1659,7 +1638,7 @@ public class ReaderBasedJsonParser
         return _verifyNLZ2();
     }
 
-    private char _verifyNLZ2() throws IOException
+    private char _verifyNLZ2() throws JacksonException
     {
         if (_inputPtr >= _inputEnd && !_loadMore()) {
             return '0';
@@ -1668,8 +1647,8 @@ public class ReaderBasedJsonParser
         if (ch < '0' || ch > '9') {
             return '0';
         }
-        if ((_features & FEAT_MASK_LEADING_ZEROS) == 0) {
-            reportInvalidNumber("Leading zeroes not allowed");
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)) {
+            _reportInvalidNumber("Leading zeroes not allowed");
         }
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)
         ++_inputPtr; // Leading zero to be skipped
@@ -1690,7 +1669,7 @@ public class ReaderBasedJsonParser
 
     // Method called if expected numeric value (due to leading sign) does not
     // look like a number
-    protected JsonToken _handleInvalidNumberStart(int ch, boolean negative) throws IOException
+    protected JsonToken _handleInvalidNumberStart(int ch, boolean negative) throws JacksonException
     {
         if (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
@@ -1702,20 +1681,20 @@ public class ReaderBasedJsonParser
             if (ch == 'N') {
                 String match = negative ? "-INF" :"+INF";
                 _matchToken(match, 3);
-                if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+                if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
                 _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             } else if (ch == 'n') {
                 String match = negative ? "-Infinity" :"+Infinity";
                 _matchToken(match, 3);
-                if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+                if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
                 _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             }
         }
-        reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+        _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;
     }
 
@@ -1728,10 +1707,10 @@ public class ReaderBasedJsonParser
      *
      * @param ch First character of likely white space to skip
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
-    private final void _verifyRootSpace(int ch) throws IOException
+    private final void _verifyRootSpace(int ch) throws JacksonException
     {
         // caller had pushed it back, before calling; reset
         ++_inputPtr;
@@ -1751,12 +1730,12 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, secondary parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected final String _parseName() throws IOException
+    protected final String _parseName() throws JacksonException
     {
         // First: let's try to see if we have a simple name: one that does
         // not cross input buffer boundary, and does not contain escape sequences.
@@ -1782,7 +1761,7 @@ public class ReaderBasedJsonParser
         return _parseName2(start, hash, INT_QUOTE);
     }
 
-    private String _parseName2(int startPtr, int hash, int endChar) throws IOException
+    private String _parseName2(int startPtr, int hash, int endChar) throws JacksonException
     {
         _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
 
@@ -1795,7 +1774,7 @@ public class ReaderBasedJsonParser
         while (true) {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in field name", JsonToken.FIELD_NAME);
+                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             char c = _inputBuffer[_inputPtr++];
@@ -1838,26 +1817,26 @@ public class ReaderBasedJsonParser
 
     /**
      * Method called when we see non-white space character other
-     * than double quote, when expecting a field name.
+     * than double quote, when expecting an Object property name.
      * In standard mode will just throw an expection; but
      * in non-standard modes may be able to parse name.
      *
-     * @param i First undecoded character of possible "odd name" to decode
+     * @param i First not-yet-decoded character of possible "odd name" to decode
      *
      * @return Name decoded, if allowed and successful
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid name)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
-    protected String _handleOddName(int i) throws IOException
+    protected String _handleOddName(int i) throws JacksonException
     {
-        // [JACKSON-173]: allow single quotes
-        if (i == '\'' && (_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+        // Allow single quotes?
+        if (i == '\'' && isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
             return _parseAposName();
         }
-        // [JACKSON-69]: allow unquoted names if feature enabled:
-        if ((_features & FEAT_MASK_ALLOW_UNQUOTED_NAMES) == 0) {
-            _reportUnexpectedChar(i, "was expecting double-quote to start field name");
+        // Allow unquoted names if feature enabled:
+        if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
+            _reportUnexpectedChar(i, "was expecting double-quote to start property name");
         }
         final int[] codes = CharTypes.getInputCodeLatin1JsNames();
         final int maxCode = codes.length;
@@ -1865,13 +1844,13 @@ public class ReaderBasedJsonParser
         // Also: first char must be a valid name char, but NOT be number
         boolean firstOk;
 
-        if (i < maxCode) { // identifier, or a number ([Issue#102])
+        if (i < maxCode) { // identifier, or a number ([jackson-core#102])
             firstOk = (codes[i] == 0);
         } else {
             firstOk = Character.isJavaIdentifierPart((char) i);
         }
         if (!firstOk) {
-            _reportUnexpectedChar(i, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start field name");
+            _reportUnexpectedChar(i, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start property name");
         }
         int ptr = _inputPtr;
         int hash = _hashSeed;
@@ -1900,9 +1879,9 @@ public class ReaderBasedJsonParser
         return _handleOddName2(start, hash, codes);
     }
 
-    protected String _parseAposName() throws IOException
+    protected String _parseAposName() throws JacksonException
     {
-        // Note: mostly copy of_parseFieldName
+        // Note: mostly copy of _parseName()
         int ptr = _inputPtr;
         int hash = _hashSeed;
         final int inputLen = _inputEnd;
@@ -1940,10 +1919,10 @@ public class ReaderBasedJsonParser
      *
      * @return Type of value decoded, if allowed and successful
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
-    protected JsonToken _handleOddValue(int i) throws IOException
+    protected JsonToken _handleOddValue(int i) throws JacksonException
     {
         // Most likely an error, unless we are to allow single-quote-strings
         switch (i) {
@@ -1953,23 +1932,22 @@ public class ReaderBasedJsonParser
              * Also, no separation to fast/slow parsing; we'll just do
              * one regular (~= slowish) parsing, to keep code simple
              */
-            if ((_features & FEAT_MASK_ALLOW_SINGLE_QUOTES) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_SINGLE_QUOTES)) {
                 return _handleApos();
             }
             break;
         case ']':
-            /* 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
-             *   we may allow "missing values", that is, encountering a trailing
-             *   comma or closing marker where value would be expected
-             */
-            if (!_parsingContext.inArray()) {
+            // 28-Mar-2016: [core#116]: If Feature.ALLOW_MISSING_VALUES is enabled
+            //   we may allow "missing values", that is, encountering a trailing
+            //   comma or closing marker where value would be expected
+            if (!_streamReadContext.inArray()) {
                 break;
             }
             // fall through
         case ',':
             // 11-May-2020, tatu: [core#616] No commas in root level
-            if (!_parsingContext.inRoot()) {
-                if ((_features & FEAT_MASK_ALLOW_MISSING) != 0) {
+            if (!_streamReadContext.inRoot()) {
+                if ((_formatReadFeatures & FEAT_MASK_ALLOW_MISSING) != 0) {
                     --_inputPtr;
                     return JsonToken.VALUE_NULL;
                 }
@@ -1977,14 +1955,14 @@ public class ReaderBasedJsonParser
             break;
         case 'N':
             _matchToken("NaN", 1);
-            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("NaN", Double.NaN);
             }
             _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
             break;
         case 'I':
             _matchToken("Infinity", 1);
-            if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
+            if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
             }
             _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
@@ -2006,7 +1984,7 @@ public class ReaderBasedJsonParser
         return null;
     }
 
-    protected JsonToken _handleApos() throws IOException
+    protected JsonToken _handleApos() throws JacksonException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
@@ -2047,7 +2025,7 @@ public class ReaderBasedJsonParser
         return JsonToken.VALUE_STRING;
     }
 
-    private String _handleOddName2(int startPtr, int hash, int[] codes) throws IOException
+    private String _handleOddName2(int startPtr, int hash, int[] codes) throws JacksonException
     {
         _textBuffer.resetWithShared(_inputBuffer, startPtr, (_inputPtr - startPtr));
         char[] outBuf = _textBuffer.getCurrentSegment();
@@ -2091,8 +2069,7 @@ public class ReaderBasedJsonParser
         }
     }
 
-    @Override
-    protected final void _finishString() throws IOException
+    protected final void _finishString() throws JacksonException
     {
         /* First: let's try to see if we have simple String value: one
          * that does not cross input buffer boundary, and does not
@@ -2126,7 +2103,7 @@ public class ReaderBasedJsonParser
         _finishString2();
     }
 
-    protected void _finishString2() throws IOException
+    protected void _finishString2() throws JacksonException
     {
         char[] outBuf = _textBuffer.getCurrentSegment();
         int outPtr = _textBuffer.getCurrentSegmentSize();
@@ -2171,10 +2148,10 @@ public class ReaderBasedJsonParser
      * if it is not needed. This can be done bit faster if contents
      * need not be stored for future access.
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid white space)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
-    protected final void _skipString() throws IOException
+    protected final void _skipString() throws JacksonException
     {
         _tokenIncomplete = false;
 
@@ -2217,14 +2194,14 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, other parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     // We actually need to check the character value here
     // (to see if we have \n following \r).
-    protected final void _skipCR() throws IOException {
+    protected final void _skipCR() throws JacksonException {
         if (_inputPtr < _inputEnd || _loadMore()) {
             if (_inputBuffer[_inputPtr] == '\n') {
                 ++_inputPtr;
@@ -2234,7 +2211,7 @@ public class ReaderBasedJsonParser
         _currInputRowStart = _inputPtr;
     }
 
-    private final int _skipColon() throws IOException
+    private final int _skipColon() throws JacksonException
     {
         if ((_inputPtr + 4) >= _inputEnd) {
             return _skipColon2(false);
@@ -2288,7 +2265,7 @@ public class ReaderBasedJsonParser
         return _skipColon2(false);
     }
 
-    private final int _skipColon2(boolean gotColon) throws IOException
+    private final int _skipColon2(boolean gotColon) throws JacksonException
     {
         while (_inputPtr < _inputEnd || _loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
@@ -2306,7 +2283,7 @@ public class ReaderBasedJsonParser
                     return i;
                 }
                 if (i != INT_COLON) {
-                    _reportUnexpectedChar(i, "was expecting a colon to separate field name and value");
+                    _reportUnexpectedChar(i, "was expecting a colon to separate property name and value");
                 }
                 gotColon = true;
                 continue;
@@ -2322,13 +2299,13 @@ public class ReaderBasedJsonParser
                 }
             }
         }
-        _reportInvalidEOF(" within/between "+_parsingContext.typeDesc()+" entries",
+        _reportInvalidEOF(" within/between "+_streamReadContext.typeDesc()+" entries",
                 null);
         return -1;
     }
 
     // Variant called when we know there's at least 4 more bytes available
-    private final int _skipColonFast(int ptr) throws IOException
+    private final int _skipColonFast(int ptr) throws JacksonException
     {
         int i = (int) _inputBuffer[ptr++];
         if (i == INT_COLON) { // common case, no leading space
@@ -2376,10 +2353,10 @@ public class ReaderBasedJsonParser
     }
 
     // Primary loop: no reloading, comment handling
-    private final int _skipComma(int i) throws IOException
+    private final int _skipComma(int i) throws JacksonException
     {
         if (i != INT_COMMA) {
-            _reportUnexpectedChar(i, "was expecting comma to separate "+_parsingContext.typeDesc()+" entries");
+            _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
         }
         while (_inputPtr < _inputEnd) {
             i = (int) _inputBuffer[_inputPtr++];
@@ -2404,7 +2381,7 @@ public class ReaderBasedJsonParser
         return _skipAfterComma2();
     }
 
-    private final int _skipAfterComma2() throws IOException
+    private final int _skipAfterComma2() throws JacksonException
     {
         while (_inputPtr < _inputEnd || _loadMore()) {
             int i = (int) _inputBuffer[_inputPtr++];
@@ -2431,10 +2408,10 @@ public class ReaderBasedJsonParser
                 }
             }
         }
-        throw _constructError("Unexpected end-of-input within/between "+_parsingContext.typeDesc()+" entries");
+        throw _constructReadException("Unexpected end-of-input within/between "+_streamReadContext.typeDesc()+" entries");
     }
 
-    private final int _skipWSOrEnd() throws IOException
+    private final int _skipWSOrEnd() throws JacksonException
     {
         // Let's handle first character separately since it is likely that
         // it is either non-whitespace; or we have longer run of white space
@@ -2485,7 +2462,7 @@ public class ReaderBasedJsonParser
         return _skipWSOrEnd2();
     }
 
-    private int _skipWSOrEnd2() throws IOException
+    private int _skipWSOrEnd2() throws JacksonException
     {
         while (true) {
             if (_inputPtr >= _inputEnd) {
@@ -2518,9 +2495,9 @@ public class ReaderBasedJsonParser
         }
     }
 
-    private void _skipComment() throws IOException
+    private void _skipComment() throws JacksonException
     {
-        if ((_features & FEAT_MASK_ALLOW_JAVA_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS)) {
             _reportUnexpectedChar('/', "maybe a (non-standard) comment? (not recognized as one since Feature 'ALLOW_COMMENTS' not enabled for parser)");
         }
         // First: check which comment (if either) it is:
@@ -2537,7 +2514,7 @@ public class ReaderBasedJsonParser
         }
     }
 
-    private void _skipCComment() throws IOException
+    private void _skipCComment() throws JacksonException
     {
         // Ok: need the matching '*/'
         while ((_inputPtr < _inputEnd) || _loadMore()) {
@@ -2568,16 +2545,16 @@ public class ReaderBasedJsonParser
         _reportInvalidEOF(" in a comment", null);
     }
 
-    private boolean _skipYAMLComment() throws IOException
+    private boolean _skipYAMLComment() throws JacksonException
     {
-        if ((_features & FEAT_MASK_ALLOW_YAML_COMMENTS) == 0) {
+        if (!isEnabled(JsonReadFeature.ALLOW_YAML_COMMENTS)) {
             return false;
         }
         _skipLine();
         return true;
     }
 
-    private void _skipLine() throws IOException
+    private void _skipLine() throws JacksonException
     {
         // Ok: need to find EOF or linefeed
         while ((_inputPtr < _inputEnd) || _loadMore()) {
@@ -2598,7 +2575,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    protected char _decodeEscaped() throws IOException
+    protected char _decodeEscaped() throws JacksonException
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -2651,7 +2628,7 @@ public class ReaderBasedJsonParser
         return (char) value;
     }
 
-    private final void _matchTrue() throws IOException {
+    private final void _matchTrue() throws JacksonException {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) {
             final char[] b = _inputBuffer;
@@ -2667,7 +2644,7 @@ public class ReaderBasedJsonParser
         _matchToken("true", 1);
     }
 
-    private final void _matchFalse() throws IOException {
+    private final void _matchFalse() throws JacksonException {
         int ptr = _inputPtr;
         if ((ptr + 4) < _inputEnd) {
             final char[] b = _inputBuffer;
@@ -2683,7 +2660,7 @@ public class ReaderBasedJsonParser
         _matchToken("false", 1);
     }
 
-    private final void _matchNull() throws IOException {
+    private final void _matchNull() throws JacksonException {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) {
             final char[] b = _inputBuffer;
@@ -2700,7 +2677,7 @@ public class ReaderBasedJsonParser
     }
 
     // Helper method for checking whether input matches expected token
-    protected final void _matchToken(String matchStr, int i) throws IOException
+    protected final void _matchToken(String matchStr, int i) throws JacksonException
     {
         final int len = matchStr.length();
         if ((_inputPtr + len) >= _inputEnd) {
@@ -2720,7 +2697,7 @@ public class ReaderBasedJsonParser
         }
     }
 
-    private final void _matchToken2(String matchStr, int i) throws IOException
+    private final void _matchToken2(String matchStr, int i) throws JacksonException
     {
         final int len = matchStr.length();
         do {
@@ -2741,7 +2718,7 @@ public class ReaderBasedJsonParser
         }
     }
 
-    private final void _checkMatchEnd(String matchStr, int i, int c) throws IOException {
+    private final void _checkMatchEnd(String matchStr, int i, int c) throws JacksonException {
         // but actually only alphanums are problematic
         char ch = (char) c;
         if (Character.isJavaIdentifierPart(ch)) {
@@ -2750,9 +2727,9 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Binary access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -2763,11 +2740,11 @@ public class ReaderBasedJsonParser
      *
      * @return Fully decoded value of base64 content
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems (invalid content)
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
     @SuppressWarnings("resource")
-    protected byte[] _decodeBase64(Base64Variant b64variant) throws IOException
+    protected byte[] _decodeBase64(Base64Variant b64variant) throws JacksonException
     {
         ByteArrayBuilder builder = _getByteArrayBuilder();
 
@@ -2835,7 +2812,7 @@ public class ReaderBasedJsonParser
                     ch = _inputBuffer[_inputPtr++];
                     if (!b64variant.usesPaddingChar(ch)) {
                         if (_decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
-                            throw reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
+                            _reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
                         }
                     }
                     // Got 12 bits, only need 8, need to shift
@@ -2886,15 +2863,15 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
-    /* Internal methods, location updating (refactored in 2.7)
-    /**********************************************************
+    /**********************************************************************
+    /* Internal methods, location updating
+    /**********************************************************************
      */
 
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentTokenLocation()
     {
-        if (_currToken == JsonToken.FIELD_NAME) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
             long total = _currInputProcessed + (_nameStartOffset-1);
             return new JsonLocation(_contentReference(),
                     -1L, total, _nameStartRow, _nameStartCol);
@@ -2904,7 +2881,7 @@ public class ReaderBasedJsonParser
     }
 
     @Override
-    public JsonLocation getCurrentLocation() {
+    public JsonLocation currentLocation() {
         final int col = _inputPtr - _currInputRowStart + 1; // 1-based
         return new JsonLocation(_contentReference(),
                 -1L, _currInputProcessed + _inputPtr,
@@ -2930,16 +2907,16 @@ public class ReaderBasedJsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Error reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected void _reportInvalidToken(String matchedPart) throws IOException {
+    protected void _reportInvalidToken(String matchedPart) throws JacksonException {
         _reportInvalidToken(matchedPart, _validJsonTokenList());
     }
 
-    protected void _reportInvalidToken(String matchedPart, String msg) throws IOException
+    protected void _reportInvalidToken(String matchedPart, String msg) throws JacksonException
     {
         /* Let's just try to find what appears to be the token, using
          * regular Java identifier character rules. It's just a heuristic,
@@ -2958,30 +2935,31 @@ public class ReaderBasedJsonParser
                 break;
             }
         }
-        _reportError("Unrecognized token '%s': was expecting %s", sb, msg);
+        throw _constructReadException("Unrecognized token '%s': was expecting %s", sb, msg);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private void _closeScope(int i) throws JsonParseException {
+    private void _closeScope(int i) throws StreamReadException
+    {
         if (i == INT_RBRACKET) {
             _updateLocation();
-            if (!_parsingContext.inArray()) {
+            if (!_streamReadContext.inArray()) {
                 _reportMismatchedEndMarker(i, '}');
             }
-            _parsingContext = _parsingContext.clearAndGetParent();
+            _streamReadContext = _streamReadContext.clearAndGetParent();
             _currToken = JsonToken.END_ARRAY;
         }
         if (i == INT_RCURLY) {
             _updateLocation();
-            if (!_parsingContext.inObject()) {
+            if (!_streamReadContext.inObject()) {
                 _reportMismatchedEndMarker(i, ']');
             }
-            _parsingContext = _parsingContext.clearAndGetParent();
+            _streamReadContext = _streamReadContext.clearAndGetParent();
             _currToken = JsonToken.END_OBJECT;
         }
     }

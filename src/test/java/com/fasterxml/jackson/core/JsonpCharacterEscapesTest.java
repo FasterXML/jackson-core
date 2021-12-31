@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

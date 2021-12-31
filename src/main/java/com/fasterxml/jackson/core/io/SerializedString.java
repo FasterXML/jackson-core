@@ -36,12 +36,12 @@ public class SerializedString
      *   search framework; and they believed this is an important optimization for
      *   heaviest, multi-core deployed use cases.
      */
-    /*
-     * 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
-     *   area, or anything pointing to it. So I think we are safe up to JDK7
-     *   and hopefully beyond.
-     */
+    // 22-Sep-2013, tatu: FWIW, there have been no reports of problems in this
+    //  area, or anything pointing to it. So I think we are safe up to JDK7
+    //   and hopefully beyond.
     
+    // 09-Dec-2017, tatu: ... fine up until Java 8, Jackson 2.9, no reports.
+
     protected /*volatile*/ byte[] _quotedUTF8Ref;
 
     protected /*volatile*/ byte[] _unquotedUTF8Ref;
@@ -56,16 +56,14 @@ public class SerializedString
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializable overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Ugly hack, to work through the requirement that _value is indeed final,
      * and that JDK serialization won't call ctor(s).
-     * 
-     * @since 2.1
      */
     protected transient String _jdkSerializeValue;
 
@@ -82,9 +80,9 @@ public class SerializedString
     }
 
     /*
-    /**********************************************************
-    /* API
-    /**********************************************************
+    /**********************************************************************
+    /* Basic API
+    /**********************************************************************
      */
 
     @Override
@@ -104,7 +102,7 @@ public class SerializedString
     public final char[] asQuotedChars() {
         char[] result = _quotedChars;
         if (result == null) {
-            _quotedChars = result = JSON_ENCODER.quoteAsString(_value);
+            _quotedChars = result = JSON_ENCODER.quoteAsCharArray(_value);
         }
         return result;
     }
@@ -137,16 +135,16 @@ public class SerializedString
     }
 
     /*
-    /**********************************************************
-    /* Additional 2.0 methods for appending/writing contents
-    /**********************************************************
+    /**********************************************************************
+    /* Additional methods for appending/writing contents
+    /**********************************************************************
      */
 
     @Override
     public int appendQuoted(char[] buffer, int offset) {
         char[] result = _quotedChars;
         if (result == null) {
-            _quotedChars = result = JSON_ENCODER.quoteAsString(_value);
+            _quotedChars = result = JSON_ENCODER.quoteAsCharArray(_value);
         }
         final int length = result.length;
         if ((offset + length) > buffer.length) {
@@ -246,9 +244,9 @@ public class SerializedString
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

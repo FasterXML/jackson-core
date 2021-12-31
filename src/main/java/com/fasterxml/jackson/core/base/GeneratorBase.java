@@ -1,14 +1,13 @@
 package com.fasterxml.jackson.core.base;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.DupDetector;
-import com.fasterxml.jackson.core.json.JsonWriteContext;
-import com.fasterxml.jackson.core.json.PackageVersion;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * This base class implements part of API that a JSON generator exposes
@@ -22,20 +21,7 @@ public abstract class GeneratorBase extends JsonGenerator
     public final static int SURR2_FIRST = 0xDC00;
     public final static int SURR2_LAST = 0xDFFF;
 
-    /**
-     * Set of feature masks related to features that need updates of other
-     * local configuration or state.
-     * 
-     * @since 2.5
-     */
-    @SuppressWarnings("deprecation")
-    protected final static int DERIVED_FEATURES_MASK =
-            Feature.WRITE_NUMBERS_AS_STRINGS.getMask()
-            | Feature.ESCAPE_NON_ASCII.getMask()
-            | Feature.STRICT_DUPLICATE_DETECTION.getMask()
-            ;
-
-    // // // Constants for validation messages (since 2.6)
+    // // // Constants for validation messages
 
     protected final static String WRITE_BINARY = "write a binary value";
     protected final static String WRITE_BOOLEAN = "write a boolean value";
@@ -45,48 +31,67 @@ public abstract class GeneratorBase extends JsonGenerator
     protected final static String WRITE_STRING = "write a string";
 
     /**
-     * This value is the limit of scale allowed for serializing {@link BigDecimal}
+     * This value is the limit of scale allowed for serializing {@link java.math.BigDecimal}
      * in "plain" (non-engineering) notation; intent is to prevent asymmetric
      * attack whereupon simple eng-notation with big scale is used to generate
      * huge "plain" serialization. See [core#315] for details.
-     * 
-     * @since 2.7.7
      */
     protected final static int MAX_BIG_DECIMAL_SCALE = 9999;
 
     /*
-    /**********************************************************
-    /* Configuration
-    /**********************************************************
+    /**********************************************************************
+    /* Default capabilities
+    /**********************************************************************
      */
 
-    protected ObjectCodec _objectCodec;
+    /**
+     * Default set of {@link StreamWriteCapability}ies that may be used as
+     * basis for format-specific readers (or as bogus instance if non-null
+     * set needs to be passed).
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_WRITE_CAPABILITIES
+        = JacksonFeatureSet.fromDefaults(StreamWriteCapability.values());
+
+    /**
+     * Default set of {@link StreamWriteCapability}ies for typical textual formats,
+     * to use either as-is, or as a base with possible differences.
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_TEXTUAL_WRITE_CAPABILITIES
+        = DEFAULT_WRITE_CAPABILITIES.with(StreamWriteCapability.CAN_WRITE_FORMATTED_NUMBERS);
+
+    /**
+     * Default set of {@link StreamWriteCapability}ies for typical binary formats,
+     * to use either as-is, or as a base with possible differences.
+     */
+    protected final static JacksonFeatureSet<StreamWriteCapability> DEFAULT_BINARY_WRITE_CAPABILITIES
+        = DEFAULT_WRITE_CAPABILITIES.with(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY);
+
+    /*
+    /**********************************************************************
+    /* Configuration
+    /**********************************************************************
+     */
+
+    /**
+     * Context object used both to pass some initial settings and to allow
+     * triggering of Object serialization through generator.
+     *
+     * @since 3.0
+     */
+    protected final ObjectWriteContext _objectWriteContext;
 
     /**
      * Bit flag composed of bits that indicate which
-     * {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
+     * {@link com.fasterxml.jackson.core.StreamWriteFeature}s
      * are enabled.
      */
-    protected int _features;
-
-    /**
-     * Flag set to indicate that implicit conversion from number
-     * to JSON String is needed (as per
-     * {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_NUMBERS_AS_STRINGS}).
-     */
-    protected boolean _cfgNumbersAsStrings;
+    protected int _streamWriteFeatures;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * Object that keeps track of the current contextual state
-     * of the generator.
-     */
-    protected JsonWriteContext _writeContext;
 
     /**
      * Flag that indicates whether generator is closed or not. Gets
@@ -96,264 +101,133 @@ public abstract class GeneratorBase extends JsonGenerator
     protected boolean _closed;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @SuppressWarnings("deprecation")
-    protected GeneratorBase(int features, ObjectCodec codec) {
+    protected GeneratorBase(ObjectWriteContext writeCtxt, int streamWriteFeatures) {
         super();
-        _features = features;
-        _objectCodec = codec;
-        DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
-                ? DupDetector.rootDetector(this) : null;
-        _writeContext = JsonWriteContext.createRootContext(dups);
-        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
-    }
-
-    // @since 2.5
-    @SuppressWarnings("deprecation")
-    protected GeneratorBase(int features, ObjectCodec codec, JsonWriteContext ctxt) {
-        super();
-        _features = features;
-        _objectCodec = codec;
-        _writeContext = ctxt;
-        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);
-    }
-
-    /**
-     * Implemented with standard version number detection algorithm, typically using
-     * a simple generated class, with information extracted from Maven project file
-     * during build.
-     *
-     * @return Version number of the generator (version of the jar that contains
-     *     generator implementation class)
-     */
-    @Override public Version version() { return PackageVersion.VERSION; }
-
-    @Override
-    public Object getCurrentValue() {
-        return _writeContext.getCurrentValue();
-    }
-
-    @Override
-    public void setCurrentValue(Object v) {
-        if (_writeContext != null) {
-            _writeContext.setCurrentValue(v);
-        }
+        _objectWriteContext = writeCtxt;
+        _streamWriteFeatures = streamWriteFeatures;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
+    @Override public final boolean isEnabled(StreamWriteFeature f) { return (_streamWriteFeatures & f.getMask()) != 0; }
+    @Override public int streamWriteFeatures() { return _streamWriteFeatures; }
 
-    @Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }
-    @Override public int getFeatureMask() { return _features; }
-
-    //public JsonGenerator configure(Feature f, boolean state) { }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public JsonGenerator enable(Feature f) {
-        final int mask = f.getMask();
-        _features |= mask;
-        if ((mask & DERIVED_FEATURES_MASK) != 0) {
-            // why not switch? Requires addition of a generated class, alas
-            if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
-                _cfgNumbersAsStrings = true;
-            } else if (f == Feature.ESCAPE_NON_ASCII) {
-                setHighestNonEscapedChar(127);
-            } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
-                if (_writeContext.getDupDetector() == null) { // but only if disabled currently
-                    _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
-                }
-            }
-        }
-        return this;
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public JsonGenerator disable(Feature f) {
-        final int mask = f.getMask();
-        _features &= ~mask;
-        if ((mask & DERIVED_FEATURES_MASK) != 0) {
-            if (f == Feature.WRITE_NUMBERS_AS_STRINGS) {
-                _cfgNumbersAsStrings = false;
-            } else if (f == Feature.ESCAPE_NON_ASCII) {
-                setHighestNonEscapedChar(0);
-            } else if (f == Feature.STRICT_DUPLICATE_DETECTION) {
-                _writeContext = _writeContext.withDupDetector(null);
-            }
-        }
-        return this;
-    }
+    // public int formatWriteFeatures();
 
     @Override
-    @Deprecated
-    public JsonGenerator setFeatureMask(int newMask) {
-        int changed = newMask ^ _features;
-        _features = newMask;
-        if (changed != 0) {
-            _checkStdFeatureChanges(newMask, changed);
+    public final JsonGenerator configure(StreamWriteFeature f, boolean state) {
+        if (state) {
+            _streamWriteFeatures |= f.getMask();
+        } else {
+            _streamWriteFeatures &= ~f.getMask();
         }
         return this;
     }
 
-    @Override // since 2.7
-    public JsonGenerator overrideStdFeatures(int values, int mask) {
-        int oldState = _features;
-        int newState = (oldState & ~mask) | (values & mask);
-        int changed = oldState ^ newState;
-        if (changed != 0) {
-            _features = newState;
-            _checkStdFeatureChanges(newState, changed);
-        }
-        return this;
-    }
-
-    /**
-     * Helper method called to verify changes to standard features.
-     *
-     * @param newFeatureFlags Bitflag of standard features after they were changed
-     * @param changedFeatures Bitflag of standard features for which setting
-     *    did change
-     *
-     * @since 2.7
+    /*
+    /**********************************************************************
+    /* Public API, accessors
+    /**********************************************************************
      */
-    @SuppressWarnings("deprecation")
-    protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures)
+
+    // public Object currentValue();
+    // public void assignCurrentValue(Object v);
+
+    // public TokenStreamContext getOutputContext();
+
+    @Override public ObjectWriteContext objectWriteContext() { return _objectWriteContext; }
+
+    /*
+    /**********************************************************************
+    /* Public API, write methods, structural
+    /**********************************************************************
+     */
+
+    //public void writeStartArray()
+    //public void writeEndArray()
+    //public void writeStartObject()
+    //public void writeEndObject()
+
+    @Override
+    public void writeStartArray(Object forValue, int size) throws JacksonException {
+        writeStartArray(forValue);
+    }
+
+    @Override
+    public void writeStartObject(Object forValue, int size) throws JacksonException
     {
-        if ((changedFeatures & DERIVED_FEATURES_MASK) == 0) {
-            return;
-        }
-        _cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(newFeatureFlags);
-        if (Feature.ESCAPE_NON_ASCII.enabledIn(changedFeatures)) {
-            if (Feature.ESCAPE_NON_ASCII.enabledIn(newFeatureFlags)) {
-                setHighestNonEscapedChar(127);
-            } else {
-                setHighestNonEscapedChar(0);
-            }
-        }
-        if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(changedFeatures)) {
-            if (Feature.STRICT_DUPLICATE_DETECTION.enabledIn(newFeatureFlags)) { // enabling
-                if (_writeContext.getDupDetector() == null) { // but only if disabled currently
-                    _writeContext = _writeContext.withDupDetector(DupDetector.rootDetector(this));
-                }
-            } else { // disabling
-                _writeContext = _writeContext.withDupDetector(null);
-            }
-        }
+        writeStartObject(forValue);
     }
 
-    @Override public JsonGenerator useDefaultPrettyPrinter() {
-        // Should not override a pretty printer if one already assigned.
-        if (getPrettyPrinter() != null) {
-            return this;
-        }
-        return setPrettyPrinter(_constructDefaultPrettyPrinter());
+    /*
+    /**********************************************************************
+    /* Public API, write methods, textual
+    /**********************************************************************
+     */
+
+    @Override public void writeName(SerializableString name) throws JacksonException {
+        writeName(name.getValue());
+    }
+
+    //public abstract void writeString(String text);
+
+    //public abstract void writeString(char[] text, int offset, int len);
+
+    @Override
+    public void writeString(Reader reader, int len) throws JacksonException {
+        // Let's implement this as "unsupported" to make it easier to add new parser impls
+        _reportUnsupportedOperation();
     }
     
-    @Override public JsonGenerator setCodec(ObjectCodec oc) {
-        _objectCodec = oc;
-        return this;
-    }
+    //public abstract void writeRaw(String text);
 
-    @Override public ObjectCodec getCodec() { return _objectCodec; }
-
-    /*
-    /**********************************************************
-    /* Public API, accessors
-    /**********************************************************
-     */
-
-    /**
-     * Note: type was co-variant until Jackson 2.7; reverted back to
-     * base type in 2.8 to allow for overriding by subtypes that use
-     * custom context type.
-     */
-    @Override public JsonStreamContext getOutputContext() { return _writeContext; }
-
-    /*
-    /**********************************************************
-    /* Public API, write methods, structural
-    /**********************************************************
-     */
-
-    //public void writeStartArray() throws IOException
-    //public void writeEndArray() throws IOException
-    //public void writeStartObject() throws IOException
-    //public void writeEndObject() throws IOException
-
-    @Override // since 2.8
-    public void writeStartObject(Object forValue) throws IOException
-    {
-        writeStartObject();
-        if (forValue != null) {
-            setCurrentValue(forValue);
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Public API, write methods, textual
-    /**********************************************************
-     */
-
-    @Override public void writeFieldName(SerializableString name) throws IOException {
-        writeFieldName(name.getValue());
-    }
-
-    //public abstract void writeString(String text) throws IOException;
-
-    //public abstract void writeString(char[] text, int offset, int len) throws IOException;
-
-    //public abstract void writeString(Reader reader, int len) throws IOException;
-
-    //public abstract void writeRaw(String text) throws IOException,;
-
-    //public abstract void writeRaw(char[] text, int offset, int len) throws IOException;
+    //public abstract void writeRaw(char[] text, int offset, int len);
 
     @Override
-    public void writeString(SerializableString text) throws IOException {
+    public void writeString(SerializableString text) throws JacksonException {
         writeString(text.getValue());
     }
 
-    @Override public void writeRawValue(String text) throws IOException {
+    @Override public void writeRawValue(String text) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text);
     }
 
-    @Override public void writeRawValue(String text, int offset, int len) throws IOException {
+    @Override public void writeRawValue(String text, int offset, int len) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
     }
 
-    @Override public void writeRawValue(char[] text, int offset, int len) throws IOException {
+    @Override public void writeRawValue(char[] text, int offset, int len) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text, offset, len);
     }
 
-    @Override public void writeRawValue(SerializableString text) throws IOException {
+    @Override public void writeRawValue(SerializableString text) throws JacksonException {
         _verifyValueWrite("write raw value");
         writeRaw(text);
     }
 
     @Override
-    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws IOException {
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) throws JacksonException {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
         _reportUnsupportedOperation();
         return 0;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, primitive
-    /**********************************************************
+    /**********************************************************************
      */
 
     // Not implemented at this level, added as placeholders
@@ -369,57 +243,48 @@ public abstract class GeneratorBase extends JsonGenerator
     */
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, write methods, POJOs, trees
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public void writeObject(Object value) throws IOException {
+    public void writePOJO(Object value) throws JacksonException {
         if (value == null) {
             // important: call method that does check value write:
             writeNull();
         } else {
-            /* 02-Mar-2009, tatu: we are NOT to call _verifyValueWrite here,
-             *   because that will be done when codec actually serializes
-             *   contained POJO. If we did call it it would advance state
-             *   causing exception later on
-             */
-            if (_objectCodec != null) {
-                _objectCodec.writeValue(this, value);
-                return;
-            }
-            _writeSimpleObject(value);
+            // We are NOT to call _verifyValueWrite here, because that will be
+            // done when actual serialization of POJO occurs. If we did call it,
+            // state would advance causing exception later on
+            _objectWriteContext.writeValue(this, value);
         }
     }
 
     @Override
-    public void writeTree(TreeNode rootNode) throws IOException {
-        // As with 'writeObject()', we are not check if write would work
+    public void writeTree(TreeNode rootNode) throws JacksonException {
+        // As with 'writeObject()', we are not to check if write would work
         if (rootNode == null) {
             writeNull();
         } else {
-            if (_objectCodec == null) {
-                throw new IllegalStateException("No ObjectCodec defined");
-            }
-            _objectCodec.writeValue(this, rootNode);
+            _objectWriteContext.writeTree(this, rootNode);
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, low-level output handling
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public abstract void flush() throws IOException;
-    @Override public void close() throws IOException { _closed = true; }
+//    @Override public abstract void flush();
+    @Override public void close() { _closed = true; }
     @Override public boolean isClosed() { return _closed; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Package methods for this, sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -436,18 +301,15 @@ public abstract class GeneratorBase extends JsonGenerator
      * @param typeMsg Additional message used for generating exception message
      *   if value output is NOT legal in current generator output state.
      *
-     * @throws IOException if there is either an underlying I/O problem or encoding
-     *    issue at format layer
+     * @throws JacksonException if there is a problem in trying to write a value
      */
-    protected abstract void _verifyValueWrite(String typeMsg) throws IOException;
+    protected abstract void _verifyValueWrite(String typeMsg) throws JacksonException;
 
     /**
      * Overridable factory method called to instantiate an appropriate {@link PrettyPrinter}
-     * for case of "just use the default one", when {@link #useDefaultPrettyPrinter()} is called.
+     * for case of "just use the default one", when default pretty printer handling enabled.
      *
      * @return Instance of "default" pretty printer to use
-     *
-     * @since 2.6
      */
     protected PrettyPrinter _constructDefaultPrettyPrinter() {
         return new DefaultPrettyPrinter();
@@ -461,12 +323,10 @@ public abstract class GeneratorBase extends JsonGenerator
      *
      * @return String representation of {@code value}
      *
-     * @throws IOException if there is a problem serializing value as String
-     *
-     * @since 2.7.7
+     * @throws JacksonException if there is a problem serializing value as String
      */
-    protected String _asString(BigDecimal value) throws IOException {
-        if (Feature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_features)) {
+    protected String _asString(BigDecimal value) throws JacksonException {
+        if (StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_streamWriteFeatures)) {
             // 24-Aug-2016, tatu: [core#315] prevent possible DoS vector
             int scale = value.scale();
             if ((scale < -MAX_BIG_DECIMAL_SCALE) || (scale > MAX_BIG_DECIMAL_SCALE)) {
@@ -480,13 +340,12 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* UTF-8 related helper method(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
-    // @since 2.5
-    protected final int _decodeSurrogate(int surr1, int surr2) throws IOException
+    protected final int _decodeSurrogate(int surr1, int surr2) throws JacksonException
     {
         // First is known to be valid, but how about the other?
         if (surr2 < SURR2_FIRST || surr2 > SURR2_LAST) {
@@ -497,4 +356,12 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
         int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
         return c;
     }
+
+    /*
+    /**********************************************************************
+    /* Helper methods: error reporting
+    /**********************************************************************
+     */
+
+    protected void _throwInternal() { VersionUtil.throwInternal(); }
 }

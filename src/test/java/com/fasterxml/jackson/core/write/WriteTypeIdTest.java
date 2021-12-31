@@ -3,10 +3,11 @@ package com.fasterxml.jackson.core.write;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectWriteContext;
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 
 public class WriteTypeIdTest
@@ -14,21 +15,21 @@ public class WriteTypeIdTest
 {
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testNoNativeTypeIdForJson() throws Exception
+    public void testNoNativeTypeIdForJson()
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
-        assertFalse(gen.canWriteTypeId());
-        try {
-            gen.writeTypeId("whatever");
-            fail("Should not pass");
-        } catch (JsonGenerationException e) {
-            verifyException(e, "No native support for writing Type Ids");
+        try (JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw)) {
+            assertFalse(gen.canWriteTypeId());
+            try {
+                gen.writeTypeId("whatever");
+                fail("Should not pass");
+            } catch (StreamWriteException e) {
+                verifyException(e, "No native support for writing Type Ids");
+            }
         }
-        gen.close();
     }
 
-    public void testBasicTypeIdWriteForObject() throws Exception
+    public void testBasicTypeIdWriteForObject()
     {
         final Object data = new Object();
 
@@ -40,9 +41,9 @@ public class WriteTypeIdTest
         typeId.asProperty = "type";
 
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("value", 13);
+        gen.writeNumberProperty("value", 13);
         gen.writeTypeSuffix(typeId);
         gen.close();
         assertEquals("{\"type\":\"typeId\",\"value\":13}", sw.toString());
@@ -51,9 +52,9 @@ public class WriteTypeIdTest
         typeId = new WritableTypeId(data, JsonToken.START_OBJECT, "typeId");
         typeId.include = WritableTypeId.Inclusion.WRAPPER_ARRAY;
         sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("value", 13);
+        gen.writeNumberProperty("value", 13);
         gen.writeTypeSuffix(typeId);
         gen.close();
 
@@ -63,9 +64,9 @@ public class WriteTypeIdTest
         typeId = new WritableTypeId(data, JsonToken.START_OBJECT, "typeId");
         typeId.include = WritableTypeId.Inclusion.WRAPPER_OBJECT;
         sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("value", 13);
+        gen.writeNumberProperty("value", 13);
         gen.writeTypeSuffix(typeId);
         gen.close();
         assertEquals("{\"typeId\":{\"value\":13}}", sw.toString());
@@ -75,18 +76,18 @@ public class WriteTypeIdTest
         typeId.include = WritableTypeId.Inclusion.PARENT_PROPERTY;
         typeId.asProperty = "extId";
         sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
-        gen.writeFieldName("value");
+        gen.writeName("value");
         gen.writeTypePrefix(typeId);
-        gen.writeNumberField("number", 42);
+        gen.writeNumberProperty("number", 42);
         gen.writeTypeSuffix(typeId);
         gen.writeEndObject();
         gen.close();
         assertEquals("{\"value\":{\"number\":42},\"extId\":\"typeId\"}", sw.toString());
     }
 
-    public void testBasicTypeIdWriteForArray() throws Exception
+    public void testBasicTypeIdWriteForArray()
     {
         final Object data = new Object();
 
@@ -97,7 +98,7 @@ public class WriteTypeIdTest
         typeId.include = WritableTypeId.Inclusion.WRAPPER_OBJECT;
 
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
         gen.writeNumber(13);
         gen.writeNumber(42);
@@ -110,7 +111,7 @@ public class WriteTypeIdTest
         typeId.include = WritableTypeId.Inclusion.PAYLOAD_PROPERTY;
         typeId.asProperty = "type";
         sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeTypePrefix(typeId);
         gen.writeNumber(13);
         gen.writeNumber(42);

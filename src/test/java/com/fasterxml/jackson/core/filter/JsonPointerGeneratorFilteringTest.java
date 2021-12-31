@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 @SuppressWarnings("resource")
 public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.core.BaseTest
@@ -94,7 +95,7 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
     {
         StringWriter w = new StringWriter();
 
-        JsonGenerator g0 = JSON_F.createGenerator(w);
+        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
         FilteringGeneratorDelegate g = new FilteringGeneratorDelegate(g0,
                 new JsonPointerBasedFilter(pathExpr),
                 tokenFilterInclusion, false);
@@ -128,10 +129,10 @@ public class JsonPointerGeneratorFilteringTest extends com.fasterxml.jackson.cor
     private void _testArrayFiltering582(int mode) throws IOException
     {
          StringWriter output = new StringWriter();
-         JsonGenerator jg = JSON_F.createGenerator(output);
+         JsonGenerator jg = JSON_F.createGenerator(ObjectWriteContext.empty(), output);
 
          FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(jg,
-                 new JsonPointerBasedFilter("/noMatch"), Inclusion.INCLUDE_ALL_AND_PATH, true);
+                 new JsonPointerBasedFilter("/noMatch"), Inclusion.ONLY_INCLUDE_ALL, true);
          final String[] stuff = new String[] { "foo", "bar" };
 
          switch (mode) {

@@ -3,9 +3,9 @@ package com.fasterxml.jackson.core.json;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectReadContext;
 
 public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
 {
@@ -25,11 +25,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     public void testCurrentName() throws Exception
     {
         JsonFactory jf = new JsonFactory();
-
-        
         _testCurrentName(jf, false);
-
-        
         _testCurrentName(jf, true);
     }
 
@@ -43,8 +39,8 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     {
         final String DOC = "[ ]";
         JsonParser jp = useStream ?
-                jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-                : jf.createParser(DOC);
+                jf.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+                : jf.createParser(ObjectReadContext.empty(), DOC);
         assertNull(jp.currentToken());
         jp.clearCurrentToken();
         assertNull(jp.currentToken());
@@ -57,8 +53,8 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         try {
             jp.readValueAsTree();
             fail("Should get exception without codec");
-        } catch (IllegalStateException e) {
-            verifyException(e, "No ObjectCodec defined");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Operation not supported");
         }
         jp.close();
     }
@@ -67,30 +63,30 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     {
         final String DOC = "{\"first\":{\"second\":3, \"third\":false}}";
         JsonParser jp = useStream ?
-                jf.createParser(new ByteArrayInputStream(DOC.getBytes("UTF-8")))
-                : jf.createParser(new StringReader(DOC));
+                jf.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(DOC.getBytes("UTF-8")))
+                : jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         assertNull(jp.currentToken());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("first", jp.getCurrentName());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
+        assertEquals("first", jp.currentName());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertEquals("first", jp.getCurrentName()); // still the same...
-        jp.overrideCurrentName("foobar");
-        assertEquals("foobar", jp.getCurrentName()); // but not any more!
+        assertEquals("first", jp.currentName()); // still the same...
+//        jp.overrideCurrentName("foobar");
+//        assertEquals("foobar", jp.currentName()); // but not any more!
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("second", jp.getCurrentName());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
+        assertEquals("second", jp.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-        assertEquals("second", jp.getCurrentName());
+        assertEquals("second", jp.currentName());
 
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
-        assertEquals("third", jp.getCurrentName());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
+        assertEquals("third", jp.currentName());
         assertToken(JsonToken.VALUE_FALSE, jp.nextToken());
-        assertEquals("third", jp.getCurrentName());
+        assertEquals("third", jp.currentName());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         // should retain overrides, too
-        assertEquals("foobar", jp.getCurrentName());
+//        assertEquals("foobar", jp.currentName());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.clearCurrentToken();

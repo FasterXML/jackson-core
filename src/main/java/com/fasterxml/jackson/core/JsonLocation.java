@@ -18,20 +18,13 @@ public class JsonLocation
     private static final long serialVersionUID = 2L; // in 2.13
 
     /**
-     * @deprecated Since 2.13 use {@link ContentReference#DEFAULT_MAX_CONTENT_SNIPPET} instead
-     */
-    @Deprecated
-    public static final int MAX_CONTENT_SNIPPET = 500;
-
-    /**
      * Shared immutable "N/A location" that can be returned to indicate
      * that no location information is available.
-     *<p>
-     * NOTE: before 2.9, Location was given as String "N/A"; with 2.9 it was
-     * removed so that source should be indicated as "UNKNOWN".
      */
     public final static JsonLocation NA = new JsonLocation(ContentReference.unknown(),
             -1L, -1L, -1, -1);
+
+    private final static String NO_LOCATION_DESC = "[No location information]";
 
     protected final long _totalBytes;
     protected final long _totalChars;
@@ -42,8 +35,6 @@ public class JsonLocation
     /**
      * Reference to input source; never null (but may be that of
      * {@link ContentReference#unknown()}).
-     *
-     * @since 2.13 (before we have {@code _sourceRef} (Object-valued)
      */
     protected final ContentReference _contentReference;
 
@@ -81,24 +72,6 @@ public class JsonLocation
         _columnNr = columnNr;
     }
 
-    @Deprecated // since 2.13
-    public JsonLocation(Object srcRef, long totalChars, int lineNr, int columnNr) {
-        this(_wrap(srcRef), totalChars, lineNr, columnNr);
-    }
-
-    @Deprecated // since 2.13
-    public JsonLocation(Object srcRef, long totalBytes, long totalChars,
-            int lineNr, int columnNr) {
-        this(_wrap(srcRef), totalBytes, totalChars, lineNr, columnNr);
-    }
-
-    protected static ContentReference _wrap(Object srcRef) {
-        if (srcRef instanceof ContentReference) {
-            return (ContentReference) srcRef;
-        }
-        return ContentReference.construct(false, srcRef);
-    }
-
     /*
     /**********************************************************************
     /* Simple accessors
@@ -110,32 +83,13 @@ public class JsonLocation
      * read from. Returned reference is never {@code null} but may not contain
      * useful information.
      *<p>
-     * NOTE: not getter, on purpose, to avoid inlusion if serialized using
+     * NOTE: not getter, on purpose, to avoid inclusion if serialized using
      * default Jackson serializer.
      *
      * @return Object with information about input source.
-     *
-     * @since 2.13 (to replace {@code getSourceRef})
      */
     public ContentReference contentReference() {
         return _contentReference;
-    }
-
-    /**
-     * Reference to the original resource being read, if one available.
-     * For example, when a parser has been constructed by passing
-     * a {@link java.io.File} instance, this method would return
-     * that File. Will return null if no such reference is available,
-     * for example when {@link java.io.InputStream} was used to
-     * construct the parser instance.
-     *
-     * @return Source reference this location was constructed with, if any; {@code null} if none
-     *
-     * @deprecated Since 2.13 Use {@link #contentReference} instead
-     */
-    @Deprecated
-    public Object getSourceRef() {
-        return _contentReference.getRawContent();
     }
 
     /**
@@ -168,7 +122,7 @@ public class JsonLocation
 
     /**
      * Accessor for getting a textual description of source reference
-     * (Object returned by {@link #getSourceRef()}), as included in
+     * (Object returned by {@link #contentReference()}), as included in
      * description returned by {@link #toString()}.
      *<p>
      * Note: implementation will simply call
@@ -176,9 +130,7 @@ public class JsonLocation
      *<p>
      * NOTE: not added as a "getter" to prevent it from getting serialized.
      *
-     * @return Description of the source reference (see {@link #getSourceRef()}
-     *
-     * @since 2.9
+     * @return Description of the source reference (see {@link #contentReference()}
      */
     public String sourceDescription() {
         // 04-Apr-2021, tatu: Construct lazily but retain
@@ -194,8 +146,6 @@ public class JsonLocation
      *
      * @return Description of available relevant location offsets; combination of
      *    line number and column position or byte offset
-     *
-     * @since 2.13
      */
     public String offsetDescription() {
         return appendOffsetDescription(new StringBuilder(40)).toString();
@@ -223,24 +173,15 @@ public class JsonLocation
                 sb.append("UNKNOWN");
             }
         } else {
-            // 04-Apr-2021, tatu: Ideally byte formats would not need line/column
-            //    info, but for backwards-compatibility purposes (Jackson 2.x),
-            //    will leave logic here
-            if (_lineNr > 0) { // yes, require 1-based in case of allegedly binary content
-                sb.append("line: ").append(_lineNr);
-                if (_columnNr > 0) {
-                    sb.append(", column: ");
-                    sb.append(_columnNr);
-                }
+            // 04-Apr-2021, tatu: Jackson 2.x had compatibility checks here; 3.x
+            //    assumes binary content always implies byte offsets
+            sb.append("byte offset: #");
+            // For binary formats, total bytes should be the canonical offset
+            // for token/current location
+            if (_totalBytes >= 0) {
+                sb.append(_totalBytes);
             } else {
-                sb.append("byte offset: #");
-                // For binary formats, total bytes should be the canonical offset
-                // for token/current location
-                if (_totalBytes >= 0) {
-                    sb.append(_totalBytes);
-                } else {
-                    sb.append("UNKNOWN");
-                }
+                sb.append("UNKNOWN");
             }
         }
         return sb;
@@ -287,6 +228,9 @@ public class JsonLocation
     @Override
     public String toString()
     {
+        if (this == NA) {
+            return NO_LOCATION_DESC;
+        }
         final String srcDesc = sourceDescription();
         StringBuilder sb = new StringBuilder(40 + srcDesc.length())
                 .append("[Source: ")
@@ -295,5 +239,17 @@ public class JsonLocation
         return appendOffsetDescription(sb)
                 .append(']')
                 .toString();
+    }
+
+    public StringBuilder toString(StringBuilder sb)
+    {
+        if (this == NA) {
+            return sb.append(NO_LOCATION_DESC);
+        }
+        sb.append("[Source: ")
+                .append(sourceDescription())
+                .append("; ");
+        return appendOffsetDescription(sb)
+                .append(']');
     }
 }

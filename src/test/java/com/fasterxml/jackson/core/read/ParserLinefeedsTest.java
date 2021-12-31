@@ -47,22 +47,22 @@ public class ParserLinefeedsTest
             : createParserUsingReader(DOC);
             
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertEquals(1, jp.getCurrentLocation().getLineNr());
+        assertEquals(1, jp.currentLocation().getLineNr());
         
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(1, jp.getIntValue());
-        assertEquals(1, jp.getCurrentLocation().getLineNr());
+        assertEquals(1, jp.currentLocation().getLineNr());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(2, jp.getIntValue());
-        assertEquals(2, jp.getCurrentLocation().getLineNr());
+        assertEquals(2, jp.currentLocation().getLineNr());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(-478, jp.getIntValue());
-        assertEquals(3, jp.getCurrentLocation().getLineNr());
+        assertEquals(3, jp.currentLocation().getLineNr());
         
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertEquals(4, jp.getCurrentLocation().getLineNr());
+        assertEquals(4, jp.currentLocation().getLineNr());
 
         jp.close();
     }

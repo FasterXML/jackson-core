@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.core.json;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
- * Extension of {@link JsonStreamContext}, which implements
+ * Extension of {@link TokenStreamContext}, which implements
  * core methods needed, and also exposes
  * more complete API to parser implementation classes.
  */
-public final class JsonReadContext extends JsonStreamContext
+public final class JsonReadContext extends TokenStreamContext
 {
     // // // Configuration
 
@@ -22,35 +23,32 @@ public final class JsonReadContext extends JsonStreamContext
     protected DupDetector _dups;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple instance reuse slots; speeds up things a bit (10-15%)
     /* for docs with lots of small arrays/objects (for which
     /* allocation was visible in profile stack frames)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected JsonReadContext _child;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information (minus source reference)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected String _currentName;
 
-    /**
-     * @since 2.5
-     */
     protected Object _currentValue;
     
     protected int _lineNr;
     protected int _columnNr;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Instance construction, config, reuse
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonReadContext(JsonReadContext parent, DupDetector dups, int type, int lineNr, int colNr) {
@@ -69,14 +67,14 @@ public final class JsonReadContext extends JsonStreamContext
      * Clears up state (including "current value"), changes type to one specified;
      * resets current duplicate-detection state (if any).
      * Parent link left as-is since it is {@code final}.
-     *<p>
-     * NOTE: Public since 2.12.
      *
      * @param type Type to assign to this context node
      * @param lineNr Line of the starting position of this context
      * @param colNr Column of the starting position of this context
+     *
+     * @return This context instance (to allow call-chaining)
      */
-    public void reset(int type, int lineNr, int colNr) {
+    public JsonReadContext reset(int type, int lineNr, int colNr) {
         _type = type;
         _index = -1;
         _lineNr = lineNr;
@@ -86,6 +84,7 @@ public final class JsonReadContext extends JsonStreamContext
         if (_dups != null) {
             _dups.reset();
         }
+        return this;
     }
 
     /*
@@ -100,19 +99,19 @@ public final class JsonReadContext extends JsonStreamContext
     }
 
     @Override
-    public Object getCurrentValue() {
+    public Object currentValue() {
         return _currentValue;
     }
 
     @Override
-    public void setCurrentValue(Object v) {
+    public void assignCurrentValue(Object v) {
         _currentValue = v;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static JsonReadContext createRootContext(int lineNr, int colNr, DupDetector dups) {
@@ -146,14 +145,16 @@ public final class JsonReadContext extends JsonStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract method implementations, overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public String getCurrentName() { return _currentName; }
+    /**
+     * @since 3.0
+     */
+    @Override public String currentName() { return _currentName; }
 
-    // @since 2.9
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
     @Override public JsonReadContext getParent() { return _parent; }
@@ -162,32 +163,25 @@ public final class JsonReadContext extends JsonStreamContext
     public JsonLocation startLocation(ContentReference srcRef) {
         // We don't keep track of offsets at this level (only reader does)
         long totalChars = -1L;
-        return new JsonLocation(srcRef, totalChars, _lineNr, _columnNr);
-    }
-
-    @Override
-    @Deprecated // since 2.13
-    public JsonLocation getStartLocation(Object rawSrc) {
-        return startLocation(ContentReference.rawReference(rawSrc));
+        return new JsonLocation(ContentReference.rawReference(srcRef),
+                totalChars, _lineNr, _columnNr);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method that can be used to both clear the accumulated references
-     * (specifically value set with {@link #setCurrentValue(Object)})
+     * (specifically value set with {@link #assignCurrentValue(Object)})
      * that should not be retained, and returns parent (as would
      * {@link #getParent()} do). Typically called when closing the active
      * context when encountering {@link JsonToken#END_ARRAY} or
      * {@link JsonToken#END_OBJECT}.
      *
      * @return Parent context of this context node, if any; {@code null} for root context
-     *
-     * @since 2.7
      */
     public JsonReadContext clearAndGetParent() {
         _currentValue = null;
@@ -200,9 +194,9 @@ public final class JsonReadContext extends JsonStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State changes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public boolean expectComma() {
@@ -214,16 +208,26 @@ public final class JsonReadContext extends JsonStreamContext
         return (_type != TYPE_ROOT && ix > 0);
     }
 
-    public void setCurrentName(String name) throws JsonProcessingException {
+    /**
+     * Method that parser is to call when it reads a name of Object property.
+     *
+     * @param name Property name that has been read
+     *
+     * @throws StreamReadException if duplicate check restriction is violated (which
+     *    assumes that duplicate-detection is enabled)
+     */
+    public void setCurrentName(String name) throws StreamReadException
+    {
         _currentName = name;
         if (_dups != null) { _checkDup(_dups, name); }
     }
 
-    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException {
+    private void _checkDup(DupDetector dd, String name) throws StreamReadException
+    {
         if (dd.isDup(name)) {
             Object src = dd.getSource();
-            throw new JsonParseException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
-                    "Duplicate field '"+name+"'");
+            throw new StreamReadException(((src instanceof JsonParser) ? ((JsonParser) src) : null),
+                    "Duplicate Object property \""+name+"\"");
         }
     }
 }

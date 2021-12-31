@@ -3,6 +3,8 @@ package com.fasterxml.jackson.core.read;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
@@ -30,16 +32,15 @@ public class CommentParsingTest
      * Unit test for verifying that by default comments are not
      * recognized.
      */
-    public void testDefaultSettings() throws Exception
+    public void testDefaultSettings()
     {
-        JsonFactory jf = new JsonFactory();
-        assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
-        JsonParser p = jf.createParser(new StringReader("[ 1 ]"));
-        assertFalse(p.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        JsonFactory f = new JsonFactory();
+        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
+        JsonParser p = f.createParser(ObjectReadContext.empty(), new StringReader("[ 1 ]"));
         p.close();
     }
 
-    public void testCommentsDisabled() throws Exception
+    public void testCommentsDisabled()
     {
         _testDisabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_STREAM);
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_STREAM);
@@ -51,7 +52,7 @@ public class CommentParsingTest
         _testDisabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_DATA_INPUT);
     }
 
-    public void testCommentsEnabled() throws Exception
+    public void testCommentsEnabled()
     {
         _testEnabled(DOC_WITH_SLASHSTAR_COMMENT, MODE_INPUT_STREAM);
         _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_INPUT_STREAM);
@@ -63,7 +64,7 @@ public class CommentParsingTest
         _testEnabled(DOC_WITH_SLASHSLASH_COMMENT, MODE_DATA_INPUT);
     }
 
-    public void testCommentsWithUTF8() throws Exception
+    public void testCommentsWithUTF8()
     {
         final String JSON = "/* \u00a9 2099 Yoyodyne Inc. */\n [ \"bar? \u00a9\" ]\n";
         _testWithUTF8Chars(JSON, MODE_INPUT_STREAM);
@@ -72,11 +73,10 @@ public class CommentParsingTest
         _testWithUTF8Chars(JSON, MODE_DATA_INPUT);
     }
 
-    public void testYAMLCommentsBytes() throws Exception {
+    public void testYAMLCommentsBytes() {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
                 .build();
-
         _testYAMLComments(f, MODE_INPUT_STREAM);
         _testCommentsBeforePropValue(f, MODE_INPUT_STREAM, "# foo\n");
         _testYAMLComments(f, MODE_INPUT_STREAM_THROTTLED);
@@ -85,7 +85,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_DATA_INPUT, "# foo\n");
     }
 
-    public void testYAMLCommentsChars() throws Exception {
+    public void testYAMLCommentsChars() {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_YAML_COMMENTS)
                 .build();
@@ -95,7 +95,7 @@ public class CommentParsingTest
         _testCommentsBetweenArrayValues(f, MODE_READER, COMMENT);
     }
 
-    public void testCCommentsBytes() throws Exception {
+    public void testCCommentsBytes() {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -105,7 +105,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_DATA_INPUT, COMMENT);
     }
 
-    public void testCCommentsChars() throws Exception {
+    public void testCCommentsChars() {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -113,7 +113,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_READER, COMMENT);
     }
 
-    public void testCppCommentsBytes() throws Exception {
+    public void testCppCommentsBytes() {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -123,7 +123,7 @@ public class CommentParsingTest
         _testCommentsBeforePropValue(f, MODE_DATA_INPUT, COMMENT);
     }
 
-    public void testCppCommentsChars() throws Exception {
+    public void testCppCommentsChars() {
         final JsonFactory f = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .build();
@@ -133,7 +133,7 @@ public class CommentParsingTest
 
     @SuppressWarnings("resource")
     private void _testCommentsBeforePropValue(JsonFactory f,
-            int mode, String comment) throws Exception
+            int mode, String comment)
     {
         for (String arg : new String[] {
                 ":%s123",
@@ -153,7 +153,7 @@ public class CommentParsingTest
             } catch (Exception e) {
                 throw new RuntimeException("Failed on '"+DOC+"' due to "+e, e);
             }
-            assertEquals(JsonToken.FIELD_NAME, t);
+            assertEquals(JsonToken.PROPERTY_NAME, t);
 
             try {
                 t = p.nextToken();
@@ -170,7 +170,7 @@ public class CommentParsingTest
 
     @SuppressWarnings("resource")
     private void _testCommentsBetweenArrayValues(JsonFactory f,
-            int mode, String comment) throws Exception
+            int mode, String comment)
     {
         for (String tmpl : new String[] {
                 "%s,",
@@ -210,7 +210,7 @@ public class CommentParsingTest
         
     }
     
-    private void _testYAMLComments(JsonFactory f, int mode) throws Exception
+    private void _testYAMLComments(JsonFactory f, int mode)
     {
         final String DOC = "# foo\n"
                 +" {\"a\" # xyz\n"
@@ -224,12 +224,12 @@ public class CommentParsingTest
                 ;
         JsonParser p = createParser(f, mode, DOC);
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("a", p.getCurrentName());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals("a", p.currentName());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
-        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("b", p.getCurrentName());
+        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals("b", p.currentName());
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
@@ -247,7 +247,7 @@ public class CommentParsingTest
     /**********************************************************
      */
 
-    private void _testWithUTF8Chars(String doc, int mode) throws IOException
+    private void _testWithUTF8Chars(String doc, int mode)
     {
         // should basically just stream through
         JsonParser p = _createParser(doc, mode, true);
@@ -259,20 +259,20 @@ public class CommentParsingTest
         p.close();
     }
     
-    private void _testDisabled(String doc, int mode) throws IOException
+    private void _testDisabled(String doc, int mode)
     {
         JsonParser p = _createParser(doc, mode, false);
         try {
             p.nextToken();
             fail("Expected exception for unrecognized comment");
-        } catch (JsonParseException je) {
+        } catch (StreamReadException je) {
             // Should have something denoting that user may want to enable 'ALLOW_COMMENTS'
             verifyException(je, "ALLOW_COMMENTS");
         }
         p.close();
     }
 
-    private void _testEnabled(String doc, int mode) throws IOException
+    private void _testEnabled(String doc, int mode)
     {
         JsonParser p = _createParser(doc, mode, true);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -282,7 +282,6 @@ public class CommentParsingTest
     }
 
     private JsonParser _createParser(String doc, int mode, boolean enabled)
-        throws IOException
     {
         final JsonFactory f = JsonFactory.builder()
                 .configure(JsonReadFeature.ALLOW_JAVA_COMMENTS, enabled)

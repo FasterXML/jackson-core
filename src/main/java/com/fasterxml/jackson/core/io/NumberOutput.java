@@ -36,17 +36,10 @@ public final class NumberOutput
         }
     }
 
-    private final static String[] sSmallIntStrs = new String[] {
-        "0","1","2","3","4","5","6","7","8","9","10"
-    };
-    private final static String[] sSmallIntStrs2 = new String[] {
-        "-1","-2","-3","-4","-5","-6","-7","-8","-9","-10"
-    };
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Efficient serialization methods using raw buffers
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -75,11 +68,11 @@ public final class NumberOutput
         }
 
         if (v < MILLION) { // at most 2 triplets...
+            if (v < 10) {
+                b[off] = (char) ('0' + v);
+                return off+1;
+            }
             if (v < 1000) {
-                if (v < 10) {
-                    b[off] = (char) ('0' + v);
-                    return off+1;
-                }
                 return _leading3(v, b, off);
             }
             int thousands = v / 1000;
@@ -243,49 +236,9 @@ public final class NumberOutput
     }
 
     /*
-    /**********************************************************
-    /* Convenience serialization methods
-    /**********************************************************
-     */
-
-    /* !!! 05-Aug-2008, tatus: Any ways to further optimize
-     *   these? (or need: only called by diagnostics methods?)
-     */
-    public static String toString(int v)
-    {
-        // Lookup table for small values
-        if (v < sSmallIntStrs.length) {
-            if (v >= 0) {
-                return sSmallIntStrs[v];
-            }
-            int v2 = -v - 1;
-            if (v2 < sSmallIntStrs2.length) {
-                return sSmallIntStrs2[v2];
-            }
-        }
-        return Integer.toString(v);
-    }
-
-    public static String toString(long v) {
-        if (v <= Integer.MAX_VALUE && v >= Integer.MIN_VALUE) {
-            return toString((int) v);
-        }
-        return Long.toString(v);
-    }
-
-    public static String toString(double v) {
-        return Double.toString(v);
-    }
-
-    // @since 2.6
-    public static String toString(float v) {
-        return Float.toString(v);
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Other convenience methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -299,8 +252,7 @@ public final class NumberOutput
      * Since 2.10
      */
     public static boolean notFinite(double value) {
-        // before Java 8 need separate checks
-        return Double.isNaN(value) || Double.isInfinite(value);
+        return !Double.isFinite(value);
     }
 
     /**
@@ -310,18 +262,15 @@ public final class NumberOutput
      * @param value {@code float} value to check
      *
      * @return True if number is NOT finite (is Infinity or NaN); false otherwise
-     *
-     * Since 2.10
      */
     public static boolean notFinite(float value) {
-        // before Java 8 need separate checks
-        return Float.isNaN(value) || Float.isInfinite(value);
+        return !Float.isFinite(value);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private static int _outputUptoBillion(int v, char[] b, int off)

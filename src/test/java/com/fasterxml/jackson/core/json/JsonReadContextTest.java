@@ -1,35 +1,36 @@
 package com.fasterxml.jackson.core.json;
 
-import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.ContentReference;
 
 /**
  * Unit tests for class {@link JsonReadContext}.
  */
-public class JsonReadContextTest extends BaseTest
+public class JsonReadContextTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
-  public void testSetCurrentNameTwiceWithSameNameRaisesJsonParseException() throws Exception
+  public void testSetCurrentNameTwiceWithSameName()
   {
+      final String PROP_NAME = "dupField";
       DupDetector dupDetector = DupDetector.rootDetector((JsonGenerator) null);
       JsonReadContext jsonReadContext = new JsonReadContext((JsonReadContext) null, dupDetector, 2441, 2441, 2441);
-      jsonReadContext.setCurrentName("dupField");
+      jsonReadContext.setCurrentName(PROP_NAME);
       try {
-          jsonReadContext.setCurrentName("dupField");
-          fail("Should not pass");
-      } catch (JsonParseException e) {
-          verifyException(e, "Duplicate field 'dupField'");
+          jsonReadContext.setCurrentName(PROP_NAME);
+      } catch (StreamReadException e) {
+          verifyException(e, "Duplicate Object property \""+PROP_NAME+"\"");
+          verifyException(e, PROP_NAME);
       }
   }
 
-  public void testSetCurrentName() throws Exception
+  public void testSetCurrentName()
   {
       JsonReadContext jsonReadContext = JsonReadContext.createRootContext(0, 0, (DupDetector) null);
       jsonReadContext.setCurrentName("abc");
-      assertEquals("abc", jsonReadContext.getCurrentName());
+      assertEquals("abc", jsonReadContext.currentName());
       jsonReadContext.setCurrentName(null);
-      assertNull(jsonReadContext.getCurrentName());
+      assertNull(jsonReadContext.currentName());
   }
 
   public void testReset()
@@ -50,5 +51,4 @@ public class JsonReadContextTest extends BaseTest
       assertEquals(500, jsonReadContext.startLocation(bogusSrc).getLineNr());
       assertEquals(200, jsonReadContext.startLocation(bogusSrc).getColumnNr());
   }
-
 }

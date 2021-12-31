@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncUnicodeHandlingTest extends AsyncTestBase
@@ -78,7 +79,7 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
         data = _jsonDoc("{"+quoted+":true}");
         r = asyncForBytes(f, readSize, data, 0);
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertEquals(TEXT, r.currentName());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
@@ -88,7 +89,7 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
         // and skipping
         r = asyncForBytes(f, readSize, data, 0);
         assertToken(JsonToken.START_OBJECT, r.nextToken());
-        assertToken(JsonToken.FIELD_NAME, r.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
         assertToken(JsonToken.VALUE_TRUE, r.nextToken());
         assertToken(JsonToken.END_OBJECT, r.nextToken());
         r.close();

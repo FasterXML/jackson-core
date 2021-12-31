@@ -1,38 +1,32 @@
 package com.fasterxml.jackson.core;
 
-import java.io.IOException;
+import com.fasterxml.jackson.core.tree.ArrayTreeNode;
+import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 
 /**
  * Interface that defines objects that can read and write
  * {@link TreeNode} instances using Streaming API.
- * 
- * @since 2.3
  */
-public abstract class TreeCodec
+public interface TreeCodec
 {
-    public abstract <T extends TreeNode> T readTree(JsonParser p) throws IOException, JsonProcessingException;
-    public abstract void writeTree(JsonGenerator g, TreeNode tree) throws IOException, JsonProcessingException;
+    // // // Factory methods
 
-    /**
-     * @return Node that represents "missing" node during traversal: something
-     *   referenced but that does not exist in content model
-     * 
-     * @since 2.10
-     */
-    public TreeNode missingNode() {
-        return null;
-    }
+    public abstract ArrayTreeNode createArrayNode();
+    public abstract ObjectTreeNode createObjectNode();
 
-    /**
-     * @return Node that represents explict {@code null} value in content
-     * 
-     * @since 2.10
-     */
-    public TreeNode nullNode() {
-        return null;
-    }
+    public abstract TreeNode booleanNode(boolean b);
+    public abstract TreeNode stringNode(String text);
 
-    public abstract TreeNode createArrayNode();
-    public abstract TreeNode createObjectNode();
+    public abstract TreeNode missingNode();
+    public abstract TreeNode nullNode();
+
+    // // // Read methods
+
     public abstract JsonParser treeAsTokens(TreeNode node);
+
+    public abstract <T extends TreeNode> T readTree(JsonParser p) throws JacksonException;
+
+    // // // Write methods
+
+    public abstract void writeTree(JsonGenerator g, TreeNode tree) throws JacksonException;
 }

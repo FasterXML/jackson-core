@@ -1,14 +1,21 @@
 package com.fasterxml.jackson.core.base;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
-import com.fasterxml.jackson.core.io.JsonEOFException;
+import com.fasterxml.jackson.core.exc.UnexpectedEndOfInputException;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.NumberInput;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 import static com.fasterxml.jackson.core.JsonTokenId.*;
@@ -56,20 +63,14 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected final static char CHAR_NULL = '\0';
 
-    /**
-     * @since 2.9
-     */
     protected final static byte[] NO_BYTES = new byte[0];
 
-    /**
-     * @since 2.9
-     */
     protected final static int[] NO_INTS = new int[0];
     
     /*
-    /**********************************************************
-    /* Constants and fields of former 'JsonNumericParserBase'
-    /**********************************************************
+    /**********************************************************************
+    /* Constants and fields wrt number handling
+    /**********************************************************************
      */
 
     protected final static int NR_UNKNOWN = 0;
@@ -87,8 +88,6 @@ public abstract class ParserMinimalBase extends JsonParser
 
     /**
      * NOTE! Not used by JSON implementation but used by many of binary codecs
-     *
-     * @since 2.9
      */
     protected final static int NR_FLOAT = 0x020;
 
@@ -106,6 +105,13 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static BigDecimal BD_MIN_INT = new BigDecimal(BI_MIN_INT);
     protected final static BigDecimal BD_MAX_INT = new BigDecimal(BI_MAX_INT);
 
+    protected final static int MIN_BYTE_I = (int) Byte.MIN_VALUE;
+    // Allow range up to and including 255, to support signed AND unsigned bytes
+    protected final static int MAX_BYTE_I = (int) 255;
+
+    protected final static int MIN_SHORT_I = (int) Short.MIN_VALUE;
+    protected final static int MAX_SHORT_I = (int) Short.MAX_VALUE;
+    
     protected final static long MIN_INT_L = (long) Integer.MIN_VALUE;
     protected final static long MAX_INT_L = (long) Integer.MAX_VALUE;
 
@@ -118,24 +124,45 @@ public abstract class ParserMinimalBase extends JsonParser
     protected final static double MAX_INT_D = (double) Integer.MAX_VALUE;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Misc other constants
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Maximum number of characters to include in token reported
      * as part of error messages.
-     *
-     * @since 2.9
      */
     protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
 
     /*
-    /**********************************************************
-    /* Minimal generally useful state
-    /**********************************************************
+    /**********************************************************************
+    /* Minimal configuration state
+    /**********************************************************************
      */
+
+    /**
+     * Bit flag composed of bits that indicate which
+     * {@link com.fasterxml.jackson.core.StreamReadFeature}s
+     * are enabled.
+     */
+    protected int _streamReadFeatures;
+
+    /*
+    /**********************************************************************
+    /* Minimal generally useful state
+    /**********************************************************************
+     */
+
+    /**
+     * Context object provided by higher level functionality like
+     * databinding for two reasons: passing configuration information
+     * during construction, and to allow calling of some databind
+     * operations via parser instance.
+     *
+     * @since 3.0
+     */
+    protected final ObjectReadContext _objectReadContext;
 
     /**
      * Last token retrieved via {@link #nextToken}, if any.
@@ -151,48 +178,113 @@ public abstract class ParserMinimalBase extends JsonParser
     protected JsonToken _lastClearedToken;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected ParserMinimalBase() { }
-    protected ParserMinimalBase(int features) { super(features); }
+    protected ParserMinimalBase(ObjectReadContext readCtxt) {
+        _objectReadContext = readCtxt;
+    }
 
-    // NOTE: had base impl in 2.3 and before; but shouldn't
-    // public abstract Version version();
+    protected ParserMinimalBase(ObjectReadContext readCtxt,
+            int streamReadFeatures)
+    {
+        super();
+        _objectReadContext = readCtxt;
+        _streamReadFeatures = streamReadFeatures;
+    }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration overrides if any
-    /**********************************************************
+    /**********************************************************************
      */
 
     // from base class:
 
-    //public void enableFeature(Feature f)
-    //public void disableFeature(Feature f)
-    //public void setFeature(Feature f, boolean state)
-    //public boolean isFeatureEnabled(Feature f)
+    /*
+    @Override
+    public JsonParser enable(StreamReadFeature f) {
+        _streamReadFeatures |= f.getMask();
+        return this;
+    }
+
+    @Override
+    public JsonParser disable(StreamReadFeature f) {
+        _streamReadFeatures &= ~f.getMask();
+        return this;
+    }
+    */
+
+    @Override
+    public boolean isEnabled(StreamReadFeature f) { return f.enabledIn(_streamReadFeatures); }
 
     /*
-    /**********************************************************
-    /* JsonParser impl
-    /**********************************************************
+    /**********************************************************************
+    /* Config access, capability introspection
+    /**********************************************************************
+     */
+    
+    @Override
+    public int streamReadFeatures() { return _streamReadFeatures; }
+
+    @Override
+    public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
+        return DEFAULT_READ_CAPABILITIES;
+    }
+
+    /*
+    /**********************************************************************
+    /* JsonParser impl: open / close
+    /**********************************************************************
      */
 
-    @Override public abstract JsonToken nextToken() throws IOException;
+    // public JsonToken getCurrentToken()
+    // public boolean hasCurrentToken()
+  
+    // public abstract void close();
+    // public abstract boolean isClosed();
+
+    /*
+    /**********************************************************************
+    /* JsonParser impl: basic state access
+    /**********************************************************************
+     */
+
+    // public abstract TokenStreamContext getParsingContext();
+
+    //  public abstract JsonLocation getTokenLocation();
+    //  public abstract JsonLocation getCurrentLocation();
+
+    @Override
+    public ObjectReadContext objectReadContext() {
+        return _objectReadContext;
+    }
+
+    /**
+     * Method sub-classes need to implement to check whether end-of-content is allowed
+     * at the current decoding position: formats often want to verify the all
+     * start/end token pairs match, for example.
+     *
+     * @throws JacksonException if end-of-content not allowed at current position.
+     */
+    protected abstract void _handleEOF() throws JacksonException;
+
+    // public abstract String currentName();
+
+    /*
+    /**********************************************************************
+    /* JsonParser impl: basic stream iteration
+    /**********************************************************************
+     */
+
+    // public abstract JsonToken nextToken() throws JacksonException;
+
+    @Override public void finishToken() throws JacksonException { ; /* nothing */ }
 
     @Override public JsonToken currentToken() { return _currToken; }
     @Override public int currentTokenId() {
-        final JsonToken t = _currToken;
-        return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
-    }
-
-    @Override public JsonToken getCurrentToken() { return _currToken; }
-
-    @Deprecated
-    @Override public int getCurrentTokenId() {
         final JsonToken t = _currToken;
         return (t == null) ? JsonTokenId.ID_NO_TOKEN : t.id();
     }
@@ -215,18 +307,18 @@ public abstract class ParserMinimalBase extends JsonParser
     @Override public boolean isExpectedNumberIntToken() { return _currToken == JsonToken.VALUE_NUMBER_INT; }
 
     @Override
-    public JsonToken nextValue() throws IOException {
+    public JsonToken nextValue() throws JacksonException {
         // Implementation should be as trivial as follows; only needs to change if
         // we are to skip other tokens (for example, if comments were exposed as tokens)
         JsonToken t = nextToken();
-        if (t == JsonToken.FIELD_NAME) {
+        if (t == JsonToken.PROPERTY_NAME) {
             t = nextToken();
         }
         return t;
     }
 
     @Override
-    public JsonParser skipChildren() throws IOException
+    public JsonParser skipChildren() throws JacksonException
     {
         if (_currToken != JsonToken.START_OBJECT
             && _currToken != JsonToken.START_ARRAY) {
@@ -240,10 +332,8 @@ public abstract class ParserMinimalBase extends JsonParser
             JsonToken t = nextToken();
             if (t == null) {
                 _handleEOF();
-                /* given constraints, above should never return;
-                 * however, FindBugs doesn't know about it and
-                 * complains... so let's add dummy break here
-                 */
+                // given constraints, above should never return; however, FindBugs
+                // doesn't know about it and complains... so let's add dummy break here
                 return this;
             }
             if (t.isStructStart()) {
@@ -262,32 +352,51 @@ public abstract class ParserMinimalBase extends JsonParser
         }
     }
 
-    /**
-     * Method sub-classes need to implement for verifying that end-of-content
-     * is acceptable at current input position.
-     *
-     * @throws JsonParseException If end-of-content is not acceptable (for example,
-     *   missing end-object or end-array tokens)
+    /*
+    /**********************************************************************
+    /* JsonParser impl: stream iteration, property names
+    /**********************************************************************
      */
-    protected abstract void _handleEOF() throws JsonParseException;
 
-    //public JsonToken getCurrentToken()
-    //public boolean hasCurrentToken()
+    @Override
+    public String nextName() throws JacksonException {
+        return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
+    }
 
-    @Override public abstract String getCurrentName() throws IOException;
-    @Override public abstract void close() throws IOException;
-    @Override public abstract boolean isClosed();
+    @Override
+    public boolean nextName(SerializableString str) throws JacksonException {
+        return (nextToken() == JsonToken.PROPERTY_NAME) && str.getValue().equals(currentName());
+    }
 
-    @Override public abstract JsonStreamContext getParsingContext();
+    // Base implementation that should work well for most implementations but that
+    // is typically overridden for performance optimization purposes
+    @Override
+    public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException {
+        String str = nextName();
+        if (str != null) {
+            return matcher.matchName(str);
+        }
+        if (_currToken == JsonToken.END_OBJECT) {
+            return PropertyNameMatcher.MATCH_END_OBJECT;
+        }
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
+    }
 
-//    public abstract JsonLocation getTokenLocation();
-
-//   public abstract JsonLocation getCurrentLocation();
+    @Override
+    public int currentNameMatch(PropertyNameMatcher matcher) {
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return matcher.matchName(currentName());
+        }
+        if (_currToken == JsonToken.END_OBJECT) {
+            return PropertyNameMatcher.MATCH_END_OBJECT;
+        }
+        return PropertyNameMatcher.MATCH_ODD_TOKEN;
+    }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, token state overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public void clearCurrentToken() {
@@ -299,36 +408,109 @@ public abstract class ParserMinimalBase extends JsonParser
 
     @Override public JsonToken getLastClearedToken() { return _lastClearedToken; }
 
-    @Override public abstract void overrideCurrentName(String name);
-    
+//    @Override public abstract void overrideCurrentName(String name);
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, access to token information, text
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public abstract String getText() throws IOException;
-    @Override public abstract char[] getTextCharacters() throws IOException;
-    @Override public abstract boolean hasTextCharacters();
-    @Override public abstract int getTextLength() throws IOException;
-    @Override public abstract int getTextOffset() throws IOException;  
+//    @Override public abstract String getText();
+//    @Override public abstract char[] getTextCharacters();
+//    @Override public abstract boolean hasTextCharacters();
+//    @Override public abstract int getTextLength();
+//    @Override public abstract int getTextOffset();
+
+    @Override
+    public int getText(Writer writer) throws JacksonException
+    {
+        String str = getText();
+        if (str == null) {
+            return 0;
+        }
+        try {
+            writer.write(str);
+        } catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return str.length();
+    }
 
     /*
-    /**********************************************************
-    /* Public API, access to token information, binary
-    /**********************************************************
+    /**********************************************************************
+    /* Public API, access to token information, numeric
+    /**********************************************************************
      */
 
-    @Override public abstract byte[] getBinaryValue(Base64Variant b64variant) throws IOException;
+//    public abstract Number getNumberValue();
+//    public abstract NumberType getNumberType();
+
+    @Override
+    public Number getNumberValueExact() throws InputCoercionException {
+        return getNumberValue();
+    }
+
+    @Override
+    public byte getByteValue() throws InputCoercionException {
+        int value = getIntValue();
+        // So far so good: but does it fit?
+        // Let's actually allow range of [-128, 255] instead of just signed range of [-128, 127]
+        // since "unsigned" usage quite common for bytes (but Java may use signed range, too)
+        if (value < MIN_BYTE_I || value > MAX_BYTE_I) {
+            _reportOverflowByte(getText(), currentToken());
+        }
+        return (byte) value;
+    }
+
+    @Override
+    public short getShortValue() throws InputCoercionException
+    {
+        int value = getIntValue();
+        if (value < MIN_SHORT_I || value > MAX_SHORT_I) {
+            _reportOverflowShort(getText(), currentToken());
+        }
+        return (short) value;
+    }
+
+//    public abstract int getIntValue();
+//    public abstract long getLongValue();
 
     /*
-    /**********************************************************
-    /* Public API, access with conversion/coercion
-    /**********************************************************
+    /**********************************************************************
+    /* Public API, access to token information, other
+    /**********************************************************************
      */
 
     @Override
-    public boolean getValueAsBoolean(boolean defaultValue) throws IOException
+    public boolean getBooleanValue() throws InputCoercionException {
+        JsonToken t = currentToken();
+        if (t == JsonToken.VALUE_TRUE) return true;
+        if (t == JsonToken.VALUE_FALSE) return false;
+
+        throw _constructInputCoercion(String.format("Current token (%s) not of boolean type", t),
+            t, Boolean.TYPE);
+    }
+
+    /*
+    /**********************************************************************
+    /* Public API, access to token information, binary
+    /**********************************************************************
+     */
+
+//    public abstract byte[] getBinaryValue(Base64Variant b64variant);
+
+    @Override
+    public Object getEmbeddedObject() { return null; }
+
+    /*
+    /**********************************************************************
+    /* Public API, access with conversion/coercion
+    /**********************************************************************
+     */
+
+    @Override
+    public boolean getValueAsBoolean(boolean defaultValue)
     {
         JsonToken t = _currToken;
         if (t != null) {
@@ -364,8 +546,9 @@ public abstract class ParserMinimalBase extends JsonParser
         return defaultValue;
     }
 
+
     @Override
-    public int getValueAsInt() throws IOException
+    public int getValueAsInt()
     {
         JsonToken t = _currToken;
         if ((t == JsonToken.VALUE_NUMBER_INT) || (t == JsonToken.VALUE_NUMBER_FLOAT)) {
@@ -375,7 +558,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
-    public int getValueAsInt(int defaultValue) throws IOException
+    public int getValueAsInt(int defaultValue)
     {
         JsonToken t = _currToken;
         if ((t == JsonToken.VALUE_NUMBER_INT) || (t == JsonToken.VALUE_NUMBER_FLOAT)) {
@@ -406,7 +589,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
-    public long getValueAsLong() throws IOException
+    public long getValueAsLong()
     {
         JsonToken t = _currToken;
         if ((t == JsonToken.VALUE_NUMBER_INT) || (t == JsonToken.VALUE_NUMBER_FLOAT)) {
@@ -416,7 +599,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
     
     @Override
-    public long getValueAsLong(long defaultValue) throws IOException
+    public long getValueAsLong(long defaultValue)
     {
         JsonToken t = _currToken;
         if ((t == JsonToken.VALUE_NUMBER_INT) || (t == JsonToken.VALUE_NUMBER_FLOAT)) {
@@ -446,7 +629,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
-    public double getValueAsDouble(double defaultValue) throws IOException
+    public double getValueAsDouble(double defaultValue)
     {
         JsonToken t = _currToken;
         if (t != null) {
@@ -466,7 +649,7 @@ public abstract class ParserMinimalBase extends JsonParser
             case ID_NULL:
                 return 0.0;
             case ID_EMBEDDED_OBJECT:
-                Object value = this.getEmbeddedObject();
+                Object value = getEmbeddedObject();
                 if (value instanceof Number) {
                     return ((Number) value).doubleValue();
                 }
@@ -476,29 +659,57 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     @Override
-    public String getValueAsString() throws IOException {
+    public String getValueAsString() {
         // sub-classes tend to override so...
         return getValueAsString(null);
     }
-    
+
     @Override
-    public String getValueAsString(String defaultValue) throws IOException {
+    public String getValueAsString(String defaultValue) {
         if (_currToken == JsonToken.VALUE_STRING) {
             return getText();
         }
-        if (_currToken == JsonToken.FIELD_NAME) {
-            return getCurrentName();
+        if (_currToken == JsonToken.PROPERTY_NAME) {
+            return currentName();
         }
         if (_currToken == null || _currToken == JsonToken.VALUE_NULL || !_currToken.isScalarValue()) {
             return defaultValue;
         }
         return getText();
     }
-    
+
     /*
-    /**********************************************************
-    /* Base64 decoding
-    /**********************************************************
+    /**********************************************************************
+    /* Databind callbacks
+    /**********************************************************************
+     */
+
+    @Override
+    public <T> T readValueAs(Class<T> valueType) throws JacksonException {
+        return _objectReadContext.readValue(this, valueType);
+    }
+
+    @Override
+    public <T> T readValueAs(TypeReference<T> valueTypeRef) throws JacksonException {
+        return _objectReadContext.readValue(this, valueTypeRef);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T readValueAs(ResolvedType type) throws JacksonException {
+        return (T) _objectReadContext.readValue(this, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends TreeNode> T readValueAsTree() throws JacksonException {
+        return (T) _objectReadContext.readTree(this);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods: Base64 decoding
+    /**********************************************************************
      */
 
     /**
@@ -509,10 +720,11 @@ public abstract class ParserMinimalBase extends JsonParser
      * @param builder Builder used to buffer binary content decoded
      * @param b64variant Base64 variant expected in content
      *
-     * @throws IOException for low-level read issues, or
-     *   {@link JsonParseException} for decoding problems
+     * @throws WrappedIOException for low-level read issues
+     * @throws StreamReadException for decoding problems
      */
-    protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant) throws IOException
+    protected void _decodeBase64(String str, ByteArrayBuilder builder, Base64Variant b64variant)
+        throws JacksonException
     {
         try {
             b64variant.decode(str, builder);
@@ -522,9 +734,9 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Coercion helper methods (overridable)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -538,25 +750,22 @@ public abstract class ParserMinimalBase extends JsonParser
      *
      * @return True if given value contains "null equivalent" String value (for
      *   content this parser handles).
-     *
-     * @since 2.3
      */
     protected boolean _hasTextualNull(String value) { return "null".equals(value); }
 
     /*
-    /**********************************************************
-    /* Error reporting
-    /**********************************************************
+    /**********************************************************************
+    /* Error reporting, numeric conversion/parsing issues
+    /**********************************************************************
      */
 
-    protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
+    protected void _reportUnexpectedNumberChar(int ch, String comment) throws StreamReadException {
         String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
         if (comment != null) {
             msg += ": "+comment;
         }
         _reportError(msg);
     }
-
     /**
      * Method called to throw an exception for input token that looks like a number
      * based on first character(s), but is not valid according to rules of format.
@@ -565,10 +774,24 @@ public abstract class ParserMinimalBase extends JsonParser
      *
      * @param msg Base exception message to use
      *
-     * @throws JsonParseException Exception that describes problem with number validity
+     * @throws StreamReadException Exception that describes problem with number validity
      */
-    protected void reportInvalidNumber(String msg) throws JsonParseException {
+    protected void _reportInvalidNumber(String msg) throws StreamReadException {
         _reportError("Invalid numeric value: "+msg);
+    }
+
+    protected void _reportOverflowByte(String numDesc, JsonToken inputType) throws InputCoercionException {
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `byte` (%d - %s)",
+                _longIntegerDesc(numDesc), MIN_BYTE_I, MAX_BYTE_I),
+                inputType, Byte.TYPE);
+    }
+
+    protected void _reportOverflowShort(String numDesc, JsonToken inputType) throws InputCoercionException {
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `short` (%d - %s)",
+                _longIntegerDesc(numDesc), MIN_SHORT_I, MAX_SHORT_I),
+                inputType, Short.TYPE);
     }
 
     /**
@@ -576,20 +799,19 @@ public abstract class ParserMinimalBase extends JsonParser
      * token with value outside of Java signed 32-bit range when requested as {@code int}.
      * Result will be {@link InputCoercionException} being thrown.
      *
-     * @throws JsonParseException Exception that describes problem with number range validity
+     * @throws InputCoercionException Exception that describes problem with number range validity
      */
-    protected void reportOverflowInt() throws IOException {
-        reportOverflowInt(getText());
+    protected void _reportOverflowInt() throws InputCoercionException {
+        _reportOverflowInt(getText());
     }
 
-    // @since 2.10
-    protected void reportOverflowInt(String numDesc) throws IOException {
-        reportOverflowInt(numDesc, currentToken());
+    protected void _reportOverflowInt(String numDesc) throws InputCoercionException {
+        _reportOverflowInt(numDesc, currentToken());
     }
 
-    // @since 2.10
-    protected void reportOverflowInt(String numDesc, JsonToken inputType) throws IOException {
-        _reportInputCoercion(String.format("Numeric value (%s) out of range of int (%d - %s)",
+    protected void _reportOverflowInt(String numDesc, JsonToken inputType) throws InputCoercionException {
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `int` (%d - %s)",
                 _longIntegerDesc(numDesc), Integer.MIN_VALUE, Integer.MAX_VALUE),
                 inputType, Integer.TYPE);
     }
@@ -599,31 +821,23 @@ public abstract class ParserMinimalBase extends JsonParser
      * token with value outside of Java signed 64-bit range when requested as {@code long}.
      * Result will be {@link InputCoercionException} being thrown.
      *
-     * @throws JsonParseException Exception that describes problem with number range validity
+     * @throws InputCoercionException Exception that describes problem with number range validity
      */
-    protected void reportOverflowLong() throws IOException {
-        reportOverflowLong(getText());
+    protected void _reportOverflowLong() throws InputCoercionException {
+        _reportOverflowLong(getText());
     }
 
-    // @since 2.10
-    protected void reportOverflowLong(String numDesc) throws IOException {
-        reportOverflowLong(numDesc, currentToken());
+    protected void _reportOverflowLong(String numDesc) throws InputCoercionException {
+        _reportOverflowLong(numDesc, currentToken());
     }
 
-    // @since 2.10
-    protected void reportOverflowLong(String numDesc, JsonToken inputType) throws IOException {
-        _reportInputCoercion(String.format("Numeric value (%s) out of range of long (%d - %s)",
+    protected void _reportOverflowLong(String numDesc, JsonToken inputType) throws InputCoercionException {
+        throw _constructInputCoercion(String.format(
+                "Numeric value (%s) out of range of `long` (%d - %s)",
                 _longIntegerDesc(numDesc), Long.MIN_VALUE, Long.MAX_VALUE),
                 inputType, Long.TYPE);
     }
 
-    // @since 2.10
-    protected void _reportInputCoercion(String msg, JsonToken inputType, Class<?> targetType)
-            throws InputCoercionException {
-        throw new InputCoercionException(this, msg, inputType, targetType);
-    }
-
-    // @since 2.9.8
     protected String _longIntegerDesc(String rawNum) {
         int rawLen = rawNum.length();
         if (rawLen < 1000) {
@@ -635,7 +849,6 @@ public abstract class ParserMinimalBase extends JsonParser
         return String.format("[Integer with %d digits]", rawLen);
     }
 
-    // @since 2.9.8
     protected String _longNumberDesc(String rawNum) {
         int rawLen = rawNum.length();
         if (rawLen < 1000) {
@@ -647,7 +860,13 @@ public abstract class ParserMinimalBase extends JsonParser
         return String.format("[number with %d characters]", rawLen);
     }
 
-    protected void _reportUnexpectedChar(int ch, String comment) throws JsonParseException
+    /*
+    /**********************************************************************
+    /* Error reporting, EOF, unexpected chars/content
+    /**********************************************************************
+     */
+
+    protected void _reportUnexpectedChar(int ch, String comment) throws StreamReadException
     {
         if (ch < 0) { // sanity check
             _reportInvalidEOF();
@@ -659,12 +878,11 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportError(msg);
     }
 
-    protected void _reportInvalidEOF() throws JsonParseException {
+    protected void _reportInvalidEOF() throws StreamReadException {
         _reportInvalidEOF(" in "+_currToken, _currToken);
     }
 
-    // @since 2.8
-    protected void _reportInvalidEOFInValue(JsonToken type) throws JsonParseException {
+    protected void _reportInvalidEOFInValue(JsonToken type) throws StreamReadException {
         String msg;
         if (type == JsonToken.VALUE_STRING) {
             msg = " in a String value";
@@ -677,47 +895,37 @@ public abstract class ParserMinimalBase extends JsonParser
         _reportInvalidEOF(msg, type);
     }
 
-    // @since 2.8
-    protected void _reportInvalidEOF(String msg, JsonToken currToken) throws JsonParseException {
-        throw new JsonEOFException(this, currToken, "Unexpected end-of-input"+msg);
+    protected void _reportInvalidEOF(String msg, JsonToken currToken) throws StreamReadException {
+        throw new UnexpectedEndOfInputException(this, currToken, "Unexpected end-of-input"+msg);
     }
 
-    /**
-     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
-     *
-     * @throws JsonParseException Exception that describes problem with end-of-content within value
-     */
-    @Deprecated // since 2.8
-    protected void _reportInvalidEOFInValue() throws JsonParseException {
-        _reportInvalidEOF(" in a value");
-    }
-    
-    /**
-     * @param msg Addition message snippet to append to base exception message
-     * @deprecated Since 2.8 use {@link #_reportInvalidEOF(String, JsonToken)} instead
-     *
-     * @throws JsonParseException Exception that describes problem with end-of-content within value
-     */
-    @Deprecated // since 2.8
-    protected void _reportInvalidEOF(String msg) throws JsonParseException {
-        throw new JsonEOFException(this, null, "Unexpected end-of-input"+msg);
-    }
-    
-    protected void _reportMissingRootWS(int ch) throws JsonParseException {
+    protected void _reportMissingRootWS(int ch) throws StreamReadException {
         _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
-    
-    protected void _throwInvalidSpace(int i) throws JsonParseException {
+
+    // @since 3.0
+    protected void _reportBadInputStream(int readLen) throws StreamReadException
+    {
+        // 12-Jan-2021, tatu: May need to think about this bit more but for now
+        //    do double-wrapping
+        throw _wrapIOFailure(new IOException(
+"Bad input source: InputStream.read() returned 0 bytes when trying to read "+readLen+" bytes"));
+    }
+
+    // @since 3.0
+    protected void _reportBadReader(int readLen) throws StreamReadException
+    {
+        // 12-Jan-2021, tatu: May need to think about this bit more but for now
+        //    do double-wrapping
+        throw _wrapIOFailure(new IOException(
+"Bad input source: Reader.read() returned 0 bytes when trying to read "+readLen+" bytes"));
+    }
+
+    protected void _throwInvalidSpace(int i) throws StreamReadException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
         _reportError(msg);
     }
-
-    /*
-    /**********************************************************
-    /* Error reporting, generic
-    /**********************************************************
-     */
 
     protected final static String _getCharDesc(int ch)
     {
@@ -731,47 +939,78 @@ public abstract class ParserMinimalBase extends JsonParser
         return "'"+c+"' (code "+ch+")";
     }
 
-    protected final void _reportError(String msg) throws JsonParseException {
-        throw _constructError(msg);
+    /*
+    /**********************************************************************
+    /* Error reporting, input coercion support
+    /**********************************************************************
+     */
+
+    // @since 3.0
+    protected InputCoercionException _constructNotNumericType(JsonToken actualToken, int expNumericType)
+    {
+        final String msg = String.format(
+"Current token (%s) not numeric, can not use numeric value accessors", actualToken);
+
+        Class<?> targetType;
+
+        switch (expNumericType) {
+        case NR_INT:
+            targetType = Integer.TYPE;
+            break;
+        case NR_LONG:
+            targetType = Long.TYPE;
+            break;
+        case NR_BIGINT:
+            targetType = BigInteger.class;
+            break;
+        case NR_FLOAT:
+            targetType = Float.TYPE;
+            break;
+        case NR_DOUBLE:
+            targetType = Double.TYPE;
+            break;
+        case NR_BIGDECIMAL:
+            targetType = BigDecimal.class;
+            break;
+        default:
+            targetType = Number.class;
+            break;
+        }
+        return _constructInputCoercion(msg, actualToken, targetType);
     }
 
-    // @since 2.9
-    protected final void _reportError(String msg, Object arg) throws JsonParseException {
-        throw _constructError(String.format(msg, arg));
+    protected InputCoercionException _constructInputCoercion(String msg, JsonToken inputType, Class<?> targetType) {
+        return new InputCoercionException(this, msg, inputType, targetType);
     }
 
-    // @since 2.9
-    protected final void _reportError(String msg, Object arg1, Object arg2) throws JsonParseException {
-        throw _constructError(String.format(msg, arg1, arg2));
+    /*
+    /**********************************************************************
+    /* Error reporting, generic
+    /**********************************************************************
+     */
+
+    protected void _reportError(String msg) throws StreamReadException {
+        throw _constructReadException(msg);
     }
 
-    protected final void _wrapError(String msg, Throwable t) throws JsonParseException {
-        throw _constructError(msg, t);
+    protected void _reportError(String msg, Object arg) throws StreamReadException {
+        throw _constructReadException(String.format(msg, arg));
     }
 
+    protected void _reportError(String msg, Object arg1, Object arg2) throws StreamReadException {
+        throw _constructReadException(String.format(msg, arg1, arg2));
+    }
+
+    protected void _reportError(String msg, Object arg1, Object arg2, Object arg3) throws StreamReadException {
+        throw _constructReadException(String.format(msg, arg1, arg2, arg3));
+    }
+
+    // @since 3.0
+    protected JacksonException _wrapIOFailure(IOException e) {
+        return WrappedIOException.construct(e, this);
+    }
+    
     protected final void _throwInternal() {
         VersionUtil.throwInternal();
-    }
-
-    protected final JsonParseException _constructError(String msg, Throwable t) {
-        return new JsonParseException(this, msg, t);
-    }
-
-    @Deprecated // since 2.11
-    protected static byte[] _asciiBytes(String str) {
-        byte[] b = new byte[str.length()];
-        for (int i = 0, len = str.length(); i < len; ++i) {
-            b[i] = (byte) str.charAt(i);
-        }
-        return b;
-    }
-
-    @Deprecated // since 2.11
-    protected static String _ascii(byte[] b) {
-        try {
-            return new String(b, "US-ASCII");
-        } catch (IOException e) { // never occurs
-            throw new RuntimeException(e);
-        }
     }
 }

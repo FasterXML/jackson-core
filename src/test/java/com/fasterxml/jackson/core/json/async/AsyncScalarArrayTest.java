@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncScalarArrayTest extends AsyncTestBase
@@ -124,7 +125,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
                 Long.MIN_VALUE, Long.MAX_VALUE };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
-        JsonGenerator g = f.createGenerator(bytes);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartArray();
         for (int i = 0; i < input.length; ++i) {
             g.writeNumber(input[i]);
@@ -171,7 +172,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         final float[] input = new float[] { 0.0f, 0.25f, -0.5f, 10000.125f, - 99999.075f };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
-        JsonGenerator g = f.createGenerator(bytes);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartArray();
         for (int i = 0; i < input.length; ++i) {
             g.writeNumber(input[i]);
@@ -213,7 +214,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
                 -99999.075 };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
-        JsonGenerator g = f.createGenerator(bytes);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartArray();
         for (int i = 0; i < input.length; ++i) {
             g.writeNumber(input[i]);
@@ -277,7 +278,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
-        JsonGenerator g = f.createGenerator(bytes);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartArray();
         for (int i = 0; i < input.length; ++i) {
             g.writeNumber(input[i]);
@@ -329,7 +330,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
         };
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
         JsonFactory f = JSON_F;
-        JsonGenerator g = f.createGenerator(bytes);
+        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeStartArray();
         for (int i = 0; i < input.length; ++i) {
             g.writeNumber(input[i]);

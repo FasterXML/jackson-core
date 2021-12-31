@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 
@@ -35,11 +35,11 @@ public class JsonParserClosedCaseTest {
     @Parameters(name = "{0}")
     public static Collection<Object[]> parsers() throws IOException {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] { '{', '}' });
-
+        ObjectReadContext ctxt = ObjectReadContext.empty();
         return closeParsers(
-                (ReaderBasedJsonParser) JSON_F.createParser(new InputStreamReader(inputStream)),
-                (UTF8StreamJsonParser) JSON_F.createParser(inputStream),
-                (UTF8DataInputJsonParser) JSON_F.createParser(new MockDataInput("{}"))
+                JSON_F.createParser(ctxt, new InputStreamReader(inputStream)),
+                JSON_F.createParser(ctxt, inputStream),
+                JSON_F.createParser(ctxt, new MockDataInput("{}"))
         );
     }
 
@@ -49,12 +49,12 @@ public class JsonParserClosedCaseTest {
 
     @Test
     public void testNullReturnedOnClosedParserOnNextFieldName() throws Exception {
-        Assert.assertNull(parser.nextFieldName());
+        Assert.assertNull(parser.nextName());
     }
 
     @Test
     public void testFalseReturnedOnClosedParserOnNextFieldNameSerializedString() throws Exception {
-        Assert.assertFalse(parser.nextFieldName(new SerializedString("")));
+        Assert.assertFalse(parser.nextName(new SerializedString("")));
     }
 
     @Test

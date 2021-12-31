@@ -3,16 +3,16 @@ package com.fasterxml.jackson.core;
 import java.io.InputStream;
 import java.io.Reader;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.util.JacksonFeature;
 
 /**
  * Token reader (parser) features not-specific to any particular format backend.
- * Eventual replacement for non-JSON-specific {@link com.fasterxml.jackson.core.JsonParser.Feature}s.
- *
- * @since 2.10
+ *<p>
+ * NOTE: Jackson 2.x contained these along with JSON-specific features in <code>JsonParser.Feature</code>.
  */
 public enum StreamReadFeature
-    implements JacksonFeature // since 2.12
+    implements JacksonFeature
 {
     // // // Low-level I/O handling features:
 
@@ -28,15 +28,15 @@ public enum StreamReadFeature
      *<p>
      * Feature is enabled by default.
      */
-    AUTO_CLOSE_SOURCE(JsonParser.Feature.AUTO_CLOSE_SOURCE),
+    AUTO_CLOSE_SOURCE(true),
 
     // // // Validity checks
     
     /**
      * Feature that determines whether {@link JsonParser} will explicitly
-     * check that no duplicate JSON Object field names are encountered.
+     * check that no duplicate JSON Object Property names are encountered.
      * If enabled, parser will check all names within context and report
-     * duplicates by throwing a {@link JsonParseException}; if disabled,
+     * duplicates by throwing a {@link StreamReadException}; if disabled,
      * parser will not do such checking. Assumption in latter case is
      * that caller takes care of handling duplicates at a higher level:
      * data-binding, for example, has features to specify detection to
@@ -46,7 +46,7 @@ public enum StreamReadFeature
      * due to having to store and check additional information: this typically
      * adds 20-30% to execution time for basic parsing.
      */
-    STRICT_DUPLICATE_DETECTION(JsonParser.Feature.STRICT_DUPLICATE_DETECTION),
+    STRICT_DUPLICATE_DETECTION(false),
 
     /**
      * Feature that determines what to do if the underlying data format requires knowledge
@@ -66,9 +66,10 @@ public enum StreamReadFeature
      *<p>
      * Feature is disabled by default, meaning that if the underlying data format
      * requires knowledge of all properties to output, attempts to read an unknown
-     * property will result in a {@link JsonProcessingException}
+     * property will result in an exception (typically of type
+     * {@link com.fasterxml.jackson.core.exc.StreamReadException}).
      */
-    IGNORE_UNDEFINED(JsonParser.Feature.IGNORE_UNDEFINED),
+    IGNORE_UNDEFINED(false),
 
     // // // Other
 
@@ -89,7 +90,7 @@ public enum StreamReadFeature
      * and some or all of the source content may be included in {@link JsonLocation} information
      * constructed either when requested explicitly, or when needed for an exception.
      */
-    INCLUDE_SOURCE_IN_LOCATION(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION),
+    INCLUDE_SOURCE_IN_LOCATION(true),
 
     ;
 
@@ -100,17 +101,9 @@ public enum StreamReadFeature
 
     private final int _mask;
 
-    /**
-     * For backwards compatibility we may need to map to one of existing {@link JsonParser.Feature}s;
-     * if so, this is the feature to enable/disable.
-     */
-    final private JsonParser.Feature _mappedFeature;
-
-    private StreamReadFeature(JsonParser.Feature mapTo) {
-        // only for 2.x, let's map everything to legacy feature:
-        _mappedFeature = mapTo;
-        _mask = mapTo.getMask();
-        _defaultState = mapTo.enabledByDefault();
+    private StreamReadFeature(boolean defaultState) {
+        _mask = (1 << ordinal());
+        _defaultState = defaultState;
     }
 
     /**
@@ -136,6 +129,4 @@ public enum StreamReadFeature
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
     @Override
     public int getMask() { return _mask; }
-
-    public JsonParser.Feature mappedFeature() { return _mappedFeature; }
 }

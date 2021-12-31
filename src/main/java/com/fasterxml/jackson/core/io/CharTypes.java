@@ -41,8 +41,7 @@ public final class CharTypes
      */
     protected final static int[] sInputCodesUTF8;
     static {
-        final int[] table = new int[sInputCodes.length];
-        System.arraycopy(sInputCodes, 0, table, 0, table.length);
+        final int[] table = Arrays.copyOf(sInputCodes, sInputCodes.length);
         for (int c = 128; c < 256; ++c) {
             int code;
 
@@ -64,7 +63,7 @@ public final class CharTypes
     }
 
     /**
-     * To support non-default (and -standard) unquoted field names mode,
+     * To support non-default (and non-standard) unquoted Object Property names mode,
      * need to have alternate checking.
      * Basically this is list of 8-bit ASCII characters that are legal
      * as part of Javascript identifier
@@ -80,9 +79,8 @@ public final class CharTypes
                 table[i] = 0;
             }
         }
-        /* As per [JACKSON-267], '@', '#' and '*' are also to be accepted as well.
-         * And '-' (for hyphenated names); and '+' for sake of symmetricity...
-         */
+        // Also: '@', '#' and '*' are also to be accepted as well.
+        // And '-' (for hyphenated names); and '+' for sake of symmetricity...
         table['@'] = 0;
         table['#'] = 0;
         table['*'] = 0;
@@ -98,9 +96,8 @@ public final class CharTypes
      */
     protected final static int[] sInputCodesUtf8JsNames;
     static {
-        final int[] table = new int[256];
         // start with 8-bit JS names
-        System.arraycopy(sInputCodesJsNames, 0, table, 0, table.length);
+        final int[] table = Arrays.copyOf(sInputCodesJsNames, sInputCodesJsNames.length);
         Arrays.fill(table, 128, 128, 0);
         sInputCodesUtf8JsNames = table;
     }
@@ -219,8 +216,6 @@ public final class CharTypes
      *    usually double-quote but sometimes changed to single-quote (apostrophe)
      *
      * @return 128-entry {@code int[]} that contains escape definitions
-     *
-     * @since 2.10
      */
     public static int[] get7BitOutputEscapes(int quoteChar) {
         if (quoteChar == '"') {
@@ -254,7 +249,7 @@ public final class CharTypes
     public static void appendQuoted(StringBuilder sb, String content)
     {
         final int[] escCodes = sOutputEscapes128;
-        int escLen = escCodes.length;
+        final int escLen = escCodes.length;
         for (int i = 0, len = content.length(); i < len; ++i) {
             char c = content.charAt(i);
             if (c >= escLen || escCodes[c] == 0) {

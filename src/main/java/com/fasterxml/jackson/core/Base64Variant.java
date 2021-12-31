@@ -7,6 +7,7 @@ package com.fasterxml.jackson.core;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.core.util.Named;
 
 /**
  * Class used to define specific details of which
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
  * @author Tatu Saloranta
  */
 public final class Base64Variant
-    implements java.io.Serializable
+    implements Named, java.io.Serializable
 {
     /**
      * Defines how the Base64Variant deals with Padding while reading
@@ -315,6 +316,7 @@ public final class Base64Variant
     /**********************************************************
      */
 
+    @Override
     public String getName() { return _name; }
 
     /**
@@ -616,8 +618,6 @@ public final class Base64Variant
      * @param linefeed Linefeed to use for encoded content
      *
      * @return Base64 encoded String of encoded {@code input} bytes
-     *
-     * @since 2.10
      */
     public String encode(byte[] input, boolean addQuotes, String linefeed)
     {
@@ -664,17 +664,15 @@ public final class Base64Variant
      * @param input Base64-encoded input String to decode
      *
      * @return Byte array of decoded contents
-     * 
-     * @since 2.3
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */
-    @SuppressWarnings("resource")
     public byte[] decode(String input) throws IllegalArgumentException
     {
-        ByteArrayBuilder b = new ByteArrayBuilder();
-        decode(input, b);
-        return b.toByteArray();
+        try (ByteArrayBuilder b = new ByteArrayBuilder()) {
+            decode(input, b);
+            return b.toByteArray();
+        }
     }
 
     /**
@@ -688,8 +686,6 @@ public final class Base64Variant
      *
      * @param str Input to decode
      * @param builder Builder used for assembling decoded content
-     *
-     * @since 2.3
      *
      * @throws IllegalArgumentException if input is not valid base64 encoded data
      */
@@ -876,8 +872,6 @@ public final class Base64Variant
      * prematurely in place where padding would be expected.
      *
      * @return Exception message for indicating "missing padding" case
-     *
-     * @since 2.10
      */
     public String missingPaddingMessage() { // !!! TODO: why is this 'public'?
         return String.format("Unexpected end of base64-encoded String: base64 variant '%s' expects padding (one or more '%c' characters) at the end. This Base64Variant might have been incorrectly configured",

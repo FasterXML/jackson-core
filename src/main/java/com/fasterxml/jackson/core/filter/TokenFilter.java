@@ -1,17 +1,15 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
 /**
  * Strategy class that can be implemented to specify actual inclusion/exclusion
  * criteria for filtering, used by {@link FilteringGeneratorDelegate}.
- *
- * @since 2.6
  */
 public class TokenFilter
 {
@@ -33,9 +31,9 @@ public class TokenFilter
         INCLUDE_ALL_AND_PATH,
         /**
          * Tokens will be included if any non-null filter is returned.
-         * The exception is if a field name returns a non-null filter,
-         * but the field value returns a null filter. In this case the
-         * field name and value will both be omitted.
+         * The exception is if a property name returns a non-null filter,
+         * but the property value returns a null filter. In this case the
+         * property name and value will both be omitted.
          */
         INCLUDE_NON_NULL
     }
@@ -241,10 +239,10 @@ public class TokenFilter
      *
      * @return True if scalar value is to be included; false if not
      *
-     * @throws IOException if there are any problems reading content (typically
+     * @throws JacksonException if there are any problems reading content (typically
      *   via calling passed-in {@code JsonParser})
      */
-    public boolean includeValue(JsonParser p) throws IOException {
+    public boolean includeValue(JsonParser p) throws JacksonException {
         return _includeScalar();
     }
 

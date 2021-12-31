@@ -1,16 +1,12 @@
 package com.fasterxml.jackson.core.filter;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 /**
- * Alternative variant of {@link JsonStreamContext}, used when filtering
+ * Alternative variant of {@link TokenStreamContext}, used when filtering
  * content being read or written (based on {@link TokenFilter}).
- * 
- * @since 2.6
  */
-public class TokenFilterContext extends JsonStreamContext
+public class TokenFilterContext extends TokenStreamContext
 {
     /**
      * Parent context for this context; null for root context.
@@ -18,26 +14,30 @@ public class TokenFilterContext extends JsonStreamContext
     protected final TokenFilterContext _parent;
 
     /*
-    /**********************************************************
-    /* Simple instance reuse slots; speed up things
-    /* a bit (10-15%) for docs with lots of small
-    /* arrays/objects
-    /**********************************************************
+    /**********************************************************************
+    /* Simple instance reuse slots; speed up things a bit (10-15%) for
+    /* docs with lots of small arrays/objects
+    /**********************************************************************
      */
 
     protected TokenFilterContext _child;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
-     * Name of the field of which value is to be parsed; only
+     * Name of the property of which value is to be parsed; only
      * used for OBJECT contexts
      */
     protected String _currentName;
+
+    /**
+     * @since 3.0
+     */
+    protected Object _currentValue;
 
     /**
      * Filter to use for items in this state (for properties of Objects,
@@ -58,31 +58,33 @@ public class TokenFilterContext extends JsonStreamContext
      * included leaf is to be exposed.
      */
     protected boolean _needToHandleName;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected TokenFilterContext(int type, TokenFilterContext parent,
-            TokenFilter filter, boolean startHandled)
+            TokenFilter filter, Object currValue, boolean startHandled)
     {
         super();
         _type = type;
         _parent = parent;
         _filter = filter;
         _index = -1;
+        _currentValue = currValue;
         _startHandled = startHandled;
         _needToHandleName = false;
     }
 
     protected TokenFilterContext reset(int type,
-            TokenFilter filter, boolean startWritten)
+            TokenFilter filter, Object currValue, boolean startWritten)
     {
         _type = type;
         _filter = filter;
         _index = -1;
+        _currentValue = currValue;
         _currentName = null;
         _startHandled = startWritten;
         _needToHandleName = false;
@@ -90,41 +92,43 @@ public class TokenFilterContext extends JsonStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static TokenFilterContext createRootContext(TokenFilter filter) {
         // true -> since we have no start/end marker, consider start handled
-        return new TokenFilterContext(TYPE_ROOT, null, filter, true);
+        return new TokenFilterContext(TYPE_ROOT, null, filter, null, true);
     }
 
-    public TokenFilterContext createChildArrayContext(TokenFilter filter, boolean writeStart) {
+    public TokenFilterContext createChildArrayContext(TokenFilter filter, Object currentValue,
+            boolean writeStart) {
         TokenFilterContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new TokenFilterContext(TYPE_ARRAY, this, filter, writeStart);
+            _child = ctxt = new TokenFilterContext(TYPE_ARRAY, this, filter, currentValue, writeStart);
             return ctxt;
         }
-        return ctxt.reset(TYPE_ARRAY, filter, writeStart);
+        return ctxt.reset(TYPE_ARRAY, filter, currentValue, writeStart);
     }
 
-    public TokenFilterContext createChildObjectContext(TokenFilter filter, boolean writeStart) {
+    public TokenFilterContext createChildObjectContext(TokenFilter filter, Object currentValue,
+            boolean writeStart) {
         TokenFilterContext ctxt = _child;
         if (ctxt == null) {
-            _child = ctxt = new TokenFilterContext(TYPE_OBJECT, this, filter, writeStart);
+            _child = ctxt = new TokenFilterContext(TYPE_OBJECT, this, filter, currentValue, writeStart);
             return ctxt;
         }
-        return ctxt.reset(TYPE_OBJECT, filter, writeStart);
+        return ctxt.reset(TYPE_OBJECT, filter, currentValue, writeStart);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* State changes
-    /**********************************************************
+    /**********************************************************************
      */
     
-    public TokenFilter setFieldName(String name) throws JsonProcessingException {
+    public TokenFilter setPropertyName(String name) {
         _currentName = name;
         _needToHandleName = true;
         return _filter;
@@ -152,19 +156,19 @@ public class TokenFilterContext extends JsonStreamContext
     }
 
     /**
-     * Method called to ensure that field name, if present, has been written;
+     * Method called to ensure that the property name, if present, has been written;
      * may result (but does not always) in a call using given generator
      *
      * @param gen Generator to use to write the property name, if necessary
      *
-     * @throws IOException If there is a problem writing property name (typically
+     * @throws JacksonException If there is a problem writing property name (typically
      *   thrown by {@code JsonGenerator})
      */
-    public void ensureFieldNameWritten(JsonGenerator gen) throws IOException
+    public void ensurePropertyNameWritten(JsonGenerator gen) throws JacksonException
     {
         if (_needToHandleName) {
             _needToHandleName = false;
-            gen.writeFieldName(_currentName);
+            gen.writeName(_currentName);
         }
     }
 
@@ -174,10 +178,10 @@ public class TokenFilterContext extends JsonStreamContext
      *
      * @param gen Generator to use to write the path, if necessary
      *
-     * @throws IOException If there is a problem writing property name (typically
+     * @throws JacksonException If there is a problem writing property name (typically
      *   thrown by {@code JsonGenerator})
      */
-    public void writePath(JsonGenerator gen) throws IOException
+    public void writePath(JsonGenerator gen) throws JacksonException
     {
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
@@ -188,20 +192,20 @@ public class TokenFilterContext extends JsonStreamContext
         if (_startHandled) {
             // even if Object started, need to start leaf-level name
             if (_needToHandleName) {
-                gen.writeFieldName(_currentName);
+                gen.writeName(_currentName);
             }
         } else {
             _startHandled = true;
             if (_type == TYPE_OBJECT) {
                 gen.writeStartObject();
-                gen.writeFieldName(_currentName); // we know name must be written
+                gen.writeName(_currentName); // we know name must be written
             } else if (_type == TYPE_ARRAY) {
                 gen.writeStartArray();
             }
         }
     }
 
-    private void _writePath(JsonGenerator gen) throws IOException
+    private void _writePath(JsonGenerator gen) throws JacksonException
     {
         if ((_filter == null) || (_filter == TokenFilter.INCLUDE_ALL)) {
             return;
@@ -213,7 +217,7 @@ public class TokenFilterContext extends JsonStreamContext
             // even if Object started, need to start leaf-level name
             if (_needToHandleName) {
                 _needToHandleName = false; // at parent must explicitly clear
-                gen.writeFieldName(_currentName);
+                gen.writeName(_currentName);
             }
         } else {
             _startHandled = true;
@@ -221,7 +225,7 @@ public class TokenFilterContext extends JsonStreamContext
                 gen.writeStartObject();
                 if (_needToHandleName) {
                     _needToHandleName = false; // at parent must explicitly clear
-                    gen.writeFieldName(_currentName);
+                    gen.writeName(_currentName);
                 }
             } else if (_type == TYPE_ARRAY) {
                 gen.writeStartArray();
@@ -229,7 +233,7 @@ public class TokenFilterContext extends JsonStreamContext
         }
     }
 
-    public TokenFilterContext closeArray(JsonGenerator gen) throws IOException
+    public TokenFilterContext closeArray(JsonGenerator gen) throws JacksonException
     {
         if (_startHandled) {
             gen.writeEndArray();
@@ -240,7 +244,7 @@ public class TokenFilterContext extends JsonStreamContext
         return _parent;
     }
 
-    public TokenFilterContext closeObject(JsonGenerator gen) throws IOException
+    public TokenFilterContext closeObject(JsonGenerator gen) throws JacksonException
     {
         if (_startHandled) {
             gen.writeEndObject();
@@ -259,20 +263,20 @@ public class TokenFilterContext extends JsonStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors, mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public Object getCurrentValue() { return null; }
+    public Object currentValue() { return _currentValue; }
 
     @Override
-    public void setCurrentValue(Object v) { }
+    public void assignCurrentValue(Object v) { }
 
     @Override public final TokenFilterContext getParent() { return _parent; }
-    @Override public final String getCurrentName() { return _currentName; }
-    // @since 2.9
+    @Override public final String currentName() { return _currentName; }
+
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
     public TokenFilter getFilter() { return _filter; }
@@ -287,10 +291,10 @@ public class TokenFilterContext extends JsonStreamContext
             // Note: root should never be unhandled
             return JsonToken.START_ARRAY;
         }
-        // But otherwise at most might have FIELD_NAME
+        // But otherwise at most might have PROPERTY_NAME
         if (_needToHandleName && (_type == TYPE_OBJECT)) {
             _needToHandleName = false;
-            return JsonToken.FIELD_NAME;
+            return JsonToken.PROPERTY_NAME;
         }
         return null;
     }

@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.core.read;
 
-import java.io.CharConversionException;
-
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 // Tests from [jackson-core#382]
 public class UTF32ParseTest extends BaseTest
 {
-    private final JsonFactory FACTORY = new JsonFactory();
+    private final JsonFactory FACTORY = newStreamFactory();
 
     public void testSimpleEOFs() throws Exception
     {
@@ -17,11 +17,11 @@ public class UTF32ParseTest extends BaseTest
         };
 
         for (int len = 5; len <= 7; ++len) {
-            JsonParser parser = FACTORY.createParser(data, 0, len);
+            JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data, 0, len);
             try {
                 parser.nextToken();
                 fail("Should not pass");
-            } catch (CharConversionException e) {
+            } catch (JacksonException e) {
                 verifyException(e, "Unexpected EOF");
                 verifyException(e, "of a 4-byte UTF-32 char");
             }
@@ -29,7 +29,7 @@ public class UTF32ParseTest extends BaseTest
         }
     }
 
-    public void testSimpleInvalidUTF32() throws Exception
+    public void testSimpleInvalidUTF32()
     {
         // 2 characters, space, then something beyond valid Unicode set
         byte[] data = {
@@ -43,24 +43,25 @@ public class UTF32ParseTest extends BaseTest
                 0x01
         };
 
-        JsonParser parser = FACTORY.createParser(data);
+        JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data);
 
         try {
             parser.nextToken();
             fail("Should not pass");
-        } catch (CharConversionException e) {
+        } catch (JacksonException e) {
             verifyException(e, "Invalid UTF-32 character 0xfefe0001");
         }
         parser.close();
     }
 
-    public void testSimpleSevenNullBytes() throws Exception {
+    public void testSimpleSevenNullBytes()
+    {
         byte[] data = new byte[7];
-        JsonParser parser = FACTORY.createParser(/*ObjectReadContext.empty(), */data);
+        JsonParser parser = FACTORY.createParser(ObjectReadContext.empty(), data);
         try {
             parser.nextToken();
             fail("Should not pass");
-        } catch (JsonParseException e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Illegal character ((CTRL-CHAR, code 0))");
         }
         parser.close();

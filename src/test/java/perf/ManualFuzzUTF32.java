@@ -3,6 +3,7 @@ package perf;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 // Tests from [jackson-core#382]
 public class ManualFuzzUTF32
@@ -17,7 +18,7 @@ public class ManualFuzzUTF32
 
         System.out.println("Read input, "+doc.length+" bytes...");
         
-        JsonParser p = f.createParser(/*ObjectReadContext.empty(), */ doc);
+        JsonParser p = f.createParser(ObjectReadContext.empty(), doc);
 
         JsonToken t = p.nextToken();
         if (t != JsonToken.VALUE_STRING) {

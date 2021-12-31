@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.base64;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
 
 public class Base64GenerationTest
@@ -59,7 +60,7 @@ public class Base64GenerationTest
         // First,  byte-backed:
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = f.createGenerator(bytes);
+        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
         ByteArrayInputStream data = new ByteArrayInputStream(new byte[2000]);
         gen.writeBinary(data, 1999);       
         gen.close();
@@ -71,7 +72,7 @@ public class Base64GenerationTest
         // Then char-backed
         StringWriter sw = new StringWriter();
         
-        gen = f.createGenerator(sw);
+        gen = f.createGenerator(ObjectWriteContext.empty(), sw);
         data = new ByteArrayInputStream(new byte[2000]);
         gen.writeBinary(data, 1999);       
         gen.close();
@@ -96,13 +97,13 @@ public class Base64GenerationTest
         JsonGenerator g;
 
         StringWriter sw = new StringWriter();
-        g = JSON_F.createGenerator(sw);
+        g = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeEmbeddedObject(WIKIPEDIA_BASE64_AS_BYTES);
         g.close();
         assertEquals(quote(WIKIPEDIA_BASE64_ENCODED), sw.toString());
 
         ByteArrayOutputStream bytes =  new ByteArrayOutputStream(100);
-        g = JSON_F.createGenerator(bytes);
+        g = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
         g.writeEmbeddedObject(WIKIPEDIA_BASE64_AS_BYTES);
         g.close();
         assertEquals(quote(WIKIPEDIA_BASE64_ENCODED), bytes.toString("UTF-8"));
@@ -126,9 +127,9 @@ public class Base64GenerationTest
             JsonGenerator gen;
             ByteArrayOutputStream bout = new ByteArrayOutputStream(200);
             if (useCharBased) {
-                gen = jf.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+                gen = jf.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
             } else {
-                gen = jf.createGenerator(bout, JsonEncoding.UTF8);
+                gen = jf.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
             }
 
             switch (i) {
@@ -142,14 +143,14 @@ public class Base64GenerationTest
                 break;
             default: // object
                 gen.writeStartObject();
-                gen.writeFieldName("field");
+                gen.writeName("field");
                 gen.writeBinary(b64v, WIKIPEDIA_BASE64_AS_BYTES, 0, WIKIPEDIA_BASE64_AS_BYTES.length);
                 gen.writeEndObject();
                 break;
             }
             gen.close();
 
-            JsonParser jp = jf.createParser(new ByteArrayInputStream(bout.toByteArray()));
+            JsonParser jp = jf.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(bout.toByteArray()));
             
             // Need to skip other events before binary data:
             switch (i) {
@@ -160,7 +161,7 @@ public class Base64GenerationTest
                 break;
             default:
                 assertEquals(JsonToken.START_OBJECT, jp.nextToken());
-                assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
+                assertEquals(JsonToken.PROPERTY_NAME, jp.nextToken());
                 break;
             }
             assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
@@ -188,9 +189,9 @@ public class Base64GenerationTest
                     
                     final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
                     if (useBytes) {
-                        jgen = jf.createGenerator(bytes);
+                        jgen = jf.createGenerator(ObjectWriteContext.empty(), bytes);
                     } else {
-                        jgen = jf.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
+                        jgen = jf.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
                     }
                     jgen.writeStartArray();
                     int length = passLength ? INPUT.length : -1;

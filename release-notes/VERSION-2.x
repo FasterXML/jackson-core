@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.14.0 (not yet released)
+
+#684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
+ (contributed by Ilya G)
+
 2.13.1 (19-Dec-2021)
 
 #713: Incorrect parsing of single-quoted surrounded String values containing double quotes

@@ -4,27 +4,24 @@ import com.fasterxml.jackson.core.*;
 
 /**
  * Token writer features specific to JSON backend.
- *
- * @since 2.10
  */
 public enum JsonWriteFeature
     implements FormatFeature
 {
-    // // // Support for non-standard data format constructs: comments
-
-    // // Quoting/ecsaping-related features
+    // // // Support for non-standard JSON constructs: Quoting/escaping
     
     /**
-     * Feature that determines whether JSON Object field names are
+     * Feature that determines whether JSON Object property names are
      * quoted using double-quotes, as specified by JSON specification
      * or not. Ability to disable quoting was added to support use
      * cases where they are not usually expected, which most commonly
      * occurs when used straight from Javascript.
      *<p>
+     * Note: in Jackson 2.x, was called {@code QUOTE_FIELD_NAMES}
+     *<p>
      * Feature is enabled by default (since it is required by JSON specification).
      */
-    @SuppressWarnings("deprecation")
-    QUOTE_FIELD_NAMES(true, JsonGenerator.Feature.QUOTE_FIELD_NAMES),
+    QUOTE_PROPERTY_NAMES(true),
 
     /**
      * Feature that determines whether "NaN" ("not a number", that is, not
@@ -38,9 +35,10 @@ public enum JsonWriteFeature
      *<p>
      * Feature is enabled by default.
      */
-    @SuppressWarnings("deprecation")
-    WRITE_NAN_AS_STRINGS(true, JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS),
+    WRITE_NAN_AS_STRINGS(true),
 
+    // // // Support for escaping variations
+    
     /**
      * Feature that forces all regular number values to be written as JSON Strings,
      * instead of as JSON Numbers.
@@ -57,9 +55,8 @@ public enum JsonWriteFeature
      *<p>
      * Feature is disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    WRITE_NUMBERS_AS_STRINGS(false, JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS),
-    
+    WRITE_NUMBERS_AS_STRINGS(false),
+
     /**
      * Feature that specifies that all characters beyond 7-bit ASCII
      * range (i.e. code points of 128 and above) need to be output
@@ -69,8 +66,7 @@ public enum JsonWriteFeature
      *<p>
      * Feature is disabled by default.
      */
-    @SuppressWarnings("deprecation")
-    ESCAPE_NON_ASCII(false, JsonGenerator.Feature.ESCAPE_NON_ASCII),
+    ESCAPE_NON_ASCII(false),
 
 //23-Nov-2015, tatu: for [core#223], if and when it gets implemented
     /*
@@ -100,12 +96,6 @@ public enum JsonWriteFeature
     final private int _mask;
 
     /**
-     * For backwards compatibility we may need to map to one of existing {@link JsonGenerator.Feature}s;
-     * if so, this is the feature to enable/disable.
-     */
-    final private JsonGenerator.Feature _mappedFeature;
-    
-    /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
      *
@@ -122,11 +112,9 @@ public enum JsonWriteFeature
         return flags;
     }
     
-    private JsonWriteFeature(boolean defaultState,
-            JsonGenerator.Feature  mapTo) {
+    private JsonWriteFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());
-        _mappedFeature = mapTo;
     }
 
     @Override
@@ -135,6 +123,4 @@ public enum JsonWriteFeature
     public int getMask() { return _mask; }
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
-
-    public JsonGenerator.Feature mappedFeature() { return _mappedFeature; }
 }

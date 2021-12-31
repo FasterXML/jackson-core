@@ -13,7 +13,7 @@ import java.math.BigInteger;
 public class GeneratorBasicTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final TokenStreamFactory JSON_F = newStreamFactory();
 
     // // // First, tests for primitive (non-structured) values
 
@@ -27,9 +27,11 @@ public class GeneratorBasicTest
                     JsonGenerator gen;
                     ByteArrayOutputStream bout = new ByteArrayOutputStream();
                     if (useReader != 0) {
-                        gen = JSON_F.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
+                        gen = JSON_F.createGenerator(ObjectWriteContext.empty(),
+                                new OutputStreamWriter(bout, "UTF-8"));
                     } else {
-                        gen = JSON_F.createGenerator(bout, JsonEncoding.UTF8);
+                        gen = JSON_F.createGenerator(ObjectWriteContext.empty(),
+                                bout, JsonEncoding.UTF8);
                     }
                     if (writeString > 0) {
                         gen.writeString(input);
@@ -42,7 +44,8 @@ public class GeneratorBasicTest
                     }
                     gen.flush();
                     gen.close();
-                    JsonParser jp = JSON_F.createParser(new ByteArrayInputStream(bout.toByteArray()));
+                    JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(),
+                            new ByteArrayInputStream(bout.toByteArray()));
                 
                     JsonToken t = jp.nextToken();
                     assertNotNull("Document \""+bout.toString("UTF-8")+"\" yielded no tokens", t);
@@ -81,7 +84,7 @@ public class GeneratorBasicTest
             boolean state = (i & 1) == 0;
             boolean pad = (i & 2) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = JSON_F.createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
             gen.writeBoolean(state);
             if (pad) {
                 gen.writeRaw(" ");
@@ -106,7 +109,7 @@ public class GeneratorBasicTest
         for (int i = 0; i < 2; ++i) {
             boolean pad = (i & 1) == 0;
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = JSON_F.createGenerator(sw);
+            JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
             gen.writeNull();
             if (pad) {
                 gen.writeRaw(" ");
@@ -139,9 +142,9 @@ public class GeneratorBasicTest
          JsonGenerator gen;
          
          if (useBytes) {
-             gen = JSON_F.createGenerator(bytes);
+             gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
          } else {
-             gen = JSON_F.createGenerator(sw);
+             gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
          }
 
          gen.writeNumber(1);
@@ -150,18 +153,13 @@ public class GeneratorBasicTest
          gen.close();
 
          String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
-
-         try {
-             JsonParser jp = createParserUsingReader(docStr);
+         try (JsonParser jp = createParserUsingReader(docStr)) {
              assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
              assertEquals(1, jp.getIntValue());
              assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
              assertEquals(2, jp.getIntValue());
              assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
              assertEquals(-13, jp.getIntValue());
-             jp.close();
-         } catch (IOException e) {
-             fail("Problem with document ["+docStr+"]: "+e.getMessage());
          }
      }
     
@@ -179,19 +177,19 @@ public class GeneratorBasicTest
         JsonGenerator gen;
         
         if (useBytes) {
-            gen = JSON_F.createGenerator(bytes);
+            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
         } else {
-            gen = JSON_F.createGenerator(sw);
+            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         }
 
         gen.writeStartObject();
-        gen.writeNumberField("short", (short) 3);
-        gen.writeNumberField("int", 3);
-        gen.writeNumberField("long", 3L);
-        gen.writeNumberField("big", new BigInteger("1707"));
-        gen.writeNumberField("double", 0.25);
-        gen.writeNumberField("float", -0.25f);
-        gen.writeNumberField("decimal", new BigDecimal("17.07"));
+        gen.writeNumberProperty("short", (short) 3);
+        gen.writeNumberProperty("int", 3);
+        gen.writeNumberProperty("long", 3L);
+        gen.writeNumberProperty("big", new BigInteger("1707"));
+        gen.writeNumberProperty("double", 0.25);
+        gen.writeNumberProperty("float", -0.25f);
+        gen.writeNumberProperty("decimal", new BigDecimal("17.07"));
         gen.writeEndObject();
         gen.close();
 
@@ -207,67 +205,67 @@ public class GeneratorBasicTest
     public void testOutputContext() throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(sw);
-        JsonStreamContext ctxt = gen.getOutputContext();
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        TokenStreamContext ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inRoot());
 
         gen.writeStartObject();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
 
-        gen.writeFieldName("a");
-        assertEquals("a", gen.getOutputContext().getCurrentName());
+        gen.writeName("a");
+        assertEquals("a", gen.streamWriteContext().currentName());
 
         gen.writeStartArray();
-        assertTrue(gen.getOutputContext().inArray());
+        assertTrue(gen.streamWriteContext().inArray());
 
         gen.writeStartObject();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
 
-        gen.writeFieldName("b");
-        ctxt = gen.getOutputContext();
-        assertEquals("b", ctxt.getCurrentName());
+        gen.writeName("b");
+        ctxt = gen.streamWriteContext();
+        assertEquals("b", ctxt.currentName());
         gen.writeNumber(123);
-        assertEquals("b", ctxt.getCurrentName());
+        assertEquals("b", ctxt.currentName());
 
-        gen.writeFieldName("c");
-        assertEquals("c", gen.getOutputContext().getCurrentName());
+        gen.writeName("c");
+        assertEquals("c", gen.streamWriteContext().currentName());
         gen.writeNumber(5);
-//        assertEquals("c", gen.getOutputContext().getCurrentName());
+//        assertEquals("c", gen.getOutputContext().currentName());
 
-        gen.writeFieldName("d");
-        assertEquals("d", gen.getOutputContext().getCurrentName());
+        gen.writeName("d");
+        assertEquals("d", gen.streamWriteContext().currentName());
 
         gen.writeStartArray();
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inArray());
         assertEquals(0, ctxt.getCurrentIndex());
         assertEquals(0, ctxt.getEntryCount());
 
         gen.writeBoolean(true);
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inArray());
         // NOTE: index still refers to currently output entry
         assertEquals(0, ctxt.getCurrentIndex());
         assertEquals(1, ctxt.getEntryCount());
 
         gen.writeNumber(3);
-        ctxt = gen.getOutputContext();
+        ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inArray());
         assertEquals(1, ctxt.getCurrentIndex());
         assertEquals(2, ctxt.getEntryCount());
         
         gen.writeEndArray();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
         
         gen.writeEndObject();
-        assertTrue(gen.getOutputContext().inArray());
+        assertTrue(gen.streamWriteContext().inArray());
 
         gen.writeEndArray();
-        assertTrue(gen.getOutputContext().inObject());
+        assertTrue(gen.streamWriteContext().inObject());
 
         gen.writeEndObject();
 
-        assertTrue(gen.getOutputContext().inRoot());
+        assertTrue(gen.streamWriteContext().inRoot());
         
         gen.close();
     }
@@ -275,13 +273,13 @@ public class GeneratorBasicTest
     public void testGetOutputTarget() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
-        JsonGenerator gen = JSON_F.createGenerator(out);
-        assertSame(out, gen.getOutputTarget());
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
+        assertSame(out, gen.streamWriteOutputTarget());
         gen.close();
 
         StringWriter sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
-        assertSame(sw, gen.getOutputTarget());
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        assertSame(sw, gen.streamWriteOutputTarget());
         gen.close();
     }
 
@@ -289,12 +287,12 @@ public class GeneratorBasicTest
     public void testGetOutputBufferd() throws Exception
     {
         OutputStream out = new ByteArrayOutputStream();
-        JsonGenerator gen = JSON_F.createGenerator(out);
+        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
         _testOutputBuffered(gen);
         gen.close();
 
         StringWriter sw = new StringWriter();
-        gen = JSON_F.createGenerator(sw);
+        gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
         _testOutputBuffered(gen);
         gen.close();
     }
@@ -303,13 +301,13 @@ public class GeneratorBasicTest
     {
         gen.writeStartArray(); // 1 byte
         gen.writeNumber(1234); // 4 bytes
-        assertEquals(5, gen.getOutputBuffered());
+        assertEquals(5, gen.streamWriteOutputBuffered());
         gen.flush();
-        assertEquals(0, gen.getOutputBuffered());
+        assertEquals(0, gen.streamWriteOutputBuffered());
         gen.writeEndArray();
-        assertEquals(1, gen.getOutputBuffered());
+        assertEquals(1, gen.streamWriteOutputBuffered());
         gen.close();
-        assertEquals(0, gen.getOutputBuffered());
+        assertEquals(0, gen.streamWriteOutputBuffered());
     }
 
     /*
@@ -336,29 +334,29 @@ public class GeneratorBasicTest
 
             if (useBytes) {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                JsonGenerator gen = JSON_F.createGenerator(bytes);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = bytes.toString("UTF-8");
-                p = JSON_F.createParser(bytes.toByteArray());
+                p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();
-                JsonGenerator gen = JSON_F.createGenerator(sw);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = sw.toString();
-                p = JSON_F.createParser(docStr);
+                p = JSON_F.createParser(ObjectReadContext.empty(), docStr);
             }
             JsonToken t = null;
             try {
                 t = p.nextToken();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 fail("Problem with value "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);
@@ -392,29 +390,29 @@ public class GeneratorBasicTest
 
             if (useBytes) {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                JsonGenerator gen = JSON_F.createGenerator(bytes);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), bytes);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = bytes.toString("UTF-8");
-                p = JSON_F.createParser(bytes.toByteArray());
+                p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();
-                JsonGenerator gen = JSON_F.createGenerator(sw);
+                JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
                 gen.writeNumber(VALUE);
                 if (pad) {
                     gen.writeRaw(" ");
                 }
                 gen.close();
                 docStr = sw.toString();
-                p = JSON_F.createParser(docStr);
+                p = JSON_F.createParser(ObjectReadContext.empty(), docStr);
             }
             JsonToken t = null;
             try {
                 t = p.nextToken();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 fail("Problem with number "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);

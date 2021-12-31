@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.read;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Unit tests for verifying that object mapping functionality can
@@ -86,7 +87,7 @@ public class ParserWithObjectsTest
         assertToken(JsonToken.START_OBJECT, jp.nextValue());
         for (int i = 3; i <= 5; ++i) {
             assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextValue());
-            assertEquals(String.valueOf(i), jp.getCurrentName());
+            assertEquals(String.valueOf(i), jp.currentName());
             assertEquals(i, jp.getIntValue());
         }
         assertToken(JsonToken.END_OBJECT, jp.nextValue());
@@ -103,7 +104,7 @@ public class ParserWithObjectsTest
 
         assertToken(JsonToken.START_OBJECT, jp.nextValue());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextValue());
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", jp.currentName());
         assertToken(JsonToken.END_OBJECT, jp.nextValue());
         assertToken(JsonToken.END_ARRAY, jp.nextValue());
 
@@ -121,21 +122,21 @@ public class ParserWithObjectsTest
         jp = _getParser("{\"a\": { \"b\" : true, \"c\": false }, \"d\": 3 }", useStream);
 
         assertToken(JsonToken.START_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
+        assertNull(jp.currentName());
         assertToken(JsonToken.START_OBJECT, jp.nextValue());
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", jp.currentName());
         assertToken(JsonToken.VALUE_TRUE, jp.nextValue());
-        assertEquals("b", jp.getCurrentName());
+        assertEquals("b", jp.currentName());
         assertToken(JsonToken.VALUE_FALSE, jp.nextValue());
-        assertEquals("c", jp.getCurrentName());
+        assertEquals("c", jp.currentName());
         assertToken(JsonToken.END_OBJECT, jp.nextValue());
         // ideally we should match closing marker with field, too:
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", jp.currentName());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextValue());
-        assertEquals("d", jp.getCurrentName());
+        assertEquals("d", jp.currentName());
         assertToken(JsonToken.END_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
+        assertNull(jp.currentName());
         assertNull(jp.nextValue());
         jp.close();
 
@@ -143,16 +144,16 @@ public class ParserWithObjectsTest
         jp = _getParser("{\"a\": [ false ] }", useStream);
 
         assertToken(JsonToken.START_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
+        assertNull(jp.currentName());
         assertToken(JsonToken.START_ARRAY, jp.nextValue());
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", jp.currentName());
         assertToken(JsonToken.VALUE_FALSE, jp.nextValue());
-        assertNull(jp.getCurrentName());
+        assertNull(jp.currentName());
         assertToken(JsonToken.END_ARRAY, jp.nextValue());
         // ideally we should match closing marker with field, too:
-        assertEquals("a", jp.getCurrentName());
+        assertEquals("a", jp.currentName());
         assertToken(JsonToken.END_OBJECT, jp.nextValue());
-        assertNull(jp.getCurrentName());
+        assertNull(jp.currentName());
         assertNull(jp.nextValue());
         jp.close();
     }
@@ -162,8 +163,8 @@ public class ParserWithObjectsTest
     {
         JsonFactory jf = new JsonFactory();
         if (useStream) {
-            return jf.createParser(doc.getBytes("UTF-8"));
+            return jf.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"));
         }
-        return jf.createParser(new StringReader(doc));
+        return jf.createParser(ObjectReadContext.empty(), new StringReader(doc));
     }
 }

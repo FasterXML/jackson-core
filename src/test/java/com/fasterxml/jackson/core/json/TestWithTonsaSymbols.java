@@ -36,20 +36,19 @@ public class TestWithTonsaSymbols
     private void _testWith(boolean useStream)
         throws Exception
     {
-        JsonFactory jf = new JsonFactory();
+        JsonFactory f = new JsonFactory();
         String doc = buildDoc(FIELD_COUNT);
 
-        /* And let's do this multiple times: just so that symbol table
-         * state is different between runs.
-         */
+        // And let's do this multiple times: just so that symbol table
+        // state is different between runs.
         for (int x = 0; x < 3; ++x) {
             JsonParser p = useStream ?
-                jf.createParser(new ByteArrayInputStream(doc.getBytes("UTF-8")))
-                : jf.createParser(new StringReader(doc));
+                f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(doc.getBytes("UTF-8")))
+                : f.createParser(ObjectReadContext.empty(), new StringReader(doc));
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             for (int i = 0; i < FIELD_COUNT; ++i) {
-                assertToken(JsonToken.FIELD_NAME, p.nextToken());
-                assertEquals(fieldNameFor(i), p.getCurrentName());
+                assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+                assertEquals(fieldNameFor(i), p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(i, p.getIntValue());
             }

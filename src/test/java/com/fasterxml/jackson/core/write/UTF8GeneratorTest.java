@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
+import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 
@@ -13,14 +14,16 @@ import java.io.ByteArrayOutputStream;
 
 public class UTF8GeneratorTest extends BaseTest
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    private final TokenStreamFactory JSON_F = newStreamFactory();
 
     public void testUtf8Issue462() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         IOContext ioc = new IOContext(new BufferRecycler(),
                 ContentReference.rawReference(bytes), true);
-        JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
+        JsonGenerator gen = new UTF8JsonGenerator(ObjectWriteContext.empty(), ioc, 0, 0, bytes,
+                JsonFactory.DEFAULT_ROOT_VALUE_SEPARATOR, null, null,
+                0, '"');
         String str = "Natuurlijk is alles gelukt en weer een tevreden klant\uD83D\uDE04";
         int length = 4000 - 38;
 
@@ -32,7 +35,7 @@ public class UTF8GeneratorTest extends BaseTest
         gen.close();
         
         // Also verify it's parsable?
-        JsonParser p = JSON_F.createParser(bytes.toByteArray());
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
         for (int i = 1; i <= length; ++i) {
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(1, p.getIntValue());
@@ -48,7 +51,7 @@ public class UTF8GeneratorTest extends BaseTest
     {
         final String VALUE = quote("\ud83d\ude0c");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JsonGenerator g = JSON_F.createGenerator(out);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
         g.writeStartArray();
         g.writeRaw(VALUE);
         g.writeEndArray();
@@ -56,7 +59,7 @@ public class UTF8GeneratorTest extends BaseTest
 
         final byte[] JSON = out.toByteArray();
 
-        JsonParser jp = JSON_F.createParser(JSON);
+        JsonParser jp = JSON_F.createParser(ObjectReadContext.empty(), JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         String str = jp.getText();
@@ -73,7 +76,7 @@ public class UTF8GeneratorTest extends BaseTest
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         @SuppressWarnings("resource")
-        JsonGenerator g = JSON_F.createGenerator(out);
+        JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
 
         FilteringGeneratorDelegate gen = new FilteringGeneratorDelegate(g,
                 new JsonPointerBasedFilter("/escapes"),
@@ -85,16 +88,16 @@ public class UTF8GeneratorTest extends BaseTest
 
         gen.writeStartObject();
 
-        gen.writeFieldName("a");
+        gen.writeName("a");
         gen.writeNumber((int) 123);
 
-        gen.writeFieldName("array");
+        gen.writeName("array");
         gen.writeStartArray();
         gen.writeNumber((short) 1);
         gen.writeNumber((short) 2);
         gen.writeEndArray();
 
-        gen.writeFieldName("escapes");
+        gen.writeName("escapes");
 
         final byte[] raw = SAMPLE_WITH_QUOTES.toString().getBytes("UTF-8");
         gen.writeUTF8String(raw, 0, raw.length);
@@ -102,11 +105,11 @@ public class UTF8GeneratorTest extends BaseTest
         gen.writeEndObject();
         gen.close();
 
-        JsonParser p = JSON_F.createParser(out.toByteArray());
+        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), out.toByteArray());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("escapes", p.getCurrentName());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals("escapes", p.currentName());
 
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(SAMPLE_WITH_QUOTES, p.getText());

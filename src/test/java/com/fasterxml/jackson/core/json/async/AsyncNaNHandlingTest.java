@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
@@ -11,9 +12,8 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
 {
     private final JsonFactory DEFAULT_F = new JsonFactory();
 
-    @SuppressWarnings("deprecation")
     public void testDefaultsForAsync() throws Exception {
-        assertFalse(DEFAULT_F.isEnabled(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS));
+        assertFalse(DEFAULT_F.isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS));
     }
     
     public void testDisallowNaN() throws Exception
@@ -67,8 +67,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         p.close();
 
         // finally, should also work with skipping
-        f = JsonFactory.builder()
-                .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
+        f = f.rebuild().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
         p = createParser(f, doc, readBytes);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -112,7 +111,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
             p.close();
         }
     }
-
+    
     public void testAllowInf() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -166,8 +165,7 @@ public class AsyncNaNHandlingTest extends AsyncTestBase
         p.close();
 
         // finally, should also work with skipping
-        f = JsonFactory.builder()
-                .configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS, true)
+        f = f.rebuild().enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
                 .build();
         p = createParser(f, doc, readBytes);
 

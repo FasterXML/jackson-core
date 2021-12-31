@@ -41,7 +41,7 @@ public final class ByteArrayBuilder extends OutputStream
 
     // Optional buffer recycler instance that we can use for allocating the first block.
     private final BufferRecycler _bufferRecycler;
-    private final List<byte[]> _pastBlocks = new ArrayList<byte[]>();
+    private final LinkedList<byte[]> _pastBlocks = new LinkedList<byte[]>();
     
     // Number of bytes within byte arrays in {@link _pastBlocks}.
     private int _pastLen;
@@ -76,7 +76,9 @@ public final class ByteArrayBuilder extends OutputStream
         _pastLen = 0;
         _currBlockPtr = 0;
 
-        _pastBlocks.clear();
+        if (!_pastBlocks.isEmpty()) {
+            _pastBlocks.clear();
+        }
     }
 
     /**
@@ -179,9 +181,9 @@ public final class ByteArrayBuilder extends OutputStream
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Non-stream API (similar to TextBuffer)
-    /**********************************************************************
+    /**********************************************************
      */
 
     /**
@@ -226,9 +228,9 @@ public final class ByteArrayBuilder extends OutputStream
     public int getCurrentSegmentLength() { return _currBlockPtr; }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* OutputStream implementation
-    /**********************************************************************
+    /**********************************************************
      */
 
     @Override
@@ -262,9 +264,9 @@ public final class ByteArrayBuilder extends OutputStream
     @Override public void flush() { /* NOP */ }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Internal methods
-    /**********************************************************************
+    /**********************************************************
      */
 
     private void _allocMore()

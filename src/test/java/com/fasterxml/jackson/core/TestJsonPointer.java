@@ -145,31 +145,6 @@ public class TestJsonPointer extends BaseTest
         assertEquals("extension", appended.last().getMatchingProperty());
     }
 
-    public void testAppendProperty()
-    {
-        final String INPUT = "/Image/15/name";
-        final String APPEND_WITH_SLASH = "/extension";
-        final String APPEND_NO_SLASH = "extension";
-
-        JsonPointer ptr = JsonPointer.compile(INPUT);
-        JsonPointer appendedWithSlash = ptr.appendProperty(APPEND_WITH_SLASH);
-        JsonPointer appendedNoSlash = ptr.appendProperty(APPEND_NO_SLASH);
-
-        assertEquals("extension", appendedWithSlash.last().getMatchingProperty());
-        assertEquals("extension", appendedNoSlash.last().getMatchingProperty());
-    }
-
-    public void testAppendIndex()
-    {
-        final String INPUT = "/Image/15/name";
-        final int INDEX = 12;
-
-        JsonPointer ptr = JsonPointer.compile(INPUT);
-        JsonPointer appended = ptr.appendIndex(INDEX);
-
-        assertEquals(12, appended.last().getMatchingIndex());
-    }
-
     public void testQuotedPath() throws Exception
     {
         final String INPUT = "/w~1out/til~0de/a~1b";

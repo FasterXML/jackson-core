@@ -65,7 +65,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getIntValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `int`");
+                verifyException(e, "out of range of int");
                 assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
                 assertEquals(Integer.TYPE, e.getTargetType());
             }
@@ -78,7 +78,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getIntValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `int`");
+                verifyException(e, "out of range of int");
                 assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
                 assertEquals(Integer.TYPE, e.getTargetType());
             }
@@ -91,7 +91,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getIntValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `int`");
+                verifyException(e, "out of range of int");
                 assertEquals(JsonToken.VALUE_NUMBER_FLOAT, e.getInputType());
                 assertEquals(Integer.TYPE, e.getTargetType());
             }
@@ -102,7 +102,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getIntValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `int`");
+                verifyException(e, "out of range of int");
                 assertEquals(JsonToken.VALUE_NUMBER_FLOAT, e.getInputType());
                 assertEquals(Integer.TYPE, e.getTargetType());
             }
@@ -115,7 +115,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getIntValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `int`");
+                verifyException(e, "out of range of int");
                 assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
                 assertEquals(Integer.TYPE, e.getTargetType());
             }
@@ -126,7 +126,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getIntValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `int`");
+                verifyException(e, "out of range of int");
                 assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
                 assertEquals(Integer.TYPE, e.getTargetType());
             }
@@ -186,7 +186,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getLongValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `long`");
+                verifyException(e, "out of range of long");
                 assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
                 assertEquals(Long.TYPE, e.getTargetType());
             }
@@ -198,7 +198,7 @@ public class NumberCoercionTest extends BaseTest
                 p.getLongValue();
                 fail("Should not pass");
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `long`");
+                verifyException(e, "out of range of long");
                 assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
                 assertEquals(Long.TYPE, e.getTargetType());
             }

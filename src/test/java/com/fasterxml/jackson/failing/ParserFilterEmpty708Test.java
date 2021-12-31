@@ -1,14 +1,13 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectReadContext;
 import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 // for [core#708]
 public class ParserFilterEmpty708Test extends BaseTest
@@ -72,6 +71,6 @@ public class ParserFilterEmpty708Test extends BaseTest
      */
     
     private JsonParser _createParser(TokenStreamFactory f, String json) throws Exception {
-        return f.createParser(ObjectReadContext.empty(), json);
+        return f.createParser(json);
     }
 }

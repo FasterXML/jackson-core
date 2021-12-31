@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.sym;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Some unit tests to try to exercise part of parser code that
@@ -53,27 +52,26 @@ public class TestHashCollisionChars
 
         // First: attempt with exceptions turned on; should catch an exception
 
-        JsonFactory f = streamFactoryBuilder()
+        JsonFactory f = JsonFactory.builder()
                 .enable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW)
                 .build();
-        JsonParser p = f.createParser(ObjectReadContext.empty(), sb.toString());
+        JsonParser p = f.createParser(sb.toString());
 
         try {
             while (p.nextToken() != null) {
                 ;
             }
             fail("Should have failed");
-        } catch (JacksonException e) {
-            verifyException(e, "Longest collision chain in symbol table");
-            verifyException(e, "suspect a DoS attack");
+        } catch (IllegalStateException e) {
+            verifyException(e, "hash collision");
         }
         p.close();
 
         // but then without feature, should pass
-        f = streamFactoryBuilder()
+        f = JsonFactory.builder()
                 .disable(JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW)
                 .build();
-        p = f.createParser(ObjectReadContext.empty(), sb.toString());
+        p = f.createParser(sb.toString());
         while (p.nextToken() != null) {
             ;
         }

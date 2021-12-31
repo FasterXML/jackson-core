@@ -10,6 +10,8 @@ package com.fasterxml.jackson.core.util;
  * by simply returning 'this': this is acceptable if instances are stateless.
  * 
  * @see DefaultPrettyPrinter
+ * 
+ * @since 2.1
  */
 public interface Instantiatable<T>
 {

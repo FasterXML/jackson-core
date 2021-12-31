@@ -27,6 +27,14 @@ public class IOContext
     protected final ContentReference _contentReference;
 
     /**
+     * Old, deprecated "raw" reference to input source.
+     *
+     * @deprecated Since 2.13, use {@link #_contentReference} instead
+     */
+    @Deprecated
+    protected final Object _sourceRef;
+
+    /**
      * Encoding used by the underlying stream, if known.
      */
     protected JsonEncoding _encoding;
@@ -104,22 +112,27 @@ public class IOContext
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
-     * @param enc Encoding in use
+     *
+     * @since 2.13
      */
-    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource,
-            JsonEncoding enc)
+    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
         _bufferRecycler = br;
         _contentReference = contentRef;
+        _sourceRef = contentRef.getRawContent();
         _managedResource = managedResource;
+    }
+
+    @Deprecated // since 2.13
+    public IOContext(BufferRecycler br, Object rawContent, boolean managedResource) {
+        this(br, ContentReference.rawReference(rawContent), managedResource);
+    }
+
+    public void setEncoding(JsonEncoding enc) {
         _encoding = enc;
     }
 
-    public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource) {
-        this(br, contentRef, managedResource, null);
-    }
-
-    public IOContext setEncoding(JsonEncoding enc) {
+    public IOContext withEncoding(JsonEncoding enc) {
         _encoding = enc;
         return this;
     }
@@ -138,10 +151,19 @@ public class IOContext
      * usable for error reporting purposes.
      * 
      * @return Reference to input source
+     *
+     * @since 2.13
      */
     public ContentReference contentReference() {
         return _contentReference;
     }
+
+    /**
+     * @deprecated Since 2.13, use {@link #contentReference()} instead
+     * @return "Raw" source reference
+     */
+    @Deprecated
+    public Object getSourceReference() { return _sourceRef; }
 
     /*
     /**********************************************************************
@@ -173,6 +195,8 @@ public class IOContext
      * @param minSize Minimum size of the buffer to recycle or allocate
      *
      * @return Allocated or recycled byte buffer
+     *
+     * @since 2.4
      */
     public byte[] allocReadIOBuffer(int minSize) {
         _verifyAlloc(_readIOBuffer);
@@ -199,6 +223,8 @@ public class IOContext
      * @param minSize Minimum size of the buffer to recycle or allocate
      *
      * @return Allocated or recycled byte buffer
+     *
+     * @since 2.4
      */
     public byte[] allocWriteEncodingBuffer(int minSize) {
         _verifyAlloc(_writeEncodingBuffer);
@@ -225,6 +251,8 @@ public class IOContext
      * @param minSize Minimum size of the buffer to recycle or allocate
      *
      * @return Allocated or recycled byte buffer
+     *
+     * @since 2.9
      */
     public byte[] allocBase64Buffer(int minSize) {
         _verifyAlloc(_base64Buffer);
@@ -236,6 +264,7 @@ public class IOContext
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER));
     }
 
+    // @since 2.4
     public char[] allocTokenBuffer(int minSize) {
         _verifyAlloc(_tokenCBuffer);
         return (_tokenCBuffer = _bufferRecycler.allocCharBuffer(BufferRecycler.CHAR_TOKEN_BUFFER, minSize));

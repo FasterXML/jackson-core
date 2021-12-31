@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.*;
 
 /**
  * Token reader (parser) features specific to JSON backend.
- *<p>
- * NOTE: Jackson 2.x had these mixed with non-JSON-specific features within
- * <code>JsonParser.Feature</code> enumeration.
+ * Eventual replacement for JSON-specific {@link com.fasterxml.jackson.core.JsonParser.Feature}s.
+ *
+ * @since 2.10
  */
 public enum JsonReadFeature
     implements FormatFeature
@@ -25,7 +25,7 @@ public enum JsonReadFeature
      * <b>disabled by default</b> for parsers and must be
      * explicitly enabled.
      */
-    ALLOW_JAVA_COMMENTS(false),
+    ALLOW_JAVA_COMMENTS(false, JsonParser.Feature.ALLOW_COMMENTS),
 
     /**
      * Feature that determines whether parser will allow use
@@ -39,7 +39,7 @@ public enum JsonReadFeature
      * <b>disabled by default</b> for parsers and must be
      * explicitly enabled.
      */
-    ALLOW_YAML_COMMENTS(false),
+    ALLOW_YAML_COMMENTS(false, JsonParser.Feature.ALLOW_YAML_COMMENTS),
 
     // // // Support for non-standard data format constructs: quoting/escaping
 
@@ -50,23 +50,21 @@ public enum JsonReadFeature
      * this is in addition to other acceptable markers.
      *<p>
      * Since JSON specification requires use of double quotes for
-     * property names,
+     * field names,
      * this is a non-standard feature, and as such disabled by default.
      */
-    ALLOW_SINGLE_QUOTES(false),
+    ALLOW_SINGLE_QUOTES(false, JsonParser.Feature.ALLOW_SINGLE_QUOTES),
 
     /**
      * Feature that determines whether parser will allow use
-     * of unquoted Object property names (which is allowed by Javascript,
+     * of unquoted field names (which is allowed by Javascript,
      * but not by JSON specification).
      *<p>
      * Since JSON specification requires use of double quotes for
-     * Object property names,
+     * field names,
      * this is a non-standard feature, and as such disabled by default.
-     *<p>
-     * NOTE: in Jackson 2.x, was called {@code ALLOW_UNQUOTED_FIELD_NAMES}
      */
-    ALLOW_UNQUOTED_PROPERTY_NAMES(false),
+    ALLOW_UNQUOTED_FIELD_NAMES(false, JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES),
 
     /**
      * Feature that determines whether parser will allow
@@ -79,7 +77,8 @@ public enum JsonReadFeature
      * Since JSON specification requires quoting for all control characters,
      * this is a non-standard feature, and as such disabled by default.
      */
-    ALLOW_UNESCAPED_CONTROL_CHARS(false),
+    @SuppressWarnings("deprecation")
+    ALLOW_UNESCAPED_CONTROL_CHARS(false, JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS),
 
     /**
      * Feature that can be enabled to accept quoting of all character
@@ -90,7 +89,8 @@ public enum JsonReadFeature
      * Since JSON specification requires quoting for all control characters,
      * this is a non-standard feature, and as such disabled by default.
      */
-    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false),
+    @SuppressWarnings("deprecation")
+    ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER(false, JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER),
 
     // // // Support for non-standard data format constructs: number representations
     
@@ -104,7 +104,8 @@ public enum JsonReadFeature
      * Since JSON specification does not allow leading zeroes,
      * this is a non-standard feature, and as such disabled by default.
      */
-    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false),
+    @SuppressWarnings("deprecation")
+    ALLOW_LEADING_ZEROS_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS),
 
     /**
      * Feature that determines whether parser will allow
@@ -114,8 +115,11 @@ public enum JsonReadFeature
      *<p>
      * Since JSON specification does not allow leading decimal,
      * this is a non-standard feature, and as such disabled by default.
+     *
+     * @since 2.11
      */
-    ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false),
+    @SuppressWarnings("deprecation")
+    ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS),
 
     /**
      * Feature that allows parser to recognize set of
@@ -135,7 +139,8 @@ public enum JsonReadFeature
      * Since JSON specification does not allow use of such values,
      * this is a non-standard feature, and as such disabled by default.
      */
-    ALLOW_NON_NUMERIC_NUMBERS(false),
+    @SuppressWarnings("deprecation")
+    ALLOW_NON_NUMERIC_NUMBERS(false, JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS),
 
     // // // Support for non-standard data format constructs: array/value separators
      
@@ -153,7 +158,8 @@ public enum JsonReadFeature
      * Since the JSON specification does not allow missing values this is a non-compliant JSON
      * feature and is disabled by default.
      */
-    ALLOW_MISSING_VALUES(false),
+    @SuppressWarnings("deprecation")
+    ALLOW_MISSING_VALUES(false, JsonParser.Feature.ALLOW_MISSING_VALUES),
 
     /**
      * Feature that determines whether {@link JsonParser} will allow for a single trailing
@@ -174,12 +180,19 @@ public enum JsonReadFeature
      * Since the JSON specification does not permit trailing commas, this is a non-standard
      * feature, and as such disabled by default.
      */
-    ALLOW_TRAILING_COMMA(false),
+    @SuppressWarnings("deprecation")
+    ALLOW_TRAILING_COMMA(false, JsonParser.Feature.ALLOW_TRAILING_COMMA),
     ;
 
     final private boolean _defaultState;
     final private int _mask;
 
+    /**
+     * For backwards compatibility we may need to map to one of existing {@link JsonParser.Feature}s;
+     * if so, this is the feature to enable/disable.
+     */
+    final private JsonParser.Feature _mappedFeature;
+    
     /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
@@ -197,9 +210,11 @@ public enum JsonReadFeature
         return flags;
     }
     
-    private JsonReadFeature(boolean defaultState) {
+    private JsonReadFeature(boolean defaultState,
+            JsonParser.Feature  mapTo) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());
+        _mappedFeature = mapTo;
     }
 
     @Override
@@ -208,4 +223,6 @@ public enum JsonReadFeature
     public int getMask() { return _mask; }
     @Override
     public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+
+    public JsonParser.Feature mappedFeature() { return _mappedFeature; }
 }

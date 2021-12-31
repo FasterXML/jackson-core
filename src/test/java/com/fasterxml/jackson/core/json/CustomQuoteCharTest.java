@@ -108,7 +108,7 @@ public class CustomQuoteCharTest
     
     private void _writeObject(JsonGenerator g, String key, String value) throws Exception {
         g.writeStartObject();
-        g.writeStringProperty(key, value);
+        g.writeStringField(key, value);
         g.writeEndObject();
     }
 

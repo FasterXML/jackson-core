@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncStringObjectTest extends AsyncTestBase
@@ -53,7 +52,7 @@ public class AsyncStringObjectTest extends AsyncTestBase
         assertNull(r.currentToken());
         assertToken(JsonToken.START_OBJECT, r.nextToken());
 
-        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
         if (verifyContents) {
             assertEquals(UNICODE_SHORT_NAME, r.currentName());
             assertEquals(UNICODE_SHORT_NAME, r.currentText());
@@ -65,7 +64,7 @@ public class AsyncStringObjectTest extends AsyncTestBase
             assertEquals(UNICODE_LONG_NAME, r.currentText());
         }
 
-        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
         if (verifyContents) {
             assertEquals(UNICODE_LONG_NAME, r.currentName());
             assertEquals(UNICODE_LONG_NAME, r.currentText());
@@ -76,7 +75,7 @@ public class AsyncStringObjectTest extends AsyncTestBase
         }
 
         // and ASCII entry
-        assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+        assertToken(JsonToken.FIELD_NAME, r.nextToken());
         if (verifyContents) {
             assertEquals(ASCII_SHORT_NAME, r.currentName());
             assertEquals(ASCII_SHORT_NAME, r.currentText());
@@ -93,17 +92,17 @@ public class AsyncStringObjectTest extends AsyncTestBase
         if (verifyContents) {
             r = asyncForBytes(f, readSize, data, offset);
             assertToken(JsonToken.START_OBJECT, r.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+            assertToken(JsonToken.FIELD_NAME, r.nextToken());
             assertEquals(UNICODE_SHORT_NAME, r.currentTextViaWriter());
             assertToken(JsonToken.VALUE_STRING, r.nextToken());
             assertEquals(UNICODE_LONG_NAME, r.currentTextViaWriter());
 
-            assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+            assertToken(JsonToken.FIELD_NAME, r.nextToken());
             assertEquals(UNICODE_LONG_NAME, r.currentTextViaWriter());
             assertToken(JsonToken.VALUE_STRING, r.nextToken());
             assertEquals(UNICODE_SHORT_NAME, r.currentTextViaWriter());
 
-            assertToken(JsonToken.PROPERTY_NAME, r.nextToken());
+            assertToken(JsonToken.FIELD_NAME, r.nextToken());
             assertEquals(ASCII_SHORT_NAME, r.currentTextViaWriter());
             assertToken(JsonToken.VALUE_STRING, r.nextToken());
             assertEquals(ASCII_SHORT_NAME, r.currentTextViaWriter());

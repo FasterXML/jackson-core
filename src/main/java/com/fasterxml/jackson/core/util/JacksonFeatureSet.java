@@ -39,7 +39,7 @@ public final class JacksonFeatureSet<F extends JacksonFeature>
         if (allFeatures.length > 31) {
             final String desc = allFeatures[0].getClass().getName();
             throw new IllegalArgumentException(String.format(
-"Cannot use type `%s` with JacksonFeatureSet: too many entries (%d > 31)",
+"Can not use type `%s` with JacksonFeatureSet: too many entries (%d > 31)",
 desc, allFeatures.length));
         }
         

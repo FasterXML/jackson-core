@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 /* Additional testing for {@link java.io.DataInput} specific
  * challenges for parsing.
@@ -25,7 +24,7 @@ public class DataInputTest
     {
         JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "{ \"value\" : true }");
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertNull(p.nextToken());

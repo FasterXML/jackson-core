@@ -5,8 +5,8 @@
 
 package com.fasterxml.jackson.core;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.Separators;
 
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.util.Separators;
  * to make results more human readable. Usually this means things like adding
  * linefeeds and indentation.
  *<p>
- * Note: stateful implementations MUST implement
+ * Note: since Jackson 2.1, stateful implementations MUST implement
  * {@link com.fasterxml.jackson.core.util.Instantiatable} interface,
  * to allow for constructing  per-generation instances and avoid
  * state corruption.
@@ -25,19 +25,24 @@ import com.fasterxml.jackson.core.util.Separators;
  */
 public interface PrettyPrinter
 {
+    /**
+     * @since 2.9
+     */
     public final static Separators DEFAULT_SEPARATORS = Separators.createDefaultInstance();
 
     /**
      * Default String used for separating root values is single space.
+     * 
+     * @since 2.9
      */
     public final static SerializedString DEFAULT_ROOT_VALUE_SEPARATOR = new SerializedString(" ");
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* First methods that act both as events, and expect
     /* output for correct functioning (i.e something gets
     /* output even when not pretty-printing)
-    /**********************************************************************
+    /**********************************************************
      */
 
     // // // Root-level handling:
@@ -51,12 +56,12 @@ public interface PrettyPrinter
      * to output some other suitable and nice-looking separator
      * (tab(s), space(s), linefeed(s) or any combination thereof).
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeRootValueSeparator(JsonGenerator g) throws JacksonException;
+    void writeRootValueSeparator(JsonGenerator gen) throws IOException;
 
     // // Object handling
 
@@ -70,12 +75,12 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeStartObject(JsonGenerator g) throws JacksonException;
+    void writeStartObject(JsonGenerator gen) throws IOException;
 
     /**
      * Method called after an Object value has been completely output
@@ -87,14 +92,14 @@ public interface PrettyPrinter
      * to output a curly bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      * @param nrOfEntries Number of direct members of the Object that
      *   have been output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeEndObject(JsonGenerator g, int nrOfEntries) throws JacksonException;
+    void writeEndObject(JsonGenerator gen, int nrOfEntries) throws IOException;
 
     /**
      * Method called after an Object entry (field:value) has been completely
@@ -105,15 +110,15 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeObjectEntrySeparator(JsonGenerator g) throws JacksonException;
+    void writeObjectEntrySeparator(JsonGenerator gen) throws IOException;
 
     /**
-     * Method called after an Object property name has been output, but
+     * Method called after an object field has been output, but
      * before the value is output.
      *<p>
      * Default handling (without pretty-printing) will output a single
@@ -121,12 +126,12 @@ public interface PrettyPrinter
      * to output a colon as well, but can surround that with other
      * (white-space) decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException;
+    void writeObjectFieldValueSeparator(JsonGenerator gen) throws IOException;
 
     // // // Array handling
 
@@ -140,12 +145,12 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeStartArray(JsonGenerator g) throws JacksonException;
+    void writeStartArray(JsonGenerator gen) throws IOException;
 
     /**
      * Method called after an Array value has been completely output
@@ -157,14 +162,14 @@ public interface PrettyPrinter
      * to output a bracket as well, but can surround that
      * with other (white-space) decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      * @param nrOfValues Number of direct members of the array that
      *   have been output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeEndArray(JsonGenerator g, int nrOfValues) throws JacksonException;
+    void writeEndArray(JsonGenerator gen, int nrOfValues) throws IOException;
 
     /**
      * Method called after an array value has been completely
@@ -175,18 +180,18 @@ public interface PrettyPrinter
      * to output a comma as well, but can surround that with other
      * (white-space) decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void writeArrayValueSeparator(JsonGenerator g) throws JacksonException;
+    void writeArrayValueSeparator(JsonGenerator gen) throws IOException;
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Then events that by default do not produce any output but that are
     /* often overridden to add white space in pretty-printing mode
-    /**********************************************************************
+    /**********************************************************
      */
 
     /**
@@ -197,26 +202,27 @@ public interface PrettyPrinter
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void beforeArrayValues(JsonGenerator g) throws JacksonException;
+    void beforeArrayValues(JsonGenerator gen) throws IOException;
 
     /**
      * Method called after object start marker has been output,
-     * and right before the Name of the first property is
+     * and right before the field name of the first entry is
      * to be output.
-     * It is <b>not</b> called for objects without properties.
+     * It is <b>not</b> called for objects without entries.
      *<p>
      * Default handling does not output anything, but pretty-printer
      * is free to add any white space decoration.
      *
-     * @param g Generator used for output
+     * @param gen Generator used for output
      *
-     * @throws WrappedIOException if there is an underlying I/O problem
-     * @throws StreamWriteException for problems in encoding token stream
+     * @throws IOException if there is either an underlying I/O problem or encoding
+     *    issue at format layer
      */
-    void beforeObjectEntries(JsonGenerator g) throws JacksonException;
+    void beforeObjectEntries(JsonGenerator gen) throws IOException;
 }
+

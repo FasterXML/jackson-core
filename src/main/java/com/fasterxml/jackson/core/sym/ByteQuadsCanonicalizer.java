@@ -3,8 +3,7 @@ package com.fasterxml.jackson.core.sym;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.InternCache;
 
 /**
@@ -24,6 +23,8 @@ import com.fasterxml.jackson.core.util.InternCache;
  * and within every area, entries are 4 {@code int}s, where 1 - 3 ints contain 1 - 12
  * UTF-8 encoded bytes of name (null-padded), and last int is offset in
  * {@code _names} that contains actual name Strings.
+ *
+ * @since 2.6
  */
 public final class ByteQuadsCanonicalizer
 {
@@ -103,6 +104,8 @@ public final class ByteQuadsCanonicalizer
     /**
      * Flag that indicates whether we should throw an exception if enough 
      * hash collisions are detected (true); or just worked around (false).
+     * 
+     * @since 2.4
      */
     protected final boolean _failOnDoS;
     
@@ -351,33 +354,35 @@ public final class ByteQuadsCanonicalizer
      * Factory method used to create actual symbol table instance to
      * use for parsing.
      *
-     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature}s enabled.
+     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.JsonFactory.Feature}s enabled.
      *
      * @return Actual canonicalizer instance that can be used by a parser
      */
     public ByteQuadsCanonicalizer makeChild(int flags) {
         return new ByteQuadsCanonicalizer(this, _seed,
                 _tableInfo.get(),
-                JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(flags),
+                JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(flags),
                 JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(flags));
     }
 
     /**
      * Method similar to {@link #makeChild} but one that only creates real
-     * instance of {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature#CANONICALIZE_PROPERTY_NAMES} is
+     * instance of {@link com.fasterxml.jackson.core.JsonFactory.Feature#CANONICALIZE_FIELD_NAMES} is
      * enabled: otherwise a "bogus" instance is created.
      *
-     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.TokenStreamFactory.Feature}s enabled.
+     * @param flags Bit flags of active {@link com.fasterxml.jackson.core.JsonFactory.Feature}s enabled.
      *
      * @return Actual canonicalizer instance that can be used by a parser if (and only if)
      *    canonicalization is enabled; otherwise a non-null "placeholder" instance.
+     *
+     * @since 2.13
      */
     public ByteQuadsCanonicalizer makeChildOrPlaceholder(int flags) {
-        if (JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(flags)) {
+        if (JsonFactory.Feature.CANONICALIZE_FIELD_NAMES.enabledIn(flags)) {
             // inlined "makeChild()"
             return new ByteQuadsCanonicalizer(this, _seed,
                     _tableInfo.get(),
-                    JsonFactory.Feature.INTERN_PROPERTY_NAMES.enabledIn(flags),
+                    JsonFactory.Feature.INTERN_FIELD_NAMES.enabledIn(flags),
                     JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW.enabledIn(flags));
         }
         return new ByteQuadsCanonicalizer(_tableInfo.get());
@@ -915,13 +920,15 @@ public final class ByteQuadsCanonicalizer
         int offset;
         
         switch (qlen) {
-        case 1: {
+        case 1:
+        {
                 offset = _findOffsetForAdd(calcHash(q[0]));
                 _hashArea[offset] = q[0];
                 _hashArea[offset+3] = 1;
             }
             break;
-        case 2: {
+        case 2:
+            {
                 offset = _findOffsetForAdd(calcHash(q[0], q[1]));
                 _hashArea[offset] = q[0];
                 _hashArea[offset+1] = q[1];
@@ -1314,13 +1321,10 @@ public final class ByteQuadsCanonicalizer
         if (_hashSize <= 1024) { // would have spill-over area of 128 entries
             return;
         }
-        // 20-Mar-2021, tatu: [core#686]: should use Jackson-specific exception
-        //    (to use new "processing limit" exception when available)
-        throw new StreamReadException(null,
-"Spill-over slots in symbol table with "+_count
-+" entries, hash area of "+_hashSize+" slots is now full (all "
-+(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions."
-+" You can disable the check via `TokenStreamFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
+        throw new IllegalStateException("Spill-over slots in symbol table with "+_count
+                +" entries, hash area of "+_hashSize+" slots is now full (all "
+                +(_hashSize >> 3)+" slots -- suspect a DoS attack based on hash collisions."
+                +" You can disable the check via `JsonFactory.Feature.FAIL_ON_SYMBOL_HASH_OVERFLOW`");
     }
 
     static int _calcTertiaryShift(int primarySlots)

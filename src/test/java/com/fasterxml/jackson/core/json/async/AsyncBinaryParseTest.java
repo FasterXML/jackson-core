@@ -6,7 +6,6 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncBinaryParseTest extends AsyncTestBase
@@ -66,7 +65,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
         for (int size : SIZES) {
             byte[] binary = _generateData(size);
             ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
-            JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
+            JsonGenerator g = f.createGenerator(bo);
             g.writeBinary(binary);
             g.close();
             byte[] smile = bo.toByteArray();
@@ -94,7 +93,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
         for (int size : SIZES) {
             byte[] binary = _generateData(size);
             ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
-            JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
+            JsonGenerator g = f.createGenerator(bo);
             g.writeStartArray();
             g.writeBinary(binary);
             g.writeNumber(1); // just to verify there's no overrun
@@ -132,9 +131,9 @@ public class AsyncBinaryParseTest extends AsyncTestBase
         for (int size : SIZES) {
             byte[] data = _generateData(size);
             ByteArrayOutputStream bo = new ByteArrayOutputStream(size+10);            
-            JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bo);
+            JsonGenerator g = f.createGenerator(bo);
             g.writeStartObject();
-            g.writeName("binary");
+            g.writeFieldName("binary");
             g.writeBinary(data);
             g.writeEndObject();
             g.close();
@@ -143,7 +142,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             AsyncReaderWrapper p = asyncForBytes(f, readSize, smile, offset);
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
             assertEquals("binary", p.currentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             byte[] result = p.getBinaryValue();
@@ -161,7 +160,7 @@ public class AsyncBinaryParseTest extends AsyncTestBase
             // and second time around, skipping
             p = asyncForBytes(f, readSize, smile, offset);
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());

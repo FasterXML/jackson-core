@@ -1,14 +1,11 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.util.JsonParserDelegate;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -18,53 +15,62 @@ import java.util.*;
 @SuppressWarnings("resource")
 public class SimpleParserTest extends BaseTest
 {
-    public void testInputSourceAccess()
+    public void testConfig() throws Exception
     {
         JsonParser p = createParser(MODE_READER, "[ ]");
-        Object src = p.streamReadInputSource();
+        Object src = p.getInputSource();
         assertNotNull(src);
         assertTrue(src instanceof Reader);
+        p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        assertTrue(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        p.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        assertFalse(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+
+        p.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+        assertTrue(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        p.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+        assertFalse(p.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
         p.close();
 
         p = createParser(MODE_INPUT_STREAM, "[ ]");
-        src = p.streamReadInputSource();
+        src = p.getInputSource();
         assertNotNull(src);
         assertTrue(src instanceof InputStream);
         p.close();
 
         p = createParser(MODE_DATA_INPUT, "[ ]");
-        src = p.streamReadInputSource();
+        src = p.getInputSource();
         assertNotNull(src);
         assertTrue(src instanceof DataInput);
         p.close();
     }
 
-    public void testInterningWithStreams()
+    public void testInterningWithStreams() throws Exception
     {
         _testIntern(true, true, "a");
         _testIntern(true, false, "b");
     }
 
-    public void testInterningWithReaders()
+    public void testInterningWithReaders() throws Exception
     {
         _testIntern(false, true, "c");
         _testIntern(false, false, "d");
     }
     
-    private void _testIntern(boolean useStream, boolean enableIntern, String expName)
+    private void _testIntern(boolean useStream, boolean enableIntern, String expName) throws IOException
     {
         JsonFactory f = JsonFactory.builder()
-                .configure(JsonFactory.Feature.INTERN_PROPERTY_NAMES, enableIntern)
+                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, enableIntern)
                 .build();
-        assertEquals(enableIntern, f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
+        assertEquals(enableIntern, f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
         final String JSON = "{ \""+expName+"\" : 1}";
         JsonParser p = useStream ?
             createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
             
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         // needs to be same of cours
-        String actName = p.currentName();
+        String actName = p.getCurrentName();
         assertEquals(expName, actName);
         if (enableIntern) {
             assertSame(expName, actName);
@@ -79,7 +85,7 @@ public class SimpleParserTest extends BaseTest
      * specification (RFC-4627 or later) is properly parsed at
      * high-level, without verifying values.
      */
-    public void testSpecExampleSkipping()
+    public void testSpecExampleSkipping() throws Exception
     {
         _doTestSpec(false);
     }
@@ -89,7 +95,7 @@ public class SimpleParserTest extends BaseTest
      * parsed, and proper values are given for contents of all
      * events/tokens.
      */
-    public void testSpecExampleFully()
+    public void testSpecExampleFully() throws Exception
     {
         _doTestSpec(true);
     }
@@ -98,7 +104,7 @@ public class SimpleParserTest extends BaseTest
      * Unit test that verifies that 3 basic keywords (null, true, false)
      * are properly parsed in various contexts.
      */
-    public void testKeywords()
+    public void testKeywords() throws Exception
     {
         final String DOC = "{\n"
             +"\"key1\" : null,\n"
@@ -121,9 +127,9 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    private void _testKeywords(JsonParser p, boolean checkColumn)
+    private void _testKeywords(JsonParser p, boolean checkColumn) throws Exception
     {
-        TokenStreamContext ctxt = p.streamReadContext();
+        JsonStreamContext ctxt = p.getParsingContext();
         assertEquals("/", ctxt.toString());
         assertTrue(ctxt.inRoot());
         assertFalse(ctxt.inArray());
@@ -143,62 +149,62 @@ public class SimpleParserTest extends BaseTest
         assertEquals("/", ctxt.toString());
 
         assertTrue(p.hasCurrentToken());
-        JsonLocation loc = p.currentTokenLocation();
+        JsonLocation loc = p.getTokenLocation();
         assertNotNull(loc);
         assertEquals(1, loc.getLineNr());
         if (checkColumn) {
             assertEquals(1, loc.getColumnNr());
         }
 
-        ctxt = p.streamReadContext();
+        ctxt = p.getParsingContext();
         assertFalse(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertTrue(ctxt.inObject());
         assertEquals(0, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         verifyFieldName(p, "key1");
         assertEquals("{\"key1\"}", ctxt.toString());
-        assertEquals(2, p.currentTokenLocation().getLineNr());
+        assertEquals(2, p.getTokenLocation().getLineNr());
 
-        ctxt = p.streamReadContext();
+        ctxt = p.getParsingContext();
         assertFalse(ctxt.inRoot());
         assertFalse(ctxt.inArray());
         assertTrue(ctxt.inObject());
         assertEquals(1, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
-        assertEquals("key1", ctxt.currentName());
+        assertEquals("key1", ctxt.getCurrentName());
 
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertEquals("key1", ctxt.currentName());
+        assertEquals("key1", ctxt.getCurrentName());
 
-        ctxt = p.streamReadContext();
+        ctxt = p.getParsingContext();
         assertEquals(1, ctxt.getEntryCount());
         assertEquals(0, ctxt.getCurrentIndex());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         verifyFieldName(p, "key2");
-        ctxt = p.streamReadContext();
+        ctxt = p.getParsingContext();
         assertEquals(2, ctxt.getEntryCount());
         assertEquals(1, ctxt.getCurrentIndex());
-        assertEquals("key2", ctxt.currentName());
+        assertEquals("key2", ctxt.getCurrentName());
 
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertEquals("key2", ctxt.currentName());
+        assertEquals("key2", ctxt.getCurrentName());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         verifyFieldName(p, "key3");
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         verifyFieldName(p, "key4");
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        ctxt = p.streamReadContext();
+        ctxt = p.getParsingContext();
         assertTrue(ctxt.inArray());
-        assertNull(ctxt.currentName());
-        assertEquals("key4", ctxt.getParent().currentName());
+        assertNull(ctxt.getCurrentName());
+        assertEquals("key4", ctxt.getParent().getCurrentName());
         
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
         assertEquals("[0]", ctxt.toString());
@@ -207,23 +213,23 @@ public class SimpleParserTest extends BaseTest
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        ctxt = p.streamReadContext();
+        ctxt = p.getParsingContext();
         assertTrue(ctxt.inObject());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        ctxt = p.streamReadContext();
+        ctxt = p.getParsingContext();
         assertTrue(ctxt.inRoot());
-        assertNull(ctxt.currentName());
+        assertNull(ctxt.getCurrentName());
     }
 
-    public void testSkipping() {
+    public void testSkipping() throws Exception {
         _testSkipping(MODE_INPUT_STREAM);
         _testSkipping(MODE_INPUT_STREAM_THROTTLED);
         _testSkipping(MODE_READER);
         _testSkipping(MODE_DATA_INPUT);
     }
 
-    private void _testSkipping(int mode)
+    private void _testSkipping(int mode) throws Exception
     {
         // InputData has some limitations to take into consideration
         boolean isInputData = (mode == MODE_DATA_INPUT);
@@ -278,14 +284,14 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testNameEscaping()
+    public void testNameEscaping() throws IOException
     {
         _testNameEscaping(MODE_INPUT_STREAM);
         _testNameEscaping(MODE_READER);
         _testNameEscaping(MODE_DATA_INPUT);
     }
 
-    private void _testNameEscaping(int mode)
+    private void _testNameEscaping(int mode) throws IOException
     {
         final Map<String,String> NAME_MAP = new LinkedHashMap<String,String>();
         NAME_MAP.put("", "");
@@ -308,9 +314,9 @@ public class SimpleParserTest extends BaseTest
             JsonParser p = createParser(mode, DOC);
 
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
             // first, sanity check (field name == getText()
-            String act = p.currentName();
+            String act = p.getCurrentName();
             assertEquals(act, getAndVerifyText(p));
             if (!expResult.equals(act)) {
                 String msg = "Failed for name #"+entry+"/"+NAME_MAP.size();
@@ -330,7 +336,7 @@ public class SimpleParserTest extends BaseTest
      * correctly; mostly to stress-test underlying segment-based
      * text buffer(s).
      */
-    public void testLongText() {
+    public void testLongText() throws Exception {
         // lengths chosen to tease out problems with buffer allocation...
         _testLongText(310);
         _testLongText(7700);
@@ -338,7 +344,7 @@ public class SimpleParserTest extends BaseTest
         _testLongText(96000);
     }
 
-    private void _testLongText(int LEN)
+    private void _testLongText(int LEN) throws Exception
     {
         StringBuilder sb = new StringBuilder(LEN + 100);
         Random r = new Random(LEN);
@@ -367,9 +373,9 @@ public class SimpleParserTest extends BaseTest
         
         // Let's use real generator to get JSON done right
         StringWriter sw = new StringWriter(LEN + (LEN >> 2));
-        JsonGenerator g = JSON_FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator g = JSON_FACTORY.createGenerator(sw);
         g.writeStartObject();
-        g.writeName("doc");
+        g.writeFieldName("doc");
         g.writeString(VALUE);
         g.writeEndObject();
         g.close();
@@ -385,11 +391,11 @@ public class SimpleParserTest extends BaseTest
                 p = createParser(type, DOC);
                 break;
             default:
-                p = JSON_FACTORY.createParser(ObjectReadContext.empty(), encodeInUTF32BE(DOC));
+                p = JSON_FACTORY.createParser(encodeInUTF32BE(DOC));
             }
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-            assertEquals("doc", p.currentName());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("doc", p.getCurrentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
 
             String act = getAndVerifyText(p);
@@ -401,7 +407,7 @@ public class SimpleParserTest extends BaseTest
             }
 
             // should still know the field name
-            assertEquals("doc", p.currentName());
+            assertEquals("doc", p.getCurrentName());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
 
             // InputDate somewhat special, so:
@@ -416,17 +422,17 @@ public class SimpleParserTest extends BaseTest
      * Simple unit test that verifies that passing in a byte array
      * as source works as expected.
      */
-    public void testBytesAsSource()
+    public void testBytesAsSource() throws Exception
     {
         String JSON = "[ 1, 2, 3, 4 ]";
-        byte[] b = utf8Bytes(JSON);
+        byte[] b = JSON.getBytes("UTF-8");
         int offset = 50;
         int len = b.length;
         byte[] src = new byte[offset + len + offset];
 
         System.arraycopy(b, 0, src, offset, len);
 
-        JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), src, offset, len);
+        JsonParser p = JSON_FACTORY.createParser(src, offset, len);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -443,32 +449,31 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testUtf8BOMHandling() throws IOException
+    public void testUtf8BOMHandling() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         // first, write BOM:
         bytes.write(0xEF);
         bytes.write(0xBB);
         bytes.write(0xBF);
-        bytes.write(utf8Bytes("[ 1 ]"));
+        bytes.write("[ 1 ]".getBytes("UTF-8"));
         byte[] input = bytes.toByteArray();
 
-        JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), input);
+        JsonParser p = JSON_FACTORY.createParser(input);
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
 
-        JsonLocation loc = p.currentTokenLocation();
+        JsonLocation loc = p.getTokenLocation();
         assertEquals(3, loc.getByteOffset());
         assertEquals(-1, loc.getCharOffset());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
         p.close();
 
-        p = JSON_FACTORY.createParser(ObjectReadContext.empty(),
-                new MockDataInput(input));
+        p = JSON_FACTORY.createParser(new MockDataInput(input));
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         // same BOM, but DataInput is more restrictive so can skip but offsets
         // are not reliable...
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertNotNull(loc);
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonToken.END_ARRAY, p.nextToken());
@@ -476,7 +481,7 @@ public class SimpleParserTest extends BaseTest
     }
 
     // [core#48]
-    public void testSpacesInURL() throws IOException
+    public void testSpacesInURL() throws Exception
     {
         File f = File.createTempFile("pre fix&stuff", ".txt");
         BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
@@ -484,31 +489,31 @@ public class SimpleParserTest extends BaseTest
         w.close();
         URL url = f.toURI().toURL();
 
-        JsonParser p = JSON_FACTORY.createParser(ObjectReadContext.empty(), url);
+        JsonParser p = JSON_FACTORY.createParser(url);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }
 
-    public void testGetValueAsTextBytes()
+    public void testGetValueAsTextBytes() throws Exception
     {
         _testGetValueAsText(MODE_INPUT_STREAM, false);
         _testGetValueAsText(MODE_INPUT_STREAM, true);
     }
 
-    public void testGetValueAsTextDataInput()
+    public void testGetValueAsTextDataInput() throws Exception
     {
         _testGetValueAsText(MODE_DATA_INPUT, false);
         _testGetValueAsText(MODE_DATA_INPUT, true);
     }
     
-    public void testGetValueAsTextChars()
+    public void testGetValueAsTextChars() throws Exception
     {
         _testGetValueAsText(MODE_READER, false);
         _testGetValueAsText(MODE_READER, true);
     }
 
-    private void _testGetValueAsText(int mode, boolean delegate)
+    private void _testGetValueAsText(int mode, boolean delegate) throws Exception
     {
         String JSON = "{\"a\":1,\"b\":true,\"c\":null,\"d\":\"foo\"}";
         JsonParser p = createParser(mode, JSON);
@@ -520,26 +525,26 @@ public class SimpleParserTest extends BaseTest
         assertNull(p.getValueAsString());
         assertEquals("foobar", p.getValueAsString("foobar"));
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("a", p.getText());
         assertEquals("a", p.getValueAsString());
         assertEquals("a", p.getValueAsString("default"));
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("1", p.getValueAsString());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("b", p.getValueAsString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals("true", p.getValueAsString());
         assertEquals("true", p.getValueAsString("foobar"));
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("c", p.getValueAsString());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
         // null token returned as Java null, as per javadoc
         assertNull(p.getValueAsString());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("d", p.getValueAsString());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("foo", p.getValueAsString("default"));
@@ -555,41 +560,41 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    public void testGetTextViaWriter()
+    public void testGetTextViaWriter() throws Exception
     {
         for (int mode : ALL_MODES) {
             _testGetTextViaWriter(mode);
         }
     }
 
-    private void _testGetTextViaWriter(int mode)
+    private void _testGetTextViaWriter(int mode) throws Exception
     {
         final String INPUT_TEXT = "this is a sample text for json parsing using readText() method";
         final String JSON = "{\"a\":\""+INPUT_TEXT+"\",\"b\":true,\"c\":null,\"d\":\"foobar!\"}";
         JsonParser parser = createParser(mode, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
-        assertEquals("a", parser.currentName());
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("a", parser.getCurrentName());
         _getAndVerifyText(parser, "a");
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         _getAndVerifyText(parser, INPUT_TEXT);
-        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
-        assertEquals("b", parser.currentName());
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("b", parser.getCurrentName());
         assertToken(JsonToken.VALUE_TRUE, parser.nextToken());
         _getAndVerifyText(parser, "true");
-        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
-        assertEquals("c", parser.currentName());
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("c", parser.getCurrentName());
         assertToken(JsonToken.VALUE_NULL, parser.nextToken());
         _getAndVerifyText(parser, "null");
-        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
-        assertEquals("d", parser.currentName());
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("d", parser.getCurrentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         _getAndVerifyText(parser, "foobar!");
 
         parser.close();
     }
 
-    private void _getAndVerifyText(JsonParser p, String exp)
+    private void _getAndVerifyText(JsonParser p, String exp) throws Exception
     {
         Writer writer = new StringWriter();
         int len = p.getText(writer);
@@ -605,7 +610,7 @@ public class SimpleParserTest extends BaseTest
         }
     }
 
-    private void _testLongerReadText(int mode)
+    private void _testLongerReadText(int mode) throws Exception
     {
         StringBuilder builder = new StringBuilder();
         for(int i= 0; i < 1000; i++) {
@@ -615,8 +620,8 @@ public class SimpleParserTest extends BaseTest
         final String JSON = "{\"a\":\""+ longText +"\",\"b\":true,\"c\":null,\"d\":\"foo\"}";
         JsonParser parser = createParser(MODE_READER, JSON);
         assertToken(JsonToken.START_OBJECT, parser.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
-        assertEquals("a", parser.currentName());
+        assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+        assertEquals("a", parser.getCurrentName());
         assertToken(JsonToken.VALUE_STRING, parser.nextToken());
         
         Writer writer = new StringWriter();
@@ -634,23 +639,23 @@ public class SimpleParserTest extends BaseTest
      */
 
     // [core#142]
-    public void testHandlingOfInvalidSpaceByteStream() {
+    public void testHandlingOfInvalidSpaceByteStream() throws Exception {
         _testHandlingOfInvalidSpace(MODE_INPUT_STREAM);
         _testHandlingOfInvalidSpaceFromResource(true);
     }
     
     // [core#142]
-    public void testHandlingOfInvalidSpaceChars() {
+    public void testHandlingOfInvalidSpaceChars() throws Exception {
         _testHandlingOfInvalidSpace(MODE_READER);
         _testHandlingOfInvalidSpaceFromResource(false);
     }
 
     // [core#142]
-    public void testHandlingOfInvalidSpaceDataInput() {
+    public void testHandlingOfInvalidSpaceDataInput() throws Exception {
         _testHandlingOfInvalidSpace(MODE_DATA_INPUT);
     }
-    
-    private void _testHandlingOfInvalidSpace(int mode)
+
+    private void _testHandlingOfInvalidSpace(int mode) throws Exception
     {
         final String JSON = "{ \u00A0 \"a\":1}";
 
@@ -659,7 +664,7 @@ public class SimpleParserTest extends BaseTest
         try {
             p.nextToken();
             fail("Should have failed");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "unexpected character");
             // and correct error code
             verifyException(e, "code 160");
@@ -667,31 +672,30 @@ public class SimpleParserTest extends BaseTest
         p.close();
     }
 
-    private void _testHandlingOfInvalidSpaceFromResource(boolean useStream)
+    private void _testHandlingOfInvalidSpaceFromResource(boolean useStream) throws Exception
     {
         InputStream in = getClass().getResourceAsStream("/test_0xA0.json");
         JsonParser p = useStream
-                ? JSON_FACTORY.createParser(ObjectReadContext.empty(), in)
-                : JSON_FACTORY.createParser(ObjectReadContext.empty(),
-                        new InputStreamReader(in, StandardCharsets.UTF_8));
+                ? JSON_FACTORY.createParser(in)
+                : JSON_FACTORY.createParser(new InputStreamReader(in, "UTF-8"));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-            assertEquals("request", p.currentName());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("request", p.getCurrentName());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-            assertEquals("mac", p.currentName());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("mac", p.getCurrentName());
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             assertNotNull(p.getText());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-            assertEquals("data", p.currentName());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertEquals("data", p.getCurrentName());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
 
             // ... and from there on, just loop
             
             while (p.nextToken()  != null) { }
             fail("Should have failed");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "unexpected character");
             // and correct error code
             verifyException(e, "code 160");
@@ -705,7 +709,7 @@ public class SimpleParserTest extends BaseTest
     /**********************************************************
      */
 
-    private void _doTestSpec(boolean verify)
+    private void _doTestSpec(boolean verify) throws IOException
     {
         JsonParser p;
 

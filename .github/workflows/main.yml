@@ -4,7 +4,6 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.14"
     - "2.13"
     paths-ignore:
     - "README.md"
@@ -13,7 +12,6 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.14"
     - "2.13"
     paths-ignore:
     - "README.md"
@@ -24,7 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11', '14']
+        # Alas, as long as JDK6 is target, cannot run against 14+
+        java_version: ['8', '11']
         os: ['ubuntu-20.04']
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"

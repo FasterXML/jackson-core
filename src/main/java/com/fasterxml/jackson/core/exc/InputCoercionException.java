@@ -1,18 +1,19 @@
 package com.fasterxml.jackson.core.exc;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.RequestPayload;
 
 /**
  * Exception type for read-side problems that are not direct decoding ("parsing")
- * problems (those would be reported as basic
- * {@link StreamReadException}s),
+ * problems (those would be reported as {@link com.fasterxml.jackson.core.JsonParseException}s),
  * but rather result from failed attempts to convert specific Java value out of valid
  * but incompatible input value. One example is numeric coercions where target number type's
  * range does not allow mapping of too large/too small input value.
+ *
+ * @since 2.10
  */
-public class InputCoercionException extends StreamReadException
-{
-    private static final long serialVersionUID = 3L;
+public class InputCoercionException extends StreamReadException {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Input token that represents input value that failed to coerce.
@@ -26,7 +27,7 @@ public class InputCoercionException extends StreamReadException
     
     /**
      * Constructor that uses current parsing location as location, and
-     * sets processor (accessible via {@link #processor()}) to
+     * sets processor (accessible via {@link #getProcessor()}) to
      * specified parser.
      *
      * @param p Parser in use at the point where failure occurred
@@ -43,13 +44,19 @@ public class InputCoercionException extends StreamReadException
 
     /**
      * Fluent method that may be used to assign originating {@link JsonParser},
-     * to be accessed using {@link #processor()}.
+     * to be accessed using {@link #getProcessor()}.
      *<p>
      * NOTE: `this` instance is modified and no new instance is constructed.
      */
     @Override
     public InputCoercionException withParser(JsonParser p) {
         _processor = p;
+        return this;
+    }
+
+    @Override
+    public InputCoercionException withRequestPayload(RequestPayload p) {
+        _requestPayload = p;
         return this;
     }
 

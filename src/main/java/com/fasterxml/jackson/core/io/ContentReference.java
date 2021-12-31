@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core.io;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
@@ -13,6 +13,8 @@ import java.util.Objects;
  * location (see {@link com.fasterxml.jackson.core.JsonLocation})
  * objections, most commonly to be printed out as part of {@code Exception}
  * messages.
+ *
+ * @since 2.13
  */
 public class ContentReference
     // sort of: we will read back as "UNKNOWN"
@@ -285,7 +287,7 @@ public class ContentReference
         _truncateOffsets(offsets, b.length);
         final int start = offsets[0];
         final int length = Math.min(offsets[1], maxSnippetLen);
-        return new String(b, start, length, StandardCharsets.UTF_8);
+        return new String(b, start, length, Charset.forName("UTF-8"));
     }
 
     // Method that is given alleged start/offset pair and needs to adjust

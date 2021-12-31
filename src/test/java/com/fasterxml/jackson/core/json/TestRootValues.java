@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 
 public class TestRootValues
     extends com.fasterxml.jackson.core.BaseTest
@@ -78,14 +76,14 @@ public class TestRootValues
 
     private final JsonFactory JSON_F = sharedStreamFactory();
 
-    public void testSimpleNumbers() {
+    public void testSimpleNumbers() throws Exception {
         // DataInput can not detect EOF so:
         _testSimpleNumbers(MODE_INPUT_STREAM);
         _testSimpleNumbers(MODE_INPUT_STREAM_THROTTLED);
         _testSimpleNumbers(MODE_READER);
     }
 
-    private void _testSimpleNumbers(int mode)
+    private void _testSimpleNumbers(int mode) throws Exception
     {
         final String DOC = "1 2\t3\r4\n5\r\n6\r\n   7";
         JsonParser p = createParser(mode, DOC);
@@ -97,7 +95,7 @@ public class TestRootValues
         p.close();
     }
 
-    public void testBrokenNumber()
+    public void testBrokenNumber() throws Exception
     {
         _testBrokenNumber(MODE_INPUT_STREAM);
         _testBrokenNumber(MODE_INPUT_STREAM_THROTTLED);
@@ -106,7 +104,7 @@ public class TestRootValues
 //        _testBrokenNumber(MODE_DATA_INPUT);
     }
 
-    private void _testBrokenNumber(int mode)
+    private void _testBrokenNumber(int mode) throws Exception
     {
         final String DOC = "14:89:FD:D3:E7:8C";
         JsonParser p = createParser(mode, DOC);
@@ -114,20 +112,20 @@ public class TestRootValues
         try {
             p.nextToken();
             fail("Ought to fail! Instead, got token: "+p.currentToken());
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "unexpected character");
         }
         p.close();
     }
 
-    public void testSimpleBooleans() {
+    public void testSimpleBooleans() throws Exception {
         // can't do DataInput so
         _testSimpleBooleans(MODE_INPUT_STREAM);
         _testSimpleBooleans(MODE_INPUT_STREAM_THROTTLED);
         _testSimpleBooleans(MODE_READER);
     }
 
-    private void _testSimpleBooleans(int mode)
+    private void _testSimpleBooleans(int mode) throws Exception
     {
         final String DOC = "true false\ttrue\rfalse\ntrue\r\nfalse\r\n   true";
         JsonParser p = createParser(mode, DOC);
@@ -140,7 +138,7 @@ public class TestRootValues
         p.close();
     }
 
-    public void testInvalidToken()
+    public void testInvalidToken() throws Exception
     {
         _testInvalidToken(MODE_INPUT_STREAM, '\u00c4');
         _testInvalidToken(MODE_INPUT_STREAM_THROTTLED, '\u00c4');
@@ -153,7 +151,7 @@ public class TestRootValues
         _testInvalidToken(MODE_DATA_INPUT, '\u3456');
     }
 
-    private void _testInvalidToken(int mode, char weirdChar)
+    private void _testInvalidToken(int mode, char weirdChar) throws Exception
     {
         final String DOC = " A\u3456C ";
         JsonParser p = createParser(mode, DOC);
@@ -161,7 +159,7 @@ public class TestRootValues
         try {
             p.nextToken();
             fail("Ought to fail! Instead, got token: "+p.currentToken());
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "Unrecognized token");
         }
         p.close();
@@ -173,22 +171,22 @@ public class TestRootValues
     /**********************************************************
      */
     
-    public void testSimpleWrites() throws IOException
+    public void testSimpleWrites() throws Exception
     {
         _testSimpleWrites(false);
         _testSimpleWrites(true);
     }
 
-    private void _testSimpleWrites(boolean useStream) throws IOException
+    private void _testSimpleWrites(boolean useStream) throws Exception
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         StringWriter w = new StringWriter();
         JsonGenerator gen;
 
         if (useStream) {
-            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
+            gen = JSON_F.createGenerator(out, JsonEncoding.UTF8);
         } else {
-            gen = JSON_F.createGenerator(ObjectWriteContext.empty(), w);
+            gen = JSON_F.createGenerator(w);
         }
         gen.writeNumber(123);
         gen.writeString("abc");
@@ -199,7 +197,7 @@ public class TestRootValues
         w.close();
 
         // and verify
-        String json = useStream ? utf8String(out) : w.toString();
+        String json = useStream ? out.toString("UTF-8") : w.toString();
         assertEquals("123 \"abc\" true", json);
     }
 
@@ -210,18 +208,18 @@ public class TestRootValues
      */
     
     // [core#516]: Off-by-one read problem
-    public void testRootOffsetIssue516Bytes() throws IOException
+    public void testRootOffsetIssue516Bytes() throws Exception
     {
         // InputStream that forces _parseNumber2 to be invoked.
         final InputStream in = new Issue516InputStream(new byte[][] {
-            "1234".getBytes(StandardCharsets.UTF_8),
-            "5 true".getBytes(StandardCharsets.UTF_8)
+            "1234".getBytes("UTF-8"),
+            "5 true".getBytes("UTF-8")
         });
 
-        JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(), in);
+        JsonParser parser = JSON_F.createParser(in);
         assertEquals(12345, parser.nextIntValue(0));
 
-        // Fails with com.fasterxml.jackson.core.StreamReadException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')
+        // Fails with com.fasterxml.jackson.core.JsonParseException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')
         assertTrue(parser.nextBooleanValue());
 
         parser.close();
@@ -229,17 +227,17 @@ public class TestRootValues
     }
 
     // [core#516]: Off-by-one read problem
-    public void testRootOffsetIssue516Chars() throws IOException
+    public void testRootOffsetIssue516Chars() throws Exception
     {
         // InputStream that forces _parseNumber2 to be invoked.
         final Reader in = new Issue516Reader(new char[][] {
             "1234".toCharArray(), "5 true".toCharArray()
         });
 
-        JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(), in);
+        JsonParser parser = JSON_F.createParser(in);
         assertEquals(12345, parser.nextIntValue(0));
 
-        // Fails with com.fasterxml.jackson.core.StreamReadException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')
+        // Fails with com.fasterxml.jackson.core.JsonParseException: Unrecognized token 'rue': was expecting ('true', 'false' or 'null')
         assertTrue(parser.nextBooleanValue());
 
         parser.close();

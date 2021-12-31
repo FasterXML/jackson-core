@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Tests that directly modify/access underlying low-level symbol tables
@@ -155,7 +154,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
                 +"}");
 
         JsonFactory f = new JsonFactory();
-        JsonParser p = f.createParser(ObjectReadContext.empty(), JSON.getBytes("UTF-8"));
+        JsonParser p = f.createParser(JSON.getBytes("UTF-8"));
         ByteQuadsCanonicalizer symbols = _findSymbols(p);
         assertEquals(0, symbols.size());
         _streamThrough(p);
@@ -163,13 +162,13 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         p.close();
 
         // and, for fun, try again
-        p = f.createParser(ObjectReadContext.empty(), JSON.getBytes("UTF-8"));
+        p = f.createParser(JSON.getBytes("UTF-8"));
         _streamThrough(p);
         symbols = _findSymbols(p);
         assertEquals(8, symbols.size());
         p.close();
 
-        p = f.createParser(ObjectReadContext.empty(), JSON.getBytes("UTF-8"));
+        p = f.createParser(JSON.getBytes("UTF-8"));
         _streamThrough(p);
         symbols = _findSymbols(p);
         assertEquals(8, symbols.size());
@@ -269,12 +268,12 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
         JsonParser p;
 
         // First: ensure that char-based is fine
-        p = f.createParser(ObjectReadContext.empty(), json);
+        p = f.createParser(json);
         while (p.nextToken() != null) { }
         p.close();
 
         // and then that byte-based
-        p = f.createParser(ObjectReadContext.empty(), json.getBytes("UTF-8"));
+        p = f.createParser(json.getBytes("UTF-8"));
         while (p.nextToken() != null) { }
         p.close();
     }

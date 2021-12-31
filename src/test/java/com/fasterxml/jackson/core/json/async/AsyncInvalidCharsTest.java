@@ -5,8 +5,7 @@ import java.io.ByteArrayOutputStream;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
+
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 // Tests for verifying things such as handling of invalid control characters;
@@ -56,7 +55,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
          * "out of stream" (not part of input).
          */
 
-        JsonLocation loc = p.parser().currentTokenLocation();
+        JsonLocation loc = p.parser().getTokenLocation();
         // so if BOM was consider in-stream (part of input), this should expect 3:
         // (NOTE: this is location for START_ARRAY token, now)
         assertEquals(-1, loc.getCharOffset());
@@ -88,7 +87,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         try {
             assertEquals(JsonToken.START_ARRAY, p.nextToken());
             fail("Should not pass");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, verify);
         }
     }
@@ -113,7 +112,7 @@ public class AsyncInvalidCharsTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Should have failed");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "Illegal character");
             // and correct error code
             verifyException(e, "code 8");

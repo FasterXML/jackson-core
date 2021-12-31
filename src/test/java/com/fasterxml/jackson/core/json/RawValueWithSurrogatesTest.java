@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.ByteArrayOutputStream;
-
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.ObjectWriteContext;
 
 public class RawValueWithSurrogatesTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -75,7 +74,7 @@ public class RawValueWithSurrogatesTest
             sb.append(SURROGATES_307);
             final String text = sb.toString();
             ByteArrayOutputStream out = new ByteArrayOutputStream(1000);
-            JsonGenerator g = JSON_F.createGenerator(ObjectWriteContext.empty(), out);
+            JsonGenerator g = JSON_F.createGenerator(out);
             if (useCharArray) {
                 char[] ch = text.toCharArray();
                 g.writeRawValue(ch, OFFSET, ch.length - OFFSET);

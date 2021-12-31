@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 // Tests to guarad against [core#213]: does not verify symbol tables
 // directly but only indirect issue(s).
@@ -43,13 +42,13 @@ public class SymbolsViaParserTest
         JsonFactory f = new JsonFactory();
         
         JsonParser p = useBytes
-                ? f.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))
-                : f.createParser(ObjectReadContext.empty(), doc);
-        HashSet<String> syms = new HashSet<>();
+                ? f.createParser(doc.getBytes("UTF-8"))
+                : f.createParser(doc);
+        HashSet<String> syms = new HashSet<String>();
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         for (int i = 0; i < 50; ++i) {
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-            syms.add(p.currentName());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            syms.add(p.getCurrentName());
             assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         }
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -80,11 +79,11 @@ public class SymbolsViaParserTest
             String field = Integer.toString(i);
             final String doc = "{ \"" + field + "\" : \"test\" }";
             JsonParser parser = useBytes
-                    ? jsonFactory.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"))
-                    : jsonFactory.createParser(ObjectReadContext.empty(), doc);
+                    ? jsonFactory.createParser(doc.getBytes("UTF-8"))
+                    : jsonFactory.createParser(doc);
             assertToken(JsonToken.START_OBJECT, parser.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, parser.nextToken());
-            assertEquals(field, parser.currentName());
+            assertToken(JsonToken.FIELD_NAME, parser.nextToken());
+            assertEquals(field, parser.getCurrentName());
             assertToken(JsonToken.VALUE_STRING, parser.nextToken());
             assertToken(JsonToken.END_OBJECT, parser.nextToken());
             assertNull(parser.nextToken());

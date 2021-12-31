@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 import java.io.IOException;
 import java.util.Random;
@@ -18,16 +17,16 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         final String DOC = "{ }";
 
         // first, char based:
-        p = JSON_F.createParser(ObjectReadContext.empty(), DOC);
+        p = JSON_F.createParser(DOC);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(-1L, loc.getByteOffset());
         assertEquals(0L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(1, loc.getColumnNr());
 
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(-1L, loc.getByteOffset());
         assertEquals(1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
@@ -36,17 +35,17 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p.close();
 
         // then byte-based
-
-        p = JSON_F.createParser(ObjectReadContext.empty(), DOC.getBytes("UTF-8"));
+        
+        p = JSON_F.createParser(DOC.getBytes("UTF-8"));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(0L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(1, loc.getColumnNr());
 
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(1L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
@@ -64,16 +63,16 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         byte[] b = "   { }  ".getBytes("UTF-8");
 
         // and then peel them off
-        p = JSON_F.createParser(ObjectReadContext.empty(), b, 3, b.length - 5);
+        p = JSON_F.createParser(b, 3, b.length-5);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(0L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(1, loc.getColumnNr());
 
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(1L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
@@ -90,16 +89,16 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         byte[] b = "   { }  ".getBytes("UTF-8");
 
         // and then peel them off
-        p = JSON_F.createParser(ObjectReadContext.empty(), b);
+        p = JSON_F.createParser(b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(3L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(4, loc.getColumnNr());
 
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(4L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
@@ -121,7 +120,7 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         JsonParser p = createParser(JSON_F, MODE_DATA_INPUT, "[\"text\"]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals(1, p.currentLocation().getLineNr());
+        assertEquals(1, p.getCurrentLocation().getLineNr());
         p.finishToken();
         assertEquals("text", p.getText());
         p.close();
@@ -133,17 +132,17 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         // initially location pointing to first character
-        assertEquals(3, p.currentLocation().getColumnNr());
+        assertEquals(3, p.getCurrentLocation().getColumnNr());
         p.finishToken();
         // but will move once we force reading
-        assertEquals(8, p.currentLocation().getColumnNr());
+        assertEquals(8, p.getCurrentLocation().getColumnNr());
         // and no change if we call again (but is ok to call)
         p.finishToken();
-        assertEquals(8, p.currentLocation().getColumnNr());
+        assertEquals(8, p.getCurrentLocation().getColumnNr());
 
         // also just for fun, verify content
         assertEquals("text", p.getText());
-        assertEquals(8, p.currentLocation().getColumnNr());
+        assertEquals(8, p.getCurrentLocation().getColumnNr());
         p.close();
     }
 
@@ -156,16 +155,16 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         byte[] b = withUtf8Bom("{ }".getBytes());
 
         // and then peel them off
-        p = JSON_F.createParser(ObjectReadContext.empty(), b);
+        p = JSON_F.createParser(b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(3L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(4, loc.getColumnNr());
 
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(4L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
@@ -182,16 +181,16 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         byte[] b = withUtf8Bom("   { }".getBytes());
 
         // and then peel them off
-        p = JSON_F.createParser(ObjectReadContext.empty(), b);
+        p = JSON_F.createParser(b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(6L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(7, loc.getColumnNr());
 
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(7L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
@@ -208,16 +207,16 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         byte[] b = withUtf8Bom("   { }".getBytes());
 
         // and then peel them off
-        p = JSON_F.createParser(ObjectReadContext.empty(), b);
+        p = JSON_F.createParser(b);
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(6L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(7, loc.getColumnNr());
 
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(7L, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
@@ -246,48 +245,48 @@ public class LocationOffsetsTest extends com.fasterxml.jackson.core.BaseTest
         p = createParserUsingStream(JSON_F, doc, "UTF-8");
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(0, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(1, loc.getColumnNr());
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(1, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(2, loc.getColumnNr());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        loc = p.currentTokenLocation();
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        loc = p.getTokenLocation();
         assertEquals(1, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(2, loc.getColumnNr());
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(8, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(9, loc.getColumnNr());
 
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(7, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(8, loc.getColumnNr());
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(8, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(9, loc.getColumnNr());
 
         p.getTextCharacters();
-        loc = p.currentTokenLocation();
+        loc = p.getTokenLocation();
         assertEquals(7, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());
         assertEquals(8, loc.getColumnNr());
-        loc = p.currentLocation();
+        loc = p.getCurrentLocation();
         assertEquals(doc.length() - 1, loc.getByteOffset());
         assertEquals(-1L, loc.getCharOffset());
         assertEquals(1, loc.getLineNr());

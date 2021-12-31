@@ -33,43 +33,43 @@ public class NextNameParserTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("data", p.currentName());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertEquals("primary", p.nextName());
+        assertEquals("primary", p.nextFieldName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(-15, p.getIntValue());
 
-        assertEquals("vector", p.nextName());
+        assertEquals("vector", p.nextFieldName());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("yes", p.getText());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
-        assertEquals("misc", p.nextName());
+        assertEquals("misc", p.nextFieldName());
         assertToken(JsonToken.VALUE_NULL, p.nextToken());
 
-        assertEquals("name", p.nextName());
+        assertEquals("name", p.nextFieldName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("Bob", p.getText());
 
-        assertNull(p.nextName());
+        assertNull(p.nextFieldName());
         assertToken(JsonToken.END_OBJECT, p.currentToken());
 
-        assertEquals("array", p.nextName());
+        assertEquals("array", p.nextFieldName());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals("message", p.nextName());
+        assertEquals("message", p.nextFieldName());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("hello", p.getText());
-        assertEquals("value", p.nextName());
+        assertEquals("value", p.nextFieldName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(42, p.getIntValue());
-        assertEquals("misc", p.nextName());
+        assertEquals("misc", p.nextFieldName());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -77,7 +77,7 @@ public class NextNameParserTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(2, p.getIntValue());
 
-        assertNull(p.nextName());
+        assertNull(p.nextFieldName());
         assertToken(JsonToken.END_ARRAY, p.currentToken());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());

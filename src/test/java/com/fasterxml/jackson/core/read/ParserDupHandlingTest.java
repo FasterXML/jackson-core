@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class ParserDupHandlingTest
     extends com.fasterxml.jackson.core.BaseTest
@@ -25,7 +23,7 @@ public class ParserDupHandlingTest
     {
         // first: verify no problems if detection NOT enabled
         final JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
+        assertFalse(f.isEnabled(JsonParser.Feature.STRICT_DUPLICATE_DETECTION));
         for (String doc : DUP_DOCS) {
             _testSimpleDupsOk(doc, f, MODE_INPUT_STREAM);
             _testSimpleDupsOk(doc, f, MODE_INPUT_STREAM_THROTTLED);
@@ -36,30 +34,41 @@ public class ParserDupHandlingTest
 
     public void testSimpleDupsBytes() throws Exception
     {
+        JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                .build();
         for (String doc : DUP_DOCS) {
-            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM, "a");
+            // First, with static setting
+            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM, "a", false);
+            // and then dynamic
+            _testSimpleDupsFail(doc, nonDupF, MODE_INPUT_STREAM, "a", true);
 
-            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM_THROTTLED, "a");
+            _testSimpleDupsFail(doc, dupF, MODE_INPUT_STREAM_THROTTLED, "a", false);
+            _testSimpleDupsFail(doc, nonDupF, MODE_INPUT_STREAM_THROTTLED, "a", true);
         }
     }
 
     public void testSimpleDupsDataInput() throws Exception
     {
+        JsonFactory nonDupF = new JsonFactory();
         JsonFactory dupF = JsonFactory.builder()
-                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
+                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+                .build();
         for (String doc : DUP_DOCS) {
-            _testSimpleDupsFail(doc, dupF, MODE_DATA_INPUT, "a");
+            _testSimpleDupsFail(doc, dupF, MODE_DATA_INPUT, "a", false);
+            _testSimpleDupsFail(doc, nonDupF, MODE_DATA_INPUT, "a", true);
         }
     }
     
     public void testSimpleDupsChars() throws Exception
     {
-        JsonFactory dupF = JsonFactory.builder()
-                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build();
+        JsonFactory nonDupF = new JsonFactory();
+        JsonFactory dupF = new JsonFactory();
+        dupF.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
         for (String doc : DUP_DOCS) {
-            _testSimpleDupsFail(doc, dupF, MODE_READER, "a");
+            _testSimpleDupsFail(doc, dupF, MODE_READER, "a", false);
+            _testSimpleDupsFail(doc, nonDupF, MODE_READER, "a", true);
         }
     }
     
@@ -93,15 +102,18 @@ public class ParserDupHandlingTest
     }
 
     private void _testSimpleDupsFail(final String doc, JsonFactory f,
-            int mode, String name)
+            int mode, String name, boolean lazily) throws Exception
     {
         JsonParser p = createParser(f, mode, doc);
+        if (lazily) {
+            p.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+        }
         JsonToken t = p.nextToken();
         assertNotNull(t);
         assertTrue(t.isStructStart());
 
         int depth = 1;
-        StreamReadException e = null;
+        JsonParseException e = null;
 
         while (depth > 0) {
             try {
@@ -116,7 +128,7 @@ public class ParserDupHandlingTest
                     break;
                 default:
                 }
-            } catch (StreamReadException e0) {
+            } catch (JsonParseException e0) {
                 e = e0;
                 break;
             }
@@ -126,6 +138,6 @@ public class ParserDupHandlingTest
         if (e == null) {
             fail("Should have caught exception for dup");
         }
-        verifyException(e, "duplicate Object Property \""+name+"\"");
+        verifyException(e, "duplicate field '"+name+"'");
     }
 }

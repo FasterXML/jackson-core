@@ -18,14 +18,14 @@ public class SeparatorsTest {
     Separators separatorsTwo = separators.withArrayValueSeparator('5');
 
     assertEquals('5', separatorsTwo.getObjectEntrySeparator());
-    assertEquals('5', separatorsTwo.getObjectNameValueSeparator());
+    assertEquals('5', separatorsTwo.getObjectFieldValueSeparator());
     assertEquals('5', separatorsTwo.getArrayValueSeparator());
     assertSame(separatorsTwo, separators);
 
     separatorsTwo = separators.withArrayValueSeparator('6');
 
     assertEquals('5', separatorsTwo.getObjectEntrySeparator());
-    assertEquals('5', separatorsTwo.getObjectNameValueSeparator());
+    assertEquals('5', separatorsTwo.getObjectFieldValueSeparator());
     assertEquals('6', separatorsTwo.getArrayValueSeparator());
     assertNotSame(separatorsTwo, separators);
 
@@ -38,13 +38,13 @@ public class SeparatorsTest {
     Separators separatorsThree = separatorsTwo.withObjectEntrySeparator('!');
 
     assertEquals('!', separatorsThree.getObjectEntrySeparator());
-    assertEquals('5', separatorsThree.getObjectNameValueSeparator());
+    assertEquals('5', separatorsThree.getObjectFieldValueSeparator());
 
     assertSame(separatorsThree, separatorsTwo);
     assertEquals('5', separators.getArrayValueSeparator());
 
     assertEquals('5', separatorsThree.getArrayValueSeparator());
-    assertEquals('5', separators.getObjectNameValueSeparator());
+    assertEquals('5', separators.getObjectFieldValueSeparator());
   }
 
   @Test
@@ -55,13 +55,15 @@ public class SeparatorsTest {
     assertEquals('5', separatorsTwo.getArrayValueSeparator());
     assertSame(separatorsTwo, separators);
     assertEquals('5', separatorsTwo.getObjectEntrySeparator());
-    assertEquals('5', separatorsTwo.getObjectNameValueSeparator());
+    assertEquals('5', separatorsTwo.getObjectFieldValueSeparator());
 
     separatorsTwo = separators.withObjectFieldValueSeparator('6');
 
     assertEquals('5', separatorsTwo.getArrayValueSeparator());
     assertNotSame(separatorsTwo, separators);
     assertEquals('5', separatorsTwo.getObjectEntrySeparator());
-    assertEquals('6', separatorsTwo.getObjectNameValueSeparator());
+    assertEquals('6', separatorsTwo.getObjectFieldValueSeparator());
+
   }
+
 }

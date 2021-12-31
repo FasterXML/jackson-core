@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.core.testsupport;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 public class MockDataInput implements DataInput
 {
@@ -11,8 +10,8 @@ public class MockDataInput implements DataInput
         _input = new ByteArrayInputStream(data);
     }
 
-    public MockDataInput(String utf8Data) {
-        _input = new ByteArrayInputStream(utf8Data.getBytes(StandardCharsets.UTF_8));
+    public MockDataInput(String utf8Data) throws IOException {
+        _input = new ByteArrayInputStream(utf8Data.getBytes("UTF-8"));
     }
 
     public MockDataInput(InputStream in) {

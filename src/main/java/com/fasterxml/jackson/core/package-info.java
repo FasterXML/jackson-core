@@ -1,6 +1,6 @@
 /**
  * Main public API classes of the core streaming JSON
- * processor: most importantly {@link com.fasterxml.jackson.core.json.JsonFactory}
+ * processor: most importantly {@link com.fasterxml.jackson.core.JsonFactory}
  * used for constructing
  * JSON parser ({@link com.fasterxml.jackson.core.JsonParser})
  * and generator
@@ -17,14 +17,9 @@
  *parsers and generators (iff using mapping-supporting factory: which
  *is part of Mapping API, not core)
  *  </li>
- *<li>{@link com.fasterxml.jackson.core.ObjectReadContext} is included so that
- *  reference to the object capable of deserializing
- *  Objects from token streams (usually, <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
- *  can be exposed, without adding direct dependency to implementation.
- *  </li>
- *<li>{@link com.fasterxml.jackson.core.ObjectWriteContext} is included so that
- *  reference to the object capable of serializing
- *  Objects from token streams (usually, <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
+ *<li>{@link com.fasterxml.jackson.core.ObjectCodec} is included so that
+ *  reference to the object capable of serializing/deserializing
+ *  Objects to/from JSON (usually, <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
  *  can be exposed, without adding direct dependency to implementation.
  *  </li>
  *</ul>

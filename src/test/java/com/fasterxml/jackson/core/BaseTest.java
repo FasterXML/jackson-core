@@ -1,14 +1,10 @@
 package com.fasterxml.jackson.core;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
 
-import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.json.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
-import com.fasterxml.jackson.core.util.Named;
 
 import junit.framework.TestCase;
 
@@ -46,11 +42,11 @@ public abstract class BaseTest
         MODE_INPUT_STREAM_THROTTLED,
         MODE_READER
     };
-
+    
     /*
-    /**********************************************************************
-    /* Some sample documents
-    /**********************************************************************
+    /**********************************************************
+    /* Some sample documents:
+    /**********************************************************
      */
 
     protected final static int SAMPLE_SPEC_VALUE_WIDTH = 800;
@@ -81,11 +77,11 @@ public abstract class BaseTest
         ;
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Helper classes (beans)
-    /**********************************************************************
+    /**********************************************************
      */
-
+    
     /**
      * Sample class from Jackson tutorial ("JacksonInFiveMinutes")
      */
@@ -166,18 +162,20 @@ public abstract class BaseTest
     protected final JsonFactory JSON_FACTORY = new JsonFactory();
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* High-level helpers
-    /**********************************************************************
+    /**********************************************************
      */
 
     protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents)
+        throws IOException
     {
         verifyJsonSpecSampleDoc(p, verifyContents, true);
     }
 
     protected void verifyJsonSpecSampleDoc(JsonParser p, boolean verifyContents,
             boolean requireNumbers)
+        throws IOException
     {
         if (!p.hasCurrentToken()) {
             p.nextToken();
@@ -188,14 +186,14 @@ public abstract class BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Image'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Image'
         if (verifyContents) {
             verifyFieldName(p, "Image");
         }
 
         assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'image' object
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
         if (verifyContents) {
             verifyFieldName(p, "Width");
         }
@@ -205,7 +203,7 @@ public abstract class BaseTest
             verifyIntValue(p, SAMPLE_SPEC_VALUE_WIDTH);
         }
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
         if (verifyContents) {
             verifyFieldName(p, "Height");
         }
@@ -214,19 +212,19 @@ public abstract class BaseTest
         if (verifyContents) {
             verifyIntValue(p, SAMPLE_SPEC_VALUE_HEIGHT);
         }
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Title'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Title'
         if (verifyContents) {
             verifyFieldName(p, "Title");
         }
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(p));
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Thumbnail'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Thumbnail'
         if (verifyContents) {
             verifyFieldName(p, "Thumbnail");
         }
 
         assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Url'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Url'
         if (verifyContents) {
             verifyFieldName(p, "Url");
         }
@@ -234,7 +232,7 @@ public abstract class BaseTest
         if (verifyContents) {
             assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(p));
         }
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
         if (verifyContents) {
             verifyFieldName(p, "Height");
         }
@@ -242,7 +240,7 @@ public abstract class BaseTest
         if (verifyContents) {
             verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_HEIGHT);
         }
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
         if (verifyContents) {
             verifyFieldName(p, "Width");
         }
@@ -253,7 +251,7 @@ public abstract class BaseTest
         }
 
         assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'IDs'
+        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'IDs'
         assertToken(JsonToken.START_ARRAY, p.nextToken()); // 'ids' array
         verifyIntToken(p.nextToken(), requireNumbers); // ids[0]
         if (verifyContents) {
@@ -293,40 +291,42 @@ public abstract class BaseTest
     }
     
     protected void verifyFieldName(JsonParser p, String expName)
+        throws IOException
     {
         assertEquals(expName, p.getText());
-        assertEquals(expName, p.currentName());
+        assertEquals(expName, p.getCurrentName());
     }
 
     protected void verifyIntValue(JsonParser p, long expValue)
+        throws IOException
     {
         // First, via textual
         assertEquals(String.valueOf(expValue), p.getText());
     }
-
+    
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Parser construction
-    /**********************************************************************
+    /**********************************************************
      */
 
-    protected JsonParser createParser(int mode, String doc) {
+    protected JsonParser createParser(int mode, String doc) throws IOException {
         return createParser(JSON_FACTORY, mode, doc);
     }
 
-    protected JsonParser createParser(int mode, byte[] doc) {
+    protected JsonParser createParser(int mode, byte[] doc) throws IOException {
         return createParser(JSON_FACTORY, mode, doc);
     }
 
-    protected JsonParser createParser(JsonFactory f, int mode, String doc)
+    protected JsonParser createParser(JsonFactory f, int mode, String doc) throws IOException
     {
         switch (mode) {
         case MODE_INPUT_STREAM:
             return createParserUsingStream(f, doc, "UTF-8");
         case MODE_INPUT_STREAM_THROTTLED:
             {
-                InputStream in = new ThrottledInputStream(doc.getBytes(StandardCharsets.UTF_8), 1);
-                return f.createParser(ObjectReadContext.empty(), in);
+                InputStream in = new ThrottledInputStream(doc.getBytes("UTF-8"), 1);
+                return f.createParser(in);
             }
         case MODE_READER:
             return createParserUsingReader(f, doc);
@@ -337,19 +337,18 @@ public abstract class BaseTest
         throw new RuntimeException("internal error");
     }
 
-    protected JsonParser createParser(JsonFactory f, int mode, byte[] doc)
+    protected JsonParser createParser(JsonFactory f, int mode, byte[] doc) throws IOException
     {
         switch (mode) {
         case MODE_INPUT_STREAM:
-            return f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(doc));
+            return f.createParser(new ByteArrayInputStream(doc));
         case MODE_INPUT_STREAM_THROTTLED:
             {
                 InputStream in = new ThrottledInputStream(doc, 1);
-                return f.createParser(ObjectReadContext.empty(), in);
+                return f.createParser(in);
             }
         case MODE_READER:
-            return f.createParser(ObjectReadContext.empty(), new StringReader(
-                    new String(doc, StandardCharsets.UTF_8)));
+            return f.createParser(new StringReader(new String(doc, "UTF-8")));
         case MODE_DATA_INPUT:
             return createParserForDataInput(f, new MockDataInput(doc));
         default:
@@ -357,23 +356,26 @@ public abstract class BaseTest
         throw new RuntimeException("internal error");
     }
     
-    protected JsonParser createParserUsingReader(String input)
+    protected JsonParser createParserUsingReader(String input) throws IOException
     {
         return createParserUsingReader(new JsonFactory(), input);
     }
 
     protected JsonParser createParserUsingReader(JsonFactory f, String input)
+        throws IOException
     {
-        return f.createParser(ObjectReadContext.empty(), new StringReader(input));
+        return f.createParser(new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
+        throws IOException
     {
         return createParserUsingStream(new JsonFactory(), input, encoding);
     }
 
     protected JsonParser createParserUsingStream(JsonFactory f,
             String input, String encoding)
+        throws IOException
     {
 
         /* 23-Apr-2008, tatus: UTF-32 is not supported by JDK, have to
@@ -385,58 +387,55 @@ public abstract class BaseTest
         if (encoding.equalsIgnoreCase("UTF-32")) {
             data = encodeInUTF32BE(input);
         } else {
-            try {
-                data = input.getBytes(encoding);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            data = input.getBytes(encoding);
         }
         InputStream is = new ByteArrayInputStream(data);
-        return f.createParser(ObjectReadContext.empty(), is);
+        return f.createParser(is);
     }
 
     protected JsonParser createParserForDataInput(JsonFactory f,
             DataInput input)
+        throws IOException
     {
-        return f.createParser(ObjectReadContext.empty(), input);
+        return f.createParser(input);
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Generator construction
-    /**********************************************************************
+    /**********************************************************
      */
 
-    protected JsonGenerator createGenerator(OutputStream out) {
+    protected JsonGenerator createGenerator(OutputStream out) throws IOException {
         return createGenerator(JSON_FACTORY, out);
     }
 
-    protected JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) {
-        return f.createGenerator(ObjectWriteContext.empty(), out);
+    protected JsonGenerator createGenerator(TokenStreamFactory f, OutputStream out) throws IOException {
+        return f.createGenerator(out);
     }
 
-    protected JsonGenerator createGenerator(Writer w) {
+    protected JsonGenerator createGenerator(Writer w) throws IOException {
         return createGenerator(JSON_FACTORY, w);
     }
 
-    protected JsonGenerator createGenerator(TokenStreamFactory f, Writer w) {
-        return f.createGenerator(ObjectWriteContext.empty(), w);
+    protected JsonGenerator createGenerator(TokenStreamFactory f, Writer w) throws IOException {
+        return f.createGenerator(w);
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Helper read/write methods
-    /**********************************************************************
+    /**********************************************************
      */
 
-    protected void writeJsonDoc(JsonFactory f, String doc, Writer w)
+    protected void writeJsonDoc(JsonFactory f, String doc, Writer w) throws IOException
     {
-        writeJsonDoc(f, doc, f.createGenerator(ObjectWriteContext.empty(), w));
+        writeJsonDoc(f, doc, f.createGenerator(w));
     }
 
-    protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g)
+    protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
     {
-        JsonParser p = f.createParser(ObjectReadContext.empty(), aposToQuotes(doc));
+        JsonParser p = f.createParser(aposToQuotes(doc));
         
         while (p.nextToken() != null) {
             g.copyCurrentStructure(p);
@@ -445,10 +444,28 @@ public abstract class BaseTest
         g.close();
     }
 
+    protected String readAndWrite(JsonFactory f, JsonParser p) throws IOException
+    {
+        StringWriter sw = new StringWriter(100);
+        JsonGenerator g = f.createGenerator(sw);
+        g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+        try {
+            while (p.nextToken() != null) {
+                g.copyCurrentEvent(p);
+            }
+        } catch (IOException e) {
+            g.flush();
+            fail("Unexpected problem during `readAndWrite`. Output so far: '"+sw+"'; problem: "+e);
+        }
+        p.close();
+        g.close();
+        return sw.toString();
+    }
+
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Additional assertion methods
-    /**********************************************************************
+    /**********************************************************
      */
 
     protected void assertToken(JsonToken expToken, JsonToken actToken)
@@ -492,7 +509,7 @@ public abstract class BaseTest
      * available methods, and ensures results are consistent, before
      * returning them
      */
-    protected String getAndVerifyText(JsonParser p)
+    protected String getAndVerifyText(JsonParser p) throws IOException
     {
         // Ok, let's verify other accessors
         int actLen = p.getTextLength();
@@ -509,9 +526,9 @@ public abstract class BaseTest
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* And other helpers
-    /**********************************************************************
+    /**********************************************************
      */
 
     protected static String quote(String str) {
@@ -540,39 +557,13 @@ public abstract class BaseTest
         return result;
     }
 
+    // @since 2.9.7
     protected static byte[] utf8Bytes(String str) {
-        return str.getBytes(StandardCharsets.UTF_8);
-    }
-
-    protected static String utf8String(ByteArrayOutputStream bytes) {
         try {
-            return bytes.toString(StandardCharsets.UTF_8.name());
+            return str.getBytes("UTF-8");
         } catch (IOException e) {
-            throw new IllegalArgumentException(e);
+            throw new RuntimeException(e);
         }
-    }
-
-    protected byte[] readResource(String ref)
-    {
-       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-       final byte[] buf = new byte[4000];
-
-       InputStream in = getClass().getResourceAsStream(ref);
-       if (in != null) {
-           try {
-               int len;
-               while ((len = in.read(buf)) > 0) {
-                   bytes.write(buf, 0, len);
-               }
-               in.close();
-           } catch (IOException e) {
-               throw new RuntimeException("Failed to read resource '"+ref+"': "+e);
-           }
-       }
-       if (bytes.size() == 0) {
-           throw new IllegalArgumentException("Failed to read resource '"+ref+"': empty resource?");
-       }
-       return bytes.toByteArray();
     }
 
     protected void fieldNameFor(StringBuilder sb, int index)
@@ -596,16 +587,19 @@ public abstract class BaseTest
         }
     }
 
+    // @since 2.9.7
     protected JsonFactory sharedStreamFactory() {
         return JSON_FACTORY;
     }
 
+    // @since 2.9.7
     protected JsonFactory newStreamFactory() {
         return new JsonFactory();
     }
 
+    // @since 2.9.8
     protected JsonFactoryBuilder streamFactoryBuilder() {
-        return JsonFactory.builder();
+        return (JsonFactoryBuilder) JsonFactory.builder();
     }
 
     protected String fieldNameFor(int index)
@@ -643,15 +637,26 @@ public abstract class BaseTest
         return result;
     }
 
-    public static List<Named> namedFromStrings(Collection<String> input) {
-        ArrayList<Named> result = new ArrayList<>(input.size());
-        for (String str : input) {
-            result.add(Named.fromString(str));
-        }
-        return result;
-    }
+    protected byte[] readResource(String ref)
+    {
+       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+       final byte[] buf = new byte[4000];
 
-    public static List<Named> namedFromStrings(String... input) {
-        return namedFromStrings(Arrays.asList(input));
+       InputStream in = getClass().getResourceAsStream(ref);
+       if (in != null) {
+           try {
+               int len;
+               while ((len = in.read(buf)) > 0) {
+                   bytes.write(buf, 0, len);
+               }
+               in.close();
+           } catch (IOException e) {
+               throw new RuntimeException("Failed to read resource '"+ref+"': "+e);
+           }
+       }
+       if (bytes.size() == 0) {
+           throw new IllegalArgumentException("Failed to read resource '"+ref+"': empty resource?");
+       }
+       return bytes.toByteArray();
     }
 }

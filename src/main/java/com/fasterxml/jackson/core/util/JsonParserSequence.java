@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.core.util;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 
 /**
  * Helper class that can be used to sequence multiple physical
@@ -31,6 +31,8 @@ public class JsonParserSequence extends JsonParserDelegate
      *<p>
      * Default setting is <code>false</code> (for backwards-compatibility)
      * so that possible existing token is not considered for parsers.
+     * 
+     * @since 2.8
      */
     protected final boolean _checkForExistingToken;
 
@@ -42,6 +44,8 @@ public class JsonParserSequence extends JsonParserDelegate
     /**
      * Flag used to indicate that `JsonParser.nextToken()` should not be called,
      * due to parser already pointing to a token.
+     *
+     * @since 2.8
      */
     protected boolean _hasToken;
 
@@ -51,6 +55,12 @@ public class JsonParserSequence extends JsonParserDelegate
      *******************************************************
      */
 
+    @Deprecated // since 2.8
+    protected JsonParserSequence(JsonParser[] parsers) {
+        this(false, parsers);
+    }
+
+    // @since 2.8
     protected JsonParserSequence(boolean checkForExistingToken, JsonParser[] parsers)
     {
         super(parsers[0]);
@@ -83,7 +93,7 @@ public class JsonParserSequence extends JsonParserDelegate
             return new JsonParserSequence(checkForExistingToken,
                     new JsonParser[] { first, second });
         }
-        ArrayList<JsonParser> p = new ArrayList<JsonParser>(10);
+        ArrayList<JsonParser> p = new ArrayList<JsonParser>();
         if (first instanceof JsonParserSequence) {
             ((JsonParserSequence) first).addFlattenedActiveParsers(p);
         } else {
@@ -95,9 +105,14 @@ public class JsonParserSequence extends JsonParserDelegate
             p.add(second);
         }
         return new JsonParserSequence(checkForExistingToken,
-                p.toArray(new JsonParser[0]));
+                p.toArray(new JsonParser[p.size()]));
     }
 
+    @Deprecated // since 2.8
+    public static JsonParserSequence createFlattened(JsonParser first, JsonParser second) {
+        return createFlattened(false, first, second);
+    }
+    
     @SuppressWarnings("resource")
     protected void addFlattenedActiveParsers(List<JsonParser> listToAddIn)
     {
@@ -119,12 +134,12 @@ public class JsonParserSequence extends JsonParserDelegate
      */
 
     @Override
-    public void close() throws JacksonException {
+    public void close() throws IOException {
         do { delegate.close(); } while (switchToNext());
     }
 
     @Override
-    public JsonToken nextToken() throws JacksonException
+    public JsonToken nextToken() throws IOException
     {
         if (delegate == null) {
             return null;
@@ -146,7 +161,7 @@ public class JsonParserSequence extends JsonParserDelegate
      * state correct here.
      */
     @Override
-    public JsonParser skipChildren() throws JacksonException
+    public JsonParser skipChildren() throws IOException
     {
         if ((delegate.currentToken() != JsonToken.START_OBJECT)
             && (delegate.currentToken() != JsonToken.START_ARRAY)) {
@@ -169,40 +184,6 @@ public class JsonParserSequence extends JsonParserDelegate
                 }
             }
         }
-    }
-
-    /*
-    /*******************************************************
-    /* And some more methods where default delegation would
-    /* cause problems with state handling here
-    /*******************************************************
-     */
-
-    @Override
-    public String nextName() throws JacksonException {
-        // NOTE: call `nextToken()` to handle delegation
-        return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
-    }
-
-    @Override
-    public boolean nextName(SerializableString str) throws JacksonException {
-        // NOTE: call `nextToken()` to handle delegation
-        return (nextToken() == JsonToken.PROPERTY_NAME)
-                && str.getValue().equals(currentName());
-    }
-
-    @Override
-    public int nextNameMatch(PropertyNameMatcher matcher) throws JacksonException {
-        // NOTE: call `nextToken()` to handle delegation
-        String str = nextName();
-        if (str != null) {
-            // 15-Nov-2017, tatu: Can not assume intern()ing aspects when delegating...
-            return matcher.matchName(str);
-        }
-        if (hasToken(JsonToken.END_OBJECT)) {
-            return PropertyNameMatcher.MATCH_END_OBJECT;
-        }
-        return PropertyNameMatcher.MATCH_ODD_TOKEN;
     }
 
     /*
@@ -234,6 +215,8 @@ public class JsonParserSequence extends JsonParserDelegate
      * if so, the next parser will become the active delegate parser.
      * 
      * @return True if switch succeeded; false otherwise
+     *
+     * @since 2.8
      */
     protected boolean switchToNext()
     {
@@ -244,12 +227,12 @@ public class JsonParserSequence extends JsonParserDelegate
         return false;
     }
 
-    protected JsonToken switchAndReturnNext() throws JacksonException
+    protected JsonToken switchAndReturnNext() throws IOException
     {
         while (_nextParserIndex < _parsers.length) {
             delegate = _parsers[_nextParserIndex++];
             if (_checkForExistingToken && delegate.hasCurrentToken()) {
-                return delegate.currentToken();
+                return delegate.getCurrentToken();
             }
             JsonToken t = delegate.nextToken();
             if (t != null) {

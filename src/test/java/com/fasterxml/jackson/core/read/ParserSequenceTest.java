@@ -9,8 +9,8 @@ public class ParserSequenceTest
 {
     public void testSimple() throws Exception
     {
-        JsonParser p1 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "[ 1 ]");
-        JsonParser p2 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "[ 2 ]");
+        JsonParser p1 = JSON_FACTORY.createParser("[ 1 ]");
+        JsonParser p2 = JSON_FACTORY.createParser("[ 2 ]");
         JsonParserSequence seq = JsonParserSequence.createFlattened(false, p1, p2);
         assertEquals(2, seq.containedParsersCount());
 
@@ -48,9 +48,9 @@ public class ParserSequenceTest
 
     public void testMultiLevel() throws Exception
     {
-        JsonParser p1 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "[ 1 ] ");
-        JsonParser p2 = JSON_FACTORY.createParser(ObjectReadContext.empty(), " 5");
-        JsonParser p3 = JSON_FACTORY.createParser(ObjectReadContext.empty(), " { } ");
+        JsonParser p1 = JSON_FACTORY.createParser("[ 1 ] ");
+        JsonParser p2 = JSON_FACTORY.createParser(" 5");
+        JsonParser p3 = JSON_FACTORY.createParser(" { } ");
         JsonParserSequence seq1 = JsonParserSequence.createFlattened(true, p1, p2);
         JsonParserSequence seq = JsonParserSequence.createFlattened(false, seq1, p3);
         assertEquals(3, seq.containedParsersCount());
@@ -76,8 +76,8 @@ public class ParserSequenceTest
     {
         // // First, with old legacy settings
 
-        JsonParser p1 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "1 2");
-        JsonParser p2 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "3 true");
+        JsonParser p1 = JSON_FACTORY.createParser("1 2");
+        JsonParser p2 = JSON_FACTORY.createParser("3 true");
         assertToken(JsonToken.VALUE_NUMBER_INT, p1.nextToken());
         assertEquals(1, p1.getIntValue());
         assertToken(JsonToken.VALUE_NUMBER_INT, p2.nextToken());
@@ -97,8 +97,8 @@ public class ParserSequenceTest
     public void testInitializationEnabled() throws Exception
     {
         // // and then with new "check for current":
-        JsonParser p1 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "1 2");
-        JsonParser p2 = JSON_FACTORY.createParser(ObjectReadContext.empty(), "3 true");
+        JsonParser p1 = JSON_FACTORY.createParser("1 2");
+        JsonParser p2 = JSON_FACTORY.createParser("3 true");
         assertToken(JsonToken.VALUE_NUMBER_INT, p1.nextToken());
         assertEquals(1, p1.getIntValue());
         assertToken(JsonToken.VALUE_NUMBER_INT, p2.nextToken());

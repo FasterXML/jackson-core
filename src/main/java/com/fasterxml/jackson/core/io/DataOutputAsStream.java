@@ -5,6 +5,8 @@ import java.io.*;
 /**
  * Helper class to support use of {@link DataOutput} for output, directly,
  * without caller having to provide for implementation.
+ *
+ * @since 2.8
  */
 public class DataOutputAsStream extends OutputStream
 {
@@ -34,9 +36,9 @@ public class DataOutputAsStream extends OutputStream
 
     /*
     @Override
-    public void flush() { }
+    public void flush() throws IOException { }
 
     @Override
-    public void close() { }
+    public void close() throws IOException { }
     */
 }

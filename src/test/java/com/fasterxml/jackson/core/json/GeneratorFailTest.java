@@ -1,21 +1,20 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.ObjectWriteContext;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class GeneratorFailTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-    private final JsonFactory F = newStreamFactory();
+    private final JsonFactory F = new JsonFactory();
 
     // [core#167]: no error for writing field name twice
-    public void testDupFieldNameWrites() throws IOException
+    public void testDupFieldNameWrites() throws Exception
     {
         _testDupFieldNameWrites(F, false);
         _testDupFieldNameWrites(F, true);        
@@ -24,17 +23,17 @@ public class GeneratorFailTest
     // [core#177]
     // Also: should not try writing JSON String if field name expected
     // (in future maybe take one as alias... but not yet)
-    public void testFailOnWritingStringNotFieldNameBytes() throws IOException {
+    public void testFailOnWritingStringNotFieldNameBytes() throws Exception {
         _testFailOnWritingStringNotFieldName(F, false);
     }
 
     // [core#177]
-    public void testFailOnWritingStringNotFieldNameChars() throws IOException {
+    public void testFailOnWritingStringNotFieldNameChars() throws Exception {
         _testFailOnWritingStringNotFieldName(F, true);        
     }
 
     // for [core#282]
-    public void testFailOnWritingFieldNameInRoot() throws IOException {
+    public void testFailOnWritingFieldNameInRoot() throws Exception {
         _testFailOnWritingFieldNameInRoot(F, false);
         _testFailOnWritingFieldNameInRoot(F, true);
     }
@@ -45,68 +44,68 @@ public class GeneratorFailTest
     /**********************************************************
      */
 
-    private void _testDupFieldNameWrites(JsonFactory f, boolean useReader) throws IOException
+    private void _testDupFieldNameWrites(JsonFactory f, boolean useReader) throws Exception
     {
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
-        gen.writeName("a");
+        gen.writeFieldName("a");
         
         try {
-            gen.writeName("b");
+            gen.writeFieldName("b");
             gen.flush();
-            String json = utf8String(bout);
-            fail("Should not have let two consecutive property name writes succeed: output = "+json);
-        } catch (StreamWriteException e) {
-            verifyException(e, "Cannot write a property name, expecting a value");
+            String json = bout.toString("UTF-8");
+            fail("Should not have let two consecutive field name writes succeed: output = "+json);
+        } catch (JsonProcessingException e) {
+            verifyException(e, "can not write a field name, expecting a value");
         }
         gen.close();
     }
 
-    private void _testFailOnWritingStringNotFieldName(JsonFactory f, boolean useReader) throws IOException
+    private void _testFailOnWritingStringNotFieldName(JsonFactory f, boolean useReader) throws Exception
     {
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(bout, JsonEncoding.UTF8);
         }
         gen.writeStartObject();
         
         try {
             gen.writeString("a");
             gen.flush();
-            String json = utf8String(bout);
-            fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeName()': output = "+json);
-        } catch (StreamWriteException e) {
-            verifyException(e, "Cannot write a String");
+            String json = bout.toString("UTF-8");
+            fail("Should not have let "+gen.getClass().getName()+".writeString() be used in place of 'writeFieldName()': output = "+json);
+        } catch (JsonProcessingException e) {
+            verifyException(e, "can not write a String");
         }
         gen.close();
     }
 
     // for [core#282]
-    private void _testFailOnWritingFieldNameInRoot(JsonFactory f, boolean useReader) throws IOException
+    private void _testFailOnWritingFieldNameInRoot(JsonFactory f, boolean useReader) throws Exception
     {
         JsonGenerator gen;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         if (useReader) {
-            gen = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bout, "UTF-8"));
+            gen = f.createGenerator(new OutputStreamWriter(bout, "UTF-8"));
         } else {
-            gen = f.createGenerator(ObjectWriteContext.empty(), bout, JsonEncoding.UTF8);
+            gen = f.createGenerator(bout, JsonEncoding.UTF8);
         }
         try {
-            gen.writeName("a");
+            gen.writeFieldName("a");
             gen.flush();
-            String json = utf8String(bout);
-            fail("Should not have let "+gen.getClass().getName()+".writeName() be used in root context: output = "+json);
-        } catch (StreamWriteException e) {
-            verifyException(e, "Cannot write a property name");
+            String json = bout.toString("UTF-8");
+            fail("Should not have let "+gen.getClass().getName()+".writeFieldName() be used in root context: output = "+json);
+        } catch (JsonProcessingException e) {
+            verifyException(e, "can not write a field name");
         }
         gen.close();
     }

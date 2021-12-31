@@ -4,7 +4,6 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class ConfigTest extends AsyncTestBase
@@ -23,7 +22,8 @@ public class ConfigTest extends AsyncTestBase
         JsonParser p = r.parser();
 
         assertTrue(p.canParseAsync());
-        assertNull(p.streamReadInputSource());
+        assertNull(p.getCodec());
+        assertNull(p.getInputSource());
         assertEquals(-1, p.releaseBuffered(new StringWriter()));
         assertEquals(0, p.releaseBuffered(new ByteArrayOutputStream()));
 

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 
 /**
@@ -62,7 +61,7 @@ public class TestCharEscaping
             // and if not, should get it here:
             jp.getText();
             fail("Expected an exception for un-escaped linefeed in string value");
-        } catch (StreamReadException jex) {
+        } catch (JsonParseException jex) {
             verifyException(jex, "has to be escaped");
         }
         jp.close();
@@ -125,7 +124,7 @@ public class TestCharEscaping
             // note: append spaces so there's no buffer boundary issue
             JsonParser p = createParser(JSON_F, readMode, "{"+inputKey+" : 123456789}       ");
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
             assertEquals(expKey, p.currentName());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(123456789, p.getIntValue());
@@ -151,7 +150,7 @@ public class TestCharEscaping
             jp.nextToken();
             jp.getText();
             fail("Expected an exception for unclosed ARRAY");
-        } catch (StreamReadException jpe) {
+        } catch (JsonParseException jpe) {
             verifyException(jpe, "for character escape");
         }
         jp.close();
@@ -180,7 +179,7 @@ public class TestCharEscaping
     // [jackson-core#116]
     public void testEscapesForCharArrays() throws Exception {
         StringWriter writer = new StringWriter();
-        JsonGenerator jgen = JSON_F.createGenerator(ObjectWriteContext.empty(), writer);
+        JsonGenerator jgen = JSON_F.createGenerator(writer);
         // must call #writeString(char[],int,int) and not #writeString(String)
         jgen.writeString(new char[] { '\0' }, 0, 1);
         jgen.close();
@@ -198,12 +197,13 @@ public class TestCharEscaping
     {
         String DOC = quote("\\u\u0080...");
         JsonParser p = createParser(JSON_F, readMode, DOC);
+
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         // this is where we should get proper exception
         try {
             p.getText();
             fail("Should not pass");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "Unexpected character");
         }
         p.close();
@@ -240,8 +240,8 @@ public class TestCharEscaping
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         StringWriter sw = new StringWriter();
-        final JsonGenerator g = useBytes ? f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8)
-                : f.createGenerator(ObjectWriteContext.empty(), sw);
+        final JsonGenerator g = useBytes ? f.createGenerator(bytes, JsonEncoding.UTF8)
+                : f.createGenerator(sw);
         g.writeStartArray();
         g.writeString(valueIn);
         g.writeEndArray();
@@ -261,18 +261,19 @@ public class TestCharEscaping
 
     public void testWriteLongCustomEscapes() throws Exception
     {
+        JsonFactory jf = ((JsonFactoryBuilder)JsonFactory.builder())
+                .characterEscapes(ESC_627)
+                .build();
+
         StringBuilder longString = new StringBuilder();
         while (longString.length() < 2000) {
             longString.append("\u65e5\u672c\u8a9e");
         }
 
-        JsonFactory f = JsonFactory.builder()
-                .characterEscapes(ESC_627)
-                .highestNonEscapedChar(127) // must set to trigger bug
-                .build();
         StringWriter writer = new StringWriter();
         // must call #createGenerator(Writer), #createGenerator(OutputStream) doesn't trigger bug
-        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), writer);
+        JsonGenerator gen = jf.createGenerator(writer);
+        gen.setHighestNonEscapedChar(127); // must set to trigger bug
         gen.writeString(longString.toString());
         gen.close();
     }

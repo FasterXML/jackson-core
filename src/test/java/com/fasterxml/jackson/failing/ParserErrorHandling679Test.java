@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.failing;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 
 public class ParserErrorHandling679Test
     extends com.fasterxml.jackson.core.BaseTest
@@ -47,7 +47,7 @@ public class ParserErrorHandling679Test
             JsonToken t = p.nextToken();
             Double v = p.getDoubleValue();
             fail("Should have gotten an exception for '"+value+"'; instead got ("+t+") number: "+v);
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "expected ");
         }
         p.close();
@@ -67,7 +67,7 @@ public class ParserErrorHandling679Test
             JsonToken t = p.nextToken();
             int v = p.getIntValue();
             fail("Should have gotten an exception for '"+value+"'; instead got ("+t+") number: "+v);
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "expected ");
         }
         p.close();

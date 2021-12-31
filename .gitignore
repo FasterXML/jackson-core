@@ -10,7 +10,6 @@ syntax: glob
 
 # building
 /target
-.mvn/wrapper/maven-wrapper.jar
 
 # Eclipse
 .classpath

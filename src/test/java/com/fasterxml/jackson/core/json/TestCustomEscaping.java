@@ -5,7 +5,6 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
 
 public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 {
@@ -118,17 +117,16 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     @SuppressWarnings("resource")
     private void _testJsonpEscapes(boolean useStream, boolean stringAsChars) throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
-                .characterEscapes(JsonpCharacterEscapes.instance())
-                .build();
+        JsonFactory f = new JsonFactory();
+        f.setCharacterEscapes(JsonpCharacterEscapes.instance());
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
 
         // First: output normally; should not add escaping
         if (useStream) {
-            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         final String VALUE_TEMPLATE = "String with JS 'linefeeds': %s and %s...";
         final String INPUT_VALUE = String.format(VALUE_TEMPLATE, "\u2028", "\u2029");
@@ -150,20 +148,20 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     /********************************************************
      */
 
-    @SuppressWarnings({ "resource" })
+    @SuppressWarnings({ "resource", "deprecation" })
     private void _testEscapeAboveAscii(boolean useStream, boolean stringAsChars) throws Exception
     {
         JsonFactory f = new JsonFactory();
-        final String VALUE = "chars: [\u00A0]-[\u1234]";
+        final String VALUE = "chars: [\u00A0]/[\u1234]";
         final String KEY = "fun:\u0088:\u3456";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         JsonGenerator g;
 
         // First: output normally; should not add escaping
         if (useStream) {
-            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartArray();
         _writeString(g, VALUE, stringAsChars);
@@ -174,35 +172,31 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         assertEquals("["+quote(VALUE)+"]", json);
 
         // And then with forced ASCII; first, values
-        f = f.rebuild()
-                .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
-                .build();
-        
+
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(ObjectWriteContext.empty(),new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
+        g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartArray();
         _writeString(g, VALUE+"\\", stringAsChars);
         g.writeEndArray();
         g.close();
         json = bytes.toString("UTF-8");
-        assertEquals("["+quote("chars: [\\u00A0]-[\\u1234]\\\\")+"]", json);
+        assertEquals("["+quote("chars: [\\u00A0]/[\\u1234]\\\\")+"]", json);
 
         // and then keys
-        f = f.rebuild()
-                .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
-                .build();
         bytes = new ByteArrayOutputStream();
         if (useStream) {
-            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
+        g.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
         g.writeStartObject();
-        g.writeName(KEY+"\\");
+        g.writeFieldName(KEY+"\\");
         g.writeBoolean(true);
         g.writeEndObject();
         g.close();
@@ -214,9 +208,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
     private void _testEscapeCustom(boolean useStream, boolean stringAsChars,
             String customRepl) throws Exception
     {
-        JsonFactory f = JsonFactory.builder()
-                .characterEscapes(new MyEscapes(customRepl))
-                .build();
+        JsonFactory f = new JsonFactory().setCharacterEscapes(new MyEscapes(customRepl));
         final String STR_IN = "[abcd/"+((char) TWO_BYTE_ESCAPED)+"/"+((char) THREE_BYTE_ESCAPED)+"]";
         final String STR_OUT = "[\\A\\u0062c"+customRepl+"/"+TWO_BYTE_ESCAPED_STRING+"/"+THREE_BYTE_ESCAPED_STRING+"]";
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -224,12 +216,12 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         
         // First: output normally; should not add escaping
         if (useStream) {
-            g = f.createGenerator(ObjectWriteContext.empty(), bytes, JsonEncoding.UTF8);
+            g = f.createGenerator(bytes, JsonEncoding.UTF8);
         } else {
-            g = f.createGenerator(ObjectWriteContext.empty(), new OutputStreamWriter(bytes, "UTF-8"));
+            g = f.createGenerator(new OutputStreamWriter(bytes, "UTF-8"));
         }
         g.writeStartObject();
-        g.writeName(STR_IN);
+        g.writeFieldName(STR_IN);
         _writeString(g, STR_IN, stringAsChars);
         g.writeEndObject();
         g.close();

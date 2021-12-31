@@ -41,16 +41,23 @@ public class Version
      * @param minor Minor version number
      * @param patchLevel patch level of version
      * @param snapshotInfo Optional additional string qualifier
-     * @param groupId Maven group id
-     * @param artifactId Maven artifact id
+     *
+     * @since 2.1
+     * @deprecated Use variant that takes group and artifact ids
      */
+    @Deprecated
+    public Version(int major, int minor, int patchLevel, String snapshotInfo)
+    {
+        this(major, minor, patchLevel, snapshotInfo, null, null);
+    }
+
     public Version(int major, int minor, int patchLevel, String snapshotInfo,
             String groupId, String artifactId)
     {
         _majorVersion = major;
         _minorVersion = minor;
         _patchLevel = patchLevel;
-        _snapshotInfo = (snapshotInfo == null) ? "" : snapshotInfo;
+        _snapshotInfo = snapshotInfo;
         _groupId = (groupId == null) ? "" : groupId;
         _artifactId = (artifactId == null) ? "" : artifactId;
     }
@@ -67,10 +74,21 @@ public class Version
     /**
      * @return {@code True} if this instance is the one returned by
      *    call to {@link #unknownVersion()}
+     *
+     * @since 2.7 to replace misspelled {@link #isUknownVersion()}
      */
     public boolean isUnknownVersion() { return (this == UNKNOWN_VERSION); }
 
-    public boolean isSnapshot() { return (_snapshotInfo != null) && (_snapshotInfo.length() > 0); }
+    public boolean isSnapshot() { return (_snapshotInfo != null && _snapshotInfo.length() > 0); }
+
+    /**
+     * @return {@code True} if this instance is the one returned by
+     *    call to {@link #unknownVersion()}
+     *
+     * @deprecated Since 2.7 use correctly spelled method {@link #isUnknownVersion()}
+     */
+    @Deprecated
+    public boolean isUknownVersion() { return isUnknownVersion(); }
 
     public int getMajorVersion() { return _majorVersion; }
     public int getMinorVersion() { return _minorVersion; }
@@ -95,8 +113,7 @@ public class Version
     }
 
     @Override public int hashCode() {
-        return _artifactId.hashCode() ^ _groupId.hashCode()
-                + _majorVersion - _minorVersion + _patchLevel;
+        return _artifactId.hashCode() ^ _groupId.hashCode() + _majorVersion - _minorVersion + _patchLevel;
     }
 
     @Override
@@ -109,7 +126,6 @@ public class Version
         return (other._majorVersion == _majorVersion)
             && (other._minorVersion == _minorVersion)
             && (other._patchLevel == _patchLevel)
-            && other._snapshotInfo.equals(_snapshotInfo)
             && other._artifactId.equals(_artifactId)
             && other._groupId.equals(_groupId)
             ;
@@ -129,9 +145,6 @@ public class Version
                     diff = _minorVersion - other._minorVersion;
                     if (diff == 0) {
                         diff = _patchLevel - other._patchLevel;
-                        if (diff == 0) {
-                            diff = _snapshotInfo.compareTo(other._snapshotInfo);
-                        }
                     }
                 }
             }

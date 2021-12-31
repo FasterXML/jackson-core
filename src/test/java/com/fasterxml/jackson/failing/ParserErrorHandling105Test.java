@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamReadException;
 
 // Failing tests for non-root-token problem
 public class ParserErrorHandling105Test
@@ -22,11 +21,11 @@ public class ParserErrorHandling105Test
         _testMangledNonRootFloats(MODE_DATA_INPUT);
     }
 
-    public void testMangledIntsChars() {
+    public void testMangledIntsChars() throws Exception {
         _testMangledNonRootInts(MODE_READER);
     }
 
-    public void testMangledFloatsChars() {
+    public void testMangledFloatsChars() throws Exception {
         _testMangledNonRootFloats(MODE_READER);
     }
 
@@ -36,27 +35,27 @@ public class ParserErrorHandling105Test
     /**********************************************************
      */
 
-    private void _testMangledNonRootInts(int mode)
+    private void _testMangledNonRootInts(int mode) throws Exception
     {
         JsonParser p = createParser(mode, "[ 123true ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "expected space");
         }
         p.close();
     }
 
-    private void _testMangledNonRootFloats(int mode)
+    private void _testMangledNonRootFloats(int mode) throws Exception
     {
         JsonParser p = createParser(mode, "[ 1.5false ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         try {
             JsonToken t = p.nextToken();
             fail("Should have gotten an exception; instead got token: "+t);
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "expected space");
         }
         p.close();

@@ -20,8 +20,8 @@ public class StringGenerationFromReaderTest
         "Longer text & other stuff:\twith some\r\n\r\n random linefeeds etc added in to cause some \"special\" handling \\\\ to occur...\n"
     };
 
-    private final JsonFactory FACTORY = newStreamFactory();
-
+    private final JsonFactory FACTORY = new JsonFactory();
+    
     public void testBasicEscaping() throws Exception
     {
         doTestBasicEscaping();
@@ -74,9 +74,9 @@ public class StringGenerationFromReaderTest
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Internal methods
-    /**********************************************************************
+    /**********************************************************
      */
 
     private String _generareMediumText(int minLen)
@@ -84,7 +84,7 @@ public class StringGenerationFromReaderTest
         StringBuilder sb = new StringBuilder(minLen + 1000);
         Random rnd = new Random(minLen);
         do {
-            switch (rnd.nextInt(4)) {
+            switch (rnd.nextInt() % 4) {
             case 0:
                 sb.append(" foo");
                 break;
@@ -133,8 +133,8 @@ public class StringGenerationFromReaderTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = (readMode != MODE_READER) ? jsonF.createGenerator(ObjectWriteContext.empty(), bytes)
-                : jsonF.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = (readMode != MODE_READER) ? jsonF.createGenerator(bytes)
+                : jsonF.createGenerator(sw);
         gen.writeStartArray();
 
         StringReader reader = new StringReader(text);
@@ -144,7 +144,7 @@ public class StringGenerationFromReaderTest
 
         JsonParser p;
         if (readMode == MODE_READER) {
-            p = jsonF.createParser(ObjectReadContext.empty(), sw.toString());
+            p = jsonF.createParser(sw.toString());
         } else {
             p = createParser(jsonF, readMode, bytes.toByteArray());
         }
@@ -160,7 +160,7 @@ public class StringGenerationFromReaderTest
         for (int i = 0; i < SAMPLES.length; ++i) {
             String VALUE = SAMPLES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
+            JsonGenerator gen = FACTORY.createGenerator(sw);
             gen.writeStartArray();
             StringReader reader = new StringReader(VALUE);
             gen.writeString(reader, -1);
@@ -182,7 +182,7 @@ public class StringGenerationFromReaderTest
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
+        JsonGenerator gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         StringReader reader = new StringReader(text);
         gen.writeString(reader, -1);
@@ -214,14 +214,14 @@ public class StringGenerationFromReaderTest
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
+        JsonGenerator gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         StringReader reader = new StringReader(text);
         gen.writeString(reader, -1);
         gen.writeEndArray();
         gen.close();
         
-        gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
+        gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         gen.writeStartArray();
 
@@ -283,8 +283,7 @@ public class StringGenerationFromReaderTest
              sb.append("a");
         }
         sb.append('"');
-        JsonGenerator g = FACTORY.createGenerator(ObjectWriteContext.empty(),
-                new ByteArrayOutputStream());
+        JsonGenerator g = FACTORY.createGenerator(new ByteArrayOutputStream());
 
         g.writeStartArray();
         _write556(g, sb.toString());

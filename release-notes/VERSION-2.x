@@ -19,6 +19,11 @@ JSON library.
 #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
  (contributed by Ilya G)
 
+2.13.2 (not yet released)
+
+#732: Update Maven wrapper
+ (contributed by Andrey S)
+
 2.13.1 (19-Dec-2021)
 
 #713: Incorrect parsing of single-quoted surrounded String values containing double quotes

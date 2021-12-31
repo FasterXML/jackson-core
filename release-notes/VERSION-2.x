@@ -14,6 +14,11 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.13.2 (not yet released)
+
+#732: Update Maven wrapper
+ (contributed by Andrey S)
+
 2.13.1 (19-Dec-2021)
 
 #713: Incorrect parsing of single-quoted surrounded String values containing double quotes

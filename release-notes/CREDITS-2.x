@@ -274,3 +274,8 @@ Ferenc Csaky (ferenc-csaky@github)
 Fabian Meumertzheim (fmeum@github)
   * Reported #692: UTF32Reader ArrayIndexOutOfBoundsException
   (2.13.0)
+
+Andrey Somov (asomov@github)
+  * Contributed #732: Update Maven wrapper
+  (2.13.2)
+

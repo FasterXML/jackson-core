@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.write;
 
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 import java.io.*;
 
@@ -20,9 +19,9 @@ public class GeneratorCopyTest
     {
         JsonFactory jf = JSON_F;
         final String DOC = "\"text\\non two lines\" true false 2.0 null 1234567890123 ";
-        JsonParser jp = jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
+        JsonParser jp = jf.createParser(new StringReader(DOC));
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jf.createGenerator(sw);
 
         JsonToken t;
 
@@ -42,9 +41,9 @@ public class GeneratorCopyTest
     {
         JsonFactory jf = JSON_F;
         final String DOC = "123 [ 1, null, [ false, 1234567890124 ] ]";
-        JsonParser jp = jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
+        JsonParser jp = jf.createParser(new StringReader(DOC));
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jf.createGenerator(sw);
 
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         gen.copyCurrentEvent(jp);
@@ -68,9 +67,9 @@ public class GeneratorCopyTest
     {
         JsonFactory jf = JSON_F;
         final String DOC = "{ \"a\":1, \"b\":[{ \"c\" : null, \"d\" : 0.25 }] }";
-        JsonParser jp = jf.createParser(ObjectReadContext.empty(), new StringReader(DOC));
+        JsonParser jp = jf.createParser(new StringReader(DOC));
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jf.createGenerator(sw);
 
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         gen.copyCurrentStructure(jp);
@@ -81,12 +80,12 @@ public class GeneratorCopyTest
         assertEquals("{\"a\":1,\"b\":[{\"c\":null,\"d\":0.25}]}", sw.toString());
 
         // but also sort of special case of field name plus value
-        jp = jf.createParser(ObjectReadContext.empty(), new StringReader("{\"a\":1,\"b\":null}"));
+        jp = jf.createParser(new StringReader("{\"a\":1,\"b\":null}"));
         sw = new StringWriter();
-        gen = jf.createGenerator(ObjectWriteContext.empty(), sw);
+        gen = jf.createGenerator(sw);
         gen.writeStartObject();
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         gen.copyCurrentStructure(jp);
         gen.writeEndObject();
 

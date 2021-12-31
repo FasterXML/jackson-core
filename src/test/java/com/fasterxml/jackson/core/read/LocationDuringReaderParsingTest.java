@@ -50,7 +50,7 @@ public class LocationDuringReaderParsingTest extends BaseTest
     private void testInitialLocation(LocationTestCase test) throws Exception
     {
         JsonParser p = createParserUsingReader(test.json);
-        JsonLocation loc = p.currentLocation();
+        JsonLocation loc = p.getCurrentLocation();
         p.close();
 
         assertLocation(loc, at(1, 1, 0));
@@ -70,12 +70,12 @@ public class LocationDuringReaderParsingTest extends BaseTest
 
     private void assertCurrentLocation(JsonParser p, LocData loc)
     {
-        assertLocation(p.currentLocation(), loc);
+        assertLocation(p.getCurrentLocation(), loc);
     }
 
     private void assertTokenLocation(JsonParser p, LocData loc)
     {
-        assertLocation(p.currentTokenLocation(), loc);
+        assertLocation(p.getTokenLocation(), loc);
     }
 
     private void assertLocation(JsonLocation pLoc, LocData loc)

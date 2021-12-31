@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.util.Random;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 /**
  * Unit test(s) to verify that handling of (byte-based) symbol tables
@@ -14,7 +13,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 public class TestByteBasedSymbols
     extends com.fasterxml.jackson.core.BaseTest
 {
-    final static String[] PROPERTY_NAMES = new String[] {
+    final static String[] FIELD_NAMES = new String[] {
         "a", "b", "c", "x", "y", "b13", "abcdefg", "a123",
         "a0", "b0", "c0", "d0", "e0", "f0", "g0", "h0",
         "x2", "aa", "ba", "ab", "b31", "___x", "aX", "xxx",
@@ -43,8 +42,8 @@ public class TestByteBasedSymbols
          */
         while (jp0.nextToken() != JsonToken.START_ARRAY) { }
 
-        String doc1 = createDoc(PROPERTY_NAMES, true);
-        String doc2 = createDoc(PROPERTY_NAMES, false);
+        String doc1 = createDoc(FIELD_NAMES, true);
+        String doc2 = createDoc(FIELD_NAMES, false);
 
         // Let's run it twice... shouldn't matter
         for (int x = 0; x < 2; ++x) {
@@ -54,12 +53,12 @@ public class TestByteBasedSymbols
             assertToken(JsonToken.START_OBJECT, jp1.nextToken());
             assertToken(JsonToken.START_OBJECT, jp2.nextToken());
             
-            int len = PROPERTY_NAMES.length;
+            int len = FIELD_NAMES.length;
             for (int i = 0; i < len; ++i) {
-                assertToken(JsonToken.PROPERTY_NAME, jp1.nextToken());
-                assertToken(JsonToken.PROPERTY_NAME, jp2.nextToken());
-                assertEquals(PROPERTY_NAMES[i], jp1.currentName());
-                assertEquals(PROPERTY_NAMES[len-(i+1)], jp2.currentName());
+                assertToken(JsonToken.FIELD_NAME, jp1.nextToken());
+                assertToken(JsonToken.FIELD_NAME, jp2.nextToken());
+                assertEquals(FIELD_NAMES[i], jp1.getCurrentName());
+                assertEquals(FIELD_NAMES[len-(i+1)], jp2.getCurrentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp1.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp2.nextToken());
                 assertEquals(i, jp1.getIntValue());
@@ -116,7 +115,7 @@ public class TestByteBasedSymbols
         }
         stringBuilder.append("\n}");
 
-        JsonParser p = jsonF.createParser(ObjectReadContext.empty(), stringBuilder.toString().getBytes("UTF-8"));
+        JsonParser p = jsonF.createParser(stringBuilder.toString().getBytes("UTF-8"));
         while (p.nextToken() != null) { }
         p.close();
     }
@@ -174,21 +173,21 @@ public class TestByteBasedSymbols
     {
         byte[] data = input.getBytes("UTF-8");
         InputStream is = new ByteArrayInputStream(data);
-        return jf.createParser(ObjectReadContext.empty(), is);
+        return jf.createParser(is);
     }
 
-    private String createDoc(String[] propNames, boolean add)
+    private String createDoc(String[] fieldNames, boolean add)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("{ ");
 
-        int len = propNames.length;
+        int len = fieldNames.length;
         for (int i = 0; i < len; ++i) {
             if (i > 0) {
                 sb.append(", ");
             }
             sb.append('"');
-            sb.append(add ? propNames[i] : propNames[len - (i+1)]);
+            sb.append(add ? fieldNames[i] : fieldNames[len - (i+1)]);
             sb.append("\" : ");
             sb.append(i);
         }

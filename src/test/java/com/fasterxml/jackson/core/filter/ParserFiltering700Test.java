@@ -2,7 +2,6 @@ package com.fasterxml.jackson.core.filter;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 @SuppressWarnings("resource")
 public class ParserFiltering700Test extends BaseTest
@@ -39,7 +38,7 @@ public class ParserFiltering700Test extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("value", p.currentName());
         // 19-Jul-2021, tatu: while not ideal, existing contract is that "getText()"
         //    ought to return property name as well...
@@ -68,13 +67,13 @@ public class ParserFiltering700Test extends BaseTest
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("value", p.currentName());
         // as earlier, this needs to hold true too
         assertEquals("value", p.getText());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertEquals("a", p.getText());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -110,24 +109,24 @@ public class ParserFiltering700Test extends BaseTest
         assertTrue(p.isExpectedStartObjectToken());
 
         if (useNextName) {
-            assertEquals("value", p.nextName());
+            assertEquals("value", p.nextFieldName());
             // as earlier, this needs to hold true too
             assertEquals("value", p.getText());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertTrue(p.isExpectedStartObjectToken());
-            assertEquals("a", p.nextName());
+            assertEquals("a", p.nextFieldName());
             assertEquals("a", p.getText());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(99, p.getIntValue());
-            assertNull(p.nextName());
+            assertNull(p.nextFieldName());
             assertEquals(JsonToken.END_OBJECT, p.currentToken());
         } else {
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
             assertEquals("value", p.currentName());
             assertEquals("value", p.getText());
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertTrue(p.isExpectedStartObjectToken());
-            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+            assertToken(JsonToken.FIELD_NAME, p.nextToken());
             assertEquals("a", p.currentName());
             assertEquals("a", p.getText());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -148,6 +147,6 @@ public class ParserFiltering700Test extends BaseTest
      */
     
     private JsonParser _createParser(TokenStreamFactory f, String json) throws Exception {
-        return f.createParser(ObjectReadContext.empty(), json);
+        return f.createParser(json);
     }
 }

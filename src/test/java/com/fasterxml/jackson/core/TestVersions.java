@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.json.*;
-
-import java.io.*;
+import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.ContentReference;
+import com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
+import com.fasterxml.jackson.core.util.BufferRecycler;
 
 /**
  * Tests to verify functioning of {@link Version} class.
@@ -11,16 +13,14 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
 {
     public void testCoreVersions() throws Exception
     {
-        final JsonFactory f = new JsonFactory();
-        assertVersion(f.version());
-        JsonParser jp =  f.createParser(ObjectReadContext.empty(),
-                new StringReader("true"));
+        assertVersion(new JsonFactory().version());
+        ReaderBasedJsonParser jp = new ReaderBasedJsonParser(getIOContext(), 0, null, null,
+                CharsToNameCanonicalizer.createRoot());
         assertVersion(jp.version());
         jp.close();
-        JsonGenerator jg = f.createGenerator(ObjectWriteContext.empty(),
-                new ByteArrayOutputStream());
-        assertVersion(jg.version());
-        jg.close();
+        JsonGenerator jgen = new WriterBasedJsonGenerator(getIOContext(), 0, null, null, '"');
+        assertVersion(jgen.version());
+        jgen.close();
     }
 
     public void testMisc() {
@@ -44,5 +44,9 @@ public class TestVersions extends com.fasterxml.jackson.core.BaseTest
     private void assertVersion(Version v)
     {
         assertEquals(PackageVersion.VERSION, v);
+    }
+
+    private IOContext getIOContext() {
+        return new IOContext(new BufferRecycler(), ContentReference.unknown(), false);
     }
 }

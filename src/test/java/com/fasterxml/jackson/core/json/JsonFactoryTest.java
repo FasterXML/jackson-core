@@ -1,15 +1,101 @@
 package com.fasterxml.jackson.core.json;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 public class JsonFactoryTest
     extends com.fasterxml.jackson.core.BaseTest
 {
+    static class BogusCodec extends ObjectCodec {
+        @Override
+        public Version version() { return null; }
+
+        @Override
+        public <T> T readValue(JsonParser p, Class<T> valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> T readValue(JsonParser p, ResolvedType valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, Class<T> valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, TypeReference<T> valueTypeRef) throws IOException {
+            return null;
+        }
+
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, ResolvedType valueType) throws IOException {
+            return null;
+        }
+
+        @Override
+        public void writeValue(JsonGenerator gen, Object value) throws IOException {
+        }
+
+        @Override
+        public <T extends TreeNode> T readTree(JsonParser p) throws IOException {
+            return null;
+        }
+
+        @Override
+        public void writeTree(JsonGenerator gen, TreeNode tree) throws IOException {
+        }
+
+        @Override
+        public TreeNode createObjectNode() {
+            return null;
+        }
+
+        @Override
+        public TreeNode createArrayNode() {
+            return null;
+        }
+
+        @Override
+        public JsonParser treeAsTokens(TreeNode n) {
+            return null;
+        }
+
+        @Override
+        public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JsonProcessingException {
+            return null;
+        }
+
+        @Override
+        public TreeNode missingNode() {
+            return null;
+        }
+
+        @Override
+        public TreeNode nullNode() {
+            return null;
+        }
+    }
+
+    // for testing [core#460]
+    @SuppressWarnings("serial")
+    static class CustomFactory extends JsonFactory {
+        public CustomFactory(JsonFactory f, ObjectCodec codec) {
+            super(f, codec);
+        }
+    }
+
     static class BogusSchema implements FormatSchema
     {
         @Override
@@ -24,49 +110,36 @@ public class JsonFactoryTest
     /**********************************************************************
      */
 
-    final JsonFactory JSON_F = newStreamFactory();
-
-    public void testStreamWriteFeatures() throws Exception
-    {
-        JsonFactory f = JsonFactory.builder()
-                .enable(StreamWriteFeature.IGNORE_UNKNOWN)
-                .build();
-        assertTrue(f.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
-        f = f.rebuild().configure(StreamWriteFeature.IGNORE_UNKNOWN, false)
-                .build();
-        assertFalse(f.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
-    }
-
-    public void testJsonWriteFeatures() throws Exception
-    {
-        JsonFactory f = JsonFactory.builder()
-                .enable(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
-                .build();
-        assertTrue(f.isEnabled(JsonWriteFeature.QUOTE_PROPERTY_NAMES));
-        f = f.rebuild().configure(JsonWriteFeature.QUOTE_PROPERTY_NAMES, false)
-                .build();
-        assertFalse(f.isEnabled(JsonWriteFeature.QUOTE_PROPERTY_NAMES));
-    }
+    final JsonFactory JSON_F = sharedStreamFactory();
     
+    @SuppressWarnings("deprecation")
+    public void testGeneratorFeatures() throws Exception
+    {
+        assertNull(JSON_F.getCodec());
+
+        JsonFactory f = JsonFactory.builder()
+                .configure(JsonWriteFeature.QUOTE_FIELD_NAMES, true)
+                .build();
+        // 24-Oct-2018, tatu: Until 3.x, we'll only have backwards compatible
+        assertTrue(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
+        f = JsonFactory.builder()
+                .configure(JsonWriteFeature.QUOTE_FIELD_NAMES, false)
+                .build();
+        assertFalse(f.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
+    }
+
     public void testFactoryFeatures() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
-                .enable(TokenStreamFactory.Feature.INTERN_PROPERTY_NAMES)
+                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, false)
                 .build();
-        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
-
-        f = f.rebuild()
-                .disable(JsonFactory.Feature.INTERN_PROPERTY_NAMES)
-                .build();
-        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
+        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
 
         // by default, should be enabled
         assertTrue(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
-        f = f.rebuild().disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
-                .build();
-        assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
 
-        assertFalse(f.canHandleBinaryNatively());
+        assertFalse(JSON_F.requiresCustomCodec());
+        assertFalse(JSON_F.canHandleBinaryNatively());
     }
 
     public void testFactoryMisc() throws Exception
@@ -77,8 +150,11 @@ public class JsonFactoryTest
         assertFalse(JSON_F.canUseSchema(null));
         assertFalse(JSON_F.canUseSchema(new BogusSchema()));
 
-        assertEquals(JsonReadFeature.class, JSON_F.getFormatReadFeatureType());
-        assertEquals(JsonWriteFeature.class, JSON_F.getFormatWriteFeatureType());
+        assertNull(JSON_F.getFormatReadFeatureType());
+        assertNull(JSON_F.getFormatWriteFeatureType());
+
+        assertEquals(0, JSON_F.getFormatParserFeatures());
+        assertEquals(0, JSON_F.getFormatGeneratorFeatures());
     }
 
     // for [core#189]: verify that it's ok to disable recycling
@@ -90,11 +166,12 @@ public class JsonFactoryTest
         JsonFactory f = JsonFactory.builder()
                 .disable(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
                 .build();
+        assertFalse(f.isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING));
 
         // First, generation
         for (int i = 0; i < 3; ++i) {
             StringWriter w = new StringWriter();
-            JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), w);
+            JsonGenerator gen = f.createGenerator(w);
             gen.writeStartObject();
             gen.writeEndObject();
             gen.close();
@@ -103,7 +180,7 @@ public class JsonFactoryTest
     
         for (int i = 0; i < 3; ++i) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
+            JsonGenerator gen = f.createGenerator(bytes);
             gen.writeStartArray();
             gen.writeEndArray();
             gen.close();
@@ -112,13 +189,13 @@ public class JsonFactoryTest
 
         // Then parsing:
         for (int i = 0; i < 3; ++i) {
-            JsonParser p = f.createParser(ObjectReadContext.empty(), "{}");
+            JsonParser p = f.createParser("{}");
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());
             p.close();
 
-            p = f.createParser(ObjectReadContext.empty(), "{}".getBytes("UTF-8"));
+            p = f.createParser("{}".getBytes("UTF-8"));
             assertToken(JsonToken.START_OBJECT, p.nextToken());
             assertToken(JsonToken.END_OBJECT, p.nextToken());
             assertNull(p.nextToken());
@@ -134,227 +211,81 @@ public class JsonFactoryTest
         JsonFactory f = new JsonFactory();
 
         // First: create file via generator.. and use an odd encoding
-        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), file, JsonEncoding.UTF16_LE);
-        g.writeStartObject();
-        g.writeRaw("   ");
-        g.writeEndObject();
-        g.close();
+        JsonGenerator jg = f.createGenerator(file, JsonEncoding.UTF16_LE);
+        jg.writeStartObject();
+        jg.writeRaw("   ");
+        jg.writeEndObject();
+        jg.close();
 
         // Ok: first read file directly
-        JsonParser p = f.createParser(ObjectReadContext.empty(), file);
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertNull(p.nextToken());
-        p.close();
+        JsonParser jp = f.createParser(file);
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        assertNull(jp.nextToken());
+        jp.close();
 
         // Then via URL:
-        p = f.createParser(ObjectReadContext.empty(), file.toURI().toURL());
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertNull(p.nextToken());
-        p.close();
+        jp = f.createParser(file.toURI().toURL());
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        assertNull(jp.nextToken());
+        jp.close();
 
         // ok, delete once we are done
         file.delete();
     }
 
+    // #72
+    @SuppressWarnings("deprecation")
     public void testCopy() throws Exception
     {
-        JsonFactory f = new JsonFactory();
+        JsonFactory jf = new JsonFactory();
         // first, verify defaults
+        assertNull(jf.getCodec());
+        assertTrue(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertFalse(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertFalse(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
 
-        // since 3.0:
-        assertFalse(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertFalse(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
-
-        f = f.rebuild()
-                .enable(JsonFactory.Feature.INTERN_PROPERTY_NAMES)
+        // then change, verify that changes "stick"
+        jf = JsonFactory.builder()
+                .disable(JsonFactory.Feature.INTERN_FIELD_NAMES)
                 .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
                 .enable(JsonWriteFeature.ESCAPE_NON_ASCII)
                 .build();
-        // then change, verify that changes "stick"
-        assertTrue(f.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
-        assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
+        ObjectCodec codec = new BogusCodec();
+        jf.setCodec(codec);
 
-        JsonFactory jf2 = f.copy();
-        assertTrue(jf2.isEnabled(JsonFactory.Feature.INTERN_PROPERTY_NAMES));
-        assertTrue(f.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        assertTrue(f.isEnabled(JsonWriteFeature.ESCAPE_NON_ASCII));
+        assertFalse(jf.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertTrue(jf.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(jf.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        assertSame(codec, jf.getCodec());
+
+        JsonFactory jf2 = jf.copy();
+        assertFalse(jf2.isEnabled(JsonFactory.Feature.INTERN_FIELD_NAMES));
+        assertTrue(jf2.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
+        assertTrue(jf2.isEnabled(JsonGenerator.Feature.ESCAPE_NON_ASCII));
+        // 16-May-2018, tatu: But! Note that despited [core#460], this should NOT copy it back
+        assertNull(jf2.getCodec());
+
+        // However: real copy constructor SHOULD copy it
+        JsonFactory jf3 = new CustomFactory(jf, codec);
+        assertSame(codec, jf3.getCodec());
     }
 
     public void testRootValues() throws Exception
     {
-        assertEquals(" ", JSON_F.getRootValueSeparator());
-        JsonFactoryBuilder b = JsonFactory.builder()
-                .rootValueSeparator("/");
-        assertEquals(new SerializedString("/"), b.rootValueSeparator());
-        JsonFactory f = b.build();
+        JsonFactory f = new JsonFactory();
+        assertEquals(" ", f.getRootValueSeparator());
+        f.setRootValueSeparator("/");
         assertEquals("/", f.getRootValueSeparator());
 
         // but also test it is used
         StringWriter w = new StringWriter();
-        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), w);
+        JsonGenerator g = f.createGenerator(w);
         g.writeNumber(1);
         g.writeNumber(2);
         g.writeNumber(3);
         g.close();
         assertEquals("1/2/3", w.toString());
-    }
-
-    public void test_createGenerator_OutputStream() throws Exception
-    {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonGenerator jsonGenerator = new JsonFactory()
-                .createGenerator(ObjectWriteContext.empty(), outputStream);
-
-        jsonGenerator.writeString("value");
-        jsonGenerator.close();
-
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
-
-        // the stream has not been closed by close
-        outputStream.write(1);
-    }
-
-    public void test_createGenerator_File() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        JsonGenerator jsonGenerator = new JsonFactory()
-                .createGenerator(ObjectWriteContext.empty(), path.toFile(), JsonEncoding.UTF8);
-
-        jsonGenerator.writeString("value");
-        jsonGenerator.close();
-
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
-    }
-
-    public void test_createGenerator_Path() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        JsonGenerator jsonGenerator = new JsonFactory()
-                .createGenerator(ObjectWriteContext.empty(), path, JsonEncoding.UTF8);
-
-        jsonGenerator.writeString("value");
-        jsonGenerator.close();
-
-        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
-    }
-
-    public void test_createGenerator_Writer() throws Exception
-    {
-        Writer writer = new StringWriter();
-        JsonGenerator jsonGenerator = new JsonFactory()
-                .createGenerator(ObjectWriteContext.empty(), writer);
-
-        jsonGenerator.writeString("value");
-        jsonGenerator.close();
-
-        assertEquals(writer.toString(), "\"value\"");
-
-        // the writer has not been closed by close
-        writer.append('1');
-    }
-
-    public void test_createGenerator_DataOutput() throws Exception
-    {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        DataOutput dataOutput = new DataOutputStream(outputStream);
-        JsonGenerator jsonGenerator = new JsonFactory()
-                .createGenerator(ObjectWriteContext.empty(), dataOutput);
-
-        jsonGenerator.writeString("value");
-        jsonGenerator.close();
-
-        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
-
-        // the data output has not been closed by close
-        dataOutput.write(1);
-    }
-
-    public void test_createParser_InputStream() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), inputStream);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_File() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), path.toFile());
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_Path() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), path);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), path.toUri().toURL());
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_Reader() throws Exception
-    {
-        Reader reader = new StringReader("\"value\"");
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), reader);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_ByteArray() throws Exception
-    {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), bytes);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_String() throws Exception
-    {
-        String string = "\"value\"";
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), string);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_CharArray() throws Exception
-    {
-        char[] chars = "\"value\"".toCharArray();
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), chars);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_DataInput() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        DataInput dataInput = new DataInputStream(inputStream);
-        JsonParser jsonParser = new JsonFactory()
-                .createParser(ObjectReadContext.empty(), dataInput);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
     }
 }

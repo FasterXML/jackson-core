@@ -7,14 +7,101 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import static org.junit.Assert.assertArrayEquals;
 
 public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 {
+    static class BogusSchema implements FormatSchema
+    {
+        @Override
+        public String getSchemaType() {
+            return "test";
+        }
+    }
+
     static class POJO {
         public int x = 3;
+    }
+
+    static class BogusCodec extends ObjectCodec
+    {
+        public Object pojoWritten;
+        public TreeNode treeWritten;
+
+        @Override
+        public Version version() {
+            return Version.unknownVersion();
+        }
+
+        @Override
+        public <T> T readValue(JsonParser p, Class<T> valueType) {
+            return null;
+        }
+        @Override
+        public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) {
+            return null;
+        }
+        @Override
+        public <T> T readValue(JsonParser p, ResolvedType valueType) {
+            return null;
+        }
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, Class<T> valueType) {
+            return null;
+        }
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p,
+                TypeReference<T> valueTypeRef) throws IOException {
+            return null;
+        }
+        @Override
+        public <T> Iterator<T> readValues(JsonParser p, ResolvedType valueType) {
+            return null;
+        }
+        @Override
+        public void writeValue(JsonGenerator gen, Object value) throws IOException {
+            gen.writeString("pojo");
+            pojoWritten = value;
+        }
+
+        @Override
+        public <T extends TreeNode> T readTree(JsonParser p) {
+            return null;
+        }
+        @Override
+        public void writeTree(JsonGenerator gen, TreeNode tree) throws IOException {
+            gen.writeString("tree");
+            treeWritten = tree;
+        }
+
+        @Override
+        public TreeNode createObjectNode() {
+            return null;
+        }
+        @Override
+        public TreeNode createArrayNode() {
+            return null;
+        }
+        @Override
+        public TreeNode missingNode() {
+            return null;
+        }
+
+        @Override
+        public TreeNode nullNode() {
+            return null;
+        }
+        @Override
+        public JsonParser treeAsTokens(TreeNode n) {
+            return null;
+        }
+        @Override
+        public <T> T treeToValue(TreeNode n, Class<T> valueType) {
+            return null;
+        } 
     }
 
     static class BogusTree implements TreeNode {
@@ -49,22 +136,12 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         }
 
         @Override
-        public boolean isEmbeddedValue() {
-            return false;
-        }
-
-        @Override
         public boolean isArray() {
             return false;
         }
 
         @Override
         public boolean isObject() {
-            return false;
-        }
-
-        @Override
-        public boolean isNull() {
             return false;
         }
 
@@ -89,7 +166,7 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         }
 
         @Override
-        public Iterator<String> propertyNames() {
+        public Iterator<String> fieldNames() {
             return null;
         }
 
@@ -104,7 +181,12 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         }
 
         @Override
-        public JsonParser traverse(ObjectReadContext readCtxt) {
+        public JsonParser traverse() {
+            return null;
+        }
+
+        @Override
+        public JsonParser traverse(ObjectCodec codec) {
             return null;
         }
     }
@@ -118,17 +200,18 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     {
         final String TOKEN ="foo";
 
-        JsonParser parser = JSON_F.createParser(ObjectReadContext.empty(),
-                "[ 1, true, null, { \"a\": \"foo\" }, \"AQI=\" ]");
+        JsonParser parser = JSON_F.createParser("[ 1, true, null, { \"a\": \"foo\" }, \"AQI=\" ]");
         JsonParserDelegate del = new JsonParserDelegate(parser);
 
         // Basic capabilities for parser:
         assertFalse(del.canParseAsync());
         assertFalse(del.canReadObjectId());
         assertFalse(del.canReadTypeId());
+        assertFalse(del.requiresCustomCodec());
         assertEquals(parser.version(), del.version());
 
         // configuration
+        assertFalse(del.isEnabled(JsonParser.Feature.ALLOW_COMMENTS));
         assertFalse(del.isEnabled(StreamReadFeature.IGNORE_UNDEFINED));
         assertSame(parser, del.delegate());
         assertNull(del.getSchema());
@@ -137,8 +220,8 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertNull(del.currentToken());
         assertFalse(del.hasCurrentToken());
         assertFalse(del.hasTextCharacters());
-        assertNull(del.currentValue());
-        assertNull(del.currentName());
+        assertNull(del.getCurrentValue());
+        assertNull(del.getCurrentName());
 
         assertToken(JsonToken.START_ARRAY, del.nextToken());
         assertEquals(JsonTokenId.ID_START_ARRAY, del.currentTokenId());
@@ -150,8 +233,8 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         assertFalse(del.isExpectedStartObjectToken());
         assertFalse(del.isExpectedNumberIntToken());
         assertEquals("[", del.getText());
-        assertNotNull(del.streamReadContext());
-        assertSame(parser.streamReadContext(), del.streamReadContext());
+        assertNotNull(del.getParsingContext());
+        assertSame(parser.getParsingContext(), del.getParsingContext());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, del.nextToken());
         assertEquals(1, del.getIntValue());
@@ -176,26 +259,26 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         
         assertToken(JsonToken.VALUE_TRUE, del.nextToken());
         assertTrue(del.getBooleanValue());
-        assertEquals(parser.currentLocation(), del.currentLocation());
+        assertEquals(parser.getCurrentLocation(), del.getCurrentLocation());
         assertNull(del.getTypeId());
         assertNull(del.getObjectId());
 
         assertToken(JsonToken.VALUE_NULL, del.nextToken());
-        assertNull(del.currentValue());
-        del.assignCurrentValue(TOKEN);
+        assertNull(del.getCurrentValue());
+        del.setCurrentValue(TOKEN);
 
         assertToken(JsonToken.START_OBJECT, del.nextToken());
-        assertNull(del.currentValue());
+        assertNull(del.getCurrentValue());
 
-        assertToken(JsonToken.PROPERTY_NAME, del.nextToken());
-        assertEquals("a", del.currentName());
+        assertToken(JsonToken.FIELD_NAME, del.nextToken());
+        assertEquals("a", del.getCurrentName());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertTrue(del.hasTextCharacters());
         assertEquals("foo", del.getText());
         
         assertToken(JsonToken.END_OBJECT, del.nextToken());
-        assertEquals(TOKEN, del.currentValue());
+        assertEquals(TOKEN, del.getCurrentValue());
 
         assertToken(JsonToken.VALUE_STRING, del.nextToken());
         assertArrayEquals(new byte[] { 1, 2 }, del.getBinaryValue());
@@ -212,30 +295,38 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     /**
      * Test default, non-overridden generator delegate.
      */
+    @SuppressWarnings("deprecation")
     public void testGeneratorDelegate() throws IOException
     {
         final String TOKEN ="foo";
 
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         // Basic capabilities for parser:
-        assertTrue(del.canOmitProperties());
+        assertTrue(del.canOmitFields());
+        assertFalse(del.canWriteBinaryNatively());
+        assertTrue(del.canWriteFormattedNumbers());
         assertFalse(del.canWriteObjectId());
         assertFalse(del.canWriteTypeId());
         assertEquals(g0.version(), del.version());
 
         // configuration
+        assertTrue(del.isEnabled(JsonGenerator.Feature.QUOTE_FIELD_NAMES));
         assertFalse(del.isEnabled(StreamWriteFeature.IGNORE_UNKNOWN));
         assertSame(g0, del.delegate());
+        assertSame(g0, del.getDelegate()); // deprecated as of 2.11
+
+        assertFalse(del.canUseSchema(new BogusSchema()));
 
         // initial state
         assertNull(del.getSchema());
+        assertNull(del.getPrettyPrinter());
         
         del.writeStartArray();
 
-        assertEquals(1, del.streamWriteOutputBuffered());
+        assertEquals(1, del.getOutputBuffered());
 
         del.writeNumber(13);
         del.writeNumber(BigInteger.ONE);
@@ -246,13 +337,13 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
         del.writeString("foo");
 
         // verify that we can actually set/get "current value" as expected, even with delegates
-        assertNull(del.currentValue());
-        del.assignCurrentValue(TOKEN);
+        assertNull(del.getCurrentValue());
+        del.setCurrentValue(TOKEN);
 
         del.writeStartObject(null, 0);
-        assertNull(del.currentValue());
+        assertNull(del.getCurrentValue());
         del.writeEndObject();
-        assertEquals(TOKEN, del.currentValue());
+        assertEquals(TOKEN, del.getCurrentValue());
 
         del.writeStartArray(0);
         del.writeEndArray();
@@ -271,12 +362,12 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     public void testGeneratorDelegateArrays() throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         final Object MARKER = new Object();
         del.writeStartArray(MARKER);
-        assertSame(MARKER, del.currentValue());
+        assertSame(MARKER, del.getCurrentValue());
 
         del.writeArray(new int[] { 1, 2, 3 }, 0, 3);
         del.writeArray(new long[] { 1, 123456, 2 }, 1, 1);
@@ -292,12 +383,12 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     public void testGeneratorDelegateComments() throws IOException
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         final Object MARKER = new Object();
         del.writeStartArray(MARKER, 5);
-        assertSame(MARKER, del.currentValue());
+        assertSame(MARKER, del.getCurrentValue());
 
         del.writeNumber((short) 1);
         del.writeNumber(12L);
@@ -315,9 +406,9 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
 
     public void testDelegateCopyMethods() throws IOException
     {
-        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "[123,[true,false]]");
+        JsonParser p = JSON_F.createParser("[123,[true,false]]");
         StringWriter sw = new StringWriter();
-        JsonGenerator g0 = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
         JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -338,21 +429,43 @@ public class TestDelegates extends com.fasterxml.jackson.core.BaseTest
     
     public void testNotDelegateCopyMethods() throws IOException
     {
-        JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), "[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
+        JsonParser jp = JSON_F.createParser("[{\"a\":[1,2,{\"b\":3}],\"c\":\"d\"},{\"e\":false},null]");
         StringWriter sw = new StringWriter();
-        JsonGenerator g = new JsonGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), sw), false) {
+        JsonGenerator jg = new JsonGeneratorDelegate(JSON_F.createGenerator(sw), false) {
             @Override
-            public void writeName(String name) {
-                super.writeName(name+"-test");
+            public void writeFieldName(String name) throws IOException {
+                super.writeFieldName(name+"-test");
                 super.writeBoolean(true);
-                super.writeName(name);
+                super.writeFieldName(name);
             }
         };
-        p.nextToken();
-        g.copyCurrentStructure(p);
-        g.flush();
+        jp.nextToken();
+        jg.copyCurrentStructure(jp);
+        jg.flush();
         assertEquals("[{\"a-test\":true,\"a\":[1,2,{\"b-test\":true,\"b\":3}],\"c-test\":true,\"c\":\"d\"},{\"e-test\":true,\"e\":false},null]", sw.toString());
-        p.close();
-        g.close();
+        jp.close();
+        jg.close();
+    }
+
+    @SuppressWarnings("resource")
+    public void testGeneratorWithCodec() throws IOException
+    {
+        BogusCodec codec = new BogusCodec();
+        StringWriter sw = new StringWriter();
+        JsonGenerator g0 = JSON_F.createGenerator(sw);
+        g0.setCodec(codec);
+        JsonGeneratorDelegate del = new JsonGeneratorDelegate(g0, false);
+        del.writeStartArray();
+        POJO pojo = new POJO();
+        del.writeObject(pojo);
+        TreeNode tree = new BogusTree();
+        del.writeTree(tree);
+        del.writeEndArray();
+        del.close();
+
+        assertEquals("[\"pojo\",\"tree\"]", sw.toString());
+
+        assertSame(tree, codec.treeWritten);
+        assertSame(pojo, codec.pojoWritten);
     }
 }

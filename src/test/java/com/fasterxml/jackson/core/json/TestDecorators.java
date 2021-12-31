@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.json;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.InputDecorator;
 import com.fasterxml.jackson.core.io.OutputDecorator;
@@ -27,24 +26,16 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     {
         @Override
         public InputStream decorate(IOContext ctxt, InputStream in)
-            throws JacksonException
+            throws IOException
         {
-            try {
-                return new ByteArrayInputStream("123".getBytes("UTF-8"));
-            } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
-            }
+            return new ByteArrayInputStream("123".getBytes("UTF-8"));
         }
 
         @Override
         public InputStream decorate(IOContext ctxt, byte[] src, int offset, int length)
-            throws JacksonException
+            throws IOException
         {
-            try {
-                return new ByteArrayInputStream("456".getBytes("UTF-8"));
-            } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
-            }
+            return new ByteArrayInputStream("456".getBytes("UTF-8"));
         }
 
         @Override
@@ -56,30 +47,22 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
     static class SimpleOutputDecorator extends OutputDecorator
     {
         @Override
-        public OutputStream decorate(IOContext ctxt, OutputStream out) throws JacksonException
+        public OutputStream decorate(IOContext ctxt, OutputStream out) throws IOException
         {
-            try {
-                out.write("123".getBytes("UTF-8"));
-                out.flush();
-            } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
-            }
+            out.write("123".getBytes("UTF-8"));
+            out.flush();
             return new ByteArrayOutputStream();
         }
 
         @Override
-        public Writer decorate(IOContext ctxt, Writer w) throws JacksonException
+        public Writer decorate(IOContext ctxt, Writer w) throws IOException
         {
-            try {
-                w.write("567");
-                w.flush();
-            } catch (IOException e) {
-                throw WrappedIOException.construct(e, null);
-            }
+            w.write("567");
+            w.flush();
             return new StringWriter();
         }
     }
-
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -93,14 +76,14 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
                 .build();
         JsonParser p;
         // first test with Reader
-        p = f.createParser(ObjectReadContext.empty(), new StringReader("{ }"));
+        p = f.createParser(new StringReader("{ }"));
         // should be overridden;
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(789, p.getIntValue());
         p.close();
 
         // similarly with InputStream
-        p = f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream("[ ]".getBytes("UTF-8")));
+        p = f.createParser(new ByteArrayInputStream("[ ]".getBytes("UTF-8")));
         // should be overridden;
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(123, p.getIntValue());
@@ -108,21 +91,21 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
 
         // and with raw bytes
         final byte[] bytes = "[ ]".getBytes("UTF-8");
-        p = f.createParser(ObjectReadContext.empty(), bytes);
+        p = f.createParser(bytes);
         // should be overridden;
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(456, p.getIntValue());
         p.close();
 
         // also diff method has diff code path so try both:
-        p = f.createParser(ObjectReadContext.empty(), bytes, 0, bytes.length);
+        p = f.createParser(bytes, 0, bytes.length);
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(456, p.getIntValue());
         p.close();
 
         // and also char[]
         final char[] chars = "  [ ]".toCharArray();
-        p = f.createParser(ObjectReadContext.empty(), chars, 0, chars.length);
+        p = f.createParser(chars, 0, chars.length);
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(789, p.getIntValue());
         p.close();
@@ -133,16 +116,30 @@ public class TestDecorators extends com.fasterxml.jackson.core.BaseTest
         JsonFactory f = JsonFactory.builder()
                 .outputDecorator(new SimpleOutputDecorator())
                 .build();
-        JsonGenerator jg;
+        JsonGenerator g;
 
         StringWriter sw = new StringWriter();
-        jg = f.createGenerator(ObjectWriteContext.empty(), sw);
-        jg.close();
+        g = f.createGenerator(sw);
+        g.close();
         assertEquals("567", sw.toString());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        jg = f.createGenerator(ObjectWriteContext.empty(), out, JsonEncoding.UTF8);
-        jg.close();
+        g = f.createGenerator(out, JsonEncoding.UTF8);
+        g.close();
         assertEquals("123", out.toString("UTF-8"));
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedMethods() throws IOException
+    {
+        JsonFactory f = new JsonFactory();
+        assertNull(f.getInputDecorator());
+        assertNull(f.getOutputDecorator());
+        final SimpleInputDecorator inDec = new SimpleInputDecorator();
+        final SimpleOutputDecorator outDec = new SimpleOutputDecorator();
+        f.setInputDecorator(inDec);
+        assertSame(inDec, f.getInputDecorator());
+        f.setOutputDecorator(outDec);
+        assertSame(outDec, f.getOutputDecorator());
     }
 }

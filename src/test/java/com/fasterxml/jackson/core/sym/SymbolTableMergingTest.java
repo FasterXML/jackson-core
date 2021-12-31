@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.sym;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.ReaderBasedJsonParser;
 import com.fasterxml.jackson.core.json.UTF8StreamJsonParser;
 
@@ -36,14 +35,14 @@ public class SymbolTableMergingTest
     public void testByteSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();
-        JsonParser p = _getParser(f, JSON, true);
-        while (p.nextToken() != null) {
+        JsonParser jp = _getParser(f, JSON, true);
+        while (jp.nextToken() != null) {
             // shouldn't update before hitting end
             assertEquals(0, f.byteSymbolCount());
         }
         // but now should have it after hitting EOF
         assertEquals(3, f.byteSymbolCount());
-        p.close();
+        jp.close();
         assertEquals(3, f.byteSymbolCount());
     }
 
@@ -64,14 +63,14 @@ public class SymbolTableMergingTest
     public void testCharSymbolsWithEOF() throws Exception
     {
         MyJsonFactory f = new MyJsonFactory();
-        JsonParser p = _getParser(f, JSON, false);
-        while (p.nextToken() != null) {
+        JsonParser jp = _getParser(f, JSON, false);
+        while (jp.nextToken() != null) {
             // shouldn't update before hitting end
             assertEquals(0, f.charSymbolCount());
         }
         // but now should have it
         assertEquals(3, f.charSymbolCount());
-        p.close();
+        jp.close();
         assertEquals(3, f.charSymbolCount());
     }
 
@@ -84,32 +83,32 @@ public class SymbolTableMergingTest
     private void _testWithClose(boolean useBytes) throws IOException
     {
         MyJsonFactory f = new MyJsonFactory();
-        JsonParser p = _getParser(f, JSON, useBytes);
+        JsonParser jp = _getParser(f, JSON, useBytes);
         // Let's check 2 names
-        assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
 
         // shouldn't update before close or EOF:
         assertEquals(0, useBytes ? f.byteSymbolCount() : f.charSymbolCount());
-        p.close();
+        jp.close();
         // but should after close
         assertEquals(2, useBytes ? f.byteSymbolCount() : f.charSymbolCount());
     }
 
     private JsonParser _getParser(MyJsonFactory f, String doc, boolean useBytes) throws IOException
     {
-        JsonParser p;
+        JsonParser jp;
         if (useBytes) {
-            p = f.createParser(ObjectReadContext.empty(), doc.getBytes("UTF-8"));
-            assertEquals(UTF8StreamJsonParser.class, p.getClass());
+            jp = f.createParser(doc.getBytes("UTF-8"));
+            assertEquals(UTF8StreamJsonParser.class, jp.getClass());
             assertEquals(0, f.byteSymbolCount());
         } else {
-            p = f.createParser(ObjectReadContext.empty(), doc);
-            assertEquals(ReaderBasedJsonParser.class, p.getClass());
+            jp = f.createParser(doc);
+            assertEquals(ReaderBasedJsonParser.class, jp.getClass());
             assertEquals(0, f.charSymbolCount());
         }
-        return p;
+        return jp;
     }
 }

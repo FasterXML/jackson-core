@@ -8,15 +8,21 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * specification.
  * Pointer instances can be used to locate logical JSON nodes for things like
  * tree traversal (see {@link TreeNode#at}).
+ * It may be used in future for filtering of streaming JSON content
+ * as well (not implemented yet for 2.3).
  *<p>
  * Instances are fully immutable and can be cached, shared between threads.
  * 
  * @author Tatu Saloranta
+ *
+ * @since 2.3
  */
 public class JsonPointer
 {
     /**
      * Character used to separate segments.
+     *
+     * @since 2.9
      */
     public final static char SEPARATOR = '/';
 
@@ -59,9 +65,9 @@ public class JsonPointer
     protected final int _matchingElementIndex;
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Construction
-    /**********************************************************************
+    /**********************************************************
      */
     
     /**
@@ -85,19 +91,20 @@ public class JsonPointer
         _matchingElementIndex = _parseIndex(segment);
     }
 
+    // @since 2.5
     protected JsonPointer(String fullString, String segment, int matchIndex, JsonPointer next) {
         _asString = fullString;
         _nextSegment = next;
         _matchingPropertyName = segment;
         _matchingElementIndex = matchIndex;
     }
-
+    
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Factory methods
-    /**********************************************************************
+    /**********************************************************
      */
-
+    
     /**
      * Factory method that parses given input and construct matching pointer
      * instance, if it represents a valid JSON Pointer: if not, a
@@ -149,14 +156,17 @@ public class JsonPointer
 
     /**
      * Factory method that will construct a pointer instance that describes
-     * path to location given {@link TokenStreamContext} points to.
+     * path to location given {@link JsonStreamContext} points to.
      *
-     * @param context Context to build pointer expression fot
-     * @param includeRoot Whether to include number offset for virtual "root context" or not.
+     * @param context Context to build pointer expression for
+     * @param includeRoot Whether to include number offset for virtual "root context"
+     *    or not.
      *
      * @return {@link JsonPointer} path to location of given context
+     *
+     * @since 2.9
      */
-    public static JsonPointer forPath(TokenStreamContext context,
+    public static JsonPointer forPath(JsonStreamContext context,
             boolean includeRoot)
     {
         // First things first: last segment may be for START_ARRAY/START_OBJECT,
@@ -174,7 +184,7 @@ public class JsonPointer
 
         for (; context != null; context = context.getParent()) {
             if (context.inObject()) {
-                String seg = context.currentName();
+                String seg = context.getCurrentName();
                 if (seg == null) { // is this legal?
                     seg = "";
                 }
@@ -249,9 +259,9 @@ public class JsonPointer
     */
     
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Public API
-    /**********************************************************************
+    /**********************************************************
      */
 
     public boolean matches() { return _nextSegment == null; }
@@ -260,19 +270,21 @@ public class JsonPointer
 
     /**
      * @return True if the root selector matches property name (that is, could
-     *    match Property value of Object node)
+     * match field value of JSON Object node)
      */
     public boolean mayMatchProperty() { return _matchingPropertyName != null; }
 
     /**
      * @return True if the root selector matches element index (that is, could
-     *    match an element of Array node)
+     * match an element of JSON Array node)
      */
     public boolean mayMatchElement() { return _matchingElementIndex >= 0; }
 
     /**
      * @return  the leaf of current JSON Pointer expression: leaf is the last
      *    non-null segment of current JSON Pointer.
+     *
+     * @since 2.5
      */
     public JsonPointer last() {
         JsonPointer current = this;
@@ -318,64 +330,6 @@ public class JsonPointer
             currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
         }
         return compile(currentJsonPointer + tail._asString);
-    }
-
-    /**
-     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
-     * It is not recommended to overuse the method.
-     *
-     * Mutant factory method that will return
-     *<ul>
-     * <li>`this` instance if `property` is null or empty String, OR
-     *  </li>
-     * <li>Newly constructed {@link JsonPointer} instance that starts with all segments
-     *    of `this`, followed by new segment of 'property' name.
-     *  </li>
-     *</ul>
-     *
-     * 'property' format is starting separator (optional, added automatically if not provided) and new segment name.
-     *
-     * @param property new segment property name
-     *
-     * @return Either `this` instance, or a newly created combination, as per description above.
-     */
-    public JsonPointer appendProperty(String property) {
-        if (property == null || property.isEmpty()) {
-            return this;
-        }
-        if (property.charAt(0) != SEPARATOR) {
-            property = SEPARATOR + property;
-        }
-        String currentJsonPointer = _asString;
-        if (currentJsonPointer.endsWith("/")) {
-            //removes final slash
-            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
-        }
-        return compile(currentJsonPointer + property);
-    }
-
-    /**
-     * ATTENTION! {@link JsonPointer} is head centric, tail appending is much costlier than head appending.
-     * It is not recommended to overuse the method.
-     *
-     * Mutant factory method that will return newly constructed {@link JsonPointer} instance that starts with all
-     * segments of `this`, followed by new segment of element 'index'. Element 'index' should be non-negative.
-     *
-     * @param index new segment element index
-     *
-     * @return Newly created combination, as per description above.
-     * @throws IllegalArgumentException if element index is negative
-     */
-    public JsonPointer appendIndex(int index) {
-        if (index < 0) {
-            throw new IllegalArgumentException("Negative index cannot be appended");
-        }
-        String currentJsonPointer = _asString;
-        if (currentJsonPointer.endsWith("/")) {
-            //removes final slash
-            currentJsonPointer = currentJsonPointer.substring(0, currentJsonPointer.length()-1);
-        }
-        return compile(currentJsonPointer + SEPARATOR + index);
     }
 
     /**
@@ -489,9 +443,9 @@ public class JsonPointer
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Standard method overrides
-    /**********************************************************************
+    /**********************************************************
      */
 
     @Override public String toString() { return _asString; }
@@ -505,9 +459,9 @@ public class JsonPointer
     }
     
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Internal methods
-    /**********************************************************************
+    /**********************************************************
      */
 
     private final static int _parseIndex(String str) {

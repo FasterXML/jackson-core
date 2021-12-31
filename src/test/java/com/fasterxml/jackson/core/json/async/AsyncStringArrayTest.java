@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncStringArrayTest extends AsyncTestBase
@@ -30,7 +29,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
         final String[] input = new String[] {
                 "Test", "", "1",
                 // 60 chars, to stay short
-                String.format("%s%s%s%s%s%s%s",
+                String.format("%s%s%s%s%s%s",
                         str0to9,str0to9,str0to9,str0to9,str0to9,str0to9,str0to9),
 //                "And unicode: "+UNICODE_2BYTES+" / "+UNICODE_3BYTES,
                 // plus let's do back refs:
@@ -154,7 +153,7 @@ public class AsyncStringArrayTest extends AsyncTestBase
     private byte[] _stringDoc(JsonFactory f, String[] input) throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(100);
-        JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), bytes);
+        JsonGenerator g = f.createGenerator(bytes);
         g.writeStartArray();
         for (int i = 0; i < input.length; ++i) {
             g.writeString(input[i]);

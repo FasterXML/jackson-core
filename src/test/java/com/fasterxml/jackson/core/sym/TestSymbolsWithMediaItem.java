@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.sym;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTest
 {
@@ -40,14 +39,14 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
         ByteQuadsCanonicalizer symbolsRoot = ByteQuadsCanonicalizer.createRoot(SEED);
         ByteQuadsCanonicalizer symbols = symbolsRoot.makeChild(JsonFactory.Feature.collectDefaults());
         JsonFactory f = new JsonFactory();
-        JsonParser p = f.createParser(ObjectReadContext.empty(), JSON.getBytes("UTF-8"));
+        JsonParser p = f.createParser(JSON.getBytes("UTF-8"));
 
         JsonToken t;
         while ((t = p.nextToken()) != null) {
-            if (t != JsonToken.PROPERTY_NAME) {
+            if (t != JsonToken.FIELD_NAME) {
                 continue;
             }
-            String name = p.currentName();
+            String name = p.getCurrentName();
             int[] quads = calcQuads(name.getBytes("UTF-8"));
 
             if (symbols.findName(quads, quads.length) != null) {
@@ -70,14 +69,14 @@ public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTes
 
         CharsToNameCanonicalizer symbols = CharsToNameCanonicalizer.createRoot(SEED).makeChild(-1);
         JsonFactory f = new JsonFactory();
-        JsonParser p = f.createParser(ObjectReadContext.empty(), JSON);
+        JsonParser p = f.createParser(JSON);
 
         JsonToken t;
         while ((t = p.nextToken()) != null) {
-            if (t != JsonToken.PROPERTY_NAME) {
+            if (t != JsonToken.FIELD_NAME) {
                 continue;
             }
-            String name = p.currentName();
+            String name = p.getCurrentName();
             char[] ch = name.toCharArray();
             symbols.findSymbol(ch, 0, ch.length, symbols.calcHash(name));
         }

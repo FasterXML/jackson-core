@@ -1,20 +1,21 @@
 package com.fasterxml.jackson.core.json.async;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
 {
-    public void testDefaultsForAsync() {
+    @SuppressWarnings("deprecation")
+    public void testDefaultsForAsync() throws Exception {
         JsonFactory f = new JsonFactory();
-        assertFalse(f.isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS));
+        assertFalse(f.isEnabled(JsonParser.Feature.ALLOW_NUMERIC_LEADING_ZEROS));
     }
 
-    public void testLeadingZeroesInt()
+    public void testLeadingZeroesInt() throws Exception
     {
         _testLeadingZeroesInt("00003", 3);
         _testLeadingZeroesInt("00003 ", 3);
@@ -37,7 +38,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         _testLeadingZeroesInt("0"+Integer.MAX_VALUE+" ", Integer.MAX_VALUE);
     }
 
-    public void _testLeadingZeroesInt(String valueStr, int value)
+    public void _testLeadingZeroesInt(String valueStr, int value) throws Exception
     {
         // first: verify that we get an exception
 
@@ -48,14 +49,16 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "invalid numeric value");
         } finally {
             p.close();
         }
         
         // and then verify it's ok when enabled
-        f = f.rebuild().enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS).build();
+        f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
+                .build();
         p = createParser(f, JSON);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(value, p.getIntValue());
@@ -63,7 +66,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testLeadingZeroesFloat()
+    public void testLeadingZeroesFloat() throws Exception
     {
         _testLeadingZeroesFloat("00.25", 0.25);
         _testLeadingZeroesFloat("  00.25", 0.25);
@@ -74,7 +77,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         _testLeadingZeroesFloat("-000.5  ", -0.5);
     }
 
-    private void _testLeadingZeroesFloat(String valueStr, double value)
+    private void _testLeadingZeroesFloat(String valueStr, double value) throws Exception
     {
         // first: verify that we get an exception
         JsonFactory f = new JsonFactory();
@@ -84,14 +87,16 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "invalid numeric value");
         } finally {
             p.close();
         }
         
         // and then verify it's ok when enabled
-        f = f.rebuild().enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS).build();
+        f = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)
+                .build();
         p = createParser(f, JSON);
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(String.valueOf(value), p.currentText());
@@ -99,7 +104,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    public void testLeadingPeriodFloat()
+    public void testLeadingPeriodFloat() throws Exception
     {
         _testLeadingPeriodFloat(".25", 0.25, 1);
         _testLeadingPeriodFloat(".25", 0.25, 100);
@@ -114,6 +119,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
     }
 
     private void _testLeadingPeriodFloat(String valueStr, double value, int bytesPerRead)
+        throws Exception
     {
         // first: verify that we get an exception
 
@@ -124,7 +130,7 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
             p.nextToken();
             p.currentText();
             fail("Should have thrown an exception for doc <"+JSON+">");
-        } catch (StreamReadException e) {
+        } catch (JsonParseException e) {
             verifyException(e, "Unexpected character ('.'");
             verifyException(e, "expected a valid value");
         } finally {
@@ -142,12 +148,13 @@ public class AsyncNonStdNumberHandlingTest extends AsyncTestBase
         p.close();
     }
 
-    private AsyncReaderWrapper createParser(JsonFactory f, String doc)
+    private AsyncReaderWrapper createParser(JsonFactory f, String doc) throws IOException
     {
         return createParser(f, doc, 1);
     }
     
     private AsyncReaderWrapper createParser(JsonFactory f, String doc, int bytesPerRead)
+            throws IOException
     {
         return asyncForBytes(f, bytesPerRead, _jsonDoc(doc), 1);
     }

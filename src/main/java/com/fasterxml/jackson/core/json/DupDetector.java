@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 
 /**
  * Helper class used if
- * {@link com.fasterxml.jackson.core.StreamReadFeature#STRICT_DUPLICATE_DETECTION}
+ * {@link com.fasterxml.jackson.core.JsonParser.Feature#STRICT_DUPLICATE_DETECTION}
  * is enabled.
  * Optimized to try to limit memory usage and processing overhead for smallest
  * entries, but without adding trashing (immutable objects would achieve optimal
@@ -14,6 +14,8 @@ import com.fasterxml.jackson.core.*;
  * scopes with large number of entries). Another consideration is trying to limit
  * actual number of compiled classes as it contributes significantly to overall
  * jar size (due to linkage etc).
+ * 
+ * @since 2.3
  */
 public class DupDetector
 {
@@ -56,7 +58,7 @@ public class DupDetector
     public JsonLocation findLocation() {
         // ugly but:
         if (_source instanceof JsonParser) {
-            return ((JsonParser)_source).currentLocation();
+            return ((JsonParser)_source).getCurrentLocation();
         }
         // do generators have a way to provide Location? Apparently not...
         return null;
@@ -64,6 +66,8 @@ public class DupDetector
 
     /**
      * @return Source object (parser / generator) used to construct this detector
+     *
+     * @since 2.7
      */
     public Object getSource() {
         return _source;
@@ -77,8 +81,11 @@ public class DupDetector
      * @param name Property seen
      *
      * @return {@code True} if the property had already been seen before in this context
+     *
+     * @throws JsonParseException to report possible operation problem (default implementation
+     *    never throws it)
      */
-    public boolean isDup(String name)
+    public boolean isDup(String name) throws JsonParseException
     {
         if (_firstName == null) {
             _firstName = name;

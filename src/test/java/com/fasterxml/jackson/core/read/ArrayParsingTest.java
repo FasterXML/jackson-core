@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 /**
@@ -16,61 +14,61 @@ public class ArrayParsingTest
     {
         final String DOC = "[   \n  ]";
 
-        JsonParser p = createParserUsingStream(DOC, "UTF-8");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertNull(p.nextToken());
-        p.close();
+        JsonParser jp = createParserUsingStream(DOC, "UTF-8");
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertNull(jp.nextToken());
+        jp.close();
     }
 
     public void testInvalidEmptyMissingClose() throws Exception
     {
         final String DOC = "[ ";
 
-        JsonParser p = createParserUsingStream(DOC, "UTF-8");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        JsonParser jp = createParserUsingStream(DOC, "UTF-8");
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
 
         try {
-            p.nextToken();
+            jp.nextToken();
             fail("Expected a parsing error for missing array close marker");
-        } catch (StreamReadException jex) {
+        } catch (JsonParseException jex) {
             verifyException(jex, "expected close marker for ARRAY");
         }
-        p.close();
+        jp.close();
     }
 
     public void testInvalidMissingFieldName() throws Exception
     {
         final String DOC = "[  : 3 ] ";
 
-        JsonParser p = createParserUsingStream(DOC, "UTF-8");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        JsonParser jp = createParserUsingStream(DOC, "UTF-8");
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
 
         try {
-            p.nextToken();
+            jp.nextToken();
             fail("Expected a parsing error for odd character");
-        } catch (StreamReadException jex) {
+        } catch (JsonParseException jex) {
             verifyException(jex, "Unexpected character");
         }
-        p.close();
+        jp.close();
     }
 
     public void testInvalidExtraComma() throws Exception
     {
         final String DOC = "[ 24, ] ";
 
-        JsonParser p = createParserUsingStream(DOC, "UTF-8");
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(24, p.getIntValue());
+        JsonParser jp = createParserUsingStream(DOC, "UTF-8");
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(24, jp.getIntValue());
 
         try {
-            p.nextToken();
+            jp.nextToken();
             fail("Expected a parsing error for missing array close marker");
-        } catch (StreamReadException jex) {
+        } catch (JsonParseException jex) {
             verifyException(jex, "expected a value");
         }
-        p.close();
+        jp.close();
     }
     
     /**
@@ -110,38 +108,39 @@ public class ArrayParsingTest
     
     private void _testMissingValueByEnablingFeature(boolean useStream) throws Exception {
         String DOC = "[ \"a\",,,,\"abc\", ] ";
+
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_MISSING_VALUES).build();
-    	
-        JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-                : createParserUsingReader(f, DOC);
+                .enable(JsonReadFeature.ALLOW_MISSING_VALUES)
+                .build();
+        JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+   			          : createParserUsingReader(f, DOC);
         
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("a", p.getValueAsString());
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertEquals("a", jp.getValueAsString());
         
-        assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertNull(p.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertNull(jp.nextToken());
              
-        p.close();
+        jp.close();
 
         // And another take
         DOC = "[,] ";
-        p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+        jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
                 : createParserUsingReader(f, DOC);
 
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertToken(JsonToken.VALUE_NULL, p.nextToken());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertNull(p.nextToken());
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
+        assertNull(jp.nextToken());
 
-        p.close();
+        jp.close();
     }
     
     private void _testMissingValueNotEnablingFeature(boolean useStream) throws Exception {
@@ -149,37 +148,38 @@ public class ArrayParsingTest
 
     	JsonFactory f = new JsonFactory();
     	
-        JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+        JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
    			          : createParserUsingReader(f, DOC);
         
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("a", p.getValueAsString());
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertEquals("a", jp.getValueAsString());
         try {
-	        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+	        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
 	        fail("Expecting exception here");
         }
-        catch (StreamReadException ex){
+        catch(JsonParseException ex){
         	verifyException(ex, "expected a valid value", "expected a value");
         }
-        p.close();
+        jp.close();
     }
     
     private void _testNotMissingValueByEnablingFeature(boolean useStream) throws Exception {
         final String DOC = "[ \"a\",\"abc\"] ";
 
         JsonFactory f = JsonFactory.builder()
-                .enable(JsonReadFeature.ALLOW_MISSING_VALUES).build();
-        JsonParser p = useStream ? createParserUsingStream(f, DOC, "UTF-8")
-                : createParserUsingReader(f, DOC);
-
-        assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertEquals("a", p.getValueAsString());
+                .enable(JsonReadFeature.ALLOW_MISSING_VALUES)
+                .build();
+        JsonParser jp = useStream ? createParserUsingStream(f, DOC, "UTF-8")
+   			          : createParserUsingReader(f, DOC);
         
-        assertToken(JsonToken.VALUE_STRING, p.nextToken());
-        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertEquals("a", jp.getValueAsString());
+        
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertToken(JsonToken.END_ARRAY, jp.nextToken());
              
-        p.close();
+        jp.close();
     }
 }

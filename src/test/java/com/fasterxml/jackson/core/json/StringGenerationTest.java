@@ -88,7 +88,7 @@ public class StringGenerationTest
         StringBuilder sb = new StringBuilder(minLen + 1000);
         Random rnd = new Random(minLen);
         do {
-            switch (rnd.nextInt(4)) {
+            switch (rnd.nextInt() % 4) {
             case 0:
                 sb.append(" foo");
                 break;
@@ -136,8 +136,8 @@ public class StringGenerationTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = (readMode != MODE_READER) ? FACTORY.createGenerator(ObjectWriteContext.empty(), bytes)
-                : FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = (readMode != MODE_READER) ? FACTORY.createGenerator(bytes)
+                : FACTORY.createGenerator(sw);
         gen.writeStartArray();
         gen.writeString(text);
         gen.writeEndArray();
@@ -145,7 +145,7 @@ public class StringGenerationTest
 
         JsonParser p;
         if (readMode == MODE_READER) {
-            p = FACTORY.createParser(ObjectReadContext.empty(), sw.toString());
+            p = FACTORY.createParser(sw.toString());
         } else {
             p = createParser(FACTORY, readMode, bytes.toByteArray());
         }
@@ -161,7 +161,7 @@ public class StringGenerationTest
         for (int i = 0; i < SAMPLES.length; ++i) {
             String VALUE = SAMPLES[i];
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), sw);
+            JsonGenerator gen = FACTORY.createGenerator(sw);
             gen.writeStartArray();
             if (charArray) {
                 char[] buf = new char[VALUE.length() + i];
@@ -188,7 +188,7 @@ public class StringGenerationTest
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
+        JsonGenerator gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
 
         gen.writeStartArray();
         if (charArray) {
@@ -226,14 +226,14 @@ public class StringGenerationTest
         throws Exception
     {
         ByteArrayOutputStream bow = new ByteArrayOutputStream(text.length());
-        JsonGenerator gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
+        JsonGenerator gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
 
         gen.writeString(text);
         gen.writeEndArray();
         gen.close();
         
-        gen = FACTORY.createGenerator(ObjectWriteContext.empty(), bow, JsonEncoding.UTF8);
+        gen = FACTORY.createGenerator(bow, JsonEncoding.UTF8);
         gen.writeStartArray();
         gen.writeStartArray();
 

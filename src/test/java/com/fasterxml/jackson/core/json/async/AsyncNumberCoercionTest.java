@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import com.fasterxml.jackson.core.JsonToken;
@@ -73,7 +73,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `int`");
+            verifyException(e, "out of range of int");
             assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
@@ -86,7 +86,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `int`");
+            verifyException(e, "out of range of int");
             assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
@@ -99,7 +99,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `int`");
+            verifyException(e, "out of range of int");
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
@@ -110,7 +110,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `int`");
+            verifyException(e, "out of range of int");
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
@@ -123,7 +123,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `int`");
+            verifyException(e, "out of range of int");
             assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
@@ -134,7 +134,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getIntValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `int`");
+            verifyException(e, "out of range of int");
             assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
             assertEquals(Integer.TYPE, e.getTargetType());
         }
@@ -189,7 +189,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getLongValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `long`");
+            verifyException(e, "out of range of long");
             assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
             assertEquals(Long.TYPE, e.getTargetType());
         }
@@ -201,7 +201,7 @@ public class AsyncNumberCoercionTest extends AsyncTestBase
             p.getLongValue();
             fail("Should not pass");
         } catch (InputCoercionException e) {
-            verifyException(e, "out of range of `long`");
+            verifyException(e, "out of range of long");
             assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
             assertEquals(Long.TYPE, e.getTargetType());
         }

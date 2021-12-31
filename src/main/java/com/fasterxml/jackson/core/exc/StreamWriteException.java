@@ -3,44 +3,45 @@ package com.fasterxml.jackson.core.exc;
 import com.fasterxml.jackson.core.*;
 
 /**
- * Intermediate base class for all write-side streaming processing problems,
- * mostly content generation issues.
+ * Intermediate base class for all read-side streaming processing problems, including
+ * parsing and input value coercion problems.
+ *<p>
+ * Added in 2.13 to eventually replace {@link com.fasterxml.jackson.core.JsonGenerationException}.
+ *
+ * @since 2.13
  */
-public class StreamWriteException
-    extends JacksonException
+public abstract class StreamWriteException
+    extends JsonProcessingException
 {
-    private final static long serialVersionUID = 3L;
+    private final static long serialVersionUID = 2L;
 
     protected transient JsonGenerator _processor;
 
-    public StreamWriteException(JsonGenerator g, Throwable rootCause) {
+    protected StreamWriteException(Throwable rootCause, JsonGenerator g) {
         super(rootCause);
         _processor = g;
     }
 
-    public StreamWriteException(JsonGenerator g, String msg) {
-        super(msg);
+    protected StreamWriteException(String msg, JsonGenerator g) {
+        super(msg, (JsonLocation) null);
         _processor = g;
     }
 
-    public StreamWriteException(JsonGenerator g, String msg, Throwable rootCause) {
+    protected StreamWriteException(String msg, Throwable rootCause, JsonGenerator g) {
         super(msg, null, rootCause);
         _processor = g;
     }
 
     /**
      * Fluent method that may be used to assign originating {@link JsonGenerator},
-     * to be accessed using {@link #processor()}.
+     * to be accessed using {@link #getProcessor()}.
      *
      * @param g Generator to assign
      *
      * @return This exception instance (to allow call chaining)
      */
-    public StreamWriteException withGenerator(JsonGenerator g) {
-        _processor = g;
-        return this;
-    }
+    public abstract StreamWriteException withGenerator(JsonGenerator g);
 
     @Override
-    public JsonGenerator processor() { return _processor; }
+    public JsonGenerator getProcessor() { return _processor; }
 }

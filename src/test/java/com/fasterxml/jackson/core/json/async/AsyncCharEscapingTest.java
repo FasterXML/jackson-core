@@ -2,8 +2,6 @@ package com.fasterxml.jackson.core.json.async;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 /**
@@ -38,7 +36,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
             JsonToken t = r.nextToken();
             assertToken(JsonToken.VALUE_STRING, t);
             fail("Expected an exception for un-escaped linefeed in string value");
-        } catch (StreamReadException jex) {
+        } catch (JsonParseException jex) {
             verifyException(jex, "has to be escaped");
         }
         r.close();

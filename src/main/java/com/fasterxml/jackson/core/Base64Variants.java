@@ -46,7 +46,10 @@ public final class Base64Variants
      *<p>
      * Writes padding on output; requires padding when reading (may change later with a call to {@link Base64Variant#withWritePadding})
      */
-    public final static Base64Variant MIME = new Base64Variant("MIME", STD_BASE64_ALPHABET, true, '=', 76);
+    public final static Base64Variant MIME;
+    static {
+        MIME = new Base64Variant("MIME", STD_BASE64_ALPHABET, true, '=', 76);
+    }
 
     /**
      * Slightly non-standard modification of {@link #MIME} which does not
@@ -56,7 +59,10 @@ public final class Base64Variants
      *<p>
      * Writes padding on output; requires padding when reading (may change later with a call to {@link Base64Variant#withWritePadding})
      */
-    public final static Base64Variant MIME_NO_LINEFEEDS = new Base64Variant(MIME, "MIME-NO-LINEFEEDS", Integer.MAX_VALUE);
+    public final static Base64Variant MIME_NO_LINEFEEDS;
+    static {
+        MIME_NO_LINEFEEDS = new Base64Variant(MIME, "MIME-NO-LINEFEEDS", Integer.MAX_VALUE);
+    }
 
     /**
      * This variant is the one that predates {@link #MIME}: it is otherwise

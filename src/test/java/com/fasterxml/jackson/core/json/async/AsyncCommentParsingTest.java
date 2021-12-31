@@ -4,8 +4,6 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
@@ -116,7 +114,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
             } catch (Exception e) {
                 throw new RuntimeException("Failed on '"+DOC+"' due to "+e, e);
             }
-            assertEquals(JsonToken.PROPERTY_NAME, t);
+            assertEquals(JsonToken.FIELD_NAME, t);
 
             try {
                 t = p.nextToken();
@@ -186,11 +184,11 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         AsyncReaderWrapper p = _createParser(f, DOC, bytesPerRead);
 
         assertEquals(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
-        assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals(JsonToken.FIELD_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertEquals(JsonToken.START_ARRAY, p.nextToken());
         assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -225,7 +223,7 @@ public class AsyncCommentParsingTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected exception for unrecognized comment");
-        } catch (StreamReadException je) {
+        } catch (JsonParseException je) {
             // Should have something denoting that user may want to enable 'ALLOW_COMMENTS'
             verifyException(je, "ALLOW_COMMENTS");
         }

@@ -5,8 +5,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.json.JsonFactoryBuilder;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.UTF8DataInputJsonParser;
 
@@ -23,13 +21,13 @@ public class TrailingCommasTest extends BaseTest {
   private final int mode;
 
   public TrailingCommasTest(int mode, List<JsonReadFeature> features) {
-    this.features = new HashSet<JsonReadFeature>(features);
-    JsonFactoryBuilder b = JsonFactory.builder();
-    for (JsonReadFeature feature : features) {
-        b = b.enable(feature);
-    }
-    this.factory = b.build();
-    this.mode = mode;
+      this.features = new HashSet<JsonReadFeature>(features);
+      JsonFactoryBuilder b = (JsonFactoryBuilder) JsonFactory.builder();
+      for (JsonReadFeature feature : features) {
+          b = b.enable(feature);
+      }
+      factory = b.build();
+      this.mode = mode;
   }
 
   @Parameterized.Parameters(name = "Mode {0}, Features {1}")
@@ -216,11 +214,11 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+    assertToken(JsonToken.FIELD_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+    assertToken(JsonToken.FIELD_NAME, p.nextToken());
     assertEquals("b", p.getText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -237,7 +235,7 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+    assertToken(JsonToken.FIELD_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
@@ -265,11 +263,11 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+    assertToken(JsonToken.FIELD_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+    assertToken(JsonToken.FIELD_NAME, p.nextToken());
     assertEquals("b", p.getText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
@@ -289,19 +287,19 @@ public class TrailingCommasTest extends BaseTest {
     JsonParser p = createParser(factory, mode, json);
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
-    assertEquals("a", p.nextName());
+    assertEquals("a", p.nextFieldName());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertEquals("b", p.nextName());
+    assertEquals("b", p.nextFieldName());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
     if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
-      assertEquals(null, p.nextName());
+      assertEquals(null, p.nextFieldName());
       assertToken(JsonToken.END_OBJECT, p.currentToken());
       assertEnd(p);
     } else {
       try {
-        p.nextName();
+        p.nextFieldName();
         fail("No exception thrown");
       } catch (Exception e) {
         verifyException(e, "Unexpected character ('}' (code 125))");
@@ -318,19 +316,19 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertTrue(p.nextName(new SerializedString("a")));
+    assertTrue(p.nextFieldName(new SerializedString("a")));
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertTrue(p.nextName(new SerializedString("b")));
+    assertTrue(p.nextFieldName(new SerializedString("b")));
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 
     if (features.contains(JsonReadFeature.ALLOW_TRAILING_COMMA)) {
-      assertFalse(p.nextName(new SerializedString("c")));
+      assertFalse(p.nextFieldName(new SerializedString("c")));
       assertToken(JsonToken.END_OBJECT, p.currentToken());
       assertEnd(p);
     } else {
       try {
-        p.nextName(new SerializedString("c"));
+        p.nextFieldName(new SerializedString("c"));
         fail("No exception thrown");
       } catch (Exception e) {
         verifyException(e, "Unexpected character ('}' (code 125))");
@@ -347,11 +345,11 @@ public class TrailingCommasTest extends BaseTest {
 
     assertEquals(JsonToken.START_OBJECT, p.nextToken());
 
-    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+    assertToken(JsonToken.FIELD_NAME, p.nextToken());
     assertEquals("a", p.getText());
     assertToken(JsonToken.VALUE_TRUE, p.nextToken());
 
-    assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+    assertToken(JsonToken.FIELD_NAME, p.nextToken());
     assertEquals("b", p.getText());
     assertToken(JsonToken.VALUE_FALSE, p.nextToken());
 

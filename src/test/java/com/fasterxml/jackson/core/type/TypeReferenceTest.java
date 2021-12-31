@@ -113,6 +113,11 @@ public class TypeReferenceTest extends BaseTest
         }
 
         @Override
+        public String containedTypeName(int index) {
+            return null;
+        }
+
+        @Override
         public String toCanonical() {
             return null;
         }

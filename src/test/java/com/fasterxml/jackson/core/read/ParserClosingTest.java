@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.read;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 import java.io.*;
 
@@ -32,9 +31,12 @@ public class ParserClosingTest
                 .disable(StreamReadFeature.AUTO_CLOSE_SOURCE)
                 .build();
         assertFalse(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+        {
+            assertFalse(f.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE));
+        }
         @SuppressWarnings("resource")
         MyReader input = new MyReader(DOC);
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
+        JsonParser jp = f.createParser(input);
 
         // shouldn't be closed to begin with...
         assertFalse(input.isClosed());
@@ -53,11 +55,12 @@ public class ParserClosingTest
     public void testAutoCloseReader() throws Exception
     {
         final String DOC = "[ 1 ]";
+
         JsonFactory f = JsonFactory.builder()
-                .enable(StreamReadFeature.AUTO_CLOSE_SOURCE).build();
-        assertTrue(f.isEnabled(StreamReadFeature.AUTO_CLOSE_SOURCE));
+                .enable(StreamReadFeature.AUTO_CLOSE_SOURCE)
+                .build();
         MyReader input = new MyReader(DOC);
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
+        JsonParser jp = f.createParser(input);
         assertFalse(input.isClosed());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         // but can close half-way through
@@ -66,7 +69,7 @@ public class ParserClosingTest
 
         // And then let's test implicit close at the end too:
         input = new MyReader(DOC);
-        jp = f.createParser(ObjectReadContext.empty(), input);
+        jp = f.createParser(input);
         assertFalse(input.isClosed());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -80,9 +83,10 @@ public class ParserClosingTest
     {
         final String DOC = "[ 1 ]";
         JsonFactory f = JsonFactory.builder()
-                .disable(StreamReadFeature.AUTO_CLOSE_SOURCE).build();
+                .disable(StreamReadFeature.AUTO_CLOSE_SOURCE)
+                .build();
         MyStream input = new MyStream(DOC.getBytes("UTF-8"));
-        JsonParser jp = f.createParser(ObjectReadContext.empty(), input);
+        JsonParser jp = f.createParser(input);
 
         // shouldn't be closed to begin with...
         assertFalse(input.isClosed());
@@ -101,7 +105,7 @@ public class ParserClosingTest
     public void testReleaseContentBytes() throws Exception
     {
         byte[] input = "[1]foobar".getBytes("UTF-8");
-        JsonParser jp = sharedStreamFactory().createParser(ObjectReadContext.empty(), input);
+        JsonParser jp = sharedStreamFactory().createParser(input);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
@@ -116,7 +120,7 @@ public class ParserClosingTest
 
     public void testReleaseContentChars() throws Exception
     {
-        JsonParser jp = sharedStreamFactory().createParser(ObjectReadContext.empty(), "[true]xyz");
+        JsonParser jp = sharedStreamFactory().createParser("[true]xyz");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
@@ -128,7 +132,7 @@ public class ParserClosingTest
         assertEquals(0, jp.releaseBuffered(sw));
         jp.close();
     }
-
+    
     /*
     /**********************************************************
     /* Helper classes

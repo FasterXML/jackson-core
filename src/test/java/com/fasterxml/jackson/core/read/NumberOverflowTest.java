@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.read;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 
 public class NumberOverflowTest
@@ -42,7 +41,7 @@ public class NumberOverflowTest
                 long x = p.getLongValue();
                 fail("Expected an exception for underflow (input "+p.getText()+"): instead, got long value: "+x);
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `long`");
+                verifyException(e, "out of range of long");
             }
             p.close();
 
@@ -52,9 +51,7 @@ public class NumberOverflowTest
                 long x = p.getLongValue();
                 fail("Expected an exception for underflow (input "+p.getText()+"): instead, got long value: "+x);
             } catch (InputCoercionException e) {
-                verifyException(e, "out of range of `long`");
-                assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
-                assertEquals(Long.TYPE, e.getTargetType());
+                verifyException(e, "out of range of long");
             }
             p.close();
         }
@@ -75,10 +72,8 @@ public class NumberOverflowTest
                     p.getLongValue();
                     fail("Should not pass");
                 } catch (InputCoercionException e) {
-                    verifyException(e, "out of range of `long`");
+                    verifyException(e, "out of range of long");
                     verifyException(e, "Integer with "+BIG_NUM_LEN+" digits");
-                    assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
-                    assertEquals(Long.TYPE, e.getTargetType());
                 }
                 p.close();
             }
@@ -97,10 +92,8 @@ public class NumberOverflowTest
                     p.getIntValue();
                     fail("Should not pass");
                 } catch (InputCoercionException e) {
-                    verifyException(e, "out of range of `int`");
+                    verifyException(e, "out of range of int");
                     verifyException(e, "Integer with "+BIG_NUM_LEN+" digits");
-                    assertEquals(JsonToken.VALUE_NUMBER_INT, e.getInputType());
-                    assertEquals(Integer.TYPE, e.getTargetType());
                 }
                 p.close();
             }

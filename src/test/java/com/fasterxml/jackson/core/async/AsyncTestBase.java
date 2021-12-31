@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core.async;
 
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
@@ -15,11 +15,11 @@ public abstract class AsyncTestBase extends BaseTest
 
     protected final static String UNICODE_SEGMENT = "["+UNICODE_2BYTES+"/"+UNICODE_3BYTES+"]";
 
-    public static AsyncReaderWrapper asyncForBytes(TokenStreamFactory f,
+    public static AsyncReaderWrapper asyncForBytes(JsonFactory f,
             int bytesPerRead,
-            byte[] bytes, int padding)
+            byte[] bytes, int padding) throws IOException
     {
-        return new AsyncReaderWrapperForByteArray(f.createNonBlockingByteArrayParser(ObjectReadContext.empty()),
+        return new AsyncReaderWrapperForByteArray(f.createNonBlockingByteArrayParser(),
                 bytesPerRead, bytes, padding);
     }
 
@@ -28,13 +28,13 @@ public abstract class AsyncTestBase extends BaseTest
         return SPACES.substring(0, Math.min(SPACES.length(), count));
     }
 
-    protected final JsonToken verifyStart(AsyncReaderWrapper reader)
+    protected final JsonToken verifyStart(AsyncReaderWrapper reader) throws Exception
     {
         assertToken(JsonToken.NOT_AVAILABLE, reader.currentToken());
         return reader.nextToken();
     }
 
-    protected final byte[] _jsonDoc(String doc) {
-        return doc.getBytes(StandardCharsets.UTF_8);
+    protected final byte[] _jsonDoc(String doc) throws IOException {
+        return doc.getBytes("UTF-8");
     }
 }

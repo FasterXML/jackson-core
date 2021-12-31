@@ -3,6 +3,7 @@ package com.fasterxml.jackson.core.filter;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.util.JsonGeneratorDelegate;
 
 // for [core#609]
@@ -33,7 +34,7 @@ public class GeneratorFiltering609Test
         }
 
         @Override
-        public void writeString(String text) {
+        public void writeString(String text) throws IOException {
             if (text == null) {
                 writeNull();
             } else if (maxStringLength <= 0 || maxStringLength >= text.length()) {
@@ -45,34 +46,33 @@ public class GeneratorFiltering609Test
         }
 
         @Override
-        public void writeName(String name) {
+        public void writeFieldName(String name) throws IOException {
             if (maxStringLength <= 0 || maxStringLength >= name.length()) {
-                super.writeName(name);
+                super.writeFieldName(name);
             } else {
                 String truncatedName = name.substring(0, maxStringLength);
-                super.writeName(truncatedName);
+                super.writeFieldName(truncatedName);
             }
         }
 
     }
 
     // for [core#609]: will pass in 2.10 for some cases
-    @SuppressWarnings("resource")
     public void testIssue609() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         JsonGenerator g = createGenerator(outputStream);
         g = new FilteringGeneratorDelegate(
-                g, NullExcludingTokenFilter.INSTANCE,
-                TokenFilter.Inclusion.INCLUDE_ALL_AND_PATH, true);
+                g, NullExcludingTokenFilter.INSTANCE, Inclusion.INCLUDE_ALL_AND_PATH, true);
         int maxStringLength = 10;
         g = new StringTruncatingGeneratorDelegate(
                 g, maxStringLength);
         g.writeStartObject();
-        g.writeName("message");
+        g.writeFieldName("message");
         g.writeString("1234567890!");
         g.writeEndObject();
         g.close();
+        outputStream.close();
 
         String json = outputStream.toString("US-ASCII");
         assertEquals("{\"message\":\"1234567890\"}", json);

@@ -6,7 +6,6 @@ import java.util.Random;
 import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
 
 public class TestJsonStringEncoder
     extends com.fasterxml.jackson.core.BaseTest
@@ -14,9 +13,15 @@ public class TestJsonStringEncoder
     public void testQuoteAsString() throws Exception
     {
         JsonStringEncoder encoder = new JsonStringEncoder();
-        char[] result = encoder.quoteAsCharArray("foobar");
+        char[] result = encoder.quoteAsString("foobar");
         assertArrayEquals("foobar".toCharArray(), result);
-        result = encoder.quoteAsCharArray("\"x\"");
+        result = encoder.quoteAsString("\"x\"");
+        assertArrayEquals("\\\"x\\\"".toCharArray(), result);
+
+        // and simply for sake of code coverage
+        result = encoder.quoteAsString(new StringBuilder("foobar"));
+        assertArrayEquals("foobar".toCharArray(), result);
+        result = encoder.quoteAsString(new StringBuilder("\"x\""));
         assertArrayEquals("\\\"x\\\"".toCharArray(), result);
     }
 
@@ -46,10 +51,9 @@ public class TestJsonStringEncoder
         }
         String input = sb.toString();
         String exp = sb2.toString();
-        char[] result = encoder.quoteAsCharArray(input);
+        char[] result = encoder.quoteAsString(input);
         assertEquals(2*input.length(), result.length);
         assertEquals(exp, new String(result));
-        
     }
 
     public void testQuoteLongCharSequenceAsString() throws Exception
@@ -79,7 +83,7 @@ public class TestJsonStringEncoder
         for (int length : lengths) {
             String str = generateRandom(length);
             StringWriter sw = new StringWriter(length*2);
-            JsonGenerator jgen = f.createGenerator(ObjectWriteContext.empty(), sw);
+            JsonGenerator jgen = f.createGenerator(sw);
             jgen.writeString(str);
             jgen.close();
             String encoded = sw.toString();
@@ -101,14 +105,17 @@ public class TestJsonStringEncoder
                 generateRandom(39000)
         };
         for (String str : strings) {
-            assertArrayEquals(str.getBytes("UTF-8"), encoder.encodeAsUTF8(str));
+            final byte[] exp = str.getBytes("UTF-8");
+            assertArrayEquals(exp, encoder.encodeAsUTF8(str));
+            // and for 2.x code coverage (only
+            assertArrayEquals(exp, encoder.encodeAsUTF8((CharSequence)str));
         }
     }
 
     public void testCtrlChars() throws Exception
     {
         char[] input = new char[] { 0, 1, 2, 3, 4 };
-        char[] quoted = JsonStringEncoder.getInstance().quoteAsCharArray(new String(input));
+        char[] quoted = JsonStringEncoder.getInstance().quoteAsString(new String(input));
         assertEquals("\\u0000\\u0001\\u0002\\u0003\\u0004", new String(quoted));
     }
 

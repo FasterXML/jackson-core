@@ -451,7 +451,6 @@ public abstract class BaseTest
         g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         try {
             while (p.nextToken() != null) {
-                System.err.println(p.currentToken() + "  " + p.currentName() + "  " + p.currentValue());
                 g.copyCurrentEvent(p);
             }
         } catch (IOException e) {

@@ -129,6 +129,40 @@ public class BasicGeneratorFilteringTest extends BaseTest
         }
     }
 
+    static final TokenFilter INCLUDE_EMPTY_IF_NOT_FILTERED = new TokenFilter() {
+        @Override
+        public boolean includeEmptyArray(boolean contentsFiltered) {
+            return !contentsFiltered;
+        }
+
+        @Override
+        public boolean includeEmptyObject(boolean contentsFiltered) {
+            return !contentsFiltered;
+        }
+
+        @Override
+        public boolean _includeScalar() {
+            return false;
+        }
+    };
+
+    static final TokenFilter INCLUDE_EMPTY = new TokenFilter() {
+        @Override
+        public boolean includeEmptyArray(boolean contentsFiltered) {
+            return true;
+        }
+
+        @Override
+        public boolean includeEmptyObject(boolean contentsFiltered) {
+            return true;
+        }
+
+        @Override
+        public boolean _includeScalar() {
+            return false;
+        }
+    };
+
     /*
     /**********************************************************
     /* Test methods
@@ -144,7 +178,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         JsonGenerator gen = _createGenerator(w);
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes(
+        assertEquals(a2q(
                 "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}"),
                 w.toString());
     }
@@ -163,7 +197,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         // 21-Apr-2015, tatu: note that there were plans to actually
         //     allow "immediate parent inclusion" for matches on property
         //    names. This behavior was NOT included in release however, so:
-//        assertEquals(aposToQuotes("{'value':3}"), w.toString());
+//        assertEquals(a2q("{'value':3}"), w.toString());
 
         assertEquals("3", w.toString());
     }
@@ -186,7 +220,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'ob':{'value':3}}"), w.toString());
+        assertEquals(a2q("{'ob':{'value':3}}"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
 
@@ -208,7 +242,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         final String JSON = "{'array':[1,[2,3]],'ob':[{'value':'bar'}],'b':{'foo':[1,'foo']}}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'ob':[{'value':'bar'}]}"), w.toString());
+        assertEquals(a2q("{'ob':[{'value':'bar'}]}"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
 
@@ -258,12 +292,12 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.close();
 
         if (exclude) {
-            assertEquals(aposToQuotes(
+            assertEquals(a2q(
 "{'array':[1,2],'ob':{'value0':2,'value2':'foo'},'b':true}"
                     ), w.toString());
             assertEquals(5, gen.getMatchCount());
         } else {
-            assertEquals(aposToQuotes("{'ob':{'value':['x']}}"), w.toString());
+            assertEquals(a2q("{'ob':{'value':['x']}}"), w.toString());
             assertEquals(1, gen.getMatchCount());
         }
     }
@@ -315,7 +349,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
         gen.close();
 
-        assertEquals(aposToQuotes("{'array':['AQ==',1,2,3,4 ,5.0 /*x*/,6.25,7.5]}"), w.toString());
+        assertEquals(a2q("{'array':['AQ==',1,2,3,4 ,5.0 /*x*/,6.25,7.5]}"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
     
@@ -327,7 +361,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true /* multipleMatches */ );
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'ob':{'value0':2,'value2':4}}"), w.toString());
+        assertEquals(a2q("{'ob':{'value0':2,'value2':4}}"), w.toString());
         assertEquals(2, gen.getMatchCount());
 
         // also try with alternate filter implementation: first including arrays
@@ -336,14 +370,14 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameExcludeFilter(true, "ob"), Inclusion.INCLUDE_ALL_AND_PATH, true);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'a':123,'array':[1,2],'b':true}"), w.toString());
+        assertEquals(a2q("{'a':123,'array':[1,2],'b':true}"), w.toString());
 
         // then excluding them
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new NameExcludeFilter(false, "ob"), Inclusion.INCLUDE_ALL_AND_PATH, true);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'a':123,'b':true}"), w.toString());
+        assertEquals(a2q("{'a':123,'b':true}"), w.toString());
     }
 
     public void testMultipleMatchFilteringWithPath2() throws Exception
@@ -355,7 +389,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'array':[1,2],'ob':{'value':3},'b':true}"), w.toString());
+        assertEquals(a2q("{'array':[1,2],'ob':{'value':3},'b':true}"), w.toString());
         assertEquals(3, gen.getMatchCount());
     }
 
@@ -368,7 +402,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'root':{'a':{'value':3},'b':{'value':'abc'}}}"), w.toString());
+        assertEquals(a2q("{'root':{'a':{'value':3},'b':{'value':'abc'}}}"), w.toString());
         assertEquals(2, gen.getMatchCount());
     }
 
@@ -381,7 +415,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_NON_NULL, true);
         final String JSON = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'root':{'b':{}}}"), w.toString());
+        assertEquals(a2q("{'root':{'b':{}}}"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -395,7 +429,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[%s,%s,%s]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("[{'root':{'b':{}}},{'root':{'b':{}}},{'root':{'b':{}}}]"), w.toString());
+        assertEquals(a2q("[{'root':{'b':{}}},{'root':{'b':{}}},{'root':{'b':{}}}]"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -409,7 +443,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[[%s],[%s],[%s]]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("[[{'root':{'b':{}}}],[{'root':{'b':{}}}],[{'root':{'b':{}}}]]"), w.toString());
+        assertEquals(a2q("[[{'root':{'b':{}}}],[{'root':{'b':{}}}],[{'root':{'b':{}}}]]"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -422,7 +456,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_NON_NULL, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':4}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{}"), w.toString());
+        assertEquals(a2q("{}"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -436,7 +470,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[%s,%s,%s]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("[{},{},{}]"), w.toString());
+        assertEquals(a2q("[{},{},{}]"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -450,7 +484,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         final String object = "{'root':{'a0':true,'b':{'value':4}},'b0':false}";
         final String JSON = String.format("[[%s],[%s],[%s]]", object, object, object);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("[[{}],[{}],[{}]]"), w.toString());
+        assertEquals(a2q("[[{}],[{}],[{}]]"), w.toString());
         assertEquals(0, gen.getMatchCount());
     }
 
@@ -463,7 +497,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_NON_NULL, true);
         final String JSON = "{'root':['a'],'b0':false}";
       writeJsonDoc(JSON_F, JSON, gen);
-      assertEquals(aposToQuotes("{'b0':false}"), w.toString());
+      assertEquals(a2q("{'b0':false}"), w.toString());
       assertEquals(1, gen.getMatchCount());
     }
 
@@ -475,7 +509,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         final String JSON = "{'root':{'a0':true,'a':{'value':3},'b':{'value':'abc'}},'b0':false}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'b0':false}"), w.toString());
+        assertEquals(a2q("{'b0':false}"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
 
@@ -488,7 +522,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_NON_NULL, true);
         final String JSON = "['a',{'root':{'b':{'value':4}},'b0':false}]";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("['a']"), w.toString());
+        assertEquals(a2q("['a']"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
 
@@ -500,14 +534,14 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         final String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':'abc'},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'array':[2]}"), w.toString());
+        assertEquals(a2q("{'array':[2]}"), w.toString());
 
         w = new StringWriter();
         gen = new FilteringGeneratorDelegate(_createGenerator(w),
                 new IndexMatchFilter(0),
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'array':[1]}"), w.toString());
+        assertEquals(a2q("{'array':[1]}"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
 
@@ -519,7 +553,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         String JSON = "{'a':123,'array':[1,2],'ob':{'value0':2,'value':3,'value2':4},'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'array':[1,2]}"), w.toString());
+        assertEquals(a2q("{'array':[1,2]}"), w.toString());
         assertEquals(2, gen.getMatchCount());
         gen.close();
 
@@ -529,7 +563,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         JSON = "{'a':123,'misc':[1,2, null, true, false, 'abc', 123],'ob':null,'b':true}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'misc':[2,true,'abc']}"), w.toString());
+        assertEquals(a2q("{'misc':[2,true,'abc']}"), w.toString());
         assertEquals(3, gen.getMatchCount());
 
         w = new StringWriter();
@@ -538,7 +572,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         JSON = "{'misc':[1,2, null, 0.25, false, 'abc', 11234567890]}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'misc':[null,11234567890]}"), w.toString());
+        assertEquals(a2q("{'misc':[null,11234567890]}"), w.toString());
         assertEquals(2, gen.getMatchCount());
 
         w = new StringWriter();
@@ -547,7 +581,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
                 Inclusion.INCLUDE_ALL_AND_PATH, true);
         JSON = "{'misc':[1,0.25,11234567890]}";
         writeJsonDoc(JSON_F, JSON, gen);
-        assertEquals(aposToQuotes("{'misc':[0.25]}"), w.toString());
+        assertEquals(a2q("{'misc':[0.25]}"), w.toString());
         assertEquals(1, gen.getMatchCount());
     }
 
@@ -573,7 +607,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         gen.writeEndObject();
         gen.close();
-        assertEquals(aposToQuotes("{'field1':{},'field2':1.0}"), w.toString());
+        assertEquals(a2q("{'field1':{},'field2':1.0}"), w.toString());
     }
 
     // [core#580]
@@ -611,42 +645,8 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'f1':1,'f2':12.3,'f3':3}"), w.toString());
+        assertEquals(a2q("{'f1':1,'f2':12.3,'f3':3}"), w.toString());
     }
-
-    static final TokenFilter INCLUDE_EMPTY_IF_NOT_FILTERED = new TokenFilter() {
-        @Override
-        public boolean includeEmptyArray(boolean contentsFiltered) {
-            return !contentsFiltered;
-        }
-
-        @Override
-        public boolean includeEmptyObject(boolean contentsFiltered) {
-            return !contentsFiltered;
-        }
-
-        @Override
-        public boolean _includeScalar() {
-            return false;
-        }
-    };
-
-    static final TokenFilter INCLUDE_EMPTY = new TokenFilter() {
-        @Override
-        public boolean includeEmptyArray(boolean contentsFiltered) {
-            return true;
-        }
-
-        @Override
-        public boolean includeEmptyObject(boolean contentsFiltered) {
-            return true;
-        }
-
-        @Override
-        public boolean _includeScalar() {
-            return false;
-        }
-    };
 
     public void testIncludeEmptyArrayIfNotFiltered() throws Exception
     {
@@ -666,7 +666,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'empty_array':[]}"), w.toString());
+        assertEquals(a2q("{'empty_array':[]}"), w.toString());
     }
 
     public void testIncludeEmptyArray() throws Exception
@@ -687,7 +687,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'empty_array':[],'filtered_array':[]}"), w.toString());
+        assertEquals(a2q("{'empty_array':[],'filtered_array':[]}"), w.toString());
     }
 
     public void testIncludeEmptyObjectIfNotFiltered() throws Exception
@@ -710,7 +710,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'empty_object':{}}"), w.toString());
+        assertEquals(a2q("{'empty_object':{}}"), w.toString());
     }
 
     public void testIncludeEmptyObject() throws Exception
@@ -731,7 +731,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'empty_object':{},'filtered_object':{}}"), w.toString());
+        assertEquals(a2q("{'empty_object':{},'filtered_object':{}}"), w.toString());
     }
 
     public void testIncludeEmptyArrayInObjectIfNotFiltered() throws Exception
@@ -756,7 +756,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'object_with_empty_array':{'foo':[]}}"), w.toString());
+        assertEquals(a2q("{'object_with_empty_array':{'foo':[]}}"), w.toString());
     }
 
     public void testIncludeEmptyArrayInObject() throws Exception
@@ -781,7 +781,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[]}}"), w.toString());
+        assertEquals(a2q("{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[]}}"), w.toString());
     }
 
 
@@ -807,7 +807,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{'array_with_empty_object':[{}]}"), w.toString());
+        assertEquals(a2q("{'array_with_empty_object':[{}]}"), w.toString());
     }
 
     public void testIncludeEmptyObjectInArray() throws Exception
@@ -833,7 +833,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
 
         gen.close();
         assertEquals(
-                aposToQuotes("{'array_with_empty_object':[{}],'array_with_filtered_object':[{}]}"),
+                a2q("{'array_with_empty_object':[{}],'array_with_filtered_object':[{}]}"),
                 w.toString());
     }
 
@@ -851,7 +851,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndObject();
 
         gen.close();
-        assertEquals(aposToQuotes("{}"), w.toString());
+        assertEquals(a2q("{}"), w.toString());
     }
 
     public void testIncludeEmptyTopLevelArray() throws Exception
@@ -867,7 +867,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         gen.writeEndArray();
 
         gen.close();
-        assertEquals(aposToQuotes("[]"), w.toString());
+        assertEquals(a2q("[]"), w.toString());
     }
 
     private JsonGenerator _createGenerator(Writer w) throws IOException {

@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.JsonParser;
  */
 public class TokenFilter
 {
-
     /**
      * Enumeration that controls how TokenFilter return values are interpreted.
      *
@@ -56,9 +55,9 @@ public class TokenFilter
     protected TokenFilter() { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* API, structured values
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -132,9 +131,9 @@ public class TokenFilter
     public void filterFinishArray() { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* API, properties/elements
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -222,9 +221,9 @@ public class TokenFilter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* API, scalar values (being read)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -247,9 +246,9 @@ public class TokenFilter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* API, scalar values (being written)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -430,10 +429,40 @@ public class TokenFilter
         return _includeScalar();
     }
 
+    /**
+     * Call made to verify whether leaf-level empty Array value
+     * should be included in output or not.
+     *
+     * @param contentsFiltered True if Array had contents but they were
+     *   filtered out (NOT included); false if we had actual empty Array.
+     *
+     * @return True if value is to be included; false if not
+     *
+     * @since 2.14
+     */
+    public boolean includeEmptyArray(boolean contentsFiltered) {
+        return false;
+    }
+
+    /**
+     * Call made to verify whether leaf-level empty Object value
+     * should be included in output or not.
+     *
+     * @param contentsFiltered True if Object had contents but they were
+     *   filtered out (NOT included); false if we had actual empty Object.
+     *
+     * @return True if value is to be included; false if not
+     *
+     * @since 2.14
+     */
+    public boolean includeEmptyObject(boolean contentsFiltered) {
+        return false;
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -445,9 +474,9 @@ public class TokenFilter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**

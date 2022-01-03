@@ -237,6 +237,16 @@ public class TokenFilterContext extends TokenStreamContext
     {
         if (_startHandled) {
             gen.writeEndArray();
+        } else {
+            if ((_filter != null) && (_filter != TokenFilter.INCLUDE_ALL)) {
+                if (_filter.includeEmptyArray(hasCurrentIndex())) {
+                    if (_parent != null) {
+                        _parent._writePath(gen);
+                    }
+                    gen.writeStartArray();
+                    gen.writeEndArray();
+                }
+            }
         }
         if ((_filter != null) && (_filter != TokenFilter.INCLUDE_ALL)) {
             _filter.filterFinishArray();
@@ -248,6 +258,16 @@ public class TokenFilterContext extends TokenStreamContext
     {
         if (_startHandled) {
             gen.writeEndObject();
+        } else {
+            if ((_filter != null) && (_filter != TokenFilter.INCLUDE_ALL)) {
+                if (_filter.includeEmptyObject(hasCurrentName())) {
+                    if (_parent != null) {
+                        _parent._writePath(gen);
+                    }
+                    gen.writeStartObject();
+                    gen.writeEndObject();
+                }
+            }
         }
         if ((_filter != null) && (_filter != TokenFilter.INCLUDE_ALL)) {
             _filter.filterFinishObject();

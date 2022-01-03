@@ -18,6 +18,8 @@ JSON library.
 
 #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
  (contributed by Ilya G)
+#715: Allow TokenFilters to keep empty arrays and objects
+ (contributed by Nik E)
 
 2.13.2 (not yet released)
 

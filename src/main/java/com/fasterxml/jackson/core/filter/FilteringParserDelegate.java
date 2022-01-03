@@ -243,9 +243,11 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     _exposedContext = null;
                     if (ctxt.inArray()) {
                         t = delegate.currentToken();
-// Is this guaranteed to work without further checks?
-//                        if (t != JsonToken.START_ARRAY) {
                         _currToken = t;
+                        if (_currToken == JsonToken.END_ARRAY) {
+                            _headContext = _headContext.getParent();
+                            _itemFilter = _headContext.getFilter();
+                        }
                         return t;
                     }
 
@@ -253,6 +255,10 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     // Almost! Most likely still have the current token;
                     // with the sole exception of PROPERTY_NAME
                     t = delegate.currentToken();
+                    if (t == JsonToken.END_OBJECT) {
+                        _headContext = _headContext.getParent();
+                        _itemFilter = _headContext.getFilter();
+                    }
                     if (t != JsonToken.PROPERTY_NAME) {
                         _currToken = t;
                         return t;
@@ -532,13 +538,33 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 continue main_loop;
 
             case ID_END_ARRAY:
+                {
+                    boolean returnEnd = _headContext.isStartHandled();
+                    f = _headContext.getFilter();
+                    if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                        boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentIndex());
+                        f.filterFinishArray();
+                        if (includeEmpty) {
+                            return _nextBuffered(_headContext);
+                        }
+                    }
+                    _headContext = _headContext.getParent();
+                    _itemFilter = _headContext.getFilter();
+                    if (returnEnd) {
+                        return (_currToken = t);
+                    }
+                }
+                continue main_loop;
             case ID_END_OBJECT:
                 {
                     boolean returnEnd = _headContext.isStartHandled();
                     f = _headContext.getFilter();
                     if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
-                        f.filterFinishArray();
-                    }
+                        boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentName());
+                        f.filterFinishObject();
+                        if (includeEmpty) {
+                            return _nextBuffered(_headContext);
+                        }                    }
                     _headContext = _headContext.getParent();
                     _itemFilter = _headContext.getFilter();
                     if (returnEnd) {
@@ -678,13 +704,16 @@ public class FilteringParserDelegate extends JsonParserDelegate
                 continue main_loop;
 
             case ID_END_ARRAY:
-            case ID_END_OBJECT:
                 {
                     // Unlike with other loops, here we know that content was NOT
                     // included (won't get this far otherwise)
                     f = _headContext.getFilter();
                     if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                        boolean includeEmpty = f.includeEmptyArray(_headContext.hasCurrentIndex());
                         f.filterFinishArray();
+                        if (includeEmpty) {
+                            return _nextBuffered(buffRoot);
+                        }
                     }
                     boolean gotEnd = (_headContext == buffRoot);
                     boolean returnEnd = gotEnd && _headContext.isStartHandled();
@@ -697,6 +726,33 @@ public class FilteringParserDelegate extends JsonParserDelegate
                     }
                 }
                 continue main_loop;
+            case ID_END_OBJECT:
+            {
+                // Unlike with other loops, here we know that content was NOT
+                // included (won't get this far otherwise)
+                f = _headContext.getFilter();
+                if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {
+                    boolean includeEmpty = f.includeEmptyObject(_headContext.hasCurrentName());
+                    f.filterFinishObject();
+                    if (includeEmpty) {
+                        _headContext._currentName = _headContext._parent == null
+                                ? null
+                                : _headContext._parent._currentName;
+                        _headContext._needToHandleName = false;
+                        return _nextBuffered(buffRoot);
+                    }
+                }
+                boolean gotEnd = (_headContext == buffRoot);
+                boolean returnEnd = gotEnd && _headContext.isStartHandled();
+
+                _headContext = _headContext.getParent();
+                _itemFilter = _headContext.getFilter();
+
+                if (returnEnd) {
+                    return t;
+                }
+            }
+            continue main_loop;
 
             case ID_PROPERTY_NAME:
                 {

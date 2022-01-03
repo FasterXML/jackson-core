@@ -163,6 +163,9 @@ Doug Roper (htmldoug@github)
   (2.9.6)
   * Reported, Contributed test for #563: Async parser does not keep track of Array context properly
   (2.10.0)
+  * Contributed #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
+  floating-point values or not
+  (2.14.0)
 
 Alexander Eyers-Taylor (aeyerstaylor@github)
   * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com

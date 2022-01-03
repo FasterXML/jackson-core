@@ -282,3 +282,7 @@ Andrey Somov (asomov@github)
 Ilya Golovin (ilgo0413@github)
   * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
   (2.14.0)
+
+Nik Everett (nik9000@github)
+  * Contributed  #715: Allow TokenFilters to keep empty arrays and objects
+  (2.14.0)

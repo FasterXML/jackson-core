@@ -48,6 +48,23 @@ public enum StreamReadCapability
      * This capability is true for many textual formats like CSV, Properties and XML.
      */
     UNTYPED_SCALARS(false),
+
+    /**
+     * Capability that indicates that data format may report floats
+     * as a non-exact {@link com.fasterxml.jackson.core.JsonParser.NumberType},
+     * due to prohibitively expensive parsing costs of determing the precision
+     * upfront. For example, JSON numbers may be reported as
+     * {@link com.fasterxml.jackson.core.JsonParser.NumberType#DOUBLE}
+     * even if they would not fit into a 64-bit double without precision
+     * loss. Methods like {@link JsonParser#getNumberValueExact()} or
+     * {@link JsonParser#getValueAsString()} still report values without
+     * precision loss.
+     *
+     * Capability is false for text formats JSON, but true for binary formats
+     * like Smile, MessagePack, etc., where type is precisely and inexpensively
+     * signaled by a tag.
+     */
+    EXACT_FLOATS(false)
     ;
 
     /**

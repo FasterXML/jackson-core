@@ -451,11 +451,15 @@ public abstract class BaseTest
         g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         try {
             while (p.nextToken() != null) {
+                System.err.println(p.currentToken() + "  " + p.currentName() + "  " + p.currentValue());
                 g.copyCurrentEvent(p);
             }
         } catch (IOException e) {
             g.flush();
-            fail("Unexpected problem during `readAndWrite`. Output so far: '"+sw+"'; problem: "+e);
+            throw new AssertionError(
+                    "Unexpected problem during `readAndWrite`. Output so far: '" +
+                            sw + "'; problem: " + e.getMessage(),
+                    e);
         }
         p.close();
         g.close();

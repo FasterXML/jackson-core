@@ -614,6 +614,262 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(aposToQuotes("{'f1':1,'f2':12.3,'f3':3}"), w.toString());
     }
 
+    static final TokenFilter INCLUDE_EMPTY_IF_NOT_FILTERED = new TokenFilter() {
+        @Override
+        public boolean includeEmptyArray(boolean contentsFiltered) {
+            return !contentsFiltered;
+        }
+
+        @Override
+        public boolean includeEmptyObject(boolean contentsFiltered) {
+            return !contentsFiltered;
+        }
+
+        @Override
+        public boolean _includeScalar() {
+            return false;
+        }
+    };
+
+    static final TokenFilter INCLUDE_EMPTY = new TokenFilter() {
+        @Override
+        public boolean includeEmptyArray(boolean contentsFiltered) {
+            return true;
+        }
+
+        @Override
+        public boolean includeEmptyObject(boolean contentsFiltered) {
+            return true;
+        }
+
+        @Override
+        public boolean _includeScalar() {
+            return false;
+        }
+    };
+
+    public void testIncludeEmptyArrayIfNotFiltered() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeArrayFieldStart("empty_array");
+        gen.writeEndArray();
+        gen.writeArrayFieldStart("filtered_array");
+        gen.writeNumber(6);
+        gen.writeEndArray();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'empty_array':[]}"), w.toString());
+    }
+
+    public void testIncludeEmptyArray() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeArrayFieldStart("empty_array");
+        gen.writeEndArray();
+        gen.writeArrayFieldStart("filtered_array");
+        gen.writeNumber(6);
+        gen.writeEndArray();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'empty_array':[],'filtered_array':[]}"), w.toString());
+    }
+
+    public void testIncludeEmptyObjectIfNotFiltered() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeFieldName("empty_object");
+        gen.writeStartObject();
+        gen.writeEndObject();
+        gen.writeFieldName("filtered_object");
+        gen.writeStartObject();
+        gen.writeNumberField("foo", 6);
+        gen.writeEndObject();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'empty_object':{}}"), w.toString());
+    }
+
+    public void testIncludeEmptyObject() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeObjectFieldStart("empty_object");
+        gen.writeEndObject();
+        gen.writeObjectFieldStart("filtered_object");
+        gen.writeNumberField("foo", 6);
+        gen.writeEndObject();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'empty_object':{},'filtered_object':{}}"), w.toString());
+    }
+
+    public void testIncludeEmptyArrayInObjectIfNotFiltered() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeObjectFieldStart("object_with_empty_array");
+        gen.writeArrayFieldStart("foo");
+        gen.writeEndArray();
+        gen.writeEndObject();
+        gen.writeObjectFieldStart("object_with_filtered_array");
+        gen.writeArrayFieldStart("foo");
+        gen.writeNumber(5);
+        gen.writeEndArray();
+        gen.writeEndObject();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'object_with_empty_array':{'foo':[]}}"), w.toString());
+    }
+
+    public void testIncludeEmptyArrayInObject() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeObjectFieldStart("object_with_empty_array");
+        gen.writeArrayFieldStart("foo");
+        gen.writeEndArray();
+        gen.writeEndObject();
+        gen.writeObjectFieldStart("object_with_filtered_array");
+        gen.writeArrayFieldStart("foo");
+        gen.writeNumber(5);
+        gen.writeEndArray();
+        gen.writeEndObject();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'object_with_empty_array':{'foo':[]},'object_with_filtered_array':{'foo':[]}}"), w.toString());
+    }
+
+
+    public void testIncludeEmptyObjectInArrayIfNotFiltered() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeArrayFieldStart("array_with_empty_object");
+        gen.writeStartObject();
+        gen.writeEndObject();
+        gen.writeEndArray();
+        gen.writeArrayFieldStart("array_with_filtered_object");
+        gen.writeStartObject();
+        gen.writeNumberField("foo", 5);
+        gen.writeEndObject();
+        gen.writeEndArray();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{'array_with_empty_object':[{}]}"), w.toString());
+    }
+
+    public void testIncludeEmptyObjectInArray() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeArrayFieldStart("array_with_empty_object");
+        gen.writeStartObject();
+        gen.writeEndObject();
+        gen.writeEndArray();
+        gen.writeArrayFieldStart("array_with_filtered_object");
+        gen.writeStartObject();
+        gen.writeNumberField("foo", 5);
+        gen.writeEndObject();
+        gen.writeEndArray();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(
+                aposToQuotes("{'array_with_empty_object':[{}],'array_with_filtered_object':[{}]}"),
+                w.toString());
+    }
+
+
+    public void testIncludeEmptyTopLevelObject() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartObject();
+        gen.writeEndObject();
+
+        gen.close();
+        assertEquals(aposToQuotes("{}"), w.toString());
+    }
+
+    public void testIncludeEmptyTopLevelArray() throws Exception
+    {
+        StringWriter w = new StringWriter();
+        JsonGenerator gen = new FilteringGeneratorDelegate(
+                _createGenerator(w),
+                INCLUDE_EMPTY_IF_NOT_FILTERED,
+                Inclusion.INCLUDE_ALL_AND_PATH,
+                true);
+
+        gen.writeStartArray();
+        gen.writeEndArray();
+
+        gen.close();
+        assertEquals(aposToQuotes("[]"), w.toString());
+    }
+
     private JsonGenerator _createGenerator(Writer w) throws IOException {
         return JSON_F.createGenerator(w);
     }

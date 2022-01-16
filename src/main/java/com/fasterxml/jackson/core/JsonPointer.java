@@ -98,13 +98,13 @@ public class JsonPointer
         _matchingPropertyName = segment;
         _matchingElementIndex = matchIndex;
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods
     /**********************************************************
      */
-    
+
     /**
      * Factory method that parses given input and construct matching pointer
      * instance, if it represents a valid JSON Pointer: if not, a

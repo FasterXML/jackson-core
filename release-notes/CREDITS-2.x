@@ -279,3 +279,7 @@ Andrey Somov (asomov@github)
   * Contributed #732: Update Maven wrapper
   (2.13.2)
 
+Vlad Tatavu (vladt@github)
+  * Reported #739: `JsonLocation` in 2.13 only uses identity comparison
+    for "content reference"
+  (2.13.2)

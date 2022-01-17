@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 
 import com.fasterxml.jackson.core.io.ContentReference;
 
-public class TestLocation extends BaseTest
+public class JsonLocationTest extends BaseTest
 {
     static class Foobar { }
 
@@ -121,6 +122,21 @@ public class TestLocation extends BaseTest
         p.close();
     }
 
+    // for [jackson-core#739]: try to support equality
+    public void testLocationEquality() throws Exception
+    {
+        // important: create separate but equal instances
+        File src1 = new File("/tmp/foo");
+        File src2 = new File("/tmp/foo");
+        assertEquals(src1, src2);
+
+        JsonLocation loc1 = new JsonLocation(_sourceRef(src1),
+                10L, 10L, 1, 2);
+        JsonLocation loc2 = new JsonLocation(_sourceRef(src2),
+                10L, 10L, 1, 2);
+        assertEquals(loc1, loc2);
+    }
+
     private ContentReference _sourceRef(String rawSrc) {
         return ContentReference.construct(true, rawSrc, 0, rawSrc.length());
     }
@@ -134,6 +150,10 @@ public class TestLocation extends BaseTest
     }
 
     private ContentReference _sourceRef(InputStream rawSrc) {
+        return ContentReference.construct(true, rawSrc, -1, -1);
+    }
+
+    private ContentReference _sourceRef(File rawSrc) {
         return ContentReference.construct(true, rawSrc, -1, -1);
     }
 

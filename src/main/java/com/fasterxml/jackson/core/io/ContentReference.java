@@ -1,8 +1,11 @@
 package com.fasterxml.jackson.core.io;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Objects;
 
@@ -357,6 +360,29 @@ public class ContentReference
         if (!(other instanceof ContentReference)) return false;
         ContentReference otherSrc = (ContentReference) other;
 
+        // 16-Jan-2022, tatu: First ensure offset/length the same
+        if ((_offset != otherSrc._offset)
+                || (_length != otherSrc._length)) {
+            return false;
+        }
+
+        // 16-Jan-2022, tatu: As per [core#739] we'll want to consider some
+        //   but not all content cases with real equality: the concern here is
+        //   to avoid expensive comparisons and/or possible security issues
+        final Object otherRaw = otherSrc._rawContent;
+
+        if (_rawContent == null) {
+            return (otherRaw == null);
+        } else if (otherRaw == null) {
+            return false;
+        }
+
+        if ((_rawContent instanceof File)
+                || (_rawContent instanceof URL)
+                || (_rawContent instanceof URI)
+        ) {
+            return _rawContent.equals(otherRaw);
+        }
         return _rawContent == otherSrc._rawContent;
     }
 

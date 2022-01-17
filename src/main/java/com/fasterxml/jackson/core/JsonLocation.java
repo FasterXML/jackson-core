@@ -11,6 +11,11 @@ import com.fasterxml.jackson.core.io.ContentReference;
  * Object that encapsulates Location information used for reporting
  * parsing (or potentially generation) errors, as well as current location
  * within input streams.
+ *<p>
+ * NOTE: users should be careful if using {@link #equals} implementation as
+ * it may or may not compare underlying "content reference" for equality.
+ * Instead if would make sense to explicitly implementing equality checks
+ * using specific criteria caller desires.
  */
 public class JsonLocation
     implements java.io.Serializable

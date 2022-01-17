@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 
 import com.fasterxml.jackson.core.io.ContentReference;
 
-public class TestLocation extends BaseTest
+public class JsonLocationTest extends BaseTest
 {
     static class Foobar { }
 
@@ -121,6 +122,36 @@ public class TestLocation extends BaseTest
         p.close();
     }
 
+    // for [jackson-core#739]: try to support equality
+    public void testLocationEquality() throws Exception
+    {
+        // important: create separate but equal instances
+        File src1 = new File("/tmp/foo");
+        File src2 = new File("/tmp/foo");
+        assertEquals(src1, src2);
+
+        JsonLocation loc1 = new JsonLocation(_sourceRef(src1),
+                10L, 10L, 1, 2);
+        JsonLocation loc2 = new JsonLocation(_sourceRef(src2),
+                10L, 10L, 1, 2);
+        assertEquals(loc1, loc2);
+
+        // Also make sure to consider offset/length
+        final byte[] bogus = "BOGUS".getBytes();
+
+        // If same, equals:
+        assertEquals(new JsonLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2),
+                new JsonLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2));
+
+        // If different, not equals
+        loc1 = new JsonLocation(_sourceRef(bogus, 0, 5),
+                5L, 0L, 1, 2);
+        loc2 = new JsonLocation(_sourceRef(bogus, 1, 4),
+                5L, 0L, 1, 2);
+        assertFalse(loc1.equals(loc2));
+        assertFalse(loc2.equals(loc1));
+    }
+
     private ContentReference _sourceRef(String rawSrc) {
         return ContentReference.construct(true, rawSrc, 0, rawSrc.length());
     }
@@ -133,7 +164,15 @@ public class TestLocation extends BaseTest
         return ContentReference.construct(true, rawSrc, 0, rawSrc.length);
     }
 
+    private ContentReference _sourceRef(byte[] rawSrc, int offset, int length) {
+        return ContentReference.construct(true, rawSrc, offset, length);
+    }
+
     private ContentReference _sourceRef(InputStream rawSrc) {
+        return ContentReference.construct(true, rawSrc, -1, -1);
+    }
+
+    private ContentReference _sourceRef(File rawSrc) {
         return ContentReference.construct(true, rawSrc, -1, -1);
     }
 

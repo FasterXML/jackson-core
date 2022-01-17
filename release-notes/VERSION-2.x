@@ -28,6 +28,8 @@ JSON library.
 
 #732: Update Maven wrapper
  (contributed by Andrey S)
+#739: `JsonLocation` in 2.13 only uses identity comparison for "content reference"
+ (reported by Vlad T)
 
 2.13.1 (19-Dec-2021)
 

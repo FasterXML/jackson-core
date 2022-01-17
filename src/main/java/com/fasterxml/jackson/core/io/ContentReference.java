@@ -360,6 +360,12 @@ public class ContentReference
         if (!(other instanceof ContentReference)) return false;
         ContentReference otherSrc = (ContentReference) other;
 
+        // 16-Jan-2022, tatu: First ensure offset/length the same
+        if ((_offset != otherSrc._offset)
+                || (_length != otherSrc._length)) {
+            return false;
+        }
+
         // 16-Jan-2022, tatu: As per [core#739] we'll want to consider some
         //   but not all content cases with real equality: the concern here is
         //   to avoid expensive comparisons and/or possible security issues
@@ -370,7 +376,7 @@ public class ContentReference
         } else if (otherRaw == null) {
             return false;
         }
-        
+
         if ((_rawContent instanceof File)
                 || (_rawContent instanceof URL)
                 || (_rawContent instanceof URI)

@@ -135,6 +135,21 @@ public class JsonLocationTest extends BaseTest
         JsonLocation loc2 = new JsonLocation(_sourceRef(src2),
                 10L, 10L, 1, 2);
         assertEquals(loc1, loc2);
+
+        // Also make sure to consider offset/length
+        final byte[] bogus = "BOGUS".getBytes();
+
+        // If same, equals:
+        assertEquals(new JsonLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2),
+                new JsonLocation(_sourceRef(bogus, 0, 5), 5L, 0L, 1, 2));
+
+        // If different, not equals
+        loc1 = new JsonLocation(_sourceRef(bogus, 0, 5),
+                5L, 0L, 1, 2);
+        loc2 = new JsonLocation(_sourceRef(bogus, 1, 4),
+                5L, 0L, 1, 2);
+        assertFalse(loc1.equals(loc2));
+        assertFalse(loc2.equals(loc1));
     }
 
     private ContentReference _sourceRef(String rawSrc) {
@@ -147,6 +162,10 @@ public class JsonLocationTest extends BaseTest
 
     private ContentReference _sourceRef(byte[] rawSrc) {
         return ContentReference.construct(true, rawSrc, 0, rawSrc.length);
+    }
+
+    private ContentReference _sourceRef(byte[] rawSrc, int offset, int length) {
+        return ContentReference.construct(true, rawSrc, offset, length);
     }
 
     private ContentReference _sourceRef(InputStream rawSrc) {

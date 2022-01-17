@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
 public class ParserPrecisionLoss733Test extends BaseTest {

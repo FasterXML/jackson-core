@@ -431,7 +431,7 @@ public class BasicParserFilteringTest extends BaseTest
         );
         String result = readAndWrite(JSON_F, p);
         assertEquals(aposToQuotes("{'a':123}"), result);
-        assertEquals(0, p.getMatchCount());
+        assertEquals(1, p.getMatchCount());
     }
 
     public void testValueOmitsFieldName2() throws Exception

@@ -44,7 +44,7 @@ public abstract class TokenStreamContext
     public final static int TYPE_OBJECT = 2;
 
     /**
-     * Indicates logical type of context as one of {@code TYPE_xxx} consants.
+     * Indicates logical type of context as one of {@code TYPE_xxx} constants.
      */
     protected int _type;
 

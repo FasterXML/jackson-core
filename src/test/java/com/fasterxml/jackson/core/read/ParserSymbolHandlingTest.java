@@ -83,27 +83,27 @@ public class ParserSymbolHandlingTest
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL,
                 QUOTED_NULL + QUOTED_NULL + QUOTED_NULL + QUOTED_NULL
                 ));
-        JsonParser p = useBytes ? f.createParser(INPUT.getBytes("UTF-8"))
-                : f.createParser(INPUT);
+        JsonParser p = useBytes ? f.createParser(ObjectReadContext.empty(), INPUT.getBytes("UTF-8"))
+                : f.createParser(ObjectReadContext.empty(), INPUT);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         _assertNullStrings(FIELD1, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         _assertNullStrings(FIELD2, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(2, p.getIntValue());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         _assertNullStrings(FIELD3, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         _assertNullStrings(FIELD4, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(4, p.getIntValue());

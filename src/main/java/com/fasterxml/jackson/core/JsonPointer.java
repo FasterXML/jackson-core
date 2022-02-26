@@ -164,8 +164,10 @@ public class JsonPointer
         if (context == null) {
             return EMPTY;
         }
+        // Otherwise if context was just created but is not advanced -- like,
+        // opening START_ARRAY/START_OBJECT returned -- drop the empty context.
         if (!context.hasPathSegment()) {
-            // one special case; do not prune root if we need it
+            // Except one special case: do not prune root if we need it
             if (!(includeRoot && context.inRoot() && context.hasCurrentIndex())) {
                 context = context.getParent();
             }

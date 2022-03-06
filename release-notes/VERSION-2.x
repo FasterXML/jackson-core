@@ -24,7 +24,7 @@ JSON library.
   floating-point values or not
  (contributed Doug R)
 
-2.13.2 (not yet released)
+2.13.2 (06-Mar-2022)
 
 #732: Update Maven wrapper
  (contributed by Andrey S)

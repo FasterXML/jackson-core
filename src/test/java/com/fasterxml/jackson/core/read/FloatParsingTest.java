@@ -12,24 +12,41 @@ public class FloatParsingTest extends BaseTest
     
     public void testFloatArrayViaInputStream() throws Exception
     {
-        _testFloatArray(MODE_INPUT_STREAM);
-        _testFloatArray(MODE_INPUT_STREAM_THROTTLED);
+        _testFloatArray(MODE_INPUT_STREAM, false);
+        _testFloatArray(MODE_INPUT_STREAM_THROTTLED, false);
+    }
+
+    public void testFloatArrayViaInputStreamWithFastParser() throws Exception
+    {
+        _testFloatArray(MODE_INPUT_STREAM, true);
+        _testFloatArray(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
     public void testFloatArrayViaReader() throws Exception {
-        _testFloatArray(MODE_READER);
+        _testFloatArray(MODE_READER, false);
+    }
+
+    public void testFloatArrayViaReaderWithFastParser() throws Exception {
+        _testFloatArray(MODE_READER, true);
     }
 
     public void testFloatArrayViaDataInput() throws Exception {
-       _testFloatArray(MODE_DATA_INPUT);
+       _testFloatArray(MODE_DATA_INPUT, false);
     }
 
-    private void _testFloatArray(int mode) throws Exception
+    public void testFloatArrayViaDataInputWithFasrtParser() throws Exception {
+        _testFloatArray(MODE_DATA_INPUT, true);
+    }
+
+    private void _testFloatArray(int mode, boolean useFastParser) throws Exception
     {
         // construct new instance to reduce buffer recycling etc:
         TokenStreamFactory jsonF = newStreamFactory();
 
         JsonParser p = createParser(jsonF, mode, FLOATS_DOC);
+        if (useFastParser) {
+            p.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+        }
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         

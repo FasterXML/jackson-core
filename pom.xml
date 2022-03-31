@@ -34,7 +34,7 @@
   </scm>
 
   <properties>
-    <!-- 31-Mar-2022: Change to Java8/JDK1.8 compatibility for Jackson-Core 2.x (was Java6/JDK1.6),
+    <!-- 31-Mar-2022: Change to Java8/JDK1.8 compatibility for Jackson-Core 2.14 (was Java6/JDK1.6),
              but use Moditect to get JDK9+ module info support; need newer bundle plugin as well
       -->
     <javac.src.version>1.8</javac.src.version>

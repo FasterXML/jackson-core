@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser;
+
 import java.math.BigDecimal;
 
 public final class NumberInput
@@ -290,7 +292,7 @@ public final class NumberInput
     }
 
     public static double parseDouble(String s) throws NumberFormatException {
-        return Double.parseDouble(s);
+        return FastDoubleParser.parseDouble(s);
     }
 
     /**

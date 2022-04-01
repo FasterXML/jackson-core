@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.io.numberwriter.RyuDouble;
+import com.fasterxml.jackson.core.io.numberwriter.RyuFloat;
+
 public final class NumberOutput
 {
     private static int MILLION = 1000000;
@@ -274,12 +277,12 @@ public final class NumberOutput
     }
 
     public static String toString(double v) {
-        return Double.toString(v);
+        return RyuDouble.doubleToString(v);
     }
 
     // @since 2.6
     public static String toString(float v) {
-        return Float.toString(v);
+        return RyuFloat.floatToString(v);
     }
 
     /*

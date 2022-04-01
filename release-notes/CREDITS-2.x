@@ -283,3 +283,7 @@ Vlad Tatavu (vladt@github)
   * Reported #739: `JsonLocation` in 2.13 only uses identity comparison
     for "content reference"
   (2.13.2)
+
+PJ Fanning (pjfanning@github)
+  * Cotnributed #744: Limit size of exception message in BigDecimalParser
+  (2.13.3)

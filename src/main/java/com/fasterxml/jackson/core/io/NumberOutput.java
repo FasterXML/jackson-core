@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.io.ryu.RyuDouble;
-import com.fasterxml.jackson.core.io.ryu.RyuFloat;
+import com.fasterxml.jackson.core.io.schubfach.DoubleToDecimal;
+import com.fasterxml.jackson.core.io.schubfach.FloatToDecimal;
 
 public final class NumberOutput
 {
@@ -277,12 +277,12 @@ public final class NumberOutput
     }
 
     public static String toString(double v) {
-        return RyuDouble.doubleToString(v);
+        return DoubleToDecimal.toString(v);
     }
 
     // @since 2.6
     public static String toString(float v) {
-        return RyuFloat.floatToString(v);
+        return FloatToDecimal.toString(v);
     }
 
     /*

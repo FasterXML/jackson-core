@@ -55,6 +55,8 @@ final public class DoubleToDecimal {
     This is discussed in section 10 of [1].
      */
 
+    // Sources with the license are here: https://github.com/c4f7fcce9cb06515/Schubfach/blob/3c92d3c9b1fead540616c918cdfef432bca53dfa/todec/src/math/FloatToDecimal.java
+
     // The precision in bits.
     static final int P = 53;
 

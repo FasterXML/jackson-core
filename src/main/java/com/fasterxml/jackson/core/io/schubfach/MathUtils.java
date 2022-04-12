@@ -37,6 +37,8 @@ final class MathUtils {
         https://drive.google.com/open?id=1luHhyQF9zKlM8yJ1nebU0OgVYhfC6CBN
      */
 
+    // Sources with the license are here: https://github.com/c4f7fcce9cb06515/Schubfach/blob/3c92d3c9b1fead540616c918cdfef432bca53dfa/todec/src/math/FloatToDecimal.java
+
     /*
     The boundaries for k in g0(int) and g1(int).
     K_MIN must be DoubleToDecimal.K_MIN or less.

@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.io.numberwriter.RyuDouble;
-import com.fasterxml.jackson.core.io.numberwriter.RyuFloat;
+import com.fasterxml.jackson.core.io.ryu.RyuDouble;
+import com.fasterxml.jackson.core.io.ryu.RyuFloat;
 
 public final class NumberOutput
 {

@@ -13,9 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.fasterxml.jackson.core.io.numberwriter;
+package com.fasterxml.jackson.core.io.ryu;
 
-enum RoundingMode {
+/**
+ * This is an internal class, public only for internal testing
+ */
+public enum RoundingMode {
     CONSERVATIVE {
         @Override
         public boolean acceptUpperBound(boolean even) {

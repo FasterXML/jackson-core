@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.core.io.schubfach;
 
-import com.fasterxml.jackson.core.io.ryu.RoundingMode;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

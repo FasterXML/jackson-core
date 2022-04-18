@@ -15,6 +15,8 @@
 
 package com.fasterxml.jackson.core.io.ryu;
 
+import com.fasterxml.jackson.core.io.ryu.RoundingMode;
+
 import java.math.BigInteger;
 
 /**

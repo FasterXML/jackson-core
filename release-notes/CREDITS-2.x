@@ -287,6 +287,10 @@ Vlad Tatavu (vladt@github)
     for "content reference"
   (2.13.2)
 
+PJ Fanning (pjfanning@github)
+  * Contributed #744: Limit size of exception message in BigDecimalParser
+  (2.13.3)
+
 Ilya Golovin (ilgo0413@github)
   * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
   (2.14.0)

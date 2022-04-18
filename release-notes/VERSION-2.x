@@ -24,6 +24,11 @@ JSON library.
   floating-point values or not
  (contributed Doug R)
 
+2.13.3 (not yet released)
+
+#744: Limit size of exception message in BigDecimalParser
+ (contributed by @pjfanning))
+
 2.13.2 (06-Mar-2022)
 
 #732: Update Maven wrapper

@@ -5,12 +5,6 @@ import java.math.BigDecimal;
 public final class NumberInput
 {
     /**
-     * Textual representation of a double constant that can cause nasty problems
-     * with JDK (see http://www.exploringbinary.com/java-hangs-when-converting-2-2250738585072012e-308).
-     */
-    public final static String NASTY_SMALL_DOUBLE = "2.2250738585072012e-308";
-
-    /**
      * Constants needed for parsing longs from basic int parsing methods
      */
     final static long L_BILLION = 1000000000;
@@ -296,13 +290,6 @@ public final class NumberInput
     }
 
     public static double parseDouble(String s) throws NumberFormatException {
-        // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
-        /* as per [JACKSON-827], let's use MIN_VALUE as it is available on all JDKs; normalized
-         * only in JDK 1.6. In practice, should not really matter.
-         */
-        if (NASTY_SMALL_DOUBLE.equals(s)) {
-            return Double.MIN_VALUE;
-        }
         return Double.parseDouble(s);
     }
 

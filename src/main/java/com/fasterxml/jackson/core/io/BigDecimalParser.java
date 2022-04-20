@@ -21,6 +21,7 @@ import java.util.Arrays;
  */
 public final class BigDecimalParser
 {
+    private final static int MAX_CHARS_TO_REPORT = 1000;
     private final char[] chars;
 
     BigDecimalParser(char[] chars) {
@@ -51,7 +52,14 @@ public final class BigDecimalParser
             if (desc == null) {
                 desc = "Not a valid number representation";
             }
-            throw new NumberFormatException("Value \"" + new String(chars)
+            String stringToReport;
+            if (chars.length <= MAX_CHARS_TO_REPORT) {
+                stringToReport = new String(chars);
+            } else {
+                stringToReport = new String(Arrays.copyOfRange(chars, 0, MAX_CHARS_TO_REPORT))
+                    + "(truncated, full length is " + chars.length + " chars)";
+            }
+            throw new NumberFormatException("Value \"" + stringToReport
                     + "\" can not be represented as `java.math.BigDecimal`, reason: " + desc);
         }
     }

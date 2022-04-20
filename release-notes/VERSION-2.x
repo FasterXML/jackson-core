@@ -23,6 +23,13 @@ JSON library.
 #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
  (contributed Doug R)
+#751: Remove workaround for old issue with a particular double
+ (contributed by @pjfanning)
+
+2.13.3 (not yet released)
+
+#744: Limit size of exception message in BigDecimalParser
+ (contributed by @pjfanning))
 
 2.13.2 (06-Mar-2022)
 

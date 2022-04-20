@@ -5,6 +5,15 @@ import java.math.BigDecimal;
 public final class NumberInput
 {
     /**
+     * Formerly used constant for a value that was problematic on certain
+     * pre-1.8 JDKs.
+     *
+     * @deprecated Since 2.14 -- do not use
+     */
+    @Deprecated // since 2.14
+    public final static String NASTY_SMALL_DOUBLE = "2.2250738585072012e-308";
+
+    /**
      * Constants needed for parsing longs from basic int parsing methods
      */
     final static long L_BILLION = 1000000000;

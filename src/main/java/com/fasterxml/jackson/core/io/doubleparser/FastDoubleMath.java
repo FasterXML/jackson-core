@@ -8,7 +8,7 @@ package com.fasterxml.jackson.core.io.doubleparser;
 import java.util.Objects;
 
 /**
- *  This is a fork of <a href="https://github.com/wrandelshofer/FastDoubleParser">wrandelshofer/FastDoubleParser</a>.
+ * This is a fork of <a href="https://github.com/wrandelshofer/FastDoubleParser">wrandelshofer/FastDoubleParser</a>.
  *
  * This class provides the mathematical functions needed by {@link FastDoubleParser}.
  * <p>
@@ -1069,7 +1069,7 @@ class FastDoubleMath {
         return Double.NaN;
     }
 
-    private static class Value128{
+    private static class Value128 {
 
         final long high, low;
 

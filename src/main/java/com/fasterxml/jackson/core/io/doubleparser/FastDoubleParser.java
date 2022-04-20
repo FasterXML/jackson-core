@@ -314,7 +314,7 @@ public class FastDoubleParser {
      * @return a double representation
      */
     private static double parseRestOfDecimalFloatLiteral(CharSequence str, int index, int startIndex, int endIndex, boolean isNegative, boolean hasLeadingZero) {
-        // Parse digits
+        // Parse mantissa
         // ------------
         // Note: a multiplication by a constant is cheaper than an
         //       arbitrary integer multiplication.
@@ -334,6 +334,17 @@ public class FastDoubleParser {
                     throw newNumberFormatException(str, startIndex, endIndex);
                 }
                 virtualIndexOfPoint = index;
+                /*
+                while (index < endIndex - 8) {
+                    long parsed = tryToParseEightDigits(str, index + 1);
+                    if (parsed >= 0) {
+                        // This might overflow, we deal with it later.
+                        digits = digits * 100_000_000L + parsed;
+                        index += 8;
+                    } else {
+                        break;
+                    }
+                }*/
             } else {
                 break;
             }
@@ -407,6 +418,40 @@ public class FastDoubleParser {
         return Double.isNaN(result) ? parseRestOfDecimalFloatLiteralTheHardWay(str, startIndex, endIndex) : result;
     }
 
+    private static long tryToParseEightDigits(CharSequence str, int offset) {
+        // Performance: We extract the chars in two steps so that we
+        //              can benefit from out of order execution in the CPU.
+        long first = str.charAt(offset)
+                | (long) str.charAt(offset + 1) << 16
+                | (long) str.charAt(offset + 2) << 32
+                | (long) str.charAt(offset + 3) << 48;
+
+        long second = str.charAt(offset + 4)
+                | (long) str.charAt(offset + 5) << 16
+                | (long) str.charAt(offset + 6) << 32
+                | (long) str.charAt(offset + 7) << 48;
+
+        return FastDoubleSimd.tryToParseEightDigitsUtf16Swar(first, second);
+    }
+
+    /*
+    private static long tryToParseEightHexDigits(CharSequence str, int offset) {
+        // Performance: We extract the chars in two steps so that we
+        //              can benefit from out of order execution in the CPU.
+        long first = (long) str.charAt(offset) <<48
+                | (long) str.charAt(offset + 1) << 32
+                | (long) str.charAt(offset + 2) << 16
+                | (long) str.charAt(offset + 3) ;
+
+        long second = (long) str.charAt(offset + 4) <<48
+                | (long) str.charAt(offset + 5) << 32
+                | (long) str.charAt(offset + 6) << 16
+                | (long) str.charAt(offset + 7) ;
+
+        return FastDoubleSimd.tryToParseEightHexDigitsUtf16Swar(first, second);
+    }
+     */
+
     /**
      * Parses the following rules
      * (more rules are defined in {@link #parseDouble(CharSequence)}):
@@ -450,7 +495,7 @@ public class FastDoubleParser {
     private static double parseRestOfHexFloatingPointLiteral(
             CharSequence str, int index, int startIndex, int endIndex, boolean isNegative) {
 
-        // Parse digits
+        // Parse mantissa
         // ------------
         long digits = 0;// digits is treated as an unsigned long
         int exponent = 0;
@@ -469,6 +514,18 @@ public class FastDoubleParser {
                     throw newNumberFormatException(str, startIndex, endIndex);
                 }
                 virtualIndexOfPoint = index;
+                /*
+                while (index < endIndex - 8) {
+                    long parsed = tryToParseEightHexDigits(str, index + 1);
+                    if (parsed >= 0) {
+                        // This might overflow, we deal with it later.
+                        digits = (digits << 32) + parsed;
+                        index += 8;
+                    } else {
+                        break;
+                    }
+                }
+                */
             } else {
                 break;
             }

@@ -15,6 +15,7 @@ public class TestNumberInput
     {
         final String exampleFloat = "1.199999988079071";
         assertEquals(1.1999999f, NumberInput.parseFloat(exampleFloat));
+        assertEquals(1.2f, (float)NumberInput.parseDouble(exampleFloat));
     }
 }
 

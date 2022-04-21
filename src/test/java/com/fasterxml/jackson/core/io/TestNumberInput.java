@@ -10,5 +10,11 @@ public class TestNumberInput
         final String nastySmallDouble = "2.2250738585072012e-308";
         assertEquals(Double.parseDouble(nastySmallDouble), NumberInput.parseDouble(nastySmallDouble));
     }
+
+    public void testParseFloat()
+    {
+        final String exampleFloat = "1.199999988079071";
+        assertEquals(1.1999999f, NumberInput.parseFloat(exampleFloat));
+    }
 }
 

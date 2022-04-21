@@ -301,8 +301,8 @@ public final class NumberInput
      * @throws NumberFormatException if string cannot be represented by a float
      * @since v2.14
      */
-    public static float parseFloat(String s) throws NumberFormatException {
-        return Float.parseFloat(s);
+    public static float parseFloat(final String s) throws NumberFormatException {
+        return (float)parseDouble(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {

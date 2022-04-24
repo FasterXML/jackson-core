@@ -293,6 +293,16 @@ public final class NumberInput
         return Double.parseDouble(s);
     }
 
+    /**
+     * @param s a string representing a number to parse
+     * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float
+     * @since v2.14
+     */
+    public static float parseFloat(String s) throws NumberFormatException {
+        return Float.parseFloat(s);
+    }
+
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {
         return BigDecimalParser.parse(s);
     }

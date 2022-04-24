@@ -25,7 +25,7 @@ JSON library.
  (contributed Doug R)
 #751: Remove workaround for old issue with a particular double
  (contributed by @pjfanning)
-#754: Add method in `NumberInput` to parse a float
+#753: Add `NumberInput.parseFloat()`
  (contributed by @pjfanning)
 
 2.13.3 (not yet released)

@@ -302,7 +302,7 @@ public final class NumberInput
      * @since v2.14
      */
     public static float parseFloat(final String s) throws NumberFormatException {
-        return (float)parseDouble(s);
+        return Float.parseFloat(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {

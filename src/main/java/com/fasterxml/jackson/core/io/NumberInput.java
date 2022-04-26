@@ -291,16 +291,21 @@ public final class NumberInput
         return def;
     }
 
-    public static double parseDouble(String s) throws NumberFormatException {
-        return FastDoubleParser.parseDouble(s);
+    public static double parseDouble(final String s) throws NumberFormatException {
+        return parseDouble(s, false);
     }
 
     /**
      * @param s a string representing a number to parse
-     * @return closest matching float
-     * @throws NumberFormatException if string cannot be represented by a float
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser#parseDouble(CharSequence)}
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double
      * @since v2.14
      */
+    public static double parseDouble(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? FastDoubleParser.parseDouble(s) : Double.parseDouble(s);
+    }
+
     public static float parseFloat(final String s) throws NumberFormatException {
         return Float.parseFloat(s);
     }

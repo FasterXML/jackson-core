@@ -50,6 +50,8 @@ public final class TextBuffer
 
     private final BufferRecycler _allocator;
 
+    private boolean useFastDoubleParser;
+
     /*
     /**********************************************************************
     /* Shared input buffers
@@ -506,7 +508,7 @@ public final class TextBuffer
      * @throws NumberFormatException if contents are not a valid Java number
      */
     public double contentsAsDouble() throws NumberFormatException {
-        return NumberInput.parseDouble(contentsAsString());
+        return NumberInput.parseDouble(contentsAsString(), useFastDoubleParser);
     }
 
     /**
@@ -857,6 +859,14 @@ public final class TextBuffer
         if (curr.length >= minSize) return curr;
         _currentSegment = curr = Arrays.copyOf(curr, minSize);
         return curr;
+    }
+
+    /**
+     * @param useFastDoubleParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser#parseDouble(CharSequence)}
+     * @since 2.14
+     */
+    public void setUseFastDoubleParser(final boolean useFastDoubleParser) {
+        this.useFastDoubleParser = useFastDoubleParser;
     }
 
     /*

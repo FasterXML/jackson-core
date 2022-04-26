@@ -892,6 +892,9 @@ public abstract class ParserBase extends ParserMinimalBase
             if (expType == NR_BIGDECIMAL) {
                 _numberBigDecimal = _textBuffer.contentsAsDecimal();
                 _numTypesValid = NR_BIGDECIMAL;
+            } else if (expType == NR_FLOAT) {
+                _numberFloat = _textBuffer.contentsAsFloat();
+                _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
                 _numberDouble = _textBuffer.contentsAsDouble();

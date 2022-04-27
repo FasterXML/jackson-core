@@ -228,7 +228,9 @@ public final class NumberInput
             // if other symbols, parse as Double, coerce
             if (c > '9' || c < '0') {
                 try {
-                    return (int) parseDouble(s);
+                    //useFastParser=true is used because there is a lot less risk that small changes in result will have an affect
+                    //and performance benefit is useful
+                    return (int) parseDouble(s, true);
                 } catch (NumberFormatException e) {
                     return def;
                 }
@@ -265,7 +267,9 @@ public final class NumberInput
             // if other symbols, parse as Double, coerce
             if (c > '9' || c < '0') {
                 try {
-                    return (long) parseDouble(s);
+                    //useFastParser=true is used because there is a lot less risk that small changes in result will have an affect
+                    //and performance benefit is useful
+                    return (long) parseDouble(s, true);
                 } catch (NumberFormatException e) {
                     return def;
                 }
@@ -276,8 +280,27 @@ public final class NumberInput
         } catch (NumberFormatException e) { }
         return def;
     }
-    
-    public static double parseAsDouble(String s, double def)
+
+    /**
+     * @param s a string representing a number to parse
+     * @param def the default to return if `s` is not a parseable number
+     * @return closest matching double (or `def` if there is an issue with `s`)
+     * @deprecated use {@link #parseAsDouble(String, double, boolean)} instead
+     */
+    @Deprecated
+    public static double parseAsDouble(final String s, final double def)
+    {
+        return parseAsDouble(s, def, false);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param def the default to return if `s` is not a parseable number
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser#parseDouble(CharSequence)}
+     * @return closest matching double (or `def` if there is an issue with `s`)
+     * @since 2.14
+     */
+    public static double parseAsDouble(String s, final double def, final boolean useFastParser)
     {
         if (s == null) { return def; }
         s = s.trim();
@@ -286,11 +309,18 @@ public final class NumberInput
             return def;
         }
         try {
-            return parseDouble(s);
+            return parseDouble(s, useFastParser);
         } catch (NumberFormatException e) { }
         return def;
     }
 
+    /**
+     * @param s a string representing a number to parse
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double
+     * @deprecated use {@link #parseDouble(String, boolean)} instead
+     */
+    @Deprecated
     public static double parseDouble(final String s) throws NumberFormatException {
         return parseDouble(s, false);
     }

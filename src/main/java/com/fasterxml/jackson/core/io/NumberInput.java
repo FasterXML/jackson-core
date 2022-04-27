@@ -284,10 +284,9 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @param def the default to return if `s` is not a parseable number
-     * @return closest matching double (or `def` if there is an issue with `s`)
-     * @deprecated use {@link #parseAsDouble(String, double, boolean)} instead
+     * @return closest matching double (or `def` if there is an issue with `s`) where useFastParser=false
+     * @see #parseAsDouble(String, double, boolean)
      */
-    @Deprecated
     public static double parseAsDouble(final String s, final double def)
     {
         return parseAsDouble(s, def, false);
@@ -317,10 +316,9 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @return closest matching double
-     * @throws NumberFormatException if string cannot be represented by a double
-     * @deprecated use {@link #parseDouble(String, boolean)} instead
+     * @throws NumberFormatException if string cannot be represented by a double where useFastParser=false
+     * @see #parseDouble(String, boolean)
      */
-    @Deprecated
     public static double parseDouble(final String s) throws NumberFormatException {
         return parseDouble(s, false);
     }

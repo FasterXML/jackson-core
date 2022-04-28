@@ -340,6 +340,7 @@ public final class NumberInput
      * @return closest matching float
      * @throws NumberFormatException if string cannot be represented by a float where useFastParser=false
      * @see #parseFloat(String, boolean)
+     * @since v2.14
      */
     public static float parseFloat(final String s) throws NumberFormatException {
         return parseFloat(s, false);

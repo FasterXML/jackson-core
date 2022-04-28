@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
 import com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser;
+import com.fasterxml.jackson.core.io.doubleparser.FastFloatParser;
 
 import java.math.BigDecimal;
 
@@ -322,7 +323,7 @@ public final class NumberInput
     public static double parseDouble(final String s) throws NumberFormatException {
         return parseDouble(s, false);
     }
-
+    
     /**
      * @param s a string representing a number to parse
      * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser#parseDouble(CharSequence)}
@@ -334,8 +335,25 @@ public final class NumberInput
         return useFastParser ? FastDoubleParser.parseDouble(s) : Double.parseDouble(s);
     }
 
+    /**
+     * @param s a string representing a number to parse
+     * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float where useFastParser=false
+     * @see #parseFloat(String, boolean)
+     */
     public static float parseFloat(final String s) throws NumberFormatException {
-        return Float.parseFloat(s);
+        return parseFloat(s, false);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastFloatParser#parseFloat(CharSequence)}
+     * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float
+     * @since v2.14
+     */
+    public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? FastFloatParser.parseFloat(s) : Float.parseFloat(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {

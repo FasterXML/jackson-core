@@ -5,25 +5,16 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
-import java.util.Objects;
-
 /**
- * This is a fork of <a href="https://github.com/wrandelshofer/FastDoubleParser">wrandelshofer/FastDoubleParser</a>.
- *
  * This class provides the mathematical functions needed by {@link FastDoubleParser}.
- * <p>
- * This is a C++ to Java port of Daniel Lemire's fast_double_parser.
- * <p>
- * The code contains enhancements from Daniel Lemire's fast_float_parser,
- * so that it can parse double Strings with very long sequences of numbers
  * <p>
  * References:
  * <dl>
- *     <dt>Daniel Lemire, fast_double_parser, 4x faster than strtod.
+ *     <dt>Daniel Lemire. fast_double_parser. 4x faster than strtod.
  *     Apache License 2.0 or Boost Software License.</dt>
  *     <dd><a href="https://github.com/lemire/fast_double_parser">github.com</a></dd>
  *
- *     <dt>Daniel Lemire, fast_float number parsing library: 4x faster than strtod.
+ *     <dt>Daniel Lemire. fast_float number parsing library: 4x faster than strtod.
  *     Apache License 2.0.</dt>
  *     <dd><a href="https://github.com/fastfloat/fast_float">github.com</a></dd>
  *
@@ -31,63 +22,73 @@ import java.util.Objects;
  *     Software: Practice and Experience 51 (8), 2021.
  *     arXiv.2101.11408v3 [cs.DS] 24 Feb 2021</dt>
  *     <dd><a href="https://arxiv.org/pdf/2101.11408.pdf">arxiv.org</a></dd>
+ *
+ *     <dt>Clinger WD (1990). How to read floating point numbers accurately. ACM SIGPLAN Notices.</dt>
+ *     <dd>- no link -</dd>
  * </dl>
  * </p>
  */
 class FastDoubleMath {
     /**
-     * The smallest non-zero float (binary64) is 2^−1074.
+     * Bias used in the exponent of a double.
+     */
+    public static final int DOUBLE_EXPONENT_BIAS = 1023;
+    /**
+     * The number of bits in the significand, including the implicit bit.
+     */
+    public static final int DOUBLE_SIGNIFICAND_WIDTH = 53;
+    /**
+     * Smallest power of 10 value of the exponent.
+     * <p>
+     * The smallest non-zero double is 2^−1074.
+     * <p>
      * We take as input numbers of the form w x 10^q where w < 2^64.
-     * We have that {@literal w * 10^-343 < 2^(64-344) 5^-343 < 2^-1076}.
+     * <p>
+     * We have that {@literal w * 10^-343 < 2^(63-343) * 5^-343 < 2^-1076}.
      * <p>
      * However, we have that
-     * {@literal (2^64-1) * 10^-342 = (2^64-1) * 2^-342 * 5^-342 > 2^−1074}.
-     * Thus it is possible for a number of the form w * 10^-342 where
-     * w is a 64-bit value to be a non-zero floating-point number.
+     * {@literal (2^64-1) * 10^-342 = (2^64 - 1) * 2^-342 * 5^-342 > 2^−1074}.
+     * Thus, it is possible for a number of the form w * 10^-342 where
+     * w is a 64-bit value to be a non-zero double.
      * <p>
      * ********
      * <p>
      * If we are solely interested in the *normal* numbers then the
      * smallest value is 2^-1022. We can generate a value larger
      * than 2^-1022 with expressions of the form w * 10^-326.
-     * Thus we need to pick FASTFLOAT_SMALLEST_POWER >= -326.
-     * <p>
-     * ********
-     * <p>
-     * Any number of form w * 10^309 where w>= 1 is going to be
-     * infinite in binary64 so we never need to worry about powers
-     * of 5 greater than 308.
+     * Thus, we need to pick SMALLEST_POWER_OF_TEN >= -326.
      */
-    private final static int FASTFLOAT_DEC_SMALLEST_POWER = -325;
-    private final static int FASTFLOAT_DEC_LARGEST_POWER = 308;
-    private final static int FASTFLOAT_HEX_SMALLEST_POWER = Double.MIN_EXPONENT;
-    private final static int FASTFLOAT_HEX_LARGEST_POWER = Double.MAX_EXPONENT;
+    final static int DOUBLE_MIN_EXPONENT_POWER_OF_TEN = -325;
     /**
-     * Precomputed powers of ten from 10^0 to 10^22. These
-     * can be represented exactly using the double type.
+     * Largest power of 10 value of the exponent.
+     * <p>
+     * Any number of form w * 10^309 where {@literal w >= 1} is going to be
+     * infinite in a double, so we never need to worry about powers
+     * of 10 greater than 308.
      */
-    private static final double[] powerOfTen = {
-            1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11,
-            1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22};
+    final static int DOUBLE_MAX_EXPONENT_POWER_OF_TEN = 308;
     /**
-     * When mapping numbers from decimal to binary,
-     * we go from w * 10^q to m * 2^p but we have
-     * 10^q = 5^q * 2^q, so effectively
-     * we are trying to match
-     * w * 2^q * 5^q to m * 2^p. Thus the powers of two
-     * are not a concern since they can be represented
-     * exactly using the binary notation, only the powers of five
-     * affect the binary significand.
+     * When mapping numbers from decimal to binary, we go from w * 10^q to
+     * m * 2^p, but we have 10^q = 5^q * 2^q, so effectively we are trying to match
+     * w * 2^q * 5^q to m * 2^p.
      * <p>
+     * Thus, the powers of two are not a concern since they can be represented
+     * exactly using the binary notation, only the powers of five affect the
+     * binary significand.
      * <p>
-     * The mantissas of powers of ten from -308 to 308, extended out to sixty four
+     * The mantissas of powers of ten from -308 to 308, extended out to sixty-four
      * bits. The array contains the powers of ten approximated
-     * as a 64-bit mantissa. It goes from 10^FASTFLOAT_SMALLEST_POWER to
-     * 10^FASTFLOAT_LARGEST_POWER (inclusively).
-     * The mantissa is truncated, and
-     * never rounded up. Uses about 5KB.
+     * as a 64-bit mantissa. It goes from 10^{@value #DOUBLE_MIN_EXPONENT_POWER_OF_TEN} to
+     * 10^{@value #DOUBLE_MAX_EXPONENT_POWER_OF_TEN} (inclusively). The mantissa is truncated, and
+     * never rounded up. Uses about 5 KB.
+     * <p>
+     * <pre>
+     * long getMantissaHigh(int q) {
+     *  MANTISSA_64[q - SMALLEST_POWER_OF_TEN];
+     * }
+     * </pre>
      */
-    private static final long[] MANTISSA_64 = {
+    static final long[] MANTISSA_64 = {
             0xa5ced43b7e3e9188L, 0xcf42894a5dce35eaL,
             0x818995ce7aa0e1b2L, 0xa1ebfb4219491a1fL,
             0xca66fa129f9b60a6L, 0xfd00b897478238d0L,
@@ -406,11 +407,20 @@ class FastDoubleMath {
             0x91d28b7416cdd27eL, 0xb6472e511c81471dL,
             0xe3d8f9e563a198e5L, 0x8e679c2f5e44ff8fL};
     /**
-     * A complement to mantissa_64
-     * complete to a 128-bit mantissa.
+     * A complement to mantissa_64 complete to a
+     * 128-bit mantissa.
+     * <p>
      * Uses about 5KB but is rarely accessed.
+     * <pre>
+     * UInt128 getMantissa128(int q) {
+     *     return new UInt128(
+     *        MANTISSA_64[q - SMALLEST_POWER_OF_TEN],
+     *        MANTISSA_128[q - SMALLEST_POWER_OF_TEN];
+     *     );
+     * }
+     * </pre>
      */
-    private final static long[] MANTISSA_128 = {
+    final static long[] MANTISSA_128 = {
             0x419ea3bd35385e2dL, 0x52064cac828675b9L,
             0x7343efebd1940993L, 0x1014ebe6c5f90bf8L,
             0xd41a26e077774ef6L, 0x8920b098955522b4L,
@@ -728,45 +738,21 @@ class FastDoubleMath {
             0xd30560258f54e6baL, 0x47c6b82ef32a2069L,
             0x4cdc331d57fa5441L, 0xe0133fe4adf8e952L,
             0x58180fddd97723a6L, 0x570f09eaa7ea7648L};
+    private final static int DOUBLE_MIN_EXPONENT_POWER_OF_TWO = Double.MIN_EXPONENT;
+    private final static int DOUBLE_MAX_EXPONENT_POWER_OF_TWO = Double.MAX_EXPONENT;
+    /**
+     * Precomputed powers of ten from 10^0 to 10^22. These
+     * can be represented exactly using the double type.
+     */
+    private static final double[] DOUBLE_POWERS_OF_TEN = {
+            1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11,
+            1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22};
 
     /**
-     * Prevents instantiation.
+     * Don't let anyone instantiate this class.
      */
     private FastDoubleMath() {
 
-    }
-
-    static double decFloatLiteralToDouble(int index, boolean isNegative, long digits, int exponent, int virtualIndexOfPoint, long exp_number, boolean isDigitsTruncated, int skipCountInTruncatedDigits) {
-        if (digits == 0) {
-            return isNegative ? -0.0 : 0.0;
-        }
-        final double outDouble;
-        if (isDigitsTruncated) {
-            final long exponentOfTruncatedDigits = virtualIndexOfPoint - index + skipCountInTruncatedDigits + exp_number;
-
-            // We have too many digits. We may have to round up.
-            // To know whether rounding up is needed, we may have to examine up to 768 digits.
-
-            // There are cases, in which rounding has no effect.
-            if (FASTFLOAT_DEC_SMALLEST_POWER <= exponentOfTruncatedDigits
-                    && exponentOfTruncatedDigits <= FASTFLOAT_DEC_LARGEST_POWER) {
-                double withoutRounding = tryDecToDoubleWithFastAlgorithm(isNegative, digits, (int) exponentOfTruncatedDigits);
-                double roundedUp = tryDecToDoubleWithFastAlgorithm(isNegative, digits + 1, (int) exponentOfTruncatedDigits);
-                if (!Double.isNaN(withoutRounding) && Objects.equals(roundedUp, withoutRounding)) {
-                    return withoutRounding;
-                }
-            }
-
-            // We have to take a slow path.
-            //return Double.parseDouble(str.toString());
-            outDouble = Double.NaN;
-
-        } else if (FASTFLOAT_DEC_SMALLEST_POWER <= exponent && exponent <= FASTFLOAT_DEC_LARGEST_POWER) {
-            outDouble = tryDecToDoubleWithFastAlgorithm(isNegative, digits, exponent);
-        } else {
-            outDouble = Double.NaN;
-        }
-        return outDouble;
     }
 
     /**
@@ -783,7 +769,7 @@ class FastDoubleMath {
      * @param y uint64 factor y
      * @return uint128 product of x and y
      */
-    private static Value128 fullMultiplication(long x, long y) {
+    static UInt128 fullMultiplication(long x, long y) {
         long x0 = x & 0xffffffffL, x1 = x >>> 32;
         long y0 = y & 0xffffffffL, y1 = y >>> 32;
         long p11 = x1 * y1, p01 = x0 * y1;
@@ -791,87 +777,46 @@ class FastDoubleMath {
 
         // 64-bit product + two 32-bit values
         long middle = p10 + (p00 >>> 32) + (p01 & 0xffffffffL);
-        return new Value128(
+        return new UInt128(
                 // 64-bit product + two 32-bit values
                 p11 + (middle >>> 32) + (p01 >>> 32),
                 // Add LOW PART and lower half of MIDDLE PART
                 (middle << 32) | (p00 & 0xffffffffL));
     }
 
-    static double hexFloatLiteralToDouble(int index, boolean isNegative, long digits, long exponent, int virtualIndexOfPoint, long exp_number, boolean isDigitsTruncated, int skipCountInTruncatedDigits) {
-        if (digits == 0) {
-            return isNegative ? -0.0 : 0.0;
-        }
-        final double outDouble;
-        if (isDigitsTruncated) {
-            final long truncatedExponent = (virtualIndexOfPoint - index + skipCountInTruncatedDigits) * 4L
-                    + exp_number;
-
-            // We have too many digits. We may have to round up.
-            // To know whether rounding up is needed, we may have to examine up to 768 digits.
-
-            // There are cases, in which rounding has no effect.
-            if (FASTFLOAT_HEX_SMALLEST_POWER <= truncatedExponent && truncatedExponent <= FASTFLOAT_HEX_LARGEST_POWER) {
-                double withoutRounding = tryHexToDoubleWithFastAlgorithm(isNegative, digits, (int) truncatedExponent);
-                double roundedUp = tryHexToDoubleWithFastAlgorithm(isNegative, digits + 1, (int) truncatedExponent);
-                if (!Double.isNaN(withoutRounding) && Objects.equals(roundedUp, withoutRounding)) {
-                    return withoutRounding;
-                }
-            }
-
-            // We have to take a slow path.
-            outDouble = Double.NaN;
-
-        } else if (FASTFLOAT_HEX_SMALLEST_POWER <= exponent && exponent <= FASTFLOAT_HEX_LARGEST_POWER) {
-            outDouble = tryHexToDoubleWithFastAlgorithm(isNegative, digits, (int) exponent);
-        } else {
-            outDouble = Double.NaN;
-        }
-        return outDouble;
-    }
-
     /**
-     * Attempts to compute {@literal digits * 10^(power)} exactly;
-     * and if "negative" is true, negate the result.
+     * Tries to compute {@code significand * 10^power} exactly using
+     * a fast algorithm; and if {@code isNegative} is true, negate the result.
      * <p>
      * This function will only work in some cases, when it does not work it
-     * returns null. This should work *most of the time* (like 99% of the time).
-     * We assume that power is in the [FASTFLOAT_SMALLEST_POWER,
-     * FASTFLOAT_LARGEST_POWER] interval: the caller is responsible for this check.
+     * returns NaN. This should work *most of the time* (like 99% of the time).
+     * We assume that power is in the
+     * [{@value #DOUBLE_MIN_EXPONENT_POWER_OF_TEN}, {@value #DOUBLE_MAX_EXPONENT_POWER_OF_TEN}]
+     * interval: the caller is responsible for this check.
      *
-     * @param isNegative whether the number is negative
-     * @param digits     uint64 the digits of the number
-     * @param power      int32 the exponent of the number
+     * @param isNegative  whether the number is negative
+     * @param significand uint64 the significand
+     * @param power       the exponent number (the power)
      * @return the computed double on success, {@link Double#NaN} on failure
      */
-    static double tryDecToDoubleWithFastAlgorithm(boolean isNegative, long digits, int power) {
-        if (digits == 0 || power < -380 - 19) {
-            return isNegative ? -0.0 : 0.0;
-        }
-        if (power > 380) {
-            return isNegative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
-        }
-
+    static double tryDecFloatToDouble(boolean isNegative, long significand, int power) {
         // we start with a fast path
-        // It was described in
-        // Clinger WD. How to read floating point numbers accurately.
-        // ACM SIGPLAN Notices. 1990
-        if (-22 <= power && power <= 22 && Long.compareUnsigned(digits, 0x1fffffffffffffL) <= 0) {
+        // It was described in Clinger WD (1990).
+        if (-22 <= power && power <= 22 && Long.compareUnsigned(significand, (1L << DOUBLE_SIGNIFICAND_WIDTH) - 1) <= 0) {
             // convert the integer into a double. This is lossless since
             // 0 <= i <= 2^53 - 1.
-            double d = (double) digits;
+            double d = (double) significand;
             //
             // The general idea is as follows.
             // If 0 <= s < 2^53 and if 10^0 <= p <= 10^22 then
-            // 1) Both s and p can be represented exactly as 64-bit floating-point
-            // values (binary64).
+            // 1) Both s and p can be represented exactly as 64-bit floating-point values
             // 2) Because s and p can be represented exactly as floating-point values,
             // then s * p and s / p will produce correctly rounded values.
             //
             if (power < 0) {
-                d = d / powerOfTen[-power];
+                d = d / DOUBLE_POWERS_OF_TEN[-power];
             } else {
-                d = d * powerOfTen[power];
+                d = d * DOUBLE_POWERS_OF_TEN[power];
             }
             return (isNegative) ? -d : d;
         }
@@ -882,25 +827,25 @@ class FastDoubleMath {
         // We are going to need to do some 64-bit arithmetic to get a more precise product.
         // We use a table lookup approach.
         // It is safe because
-        // power >= FASTFLOAT_SMALLEST_POWER
-        // and power <= FASTFLOAT_LARGEST_POWER
+        // power >= DOUBLE_MIN_EXPONENT_POWER_OF_TEN
+        // and power <= DOUBLE_MAX_EXPONENT_POWER_OF_TEN
         // We recover the mantissa of the power, it has a leading 1. It is always
         // rounded down.
-        long factor_mantissa = MANTISSA_64[power - FASTFLOAT_DEC_SMALLEST_POWER];
+        long factorMantissa = MANTISSA_64[power - DOUBLE_MIN_EXPONENT_POWER_OF_TEN];
 
 
-        // The exponent is 1024 + 63 + power
-        //     + floor(log(5**power)/log(2)).
-        // The 1024 comes from the ieee64 standard.
-        // The 63 comes from the fact that we use a 64-bit word.
+        // The exponent is 1023 + 64 + power + floor(log(5**power)/log(2)).
+        //
+        // 1023 is the exponent bias.
+        // The 64 comes from the fact that we use a 64-bit word.
         //
         // Computing floor(log(5**power)/log(2)) could be
-        // slow. Instead we use a fast function.
+        // slow. Instead, we use a fast function.
         //
         // For power in (-400,350), we have that
         // (((152170 + 65536) * power ) >> 16);
         // is equal to
-        //  floor(log(5**power)/log(2)) + power when power >= 0
+        //  floor(log(5**power)/log(2)) + power when power >= 0,
         // and it is equal to
         //  ceil(log(5**-power)/log(2)) + power when power < 0
         //
@@ -916,18 +861,18 @@ class FastDoubleMath {
         // The 1<<16 value is a power of two; we could use a
         // larger power of 2 if we wanted to.
         //
-        long exponent = (((152170 + 65536) * power) >> 16) + 1024 + 63;
+        long exponent = (((152170L + 65536L) * power) >> 16) + DOUBLE_EXPONENT_BIAS + 64;
         // We want the most significant bit of digits to be 1. Shift if needed.
-        int lz = Long.numberOfLeadingZeros(digits);
-        digits <<= lz;
+        int lz = Long.numberOfLeadingZeros(significand);
+        significand <<= lz;
         // We want the most significant 64 bits of the product. We know
-        // this will be non-zero because the most significant bit of i is
+        // this will be non-zero because the most significant bit of digits is
         // 1.
-        Value128 product = fullMultiplication(digits, factor_mantissa);
+        UInt128 product = fullMultiplication(significand, factorMantissa);
         long lower = product.low;
         long upper = product.high;
         // We know that upper has at most one leading zero because
-        // both i and  factor_mantissa have a leading one. This means
+        // both i and factor_mantissa have a leading one. This means
         // that the result is at least as large as ((1<<63)*(1<<63))/(1<<64).
 
         // As long as the first 9 bits of "upper" are not "1", then we
@@ -935,34 +880,34 @@ class FastDoubleMath {
         // 55 bits because any imprecision would play out as a +1, in
         // the worst case.
         // Having 55 bits is necessary because
-        // we need 53 bits for the mantissa but we have to have one rounding bit and
+        // we need 53 bits for the mantissa, but we have to have one rounding bit and
         // we can waste a bit if the most significant bit of the product is zero.
         // We expect this next branch to be rarely taken (say 1% of the time).
         // When (upper & 0x1FF) == 0x1FF, it can be common for
         // lower + i < lower to be true (proba. much higher than 1%).
-        if ((upper & 0x1FF) == 0x1FF && Long.compareUnsigned(lower + digits, lower) < 0) {
-            long factor_mantissa_low =
-                    MANTISSA_128[power - FASTFLOAT_DEC_SMALLEST_POWER];
+        if ((upper & 0x1ffL) == 0x1ffL && Long.compareUnsigned(lower + significand, lower) < 0) {
+            long factorMantissaLow =
+                    MANTISSA_128[power - DOUBLE_MIN_EXPONENT_POWER_OF_TEN];
             // next, we compute the 64-bit x 128-bit multiplication, getting a 192-bit
             // result (three 64-bit values)
-            product = fullMultiplication(digits, factor_mantissa_low);
-            long product_low = product.low;
-            long product_middle2 = product.high;
-            long product_middle1 = lower;
-            long product_high = upper;
-            long product_middle = product_middle1 + product_middle2;
-            if (Long.compareUnsigned(product_middle, product_middle1) < 0) {
-                product_high++; // overflow carry
+            product = fullMultiplication(significand, factorMantissaLow);
+            long productLow = product.low;
+            long productMiddle2 = product.high;
+            long productMiddle1 = lower;
+            long productHigh = upper;
+            long productMiddle = productMiddle1 + productMiddle2;
+            if (Long.compareUnsigned(productMiddle, productMiddle1) < 0) {
+                productHigh++; // overflow carry
             }
 
 
             // we want to check whether mantissa *i + i would affect our result
             // This does happen, e.g. with 7.3177701707893310e+15
-            if (((product_middle + 1 == 0) && ((product_high & 0x1ff) == 0x1ff) &&
-                    (product_low + Long.compareUnsigned(digits, product_low) < 0))) { // let us be prudent and bail out.
+            if (((productMiddle + 1 == 0) && ((productHigh & 0x1ffL) == 0x1ffL) &&
+                    (productLow + Long.compareUnsigned(significand, productLow) < 0))) { // let us be prudent and bail out.
                 return Double.NaN;
             }
-            upper = product_high;
+            upper = productHigh;
             //lower = product_middle;
         }
 
@@ -974,7 +919,7 @@ class FastDoubleMath {
         // Here we have mantissa < (1<<54).
 
         // We have to round to even. The "to even" part
-        // is only a problem when we are right in between two floats
+        // is only a problem when we are right in between two floating-point values
         // which we guard against.
         // If we have lots of trailing zeros, we may fall right between two
         // floating-point values.
@@ -990,8 +935,8 @@ class FastDoubleMath {
             // up (round to even) otherwise, we do not.
             //
             // So if the last significant bit is 1, we can safely round up.
-            // Hence we only need to bail out if (mantissa & 3) == 1.
-            // Otherwise we may need more accuracy or analysis to determine whether
+            // Hence, we only need to bail out if (mantissa & 3) == 1.
+            // Otherwise, we may need more accuracy or analysis to determine whether
             // we are exactly between two floating-point numbers.
             // It can be triggered with 1e23.
             // Note: because the factor_mantissa and factor_mantissa_low are
@@ -1004,52 +949,92 @@ class FastDoubleMath {
         mantissa >>>= 1;
 
         // Here we have mantissa < (1<<53), unless there was an overflow
-        if (mantissa >= (1L << 53)) {
+        if (mantissa >= (1L << DOUBLE_SIGNIFICAND_WIDTH)) {
             // This will happen when parsing values such as 7.2057594037927933e+16
-            mantissa = (1L << 52);
+            mantissa = (1L << (DOUBLE_SIGNIFICAND_WIDTH - 1));
             lz--; // undo previous addition
         }
 
-        mantissa &= ~(1L << 52);
-        long real_exponent = exponent - lz;
-        // we have to check that real_exponent is in range, otherwise we bail out
-        if ((real_exponent < 1) || (real_exponent > 2046)) {
+        mantissa &= ~(1L << (DOUBLE_SIGNIFICAND_WIDTH - 1));
+
+        long realExponent = exponent - lz;
+        // we have to check that realExponent is in range, otherwise we bail out
+        if ((realExponent < 1) || (realExponent > DOUBLE_MAX_EXPONENT_POWER_OF_TWO + DOUBLE_EXPONENT_BIAS)) {
             return Double.NaN;
         }
 
-        long bits = mantissa | real_exponent << 52
+        long bits = mantissa | realExponent << (DOUBLE_SIGNIFICAND_WIDTH - 1)
                 | (isNegative ? 1L << 63 : 0L);
         return Double.longBitsToDouble(bits);
     }
 
     /**
-     * Attempts to compute {@literal digits * 2^(power)} exactly;
-     * and if "negative" is true, negate the result.
-     * <p>
-     * This function will only work in some cases, when it does not work it
-     * returns null.
+     * Tries to compute {@code significand * 10^exponent} exactly using a fast
+     * algorithm; and if {@code isNegative} is true, negate the result;
+     * the significand can be truncated.
      *
-     * @param isNegative whether the number is negative
-     * @param digits     uint64 the digits of the number
-     * @param power      int32 the exponent of the number
-     * @return the computed double on success, null on failure
+     * @param isNegative                     true if the sign is negative
+     * @param significand                    the significand
+     * @param exponent                       the exponent number (the power)
+     * @param isSignificandTruncated         true if significand has been truncated
+     * @param exponentOfTruncatedSignificand the exponent number of the truncated significand
+     * @return the double value,
+     * or {@link Double#NaN} if the fast path failed.
      */
-    static double tryHexToDoubleWithFastAlgorithm(boolean isNegative, long digits, int power) {
-        if (digits == 0 || power < Double.MIN_EXPONENT - 54) {
+    static double tryDecFloatToDoubleTruncated(boolean isNegative, long significand, int exponent,
+                                               boolean isSignificandTruncated,
+                                               final int exponentOfTruncatedSignificand) {
+        if (significand == 0) {
             return isNegative ? -0.0 : 0.0;
         }
-        if (power > Double.MAX_EXPONENT) {
-            return isNegative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+
+        final double result;
+        if (isSignificandTruncated) {
+            // We have too many digits. We may have to round up.
+            // To know whether rounding up is needed, we may have to examine up to 768 digits.
+
+            // There are cases, in which rounding has no effect.
+            if (DOUBLE_MIN_EXPONENT_POWER_OF_TEN <= exponentOfTruncatedSignificand
+                    && exponentOfTruncatedSignificand <= DOUBLE_MAX_EXPONENT_POWER_OF_TEN) {
+                double withoutRounding = tryDecFloatToDouble(isNegative, significand, exponentOfTruncatedSignificand);
+                double roundedUp = tryDecFloatToDouble(isNegative, significand + 1, exponentOfTruncatedSignificand);
+                if (!Double.isNaN(withoutRounding) && roundedUp == withoutRounding) {
+                    return withoutRounding;
+                }
+            }
+
+            // We have to take a slow path.
+            //return Double.parseDouble(str.toString());
+            result = Double.NaN;
+
+        } else if (DOUBLE_MIN_EXPONENT_POWER_OF_TEN <= exponent && exponent <= DOUBLE_MAX_EXPONENT_POWER_OF_TEN) {
+            result = tryDecFloatToDouble(isNegative, significand, exponent);
+        } else {
+            result = Double.NaN;
         }
+        return result;
+    }
+
+    /**
+     * Tries to compute {@code significand * 2^power} exactly using a fast
+     * algorithm; and if {@code isNegative} is true, negate the result.
+     *
+     * @param isNegative  true if the sign is negative
+     * @param significand the significand
+     * @param power       the power of the exponent
+     * @return the double value,
+     * or {@link Double#NaN} if the fast path failed.
+     */
+    static double tryHexFloatToDouble(boolean isNegative, long significand, int power) {
 
         // we start with a fast path
         // We try to mimic the fast described by Clinger WD for decimal
         // float number literals. How to read floating point numbers accurately.
         // ACM SIGPLAN Notices. 1990
-        if (Long.compareUnsigned(digits, 0x1fffffffffffffL) <= 0) {
+        if (Long.compareUnsigned(significand, 0x1fffffffffffffL) <= 0) {
             // convert the integer into a double. This is lossless since
             // 0 <= i <= 2^53 - 1.
-            double d = (double) digits;
+            double d = (double) significand;
             //
             // The general idea is as follows.
             // If 0 <= s < 2^53  then
@@ -1069,11 +1054,55 @@ class FastDoubleMath {
         return Double.NaN;
     }
 
-    private static class Value128 {
+    /**
+     * Tries to compute {@code significand * 2^exponent} exactly using a fast
+     * algorithm; and if {@code isNegative} is true, negate the result;
+     * the significand can be truncated.
+     *
+     * @param isNegative                     true if the sign is negative
+     * @param significand                    the significand
+     * @param exponent                       the exponent number (the power)
+     * @param isSignificandTruncated         true if significand has been truncated
+     * @param exponentOfTruncatedSignificand the exponent number of the truncated significand
+     * @return the double value,
+     * or {@link Double#NaN} if the fast path failed.
+     */
+    static double tryHexFloatToDoubleTruncated(boolean isNegative, long significand, long exponent, boolean isSignificandTruncated,
+                                               long exponentOfTruncatedSignificand) {
+        if (significand == 0) {
+            return isNegative ? -0.0 : 0.0;
+        }
 
+        final double outDouble;
+        if (isSignificandTruncated) {
+
+            // We have too many digits. We may have to round up.
+            // To know whether rounding up is needed, we may have to examine up to 768 digits.
+
+            // There are cases, in which rounding has no effect.
+            if (DOUBLE_MIN_EXPONENT_POWER_OF_TWO <= exponentOfTruncatedSignificand && exponentOfTruncatedSignificand <= DOUBLE_MAX_EXPONENT_POWER_OF_TWO) {
+                double withoutRounding = tryHexFloatToDouble(isNegative, significand, (int) exponentOfTruncatedSignificand);
+                double roundedUp = tryHexFloatToDouble(isNegative, significand + 1, (int) exponentOfTruncatedSignificand);
+                if (!Double.isNaN(withoutRounding) && roundedUp == withoutRounding) {
+                    return withoutRounding;
+                }
+            }
+
+            // We have to take a slow path.
+            outDouble = Double.NaN;
+
+        } else if (DOUBLE_MIN_EXPONENT_POWER_OF_TWO <= exponent && exponent <= DOUBLE_MAX_EXPONENT_POWER_OF_TWO) {
+            outDouble = tryHexFloatToDouble(isNegative, significand, (int) exponent);
+        } else {
+            outDouble = Double.NaN;
+        }
+        return outDouble;
+    }
+
+    static class UInt128 {
         final long high, low;
 
-        private Value128(long high, long low) {
+        private UInt128(long high, long low) {
             this.high = high;
             this.low = low;
         }

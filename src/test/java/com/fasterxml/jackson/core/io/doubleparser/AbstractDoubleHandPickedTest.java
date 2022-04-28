@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-abstract class AbstractHandPickedTest {
+abstract class AbstractDoubleHandPickedTest {
 
     abstract double parse(CharSequence str);
 
@@ -82,7 +82,10 @@ abstract class AbstractHandPickedTest {
                 dynamicTest("before0x123.4p0after", () -> testLegalInputWithPrefixAndSuffix("before0x1234p0after", 6, 8, 0x1234p0)),
                 dynamicTest("before0x123.45p0after", () -> testLegalInputWithPrefixAndSuffix("before0x123.45p0after", 6, 10, 0x123.45p0)),
                 dynamicTest("Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", () -> testLegalInputWithPrefixAndSuffix(
-                        "before1e-23after", 6, 5, 1e-23))
+                        "before1e-23after", 6, 5, 1e-23)),
+                dynamicTest("before9007199254740992.e-256after", () -> testLegalInputWithPrefixAndSuffix(
+                        "before9007199254740992.e-256after", 6, 22, 9007199254740992.e-256))
+
 
         );
     }
@@ -116,6 +119,8 @@ abstract class AbstractHandPickedTest {
                 dynamicTest("1e0", () -> testLegalInput("1e0", 1e0)),
                 dynamicTest("1.e0", () -> testLegalInput("1.e0", 1e0)),
                 dynamicTest(".e2", () -> testLegalInput(".e2", 0)),
+                dynamicTest(".8", () -> testLegalInput(".8", 0.8)),
+                dynamicTest("8.", () -> testLegalInput("8.", 8.0)),
                 dynamicTest("1e1", () -> testLegalInput("1e1", 1e1)),
                 dynamicTest("1e+1", () -> testLegalInput("1e+1", 1e+1)),
                 dynamicTest("1e-1", () -> testLegalInput("1e-1", 1e-1)),
@@ -196,7 +201,10 @@ abstract class AbstractHandPickedTest {
         return Arrays.asList(
                 dynamicTest("0x0.1234ab78p0", () -> testLegalInput("0x0.1234ab78p0", 0x0.1234ab78p0)),
                 dynamicTest("0x0.1234AB78p0", () -> testLegalInput("0x0.1234AB78p0", 0x0.1234AB78p0)),
-                dynamicTest("0x1.0p8", () -> testLegalInput("0x1.0p8", 256))
+                dynamicTest("0x1.0p8", () -> testLegalInput("0x1.0p8", 256)),
+                dynamicTest("0x1.234567890abcdefp123", () -> testLegalInput("0x1.234567890abcdefp123", 0x1.234567890abcdefp123)),
+                dynamicTest("0x1234567890.abcdefp-45", () -> testLegalInput("0x1234567890.abcdefp-45", 0x1234567890.abcdefp-45)),
+                dynamicTest("0x1234567890.abcdef12p-45", () -> testLegalInput("0x1234567890.abcdef12p-45", 0x1234567890.abcdef12p-45))
         );
     }
 
@@ -223,11 +231,13 @@ abstract class AbstractHandPickedTest {
 
     /**
      * Tests input classes that execute different code branches in
-     * method {@link FastDoubleMath#tryDecToDoubleWithFastAlgorithm(boolean, long, int)}.
+     * method {@link FastDoubleMath#tryDecFloatToDouble(boolean, long, int)}.
      */
     @TestFactory
     List<DynamicNode> dynamicTestsDecFloatLiteralClingerInputClasses() {
         return Arrays.asList(
+                dynamicTest("Inside Clinger fast path \"1000000000000000000e-340\")", () -> testLegalInput(
+                        "1000000000000000000e-325")),
                 //
                 dynamicTest("Inside Clinger fast path (max_clinger_significand, max_clinger_exponent)", () -> testLegalInput(
                         "9007199254740991e22")),
@@ -238,13 +248,19 @@ abstract class AbstractHandPickedTest {
                 dynamicTest("Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", () -> testLegalInput(
                         "1e-22")),
                 dynamicTest("Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", () -> testLegalInput(
-                        "1e-23"))
+                        "1e-23")),
+                dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 1e23", () -> testLegalInput(
+                        "1e23")),
+                dynamicTest("Outside Clinger fast path, mantissa overflows in semi-fast path, 7.2057594037927933e+16", () -> testLegalInput(
+                        "7.2057594037927933e+16")),
+                dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 7.3177701707893310e+15", () -> testLegalInput(
+                        "7.3177701707893310e+15"))
         );
     }
 
     /**
      * Tests input classes that execute different code branches in
-     * method {@link FastDoubleMath#tryHexToDoubleWithFastAlgorithm(boolean, long, int)}.
+     * method {@link FastDoubleMath#tryHexFloatToDouble(boolean, long, int)}.
      */
     @TestFactory
     List<DynamicNode> dynamicTestsHexFloatLiteralClingerInputClasses() {
@@ -265,21 +281,24 @@ abstract class AbstractHandPickedTest {
     @TestFactory
     List<DynamicNode> dynamicTestsLegalHexFloatLiteralsExtremeValues() {
         return Arrays.asList(
-                /*dynamicTest(Double.toHexString(Double.MIN_VALUE), () -> testLegalHexInput(
-                        Double.MIN_VALUE)),*/
+                dynamicTest(Double.toHexString(Double.MIN_VALUE), () -> testLegalHexInput(
+                        Double.MIN_VALUE)),
                 dynamicTest(Double.toHexString(Double.MAX_VALUE), () -> testLegalHexInput(
-                        Double.MAX_VALUE))/*,
+                        Double.MAX_VALUE)),
                 dynamicTest(Double.toHexString(Double.POSITIVE_INFINITY), () -> testLegalHexInput(
                         Double.POSITIVE_INFINITY)),
                 dynamicTest(Double.toHexString(Double.NEGATIVE_INFINITY), () -> testLegalHexInput(
                         Double.NEGATIVE_INFINITY)),
                 dynamicTest(Double.toHexString(Double.NaN), () -> testLegalHexInput(
                         Double.NaN)),
+                dynamicTest(Double.toHexString(Math.nextUp(0.0)), () -> testLegalHexInput(
+                        Math.nextUp(0.0))),
+                dynamicTest(Double.toHexString(Math.nextDown(0.0)), () -> testLegalHexInput(
+                        Math.nextDown(0.0))),
                 dynamicTest("Just above MAX_VALUE: 0x1.fffffffffffff8p1023", () -> testLegalInput(
                         "0x1.fffffffffffff8p1023", Double.POSITIVE_INFINITY)),
                 dynamicTest("Just below MIN_VALUE: 0x0.00000000000008p-1022", () -> testLegalInput(
                         "0x0.00000000000008p-1022", 0.0))
-                        */
         );
     }
 

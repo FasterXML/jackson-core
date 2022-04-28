@@ -82,8 +82,8 @@ class LexicalGenerator {
         }
     }
     public static void main(String... args) throws IOException {
-        Path outPath=FileSystems.getDefault().getPath("data/canada_hexfloats.txt");
-        Path inPath=FileSystems.getDefault().getPath("data/canada.txt");
+        Path outPath = FileSystems.getDefault().getPath("data/canada_hex.txt");
+        Path inPath = FileSystems.getDefault().getPath("data/canada.txt");
         try (BufferedReader r = Files.newBufferedReader(inPath, StandardCharsets.UTF_8);
              BufferedWriter w = Files.newBufferedWriter(outPath, StandardCharsets.UTF_8)) {
             for (String line=r.readLine();line!=null;line=r.readLine()) {

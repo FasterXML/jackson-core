@@ -6,7 +6,7 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
-public class FastDoubleParserHandPickedTest extends AbstractHandPickedTest {
+public class FastDoubleParserHandPickedTest extends AbstractDoubleHandPickedTest {
 
 
     @Override

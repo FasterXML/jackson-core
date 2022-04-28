@@ -296,7 +296,7 @@ public final class NumberInput
     /**
      * @param s a string representing a number to parse
      * @param def the default to return if `s` is not a parseable number
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser#parseDouble(CharSequence)}
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
      * @return closest matching double (or `def` if there is an issue with `s`)
      * @since 2.14
      */
@@ -326,7 +326,7 @@ public final class NumberInput
     
     /**
      * @param s a string representing a number to parse
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser#parseDouble(CharSequence)}
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
      * @return closest matching double
      * @throws NumberFormatException if string cannot be represented by a double
      * @since v2.14
@@ -348,7 +348,7 @@ public final class NumberInput
 
     /**
      * @param s a string representing a number to parse
-     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastFloatParser#parseFloat(CharSequence)}
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
      * @return closest matching float
      * @throws NumberFormatException if string cannot be represented by a float
      * @since v2.14

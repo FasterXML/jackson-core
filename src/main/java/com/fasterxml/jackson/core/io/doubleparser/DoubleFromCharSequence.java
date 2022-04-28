@@ -11,8 +11,9 @@ package com.fasterxml.jackson.core.io.doubleparser;
  */
 public final class DoubleFromCharSequence extends AbstractFloatValueFromCharSequence {
 
+    static DoubleFromCharSequence INSTANCE = new DoubleFromCharSequence();
 
-    public DoubleFromCharSequence() {
+    private DoubleFromCharSequence() {
 
     }
 

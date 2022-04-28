@@ -9,10 +9,11 @@ package com.fasterxml.jackson.core.io.doubleparser;
 /**
  * Parses a {@code float} from a {@link CharSequence}.
  */
-public class FloatFromCharSequence extends AbstractFloatValueFromCharSequence {
+final class FloatFromCharSequence extends AbstractFloatValueFromCharSequence {
 
+    final static FloatFromCharSequence INSTANCE = new FloatFromCharSequence();
 
-    public FloatFromCharSequence() {
+    private FloatFromCharSequence() {
 
     }
 

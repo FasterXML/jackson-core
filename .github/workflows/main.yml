@@ -53,13 +53,13 @@ jobs:
       run: |
         echo 'Is Snapshot: $PROJECT_VERSION ...'
       env:
-        PROJECT_VERSION: ${{ steps.projectVersion.output.version }}
+        PROJECT_VERSION: ${{ steps.projectVersion.outputs.version }}
     - name: Not Snapshot
       if: ${{ !endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       run: |
         echo 'Is NOT Snapshot: $PROJECT_VERSION ...'
       env:
-        PROJECT_VERSION: ${{ steps.projectVersion.output.version }}
+        PROJECT_VERSION: ${{ steps.projectVersion.outputs.version }}
     - name: Deploy snapshot
       if: github.event_name != 'pull_request' && matrix.java_version == '8' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
       env:

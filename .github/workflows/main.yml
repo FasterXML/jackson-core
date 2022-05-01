@@ -47,13 +47,13 @@ jobs:
       run: ./mvnw -V -B -ff -ntp verify
     - name: Extract Maven Version
       id: projectVersion
-      run: echo ::set-output name=version::$( ./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -DforceStdout -Dexpression=project.version -q )
-    - name: Display Maven Version
-      env:
-        PROJECT_VERSION: "${{steps.projectVersion.output.version}}"
-      run: |
-        echo "Maven version: got: $PROJECT_VERSION !"
-        echo "Maven version: or maybe? ${{ steps.projectVersion.output.version }} !"
+      run: echo ::set-output name=version::$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -DforceStdout -Dexpression=project.version -q)
+    - name: Is Snapshot
+      if ${{ endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT' }}
+      run: echo "Is not Snapshot!!!"
+    - name: Not Snapshot
+      if ${{ !endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT' }}
+      run: echo "Is NOT Snapshot!!!"
     - name: Deploy snapshot
       if: github.event_name != 'pull_request' && matrix.java_version == '8'
       env:

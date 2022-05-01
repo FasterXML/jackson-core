@@ -49,10 +49,10 @@ jobs:
       id: projectVersion
       run: echo ::set-output name=version::$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -DforceStdout -Dexpression=project.version -q)
     - name: Is Snapshot
-      if: ${{ endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT' }}
+      if: ${{ endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       run: echo 'Is Snapshot'
     - name: Not Snapshot
-      if: ${{ !endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT' }}
+      if: ${{ !endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       run: echo 'Is NOT Snapshot'
     - name: Deploy snapshot
       if: github.event_name != 'pull_request' && matrix.java_version == '8'

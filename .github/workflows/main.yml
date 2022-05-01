@@ -51,7 +51,9 @@ jobs:
     - name: Display Maven Version
       env:
         PROJECT_VERSION: ${{ steps.projectVersion.output.version }}
-      run: echo "Maven version: should extract ..."
+      run: |
+        echo "Maven version: should extract ..."
+        echo "Maven version: actually, did, got: $PROJECT_VERSION !"
     - name: Deploy snapshot
       if: github.event_name != 'pull_request' && matrix.java_version == '8'
       env:

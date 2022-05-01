@@ -50,10 +50,10 @@ jobs:
       run: echo ::set-output name=version::$( ./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -DforceStdout -Dexpression=project.version -q )
     - name: Display Maven Version
       env:
-        PROJECT_VERSION: ${{ steps.projectVersion.output.version }}
+        PROJECT_VERSION: "${{steps.projectVersion.output.version}}"
       run: |
-        echo "Maven version: should extract ..."
-        echo "Maven version: actually, did, got: $PROJECT_VERSION !"
+        echo "Maven version: got: $PROJECT_VERSION !"
+        echo "Maven version: or maybe? ${{ steps.projectVersion.output.version }} !"
     - name: Deploy snapshot
       if: github.event_name != 'pull_request' && matrix.java_version == '8'
       env:

@@ -48,7 +48,7 @@ jobs:
     - name: Extract Maven Version
       run: VERSION=$( ./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -DforceStdout -Dexpression=project.version -q )
     - name: Display Maven Version
-      run: echo "Maven version found to be: [ $VERSION ]..."
+      run: echo "Maven version found to be: /$VERSION/..."
     - name: Deploy snapshot
       if: github.event_name != 'pull_request' && matrix.java_version == '8'
       env:

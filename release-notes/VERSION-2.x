@@ -27,6 +27,8 @@ JSON library.
  (contributed by @pjfanning)
 #753: Add `NumberInput.parseFloat()`
  (contributed by @pjfanning)
+$757: Update ParserBase to support floats directly
+ (contributed by @pjfanning)
 
 2.13.3 (not yet released)
 

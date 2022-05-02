@@ -45,21 +45,9 @@ jobs:
         # gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
     - name: Build
       run: ./mvnw -V -B -ff -ntp verify
-    - name: Extract Maven Version
+    - name: Extract project Maven version
       id: projectVersion
       run: echo ::set-output name=version::$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -DforceStdout -Dexpression=project.version -q)
-    - name: Is Snapshot
-      if: endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
-      run: |
-        echo "Is Snapshot: $PROJECT_VERSION ..."
-      env:
-        PROJECT_VERSION: ${{ steps.projectVersion.outputs.version }}
-    - name: Not Snapshot
-      if: ${{ !endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
-      run: |
-        echo "Is NOT Snapshot: $PROJECT_VERSION ..."
-      env:
-        PROJECT_VERSION: ${{ steps.projectVersion.outputs.version }}
     - name: Deploy snapshot
       if: github.event_name != 'pull_request' && matrix.java_version == '8' && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT')
       env:

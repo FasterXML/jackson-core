@@ -200,7 +200,7 @@ public class AsyncScalarArrayTest extends AsyncTestBase
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, r.nextToken());
             assertEquals(values[i], r.getFloatValue());
             // json can't distinguish floats from doubles so
-            assertEquals(NumberType.DOUBLE, r.getNumberType());
+            assertEquals(NumberType.FLOAT, r.getNumberType());
         }
         assertToken(JsonToken.END_ARRAY, r.nextToken());
         // and end up with "no token" as well

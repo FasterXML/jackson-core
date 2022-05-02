@@ -510,6 +510,19 @@ public final class TextBuffer
     }
 
     /**
+     * Convenience method for converting contents of the buffer
+     * into a Float value.
+     *
+     * @return Buffered text value parsed as a {@link Float}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
+     * @since 2.14
+     */
+    public float contentsAsFloat() throws NumberFormatException {
+        return NumberInput.parseFloat(contentsAsString());
+    }
+
+    /**
      * Specialized convenience method that will decode a 32-bit int,
      * of at most 9 digits (and possible leading minus sign).
      *<p>

@@ -628,7 +628,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return _numberFloat;
     }
-    
+
     @Override
     public double getDoubleValue() throws JacksonException
     {

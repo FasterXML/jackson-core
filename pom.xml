@@ -34,14 +34,14 @@
   </scm>
 
   <properties>
-    <!-- 04-Mar-2019, tatu: Retain Java6/JDK1.6 compatibility for annotations for Jackson 2.x,
+    <!-- 31-Mar-2022: Change to Java8/JDK1.8 compatibility for Jackson-Core 2.14 (was Java6/JDK1.6),
              but use Moditect to get JDK9+ module info support; need newer bundle plugin as well
       -->
-    <javac.src.version>1.6</javac.src.version>
-    <javac.target.version>1.6</javac.target.version>
+    <javac.src.version>1.8</javac.src.version>
+    <javac.target.version>1.8</javac.target.version>
 
-    <maven.compiler.source>1.6</maven.compiler.source>
-    <maven.compiler.target>1.6</maven.compiler.target>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
 
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}

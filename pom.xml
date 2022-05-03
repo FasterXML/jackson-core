@@ -34,14 +34,10 @@
   </scm>
 
   <properties>
-    <!-- 31-Mar-2022: Change to Java8/JDK1.8 compatibility for Jackson-Core 2.14 (was Java6/JDK1.6),
-             but use Moditect to get JDK9+ module info support; need newer bundle plugin as well
+    <!-- 03-May-2022: Change Java compatibility for Jackson-Core 2.14 from Java6 to Java8,
+       still use Moditect to get JDK9+ module info support; need newer bundle plugin as well
+       (can just defaults from `jackson-parent`)
       -->
-    <javac.src.version>1.8</javac.src.version>
-    <javac.target.version>1.8</javac.target.version>
-
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
 
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}

@@ -23,6 +23,7 @@ JSON library.
 #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
  (contributed Doug R)
+#745: Change minimum Java version to 8
 #751: Remove workaround for old issue with a particular double
  (contributed by @pjfanning)
 #753: Add `NumberInput.parseFloat()`

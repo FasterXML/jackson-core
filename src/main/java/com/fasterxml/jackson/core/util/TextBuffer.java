@@ -515,7 +515,7 @@ public final class TextBuffer
      * Convenience method for converting contents of the buffer
      * into a Double value.
      *
-     * @param useFastDoubleParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser#parseDouble(CharSequence)}
+     * @param useFastDoubleParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number

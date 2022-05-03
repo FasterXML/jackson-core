@@ -175,6 +175,17 @@ public enum JsonReadFeature
      * feature, and as such disabled by default.
      */
     ALLOW_TRAILING_COMMA(false),
+
+    /**
+     * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse
+     * doubles or if we use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * instead.
+     *<p>
+     * This setting is disabled by default.
+     *
+     * @since 2.14
+     */
+    USE_FAST_DOUBLE_PARSER(false)
     ;
 
     final private boolean _defaultState;

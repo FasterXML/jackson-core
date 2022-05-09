@@ -515,14 +515,14 @@ public final class TextBuffer
      * Convenience method for converting contents of the buffer
      * into a Double value.
      *
-     * @param useFastDoubleParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
      * @since 2.14
      */
-    public double contentsAsDouble(final boolean useFastDoubleParser) throws NumberFormatException {
-        return NumberInput.parseDouble(contentsAsString(), useFastDoubleParser);
+    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseDouble(contentsAsString(), useFastParser);
     }
 
     /**
@@ -533,9 +533,24 @@ public final class TextBuffer
      *
      * @throws NumberFormatException if contents are not a valid Java number
      * @since 2.14
+     * @see #contentsAsFloat(boolean)
      */
     public float contentsAsFloat() throws NumberFormatException {
-        return NumberInput.parseFloat(contentsAsString());
+        return contentsAsFloat(false);
+    }
+
+    /**
+     * Convenience method for converting contents of the buffer
+     * into a Float value.
+     *
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return Buffered text value parsed as a {@link Float}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
+     * @since 2.14
+     */
+    public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseFloat(contentsAsString(), useFastParser);
     }
 
     /**

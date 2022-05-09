@@ -533,8 +533,9 @@ public final class TextBuffer
      *
      * @throws NumberFormatException if contents are not a valid Java number
      * @since 2.14
-     * @see #contentsAsFloat(boolean)
+     * @deprecated use {@link #contentsAsFloat(boolean)}
      */
+    @Deprecated
     public float contentsAsFloat() throws NumberFormatException {
         return contentsAsFloat(false);
     }

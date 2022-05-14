@@ -14,7 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-2.13.3 (not yet released)
+2.13.3 (14-May-2022)
 
 #744: Limit size of exception message in BigDecimalParser
  (contributed by @pjfanning))

@@ -31,7 +31,7 @@ JSON library.
 $757: Update ParserBase to support floats directly
  (contributed by @pjfanning)
 
-2.13.3 (not yet released)
+2.13.3 (14-May-2022)
 
 #744: Limit size of exception message in BigDecimalParser
  (contributed by @pjfanning))

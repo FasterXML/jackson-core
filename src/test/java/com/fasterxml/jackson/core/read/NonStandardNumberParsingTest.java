@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 public class NonStandardNumberParsingTest
-    extends com.fasterxml.jackson.core.BaseTest
+        extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)

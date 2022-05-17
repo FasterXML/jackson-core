@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
  */
 @SuppressWarnings("resource")
 public class NumberParsingTest
-    extends com.fasterxml.jackson.core.BaseTest
+        extends com.fasterxml.jackson.core.BaseTest
 {
     private final TokenStreamFactory FACTORY = sharedStreamFactory();
 
@@ -145,7 +145,7 @@ public class NumberParsingTest
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.INT, p.getNumberType());
             assertEquals(Integer.MAX_VALUE, p.getIntValue());
-    
+
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.INT, p.getNumberType());
             assertEquals(Integer.MIN_VALUE, p.getIntValue());
@@ -207,7 +207,7 @@ public class NumberParsingTest
     private void _testSimpleLong(int mode)
     {
         long EXP_L = 12345678907L;
-        
+
         JsonParser p = createParser(mode, "[ "+EXP_L+" ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -216,7 +216,7 @@ public class NumberParsingTest
         assertEquals(""+EXP_L, p.getText());
 
         assertEquals(EXP_L, p.getLongValue());
-        // Should get an exception if trying to convert to int 
+        // Should get an exception if trying to convert to int
         try {
             p.getIntValue();
         } catch (InputCoercionException e) {
@@ -240,7 +240,7 @@ public class NumberParsingTest
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
             assertEquals(Long.MAX_VALUE, p.getLongValue());
-        
+
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
             assertEquals(Long.MIN_VALUE, p.getLongValue());
@@ -253,8 +253,8 @@ public class NumberParsingTest
             assertEquals(JsonParser.NumberType.LONG, p.getNumberType());
             assertEquals(belowMinInt, p.getLongValue());
 
-            
-            assertToken(JsonToken.END_ARRAY, p.nextToken());        
+
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
     }
@@ -301,13 +301,13 @@ public class NumberParsingTest
         cbuf = aboveMaxLong.toCharArray();
         assertFalse(NumberInput.inLongRange(cbuf, 0, cbuf.length, false));
     }
-    
+
     /*
     /**********************************************************************
     /* Tests, BigXxx
     /**********************************************************************
      */
-    
+
     public void testBigDecimalRange()
     {
         for (int mode : ALL_MODES) {
@@ -325,7 +325,7 @@ public class NumberParsingTest
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(JsonParser.NumberType.BIG_INTEGER, p.getNumberType());
             assertEquals(big, p.getBigIntegerValue());
-            assertToken(JsonToken.END_ARRAY, p.nextToken());        
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
             p.close();
         }
     }
@@ -355,19 +355,19 @@ public class NumberParsingTest
     /* Tests, floating point (basic)
     /**********************************************************************
      */
-    
+
     public void testSimpleDouble()
     {
         final String[] INPUTS = new String[] {
-            "1234.00", "2.1101567E-16", "1.0e5", "0.0", "1.0", "-1.0", 
-            "-0.5", "-12.9", "-999.0",
-            "2.5e+5", "9e4", "-12e-3", "0.25",
+                "1234.00", "2.1101567E-16", "1.0e5", "0.0", "1.0", "-1.0",
+                "-0.5", "-12.9", "-999.0",
+                "2.5e+5", "9e4", "-12e-3", "0.25",
         };
         for (int mode : ALL_MODES) {
             for (int i = 0; i < INPUTS.length; ++i) {
 
                 // First in array
-                
+
                 String STR = INPUTS[i];
                 double EXP_D = Double.parseDouble(STR);
                 String DOC = "["+STR+"]";
@@ -393,7 +393,7 @@ public class NumberParsingTest
                 } catch (Exception e) {
                     throw new RuntimeException("Failed to parse input '"+STR+"' (parser of type "+p.getClass().getSimpleName()+")", e);
                 }
-                
+
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
                 assertEquals(STR, p.getText());
                 if (mode != MODE_DATA_INPUT) {
@@ -408,16 +408,16 @@ public class NumberParsingTest
     {
         final char[] arr = new char[50005];
         for(int i = 500; i != 9000; ++i) {
-          java.util.Arrays.fill(arr, 0, i, ' ');
-          arr[i] = '-';
-          arr[i + 1] = '1';
-          arr[i + 2] = 'e';
-          arr[i + 3] = '-';
-          arr[i + 4] = '1';
-          CharArrayReader r = new CharArrayReader(arr, 0, i+5);
-          JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), r);
-          assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-          p.close();
+            java.util.Arrays.fill(arr, 0, i, ' ');
+            arr[i] = '-';
+            arr[i + 1] = '1';
+            arr[i + 2] = 'e';
+            arr[i + 3] = '-';
+            arr[i + 4] = '1';
+            CharArrayReader r = new CharArrayReader(arr, 0, i+5);
+            JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), r);
+            assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            p.close();
         }
     }
 
@@ -463,28 +463,28 @@ public class NumberParsingTest
     private void _testBigBigDecimals(int mode) throws Exception
     {
         final String BASE_FRACTION =
- "01610253934481930774151441507943554511027782188707463024288149352877602369090537"
-+"80583522838238149455840874862907649203136651528841378405339370751798532555965157588"
-+"51877960056849468879933122908090021571162427934915567330612627267701300492535817858"
-+"36107216979078343419634586362681098115326893982589327952357032253344676618872460059"
-+"52652865429180458503533715200184512956356092484787210672008123556320998027133021328"
-+"04777044107393832707173313768807959788098545050700242134577863569636367439867566923"
-+"33479277494056927358573496400831024501058434838492057410330673302052539013639792877"
-+"76670882022964335417061758860066263335250076803973514053909274208258510365484745192"
-+"39425298649420795296781692303253055152441850691276044546565109657012938963181532017"
-+"97420631515930595954388119123373317973532146157980827838377034575940814574561703270"
-+"54949003909864767732479812702835339599792873405133989441135669998398892907338968744"
-+"39682249327621463735375868408190435590094166575473967368412983975580104741004390308"
-+"45302302121462601506802738854576700366634229106405188353120298347642313881766673834"
-+"60332729485083952142460470270121052469394888775064758246516888122459628160867190501"
-+"92476878886543996441778751825677213412487177484703116405390741627076678284295993334"
-+"23142914551517616580884277651528729927553693274406612634848943914370188078452131231"
-+"17351787166509190240927234853143290940647041705485514683182501795615082930770566118"
-+"77488417962195965319219352314664764649802231780262169742484818333055713291103286608"
-+"64318433253572997833038335632174050981747563310524775762280529871176578487487324067"
-+"90242862159403953039896125568657481354509805409457993946220531587293505986329150608"
-+"18702520420240989908678141379300904169936776618861221839938283876222332124814830207"
-+"073816864076428273177778788053613345444299361357958409716099682468768353446625063";
+                "01610253934481930774151441507943554511027782188707463024288149352877602369090537"
+                        +"80583522838238149455840874862907649203136651528841378405339370751798532555965157588"
+                        +"51877960056849468879933122908090021571162427934915567330612627267701300492535817858"
+                        +"36107216979078343419634586362681098115326893982589327952357032253344676618872460059"
+                        +"52652865429180458503533715200184512956356092484787210672008123556320998027133021328"
+                        +"04777044107393832707173313768807959788098545050700242134577863569636367439867566923"
+                        +"33479277494056927358573496400831024501058434838492057410330673302052539013639792877"
+                        +"76670882022964335417061758860066263335250076803973514053909274208258510365484745192"
+                        +"39425298649420795296781692303253055152441850691276044546565109657012938963181532017"
+                        +"97420631515930595954388119123373317973532146157980827838377034575940814574561703270"
+                        +"54949003909864767732479812702835339599792873405133989441135669998398892907338968744"
+                        +"39682249327621463735375868408190435590094166575473967368412983975580104741004390308"
+                        +"45302302121462601506802738854576700366634229106405188353120298347642313881766673834"
+                        +"60332729485083952142460470270121052469394888775064758246516888122459628160867190501"
+                        +"92476878886543996441778751825677213412487177484703116405390741627076678284295993334"
+                        +"23142914551517616580884277651528729927553693274406612634848943914370188078452131231"
+                        +"17351787166509190240927234853143290940647041705485514683182501795615082930770566118"
+                        +"77488417962195965319219352314664764649802231780262169742484818333055713291103286608"
+                        +"64318433253572997833038335632174050981747563310524775762280529871176578487487324067"
+                        +"90242862159403953039896125568657481354509805409457993946220531587293505986329150608"
+                        +"18702520420240989908678141379300904169936776618861221839938283876222332124814830207"
+                        +"073816864076428273177778788053613345444299361357958409716099682468768353446625063";
 
         for (String asText : new String[] {
                 "50."+BASE_FRACTION,
@@ -518,7 +518,7 @@ public class NumberParsingTest
         _testNumbers(MODE_READER);
         _testNumbers(MODE_DATA_INPUT);
     }
-    
+
     private void _testNumbers(int mode)
     {
         final String DOC = "[ -13, 8100200300, 13.5, 0.00010, -2.033 ]";
@@ -526,13 +526,13 @@ public class NumberParsingTest
         JsonParser p = createParser(mode, DOC);
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        
+
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(-13, p.getIntValue());
         assertEquals(-13L, p.getLongValue());
         assertEquals(-13., p.getDoubleValue());
         assertEquals("-13", p.getText());
-        
+
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(8100200300L, p.getLongValue());
         // Should get exception for overflow:
@@ -544,7 +544,7 @@ public class NumberParsingTest
         }
         assertEquals(8100200300.0, p.getDoubleValue());
         assertEquals("8100200300", p.getText());
-        
+
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(13, p.getIntValue());
         assertEquals(13L, p.getLongValue());
@@ -556,7 +556,7 @@ public class NumberParsingTest
         assertEquals(0L, p.getLongValue());
         assertEquals(0.00010, p.getDoubleValue());
         assertEquals("0.00010", p.getText());
-        
+
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertEquals(-2, p.getIntValue());
         assertEquals(-2L, p.getLongValue());
@@ -568,7 +568,7 @@ public class NumberParsingTest
         p.close();
     }
 
-    
+
     /**
      * Method that tries to test that number parsing works in cases where
      * input is split between buffer boundaries.
@@ -641,13 +641,13 @@ public class NumberParsingTest
         _testLongNumbers(f, NUM, false);
         _testLongNumbers(f, NUM, true);
     }
-    
+
     private void _testLongNumbers(JsonFactory f, String num, boolean useStream)
     {
         final String doc = "[ "+num+" ]";
         JsonParser p = useStream
                 ? f.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
-                        : f.createParser(ObjectReadContext.empty(), doc);
+                : f.createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(num, p.getText());
@@ -673,7 +673,7 @@ public class NumberParsingTest
     {
         JsonParser p = useStream
                 ? FACTORY.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
-                        : FACTORY.createParser(ObjectReadContext.empty(), doc);
+                : FACTORY.createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         BigInteger v = p.getBigIntegerValue();
         assertNull(p.nextToken());
@@ -767,7 +767,7 @@ public class NumberParsingTest
         _testInvalidIntAccess(MODE_READER);
         _testInvalidIntAccess(MODE_DATA_INPUT);
     }
-    
+
     private void _testInvalidIntAccess(int mode)
     {
         JsonParser p = createParser(mode, "[ \"abc\" ]");
@@ -788,7 +788,7 @@ public class NumberParsingTest
         _testInvalidLongAccess(MODE_READER);
         _testInvalidLongAccess(MODE_DATA_INPUT);
     }
-    
+
     private void _testInvalidLongAccess(int mode)
     {
         JsonParser p = createParser(mode, "[ false ]");
@@ -819,7 +819,7 @@ public class NumberParsingTest
         p = FACTORY.createParser(ObjectReadContext.empty(), new StringReader(DOC));
         _testLongerFloat(p, DOC);
         p.close();
-        
+
         p = FACTORY.createParser(ObjectReadContext.empty(),
                 new ByteArrayInputStream(utf8Bytes(DOC)));
         _testLongerFloat(p, DOC);

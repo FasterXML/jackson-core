@@ -399,6 +399,11 @@ public class UTF8JsonGenerator
         }
     }
 
+    @Override // since 2.14
+    public void writeStartObject(Object forValue, int size) throws IOException {
+        writeStartObject(forValue);
+    }
+
     @Override
     public final void writeEndObject() throws IOException
     {

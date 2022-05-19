@@ -334,6 +334,11 @@ public class WriterBasedJsonGenerator
         }
     }
 
+    @Override // since 2.14
+    public void writeStartObject(Object forValue, int size) throws IOException {
+        writeStartObject(forValue);
+    }
+
     @Override
     public void writeEndObject() throws IOException
     {

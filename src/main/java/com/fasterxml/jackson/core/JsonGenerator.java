@@ -1029,8 +1029,7 @@ public abstract class JsonGenerator
      */
     public void writeStartObject(Object forValue, int size) throws IOException
     {
-        writeStartObject();
-        setCurrentValue(forValue);
+        writeStartObject(forValue);
     }
 
     /**

@@ -163,6 +163,9 @@ Doug Roper (htmldoug@github)
   (2.9.6)
   * Reported, Contributed test for #563: Async parser does not keep track of Array context properly
   (2.10.0)
+  * Contributed #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
+  floating-point values or not
+  (2.14.0)
 
 Alexander Eyers-Taylor (aeyerstaylor@github)
   * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com
@@ -275,6 +278,28 @@ Fabian Meumertzheim (fmeum@github)
   * Reported #692: UTF32Reader ArrayIndexOutOfBoundsException
   (2.13.0)
 
+Andrey Somov (asomov@github)
+  * Contributed #732: Update Maven wrapper
+  (2.13.2)
+
+Vlad Tatavu (vladt@github)
+  * Reported #739: `JsonLocation` in 2.13 only uses identity comparison
+    for "content reference"
+  (2.13.2)
+
+PJ Fanning (pjfanning@github)
+  * Contributed #744: Limit size of exception message in BigDecimalParser
+  (2.13.3)
+
 Ilya Golovin (ilgo0413@github)
   * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
+  (2.14.0)
+
+Nik Everett (nik9000@github)
+  * Contributed  #715: Allow TokenFilters to keep empty arrays and objects
+  (2.14.0)
+
+Illia Ovchynnikov (wingsofovnia@github)
+  * Reported #759: JsonGenerator to provide current value to the context before
+   starting objects
   (2.14.0)

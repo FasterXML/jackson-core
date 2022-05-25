@@ -193,6 +193,8 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected long _numberLong;
 
+    protected float _numberFloat;
+
     protected double _numberDouble;
 
     // And then object types
@@ -615,6 +617,9 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             return _numberBigDecimal;
         }
+        if ((_numTypesValid & NR_FLOAT) != 0) {
+            return _numberFloat;
+        }
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
@@ -647,6 +652,9 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             return _numberBigDecimal;
         }
+        if ((_numTypesValid & NR_FLOAT) != 0) {
+            return _numberFloat;
+        }
         if ((_numTypesValid & NR_DOUBLE) == 0) { // sanity check
             _throwInternal();
         }
@@ -677,6 +685,9 @@ public abstract class ParserBase extends ParserMinimalBase
          */
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             return NumberType.BIG_DECIMAL;
+        }
+        if ((_numTypesValid & NR_FLOAT) != 0) {
+            return NumberType.FLOAT;
         }
         return NumberType.DOUBLE;
     }
@@ -726,7 +737,6 @@ public abstract class ParserBase extends ParserMinimalBase
     @Override
     public float getFloatValue() throws IOException
     {
-        double value = getDoubleValue();
         /* 22-Jan-2009, tatu: Bounds/range checks would be tricky
          *   here, so let's not bother even trying...
          */
@@ -735,7 +745,15 @@ public abstract class ParserBase extends ParserMinimalBase
             _reportError("Numeric value ("+getText()+") out of range of Java float");
         }
         */
-        return (float) value;
+        if ((_numTypesValid & NR_FLOAT) == 0) {
+            if (_numTypesValid == NR_UNKNOWN) {
+                _parseNumericValue(NR_FLOAT);
+            }
+            if ((_numTypesValid & NR_FLOAT) == 0) {
+                convertNumberToFloat();
+            }
+        }
+        return _numberFloat;
     }
     
     @Override
@@ -874,6 +892,9 @@ public abstract class ParserBase extends ParserMinimalBase
             if (expType == NR_BIGDECIMAL) {
                 _numberBigDecimal = _textBuffer.contentsAsDecimal();
                 _numTypesValid = NR_BIGDECIMAL;
+            } else if (expType == NR_FLOAT) {
+                _numberFloat = _textBuffer.contentsAsFloat();
+                _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
                 _numberDouble = _textBuffer.contentsAsDouble();
@@ -1031,10 +1052,36 @@ public abstract class ParserBase extends ParserMinimalBase
             _numberDouble = (double) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
             _numberDouble = (double) _numberInt;
+        } else if ((_numTypesValid & NR_FLOAT) != 0) {
+            _numberDouble = (double) _numberFloat;
         } else {
             _throwInternal();
         }
         _numTypesValid |= NR_DOUBLE;
+    }
+
+    protected void convertNumberToFloat() throws IOException
+    {
+        /* 05-Aug-2008, tatus: Important note: this MUST start with
+         *   more accurate representations, since we don't know which
+         *   value is the original one (others get generated when
+         *   requested)
+         */
+
+        if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
+            _numberFloat = _numberBigDecimal.floatValue();
+        } else if ((_numTypesValid & NR_BIGINT) != 0) {
+            _numberFloat = _numberBigInt.floatValue();
+        } else if ((_numTypesValid & NR_LONG) != 0) {
+            _numberFloat = (float) _numberLong;
+        } else if ((_numTypesValid & NR_INT) != 0) {
+            _numberFloat = (float) _numberInt;
+        } else if ((_numTypesValid & NR_DOUBLE) != 0) {
+            _numberFloat = (float) _numberDouble;
+        } else {
+            _throwInternal();
+        }
+        _numTypesValid |= NR_FLOAT;
     }
     
     protected void convertNumberToBigDecimal() throws IOException

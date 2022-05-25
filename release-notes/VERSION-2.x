@@ -18,8 +18,34 @@ JSON library.
 
 #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
  (contributed by Ilya G)
+#715: Allow TokenFilters to keep empty arrays and objects
+ (contributed by Nik E)
+#733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
+  floating-point values or not
+ (contributed Doug R)
+#745: Change minimum Java version to 8
+#751: Remove workaround for old issue with a particular double
+ (contributed by @pjfanning)
+#753: Add `NumberInput.parseFloat()`
+ (contributed by @pjfanning)
+#757: Update ParserBase to support floats directly
+ (contributed by @pjfanning)
+#759: JsonGenerator to provide current value to the context before starting objects
+ (reported by Illia O)
 
-2.13.1 (not yet released)
+2.13.3 (14-May-2022)
+
+#744: Limit size of exception message in BigDecimalParser
+ (contributed by @pjfanning))
+
+2.13.2 (06-Mar-2022)
+
+#732: Update Maven wrapper
+ (contributed by Andrey S)
+#739: `JsonLocation` in 2.13 only uses identity comparison for "content reference"
+ (reported by Vlad T)
+
+2.13.1 (19-Dec-2021)
 
 #713: Incorrect parsing of single-quoted surrounded String values containing double quotes
  (reported by wcarmon@github)

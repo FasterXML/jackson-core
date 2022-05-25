@@ -81,6 +81,16 @@ public class JsonFactory
         INTERN_FIELD_NAMES(true),
 
         /**
+         * Similar to INTERN_FIELD_NAMES, this will determine whether the filed values
+         * to be canonicalized using {@link String#intern} or not:
+         * if enabled, all field values will be intern()ed (and caller
+         * can count on this being true for all such values); if disabled,
+         * no intern()ing is done.
+         * This setting is disabled by default.
+         */
+        INTERN_FIELD_VALUES(false),
+
+        /**
          * Feature that determines whether JSON object field names are
          * to be canonicalized (details of how canonicalization is done
          * then further specified by

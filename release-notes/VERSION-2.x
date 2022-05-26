@@ -75,6 +75,11 @@ JSON library.
 #712: Optimize array allocation by `JsonStringEncoder`
 - Add `mvnw` wrapper
 
+2.12.7 (26-May-2022)
+2.12.6 (15-Dec-2021)
+
+No changes since 2.12.5
+
 2.12.5 (27-Aug-2021)
 
 #712: (partial) Optimize array allocation by `JsonStringEncoder`

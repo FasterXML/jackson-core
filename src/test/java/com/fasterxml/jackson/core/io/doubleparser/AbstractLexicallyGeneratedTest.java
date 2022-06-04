@@ -1,4 +1,3 @@
-
 /*
  * @(#)LexicallyGeneratedTest.java
  * Copyright © 2021. Werner Randelshofer, Switzerland. MIT License.
@@ -6,14 +5,17 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 /**
@@ -46,7 +48,7 @@ abstract class AbstractLexicallyGeneratedTest {
         return IntStream.range(1, 10_000).mapToObj(i -> {
                     String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(10, rng);
                     return dynamicTest(i + ": " + str,
-                            () -> testAgainstDoubleParseDouble(str));
+                            () -> testAgainstJdk(str));
                 }
         );
     }
@@ -58,7 +60,7 @@ abstract class AbstractLexicallyGeneratedTest {
         return IntStream.range(1, 10_000).mapToObj(i -> {
                     String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(1, rng);
                     return dynamicTest(i + ": " + str,
-                            () -> testAgainstDoubleParseDouble(str));
+                            () -> testAgainstJdk(str));
                 }
         );
     }
@@ -70,7 +72,7 @@ abstract class AbstractLexicallyGeneratedTest {
         return IntStream.range(1, 10_000).mapToObj(i -> {
                     String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(40, rng);
                     return dynamicTest(i + ": " + str,
-                            () -> testAgainstDoubleParseDouble(str));
+                            () -> testAgainstJdk(str));
                 }
         );
     }
@@ -82,9 +84,20 @@ abstract class AbstractLexicallyGeneratedTest {
         return IntStream.range(1, 100).mapToObj(i -> {
                     String str = gen.produceRandomInputStringFromLexicalRuleWithWhitespace(i, rng);
                     return dynamicTest(i + ": " + str,
-                            () -> testAgainstDoubleParseDouble(str));
+                            () -> testAgainstJdk(str));
                 }
         );
+    }
+
+    @TestFactory
+    @Disabled
+    List<DynamicNode> dynamicTestsAllSingleCharacterInputs() {
+        ArrayList<DynamicNode> list = new ArrayList<>();
+        for (int codePoint = 0; codePoint <= Character.MAX_VALUE; codePoint++) {
+            String str = "" + (char) codePoint;
+            list.add(dynamicTest("0x" + Integer.toHexString(codePoint), () -> testAgainstJdk(str)));
+        }
+        return list;
     }
 
     /**
@@ -94,15 +107,7 @@ abstract class AbstractLexicallyGeneratedTest {
      *
      * @param str the given input string
      */
-    private void testAgainstDoubleParseDouble(String str) {
-        double expected = Double.parseDouble(str);
-        double actual = parse(str);
-        assertEquals(expected, actual, "str=" + str);
-        assertEquals(Double.doubleToLongBits(expected), Double.doubleToLongBits(actual),
-                "longBits of " + expected);
-    }
-
-    protected abstract double parse(String str);
+    protected abstract void testAgainstJdk(String str);
 
 
 }

@@ -1,4 +1,3 @@
-
 /*
  * @(#)SignificandWithDecimalPointTest.java
  * Copyright © 2022. Werner Randelshofer, Switzerland. MIT License.
@@ -18,19 +17,31 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public class ParseSignificandWithSwarTest {
-    @TestFactory
-    List<DynamicNode> dynamicTestsLegalInput() {
-        List<DynamicNode> list = new ArrayList<>();
-        String str = "12345678";
-        for (int i = -1; i < 8; i++) {
-            byte[] bytes = str.getBytes(StandardCharsets.ISO_8859_1);
-            if (i >= 0) {
-                bytes[i] = '.';
-            }
-            String s = new String(bytes, StandardCharsets.ISO_8859_1);
-            list.add(dynamicTest(s, () -> doLegalTest(s)));
+    /**
+     * Matches a decimal point at any of the eight possible characters.
+     * The mask is eight times the '.' character 0x2e: "........";
+     */
+    private final static long DECIMAL_POINT_MASK = 0x2e_2e_2e_2e_2e_2e_2e_2eL;
+    private final static double[] POWER_OF_TEN = {
+            1e0, 1e1, 1e2, 1e3, 1e4, 1e5,
+            1e6, 1e7, 1e8, 1e9, 1e10, 1e11,
+            1e12, 1e13, 1e14, 1e15, 1e16, 1e17,
+            1e18, 1e19, 1e20, 1e21, 1e22};
+
+    public void doIllegalTest(String s) {
+        try {
+            significandToDouble(s.getBytes(StandardCharsets.ISO_8859_1));
+            fail();
+        } catch (NumberFormatException e) {
+            //success
         }
-        return list;
+    }
+
+    public void doLegalTest(String s) {
+        double actual = significandToDouble(s.getBytes(StandardCharsets.ISO_8859_1));
+        double expected = Double.parseDouble(s);
+        System.out.println(expected + " == " + actual);
+        assertEquals(expected, actual);
     }
 
     @TestFactory
@@ -47,33 +58,20 @@ public class ParseSignificandWithSwarTest {
         return list;
     }
 
-    public void doLegalTest(String s) {
-        double actual = significandToDouble(s.getBytes(StandardCharsets.ISO_8859_1));
-        double expected = Double.parseDouble(s);
-        System.out.println(expected + " == " + actual);
-        assertEquals(expected, actual);
-    }
-
-    public void doIllegalTest(String s) {
-        try {
-            significandToDouble(s.getBytes(StandardCharsets.ISO_8859_1));
-            fail();
-        } catch (NumberFormatException e) {
-            //success
+    @TestFactory
+    List<DynamicNode> dynamicTestsLegalInput() {
+        List<DynamicNode> list = new ArrayList<>();
+        String str = "12345678";
+        for (int i = -1; i < 8; i++) {
+            byte[] bytes = str.getBytes(StandardCharsets.ISO_8859_1);
+            if (i >= 0) {
+                bytes[i] = '.';
+            }
+            String s = new String(bytes, StandardCharsets.ISO_8859_1);
+            list.add(dynamicTest(s, () -> doLegalTest(s)));
         }
+        return list;
     }
-
-    /**
-     * Matches a decimal point at any of the eight possible characters.
-     * The mask is eight times the '.' character 0x2e: "........";
-     */
-    private final static long DECIMAL_POINT_MASK = 0x2e_2e_2e_2e_2e_2e_2e_2eL;
-
-    private final static double[] POWER_OF_TEN = {
-            1e0, 1e1, 1e2, 1e3, 1e4, 1e5,
-            1e6, 1e7, 1e8, 1e9, 1e10, 1e11,
-            1e12, 1e13, 1e14, 1e15, 1e16, 1e17,
-            1e18, 1e19, 1e20, 1e21, 1e22};
 
     /**
      * Parses a {@code DecSignificand} that is exactly 8 characters long:
@@ -102,7 +100,7 @@ public class ParseSignificandWithSwarTest {
         // as mentioned here  https://kholdstare.github.io/technical/2020/05/26/faster-integer-parsing.html
 
 
-        long asciiFloat = FastDoubleSimd.readLongFromByteArrayLittleEndian(str, 0);
+        long asciiFloat = FastDoubleSwar.readLongFromByteArrayLittleEndian(str, 0);
 
         // Create a mask, that contains 0x80 at every '.' character and 0x00 everywhere else.
         long masked = asciiFloat ^ DECIMAL_POINT_MASK;
@@ -118,7 +116,7 @@ public class ParseSignificandWithSwarTest {
 
         if (exp != 0) {
             // We have a decimal point somewhere before the last digit:
-            // -> keep fraction in place; move int part; fill '0' character in.
+            // -> keep fraction in place; move int part to the right; fill in '0' character.
             long fraction = asciiFloat & (-1L << (tzCount + 8));
             integer = exp == 7 ? 0 : (asciiFloat << (exp + 1) * 8) >>> exp * 8;
             integer = 0x30L | fraction | integer;

@@ -5,6 +5,7 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
 
@@ -16,63 +17,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public class FastDoubleParserMaxInputLengthTest {
-    private static class MaxLengthCharSequence implements CharSequence {
-        private final String str;
-        private int startIndex;
-        private int endIndex;
-
-        private MaxLengthCharSequence(String str) {
-            this.str = str;
-            this.startIndex = 0;
-            this.endIndex = Integer.MAX_VALUE;
-        }
-
-        private MaxLengthCharSequence(String str, int startIndex, int endIndex) {
-            this.str = str;
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
-        }
-
-        @Override
-        public int length() {
-            return endIndex - startIndex;
-        }
-
-        @Override
-        public char charAt(int index) {
-            return index - startIndex < endIndex - str.length()
-                    ? ' '
-                    : str.charAt(index - startIndex - (endIndex - str.length()));
-        }
-
-        @Override
-        public CharSequence subSequence(int start, int end) {
-            return new MaxLengthCharSequence(str, start, end);
-        }
-
-        @Override
-        public String toString() {
-            return str;
-        }
-    }
-
-    private void testIllegalMaxLengthInput(String s) {
-        try {
-            parse(new MaxLengthCharSequence(s));
-            fail();
-        } catch (NumberFormatException e) {
-            // success
-        }
-    }
-
-    private void testLegalMaxLengthInput(String str, double expected) {
-        double actual = parse(new MaxLengthCharSequence(str));
-        assertEquals(expected, actual, "str(length=Integer.MAX_VALUE)=" + str);
-        assertEquals(Double.doubleToLongBits(expected), Double.doubleToLongBits(actual),
-                "longBits of " + expected);
-    }
-
     @TestFactory
+    @Disabled
     List<DynamicNode> dynamicTestsIllegalMaxLengthInputs() {
         return Arrays.asList(
                 dynamicTest("empty", () -> testIllegalMaxLengthInput("")),
@@ -92,6 +38,7 @@ public class FastDoubleParserMaxInputLengthTest {
     }
 
     @TestFactory
+    @Disabled
     List<DynamicNode> dynamicTestsLegalDecFloatMaxLengthLiterals() {
         return Arrays.asList(
                 dynamicTest("1e23", () -> testLegalMaxLengthInput("1e23", 1e23)),
@@ -130,8 +77,63 @@ public class FastDoubleParserMaxInputLengthTest {
         );
     }
 
-
     double parse(CharSequence str) {
         return FastDoubleParser.parseDouble(str);
+    }
+
+    private void testIllegalMaxLengthInput(String s) {
+        try {
+            parse(new MaxLengthCharSequence(s));
+            fail();
+        } catch (NumberFormatException e) {
+            // success
+        }
+    }
+
+    private void testLegalMaxLengthInput(String str, double expected) {
+        double actual = parse(new MaxLengthCharSequence(str));
+        assertEquals(expected, actual, "str(length=Integer.MAX_VALUE)=" + str);
+        assertEquals(Double.doubleToLongBits(expected), Double.doubleToLongBits(actual),
+                "longBits of " + expected);
+    }
+
+    private static class MaxLengthCharSequence implements CharSequence {
+        private final String str;
+        private int startIndex;
+        private int endIndex;
+
+        private MaxLengthCharSequence(String str) {
+            this.str = str;
+            this.startIndex = 0;
+            this.endIndex = Integer.MAX_VALUE;
+        }
+
+        private MaxLengthCharSequence(String str, int startIndex, int endIndex) {
+            this.str = str;
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+        }
+
+        @Override
+        public char charAt(int index) {
+            return index - startIndex < endIndex - str.length()
+                    ? ' '
+                    : str.charAt(index - startIndex - (endIndex - str.length()));
+        }
+
+        @Override
+        public int length() {
+            return endIndex - startIndex;
+        }
+
+        @Override
+        public CharSequence subSequence(int start, int end) {
+            return new MaxLengthCharSequence(str, start, end);
+        }
+
+        @Override
+        public String toString() {
+            return str;
+        }
     }
 }

@@ -1,13 +1,13 @@
 /*
- * @(#)FastDoubleParser.java
- * Copyright © 2021. Werner Randelshofer, Switzerland. MIT License.
+ * @(#)FastDoubleParser2.java
+ * Copyright © 2022. Werner Randelshofer, Switzerland. MIT License.
  */
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
 /**
  * Provides static method for parsing a {@code double} from a
- * {@link CharSequence} or {@code char} array.
+ * {@link CharSequence}, {@code char} array or {@code byte} array.
  */
 public class FastDoubleParser {
 
@@ -43,7 +43,7 @@ public class FastDoubleParser {
      * @throws NumberFormatException if the string can not be parsed
      */
     public static double parseDouble(CharSequence str, int offset, int length) throws NumberFormatException {
-        return DoubleFromCharSequence.INSTANCE.parseDouble(str, offset, length);
+        return new DoubleFromCharSequence().parseDouble(str, offset, length);
     }
 
 }

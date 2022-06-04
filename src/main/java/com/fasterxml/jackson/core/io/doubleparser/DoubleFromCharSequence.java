@@ -1,4 +1,3 @@
-
 /*
  * @(#)FastDoubleParser.java
  * Copyright © 2021. Werner Randelshofer, Switzerland. MIT License.
@@ -11,9 +10,11 @@ package com.fasterxml.jackson.core.io.doubleparser;
  */
 public final class DoubleFromCharSequence extends AbstractFloatValueFromCharSequence {
 
-    static DoubleFromCharSequence INSTANCE = new DoubleFromCharSequence();
 
-    private DoubleFromCharSequence() {
+    /**
+     * Creates a new instance.
+     */
+    public DoubleFromCharSequence() {
 
     }
 

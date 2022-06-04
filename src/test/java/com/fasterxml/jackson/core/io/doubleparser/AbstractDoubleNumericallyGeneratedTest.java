@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-abstract class AbstractFloatNumericallyGeneratedTest {
+abstract class AbstractDoubleNumericallyGeneratedTest {
     /**
      * Seed for random number generator.
      * Specify a literal number to obtain repeatable tests.
@@ -27,29 +27,29 @@ abstract class AbstractFloatNumericallyGeneratedTest {
     @TestFactory
     Stream<DynamicNode> dynamicTestsRandomDecimalFloatLiterals() {
         Random r = new Random(SEED);
-        return r.ints(10_000)
-                .mapToObj(Float::intBitsToFloat)
-                .map(d -> dynamicTest(d + "", () -> testLegalInput(d)));
+        return r.longs(10_000)
+                .mapToDouble(Double::longBitsToDouble)
+                .mapToObj(d -> dynamicTest(d + "", () -> testLegalInput(d)));
     }
 
     @TestFactory
     Stream<DynamicNode> dynamicTestsRandomHexadecimalFloatLiterals() {
         Random r = new Random(SEED);
-        return r.ints(10_000)
-                .mapToObj(Float::intBitsToFloat)
-                .map(d -> dynamicTest(Float.toHexString(d) + "", () -> testLegalInput(d)));
+        return r.longs(10_000)
+                .mapToDouble(Double::longBitsToDouble)
+                .mapToObj(d -> dynamicTest(Double.toHexString(d) + "", () -> testLegalInput(d)));
     }
 
-    protected abstract float parse(String str);
+    protected abstract double parse(String str);
 
-    private void testLegalInput(String str, float expected) {
-        float actual = parse(str);
+    private void testLegalInput(String str, double expected) {
+        double actual = parse(str);
         assertEquals(expected, actual, "str=" + str);
-        assertEquals(Float.floatToIntBits(expected), Float.floatToIntBits(actual),
-                "intBits of " + expected);
+        assertEquals(Double.doubleToLongBits(expected), Double.doubleToLongBits(actual),
+                "longBits of " + expected);
     }
 
-    private void testLegalInput(float expected) {
+    private void testLegalInput(double expected) {
         testLegalInput(expected + "", expected);
     }
 }

@@ -1,4 +1,3 @@
-
 /*
  * @(#)LexicalGenerator.java
  * Copyright © 2021. Werner Randelshofer, Switzerland. MIT License.
@@ -50,45 +49,47 @@ class LexicalGenerator {
     };
     private final static char[] HEX_DIGITS_OR_UNDERSCORE = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'a', 'b', 'c', 'd', 'e', 'f',
-            'A', 'B', 'C', 'D', 'E', 'F' , '_'
+            'A', 'B', 'C', 'D', 'E', 'F', '_'
     };
     private final boolean produceUnderscore;
     private final boolean produceFloatTypeSuffix;
+
     LexicalGenerator(boolean produceUnderscore, boolean produceFloatTypeSuffix) {
         this.produceUnderscore = produceUnderscore;
         this.produceFloatTypeSuffix = produceFloatTypeSuffix;
+    }
+
+    public static void main(String... args) throws IOException {
+        Path outPath = FileSystems.getDefault().getPath("data/canada_hex.txt");
+        Path inPath = FileSystems.getDefault().getPath("data/canada.txt");
+        try (BufferedReader r = Files.newBufferedReader(inPath, StandardCharsets.UTF_8);
+             BufferedWriter w = Files.newBufferedWriter(outPath, StandardCharsets.UTF_8)) {
+            for (String line = r.readLine(); line != null; line = r.readLine()) {
+                w.write(Double.toHexString(Double.parseDouble(line)));
+                w.write('\n');
+            }
+        }
     }
 
     public static void main1(String... args) throws IOException {
         Path path;
         if (args.length == 0) {
             System.out.println("Please provide the output file.");
-            path=null;
+            path = null;
             System.exit(10);
         } else {
-            path= FileSystems.getDefault().getPath(args[0]);
+            path = FileSystems.getDefault().getPath(args[0]);
         }
         Random rng = new Random(0);
         LexicalGenerator gen = new LexicalGenerator(false, false);
-        Set<String> produced=new HashSet<>();
+        Set<String> produced = new HashSet<>();
         try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            while (produced.size()<100_000) {
+            while (produced.size() < 100_000) {
                 String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(40, rng);
                 if (produced.add(str)) {
                     w.write(str);
                     w.write('\n');
                 }
-            }
-        }
-    }
-    public static void main(String... args) throws IOException {
-        Path outPath = FileSystems.getDefault().getPath("data/canada_hex.txt");
-        Path inPath = FileSystems.getDefault().getPath("data/canada.txt");
-        try (BufferedReader r = Files.newBufferedReader(inPath, StandardCharsets.UTF_8);
-             BufferedWriter w = Files.newBufferedWriter(outPath, StandardCharsets.UTF_8)) {
-            for (String line=r.readLine();line!=null;line=r.readLine()) {
-                w.write(Double.toHexString(Double.parseDouble(line)));
-                w.write('\n');
             }
         }
     }
@@ -179,7 +180,7 @@ class LexicalGenerator {
     private int produceRandomDigitOrUnderscore(int remaining, Random rng, StringBuilder buf) {
         if (produceUnderscore) {
             buf.append(DIGITS_OR_UNDERSCORE[rng.nextInt(DIGITS_OR_UNDERSCORE.length)]);
-        }else{
+        } else {
             buf.append(DIGITS[rng.nextInt(DIGITS.length)]);
         }
         remaining--;
@@ -261,7 +262,7 @@ class LexicalGenerator {
      * </dl>
      */
     private int produceRandomFloatTypeSuffix(int remaining, Random rng, StringBuilder buf) {
-        if( produceFloatTypeSuffix) {
+        if (produceFloatTypeSuffix) {
             switch (rng.nextInt(4)) {
                 case 0:
                     buf.append('f');
@@ -317,7 +318,7 @@ class LexicalGenerator {
     private int produceRandomHexDigitOrUnderscore(int remaining, Random rng, StringBuilder buf) {
         if (produceUnderscore) {
             buf.append(HEX_DIGITS_OR_UNDERSCORE[rng.nextInt(HEX_DIGITS_OR_UNDERSCORE.length)]);
-        }else{
+        } else {
             buf.append(HEX_DIGITS[rng.nextInt(HEX_DIGITS.length)]);
         }
         remaining--;

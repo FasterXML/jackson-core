@@ -1,4 +1,3 @@
-
 /*
  * @(#)FastDoubleSimdUtf16SwarTest.java
  * Copyright © 2022. Werner Randelshofer, Switzerland. MIT License.
@@ -9,24 +8,25 @@ package com.fasterxml.jackson.core.io.doubleparser;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FastDoubleSimdSwarTest extends AbstractFastDoubleSimdTest {
+public class FastDoubleSwarSwarTest extends AbstractFastDoubleSwarTest {
     @Override
     void testDec(String s, int offset, int expected) {
         char[] chars = s.toCharArray();
 
-        int actual = FastDoubleSimd.tryToParseEightDigitsUtf16Swar(chars, offset);
+        int actual = FastDoubleSwar.tryToParseEightDigitsUtf16(chars, offset);
         assertEquals(expected, actual);
 
 
         long first = chars[offset + 0] | ((long) chars[offset + 1] << 16) | ((long) chars[offset + 2] << 32) | ((long) chars[offset + 3] << 48);
         long second = chars[offset + 4] | ((long) chars[offset + 5] << 16) | ((long) chars[offset + 6] << 32) | ((long) chars[offset + 7] << 48);
-        actual = FastDoubleSimd.tryToParseEightDigitsUtf16Swar(first, second);
+        actual = FastDoubleSwar.tryToParseEightDigitsUtf16(first, second);
         assertEquals(expected, actual);
 
 
         byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
-        actual = FastDoubleSimd.tryToParseEightDigitsUtf8Swar(bytes, offset);
+        actual = FastDoubleSwar.tryToParseEightDigitsUtf8(bytes, offset);
         assertEquals(expected, actual);
 
         long value = ((bytes[offset + 7] & 0xffL) << 56)
@@ -60,8 +60,12 @@ public class FastDoubleSimdSwarTest extends AbstractFastDoubleSimdTest {
     @Override
     void testHex(String s, int offset, long expected) {
         char[] chars = s.toCharArray();
-        long actual = FastDoubleSimd.tryToParseEightHexDigitsUtf16Swar(chars, offset);
-        assertEquals(expected, actual);
+        long actual = FastDoubleSwar.tryToParseEightHexDigitsUtf16(chars, offset);
+        if (expected < 0) {
+            assertTrue(actual < 0);
+        } else {
+            assertEquals(expected, actual);
+        }
 
         long first = (long) chars[offset + 0] << 48
                 | (long) chars[offset + 1] << 32
@@ -72,11 +76,19 @@ public class FastDoubleSimdSwarTest extends AbstractFastDoubleSimdTest {
                 | (long) chars[offset + 5] << 32
                 | (long) chars[offset + 6] << 16
                 | (long) chars[offset + 7];
-        actual = FastDoubleSimd.tryToParseEightHexDigitsUtf16Swar(first, second);
-        assertEquals(expected, actual);
+        actual = FastDoubleSwar.tryToParseEightHexDigitsUtf16(first, second);
+        if (expected < 0) {
+            assertTrue(actual < 0);
+        } else {
+            assertEquals(expected, actual);
+        }
 
-        actual = FastDoubleSimd.tryToParseEightHexDigitsUtf8Swar(s.getBytes(StandardCharsets.UTF_8), offset);
-        assertEquals(expected, actual);
+        actual = FastDoubleSwar.tryToParseEightHexDigitsUtf8(s.getBytes(StandardCharsets.UTF_8), offset);
+        if (expected < 0) {
+            assertTrue(actual < 0);
+        } else {
+            assertEquals(expected, actual);
+        }
 
     }
 }

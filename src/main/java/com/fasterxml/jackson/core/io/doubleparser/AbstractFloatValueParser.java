@@ -1,4 +1,3 @@
-
 /*
  * @(#)AbstractFParser.java
  * Copyright © 2022. Werner Randelshofer, Switzerland. MIT License.
@@ -47,7 +46,8 @@ abstract class AbstractFloatValueParser {
      */
     static final byte OTHER_CLASS = -1;
     /**
-     * A table up to including character 'p' would suffice.
+     * Includes all non-negative values of a {@code byte}, so that we only have
+     * to check for byte values {@literal <} 0 before accessing this array.
      */
     static final byte[] CHAR_TO_HEX_MAP = new byte[128];
 

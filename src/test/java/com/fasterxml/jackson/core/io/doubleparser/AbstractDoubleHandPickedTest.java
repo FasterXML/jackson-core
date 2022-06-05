@@ -1,4 +1,3 @@
-
 /*
  * @(#)HandPickedTest.java
  * Copyright © 2021. Werner Randelshofer, Switzerland. MIT License.
@@ -26,51 +25,105 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 abstract class AbstractDoubleHandPickedTest {
 
     /**
+     * Tests input classes that execute different code branches in the parse
+     * methods of {@link AbstractFloatValueFromCharSequence}.
+     * <p>
+     * This test must achieve 100 % line coverage of the tested class.
+     */
+    @TestFactory
+    List<DynamicNode> dynamicTestsDecFloatLiteralParserInputClasses() {
+        return Arrays.asList(
+                dynamicTest("parseFloatValue(): Significand without whitespace", () -> testLegalInput("3")),
+                dynamicTest("parseFloatValue(): Significand with leading whitespace", () -> testLegalInput("   3")),
+                dynamicTest("parseFloatValue(): Significand with trailing whitespace", () -> testLegalInput("3   ")),
+                dynamicTest("parseFloatValue(): Empty String", () -> testIllegalInput("")),
+                dynamicTest("parseFloatValue(): Blank String", () -> testIllegalInput("   ")),
+                dynamicTest("parseFloatValue(): Very long non-blank String", () -> testIllegalInput("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")),
+                dynamicTest("parseFloatValue(): Plus Sign", () -> testIllegalInput("+")),
+                dynamicTest("parseFloatValue(): Negative Sign", () -> testIllegalInput("-")),
+                dynamicTest("parseFloatValue(): Infinity", () -> testLegalInput("Infinity")),
+                dynamicTest("parseFloatValue(): NaN", () -> testLegalInput("NaN")),
+                dynamicTest("parseInfinity(): Infinit (missing last char)", () -> testIllegalInput("Infinit")),
+                dynamicTest("parseInfinity(): InfinitY (bad last char)", () -> testIllegalInput("InfinitY")),
+                dynamicTest("parseNaN(): Na (missing last char)", () -> testIllegalInput("Na")),
+                dynamicTest("parseNaN(): Nan (bad last char)", () -> testIllegalInput("Nan")),
+                dynamicTest("parseFloatValue(): Leading zero", () -> testLegalInput("03")),
+                dynamicTest("parseFloatValue(): Leading zero x", () -> testIllegalInput("0x3")),
+                dynamicTest("parseFloatValue(): Leading zero X", () -> testIllegalInput("0X3")),
+
+                dynamicTest("parseDecFloatLiteral(): With decimal point", () -> testLegalInput("3.")),
+                dynamicTest("parseDecFloatLiteral(): Without decimal point", () -> testLegalInput("3")),
+                dynamicTest("parseDecFloatLiteral(): 7 digits after decimal point", () -> testLegalInput("3.1234567")),
+                dynamicTest("parseDecFloatLiteral(): 8 digits after decimal point", () -> testLegalInput("3.12345678")),
+                dynamicTest("parseDecFloatLiteral(): 9 digits after decimal point", () -> testLegalInput("3.123456789")),
+                dynamicTest("parseDecFloatLiteral(): 1 digit + 7 chars after decimal point", () -> testIllegalInput("3.1abcdefg")),
+                dynamicTest("parseDecFloatLiteral(): With 'e' at end", () -> testIllegalInput("3e")),
+                dynamicTest("parseDecFloatLiteral(): With 'E' at end", () -> testIllegalInput("3E")),
+                dynamicTest("parseDecFloatLiteral(): With 'e' + whitespace at end", () -> testIllegalInput("3e   ")),
+                dynamicTest("parseDecFloatLiteral(): With 'E' + whitespace  at end", () -> testIllegalInput("3E   ")),
+                dynamicTest("parseDecFloatLiteral(): With 'e+' at end", () -> testIllegalInput("3e+")),
+                dynamicTest("parseDecFloatLiteral(): With 'E-' at end", () -> testIllegalInput("3E-")),
+                dynamicTest("parseDecFloatLiteral(): With 'e+9' at end", () -> testLegalInput("3e+9")),
+                dynamicTest("parseDecFloatLiteral(): With 20 significand digits", () -> testLegalInput("12345678901234567890")),
+                dynamicTest("parseDecFloatLiteral(): With 20 significand digits + non-ascii char", () -> testIllegalInput("12345678901234567890￡")),
+                dynamicTest("parseDecFloatLiteral(): With 20 significand digits with decimal point", () -> testLegalInput("1234567890.1234567890")),
+
+                dynamicTest("parseHexFloatLiteral(): With decimal point", () -> testIllegalInput("0x3.")),
+                dynamicTest("parseHexFloatLiteral(): Without decimal point", () -> testIllegalInput("0X3")),
+                dynamicTest("parseHexFloatLiteral(): 7 digits after decimal point", () -> testIllegalInput("0x3.1234567")),
+                dynamicTest("parseHexFloatLiteral(): 8 digits after decimal point", () -> testIllegalInput("0X3.12345678")),
+                dynamicTest("parseHexFloatLiteral(): 9 digits after decimal point", () -> testIllegalInput("0x3.123456789")),
+                dynamicTest("parseHexFloatLiteral(): 1 digit + 7 chars after decimal point", () -> testIllegalInput("0X3.1abcdefg")),
+                dynamicTest("parseHexFloatLiteral(): With 'p' at end", () -> testIllegalInput("0X3p")),
+                dynamicTest("parseHexFloatLiteral(): With 'P' at end", () -> testIllegalInput("0x3P")),
+                dynamicTest("parseHexFloatLiteral(): With 'p' + whitespace at end", () -> testIllegalInput("0X3p   ")),
+                dynamicTest("parseHexFloatLiteral(): With 'P' + whitespace  at end", () -> testIllegalInput("0x3P   ")),
+                dynamicTest("parseHexFloatLiteral(): With 'p+' at end", () -> testIllegalInput("0X3p+")),
+                dynamicTest("parseHexFloatLiteral(): With 'P-' at end", () -> testIllegalInput("0x3P-")),
+                dynamicTest("parseHexFloatLiteral(): With 'p+9' at end", () -> testLegalInput("0X3p+9")),
+                dynamicTest("parseHexFloatLiteral(): With 20 significand digits", () -> testLegalInput("0x12345678901234567890p0")),
+                dynamicTest("parseHexFloatLiteral(): With 20 significand digits + non-ascii char", () -> testIllegalInput("0x12345678901234567890￡p0")),
+                dynamicTest("parseHexFloatLiteral(): With 20 significand digits with decimal point", () -> testLegalInput("0x1234567890.1234567890P0"))
+        );
+    }
+
+    /**
      * Tests input classes that execute different code branches in
      * method {@link FastDoubleMath#tryDecFloatToDouble(boolean, long, int)}.
+     * <p>
+     * This test must achieve 100 % line coverage of the tested method.
      */
     @TestFactory
     List<DynamicNode> dynamicTestsDecFloatLiteralClingerInputClasses() {
         return Arrays.asList(
-                dynamicTest("Inside Clinger fast path \"1000000000000000000e-340\")", () -> testLegalInput(
-                        "1000000000000000000e-325")),
+                dynamicTest("Inside Clinger fast path \"1000000000000000000e-340\")", () -> testLegalInput("1000000000000000000e-325")),
                 //
-                dynamicTest("Inside Clinger fast path (max_clinger_significand, max_clinger_exponent)", () -> testLegalInput(
-                        "9007199254740991e22")),
-                dynamicTest("Outside Clinger fast path (max_clinger_significand, max_clinger_exponent + 1)", () -> testLegalInput(
-                        "9007199254740991e23")),
-                dynamicTest("Outside Clinger fast path (max_clinger_significand + 1, max_clinger_exponent)", () -> testLegalInput(
-                        "9007199254740992e22")),
-                dynamicTest("Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", () -> testLegalInput(
-                        "1e-22")),
-                dynamicTest("Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", () -> testLegalInput(
-                        "1e-23")),
-                dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 1e23", () -> testLegalInput(
-                        "1e23")),
-                dynamicTest("Outside Clinger fast path, mantissa overflows in semi-fast path, 7.2057594037927933e+16", () -> testLegalInput(
-                        "7.2057594037927933e+16")),
-                dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 7.3177701707893310e+15", () -> testLegalInput(
-                        "7.3177701707893310e+15"))
+                dynamicTest("Inside Clinger fast path (max_clinger_significand, max_clinger_exponent)", () -> testLegalInput("9007199254740991e22")),
+                dynamicTest("Outside Clinger fast path (max_clinger_significand, max_clinger_exponent + 1)", () -> testLegalInput("9007199254740991e23")),
+                dynamicTest("Outside Clinger fast path (max_clinger_significand + 1, max_clinger_exponent)", () -> testLegalInput("9007199254740992e22")),
+                dynamicTest("Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", () -> testLegalInput("1e-22")),
+                dynamicTest("Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", () -> testLegalInput("1e-23")),
+                dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 1e23", () -> testLegalInput("1e23")),
+                dynamicTest("Outside Clinger fast path, mantissa overflows in semi-fast path, 7.2057594037927933e+16", () -> testLegalInput("7.2057594037927933e+16")),
+                dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 7.3177701707893310e+15", () -> testLegalInput("7.3177701707893310e+15"))
         );
     }
 
     /**
      * Tests input classes that execute different code branches in
      * method {@link FastDoubleMath#tryHexFloatToDouble(boolean, long, int)}.
+     * <p>
+     * This test must achieve 100 % line coverage of the tested method.
      */
     @TestFactory
     List<DynamicNode> dynamicTestsHexFloatLiteralClingerInputClasses() {
         return Arrays.asList(
-                dynamicTest("Inside Clinger fast path (max_clinger_significand)", () -> testLegalInput(
-                        "0x1fffffffffffffp74", 0x1fffffffffffffp74)),
-                dynamicTest("Outside Clinger fast path (max_clinger_significand, max_clinger_exponent + 1)", () -> testLegalInput(
-                        "0x1fffffffffffffp74", 0x1fffffffffffffp74)),
-                dynamicTest("Outside Clinger fast path (max_clinger_significand + 1, max_clinger_exponent)", () -> testLegalInput(
-                        "0x20000000000000p74", 0x20000000000000p74)),
-                dynamicTest("Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", () -> testLegalInput(
-                        "0x1p-74", 0x1p-74)),
-                dynamicTest("Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", () -> testLegalInput(
-                        "0x1p-75", 0x1p-75))
+                dynamicTest("Inside Clinger fast path (max_clinger_significand)", () -> testLegalInput("0x1fffffffffffffp74", 0x1fffffffffffffp74)),
+                dynamicTest("Inside Clinger fast path (max_clinger_significand), negative", () -> testLegalInput("-0x1fffffffffffffp74", -0x1fffffffffffffp74)),
+                dynamicTest("Outside Clinger fast path (max_clinger_significand, max_clinger_exponent + 1)", () -> testLegalInput("0x1fffffffffffffp74", 0x1fffffffffffffp74)),
+                dynamicTest("Outside Clinger fast path (max_clinger_significand + 1, max_clinger_exponent)", () -> testLegalInput("0x20000000000000p74", 0x20000000000000p74)),
+                dynamicTest("Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", () -> testLegalInput("0x1p-74", 0x1p-74)),
+                dynamicTest("Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", () -> testLegalInput("0x1p-75", 0x1p-75))
         );
     }
 
@@ -272,24 +325,6 @@ abstract class AbstractDoubleHandPickedTest {
         );
     }
 
-    /**
-     * <dl>
-     *     <dt>Rick Regan, 2011-01-31, Java Hangs When Converting 2.2250738585072012e-308.</dt>
-     *     <dd><a href="https://www.exploringbinary.com/java-hangs-when-converting-2-2250738585072012e-308/">exploringbinary.com</a></dd>
-     * </dl>
-     */
-    @TestFactory
-    List<DynamicNode> dynamicTestsNumbersThatCausedJavaToHang() {
-        return Arrays.asList(
-                dynamicTest("2.2250738585072012e-308 (Java got stuck, oscillating between 0x1p-1022 and 0x0.fffffffffffffp-1022)", () -> testLegalInput("2.2250738585072012e-308", 2.2250738585072012e-308)),
-                dynamicTest("0.00022250738585072012e-304 (decimal point placement)", () -> testLegalInput("0.00022250738585072012e-304", 0.00022250738585072012e-304)),
-                dynamicTest("00000000002.2250738585072012e-308 (leading zeros)", () -> testLegalInput("00000000002.2250738585072012e-308", 00000000002.2250738585072012e-308)),
-                dynamicTest("2.225073858507201200000e-308 (trailing zeros)", () -> testLegalInput("2.225073858507201200000e-308", 2.225073858507201200000e-308)),
-                dynamicTest("2.2250738585072012e-00308 (leading zeros in the exponent)", () -> testLegalInput("2.2250738585072012e-00308", 2.2250738585072012e-00308)),
-                dynamicTest("2.2250738585072012997800001e-308 (superfluous digits beyond digit 17)", () -> testLegalInput("2.2250738585072012997800001e-308", 2.2250738585072012997800001e-308)),
-                dynamicTest("6.917529027641081856e+18 (C# rounding bug)", () -> testLegalInput("6.917529027641081856e+18", 6.917529027641081856e+18))
-        );
-    }
 
     @TestFactory
     Stream<DynamicNode> dynamicTestsPowerOfTen() {

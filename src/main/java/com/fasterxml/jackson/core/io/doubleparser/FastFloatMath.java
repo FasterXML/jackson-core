@@ -1,4 +1,3 @@
-
 /*
  * @(#)FastFloatMath.java
  * Copyright © 2022. Werner Randelshofer, Switzerland. MIT License.
@@ -6,7 +5,6 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.DOUBLE_MAX_EXPONENT_POWER_OF_TEN;
 import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.DOUBLE_MIN_EXPONENT_POWER_OF_TEN;
 import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_128;
 import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_64;
@@ -60,8 +58,8 @@ class FastFloatMath {
             // To know whether rounding up is needed, we may have to examine up to 768 digits.
 
             // There are cases, in which rounding has no effect.
-            if (DOUBLE_MIN_EXPONENT_POWER_OF_TEN <= exponentOfTruncatedSignificand
-                    && exponentOfTruncatedSignificand <= DOUBLE_MAX_EXPONENT_POWER_OF_TEN) {
+            if (FLOAT_MIN_EXPONENT_POWER_OF_TEN <= exponentOfTruncatedSignificand
+                    && exponentOfTruncatedSignificand <= FLOAT_MAX_EXPONENT_POWER_OF_TEN) {
                 float withoutRounding = tryDecToFloatWithFastAlgorithm(isNegative, significand, exponentOfTruncatedSignificand);
                 float roundedUp = tryDecToFloatWithFastAlgorithm(isNegative, significand + 1, exponentOfTruncatedSignificand);
                 if (!Float.isNaN(withoutRounding) && roundedUp == withoutRounding) {
@@ -74,7 +72,7 @@ class FastFloatMath {
             result = Float.NaN;
 
 
-        } else if (DOUBLE_MIN_EXPONENT_POWER_OF_TEN <= exponent && exponent <= DOUBLE_MAX_EXPONENT_POWER_OF_TEN) {
+        } else if (FLOAT_MIN_EXPONENT_POWER_OF_TEN <= exponent && exponent <= FLOAT_MAX_EXPONENT_POWER_OF_TEN) {
             result = tryDecToFloatWithFastAlgorithm(isNegative, significand, exponent);
         } else {
             result = Float.NaN;

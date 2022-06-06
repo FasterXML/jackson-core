@@ -1359,7 +1359,7 @@ public abstract class TokenStreamFactory
     }
 
     /**
-     * Helper methods used for constructing an optimal stream for
+     * Helper method used for constructing an optimal stream for
      * parsers to use, when input is to be read from an URL.
      * This helps when reading file content via URL.
      *

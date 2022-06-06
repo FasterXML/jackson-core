@@ -1026,7 +1026,7 @@ public class JsonFactory
     public JsonParser createParser(File f) throws IOException, JsonParseException {
         // true, since we create InputStream from File
         IOContext ctxt = _createContext(_createContentReference(f), true);
-        InputStream in = new FileInputStream(f);
+        InputStream in = _streamFromFile(f);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
 

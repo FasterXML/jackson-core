@@ -178,8 +178,9 @@ public abstract class TokenStreamFactory
     protected OutputStream _createDataOutputWrapper(DataOutput out) {
         return new DataOutputAsStream(out);
     }
+
     /**
-     * Helper methods used for constructing an optimal stream for
+     * Helper method used for constructing an optimal stream for
      * parsers to use, when input is to be read from an URL.
      * This helps when reading file content via URL.
      *
@@ -209,5 +210,15 @@ public abstract class TokenStreamFactory
             }
         }
         return url.openStream();
+    }
+
+    /**
+     * Helper methods used for constructing an {@link InputStream} for
+     * parsers to use, when input is to be read from given {@link File}.
+     *
+     * @since 2.14
+     */
+    protected InputStream _streamFromFile(File f) throws IOException {
+        return new FileInputStream(f);
     }
 }

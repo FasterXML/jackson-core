@@ -218,7 +218,17 @@ public abstract class TokenStreamFactory
      *
      * @since 2.14
      */
-    protected InputStream _streamFromFile(File f) throws IOException {
+    protected InputStream _fileInputStream(File f) throws IOException {
         return new FileInputStream(f);
+    }
+
+    /**
+     * Helper methods used for constructing an {@link OutputStream} for
+     * generator to use, when target is to be written into given {@link File}.
+     *
+     * @since 2.14
+     */
+    protected OutputStream _fileOutputStream(File f) throws IOException {
+        return new FileOutputStream(f);
     }
 }

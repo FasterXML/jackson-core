@@ -1026,7 +1026,7 @@ public class JsonFactory
     public JsonParser createParser(File f) throws IOException, JsonParseException {
         // true, since we create InputStream from File
         IOContext ctxt = _createContext(_createContentReference(f), true);
-        InputStream in = _streamFromFile(f);
+        InputStream in = _fileInputStream(f);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
 
@@ -1336,7 +1336,7 @@ public class JsonFactory
     @Override
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
     {
-        OutputStream out = new FileOutputStream(f);
+        OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         IOContext ctxt = _createContext(_createContentReference(out), true);
         ctxt.setEncoding(enc);

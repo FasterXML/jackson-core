@@ -17,8 +17,9 @@ import com.fasterxml.jackson.core.io.NumberInput;
  *
  * @since 2.3
  */
-public class JsonPointer
+public class JsonPointer extends Serializable
 {
+    private static final long serialVersionUID = 1L; 
     /**
      * Character used to separate segments.
      *

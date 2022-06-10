@@ -1,6 +1,11 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.io.NumberInput;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
 
 /**
  * Implementation of
@@ -17,7 +22,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
  *
  * @since 2.3
  */
-public class JsonPointer extends Serializable
+public class JsonPointer implements Externalizable
 {
     private static final long serialVersionUID = 1L; 
     /**
@@ -60,7 +65,11 @@ public class JsonPointer extends Serializable
      * so that {@link #toString} should be as efficient as possible.
      */
     protected final String _asString;
-    
+    /**
+     * Strictly used by serialization as an intermediate placeholder.
+     */
+    private String _serialized;
+
     protected final String _matchingPropertyName;
 
     protected final int _matchingElementIndex;
@@ -73,9 +82,10 @@ public class JsonPointer extends Serializable
     
     /**
      * Constructor used for creating "empty" instance, used to represent
-     * state that matches current node.
+     * state that matches current node. Note that this constructor must be public for
+     * implementing {@link Externalizable}.
      */
-    protected JsonPointer() {
+    public JsonPointer() {
         _nextSegment = null;
         _matchingPropertyName = "";
         _matchingElementIndex = -1;
@@ -643,5 +653,18 @@ public class JsonPointer extends Serializable
             sb.append('~');
         }
         sb.append(c);
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(_asString);
+    }
+    private Object readResolve() throws ObjectStreamException {
+        return compile(_serialized);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        _serialized = in.readUTF();
     }
 }

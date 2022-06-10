@@ -1,5 +1,12 @@
 package com.fasterxml.jackson.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 public class TestJsonPointer extends BaseTest
 {
     public void testSimplePath() throws Exception
@@ -227,5 +234,32 @@ public class TestJsonPointer extends BaseTest
         ptr = ptr.tail();
         assertTrue(ptr.matches());
         assertNull(ptr.tail());
+    }
+
+    private static <T extends Serializable> byte[] pickle(T obj)
+        throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(obj);
+        oos.close();
+        return baos.toByteArray();
+    }
+
+    private static <T extends Serializable> T unpickle(byte[] b, Class<T> cl)
+        throws IOException, ClassNotFoundException
+    {
+        ByteArrayInputStream bais = new ByteArrayInputStream(b);
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object o = ois.readObject();
+        return cl.cast(o);
+    }
+    public void testPointerSerialization() throws Exception {
+
+        final String INPUT = "/Image/15/name";
+        JsonPointer original = JsonPointer.compile(INPUT);
+        JsonPointer copy = unpickle(pickle(original), JsonPointer.class);
+        assertEquals(original, copy);
+
     }
 }

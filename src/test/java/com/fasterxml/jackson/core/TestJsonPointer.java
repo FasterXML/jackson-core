@@ -259,6 +259,7 @@ public class TestJsonPointer extends BaseTest
         final String INPUT = "/Image/15/name";
         JsonPointer original = JsonPointer.compile(INPUT);
         JsonPointer copy = unpickle(pickle(original), JsonPointer.class);
+        assertNotSame(copy, original);
         assertEquals(original, copy);
 
     }

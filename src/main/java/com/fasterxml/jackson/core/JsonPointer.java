@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * Implementation of
@@ -22,7 +23,7 @@ import java.io.ObjectStreamException;
  *
  * @since 2.3
  */
-public class JsonPointer implements Externalizable
+public class JsonPointer implements Serializable
 {
     private static final long serialVersionUID = 1L; 
     /**
@@ -65,10 +66,6 @@ public class JsonPointer implements Externalizable
      * so that {@link #toString} should be as efficient as possible.
      */
     protected final String _asString;
-    /**
-     * Strictly used by serialization as an intermediate placeholder.
-     */
-    private String _serialized;
 
     protected final String _matchingPropertyName;
 
@@ -655,16 +652,35 @@ public class JsonPointer implements Externalizable
         sb.append(c);
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeUTF(_asString);
-    }
-    private Object readResolve() throws ObjectStreamException {
-        return compile(_serialized);
+    private Object writeReplace() {
+        return new SerializableJsonPointer(_asString);
     }
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        _serialized = in.readUTF();
+    /**
+     * This must only exist to allow both final properties and implementation of
+     * Externalizable/Serializable for JsonPointer
+     */
+    private static class SerializableJsonPointer implements Externalizable {
+        private String _asString;
+
+        public SerializableJsonPointer() {
+        }
+
+        public SerializableJsonPointer(String asString) {
+            _asString = asString;
+        }
+
+        @Override
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeUTF(_asString);
+        }
+
+        @Override
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            _asString = in.readUTF();
+        }
+        private Object readResolve() throws ObjectStreamException {
+            return compile(_asString);
+        }
     }
 }

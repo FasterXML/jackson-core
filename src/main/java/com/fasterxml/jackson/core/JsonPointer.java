@@ -76,13 +76,12 @@ public class JsonPointer implements Serializable
     /* Construction
     /**********************************************************
      */
-    
+
     /**
      * Constructor used for creating "empty" instance, used to represent
-     * state that matches current node. Note that this constructor must be public for
-     * implementing {@link Externalizable}.
+     * state that matches current node.
      */
-    public JsonPointer() {
+    protected JsonPointer() {
         _nextSegment = null;
         _matchingPropertyName = "";
         _matchingElementIndex = -1;

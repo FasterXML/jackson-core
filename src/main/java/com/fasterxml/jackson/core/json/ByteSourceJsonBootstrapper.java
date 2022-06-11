@@ -166,7 +166,7 @@ public final class ByteSourceJsonBootstrapper
 
         JsonEncoding enc;
 
-        /* Not found yet? As per specs, this means it must be UTF-8. */
+        // Not found yet? As per specs, this means it must be UTF-8
         if (!foundEncoding) {
             enc = JsonEncoding.UTF8;
         } else {
@@ -276,9 +276,8 @@ public final class ByteSourceJsonBootstrapper
         int bytesProcessed = _inputPtr - prevInputPtr;
 
         if (enc == JsonEncoding.UTF8) {
-            /* and without canonicalization, byte-based approach is not performant; just use std UTF-8 reader
-             * (which is ok for larger input; not so hot for smaller; but this is not a common case)
-             */
+            // and without canonicalization, byte-based approach is not performant; just use std UTF-8 reader
+            // (which is ok for larger input; not so hot for smaller; but this is not a common case)
             if (JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES.enabledIn(factoryFeatures)) {
                 ByteQuadsCanonicalizer can = rootByteSymbols.makeChild(factoryFeatures);
                 return new UTF8StreamJsonParser(readCtxt, _context,

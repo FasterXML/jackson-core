@@ -32,6 +32,7 @@ JSON library.
  (contributed by @pjfanning)
 #759: JsonGenerator to provide current value to the context before starting objects
  (reported by Illia O)
+#763: `JsonFactory.createParser()` with `File` may leak `InputStream`s
 
 2.13.3 (14-May-2022)
 

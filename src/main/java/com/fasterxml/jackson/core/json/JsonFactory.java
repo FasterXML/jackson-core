@@ -353,11 +353,23 @@ public class JsonFactory
     protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
             InputStream in) throws JacksonException
     {
-        return new ByteSourceJsonBootstrapper(ioCtxt, in)
-                .constructParser(readCtxt,
+        try {
+            return new ByteSourceJsonBootstrapper(ioCtxt, in)
+                    .constructParser(readCtxt,
                         readCtxt.getStreamReadFeatures(_streamReadFeatures),
                         readCtxt.getFormatReadFeatures(_formatReadFeatures),
                         _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+        } catch (RuntimeException e) {
+            // 10-Jun-2022, tatu: For [core#763] may need to close InputStream here
+            if (ioCtxt.isResourceManaged()) {
+                try {
+                    in.close();
+                } catch (Exception e2) {
+                    e.addSuppressed(e2);
+                }
+            }
+            throw e;
+        }
     }
 
     @Override

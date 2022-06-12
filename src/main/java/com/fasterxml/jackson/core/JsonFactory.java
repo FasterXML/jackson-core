@@ -1026,7 +1026,7 @@ public class JsonFactory
     public JsonParser createParser(File f) throws IOException, JsonParseException {
         // true, since we create InputStream from File
         IOContext ctxt = _createContext(_createContentReference(f), true);
-        InputStream in = new FileInputStream(f);
+        InputStream in = _fileInputStream(f);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
 
@@ -1336,7 +1336,7 @@ public class JsonFactory
     @Override
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
     {
-        OutputStream out = new FileOutputStream(f);
+        OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         IOContext ctxt = _createContext(_createContentReference(out), true);
         ctxt.setEncoding(enc);
@@ -1651,9 +1651,20 @@ public class JsonFactory
      * @since 2.1
      */
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
-        // As per [JACKSON-259], may want to fully disable canonicalization:
-        return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
-                _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+        try {
+            return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
+                    _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+        } catch (IOException | RuntimeException e) {
+            // 10-Jun-2022, tatu: For [core#763] may need to close InputStream here
+            if (ctxt.isResourceManaged()) {
+                try {
+                    in.close();
+                } catch (Exception e2) {
+                    e.addSuppressed(e2);
+                }
+            }
+            throw e;
+        }
     }
 
     /**

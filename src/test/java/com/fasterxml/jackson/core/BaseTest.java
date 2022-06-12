@@ -318,7 +318,7 @@ public abstract class BaseTest
         return createParser(JSON_FACTORY, mode, doc);
     }
 
-    protected JsonParser createParser(JsonFactory f, int mode, String doc) throws IOException
+    protected JsonParser createParser(TokenStreamFactory f, int mode, String doc) throws IOException
     {
         switch (mode) {
         case MODE_INPUT_STREAM:
@@ -337,7 +337,7 @@ public abstract class BaseTest
         throw new RuntimeException("internal error");
     }
 
-    protected JsonParser createParser(JsonFactory f, int mode, byte[] doc) throws IOException
+    protected JsonParser createParser(TokenStreamFactory f, int mode, byte[] doc) throws IOException
     {
         switch (mode) {
         case MODE_INPUT_STREAM:
@@ -361,7 +361,7 @@ public abstract class BaseTest
         return createParserUsingReader(new JsonFactory(), input);
     }
 
-    protected JsonParser createParserUsingReader(JsonFactory f, String input)
+    protected JsonParser createParserUsingReader(TokenStreamFactory f, String input)
         throws IOException
     {
         return f.createParser(new StringReader(input));
@@ -373,7 +373,7 @@ public abstract class BaseTest
         return createParserUsingStream(new JsonFactory(), input, encoding);
     }
 
-    protected JsonParser createParserUsingStream(JsonFactory f,
+    protected JsonParser createParserUsingStream(TokenStreamFactory f,
             String input, String encoding)
         throws IOException
     {
@@ -393,7 +393,7 @@ public abstract class BaseTest
         return f.createParser(is);
     }
 
-    protected JsonParser createParserForDataInput(JsonFactory f,
+    protected JsonParser createParserForDataInput(TokenStreamFactory f,
             DataInput input)
         throws IOException
     {

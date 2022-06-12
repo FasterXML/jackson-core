@@ -23,10 +23,18 @@ JSON library.
 #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
  (contributed Doug R)
+#745: Change minimum Java version to 8
 #751: Remove workaround for old issue with a particular double
  (contributed by @pjfanning)
+#753: Add `NumberInput.parseFloat()`
+ (contributed by @pjfanning)
+#757: Update ParserBase to support floats directly
+ (contributed by @pjfanning)
+#759: JsonGenerator to provide current value to the context before starting objects
+ (reported by Illia O)
+#763: `JsonFactory.createParser()` with `File` may leak `InputStream`s
 
-2.13.3 (not yet released)
+2.13.3 (14-May-2022)
 
 #744: Limit size of exception message in BigDecimalParser
  (contributed by @pjfanning))
@@ -67,6 +75,11 @@ JSON library.
  (reported by xiazuojie@github)
 #712: Optimize array allocation by `JsonStringEncoder`
 - Add `mvnw` wrapper
+
+2.12.7 (26-May-2022)
+2.12.6 (15-Dec-2021)
+
+No changes since 2.12.5
 
 2.12.5 (27-Aug-2021)
 

@@ -45,7 +45,7 @@ public class FloatParsingTest extends BaseTest
 
         JsonParser p = createParser(jsonF, mode, FLOATS_DOC);
         if (useFastParser) {
-            p.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+            //p.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
         }
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());

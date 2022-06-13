@@ -23,6 +23,10 @@ public class NumberParsingTest
 {
     private final TokenStreamFactory FACTORY = sharedStreamFactory();
 
+    protected JsonFactory jsonFactory() {
+        return sharedStreamFactory();
+    }
+
     /*
     /**********************************************************************
     /* Tests, Boolean
@@ -415,7 +419,7 @@ public class NumberParsingTest
             arr[i + 3] = '-';
             arr[i + 4] = '1';
             CharArrayReader r = new CharArrayReader(arr, 0, i+5);
-            JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), r);
+            JsonParser p = jsonFactory().createParser(ObjectReadContext.empty(), r);
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             p.close();
         }
@@ -432,7 +436,7 @@ public class NumberParsingTest
             arr[i + 3] = '-';
             arr[i + 4] = '1';
             ByteArrayInputStream in = new ByteArrayInputStream(arr, 0, i+5);
-            JsonParser p = FACTORY.createParser(ObjectReadContext.empty(), in);
+            JsonParser p = jsonFactory().createParser(ObjectReadContext.empty(), in);
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             p.close();
         }
@@ -613,7 +617,7 @@ public class NumberParsingTest
             if (input == 0) {
                 p = createParserUsingStream(DOC, "UTF-8");
             } else {
-                p = FACTORY.createParser(ObjectReadContext.empty(), DOC);
+                p = jsonFactory().createParser(ObjectReadContext.empty(), DOC);
             }
 
             assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -672,8 +676,8 @@ public class NumberParsingTest
     private void _testIssue160LongNumbers(JsonFactory f, String doc, boolean useStream)
     {
         JsonParser p = useStream
-                ? FACTORY.createParser(ObjectReadContext.empty(), utf8Bytes(doc))
-                : FACTORY.createParser(ObjectReadContext.empty(), doc);
+                ? jsonFactory().createParser(ObjectReadContext.empty(), utf8Bytes(doc))
+                : jsonFactory().createParser(ObjectReadContext.empty(), doc);
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         BigInteger v = p.getBigIntegerValue();
         assertNull(p.nextToken());
@@ -816,11 +820,11 @@ public class NumberParsingTest
         // test out with both Reader and ByteArrayInputStream
         JsonParser p;
 
-        p = FACTORY.createParser(ObjectReadContext.empty(), new StringReader(DOC));
+        p = jsonFactory().createParser(ObjectReadContext.empty(), new StringReader(DOC));
         _testLongerFloat(p, DOC);
         p.close();
 
-        p = FACTORY.createParser(ObjectReadContext.empty(),
+        p = jsonFactory().createParser(ObjectReadContext.empty(),
                 new ByteArrayInputStream(utf8Bytes(DOC)));
         _testLongerFloat(p, DOC);
         p.close();

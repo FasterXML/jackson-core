@@ -12,6 +12,10 @@ public class NonStandardNumberParsingTest
             .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
             .build();
 
+    protected JsonFactory jsonFactory() {
+        return JSON_F;
+    }
+
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */
@@ -29,16 +33,16 @@ public class NonStandardNumberParsingTest
     }
 
     public void testLeadingDotInDecimalAllowedAsync() {
-        _testLeadingDotInDecimalAllowed(JSON_F, MODE_DATA_INPUT);
+        _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
     public void testLeadingDotInDecimalAllowedBytes() {
-        _testLeadingDotInDecimalAllowed(JSON_F, MODE_INPUT_STREAM);
-        _testLeadingDotInDecimalAllowed(JSON_F, MODE_INPUT_STREAM_THROTTLED);
+        _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM);
+        _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
     }
 
     public void testLeadingDotInDecimalAllowedReader() {
-        _testLeadingDotInDecimalAllowed(JSON_F, MODE_READER);
+        _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER);
     }
 
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode)

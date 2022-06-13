@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 public class FastParserNonStandardNumberParsingTest extends NonStandardNumberParsingTest {

@@ -27,7 +27,7 @@ import com.fasterxml.jackson.core.util.JacksonFeatureSet;
  * @author Tatu Saloranta
  */
 public abstract class JsonParser
-        implements Closeable, Versioned
+    implements Closeable, Versioned
 {
     /**
      * Enumeration of possible "native" (optimal) types that can be
@@ -42,7 +42,7 @@ public abstract class JsonParser
      * for format-specific instances or placeholder if non-null instance needed.
      */
     protected final static JacksonFeatureSet<StreamReadCapability> DEFAULT_READ_CAPABILITIES
-            = JacksonFeatureSet.fromDefaults(StreamReadCapability.values());
+        = JacksonFeatureSet.fromDefaults(StreamReadCapability.values());
 
     /*
     /**********************************************************************
@@ -206,7 +206,7 @@ public abstract class JsonParser
      * {@link #nonBlockingInputFeeder()} to obtain object to use
      * for feeding input; otherwise (<code>false</code> returned)
      * input is read by blocking.
-     *
+     * 
      * @return True if this is a non-blocking ("asynchronous") parser
      */
     public boolean canParseAsync() { return false; }
@@ -283,11 +283,11 @@ public abstract class JsonParser
      * it can not.
      *
      * @param out OutputStream to which buffered, undecoded content is written to
-     *
+     * 
      * @return -1 if the underlying content source is not byte based
      *    (that is, input can not be sent to {@link OutputStream};
      *    otherwise number of bytes released (0 if there was nothing to release)
-     *
+     *    
      * @throws JacksonException if write to stream threw exception
      */
     public int releaseBuffered(OutputStream out) throws JacksonException {
@@ -304,11 +304,11 @@ public abstract class JsonParser
      * it can not.
      *
      * @param w Writer to which buffered but unprocessed content is written to
-     *
+     * 
      * @return -1 if the underlying content source is not char-based
      *    (that is, input can not be sent to {@link Writer};
      *    otherwise number of chars released (0 if there was nothing to release)
-     *
+     *    
      * @throws JacksonException if write using Writer threw exception
      */
     public int releaseBuffered(Writer w) throws JacksonException { return -1; }
@@ -336,7 +336,7 @@ public abstract class JsonParser
 
     /**
      * Bulk access method for getting state of all standard {@link StreamReadFeature}s.
-     *
+     * 
      * @return Bit mask that defines current states of all standard {@link StreamReadFeature}s.
      *
      * @since 3.0
@@ -644,7 +644,7 @@ public abstract class JsonParser
      * so this method may be useful when building low-overhead codecs.
      * Note, however, that effect may not be big enough to matter: make sure
      * to profile performance before deciding to use this method.
-     *
+     * 
      * @return {@code int} matching one of constants from {@link JsonTokenId}.
      */
     public abstract int currentTokenId();
@@ -817,7 +817,7 @@ public abstract class JsonParser
     public abstract String getText() throws JacksonException;
 
     /**
-     * Method to read the textual representation of the current token in chunks and
+     * Method to read the textual representation of the current token in chunks and 
      * pass it to the given Writer.
      * Conceptually same as calling:
      *<pre>
@@ -900,14 +900,14 @@ public abstract class JsonParser
      * {@link #getTextCharacters} would be the most efficient
      * way to access textual content for the event parser currently
      * points to.
-     *<p>
+     *<p> 
      * Default implementation simply returns false since only actual
      * implementation class has knowledge of its internal buffering
      * state.
      * Implementations are strongly encouraged to properly override
      * this method, to allow efficient copying of content by other
      * code.
-     *
+     * 
      * @return True if parser currently has character array that can
      *   be efficiently returned via {@link #getTextCharacters}; false
      *   means that it may or may not exist
@@ -950,7 +950,7 @@ public abstract class JsonParser
     public abstract Number getNumberValueExact() throws InputCoercionException;
 
     /**
-     * If current token is of type
+     * If current token is of type 
      * {@link JsonToken#VALUE_NUMBER_INT} or
      * {@link JsonToken#VALUE_NUMBER_FLOAT}, returns
      * one of {@link NumberType} constants; otherwise returns null.
@@ -1125,7 +1125,7 @@ public abstract class JsonParser
     /* Public API, access to token information, other
     /**********************************************************************
      */
-
+    
     /**
      * Convenience accessor that can be called when the current
      * token is {@link JsonToken#VALUE_TRUE} or
@@ -1213,9 +1213,9 @@ public abstract class JsonParser
      * is that content will NOT remain accessible after method returns: any content
      * processed will be consumed and is not buffered in any way. If caller needs
      * buffering, it has to implement it.
-     *
+     * 
      * @param out Output stream to use for passing decoded binary data
-     *
+     * 
      * @return Number of bytes that were decoded and written via {@link OutputStream}
      *
      * @throws WrappedIOException for low-level read issues
@@ -1228,10 +1228,10 @@ public abstract class JsonParser
     /**
      * Similar to {@link #readBinaryValue(OutputStream)} but allows explicitly
      * specifying base64 variant to use.
-     *
+     * 
      * @param bv base64 variant to use
      * @param out Output stream to use for passing decoded binary data
-     *
+     * 
      * @return Number of bytes that were decoded and written via {@link OutputStream}
      *
      * @throws WrappedIOException for low-level read issues
@@ -1339,7 +1339,7 @@ public abstract class JsonParser
     public long getValueAsLong() throws InputCoercionException {
         return getValueAsLong(0);
     }
-
+    
     /**
      * Method that will try to convert value of current token to a
      * {@code long}.
@@ -1360,7 +1360,7 @@ public abstract class JsonParser
     public long getValueAsLong(long def) throws InputCoercionException {
         return def;
     }
-
+    
     /**
      * Method that will try to convert value of current token to a Java
      * <b>double</b>.
@@ -1416,7 +1416,7 @@ public abstract class JsonParser
     public String getValueAsString() {
         return getValueAsString(null);
     }
-
+    
     /**
      * Method that will try to convert value of current token to a
      * {@link java.lang.String}.
@@ -1541,7 +1541,7 @@ public abstract class JsonParser
      * Method to deserialize stream content into a Java type, reference
      * to which is passed as argument. Type is passed using so-called
      * "super type token"
-     * and specifically needs to be used if the root type is a
+     * and specifically needs to be used if the root type is a 
      * parameterized (generic) container type.
      *<br>
      * <b>Note</b>: method can only be called if the parser has
@@ -1626,7 +1626,7 @@ public abstract class JsonParser
     }
 
     protected StreamReadException _constructReadException(String msg,
-                                                          Object arg1, Object arg2, Object arg3) {
+            Object arg1, Object arg2, Object arg3) {
         return _constructReadException(String.format(msg, arg1, arg2, arg3));
     }
 
@@ -1634,3 +1634,4 @@ public abstract class JsonParser
         return new StreamReadException(this, msg, t);
     }
 }
+

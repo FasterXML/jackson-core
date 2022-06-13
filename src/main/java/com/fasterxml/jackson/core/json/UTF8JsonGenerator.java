@@ -1199,24 +1199,30 @@ public class UTF8JsonGenerator
     {
         super.close();
 
-        /* 05-Dec-2008, tatu: To add [JACKSON-27], need to close open
-         *   scopes.
-         */
+        // 05-Dec-2008, tatu: To add [JACKSON-27], need to close open scopes.
         // First: let's see that we still have buffers...
-        if ((_outputBuffer != null)
-            && isEnabled(Feature.AUTO_CLOSE_JSON_CONTENT)) {
-            while (true) {
-                JsonStreamContext ctxt = getOutputContext();
-                if (ctxt.inArray()) {
-                    writeEndArray();
-                } else if (ctxt.inObject()) {
-                    writeEndObject();
-                } else {
-                    break;
+        IOException flushFail = null;
+        try {
+            if ((_outputBuffer != null)
+                && isEnabled(Feature.AUTO_CLOSE_JSON_CONTENT)) {
+                while (true) {
+                    JsonStreamContext ctxt = getOutputContext();
+                    if (ctxt.inArray()) {
+                        writeEndArray();
+                    } else if (ctxt.inObject()) {
+                        writeEndObject();
+                    } else {
+                        break;
+                    }
                 }
             }
+            _flushBuffer();
+        } catch (IOException e) {
+            // 10-Jun-2022, tatu: [core#764] Need to avoid failing here; may
+            //    still need to close the underlying output stream
+            flushFail = e;
         }
-        _flushBuffer();
+
         _outputTail = 0; // just to ensure we don't think there's anything buffered
 
         /* 25-Nov-2008, tatus: As per [JACKSON-16] we are not to call close()
@@ -1226,15 +1232,26 @@ public class UTF8JsonGenerator
          *   may not be properly recycled if we don't close the writer.
          */
         if (_outputStream != null) {
-            if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_TARGET)) {
-                _outputStream.close();
-            } else if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
-                // If we can't close it, we should at least flush
-                _outputStream.flush();
+            try {
+                if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_TARGET)) {
+                    _outputStream.close();
+                } else if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
+                    // If we can't close it, we should at least flush
+                    _outputStream.flush();
+                }
+            } catch (IOException | RuntimeException e) {
+                if (flushFail != null) {
+                    e.addSuppressed(flushFail);
+                }
+                throw e;
             }
         }
         // Internal buffer(s) generator has can now be released as well
         _releaseBuffers();
+
+        if (flushFail != null) {
+            throw flushFail;
+        }
     }
 
     @Override

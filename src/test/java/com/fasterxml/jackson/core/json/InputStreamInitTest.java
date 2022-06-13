@@ -31,12 +31,12 @@ public class InputStreamInitTest
         public FailingInputStream lastStream;
 
         @Override
-        protected InputStream _fileInputStream(File f) throws IOException {
+        protected InputStream _fileInputStream(File f) {
             return (lastStream = new FailingInputStream());
         }
 
         @Override
-        protected InputStream _optimizedStreamFromURL(URL url) throws IOException {
+        protected InputStream _optimizedStreamFromURL(URL url) {
             return (lastStream = new FailingInputStream());
         }
     }
@@ -47,7 +47,7 @@ public class InputStreamInitTest
         try {
             /*JsonParser p =*/ jsonF.createParser(new File("/tmp/test.json"));
             fail("Should not pass");
-        } catch (IOException e) {
+        } catch (Exception e) {
             verifyException(e, "Will not read");
         }
         assertNotNull(jsonF.lastStream);
@@ -60,7 +60,7 @@ public class InputStreamInitTest
         try {
             /*JsonParser p =*/ jsonF.createParser(new URL("http://localhost:80/"));
             fail("Should not pass");
-        } catch (IOException e) {
+        } catch (Exception e) {
             verifyException(e, "Will not read");
         }
         assertNotNull(jsonF.lastStream);

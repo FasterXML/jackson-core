@@ -241,11 +241,11 @@ public abstract class JsonParserBase
                 _numberBigDecimal = _textBuffer.contentsAsDecimal();
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat();
+                _numberFloat = _textBuffer.contentsAsFloat(isEnabled(JsonReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
-                _numberDouble = _textBuffer.contentsAsDouble();
+                _numberDouble = _textBuffer.contentsAsDouble(isEnabled(JsonReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }
         } catch (NumberFormatException nex) {
@@ -276,7 +276,7 @@ public abstract class JsonParserBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    _numberDouble = NumberInput.parseDouble(numStr);
+                    _numberDouble = NumberInput.parseDouble(numStr, isEnabled(JsonReadFeature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
                     // nope, need the heavy guns... (rare case)

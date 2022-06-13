@@ -1004,20 +1004,28 @@ public class WriterBasedJsonGenerator
     public void close() throws JacksonException
     {
         super.close();
-        if (_outputBuffer != null
-            && isEnabled(StreamWriteFeature.AUTO_CLOSE_CONTENT)) {
-            while (true) {
-                TokenStreamContext ctxt = streamWriteContext();
-                if (ctxt.inArray()) {
-                    writeEndArray();
-                } else if (ctxt.inObject()) {
-                    writeEndObject();
-                } else {
-                    break;
+
+        RuntimeException flushFail = null;
+        try {
+            if ((_outputBuffer != null)
+                && isEnabled(StreamWriteFeature.AUTO_CLOSE_CONTENT)) {
+                while (true) {
+                    TokenStreamContext ctxt = streamWriteContext();
+                    if (ctxt.inArray()) {
+                        writeEndArray();
+                    } else if (ctxt.inObject()) {
+                        writeEndObject();
+                    } else {
+                        break;
+                    }
                 }
             }
+            _flushBuffer();
+        } catch (RuntimeException e) {
+            // 10-Jun-2022, tatu: [core#764] Need to avoid failing here; may
+            //    still need to close the underlying output stream
+            flushFail = e;
         }
-        _flushBuffer();
         _outputHead = 0;
         _outputTail = 0;
 
@@ -1035,11 +1043,19 @@ public class WriterBasedJsonGenerator
                     _writer.flush();
                 }
             } catch (IOException e) {
-                throw _wrapIOFailure(e);
+                JacksonException je = _wrapIOFailure(e);
+                if (flushFail != null) {
+                    je.addSuppressed(flushFail);
+                }
+                throw je;
             }
         }
         // Internal buffer(s) generator has can now be released as well
         _releaseBuffers();
+
+        if (flushFail != null) {
+            throw flushFail;
+        }
     }
 
     @Override

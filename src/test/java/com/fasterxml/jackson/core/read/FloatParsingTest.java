@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TokenStreamFactory;
+import com.fasterxml.jackson.core.json.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 
 // for [core#755]
 public class FloatParsingTest extends BaseTest
@@ -41,12 +43,14 @@ public class FloatParsingTest extends BaseTest
     private void _testFloatArray(int mode, boolean useFastParser) throws Exception
     {
         // construct new instance to reduce buffer recycling etc:
-        TokenStreamFactory jsonF = newStreamFactory();
+        final TokenStreamFactory jsonF ;
+        if (useFastParser) {
+            jsonF = JsonFactory.builder().enable(JsonReadFeature.USE_FAST_DOUBLE_PARSER).build();
+        } else {
+            jsonF = newStreamFactory();
+        }
 
         JsonParser p = createParser(jsonF, mode, FLOATS_DOC);
-        if (useFastParser) {
-            //p.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
-        }
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         

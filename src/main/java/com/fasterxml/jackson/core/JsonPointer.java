@@ -1,6 +1,12 @@
 package com.fasterxml.jackson.core;
 
 import com.fasterxml.jackson.core.io.NumberInput;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * Implementation of
@@ -17,8 +23,9 @@ import com.fasterxml.jackson.core.io.NumberInput;
  *
  * @since 2.3
  */
-public class JsonPointer
+public class JsonPointer implements Serializable
 {
+    private static final long serialVersionUID = 1L; 
     /**
      * Character used to separate segments.
      *
@@ -59,7 +66,7 @@ public class JsonPointer
      * so that {@link #toString} should be as efficient as possible.
      */
     protected final String _asString;
-    
+
     protected final String _matchingPropertyName;
 
     protected final int _matchingElementIndex;
@@ -69,7 +76,7 @@ public class JsonPointer
     /* Construction
     /**********************************************************
      */
-    
+
     /**
      * Constructor used for creating "empty" instance, used to represent
      * state that matches current node.
@@ -642,5 +649,37 @@ public class JsonPointer
             sb.append('~');
         }
         sb.append(c);
+    }
+
+    private Object writeReplace() {
+        return new SerializableJsonPointer(_asString);
+    }
+
+    /**
+     * This must only exist to allow both final properties and implementation of
+     * Externalizable/Serializable for JsonPointer
+     */
+    private static class SerializableJsonPointer implements Externalizable {
+        private String _asString;
+
+        public SerializableJsonPointer() {
+        }
+
+        public SerializableJsonPointer(String asString) {
+            _asString = asString;
+        }
+
+        @Override
+        public void writeExternal(ObjectOutput out) throws IOException {
+            out.writeUTF(_asString);
+        }
+
+        @Override
+        public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+            _asString = in.readUTF();
+        }
+        private Object readResolve() throws ObjectStreamException {
+            return compile(_asString);
+        }
     }
 }

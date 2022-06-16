@@ -14,6 +14,12 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
  */
 public class CoreJDKSerializabilityTest extends BaseTest
 {
+    /*
+    /**********************************************************************
+    /* Main factory type(s)
+    /**********************************************************************
+     */
+
     public void testJsonFactorySerializable() throws Exception
     {
         JsonFactory f = new JsonFactory();
@@ -29,6 +35,12 @@ public class CoreJDKSerializabilityTest extends BaseTest
         // Let's also try byte-based variant, for fun...
         assertEquals(origJson, _copyJson(f2, origJson, true));
     }
+
+    /*
+    /**********************************************************************
+    /* Parser-related types
+    /**********************************************************************
+     */
 
     public void testBase64Variant() throws Exception
     {
@@ -96,6 +108,12 @@ public class CoreJDKSerializabilityTest extends BaseTest
         assertSame(ref2, ContentReference.unknown());
     }
 
+    /*
+    /**********************************************************************
+    /* Exception types
+    /**********************************************************************
+     */
+
     public void testParseException() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -131,7 +149,34 @@ public class CoreJDKSerializabilityTest extends BaseTest
         StreamWriteException result = jdkDeserialize(stuff);
         assertNotNull(result);
     }
-    
+
+    /*
+    /**********************************************************************
+    /* Misc other types
+    /**********************************************************************
+     */
+
+    public void testPointerSerializationNonEmpty() throws Exception
+    {
+        // First, see that we can write and read a general JsonPointer
+        final String INPUT = "/Image/15/name";
+        JsonPointer original = JsonPointer.compile(INPUT);
+        byte[] ser = jdkSerialize(original);
+        JsonPointer copy = jdkDeserialize(ser);
+        assertNotSame(copy, original);
+        assertEquals(original, copy);
+    }
+
+    public void testPointerSerializationEmpty() throws Exception
+    {
+        // and then verify that "empty" instance gets canonicalized
+        final JsonPointer emptyP = JsonPointer.empty();
+        byte[] ser = jdkSerialize(emptyP);
+        JsonPointer result = jdkDeserialize(ser);
+        assertSame("Should get same 'empty' instance when JDK serialize+deserialize",
+                emptyP, result);
+    }
+
     /*
     /**********************************************************************
     /* Helper methods

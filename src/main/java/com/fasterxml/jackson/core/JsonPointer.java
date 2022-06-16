@@ -26,6 +26,7 @@ import java.io.Serializable;
 public class JsonPointer implements Serializable
 {
     private static final long serialVersionUID = 1L; 
+
     /**
      * Character used to separate segments.
      *
@@ -524,7 +525,7 @@ public class JsonPointer implements Serializable
         if (!(o instanceof JsonPointer)) return false;
         return _asString.equals(((JsonPointer) o)._asString);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods
@@ -651,21 +652,30 @@ public class JsonPointer implements Serializable
         sb.append(c);
     }
 
+    /*
+    /**********************************************************
+    /* Support for JDK serialization (2.14+)
+    /**********************************************************
+     */
+
+    // Since 2.14: needed for efficient JDK serializability
     private Object writeReplace() {
-        return new SerializableJsonPointer(_asString);
+        return new Serialization(_asString);
     }
 
     /**
      * This must only exist to allow both final properties and implementation of
      * Externalizable/Serializable for JsonPointer
+     *
+     * @since 2.14
      */
-    private static class SerializableJsonPointer implements Externalizable {
+    static class Serialization implements Externalizable
+    {
         private String _asString;
 
-        public SerializableJsonPointer() {
-        }
+        public Serialization() { }
 
-        public SerializableJsonPointer(String asString) {
+        Serialization(String asString) {
             _asString = asString;
         }
 
@@ -678,7 +688,9 @@ public class JsonPointer implements Serializable
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
             _asString = in.readUTF();
         }
+
         private Object readResolve() throws ObjectStreamException {
+            // NOTE: method handles canonicalization of "empty":
             return compile(_asString);
         }
     }

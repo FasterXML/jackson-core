@@ -303,3 +303,7 @@ Illia Ovchynnikov (wingsofovnia@github)
   * Reported #759: JsonGenerator to provide current value to the context before
    starting objects
   (2.14.0)
+
+Evan Galpin (egalpin@github)
+  * Contributed #762: Make `JsonPointer` `java.io.Serializable`
+  (2.14.0)

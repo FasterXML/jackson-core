@@ -5,9 +5,6 @@
  *     <dd>Copyright (c) Werner Randelshofer. Apache 2.0 License.
  *         <a href="https://github.com/wrandelshofer/FastDoubleParser">github.com</a>.</dd>
  * </dl>
- */
-
-/**
  * Provides parsers that parse a {@code FloatValue} from a
  * {@link java.lang.CharSequence}, {@code char} array, or {@code byte} array
  * ({@code str});.
@@ -123,5 +120,7 @@
  *     <dd><a href="https://docs.oracle.com/javase/specs/jls/se18/html/jls-3.html#jls-3.10.2">docs.oracle.com</a></dd>
  * </dl>
  * </p>
+ *
+ * @since 2.14
  */
 package com.fasterxml.jackson.core.io.doubleparser;

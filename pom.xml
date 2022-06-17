@@ -135,5 +135,4 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <scope>test</scope>
     </dependency>
   </dependencies>
-
 </project>

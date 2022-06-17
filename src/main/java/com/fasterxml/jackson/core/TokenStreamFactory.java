@@ -1398,6 +1398,16 @@ public abstract class TokenStreamFactory
         }
     }
 
+    /**
+     * Helper methods used for constructing an {@link InputStream} for
+     * parsers to use, when input is to be read from given {@link File}.
+     *
+     * @param f File to open stream for
+     *
+     * @return {@link InputStream} constructed
+     *
+     * @throws JacksonException If there is a problem opening the stream
+     */
     protected InputStream _fileInputStream(File f) throws JacksonException
     {
         try {
@@ -1416,6 +1426,16 @@ public abstract class TokenStreamFactory
         }
     }
 
+    /**
+     * Helper methods used for constructing an {@link OutputStream} for
+     * generator to use, when target is to be written into given {@link File}.
+     *
+     * @param f File to open stream for
+     *
+     * @return {@link OutputStream} constructed
+     *
+     * @throws JacksonException If there is a problem opening the stream
+     */
     protected OutputStream _fileOutputStream(File f) throws JacksonException
     {
         try {

@@ -72,6 +72,15 @@ public enum JsonWriteFeature
     @SuppressWarnings("deprecation")
     ESCAPE_NON_ASCII(false, JsonGenerator.Feature.ESCAPE_NON_ASCII),
 
+    /**
+     * Feature that determines whether to use standard Java code to write floats/doubles (default) or
+     * use the Schubfach algorithm which is faster. The latter approach may lead to small
+     * differences in the precision of the float/double that is written to the JSON output.
+     *
+     * @since 2.14
+     */
+    USE_FAST_DOUBLE_WRITER(false, JsonGenerator.Feature.USE_FAST_DOUBLE_WRITER),
+
 //23-Nov-2015, tatu: for [core#223], if and when it gets implemented
     /*
      * Feature that specifies handling of UTF-8 content that contains

@@ -276,13 +276,41 @@ public final class NumberOutput
         return Long.toString(v);
     }
 
-    public static String toString(double v) {
-        return DoubleToDecimal.toString(v);
+    /**
+     * @param v double
+     * @return double as a string
+     */
+    public static String toString(final double v) {
+        return toString(v, false);
     }
 
-    // @since 2.6
-    public static String toString(float v) {
-        return FloatToDecimal.toString(v);
+    /**
+     * @param v double
+     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @return double as a string
+     * @since 2.14
+     */
+    public static String toString(final double v, final boolean useFastWriter) {
+        return useFastWriter ? DoubleToDecimal.toString(v) : Double.toString(v);
+    }
+
+    /**
+     * @param v float
+     * @return float as a string
+     * @since 2.6
+     */
+    public static String toString(final float v) {
+        return toString(v, false);
+    }
+
+    /**
+     * @param v float
+     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @return float as a string
+     * @since 2.14
+     */
+    public static String toString(final float v, final boolean useFastWriter) {
+        return useFastWriter ? FloatToDecimal.toString(v) : Float.toString(v);
     }
 
     /*

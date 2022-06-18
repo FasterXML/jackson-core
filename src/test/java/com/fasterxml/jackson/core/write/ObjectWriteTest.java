@@ -13,11 +13,17 @@ import java.math.BigInteger;
 public class ObjectWriteTest
     extends BaseTest
 {
+    private final JsonFactory FACTORY = new JsonFactory();
+
+    protected JsonFactory jsonFactory() {
+        return FACTORY;
+    }
+
     public void testEmptyObjectWrite()
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = jsonFactory().createGenerator(sw);
 
         JsonStreamContext ctxt = gen.getOutputContext();
         assertTrue(ctxt.inRoot());
@@ -59,7 +65,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = jsonFactory().createGenerator(sw);
         gen.writeStartObject();
         // Mismatch:
         try {
@@ -75,7 +81,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = jsonFactory().createGenerator(sw);
         gen.writeStartObject();
         gen.writeFieldName("first");
         gen.writeNumber(-901);
@@ -111,7 +117,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = jsonFactory().createGenerator(sw);
         gen.writeStartObject();
 
         final String TEXT = "\"some\nString!\"";
@@ -219,7 +225,7 @@ public class ObjectWriteTest
         throws Exception
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = new JsonFactory().createGenerator(sw);
+        JsonGenerator gen = jsonFactory().createGenerator(sw);
         gen.writeStartObject();
 
         gen.writeStringField("str", null);

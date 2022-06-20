@@ -330,7 +330,7 @@ public abstract class JsonParser
           * doubles or if we use {@link com.fasterxml.jackson.core.io.doubleparser}
           * instead.
           *<p>
-          * This setting is disabled by default.
+          * This setting is disabled by default for backwards compatibility.
           *
           * @since 2.14
           */

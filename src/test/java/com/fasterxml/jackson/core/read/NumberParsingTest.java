@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 public class NumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
-
     protected JsonFactory jsonFactory() {
         return sharedStreamFactory();
     }

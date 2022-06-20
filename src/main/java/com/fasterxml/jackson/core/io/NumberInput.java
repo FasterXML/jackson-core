@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser;
+import com.fasterxml.jackson.core.io.doubleparser.FastFloatParser;
+
 import java.math.BigDecimal;
 
 public final class NumberInput
@@ -239,7 +242,9 @@ public final class NumberInput
             // if other symbols, parse as Double, coerce
             if (c > '9' || c < '0') {
                 try {
-                    return (int) parseDouble(s);
+                    //useFastParser=true is used because there is a lot less risk that small changes in result will have an affect
+                    //and performance benefit is useful
+                    return (int) parseDouble(s, true);
                 } catch (NumberFormatException e) {
                     return def;
                 }
@@ -276,7 +281,9 @@ public final class NumberInput
             // if other symbols, parse as Double, coerce
             if (c > '9' || c < '0') {
                 try {
-                    return (long) parseDouble(s);
+                    //useFastParser=true is used because there is a lot less risk that small changes in result will have an affect
+                    //and performance benefit is useful
+                    return (long) parseDouble(s, true);
                 } catch (NumberFormatException e) {
                     return def;
                 }
@@ -287,8 +294,26 @@ public final class NumberInput
         } catch (NumberFormatException e) { }
         return def;
     }
-    
-    public static double parseAsDouble(String s, double def)
+
+    /**
+     * @param s a string representing a number to parse
+     * @param def the default to return if `s` is not a parseable number
+     * @return closest matching double (or `def` if there is an issue with `s`) where useFastParser=false
+     * @see #parseAsDouble(String, double, boolean)
+     */
+    public static double parseAsDouble(final String s, final double def)
+    {
+        return parseAsDouble(s, def, false);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param def the default to return if `s` is not a parseable number
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return closest matching double (or `def` if there is an issue with `s`)
+     * @since 2.14
+     */
+    public static double parseAsDouble(String s, final double def, final boolean useFastParser)
     {
         if (s == null) { return def; }
         s = s.trim();
@@ -297,23 +322,52 @@ public final class NumberInput
             return def;
         }
         try {
-            return parseDouble(s);
+            return parseDouble(s, useFastParser);
         } catch (NumberFormatException e) { }
         return def;
     }
 
-    public static double parseDouble(String s) throws NumberFormatException {
-        return Double.parseDouble(s);
+    /**
+     * @param s a string representing a number to parse
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double where useFastParser=false
+     * @see #parseDouble(String, boolean)
+     */
+    public static double parseDouble(final String s) throws NumberFormatException {
+        return parseDouble(s, false);
+    }
+    
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double
+     * @since v2.14
+     */
+    public static double parseDouble(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? FastDoubleParser.parseDouble(s) : Double.parseDouble(s);
     }
 
     /**
      * @param s a string representing a number to parse
      * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float where useFastParser=false
+     * @see #parseFloat(String, boolean)
+     * @since v2.14
+     */
+    public static float parseFloat(final String s) throws NumberFormatException {
+        return parseFloat(s, false);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return closest matching float
      * @throws NumberFormatException if string cannot be represented by a float
      * @since v2.14
      */
-    public static float parseFloat(String s) throws NumberFormatException {
-        return Float.parseFloat(s);
+    public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? FastFloatParser.parseFloat(s) : Float.parseFloat(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {

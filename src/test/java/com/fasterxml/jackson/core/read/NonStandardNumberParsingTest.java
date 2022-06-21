@@ -7,6 +7,7 @@ public class NonStandardNumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = JsonFactory.builder()
+            .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)
             .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
             .enable(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)
             .build();
@@ -21,6 +22,22 @@ public class NonStandardNumberParsingTest
     public void testLeadingDotInDecimal() throws Exception {
         for (int mode : ALL_MODES) {
             JsonParser p = createParser(mode, " .123 ");
+            try {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('.'");
+            }
+            p.close();
+        }
+    }
+
+    /*
+     * The format "+NNN" (as opposed to "NNN") is not valid JSON, so this should fail
+     */
+    public void testLeadingPlusSignInDecimal() throws Exception {
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(mode, " +123 ");
             try {
                 p.nextToken();
                 fail("Should not pass");

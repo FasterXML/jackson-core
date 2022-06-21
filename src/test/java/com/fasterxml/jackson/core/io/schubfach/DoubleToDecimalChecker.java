@@ -29,7 +29,6 @@ import static java.lang.Double.*;
 import static java.lang.Long.numberOfTrailingZeros;
 import static java.lang.StrictMath.scalb;
 import static com.fasterxml.jackson.core.io.schubfach.MathUtils.flog10pow2;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DoubleToDecimalChecker extends ToDecimalChecker {
 
@@ -45,9 +44,9 @@ public class DoubleToDecimalChecker extends ToDecimalChecker {
     static final int K_MAX = flog10pow2(Q_MAX);
     static final int H = flog10pow2(P) + 2;
 
-    private static final double MIN_VALUE = scalb(1.0, Q_MIN);
-    private static final double MIN_NORMAL = scalb((double) C_MIN, Q_MIN);
-    private static final double MAX_VALUE = scalb((double) C_MAX, Q_MAX);
+    static final double MIN_VALUE = scalb(1.0, Q_MIN);
+    static final double MIN_NORMAL = scalb((double) C_MIN, Q_MIN);
+    static final double MAX_VALUE = scalb((double) C_MAX, Q_MAX);
 
     static final int E_MIN = e(MIN_VALUE);
     static final int E_MAX = e(MAX_VALUE);

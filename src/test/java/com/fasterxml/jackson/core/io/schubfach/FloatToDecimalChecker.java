@@ -22,9 +22,6 @@
 
 package com.fasterxml.jackson.core.io.schubfach;
 
-
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.Random;
 
@@ -47,9 +44,9 @@ public class FloatToDecimalChecker extends ToDecimalChecker {
     static final int K_MAX = flog10pow2(Q_MAX);
     static final int H = flog10pow2(P) + 2;
 
-    private static final float MIN_VALUE = scalb(1.0f, Q_MIN);
-    private static final float MIN_NORMAL = scalb((float) C_MIN, Q_MIN);
-    private static final float MAX_VALUE = scalb((float) C_MAX, Q_MAX);
+    static final float MIN_VALUE = scalb(1.0f, Q_MIN);
+    static final float MIN_NORMAL = scalb((float) C_MIN, Q_MIN);
+    static final float MAX_VALUE = scalb((float) C_MAX, Q_MAX);
 
     static final int E_MIN = e(MIN_VALUE);
     static final int E_MAX = e(MAX_VALUE);

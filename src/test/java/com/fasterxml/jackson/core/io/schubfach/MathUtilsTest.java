@@ -33,6 +33,7 @@ import static java.math.BigInteger.*;
 import static com.fasterxml.jackson.core.io.schubfach.MathUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class MathUtilsTest {
 
@@ -88,8 +89,9 @@ public class MathUtilsTest {
             g - 1 = 10^(-k) 2^(-r)
          */
         if (k <= 0 && r < 0) {
-            assertTrue(
-                    g.subtract(ONE).compareTo(TEN.pow(-k).shiftLeft(-r)) == 0,
+            assertEquals(
+                    0,
+                    g.subtract(ONE).compareTo(TEN.pow(-k).shiftLeft(-r)),
                     "g");
             return;
         }
@@ -137,7 +139,7 @@ public class MathUtilsTest {
         has a positive integer left-hand side and a middle side < 1,
         which cannot hold.
          */
-        assertTrue(false, "g");
+        fail("g");
     }
 
     /*
@@ -171,7 +173,7 @@ public class MathUtilsTest {
     @Test
     void testFlog10threeQuartersPow2() {
         // First check the case e = 1
-        assertTrue(flog10threeQuartersPow2(1) == 0,
+        assertEquals(0, flog10threeQuartersPow2(1),
                 "flog10threeQuartersPow2");
 
         /*
@@ -209,7 +211,7 @@ public class MathUtilsTest {
             assertTrue(kp <= k0, "flog10threeQuartersPow2");
             if (kp < k0) {
                 // k changes at most by 1 at each iteration, hence:
-                assertTrue(k0 - kp == 1, "flog10threeQuartersPow2");
+                assertEquals(1, k0 - kp, "flog10threeQuartersPow2");
                 k0 = kp;
                 l = u;
                 u = u.multiply(TEN);
@@ -253,7 +255,7 @@ public class MathUtilsTest {
             assertTrue(kp >= k0, "flog10threeQuartersPow2");
             if (kp > k0) {
                 // k changes at most by 1 at each iteration, hence:
-                assertTrue(kp - k0 == 1, "flog10threeQuartersPow2");
+                assertEquals(1, kp - k0, "flog10threeQuartersPow2");
                 k0 = kp;
                 u10 = u10.multiply(TEN);
                 l = u;
@@ -285,7 +287,7 @@ public class MathUtilsTest {
     @Test
     void testFlog10pow2() {
         // First check the case e = 0
-        assertTrue(flog10pow2(0) == 0, "flog10pow2");
+        assertEquals(0, flog10pow2(0), "flog10pow2");
 
         /*
         Now check the range F * Q_MIN <= e < 0.
@@ -322,7 +324,7 @@ public class MathUtilsTest {
             assertTrue(kp <= k, "flog10pow2");
             if (kp < k) {
                 // k changes at most by 1 at each iteration, hence:
-                assertTrue(k - kp == 1, "flog10pow2");
+                assertEquals(1, k - kp, "flog10pow2");
                 k = kp;
                 l = u;
                 u = u.multiply(TEN);

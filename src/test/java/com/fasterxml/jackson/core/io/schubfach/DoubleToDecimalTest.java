@@ -5,24 +5,25 @@ import org.junit.jupiter.api.Test;
 import java.util.Random;
 
 import static com.fasterxml.jackson.core.io.schubfach.DoubleToDecimalChecker.*;
-import static java.lang.Double.*;
+import static java.lang.Double.longBitsToDouble;
 import static java.lang.StrictMath.scalb;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DoubleToDecimalTest {
     @Test
     void testExtremeValues() {
-        toDec(NEGATIVE_INFINITY);
-        toDec(-MAX_VALUE);
-        toDec(-MIN_NORMAL);
-        toDec(-MIN_VALUE);
+        toDec(Double.NEGATIVE_INFINITY);
+        toDec(-Double.MAX_VALUE);
+        toDec(-Double.MIN_NORMAL);
+        toDec(-Double.MIN_VALUE);
         toDec(-0.0);
         toDec(0.0);
-        toDec(MIN_VALUE);
-        toDec(MIN_NORMAL);
-        toDec(MAX_VALUE);
-        toDec(POSITIVE_INFINITY);
-        toDec(NaN);
+        toDec(Double.MIN_VALUE);
+        toDec(Double.MIN_NORMAL);
+        toDec(Double.MAX_VALUE);
+        toDec(Double.POSITIVE_INFINITY);
+        toDec(Double.NaN);
 
         /*
         Quiet NaNs have the most significant bit of the mantissa as 1,
@@ -39,7 +40,7 @@ public class DoubleToDecimalTest {
         All values treated specially by Schubfach
          */
         for (int c = 1; c < C_TINY; ++c) {
-            toDec(c * MIN_VALUE);
+            toDec(c * Double.MIN_VALUE);
         }
     }
 
@@ -50,7 +51,7 @@ public class DoubleToDecimalTest {
     @Test
     void testPowersOf10() {
         for (int e = E_MIN; e <= E_MAX; ++e) {
-            toDec(parseDouble("1e" + e));
+            toDec(Double.parseDouble("1e" + e));
         }
     }
 
@@ -60,7 +61,7 @@ public class DoubleToDecimalTest {
     */
     @Test
     void testPowersOf2() {
-        for (double v = MIN_VALUE; v <= MAX_VALUE; v *= 2) {
+        for (double v = Double.MIN_VALUE; v <= Double.MAX_VALUE; v *= 2) {
             toDec(v);
         }
     }
@@ -68,7 +69,7 @@ public class DoubleToDecimalTest {
     @Test
     void testSomeAnomalies() {
         for (String dec : Anomalies) {
-            toDec(parseDouble(dec));
+            toDec(Double.parseDouble(dec));
         }
     }
 
@@ -103,23 +104,23 @@ public class DoubleToDecimalTest {
 
     @Test
     void testConstants() {
-        assertTrue(P == DoubleToDecimal.P, "P");
+        assertEquals(DoubleToDecimal.P, P, "P");
         assertTrue((long) (double) C_MIN == C_MIN, "C_MIN");
         assertTrue((long) (double) C_MAX == C_MAX, "C_MAX");
-        assertTrue(MIN_VALUE == Double.MIN_VALUE, "MIN_VALUE");
-        assertTrue(MIN_NORMAL == Double.MIN_NORMAL, "MIN_NORMAL");
-        assertTrue(MAX_VALUE == Double.MAX_VALUE, "MAX_VALUE");
+        assertEquals(Double.MIN_VALUE, MIN_VALUE, "MIN_VALUE");
+        assertEquals(Double.MIN_NORMAL, MIN_NORMAL, "MIN_NORMAL");
+        assertEquals(Double.MAX_VALUE, MAX_VALUE, "MAX_VALUE");
 
-        assertTrue(Q_MIN == DoubleToDecimal.Q_MIN, "Q_MIN");
-        assertTrue(Q_MAX == DoubleToDecimal.Q_MAX, "Q_MAX");
+        assertEquals(DoubleToDecimal.Q_MIN, Q_MIN, "Q_MIN");
+        assertEquals(DoubleToDecimal.Q_MAX, Q_MAX, "Q_MAX");
 
-        assertTrue(K_MIN == DoubleToDecimal.K_MIN, "K_MIN");
-        assertTrue(K_MAX == DoubleToDecimal.K_MAX, "K_MAX");
-        assertTrue(H == DoubleToDecimal.H, "H");
+        assertEquals(DoubleToDecimal.K_MIN, K_MIN, "K_MIN");
+        assertEquals(DoubleToDecimal.K_MAX, K_MAX, "K_MAX");
+        assertEquals(DoubleToDecimal.H, H, "H");
 
-        assertTrue(E_MIN == DoubleToDecimal.E_MIN, "E_MIN");
-        assertTrue(E_MAX == DoubleToDecimal.E_MAX, "E_MAX");
-        assertTrue(C_TINY == DoubleToDecimal.C_TINY, "C_TINY");
+        assertEquals(DoubleToDecimal.E_MIN, E_MIN, "E_MIN");
+        assertEquals(DoubleToDecimal.E_MAX, E_MAX, "E_MAX");
+        assertEquals(DoubleToDecimal.C_TINY, C_TINY, "C_TINY");
     }
 
     @Test

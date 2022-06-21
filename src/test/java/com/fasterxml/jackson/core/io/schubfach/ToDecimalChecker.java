@@ -88,9 +88,6 @@ abstract class ToDecimalChecker {
                 "\"" + s + "\"" +
                 ", which is not correct according to the specification.";
         assertTrue(isOK(), msg);
-        if (isOK()) {
-            return;
-        }
     }
 
     /*

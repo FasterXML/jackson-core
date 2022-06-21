@@ -12,6 +12,8 @@ module com.fasterxml.jackson.core {
     exports com.fasterxml.jackson.core.filter;
     exports com.fasterxml.jackson.core.format;
     exports com.fasterxml.jackson.core.io;
+    exports com.fasterxml.jackson.core.io.doubleparser;
+    exports com.fasterxml.jackson.core.io.schubfach;
     exports com.fasterxml.jackson.core.json;
     exports com.fasterxml.jackson.core.json.async;
     exports com.fasterxml.jackson.core.sym;

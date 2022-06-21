@@ -24,7 +24,7 @@ public abstract class FloatToStringTest {
 
   @Test
   public void switchToSubnormal() {
-    //TODO next one different than Schubfach
+    //next one different to Schubfach
     assertF2sEquals("1.17549435E-38", Float.intBitsToFloat(0x00800000));
   }
 
@@ -52,7 +52,7 @@ public abstract class FloatToStringTest {
 
   @Test
   public void roundingModeEven() {
-    //TODO all of these differ than Schubfach
+    //all different to Schubfach
     assertF2sEquals("3.3554448E7", 3.3554448E7f);
     assertF2sEquals("8.9999995E9", 8.999999E9f);
     assertF2sEquals("3.4366718E10", 3.4366717E10f);
@@ -68,7 +68,7 @@ public abstract class FloatToStringTest {
     // These are all floating point numbers where the mantissa is a power of 5,
     // and the exponent is in the range such that q = 10.
     assertF2sEquals("6.7108864E17", Float.intBitsToFloat(0x5D1502F9));
-    //TODO next 2 are slightly different from Schubfach
+    //next 2 are slightly different to Schubfach
     assertF2sEquals("1.34217728E18", Float.intBitsToFloat(0x5D9502F9));
     assertF2sEquals("2.68435456E18", Float.intBitsToFloat(0x5E1502F9));
   }
@@ -87,20 +87,20 @@ public abstract class FloatToStringTest {
     assertF2sEquals("5.3399997E9", 5.3399997E9f);
     assertF2sEquals("6.0898E-39", 6.0898E-39f);
     assertF2sEquals("0.0010310042", 0.0010310042f);
-    //TODO next one is more accurate than Schubfach
+    //next one is more accurate than Schubfach
     assertF2sEquals("2.8823261E17", 2.8823261E17f);
     assertF2sEquals("7.038531E-26", 7.038531E-26f);
-    //TODO next 2 are accurate than Schubfach
+    //next 2 are more accurate than Schubfach
     assertF2sEquals("9.2234038E17", 9.2234038E17f);
     assertF2sEquals("6.7108872E7", 6.7108872E7f);
-    //TODO next one matches Schubfach but not Ryu (Ryu is more accurate)
+    //next one matches Schubfach but not Ryu (Ryu is more accurate)
     assertF2sEquals("9.8E-45", 1.0E-44f);
-    //TODO next one is less accurate than Schubfach
+    //next one is less accurate than Schubfach
     assertF2sEquals("2.81602484E14", 2.816025E14f);
     assertF2sEquals("9.223372E18", 9.223372E18f);
     assertF2sEquals("1.5846086E29", 1.5846085E29f);
     assertF2sEquals("1.1811161E19", 1.1811161E19f);
-    //TODO next one is less accurate than Schubfach
+    //next one is less accurate than Schubfach
     assertF2sEquals("5.3687091E18", 5.368709E18f);
     assertF2sEquals("4.6143166E18", 4.6143165E18f);
     assertF2sEquals("0.007812537", 0.007812537f);

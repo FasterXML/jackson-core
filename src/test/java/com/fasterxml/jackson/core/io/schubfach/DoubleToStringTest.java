@@ -63,7 +63,7 @@ public abstract class DoubleToStringTest {
     assertD2sEquals("4.708356024711512E18", 4.708356024711512E18);
     assertD2sEquals("9.409340012568248E18", 9.409340012568248E18);
     // This number naively requires 65 bit for the intermediate results if we reduce the lookup
-    // table by half. This checks that we don't loose any information in that case.
+    // table by half. This checks that we don't lose any information in that case.
     assertD2sEquals("1.8531501765868567E21", 1.8531501765868567E21);
     assertD2sEquals("-3.347727380279489E33", -3.347727380279489E33);
     // Discovered by Andriy Plokhotnyuk, see #29.

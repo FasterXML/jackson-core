@@ -12,6 +12,10 @@ public class NonStandardNumberParsingTest
             .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
             .build();
 
+    protected JsonFactory jsonFactory() {
+        return JSON_F;
+    }
+
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */

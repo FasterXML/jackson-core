@@ -92,6 +92,15 @@ public enum StreamReadFeature
      */
     INCLUDE_SOURCE_IN_LOCATION(true),
 
+    /**
+     * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse
+     * doubles or if we use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * instead.
+     *<p>
+     * This setting is disabled by default.
+     */
+    USE_FAST_DOUBLE_PARSER(false)
+
     ;
 
     /**

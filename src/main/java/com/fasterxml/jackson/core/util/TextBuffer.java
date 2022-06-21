@@ -504,9 +504,25 @@ public final class TextBuffer
      * @return Buffered text value parsed as a {@link Double}, if possible
      *
      * @throws NumberFormatException if contents are not a valid Java number
+     * @deprecated use {@link #contentsAsDouble(boolean)}
      */
+    @Deprecated
     public double contentsAsDouble() throws NumberFormatException {
-        return NumberInput.parseDouble(contentsAsString());
+        return contentsAsDouble(false);
+    }
+
+    /**
+     * Convenience method for converting contents of the buffer
+     * into a Double value.
+     *
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return Buffered text value parsed as a {@link Double}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
+     * @since 2.14
+     */
+    public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseDouble(contentsAsString(), useFastParser);
     }
 
     /**
@@ -517,9 +533,25 @@ public final class TextBuffer
      *
      * @throws NumberFormatException if contents are not a valid Java number
      * @since 2.14
+     * @deprecated use {@link #contentsAsFloat(boolean)}
      */
+    @Deprecated
     public float contentsAsFloat() throws NumberFormatException {
-        return NumberInput.parseFloat(contentsAsString());
+        return contentsAsFloat(false);
+    }
+
+    /**
+     * Convenience method for converting contents of the buffer
+     * into a Float value.
+     *
+     * @param useFastParser whether to use {@link com.fasterxml.jackson.core.io.doubleparser}
+     * @return Buffered text value parsed as a {@link Float}, if possible
+     *
+     * @throws NumberFormatException if contents are not a valid Java number
+     * @since 2.14
+     */
+    public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
+        return NumberInput.parseFloat(contentsAsString(), useFastParser);
     }
 
     /**

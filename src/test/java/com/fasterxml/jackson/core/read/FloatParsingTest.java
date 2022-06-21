@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.core.read;
 
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.TokenStreamFactory;
+import com.fasterxml.jackson.core.*;
 
 // for [core#755]
 public class FloatParsingTest extends BaseTest
@@ -12,22 +9,40 @@ public class FloatParsingTest extends BaseTest
     
     public void testFloatArrayViaInputStream() throws Exception
     {
-        _testFloatArray(MODE_INPUT_STREAM);
-        _testFloatArray(MODE_INPUT_STREAM_THROTTLED);
+        _testFloatArray(MODE_INPUT_STREAM, false);
+        _testFloatArray(MODE_INPUT_STREAM_THROTTLED, false);
+    }
+
+    public void testFloatArrayViaInputStreamWithFastParser() throws Exception
+    {
+        _testFloatArray(MODE_INPUT_STREAM, true);
+        _testFloatArray(MODE_INPUT_STREAM_THROTTLED, true);
     }
 
     public void testFloatArrayViaReader() throws Exception {
-        _testFloatArray(MODE_READER);
+        _testFloatArray(MODE_READER, false);
+    }
+
+    public void testFloatArrayViaReaderWithFastParser() throws Exception {
+        _testFloatArray(MODE_READER, true);
     }
 
     public void testFloatArrayViaDataInput() throws Exception {
-       _testFloatArray(MODE_DATA_INPUT);
+       _testFloatArray(MODE_DATA_INPUT, false);
     }
 
-    private void _testFloatArray(int mode) throws Exception
+    public void testFloatArrayViaDataInputWithFasrtParser() throws Exception {
+        _testFloatArray(MODE_DATA_INPUT, true);
+    }
+
+    private void _testFloatArray(int mode, boolean useFastParser) throws Exception
     {
         // construct new instance to reduce buffer recycling etc:
-        TokenStreamFactory jsonF = newStreamFactory();
+        TokenStreamFactory jsonF = useFastParser
+                ? streamFactoryBuilder()
+                    .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                    .build()
+                : newStreamFactory();
 
         JsonParser p = createParser(jsonF, mode, FLOATS_DOC);
 

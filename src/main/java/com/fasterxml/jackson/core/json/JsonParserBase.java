@@ -241,11 +241,11 @@ public abstract class JsonParserBase
                 _numberBigDecimal = _textBuffer.contentsAsDecimal();
                 _numTypesValid = NR_BIGDECIMAL;
             } else if (expType == NR_FLOAT) {
-                _numberFloat = _textBuffer.contentsAsFloat();
+                _numberFloat = _textBuffer.contentsAsFloat(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_FLOAT;
             } else {
                 // Otherwise double has to do
-                _numberDouble = _textBuffer.contentsAsDouble();
+                _numberDouble = _textBuffer.contentsAsDouble(isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 _numTypesValid = NR_DOUBLE;
             }
         } catch (NumberFormatException nex) {

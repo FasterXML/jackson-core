@@ -1655,7 +1655,7 @@ public class NonBlockingJsonParser
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
                     // must be followed by sequence of ints, one minimum
                     if (fractLen == 0) {
-                        if (!isEnabled(Feature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
+                        if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
                             reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
                         }
                     }
@@ -1747,7 +1747,7 @@ public class NonBlockingJsonParser
         // Ok, fraction done; what have we got next?
         // must be followed by sequence of ints, one minimum
         if (fractLen == 0) {
-            if (!isEnabled(Feature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
+            if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
                 reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
             }
         }

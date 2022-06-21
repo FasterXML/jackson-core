@@ -772,6 +772,10 @@ public class UTF8StreamJsonParser
             return (_currToken = JsonToken.END_OBJECT);
         }
 
+        if (i == INT_PLUS && isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            return nextToken();
+        }
+
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {

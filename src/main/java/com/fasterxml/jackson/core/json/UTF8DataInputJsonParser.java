@@ -618,6 +618,10 @@ public class UTF8DataInputJsonParser
             return _currToken;
         }
 
+        if (i == INT_PLUS && isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            return nextToken();
+        }
+
         // Nope: do we then expect a comma?
         if (_parsingContext.expectComma()) {
             if (i != INT_COMMA) {

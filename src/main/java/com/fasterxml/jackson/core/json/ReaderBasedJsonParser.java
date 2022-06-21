@@ -740,6 +740,10 @@ public class ReaderBasedJsonParser
 
         // Ok: we must have a value... what is it?
 
+        if (i == '+' && isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            return nextToken();
+        }
+
         JsonToken t;
 
         switch (i) {

@@ -105,31 +105,43 @@ public class NonStandardNumberParsingTest
 
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode) throws Exception
     {
-        JsonParser p = createParser(f, mode, " .125 ");
-        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        assertEquals(0.125, p.getValueAsDouble());
-        assertEquals("0.125", p.getDecimalValue().toString());
-        assertEquals(".125", p.getText());
-        p.close();
+        try (JsonParser p = createParser(f, mode, " .125 ")) {
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.125, p.getValueAsDouble());
+            assertEquals("0.125", p.getDecimalValue().toString());
+            assertEquals(".125", p.getText());
+        }
     }
 
     private void _testLeadingPlusSignInDecimalAllowed(JsonFactory f, int mode) throws Exception
     {
-        JsonParser p = createParser(f, mode, " +125 ");
-        assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals(125.0, p.getValueAsDouble());
-        assertEquals("125", p.getDecimalValue().toString());
-        assertEquals("125", p.getText());
-        p.close();
+        try (JsonParser p = createParser(f, mode, " +125 ")) {
+            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+            assertEquals(125.0, p.getValueAsDouble());
+            assertEquals("125", p.getDecimalValue().toString());
+            assertEquals("125", p.getText());
+        }
+        try (JsonParser p = createParser(f, mode, " +.125 ")) {
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.125, p.getValueAsDouble());
+            assertEquals("0.125", p.getDecimalValue().toString());
+            assertEquals(".125", p.getText());
+        }
     }
 
     private void _testTrailingDotInDecimalAllowed(JsonFactory f, int mode) throws Exception
     {
-        JsonParser p = createParser(f, mode, " 125. ");
-        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        assertEquals(125.0, p.getValueAsDouble());
-        assertEquals("125", p.getDecimalValue().toString());
-        assertEquals("125.", p.getText());
-        p.close();
+        try (JsonParser p = createParser(f, mode, " 125. ")) {
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(125.0, p.getValueAsDouble());
+            assertEquals("125", p.getDecimalValue().toString());
+            assertEquals("125.", p.getText());
+        }
+        try (JsonParser p = createParser(f, mode, " 125. ")) {
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(125.0, p.getValueAsDouble());
+            assertEquals("125", p.getDecimalValue().toString());
+            assertEquals("125.", p.getText());
+        }
     }
 }

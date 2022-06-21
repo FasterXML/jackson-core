@@ -1106,7 +1106,7 @@ class FastDoubleMath {
     static class UInt128 {
         final long high, low;
 
-        private UInt128(long high, long low) {
+        UInt128(long high, long low) {
             this.high = high;
             this.low = low;
         }

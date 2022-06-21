@@ -31,6 +31,7 @@ import static java.lang.Long.numberOfTrailingZeros;
 import static java.lang.StrictMath.scalb;
 import static java.math.BigInteger.*;
 import static com.fasterxml.jackson.core.io.schubfach.MathUtils.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MathUtilsTest {
@@ -357,7 +358,7 @@ public class MathUtilsTest {
             assertTrue(kp >= k, "flog10pow2");
             if (kp > k) {
                 // k changes at most by 1 at each iteration, hence:
-                assertTrue(kp - k == 1, "flog10pow2");
+                assertEquals(1, kp - k, "flog10pow2");
                 k = kp;
                 l = u;
                 u = u.multiply(TEN);
@@ -388,7 +389,7 @@ public class MathUtilsTest {
     @Test
     void testFlog2pow10() {
         // First check the case e = 0
-        assertTrue(flog2pow10(0) == 0, "flog2pow10");
+        assertEquals(0, flog2pow10(0), "flog2pow10");
 
         /*
         Now check the range K_MIN <= e < 0.
@@ -405,7 +406,7 @@ public class MathUtilsTest {
         assertTrue(k0 <= -4, "flog2pow10");
         BigInteger l = TEN;
         for (;;) {
-            assertTrue(l.bitLength() == -k0, "flog2pow10");
+            assertEquals(-k0, l.bitLength(), "flog2pow10");
             --e;
             if (e < -K_MAX) {
                 break;
@@ -429,7 +430,7 @@ public class MathUtilsTest {
         assertTrue(k0 >= 3, "flog2pow10");
         l = TEN;
         for (;;) {
-            assertTrue(l.bitLength() == k0 + 1, "flog2pow10");
+            assertEquals(k0 + 1, l.bitLength(), "flog2pow10");
             ++e;
             if (e > -K_MIN) {
                 break;
@@ -443,16 +444,16 @@ public class MathUtilsTest {
     void testBinaryConstants() {
         assertTrue((long) (double) C_MIN == C_MIN, "C_MIN");
         assertTrue((long) (double) C_MAX == C_MAX, "C_MAX");
-        assertTrue(scalb(1.0, Q_MIN) == MIN_VALUE, "MIN_VALUE");
-        assertTrue(scalb((double) C_MIN, Q_MIN) == MIN_NORMAL, "MIN_NORMAL");
-        assertTrue(scalb((double) C_MAX, Q_MAX) == MAX_VALUE, "MAX_VALUE");
+        assertEquals(MIN_VALUE, scalb(1.0, Q_MIN), "MIN_VALUE");
+        assertEquals(MIN_NORMAL, scalb((double) C_MIN, Q_MIN), "MIN_NORMAL");
+        assertEquals(MAX_VALUE, scalb((double) C_MAX, Q_MAX), "MAX_VALUE");
     }
 
     @Test
     void testDecimalConstants() {
-        assertTrue(K_MIN == MathUtils.K_MIN, "K_MIN");
-        assertTrue(K_MAX == MathUtils.K_MAX, "K_MAX");
-        assertTrue(H == MathUtils.H, "H");
+        assertEquals(MathUtils.K_MIN, K_MIN, "K_MIN");
+        assertEquals(MathUtils.K_MAX, K_MAX, "K_MAX");
+        assertEquals(MathUtils.H, H, "H");
     }
 
     @Test
@@ -460,7 +461,7 @@ public class MathUtilsTest {
         int e = 0;
         long pow = 1;
         for (; e <= H; e += 1, pow *= 10) {
-            assertTrue(pow == pow10(e), "pow10");
+            assertEquals(pow10(e), pow, "pow10");
         }
     }
 

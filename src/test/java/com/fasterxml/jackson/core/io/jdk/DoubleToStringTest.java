@@ -61,7 +61,7 @@ public abstract class DoubleToStringTest {
     assertD2sEquals("1.18575755E-316", 1.18575755E-316d);
     assertD2sEquals("2.989102097996E-312", 2.989102097996E-312d);
     assertD2sEquals("9.0608011534336E15", 9.0608011534336E15d);
-    //next result differs yo Schubfach
+    //next result differs to Schubfach
     assertD2sEquals("4.7083560247115121E18", 4.708356024711512E18);
     assertD2sEquals("9.409340012568248E18", 9.409340012568248E18);
     // This number naively requires 65 bit for the intermediate results if we reduce the lookup

@@ -36,6 +36,8 @@ JSON library.
  (contributed by Evan G)
 #763: `JsonFactory.createParser()` with `File` may leak `InputStream`s
 #764: `JsonFactory.createGenerator()` with `File` may leak `OutputStream`s
+#773: Add option to accept non-standard trailing decimal point
+ (contributed by @pjfanning)
 
 2.13.3 (14-May-2022)
 

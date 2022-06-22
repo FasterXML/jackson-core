@@ -189,6 +189,12 @@ public abstract class JsonParser
         ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false),
 
         /**
+         * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS} instead
+         */
+        @Deprecated
+        ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false),
+
+        /**
          * Feature that allows parser to recognize set of
          * "Not-a-Number" (NaN) tokens as legal floating number
          * values (similar to how many other data formats and

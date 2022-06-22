@@ -16,10 +16,14 @@ public class ObjectWriteTest
 {
     final TokenStreamFactory JSON_F = newStreamFactory();
 
+    protected TokenStreamFactory jsonFactory() {
+        return JSON_F;
+    }
+
     public void testEmptyObjectWrite()
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
 
         TokenStreamContext ctxt = gen.streamWriteContext();
         assertTrue(ctxt.inRoot());
@@ -60,7 +64,7 @@ public class ObjectWriteTest
     public void testInvalidObjectWrite()
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
         // Mismatch:
         try {
@@ -75,7 +79,7 @@ public class ObjectWriteTest
     public void testSimpleObjectWrite()
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
         gen.writeName("first");
         gen.writeNumber(-901);
@@ -107,7 +111,7 @@ public class ObjectWriteTest
     public void testConvenienceMethods()
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
 
         final String TEXT = "\"some\nString!\"";
@@ -211,7 +215,7 @@ public class ObjectWriteTest
     public void testConvenienceMethodsWithNulls()
     {
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = JSON_F.createGenerator(ObjectWriteContext.empty(), sw);
+        JsonGenerator gen = jsonFactory().createGenerator(ObjectWriteContext.empty(), sw);
         gen.writeStartObject();
 
         gen.writeStringProperty("str", null);

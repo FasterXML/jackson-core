@@ -1023,29 +1023,31 @@ public class UTF8JsonGenerator
     @Override
     public void writeNumber(double d) throws JacksonException
     {
+        final boolean useFast = isEnabled(StreamWriteFeature.USE_FAST_DOUBLE_WRITER);
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(d)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(String.valueOf(d));
+            writeString(NumberOutput.toString(d, useFast));
             return;
         }
         // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(d));
+        writeRaw(NumberOutput.toString(d, useFast));
     }
 
     @Override
     public void writeNumber(float f) throws JacksonException
     {
+        final boolean useFast = isEnabled(StreamWriteFeature.USE_FAST_DOUBLE_WRITER);
         if (_cfgNumbersAsStrings ||
             (NumberOutput.notFinite(f)
                     && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
-            writeString(String.valueOf(f));
+            writeString(NumberOutput.toString(f, useFast));
             return;
         }
         // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(f));
+        writeRaw(NumberOutput.toString(f, useFast));
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.io.schubfach.DoubleToDecimal;
+import com.fasterxml.jackson.core.io.schubfach.FloatToDecimal;
+
 public final class NumberOutput
 {
     private static int MILLION = 1000000;
@@ -15,8 +18,6 @@ public final class NumberOutput
     /**
      * Encoded representations of 3-decimal-digit indexed values, where
      * 3 LSB are ascii characters
-     *
-     * @since 2.8.2
      */
     private final static int[] TRIPLET_TO_CHARS = new int[1000];
 
@@ -237,6 +238,46 @@ public final class NumberOutput
 
     /*
     /**********************************************************************
+    /* Convenience serialization methods
+    /**********************************************************************
+     */
+
+    /**
+     * @param v double
+     * @return double as a string
+     */
+    public static String toString(final double v) {
+        return toString(v, false);
+    }
+
+    /**
+     * @param v double
+     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @return double as a string
+     */
+    public static String toString(final double v, final boolean useFastWriter) {
+        return useFastWriter ? DoubleToDecimal.toString(v) : Double.toString(v);
+    }
+
+    /**
+     * @param v float
+     * @return float as a string
+     */
+    public static String toString(final float v) {
+        return toString(v, false);
+    }
+
+    /**
+     * @param v float
+     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @return float as a string
+     */
+    public static String toString(final float v, final boolean useFastWriter) {
+        return useFastWriter ? FloatToDecimal.toString(v) : Float.toString(v);
+    }
+
+    /*
+    /**********************************************************************
     /* Other convenience methods
     /**********************************************************************
      */
@@ -248,8 +289,6 @@ public final class NumberOutput
      * @param value {@code double} value to check
      *
      * @return True if number is NOT finite (is Infinity or NaN); false otherwise
-     *
-     * Since 2.10
      */
     public static boolean notFinite(double value) {
         return !Double.isFinite(value);

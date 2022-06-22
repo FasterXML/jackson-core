@@ -241,13 +241,15 @@ public abstract class JsonGenerator
          */
         IGNORE_UNKNOWN(false),
 
+        // // Misc other
+
         /**
-         * Feature that determines whether to use standard Java code to write floats/doubles (default) or
-         * use the Schubfach algorithm which is faster. The latter approach may lead to small
-         * differences in the precision of the float/double that is written to the JSON output.
+         * Alias for {@link com.fasterxml.jackson.core.StreamWriteFeature#USE_FAST_DOUBLE_WRITER} instead
          *
          * @since 2.14
+         * @deprecated Use {@link com.fasterxml.jackson.core.StreamWriteFeature#USE_FAST_DOUBLE_WRITER} instead
          */
+        @Deprecated
         USE_FAST_DOUBLE_WRITER(false)
         ;
 

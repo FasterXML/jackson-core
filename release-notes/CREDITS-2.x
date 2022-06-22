@@ -290,6 +290,8 @@ Vlad Tatavu (vladt@github)
 PJ Fanning (pjfanning@github)
   * Contributed #744: Limit size of exception message in BigDecimalParser
   (2.13.3)
+  * Contributed #773: Add option to accept non-standard trailing decimal point
+  (2.14.0)
 
 Ilya Golovin (ilgo0413@github)
   * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"

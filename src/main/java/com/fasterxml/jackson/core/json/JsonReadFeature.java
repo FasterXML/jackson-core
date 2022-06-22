@@ -130,7 +130,7 @@ public enum JsonReadFeature
      * Since JSON specification does not allow trailing decimal points,
      * this is a non-standard feature, and as such disabled by default.
      *
-     * @since 2.11
+     * @since 2.14
      */
     @SuppressWarnings("deprecation")
     ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS),

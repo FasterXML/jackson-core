@@ -16,6 +16,8 @@ JSON library.
 
 2.14.0 (not yet released)
 
+#577: Improve performance of floating-point number parsing
+ (contributed by @pjfanning)
 #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
  (contributed by Ilya G)
 #715: Allow TokenFilters to keep empty arrays and objects
@@ -24,6 +26,8 @@ JSON library.
   floating-point values or not
  (contributed Doug R)
 #745: Change minimum Java version to 8
+#749: Improve performance of writing floating-point numbers
+ (contributed by @pjfanning)
 #751: Remove workaround for old issue with a particular double
  (contributed by @pjfanning)
 #753: Add `NumberInput.parseFloat()`

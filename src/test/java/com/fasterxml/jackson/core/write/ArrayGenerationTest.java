@@ -13,7 +13,11 @@ import com.fasterxml.jackson.core.*;
 public class ArrayGenerationTest extends BaseTest
 {
     private final JsonFactory FACTORY = new JsonFactory();
-    
+
+    protected JsonFactory jsonFactory() {
+        return FACTORY;
+    }
+
     public void testIntArray() throws Exception
     {
         _testIntArray(false);
@@ -124,8 +128,8 @@ public class ArrayGenerationTest extends BaseTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? FACTORY.createGenerator(bytes)
-                : FACTORY.createGenerator(sw);
+        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
+                : jsonFactory().createGenerator(sw);
 
         gen.writeArray(values, pre, elements);
         gen.close();
@@ -137,8 +141,8 @@ public class ArrayGenerationTest extends BaseTest
             json = sw.toString();
         }
 
-        JsonParser p = useBytes ? FACTORY.createParser(bytes.toByteArray())
-                : FACTORY.createParser(json);
+        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
+                : jsonFactory().createParser(json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < elements; ++i) {
             if ((i & 1) == 0) { // alternate
@@ -165,8 +169,8 @@ public class ArrayGenerationTest extends BaseTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? FACTORY.createGenerator(bytes)
-                : FACTORY.createGenerator(sw);
+        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
+                : jsonFactory().createGenerator(sw);
 
         gen.writeArray(values, pre, elements);
         gen.close();
@@ -178,8 +182,8 @@ public class ArrayGenerationTest extends BaseTest
             json = sw.toString();
         }
 
-        JsonParser p = useBytes ? FACTORY.createParser(bytes.toByteArray())
-                : FACTORY.createParser(json);
+        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
+                : jsonFactory().createParser(json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < elements; ++i) {
             if ((i & 1) == 0) { // alternate
@@ -206,8 +210,8 @@ public class ArrayGenerationTest extends BaseTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? FACTORY.createGenerator(bytes)
-                : FACTORY.createGenerator(sw);
+        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
+                : jsonFactory().createGenerator(sw);
 
         gen.writeArray(values, pre, elements);
         gen.close();
@@ -219,8 +223,8 @@ public class ArrayGenerationTest extends BaseTest
             json = sw.toString();
         }
 
-        JsonParser p = useBytes ? FACTORY.createParser(bytes.toByteArray())
-                : FACTORY.createParser(json);
+        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
+                : jsonFactory().createParser(json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < elements; ++i) {
             JsonToken t = p.nextToken();
@@ -248,8 +252,8 @@ public class ArrayGenerationTest extends BaseTest
         StringWriter sw = new StringWriter();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
-        JsonGenerator gen = useBytes ? FACTORY.createGenerator(bytes)
-                : FACTORY.createGenerator(sw);
+        JsonGenerator gen = useBytes ? jsonFactory().createGenerator(bytes)
+                : jsonFactory().createGenerator(sw);
 
         gen.writeArray(values, pre, elements);
         gen.close();
@@ -261,8 +265,8 @@ public class ArrayGenerationTest extends BaseTest
             json = sw.toString();
         }
 
-        JsonParser p = useBytes ? FACTORY.createParser(bytes.toByteArray())
-                : FACTORY.createParser(json);
+        JsonParser p = useBytes ? jsonFactory().createParser(bytes.toByteArray())
+                : jsonFactory().createParser(json);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < elements; ++i) {
             JsonToken t = p.nextToken();

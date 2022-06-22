@@ -801,12 +801,12 @@ public class WriterBasedJsonGenerator
     {
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(d) && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS))) {
-            writeString(String.valueOf(d));
+            writeString(NumberOutput.toString(d, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
             return;
         }
         // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(d));
+        writeRaw(NumberOutput.toString(d, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
     }
 
     @SuppressWarnings("deprecation")
@@ -815,12 +815,12 @@ public class WriterBasedJsonGenerator
     {
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(f) && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS))) {
-            writeString(String.valueOf(f));
+            writeString(NumberOutput.toString(f, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
             return;
         }
         // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(f));
+        writeRaw(NumberOutput.toString(f, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
     }
 
     @Override

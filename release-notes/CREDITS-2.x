@@ -288,8 +288,12 @@ Vlad Tatavu (vladt@github)
   (2.13.2)
 
 PJ Fanning (pjfanning@github)
+  * Contributed #577: Improve performance of floating-point number parsing
+  (2.14.0)
   * Contributed #744: Limit size of exception message in BigDecimalParser
   (2.13.3)
+  * Contributed #749: Improve performance of writing floating-point numbers
+  (2.14.0)
   * Contributed #773: Add option to accept non-standard trailing decimal point
   (2.14.0)
 

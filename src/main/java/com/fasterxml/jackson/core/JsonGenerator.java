@@ -240,6 +240,17 @@ public abstract class JsonGenerator
          * @since 2.5
          */
         IGNORE_UNKNOWN(false),
+
+        // // Misc other
+
+        /**
+         * Alias for {@link com.fasterxml.jackson.core.StreamWriteFeature#USE_FAST_DOUBLE_WRITER} instead
+         *
+         * @since 2.14
+         * @deprecated Use {@link com.fasterxml.jackson.core.StreamWriteFeature#USE_FAST_DOUBLE_WRITER} instead
+         */
+        @Deprecated
+        USE_FAST_DOUBLE_WRITER(false)
         ;
 
         private final boolean _defaultState;

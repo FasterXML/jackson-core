@@ -110,6 +110,21 @@ public enum StreamWriteFeature
      * property will result in a {@link JsonProcessingException}
      */
     IGNORE_UNKNOWN(JsonGenerator.Feature.IGNORE_UNKNOWN),
+
+    // // Misc other features
+
+    /**
+     * Feature that determines whether to use standard Java code to write floats/doubles
+     * (default) or use the Schubfach algorithm which is faster.
+     * The latter approach may lead to small differences in the precision of the
+     * float/double that is written to the JSON output.
+     *<p>
+     * Feature is disabled by default, meaning that slower JDK default conversions are used.
+     *
+     * @since 2.14
+     */
+    @SuppressWarnings("deprecation")
+    USE_FAST_DOUBLE_WRITER(JsonGenerator.Feature.USE_FAST_DOUBLE_WRITER)
     ;
 
     /**

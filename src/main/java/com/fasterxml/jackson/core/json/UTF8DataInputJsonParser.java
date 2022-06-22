@@ -662,7 +662,11 @@ public class UTF8DataInputJsonParser
             break;
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                t = _handleUnexpectedValue(i);
+                if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature())) {
+                    t = _handleInvalidNumberStart(i, false);
+                } else {
+                    t = _handleUnexpectedValue(i);
+                }
             } else {
                 t = _parsePosNumber();
             }
@@ -734,7 +738,7 @@ public class UTF8DataInputJsonParser
             return (_currToken = _parseNegNumber());
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                return _handleUnexpectedValue(i);
+                return (_currToken = _handleUnexpectedValue(i));
             }
             return (_currToken = _parsePosNumber());
         case '.': // as per [core#611]

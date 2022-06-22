@@ -781,9 +781,10 @@ public class ReaderBasedJsonParser
             break;
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                _handleOddValue(i);
+                t = _handleOddValue(i);
+            } else {
+                t = _parsePosNumber();
             }
-            t = _parsePosNumber();
             break;
         case '.': // [core#61]]
             t = _parseFloatThatStartsWithPeriod();
@@ -1465,7 +1466,7 @@ public class ReaderBasedJsonParser
         return _parsePossibleNumber(true);
     }
 
-    private JsonToken _parsePossibleNumber(boolean negative) throws IOException
+    private JsonToken _parsePossibleNumber(final boolean negative) throws IOException
     {
         int ptr = _inputPtr;
         int startPtr = negative ? ptr-1 : ptr; // to include sign/digit already read

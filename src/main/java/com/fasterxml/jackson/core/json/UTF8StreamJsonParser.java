@@ -816,9 +816,10 @@ public class UTF8StreamJsonParser
             break;
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                _handleUnexpectedValue(i);
+                t = _handleUnexpectedValue(i);
+            } else {
+                t = _parsePosNumber();
             }
-            t = _parsePosNumber();
             break;
         case '.': // [core#611]:
             t = _parseFloatThatStartsWithPeriod();
@@ -887,7 +888,7 @@ public class UTF8StreamJsonParser
             return (_currToken = _parseNegNumber());
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                _handleUnexpectedValue(i);
+                return (_currToken = _handleUnexpectedValue(i));
             }
             return (_currToken = _parsePosNumber());
         case '.': // [core#611]:

@@ -1387,7 +1387,9 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
-                _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
+                    _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                }
             }
         }
         int expLen = 0;
@@ -1564,7 +1566,9 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
-                _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
+                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
+                    _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
+                }
             }
         }
 

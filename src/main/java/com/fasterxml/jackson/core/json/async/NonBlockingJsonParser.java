@@ -1667,7 +1667,9 @@ public class NonBlockingJsonParser
                     ch &= 0xFF; // but here we'll want to mask it to unsigned 8-bit
                     // must be followed by sequence of ints, one minimum
                     if (fractLen == 0) {
-                        _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                        if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
+                            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                        }
                     }
                     break;
                 }
@@ -1757,7 +1759,9 @@ public class NonBlockingJsonParser
         // Ok, fraction done; what have we got next?
         // must be followed by sequence of ints, one minimum
         if (fractLen == 0) {
-            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+            if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
+                _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+            }
         }
         _fractLength = fractLen;
         _textBuffer.setCurrentLength(outPtr);

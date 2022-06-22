@@ -10,6 +10,7 @@ public class NonStandardNumberParsingTest
 {
     private final JsonFactory JSON_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
+            .enable(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)
             .build();
 
     protected JsonFactory jsonFactory() {
@@ -32,8 +33,24 @@ public class NonStandardNumberParsingTest
         }
     }
 
+    /**
+     * The format "NNN." (as opposed to "NNN") is not valid JSON, so this should fail
+     */
+    public void testTrailingDotInDecimal() {
+        for (int mode : ALL_MODES) {
+            JsonParser p = createParser(mode, " 123. ");
+            try {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (StreamReadException e) {
+                verifyException(e, "Decimal point not followed by a digit");
+            }
+            p.close();
+        }
+    }
+
     public void testLeadingDotInDecimalAllowedAsync() {
-        _testLeadingDotInDecimalAllowed(JSON_F, MODE_DATA_INPUT);
+        _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
     public void testLeadingDotInDecimalAllowedBytes() {
@@ -45,6 +62,19 @@ public class NonStandardNumberParsingTest
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_READER);
     }
 
+    public void testTrailingDotInDecimalAllowedAsync() {
+        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
+    }
+
+    public void testTrailingDotInDecimalAllowedBytes() {
+        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM);
+        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    public void testTrailingDotInDecimalAllowedReader() {
+        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER);
+    }
+
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode)
     {
         JsonParser p = createParser(f, mode, " .125 ");
@@ -52,6 +82,16 @@ public class NonStandardNumberParsingTest
         assertEquals(0.125, p.getValueAsDouble());
         assertEquals("0.125", p.getDecimalValue().toString());
         assertEquals(".125", p.getText());
+        p.close();
+    }
+
+    private void _testTrailingDotInDecimalAllowed(JsonFactory f, int mode)
+    {
+        JsonParser p = createParser(f, mode, " 125. ");
+        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+        assertEquals(125.0, p.getValueAsDouble());
+        assertEquals("125", p.getDecimalValue().toString());
+        assertEquals("125.", p.getText());
         p.close();
     }
 }

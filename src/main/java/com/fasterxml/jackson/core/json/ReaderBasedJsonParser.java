@@ -1479,6 +1479,9 @@ public class ReaderBasedJsonParser
         // First check: must have a digit to follow minus sign
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
+            if (ch == INT_PERIOD) {
+                return _parseFloatThatStartsWithPeriod();
+            }
             return _handleInvalidNumberStart(ch, negative);
         }
         // One special case, leading zero(es):

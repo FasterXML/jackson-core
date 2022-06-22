@@ -1099,6 +1099,8 @@ public class UTF8DataInputJsonParser
             // One special case: if first char is 0 need to check no leading zeroes
             if (c == INT_0) {
                 c = _handleLeadingZeroes();
+            } else if (c == INT_PERIOD) {
+                return _parseFloatThatStartsWithPeriod();
             } else {
                 return _handleInvalidNumberStart(c, negative);
             }

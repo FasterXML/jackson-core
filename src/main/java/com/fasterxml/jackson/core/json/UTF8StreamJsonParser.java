@@ -1510,6 +1510,9 @@ public class UTF8StreamJsonParser
         if (c <= INT_0) {
             // One special case: if first char is 0, must not be followed by a digit
             if (c != INT_0) {
+                if (c == INT_PERIOD) {
+                    return _parseFloatThatStartsWithPeriod();
+                }
                 return _handleInvalidNumberStart(c, negative);
             }
             c = _verifyNoLeadingZeroes();

@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.core.io;
 
+import com.fasterxml.jackson.core.io.schubfach.DoubleToDecimal;
+import com.fasterxml.jackson.core.io.schubfach.FloatToDecimal;
+
 public final class NumberOutput
 {
     private static int MILLION = 1000000;
@@ -273,13 +276,41 @@ public final class NumberOutput
         return Long.toString(v);
     }
 
-    public static String toString(double v) {
-        return Double.toString(v);
+    /**
+     * @param v double
+     * @return double as a string
+     */
+    public static String toString(final double v) {
+        return toString(v, false);
     }
 
-    // @since 2.6
-    public static String toString(float v) {
-        return Float.toString(v);
+    /**
+     * @param v double
+     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @return double as a string
+     * @since 2.14
+     */
+    public static String toString(final double v, final boolean useFastWriter) {
+        return useFastWriter ? DoubleToDecimal.toString(v) : Double.toString(v);
+    }
+
+    /**
+     * @param v float
+     * @return float as a string
+     * @since 2.6
+     */
+    public static String toString(final float v) {
+        return toString(v, false);
+    }
+
+    /**
+     * @param v float
+     * @param useFastWriter whether to use Schubfach algorithm to write output (default false)
+     * @return float as a string
+     * @since 2.14
+     */
+    public static String toString(final float v, final boolean useFastWriter) {
+        return useFastWriter ? FloatToDecimal.toString(v) : Float.toString(v);
     }
 
     /*

@@ -240,6 +240,15 @@ public abstract class JsonGenerator
          * @since 2.5
          */
         IGNORE_UNKNOWN(false),
+
+        /**
+         * Feature that determines whether to use standard Java code to write floats/doubles (default) or
+         * use the Schubfach algorithm which is faster. The latter approach may lead to small
+         * differences in the precision of the float/double that is written to the JSON output.
+         *
+         * @since 2.14
+         */
+        USE_FAST_DOUBLE_WRITER(false)
         ;
 
         private final boolean _defaultState;

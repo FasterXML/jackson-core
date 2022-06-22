@@ -662,11 +662,7 @@ public class UTF8DataInputJsonParser
             break;
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature())) {
-                    t = _handleInvalidNumberStart(i, false);
-                } else {
-                    t = _handleUnexpectedValue(i);
-                }
+                t = _handleUnexpectedValue(i);
             } else {
                 t = _parsePosNumber();
             }

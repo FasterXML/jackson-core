@@ -42,6 +42,9 @@ JSON library.
 #764: `JsonFactory.createGenerator()` with `File` may leak `OutputStream`s
 #773: Add option to accept non-standard trailing decimal point
  (contributed by @pjfanning)
+#774: Add a feature to allow leading plus sign
+  (`JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS`)
+ (contributed by @pjfanning)
 
 2.13.3 (14-May-2022)
 

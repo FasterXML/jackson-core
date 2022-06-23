@@ -661,10 +661,10 @@ public class UTF8DataInputJsonParser
             t = _parseNegNumber();
             break;
         case '+':
-            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                t = _handleUnexpectedValue(i);
-            } else {
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
                 t = _parsePosNumber();
+            } else {
+                t = _handleUnexpectedValue(i);
             }
             break;
         case '.': // as per [core#611]
@@ -733,10 +733,10 @@ public class UTF8DataInputJsonParser
         case '-':
             return (_currToken = _parseNegNumber());
         case '+':
-            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                return (_currToken = _handleUnexpectedValue(i));
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                return (_currToken = _parsePosNumber());
             }
-            return (_currToken = _parsePosNumber());
+            return (_currToken = _handleUnexpectedValue(i));
         case '.': // as per [core#611]
             return (_currToken = _parseFloatThatStartsWithPeriod());
         case '0':
@@ -843,6 +843,13 @@ public class UTF8DataInputJsonParser
         switch (i) {
         case '-':
             t = _parseNegNumber();
+            break;
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                t = _parsePosNumber();
+            } else {
+                t = _handleUnexpectedValue(i);
+            }
             break;
         case '.': // as per [core#611]
             t = _parseFloatThatStartsWithPeriod();
@@ -1073,17 +1080,17 @@ public class UTF8DataInputJsonParser
         return resetInt(false, intLen);
     }
 
-    protected JsonToken _parsePosNumber() throws IOException
+    protected final JsonToken _parsePosNumber() throws IOException
     {
         return _parsePossibleNumber(false);
     }
 
-    protected JsonToken _parseNegNumber() throws IOException
+    protected final JsonToken _parseNegNumber() throws IOException
     {
         return _parsePossibleNumber(true);
     }
 
-    private JsonToken _parsePossibleNumber(boolean negative) throws IOException
+    private final JsonToken _parsePossibleNumber(boolean negative) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
@@ -2126,14 +2133,14 @@ public class UTF8DataInputJsonParser
             if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                 return resetAsNaN("NaN", Double.NaN);
             }
-            _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token 'NaN': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             break;
         case 'I':
             _matchToken("Infinity", 1);
             if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                 return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
             }
-            _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token 'Infinity': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             break;
         case '+': // note: '-' is taken as number
             return _handleInvalidNumberStart(_inputData.readUnsignedByte(), false);
@@ -2244,7 +2251,7 @@ public class UTF8DataInputJsonParser
             if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                 return resetAsNaN(match, neg ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
             }
-            _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token '"+match+"': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
         }
         reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;

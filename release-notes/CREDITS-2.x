@@ -296,6 +296,9 @@ PJ Fanning (pjfanning@github)
   (2.14.0)
   * Contributed #773: Add option to accept non-standard trailing decimal point
   (2.14.0)
+  * Contributed #774:  Add a feature to allow leading plus sign
+    (`JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS`)
+  (2.14.0)
 
 Ilya Golovin (ilgo0413@github)
   * Contributed #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"

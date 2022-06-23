@@ -124,6 +124,22 @@ public class DoubleToDecimalTest {
     }
 
     @Test
+    void testHardValues() {
+        for (double v : hard0()) {
+            toDec(v);
+        }
+        for (double v : hard1()) {
+            toDec(v);
+        }
+        for (double v : hard2()) {
+            toDec(v);
+        }
+        for (double v : hard3()) {
+            toDec(v);
+        }
+    }
+
+    @Test
     void randomNumberTests() {
         DoubleToDecimalChecker.randomNumberTests(1_000_000, new Random());
     }

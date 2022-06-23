@@ -777,11 +777,14 @@ public class ReaderBasedJsonParser
             break;
 
         case '-':
-            /* Should we have separate handling for plus? Although
-             * it is not allowed per se, it may be erroneously used,
-             * and could be indicate by a more specific error message.
-             */
             t = _parseNegNumber();
+            break;
+        case '+':
+            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                t = _handleOddValue(i);
+            } else {
+                t = _parsePosNumber();
+            }
             break;
         case '.': // [core#61]]
             t = _parseFloatThatStartsWithPeriod();
@@ -1453,24 +1456,37 @@ public class ReaderBasedJsonParser
         return resetFloat(neg, intLen, fractLen, expLen);
     }
 
+    protected final JsonToken _parsePosNumber() throws IOException
+    {
+        return _parsePossibleNumber(false);
+    }
+
     protected final JsonToken _parseNegNumber() throws IOException
     {
+        return _parsePossibleNumber(true);
+    }
+
+    private JsonToken _parsePossibleNumber(final boolean negative) throws IOException
+    {
         int ptr = _inputPtr;
-        int startPtr = ptr-1; // to include sign/digit already read
+        int startPtr = negative ? ptr-1 : ptr; // to include sign/digit already read
         final int inputLen = _inputEnd;
 
         if (ptr >= inputLen) {
-            return _parseNumber2(true, startPtr);
+            return _parseNumber2(negative, startPtr);
         }
         int ch = _inputBuffer[ptr++];
         // First check: must have a digit to follow minus sign
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
-            return _handleInvalidNumberStart(ch, true);
+            if (ch == INT_PERIOD) {
+                return _parseFloatThatStartsWithPeriod();
+            }
+            return _handleInvalidNumberStart(ch, negative);
         }
         // One special case, leading zero(es):
         if (ch == INT_0) {
-            return _parseNumber2(true, startPtr);
+            return _parseNumber2(negative, startPtr);
         }
         int intLen = 1; // already got one
 
@@ -1478,7 +1494,7 @@ public class ReaderBasedJsonParser
         int_loop:
         while (true) {
             if (ptr >= inputLen) {
-                return _parseNumber2(true, startPtr);
+                return _parseNumber2(negative, startPtr);
             }
             ch = (int) _inputBuffer[ptr++];
             if (ch < INT_0 || ch > INT_9) {
@@ -1489,7 +1505,7 @@ public class ReaderBasedJsonParser
 
         if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
             _inputPtr = ptr;
-            return _parseFloat(ch, startPtr, ptr, true, intLen);
+            return _parseFloat(ch, startPtr, ptr, negative, intLen);
         }
         --ptr;
         _inputPtr = ptr;
@@ -1498,7 +1514,7 @@ public class ReaderBasedJsonParser
         }
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
-        return resetInt(true, intLen);
+        return resetInt(negative, intLen);
     }
 
     /**

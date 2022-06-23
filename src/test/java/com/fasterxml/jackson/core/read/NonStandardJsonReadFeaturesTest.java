@@ -22,10 +22,10 @@ public class NonStandardJsonReadFeaturesTest
 
     public void testNonStandardAnyCharQuoting()
     {
-        _testNonStandarBackslashQuoting(MODE_INPUT_STREAM);
-        _testNonStandarBackslashQuoting(MODE_INPUT_STREAM_THROTTLED);
-        _testNonStandarBackslashQuoting(MODE_DATA_INPUT);
-        _testNonStandarBackslashQuoting(MODE_READER);
+        _testNonStandardBackslashQuoting(MODE_INPUT_STREAM);
+        _testNonStandardBackslashQuoting(MODE_INPUT_STREAM_THROTTLED);
+        _testNonStandardBackslashQuoting(MODE_DATA_INPUT);
+        _testNonStandardBackslashQuoting(MODE_READER);
     }
 
     public void testLeadingZeroesUTF8() {
@@ -66,7 +66,7 @@ public class NonStandardJsonReadFeaturesTest
     /****************************************************************
      */
 
-    private void _testNonStandarBackslashQuoting(int mode)
+    private void _testNonStandardBackslashQuoting(int mode)
     {
         // first: verify that we get an exception
         final String JSON = quote("\\'");

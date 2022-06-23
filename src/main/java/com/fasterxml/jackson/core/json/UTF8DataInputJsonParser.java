@@ -635,10 +635,13 @@ public class UTF8DataInputJsonParser
         case '-':
             t = _parseNegNumber();
             break;
-
-            // Should we have separate handling for plus? Although
-            // it is not allowed per se, it may be erroneously used,
-            // and could be indicate by a more specific error message.
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
+                t = _parsePosNumber();
+            } else {
+                t = _handleUnexpectedValue(i);
+            }
+            break;
         case '.': // as per [core#611]
             t = _parseFloatThatStartsWithPeriod();
             break;
@@ -704,9 +707,11 @@ public class UTF8DataInputJsonParser
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
             return (_currToken = _parseNegNumber());
-            // Should we have separate handling for plus? Although it is not allowed
-            // per se, it may be erroneously used, and could be indicated by a more
-            // specific error message.
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
+                return (_currToken = _parsePosNumber());
+            }
+            return (_currToken = _handleUnexpectedValue(i));
         case '.': // as per [core#611]
             return (_currToken = _parseFloatThatStartsWithPeriod());
         case '0':
@@ -821,6 +826,13 @@ public class UTF8DataInputJsonParser
         switch (i) {
         case '-':
             t = _parseNegNumber();
+            break;
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
+                t = _parsePosNumber();
+            } else {
+                t = _handleUnexpectedValue(i);
+            }
             break;
         case '.': // as per [core#611]
             t = _parseFloatThatStartsWithPeriod();
@@ -1049,14 +1061,26 @@ public class UTF8DataInputJsonParser
         // And there we have it!
         return resetInt(false, intLen);
     }
-    
-    protected JsonToken _parseNegNumber() throws IOException
+
+    protected final JsonToken _parsePosNumber() throws IOException
+    {
+        return _parsePossibleNumber(false);
+    }
+
+    protected final JsonToken _parseNegNumber() throws IOException
+    {
+        return _parsePossibleNumber(true);
+    }
+
+    private final JsonToken _parsePossibleNumber(boolean negative) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
 
-        // Need to prepend sign?
-        outBuf[outPtr++] = '-';
+        if (negative) {
+            // Need to prepend sign?
+            outBuf[outPtr++] = '-';
+        }
         int c = _inputData.readUnsignedByte();
         outBuf[outPtr++] = (char) c;
         // Note: must be followed by a digit
@@ -1064,12 +1088,14 @@ public class UTF8DataInputJsonParser
             // One special case: if first char is 0 need to check no leading zeroes
             if (c == INT_0) {
                 c = _handleLeadingZeroes();
+            } else if (c == INT_PERIOD) {
+                return _parseFloatThatStartsWithPeriod();
             } else {
-                return _handleInvalidNumberStart(c, true);
+                return _handleInvalidNumberStart(c, negative);
             }
         } else {
             if (c > INT_9) {
-                return _handleInvalidNumberStart(c, true);
+                return _handleInvalidNumberStart(c, negative);
             }
             c = _inputData.readUnsignedByte();
         }
@@ -1083,7 +1109,7 @@ public class UTF8DataInputJsonParser
             c = _inputData.readUnsignedByte();
         }
         if (c == '.' || c == 'e' || c == 'E') {
-            return _parseFloat(outBuf, outPtr, c, true, intLen);
+            return _parseFloat(outBuf, outPtr, c, negative, intLen);
         }
         _textBuffer.setCurrentLength(outPtr);
         // As per [core#105], need separating space between root values; check here
@@ -1092,7 +1118,7 @@ public class UTF8DataInputJsonParser
             _verifyRootSpace();
         }
         // And there we have it!
-        return resetInt(true, intLen);
+        return resetInt(negative, intLen);
     }
 
     /**
@@ -2094,14 +2120,14 @@ public class UTF8DataInputJsonParser
             if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("NaN", Double.NaN);
             }
-            _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token 'NaN': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             break;
         case 'I':
             _matchToken("Infinity", 1);
             if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
             }
-            _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token 'Infinity': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             break;
         case '+': // note: '-' is taken as number
             return _handleInvalidNumberStart(_inputData.readUnsignedByte(), false);
@@ -2212,7 +2238,7 @@ public class UTF8DataInputJsonParser
             if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN(match, neg ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
             }
-            _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token '"+match+"': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
         }
         _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;

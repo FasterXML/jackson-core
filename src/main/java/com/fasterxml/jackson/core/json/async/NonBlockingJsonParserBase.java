@@ -828,7 +828,7 @@ public abstract class NonBlockingJsonParserBase
         String tokenStr = NON_STD_TOKENS[type];
         _textBuffer.resetWithString(tokenStr);
         if (!isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
-            _reportError("Non-standard token '%s': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow",
+            _reportError("Non-standard token '%s': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow",
                     tokenStr);
         }
         _intLength = 0;

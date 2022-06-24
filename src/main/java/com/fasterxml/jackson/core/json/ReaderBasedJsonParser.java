@@ -1328,11 +1328,17 @@ public class ReaderBasedJsonParser
     // @since 2.11, [core#611]
     protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
     {
+        return _parseFloatThatStartsWithPeriod(false);
+    }
+
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg) throws IOException
+    {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
             return _handleOddValue('.');
         }
-        return _parseFloat(INT_PERIOD, _inputPtr-1, _inputPtr, false, 0);
+        final int startPtr = neg ? _inputPtr-2 : _inputPtr;
+        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);
     }
 
     /**
@@ -1491,7 +1497,7 @@ public class ReaderBasedJsonParser
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
             if (ch == INT_PERIOD) {
-                return _parseFloatThatStartsWithPeriod();
+                return _parseFloatThatStartsWithPeriod(negative);
             }
             return _handleInvalidNumberStart(ch, negative, true);
         }

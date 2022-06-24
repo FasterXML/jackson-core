@@ -1433,12 +1433,17 @@ public class UTF8StreamJsonParser
     // @since 2.11, [core#611]
     protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
     {
+        return _parseFloatThatStartsWithPeriod(false);
+    }
+
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg) throws IOException
+    {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
             return _handleUnexpectedValue(INT_PERIOD);
         }
         return _parseFloat(_textBuffer.emptyAndGetCurrentSegment(),
-                0, INT_PERIOD, false, 0);
+                0, INT_PERIOD, neg, 0);
     }
 
     /**
@@ -1522,7 +1527,7 @@ public class UTF8StreamJsonParser
             // One special case: if first char is 0, must not be followed by a digit
             if (c != INT_0) {
                 if (c == INT_PERIOD) {
-                    return _parseFloatThatStartsWithPeriod();
+                    return _parseFloatThatStartsWithPeriod(negative);
                 }
                 return _handleInvalidNumberStart(c, negative, true);
             }

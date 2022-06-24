@@ -345,7 +345,14 @@ public final class NumberInput
      * @since v2.14
      */
     public static double parseDouble(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? FastDoubleParser.parseDouble(s) : Double.parseDouble(s);
+        if (useFastParser) {
+            try {
+                return FastDoubleParser.parseDouble(s);
+            } catch (NumberFormatException ignore) {
+                return Double.parseDouble(s);
+            }
+        }
+        return Double.parseDouble(s);
     }
 
     /**
@@ -367,7 +374,14 @@ public final class NumberInput
      * @since v2.14
      */
     public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? FastFloatParser.parseFloat(s) : Float.parseFloat(s);
+        if (useFastParser) {
+            try {
+                return FastFloatParser.parseFloat(s);
+            } catch (NumberFormatException ignore) {
+                return Float.parseFloat(s);
+            }
+        }
+        return Float.parseFloat(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {

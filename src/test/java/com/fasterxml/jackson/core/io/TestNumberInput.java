@@ -24,5 +24,14 @@ public class TestNumberInput
         assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2)));
         assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2, true)));
     }
+
+    public void testNastyAcceptedDoubleValues() {
+        final String[] nastyAcceptedDoubleValues = new String[]{"1.1e-23f", "0x.003p12f", "0x1.17742db862a4P-1d"};
+
+        for (String nastyAcceptedDouble : nastyAcceptedDoubleValues) {
+            assertEquals(Double.parseDouble(nastyAcceptedDouble), NumberInput.parseDouble(nastyAcceptedDouble));
+            assertEquals(Double.parseDouble(nastyAcceptedDouble), NumberInput.parseDouble(nastyAcceptedDouble, true));
+        }
+    }
 }
 

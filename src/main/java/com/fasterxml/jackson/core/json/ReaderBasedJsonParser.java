@@ -1337,8 +1337,7 @@ public class ReaderBasedJsonParser
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
             return _handleOddValue('.');
         }
-        final int startPtr = neg ? _inputPtr-2 : _inputPtr;
-        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);
+        return _parseFloat(INT_PERIOD, _inputPtr-1, _inputPtr, neg, 0);
     }
 
     /**

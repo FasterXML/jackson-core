@@ -115,12 +115,6 @@ public class NonStandardNumberParsingTest
             assertEquals("0.125", p.getDecimalValue().toString());
             assertEquals(".125", p.getText());
         }
-        try (JsonParser p = createParser(f, mode, " -.125 ")) {
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            assertEquals(-0.125, p.getValueAsDouble());
-            assertEquals("-0.125", p.getDecimalValue().toString());
-            assertEquals("-.125", p.getText());
-        }
     }
 
     private void _testLeadingPlusSignInDecimalAllowed(JsonFactory f, int mode) throws Exception

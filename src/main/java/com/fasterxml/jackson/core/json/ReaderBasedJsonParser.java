@@ -1310,7 +1310,7 @@ public class ReaderBasedJsonParser
         return _parseFloatThatStartsWithPeriod(false);
     }
 
-    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg) throws IOException
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg) throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {

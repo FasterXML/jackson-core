@@ -185,6 +185,7 @@ public abstract class JsonParser
         /**
          * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS} instead
          */
+        @Deprecated
         ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS(false),
 
         /**

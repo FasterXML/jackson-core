@@ -777,11 +777,11 @@ public class ReaderBasedJsonParser
             break;
 
         case '-':
-            t = _parsePossibleNumber(true);
+            t = _parseSignedNumber(true);
             break;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                t = _parsePossibleNumber(false);
+                t = _parseSignedNumber(false);
             } else {
                 t = _handleOddValue(i);
             }
@@ -980,11 +980,11 @@ public class ReaderBasedJsonParser
 
         switch (i) {
         case '-':
-            t = _parsePossibleNumber(true);
+            t = _parseSignedNumber(true);
             break;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                t = _parsePossibleNumber(false);
+                t = _parseSignedNumber(false);
             } else {
                 t = _handleOddValue(i);
             }
@@ -1059,11 +1059,11 @@ public class ReaderBasedJsonParser
             _nextToken = JsonToken.VALUE_NULL;
             return;
         case '-':
-            _nextToken = _parsePossibleNumber(true);
+            _nextToken = _parseSignedNumber(true);
             return;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                _nextToken = _parsePossibleNumber(false);
+                _nextToken = _parseSignedNumber(false);
             } else {
                 _nextToken = _handleOddValue(i);
             }
@@ -1104,11 +1104,11 @@ public class ReaderBasedJsonParser
         JsonToken t;
         switch (i) {
         case '-':
-            t = _parsePossibleNumber(true);
+            t = _parseSignedNumber(true);
             break;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                t = _parsePossibleNumber(false);
+                t = _parseSignedNumber(false);
             } else {
                 t = _handleOddValue(i);
             }
@@ -1177,7 +1177,7 @@ public class ReaderBasedJsonParser
             _matchToken("null", 1);
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
-            return (_currToken = _parsePossibleNumber(true));
+            return (_currToken = _parseSignedNumber(true));
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicated by a more specific error message.
@@ -1477,7 +1477,7 @@ public class ReaderBasedJsonParser
         return resetFloat(neg, intLen, fractLen, expLen);
     }
 
-    private final JsonToken _parsePossibleNumber(final boolean negative) throws IOException
+    private final JsonToken _parseSignedNumber(final boolean negative) throws IOException
     {
         int ptr = _inputPtr;
         int startPtr = negative ? ptr-1 : ptr; // to include sign/digit already read
@@ -1493,7 +1493,7 @@ public class ReaderBasedJsonParser
             if (ch == INT_PERIOD) {
                 return _parseFloatThatStartsWithPeriod();
             }
-            return _handleInvalidNumberStart(ch, negative);
+            return _handleInvalidNumberStart(ch, negative, true);
         }
         // One special case, leading zero(es):
         if (ch == INT_0) {
@@ -1723,6 +1723,11 @@ public class ReaderBasedJsonParser
     // look like a number
     protected JsonToken _handleInvalidNumberStart(int ch, boolean negative) throws IOException
     {
+        return _handleInvalidNumberStart(ch, negative, false);
+    }
+
+    protected JsonToken _handleInvalidNumberStart(int ch, final boolean negative, final boolean hasSign) throws IOException
+    {
         if (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
@@ -1745,6 +1750,9 @@ public class ReaderBasedJsonParser
                 }
                 _reportError("Non-standard token '"+match+"': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             }
+        }
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature()) && hasSign && !negative) {
+            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;
@@ -2026,7 +2034,7 @@ public class ReaderBasedJsonParser
                     _reportInvalidEOFInValue(JsonToken.VALUE_NUMBER_INT);
                 }
             }
-            return _handleInvalidNumberStart(_inputBuffer[_inputPtr++], false);
+            return _handleInvalidNumberStart(_inputBuffer[_inputPtr++], false, true);
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(i)) {

@@ -766,6 +766,7 @@ public abstract class ParserMinimalBase extends JsonParser
         }
         _reportError(msg);
     }
+
     /**
      * Method called to throw an exception for input token that looks like a number
      * based on first character(s), but is not valid according to rules of format.

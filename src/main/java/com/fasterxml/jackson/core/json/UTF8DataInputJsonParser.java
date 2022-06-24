@@ -1064,15 +1064,15 @@ public class UTF8DataInputJsonParser
 
     protected final JsonToken _parsePosNumber() throws IOException
     {
-        return _parsePossibleNumber(false);
+        return _parseSignedNumber(false);
     }
 
     protected final JsonToken _parseNegNumber() throws IOException
     {
-        return _parsePossibleNumber(true);
+        return _parseSignedNumber(true);
     }
 
-    private final JsonToken _parsePossibleNumber(boolean negative) throws IOException
+    private final JsonToken _parseSignedNumber(boolean negative) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
@@ -1091,11 +1091,11 @@ public class UTF8DataInputJsonParser
             } else if (c == INT_PERIOD) {
                 return _parseFloatThatStartsWithPeriod();
             } else {
-                return _handleInvalidNumberStart(c, negative);
+                return _handleInvalidNumberStart(c, negative, true);
             }
         } else {
             if (c > INT_9) {
-                return _handleInvalidNumberStart(c, negative);
+                return _handleInvalidNumberStart(c, negative, true);
             }
             c = _inputData.readUnsignedByte();
         }
@@ -2130,7 +2130,7 @@ public class UTF8DataInputJsonParser
             _reportError("Non-standard token 'Infinity': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             break;
         case '+': // note: '-' is taken as number
-            return _handleInvalidNumberStart(_inputData.readUnsignedByte(), false);
+            return _handleInvalidNumberStart(_inputData.readUnsignedByte(), false, true);
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(c)) {
@@ -2221,8 +2221,12 @@ public class UTF8DataInputJsonParser
      * Method called if expected numeric value (due to leading sign) does not
      * look like a number
      */
-    protected JsonToken _handleInvalidNumberStart(int ch, boolean neg)
-        throws IOException
+    protected JsonToken _handleInvalidNumberStart(int ch, final boolean neg) throws IOException
+    {
+        return _handleInvalidNumberStart(ch, neg, false);
+    }
+
+    protected JsonToken _handleInvalidNumberStart(int ch, final boolean neg, final boolean hasSign) throws IOException
     {
         while (ch == 'I') {
             ch = _inputData.readUnsignedByte();
@@ -2239,6 +2243,9 @@ public class UTF8DataInputJsonParser
                 return resetAsNaN(match, neg ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
             }
             _reportError("Non-standard token '"+match+"': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
+        }
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !neg) {
+            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;

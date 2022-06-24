@@ -39,14 +39,18 @@ public class NonStandardNumberParsingTest
      */
     public void testLeadingPlusSignInDecimal() throws Exception {
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(mode, " +123 ");
-            try {
+            try (JsonParser p = createParser(mode, " +123 ")) {
                 p.nextToken();
                 fail("Should not pass");
             } catch (StreamReadException e) {
-                verifyException(e, "expected digit (0-9) to follow minus sign, for valid numeric value");
+                verifyException(e, "Unexpected character ('+' (code 43)) in numeric value: JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
             }
-            p.close();
+            try (JsonParser p = createParser(mode, " +0.123 ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (StreamReadException e) {
+                verifyException(e, "Unexpected character ('+' (code 43)) in numeric value: JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            }
         }
     }
 

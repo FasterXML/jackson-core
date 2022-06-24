@@ -762,11 +762,11 @@ public class UTF8StreamJsonParser
 
         switch (i) {
         case '-':
-            t = _parsePossibleNumber(true);
+            t = _parseSignedNumber(true);
             break;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
-                t = _parsePossibleNumber(false);
+                t = _parseSignedNumber(false);
             } else {
                 t = _handleUnexpectedValue(i);
             }
@@ -835,12 +835,12 @@ public class UTF8StreamJsonParser
             _matchNull();
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
-            return (_currToken = _parsePossibleNumber(true));
+            return (_currToken = _parseSignedNumber(true));
         case '+':
             if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
                 return (_currToken = _handleUnexpectedValue(i));
             }
-            return (_currToken = _parsePossibleNumber(false));
+            return (_currToken = _parseSignedNumber(false));
         case '.': // [core#611]:
             return (_currToken = _parseFloatThatStartsWithPeriod());
         case '0':
@@ -957,11 +957,11 @@ public class UTF8StreamJsonParser
         JsonToken t;
         switch (i) {
         case '-':
-            t = _parsePossibleNumber(true);
+            t = _parseSignedNumber(true);
             break;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
-                t = _parsePossibleNumber(false);
+                t = _parseSignedNumber(false);
             } else {
                 t = _handleUnexpectedValue(i);
             }
@@ -1176,11 +1176,11 @@ public class UTF8StreamJsonParser
         JsonToken t;
         switch (i) {
         case '-':
-            t = _parsePossibleNumber(true);
+            t = _parseSignedNumber(true);
             break;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
-                t = _parsePossibleNumber(false);
+                t = _parseSignedNumber(false);
             } else {
                 t = _handleUnexpectedValue(i);
             }
@@ -1304,11 +1304,11 @@ public class UTF8StreamJsonParser
             _nextToken = JsonToken.VALUE_NULL;
             return;
         case '-':
-            _nextToken = _parsePossibleNumber(true);
+            _nextToken = _parseSignedNumber(true);
             return;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
-                _nextToken = _parsePossibleNumber(false);
+                _nextToken = _parseSignedNumber(false);
             } else {
                 _nextToken = _handleUnexpectedValue(i);
             }
@@ -1371,11 +1371,11 @@ public class UTF8StreamJsonParser
             t = JsonToken.VALUE_NULL;
             break;
         case '-':
-            t = _parsePossibleNumber(true);
+            t = _parseSignedNumber(true);
             break;
         case '+':
             if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
-                t = _parsePossibleNumber(false);
+                t = _parseSignedNumber(false);
             } else {
                 t = _handleUnexpectedValue(i);
             }
@@ -1815,7 +1815,7 @@ public class UTF8StreamJsonParser
         return resetInt(false, intLen);
     }
 
-    private final JsonToken _parsePossibleNumber(boolean negative) throws JacksonException
+    private final JsonToken _parseSignedNumber(boolean negative) throws JacksonException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
@@ -1836,11 +1836,11 @@ public class UTF8StreamJsonParser
                 if (c == INT_PERIOD) {
                     return _parseFloatThatStartsWithPeriod();
                 }
-                return _handleInvalidNumberStart(c, negative);
+                return _handleInvalidNumberStart(c, negative, true);
             }
             c = _verifyNoLeadingZeroes();
         } else if (c > INT_9) {
-            return _handleInvalidNumberStart(c, negative);
+            return _handleInvalidNumberStart(c, negative, true);
         }
 
         // Ok: we can first just add digit we saw first:
@@ -3072,7 +3072,7 @@ public class UTF8StreamJsonParser
                     _reportInvalidEOFInValue(JsonToken.VALUE_NUMBER_INT);
                 }
             }
-            return _handleInvalidNumberStart(_inputBuffer[_inputPtr++] & 0xFF, false);
+            return _handleInvalidNumberStart(_inputBuffer[_inputPtr++] & 0xFF, false, true);
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(c)) {
@@ -3181,7 +3181,12 @@ public class UTF8StreamJsonParser
 
     // Method called if expected numeric value (due to leading sign) does not
     // look like a number
-    protected JsonToken _handleInvalidNumberStart(int ch, boolean neg) throws JacksonException
+    protected JsonToken _handleInvalidNumberStart(int ch, final boolean neg) throws JacksonException
+    {
+        return _handleInvalidNumberStart(ch, neg, false);
+    }
+
+    protected JsonToken _handleInvalidNumberStart(int ch, final boolean neg, final boolean hasSign) throws JacksonException
     {
         while (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
@@ -3204,6 +3209,9 @@ public class UTF8StreamJsonParser
             }
             _reportError("Non-standard token '%s': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow",
                     match);
+        }
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !neg) {
+            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         return null;

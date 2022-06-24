@@ -180,6 +180,7 @@ public class NumberParsingTest
     public void testIntParsingWithStrings()
     {
         assertEquals(3, NumberInput.parseInt("3"));
+        assertEquals(3, NumberInput.parseInt("+3"));
         assertEquals(0, NumberInput.parseInt("0"));
         assertEquals(-3, NumberInput.parseInt("-3"));
         assertEquals(27, NumberInput.parseInt("27"));
@@ -190,6 +191,24 @@ public class NumberParsingTest
         assertEquals(-9999, NumberInput.parseInt("-9999"));
         assertEquals(Integer.MIN_VALUE, NumberInput.parseInt(""+Integer.MIN_VALUE));
         assertEquals(Integer.MAX_VALUE, NumberInput.parseInt(""+Integer.MAX_VALUE));
+    }
+
+    public void testLongParsingWithStrings() throws Exception
+    {
+        assertEquals(3, NumberInput.parseLong("3"));
+        assertEquals(3, NumberInput.parseLong("+3"));
+        assertEquals(0, NumberInput.parseLong("0"));
+        assertEquals(-3, NumberInput.parseLong("-3"));
+        assertEquals(27, NumberInput.parseLong("27"));
+        assertEquals(-31, NumberInput.parseLong("-31"));
+        assertEquals(271, NumberInput.parseLong("271"));
+        assertEquals(-131, NumberInput.parseLong("-131"));
+        assertEquals(2709, NumberInput.parseLong("2709"));
+        assertEquals(-9999, NumberInput.parseLong("-9999"));
+        assertEquals(Long.MIN_VALUE, NumberInput.parseLong(""+Long.MIN_VALUE));
+        assertEquals(Integer.MIN_VALUE-1, NumberInput.parseLong(""+(Integer.MIN_VALUE-1)));
+        assertEquals(Long.MAX_VALUE, NumberInput.parseLong(""+Long.MAX_VALUE));
+        assertEquals(Integer.MAX_VALUE+1, NumberInput.parseLong(""+(Integer.MAX_VALUE+1)));
     }
 
     /*

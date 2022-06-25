@@ -135,6 +135,8 @@ public abstract class ParserMinimalBase extends JsonParser
      */
     protected final static int MAX_ERROR_TOKEN_LENGTH = 256;
 
+    protected final static int STREAM_READ_FEATURE_DEFAULTS = StreamReadFeature.collectDefaults();
+
     /*
     /**********************************************************************
     /* Minimal configuration state
@@ -185,6 +187,7 @@ public abstract class ParserMinimalBase extends JsonParser
 
     protected ParserMinimalBase(ObjectReadContext readCtxt) {
         _objectReadContext = readCtxt;
+        _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
     }
 
     protected ParserMinimalBase(ObjectReadContext readCtxt,

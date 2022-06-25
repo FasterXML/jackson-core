@@ -412,7 +412,11 @@ public abstract class JsonParser
     /**********************************************************
      */
 
-    protected JsonParser() { }
+    protected JsonParser() {
+        // @since 2.14 do use sane defaults
+        _features = JsonFactory.DEFAULT_PARSER_FEATURE_FLAGS;
+    }
+
     protected JsonParser(int features) { _features = features; }
 
     /**

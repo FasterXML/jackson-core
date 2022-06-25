@@ -21,7 +21,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
         _testTokenAccess(jf, false);
         _testTokenAccess(jf, true);
     }
-    
+
     public void testCurrentName() throws Exception
     {
         JsonFactory jf = new JsonFactory();
@@ -34,7 +34,7 @@ public class TestParserOverrides extends com.fasterxml.jackson.core.BaseTest
     /* Actual test methods
     /**********************************************************
      */
-    
+
     public void _testTokenAccess(JsonFactory jf, boolean useStream) throws Exception
     {
         final String DOC = "[ ]";

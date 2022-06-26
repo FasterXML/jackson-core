@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.core;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.testsupport.MockDataInput;
 import com.fasterxml.jackson.core.testsupport.ThrottledInputStream;
+import com.fasterxml.jackson.core.testsupport.ThrottledReader;
 
 import junit.framework.TestCase;
 
@@ -17,12 +19,14 @@ public abstract class BaseTest
     protected final static int MODE_INPUT_STREAM = 0;
     protected final static int MODE_INPUT_STREAM_THROTTLED = 1;
     protected final static int MODE_READER = 2;
-    protected final static int MODE_DATA_INPUT = 3;
+    protected final static int MODE_READER_THROTTLED = 3;
+    protected final static int MODE_DATA_INPUT = 4;
 
     protected final static int[] ALL_MODES = new int[] {
         MODE_INPUT_STREAM,
         MODE_INPUT_STREAM_THROTTLED,
         MODE_READER,
+        MODE_READER_THROTTLED,
         MODE_DATA_INPUT
     };
 
@@ -33,14 +37,16 @@ public abstract class BaseTest
     };
 
     protected final static int[] ALL_TEXT_MODES = new int[] {
-        MODE_READER
+        MODE_READER,
+        MODE_READER_THROTTLED
     };
 
     // DataInput not streaming
     protected final static int[] ALL_STREAMING_MODES = new int[] {
         MODE_INPUT_STREAM,
         MODE_INPUT_STREAM_THROTTLED,
-        MODE_READER
+        MODE_READER,
+        MODE_READER_THROTTLED
     };
     
     /*
@@ -324,12 +330,11 @@ public abstract class BaseTest
         case MODE_INPUT_STREAM:
             return createParserUsingStream(f, doc, "UTF-8");
         case MODE_INPUT_STREAM_THROTTLED:
-            {
-                InputStream in = new ThrottledInputStream(doc.getBytes("UTF-8"), 1);
-                return f.createParser(in);
-            }
+            return f.createParser(new ThrottledInputStream(utf8Bytes(doc), 1));
         case MODE_READER:
             return createParserUsingReader(f, doc);
+        case MODE_READER_THROTTLED:
+            return f.createParser(new ThrottledReader(doc, 1));
         case MODE_DATA_INPUT:
             return createParserForDataInput(f, new MockDataInput(doc));
         default:
@@ -343,12 +348,11 @@ public abstract class BaseTest
         case MODE_INPUT_STREAM:
             return f.createParser(new ByteArrayInputStream(doc));
         case MODE_INPUT_STREAM_THROTTLED:
-            {
-                InputStream in = new ThrottledInputStream(doc, 1);
-                return f.createParser(in);
-            }
+            return f.createParser(new ThrottledInputStream(doc, 1));
         case MODE_READER:
             return f.createParser(new StringReader(new String(doc, "UTF-8")));
+        case MODE_READER_THROTTLED:
+            return f.createParser(new ThrottledReader(new String(doc, "UTF-8"), 1));
         case MODE_DATA_INPUT:
             return createParserForDataInput(f, new MockDataInput(doc));
         default:
@@ -535,6 +539,10 @@ public abstract class BaseTest
      */
 
     protected static String quote(String str) {
+        return q(str);
+    }
+
+    protected static String q(String str) {
         return '"'+str+'"';
     }
 
@@ -562,11 +570,7 @@ public abstract class BaseTest
 
     // @since 2.9.7
     protected static byte[] utf8Bytes(String str) {
-        try {
-            return str.getBytes("UTF-8");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return str.getBytes(StandardCharsets.UTF_8);
     }
 
     protected void fieldNameFor(StringBuilder sb, int index)

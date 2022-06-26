@@ -1,8 +1,12 @@
 package com.fasterxml.jackson.core.read;
 
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING) // easier to read on IDE
 public class NonStandardNumberParsingTest
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -94,7 +98,7 @@ public class NonStandardNumberParsingTest
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER);
     }
 
-    public void testLeadingPlusSignInDecimalAllowedAsync() throws Exception {
+    public void testLeadingPlusSignInDecimalAllowedDataInput() throws Exception {
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
@@ -135,7 +139,7 @@ public class NonStandardNumberParsingTest
             assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
             assertEquals(0.125, p.getValueAsDouble());
             assertEquals("0.125", p.getDecimalValue().toString());
-            assertEquals(".125", p.getText());
+            assertEquals("+.125", p.getText());
         }
     }
 

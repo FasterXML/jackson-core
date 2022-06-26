@@ -668,7 +668,7 @@ public class UTF8DataInputJsonParser
             }
             break;
         case '.': // as per [core#611]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
             break;
         case '0':
         case '1':
@@ -738,7 +738,7 @@ public class UTF8DataInputJsonParser
             }
             return (_currToken = _handleUnexpectedValue(i));
         case '.': // as per [core#611]
-            return (_currToken = _parseFloatThatStartsWithPeriod());
+            return (_currToken = _parseFloatThatStartsWithPeriod(false, false));
         case '0':
         case '1':
         case '2':
@@ -852,7 +852,7 @@ public class UTF8DataInputJsonParser
             }
             break;
         case '.': // as per [core#611]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
         case '0':
         case '1':
         case '2':
@@ -1000,20 +1000,25 @@ public class UTF8DataInputJsonParser
     /**********************************************************
      */
 
-    // @since 2.11, [core#611]
-    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
-    {
-        return _parseFloatThatStartsWithPeriod(false);
+    @Deprecated // since 2.14
+    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException {
+        return _parseFloatThatStartsWithPeriod(false, false);
     }
 
-    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg) throws IOException
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg,
+            final boolean prependSign)
+        throws IOException
     {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
             return _handleUnexpectedValue(INT_PERIOD);
         }
-        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        return _parseFloat(outBuf, 0, INT_PERIOD, neg, 0);
+        final char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        int outPtr = 0;
+        if (prependSign) {
+            outBuf[outPtr++] = neg ? '-' : '+';
+        }
+        return _parseFloat(outBuf, outPtr, INT_PERIOD, neg, 0);
     }
 
     /**
@@ -1112,7 +1117,7 @@ public class UTF8DataInputJsonParser
             if (c == INT_0) {
                 c = _handleLeadingZeroes();
             } else if (c == INT_PERIOD) {
-                return _parseFloatThatStartsWithPeriod(negative);
+                return _parseFloatThatStartsWithPeriod(negative, true);
             } else {
                 return _handleInvalidNumberStart(c, negative, true);
             }

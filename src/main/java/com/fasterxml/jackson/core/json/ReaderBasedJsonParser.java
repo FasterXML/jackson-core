@@ -768,7 +768,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
             break;
         case '0':
         case '1':
@@ -970,7 +970,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
             break;
         case '0':
         case '1':
@@ -1049,7 +1049,7 @@ public class ReaderBasedJsonParser
             }
             return;
         case '.': // [core#61]]
-            _nextToken = _parseFloatThatStartsWithPeriod();
+            _nextToken = _parseFloatThatStartsWithPeriod(false, false);
             return;
         case '0':
         case '1':
@@ -1094,7 +1094,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
             break;
         case '0':
         case '1':
@@ -1163,7 +1163,7 @@ public class ReaderBasedJsonParser
              * and could be indicated by a more specific error message.
              */
         case '.': // [core#61]]
-            return (_currToken = _parseFloatThatStartsWithPeriod());
+            return (_currToken = _parseFloatThatStartsWithPeriod(false, false));
         case '0':
         case '1':
         case '2':
@@ -1305,18 +1305,24 @@ public class ReaderBasedJsonParser
     /**********************************************************************
      */
 
-    protected final JsonToken _parseFloatThatStartsWithPeriod() throws JacksonException
-    {
-        return _parseFloatThatStartsWithPeriod(false);
-    }
-
-    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg) throws JacksonException
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg,
+            final boolean prependSign)
+        throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleOddValue('.');
         }
-        return _parseFloat(INT_PERIOD, _inputPtr-1, _inputPtr, neg, 0);
+        // 26-Jun-2022, tatu: At this point it is assumed that the whole input is
+        //    within input buffer so we can "rewind" not just one but two characters
+        //    (leading sign, period) within same buffer. Caller must ensure this is
+        //    the case.
+        //    Little bit suspicious of code paths that would go to "_parseNumber2(...)"
+        int startPtr = _inputPtr - 1;
+        if (prependSign) {
+            --startPtr;
+        }
+        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);
     }
 
     /**
@@ -1464,10 +1470,12 @@ public class ReaderBasedJsonParser
     private final JsonToken _parseSignedNumber(final boolean negative) throws JacksonException
     {
         int ptr = _inputPtr;
+        // 26-Jun-2022, tatu: We always have a sign; positive should be allowed as deviation
+        //      But unfortunately that won't yet work
         int startPtr = negative ? ptr-1 : ptr; // to include sign/digit already read
-        final int inputLen = _inputEnd;
+        final int inputEnd = _inputEnd;
 
-        if (ptr >= inputLen) {
+        if (ptr >= inputEnd) {
             return _parseNumber2(negative, startPtr);
         }
         int ch = _inputBuffer[ptr++];
@@ -1475,7 +1483,7 @@ public class ReaderBasedJsonParser
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
             if (ch == INT_PERIOD) {
-                return _parseFloatThatStartsWithPeriod(negative);
+                return _parseFloatThatStartsWithPeriod(negative, true);
             }
             return _handleInvalidNumberStart(ch, negative, true);
         }
@@ -1488,7 +1496,7 @@ public class ReaderBasedJsonParser
         // First let's get the obligatory integer part:
         int_loop:
         while (true) {
-            if (ptr >= inputLen) {
+            if (ptr >= inputEnd) {
                 return _parseNumber2(negative, startPtr);
             }
             ch = (int) _inputBuffer[ptr++];

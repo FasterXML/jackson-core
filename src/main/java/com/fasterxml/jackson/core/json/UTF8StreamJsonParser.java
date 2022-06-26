@@ -736,9 +736,8 @@ public class UTF8StreamJsonParser
             }
         }
 
-        /* And should we now have a name? Always true for Object contexts
-         * since the intermediate 'expect-value' state is never retained.
-         */
+        // And should we now have a name? Always true for Object contexts
+        // since the intermediate 'expect-value' state is never retained.
         if (!_streamReadContext.inObject()) {
             _updateLocation();
             return _nextTokenNotInObject(i);
@@ -772,7 +771,7 @@ public class UTF8StreamJsonParser
             }
             break;
         case '.': // [core#611]:
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
             break;
         case '0':
         case '1':
@@ -842,7 +841,7 @@ public class UTF8StreamJsonParser
             }
             return (_currToken = _parseSignedNumber(false));
         case '.': // [core#611]:
-            return (_currToken = _parseFloatThatStartsWithPeriod());
+            return (_currToken = _parseFloatThatStartsWithPeriod(false, false));
         case '0':
         case '1':
         case '2':
@@ -1186,7 +1185,7 @@ public class UTF8StreamJsonParser
             }
             break;
         case '.': // [core#611]:
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
             break;
         case '0':
         case '1':
@@ -1314,7 +1313,7 @@ public class UTF8StreamJsonParser
             }
             return;
         case '.': // [core#611]
-            _nextToken = _parseFloatThatStartsWithPeriod();
+            _nextToken = _parseFloatThatStartsWithPeriod(false, false);
             return;
         case '0':
         case '1':
@@ -1381,7 +1380,7 @@ public class UTF8StreamJsonParser
             }
             break;
         case '.': // [core#611]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false, false);
             break;
         case '0':
         case '1':
@@ -1743,19 +1742,20 @@ public class UTF8StreamJsonParser
     /**********************************************************************
      */
 
-    protected final JsonToken _parseFloatThatStartsWithPeriod() throws JacksonException
-    {
-        return _parseFloatThatStartsWithPeriod(false);
-    }
-
-    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg) throws JacksonException
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg,
+            final boolean prependSign)
+        throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
             return _handleUnexpectedValue(INT_PERIOD);
         }
-        return _parseFloat(_textBuffer.emptyAndGetCurrentSegment(),
-                0, INT_PERIOD, neg, 0);
+        final char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        int outPtr = 0;
+        if (prependSign) {
+            outBuf[outPtr++] = neg ? '-' : '+';
+        }
+        return _parseFloat(outBuf, outPtr, INT_PERIOD, neg, 0);
     }
 
     /**
@@ -1839,7 +1839,7 @@ public class UTF8StreamJsonParser
             // One special case: if first char is 0, must not be followed by a digit
             if (c != INT_0) {
                 if (c == INT_PERIOD) {
-                    return _parseFloatThatStartsWithPeriod(negative);
+                    return _parseFloatThatStartsWithPeriod(negative, true);
                 }
                 return _handleInvalidNumberStart(c, negative, true);
             }

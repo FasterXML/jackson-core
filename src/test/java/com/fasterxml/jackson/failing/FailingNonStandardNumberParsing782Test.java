@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 
-public class FailingNonStandardNumberParsingTest
+public class FailingNonStandardNumberParsing782Test
     extends BaseTest
 {
     private final JsonFactory JSON_F = JsonFactory.builder()

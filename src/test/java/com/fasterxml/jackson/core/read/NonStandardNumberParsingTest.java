@@ -72,7 +72,7 @@ public class NonStandardNumberParsingTest
         }
     }
 
-    public void testLeadingDotInDecimalAllowedAsync() throws Exception {
+    public void testLeadingDotInDecimalAllowedDataInput() throws Exception {
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
@@ -83,9 +83,10 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingDotInDecimalAllowedReader() throws Exception {
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER);
+//        _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
-    public void testTrailingDotInDecimalAllowedAsync() throws Exception {
+    public void testTrailingDotInDecimalAllowedDataInput() throws Exception {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
@@ -96,6 +97,7 @@ public class NonStandardNumberParsingTest
 
     public void testTrailingDotInDecimalAllowedReader() throws Exception {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER);
+//        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     public void testLeadingPlusSignInDecimalAllowedDataInput() throws Exception {
@@ -109,6 +111,7 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingPlusSignInDecimalAllowedReader() throws Exception {
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER);
+//        _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     public void testLeadingDotInNegativeDecimalAllowedAsync() throws Exception {
@@ -122,6 +125,7 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingDotInNegativeDecimalAllowedReader() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER);
+//        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode) throws Exception

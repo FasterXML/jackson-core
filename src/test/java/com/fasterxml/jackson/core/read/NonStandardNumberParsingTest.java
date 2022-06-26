@@ -113,6 +113,19 @@ public class NonStandardNumberParsingTest
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER);
     }
 
+    public void testLeadingDotInNegativeDecimalAllowedAsync() throws Exception {
+        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
+    }
+
+    public void testLeadingDotInNegativeDecimalAllowedBytes() throws Exception {
+        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM);
+        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_INPUT_STREAM_THROTTLED);
+    }
+
+    public void testLeadingDotInNegativeDecimalAllowedReader() throws Exception {
+        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER);
+    }
+
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode)
     {
         try (JsonParser p = createParser(f, mode, " .125 ")) {
@@ -152,6 +165,16 @@ public class NonStandardNumberParsingTest
             assertEquals(125.0, p.getValueAsDouble());
             assertEquals("125", p.getDecimalValue().toString());
             assertEquals("125.", p.getText());
+        }
+    }
+
+    private void _testLeadingDotInNegativeDecimalAllowed(JsonFactory f, int mode)
+    {
+        try (JsonParser p = createParser(f, mode, " -.125 ")) {
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(-0.125, p.getValueAsDouble());
+            assertEquals("-0.125", p.getDecimalValue().toString());
+            assertEquals("-.125", p.getText());
         }
     }
 }

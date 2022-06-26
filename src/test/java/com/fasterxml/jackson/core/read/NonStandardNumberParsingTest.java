@@ -74,7 +74,7 @@ public class NonStandardNumberParsingTest
         }
     }
 
-    public void testLeadingDotInDecimalAllowedAsync() {
+    public void testLeadingDotInDecimalAllowedDataInput() {
         _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
@@ -85,9 +85,10 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingDotInDecimalAllowedReader() {
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_READER);
+//      _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
-    public void testTrailingDotInDecimalAllowedAsync() {
+    public void testTrailingDotInDecimalAllowedDataInput() {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_DATA_INPUT);
     }
 
@@ -98,6 +99,7 @@ public class NonStandardNumberParsingTest
 
     public void testTrailingDotInDecimalAllowedReader() {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER);
+//        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     public void testLeadingPlusSignInDecimalAllowedDataInput() {
@@ -111,6 +113,7 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingPlusSignInDecimalAllowedReader(){
         _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER);
+//        _testLeadingPlusSignInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     public void testLeadingDotInNegativeDecimalAllowedAsync() throws Exception {
@@ -124,6 +127,7 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingDotInNegativeDecimalAllowedReader() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER);
+//        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode)

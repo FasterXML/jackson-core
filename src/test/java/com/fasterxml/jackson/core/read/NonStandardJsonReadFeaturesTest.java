@@ -26,6 +26,7 @@ public class NonStandardJsonReadFeaturesTest
         _testNonStandardBackslashQuoting(MODE_INPUT_STREAM_THROTTLED);
         _testNonStandardBackslashQuoting(MODE_DATA_INPUT);
         _testNonStandardBackslashQuoting(MODE_READER);
+        _testNonStandardBackslashQuoting(MODE_READER_THROTTLED);
     }
 
     public void testLeadingZeroesUTF8() {
@@ -42,6 +43,8 @@ public class NonStandardJsonReadFeaturesTest
     public void testLeadingZeroesReader() {
         _testLeadingZeroes(MODE_READER, false);
         _testLeadingZeroes(MODE_READER, true);
+        _testLeadingZeroes(MODE_READER_THROTTLED, false);
+        _testLeadingZeroes(MODE_READER_THROTTLED, true);
     }
 
     // allow NaN
@@ -50,6 +53,7 @@ public class NonStandardJsonReadFeaturesTest
         _testAllowNaN(MODE_INPUT_STREAM_THROTTLED);
         _testAllowNaN(MODE_DATA_INPUT);
         _testAllowNaN(MODE_READER);
+        _testAllowNaN(MODE_READER_THROTTLED);
     }
 
     // allow +Inf/-Inf
@@ -58,6 +62,7 @@ public class NonStandardJsonReadFeaturesTest
         _testAllowInf(MODE_INPUT_STREAM_THROTTLED);
         _testAllowInf(MODE_DATA_INPUT);
         _testAllowInf(MODE_READER);
+        _testAllowInf(MODE_READER_THROTTLED);
     }
 
     /*

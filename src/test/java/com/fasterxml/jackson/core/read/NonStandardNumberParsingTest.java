@@ -39,7 +39,7 @@ public class NonStandardNumberParsingTest
     /*
      * The format "+NNN" (as opposed to "NNN") is not valid JSON, so this should fail
      */
-    public void testLeadingPlusSignInDecimal() throws Exception {
+    public void testLeadingPlusSignInDecimalDefaultFail() throws Exception {
         for (int mode : ALL_MODES) {
             try (JsonParser p = createParser(mode, " +123 ")) {
                 p.nextToken();
@@ -97,7 +97,7 @@ public class NonStandardNumberParsingTest
 
     public void testTrailingDotInDecimalAllowedReader() throws Exception {
         _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER);
-//        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
+        _testTrailingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     public void testLeadingPlusSignInDecimalAllowedDataInput() throws Exception {
@@ -125,7 +125,7 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingDotInNegativeDecimalAllowedReader() throws Exception {
         _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER);
-//        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
+        _testLeadingDotInNegativeDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     private void _testLeadingDotInDecimalAllowed(JsonFactory f, int mode) throws Exception

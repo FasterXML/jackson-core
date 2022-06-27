@@ -211,7 +211,7 @@ public class ReaderBasedJsonParser
     protected char getNextChar(String eofMsg) throws IOException {
         return getNextChar(eofMsg, null);
     }
-    
+
     protected char getNextChar(String eofMsg, JsonToken forToken) throws IOException {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -1576,6 +1576,7 @@ public class ReaderBasedJsonParser
         int intLen = 0;
         char c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
                 : getNextChar("No digit following minus sign", JsonToken.VALUE_NUMBER_INT);
+        
         if (c == '0') {
             c = _verifyNoLeadingZeroes();
         }
@@ -1606,9 +1607,10 @@ public class ReaderBasedJsonParser
             }
         }
 
-        int fractLen = 0;
+        int fractLen = -1;
         // And then see if we get other parts
         if (c == '.') { // yes, fraction
+            fractLen = 0;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -1640,8 +1642,9 @@ public class ReaderBasedJsonParser
             }
         }
 
-        int expLen = 0;
+        int expLen = -1;
         if (c == 'e' || c == 'E') { // exponent?
+            expLen = 0;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -1649,7 +1652,7 @@ public class ReaderBasedJsonParser
             outBuf[outPtr++] = c;
             // Not optional, can require that we get one more char
             c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                : getNextChar("expected a digit for number exponent");
+                : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             // Sign indicator?
             if (c == '-' || c == '+') {
                 if (outPtr >= outBuf.length) {
@@ -1659,7 +1662,7 @@ public class ReaderBasedJsonParser
                 outBuf[outPtr++] = c;
                 // Likewise, non optional:
                 c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                    : getNextChar("expected a digit for number exponent");
+                    : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             }
 
             exp_loop:
@@ -1690,8 +1693,14 @@ public class ReaderBasedJsonParser
             }
         }
         _textBuffer.setCurrentLength(outPtr);
+
         // And there we have it!
-        return reset(neg, intLen, fractLen, expLen);
+        // 26-Jun-2022, tatu: Careful here, as non-standard numbers can
+        //    cause surprises - cannot use plain "reset()" but apply diff logic
+        if (fractLen < 0 && expLen < 0) { // integer
+            return resetInt(neg, intLen);
+        }
+        return resetFloat(neg, intLen, fractLen, expLen);
     }
 
     // Method called when we have seen one zero, and want to ensure

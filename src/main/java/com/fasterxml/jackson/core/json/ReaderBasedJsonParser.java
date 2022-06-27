@@ -1575,7 +1575,10 @@ public class ReaderBasedJsonParser
         }
         // Also, integer part is not optional
         if (intLen == 0) {
-            return _handleInvalidNumberStart(c, neg);
+            // [core#611]: allow optionally leading decimal point
+            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _handleInvalidNumberStart(c, neg);
+            }
         }
 
         int fractLen = 0;

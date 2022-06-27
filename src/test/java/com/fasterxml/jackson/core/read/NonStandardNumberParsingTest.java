@@ -85,7 +85,7 @@ public class NonStandardNumberParsingTest
 
     public void testLeadingDotInDecimalAllowedReader() {
         _testLeadingDotInDecimalAllowed(JSON_F, MODE_READER);
-//      _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
+      _testLeadingDotInDecimalAllowed(jsonFactory(), MODE_READER_THROTTLED);
     }
 
     public void testTrailingDotInDecimalAllowedDataInput() {

@@ -1435,7 +1435,7 @@ public class UTF8StreamJsonParser
     }
 
     protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg,
-            final boolean prependSign)
+            final boolean hasSign)
         throws IOException
     {
         // [core#611]: allow optionally leading decimal point
@@ -1444,8 +1444,9 @@ public class UTF8StreamJsonParser
         }
         final char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr = 0;
-        if (prependSign) {
-            outBuf[outPtr++] = neg ? '-' : '+';
+        // 27-Jun-2022, tatu: [core#784] would add plus here too but not yet
+        if (neg) {
+            outBuf[outPtr++] = '-';
         }
         return _parseFloat(outBuf, outPtr, INT_PERIOD, neg, 0);
     }

@@ -680,7 +680,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchToken("false", 1);
@@ -749,7 +749,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = _parsePosNumber(i));
+            return (_currToken = _parseUnsignedNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
     }
@@ -863,7 +863,7 @@ public class UTF8DataInputJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchToken("false", 1);
@@ -1044,7 +1044,7 @@ public class UTF8DataInputJsonParser
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
-    protected JsonToken _parsePosNumber(int c) throws IOException
+    protected JsonToken _parseUnsignedNumber(int c) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         int outPtr;

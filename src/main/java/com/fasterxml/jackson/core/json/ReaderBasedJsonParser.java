@@ -799,7 +799,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         default:
             t = _handleOddValue(i);
@@ -1002,7 +1002,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchFalse();
@@ -1081,7 +1081,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            _nextToken = _parsePosNumber(i);
+            _nextToken = _parseUnsignedNumber(i);
             return;
         }
         _nextToken = _handleOddValue(i);
@@ -1126,7 +1126,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchFalse();
@@ -1194,7 +1194,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = _parsePosNumber(i));
+            return (_currToken = _parseUnsignedNumber(i));
         /*
          * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
          * The Check is for missing values. In case of missing values in an array, the next token will be either ',' or ']'.
@@ -1373,7 +1373,7 @@ public class ReaderBasedJsonParser
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
-    protected final JsonToken _parsePosNumber(int ch) throws IOException
+    protected final JsonToken _parseUnsignedNumber(int ch) throws IOException
     {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),

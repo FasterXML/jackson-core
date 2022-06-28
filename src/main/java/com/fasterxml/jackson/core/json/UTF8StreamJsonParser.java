@@ -833,7 +833,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchFalse();
@@ -902,7 +902,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = _parsePosNumber(i));
+            return (_currToken = _parseUnsignedNumber(i));
         }
         return (_currToken = _handleUnexpectedValue(i));
     }
@@ -1113,7 +1113,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchFalse();
@@ -1241,7 +1241,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            _nextToken = _parsePosNumber(i);
+            _nextToken = _parseUnsignedNumber(i);
             return;
         }
         _nextToken = _handleUnexpectedValue(i);
@@ -1308,7 +1308,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         default:
             t = _handleUnexpectedValue(i);
@@ -1473,7 +1473,7 @@ public class UTF8StreamJsonParser
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
-    protected JsonToken _parsePosNumber(int c) throws IOException
+    protected JsonToken _parseUnsignedNumber(int c) throws IOException
     {
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         // One special case: if first char is 0, must not be followed by a digit

@@ -975,7 +975,7 @@ public class UTF8StreamJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchFalse();

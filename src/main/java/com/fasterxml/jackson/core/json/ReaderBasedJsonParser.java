@@ -1306,7 +1306,7 @@ public class ReaderBasedJsonParser
      */
 
     protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg,
-            final boolean prependSign)
+            final boolean hasSign)
         throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
@@ -1318,8 +1318,9 @@ public class ReaderBasedJsonParser
         //    (leading sign, period) within same buffer. Caller must ensure this is
         //    the case.
         //    Little bit suspicious of code paths that would go to "_parseNumber2(...)"
+        // 27-Jun-2022, tatu: [core#784] would add plus here too but not yet
         int startPtr = _inputPtr - 1;
-        if (prependSign) {
+        if (neg) {
             --startPtr;
         }
         return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);

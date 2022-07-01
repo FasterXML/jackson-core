@@ -56,6 +56,30 @@ public class NonStandardNumberParsingTest
         }
     }
 
+    //JSON does not allow numbers to have f or d suffixes
+    public void testFloatMarker() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " -0.123f ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('f'");
+            }
+        }
+    }
+
+    //JSON does not allow numbers to have f or d suffixes
+    public void testDoubleMarker() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " -0.123d ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('d'");
+            }
+        }
+    }
+
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */

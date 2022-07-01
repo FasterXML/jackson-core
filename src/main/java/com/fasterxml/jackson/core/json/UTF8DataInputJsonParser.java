@@ -1056,8 +1056,8 @@ public class UTF8DataInputJsonParser
             c = _handleLeadingZeroes();
             if (c <= INT_9 && c >= INT_0) { // skip if followed by digit
                 outPtr = 0;
-            } else if (c == 'x') {
-                return _handleInvalidNumberStart('x', false);
+            } else if (c == 'x' || c == 'X') {
+                return _handleInvalidNumberStart(c, false);
             } else {
                 outBuf[0] = '0';
                 outPtr = 1;

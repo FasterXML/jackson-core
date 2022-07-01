@@ -21,11 +21,22 @@ public class NonStandardNumberParsingTest
     }
 
     /**
-     * The format "0xC0FFEE" is not valid JSON, so this should fail
+     * The format "0xc0ffee" is not valid JSON, so this should fail
      */
     public void testHexadecimal() throws Exception {
         for (int mode : ALL_MODES) {
-            try (JsonParser p = createParser(mode, " 0xC0FFEE ")) {
+            try (JsonParser p = createParser(mode, " 0xc0ffee ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('x'");
+            }
+        }
+    }
+
+    public void testHexadecimalBigX() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " 0XC0FFEE ")) {
                 p.nextToken();
                 fail("Should not pass");
             } catch (JsonParseException e) {

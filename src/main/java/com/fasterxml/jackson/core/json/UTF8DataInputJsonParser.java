@@ -1051,11 +1051,13 @@ public class UTF8DataInputJsonParser
         int outPtr;
         
         // One special case: if first char is 0, must not be followed by a digit.
-        // Gets bit tricky as we only want to retain 0 if it's the full value
+        // Gets a bit tricky as we only want to retain 0 if it's the full value
         if (c == INT_0) {
             c = _handleLeadingZeroes();
             if (c <= INT_9 && c >= INT_0) { // skip if followed by digit
                 outPtr = 0;
+            } else if (c == 'x' || c == 'X') {
+                return _handleInvalidNumberStart(c, false);
             } else {
                 outBuf[0] = '0';
                 outPtr = 1;

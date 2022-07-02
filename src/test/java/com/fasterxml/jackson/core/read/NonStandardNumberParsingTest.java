@@ -21,18 +21,76 @@ public class NonStandardNumberParsingTest
     }
 
     /**
+     * The format "0xc0ffee" is not valid JSON, so this should fail
+     */
+    public void testHexadecimal() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " 0xc0ffee ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('x'");
+            }
+        }
+    }
+
+    public void testHexadecimalBigX() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " 0XC0FFEE ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('x'");
+            }
+        }
+    }
+
+    public void testNegativeHexadecimal() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " -0xc0ffee ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('x'");
+            }
+        }
+    }
+
+    //JSON does not allow numbers to have f or d suffixes
+    public void testFloatMarker() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " -0.123f ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('f'");
+            }
+        }
+    }
+
+    //JSON does not allow numbers to have f or d suffixes
+    public void testDoubleMarker() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " -0.123d ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('d'");
+            }
+        }
+    }
+
+    /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */
     public void testLeadingDotInDecimal() throws Exception {
         for (int mode : ALL_MODES) {
-            JsonParser p = createParser(mode, " .123 ");
-            try {
+            try (JsonParser p = createParser(mode, " .123 ")) {
                 p.nextToken();
                 fail("Should not pass");
             } catch (JsonParseException e) {
                 verifyException(e, "Unexpected character ('.'");
             }
-            p.close();
         }
     }
 

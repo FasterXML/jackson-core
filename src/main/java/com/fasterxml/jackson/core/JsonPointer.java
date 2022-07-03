@@ -78,7 +78,8 @@ public class JsonPointer implements Serializable
      */
     protected JsonPointer() {
         _nextSegment = null;
-        _matchingPropertyName = "";
+        // [core#788]: must be `null` to distinguish from Property with "" as key
+        _matchingPropertyName = null;
         _matchingElementIndex = -1;
         _asString = "";
     }

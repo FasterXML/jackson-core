@@ -45,6 +45,8 @@ JSON library.
 #774: Add a feature to allow leading plus sign
   (`JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS`)
  (contributed by @pjfanning)
+#788: `JsonPointer.empty()` should NOT indicate match of a property
+  with key of ""
 
 2.13.3 (14-May-2022)
 

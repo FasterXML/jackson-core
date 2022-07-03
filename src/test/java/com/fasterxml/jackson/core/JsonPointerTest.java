@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.core;
 
-public class TestJsonPointer extends BaseTest
+public class JsonPointerTest extends BaseTest
 {
     public void testSimplePath() throws Exception
     {

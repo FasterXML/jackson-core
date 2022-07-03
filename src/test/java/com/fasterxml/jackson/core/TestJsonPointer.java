@@ -38,7 +38,7 @@ public class TestJsonPointer extends BaseTest
         assertTrue(ptr.matches());
         assertNull(ptr.tail());
         assertNull(ptr.head());
-        assertEquals("", ptr.getMatchingProperty());
+        assertNull(ptr.getMatchingProperty());
         assertEquals(-1, ptr.getMatchingIndex());
     }
 
@@ -80,21 +80,37 @@ public class TestJsonPointer extends BaseTest
         assertEquals("name", leaf.getMatchingProperty());
     }
 
-    public void testEmpty()
+    public void testEmptyPointer()
     {
         assertSame(JsonPointer.EMPTY, JsonPointer.empty());
         assertSame(JsonPointer.EMPTY, JsonPointer.compile(""));
+        final JsonPointer empty = JsonPointer.empty();
+        assertEquals("", empty.toString());
+
+        // As per [core#788], should NOT match Property with "empty String"
+        assertFalse(empty.mayMatchProperty());
+        assertFalse(empty.mayMatchElement());
+        assertEquals(-1, empty.getMatchingIndex());
+        assertNull(empty.getMatchingProperty());
     }
     
-    public void testEmptyName()
+    public void testPointerWithEmptyPropertyName()
     {
         // note: this is acceptable, to match property in '{"":3}', for example
         // and NOT same as what empty point, "", is.
         JsonPointer ptr = JsonPointer.compile("/");
         assertNotNull(ptr);
         assertNotSame(JsonPointer.EMPTY, ptr);
-        
+
         assertEquals("/", ptr.toString());
+        assertTrue(ptr.mayMatchProperty());
+        assertFalse(ptr.mayMatchElement());
+        assertEquals(-1, ptr.getMatchingIndex());
+        assertEquals("", ptr.getMatchingProperty());
+        assertTrue(ptr.matchesProperty(""));
+        assertFalse(ptr.matchesElement(0));
+        assertFalse(ptr.matchesElement(-1));
+        assertFalse(ptr.matchesProperty("1"));
     }
 
     // mostly for test coverage, really...

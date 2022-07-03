@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.core.json.async;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 import java.io.IOException;

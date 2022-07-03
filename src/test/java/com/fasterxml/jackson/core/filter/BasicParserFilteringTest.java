@@ -460,7 +460,7 @@ public class BasicParserFilteringTest extends BaseTest
     public void testValueOmitsFieldName1() throws Exception
     {
         String jsonString = aposToQuotes("{'a':123,'array':[1,2]}");
-        JsonParser p0 = JSON_F.createParser(jsonString);
+        JsonParser p0 = JSON_F.createParser(ObjectReadContext.empty(), jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
             new NoArraysFilter(),
             Inclusion.INCLUDE_NON_NULL,

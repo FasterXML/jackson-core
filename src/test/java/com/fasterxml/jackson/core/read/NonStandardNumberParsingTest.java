@@ -30,7 +30,7 @@ public class NonStandardNumberParsingTest
             try (JsonParser p = createParser(mode, " 0xc0ffee ")) {
                 p.nextToken();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('x'");
             }
         }
@@ -41,7 +41,7 @@ public class NonStandardNumberParsingTest
             try (JsonParser p = createParser(mode, " 0XC0FFEE ")) {
                 p.nextToken();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('x'");
             }
         }
@@ -52,7 +52,7 @@ public class NonStandardNumberParsingTest
             try (JsonParser p = createParser(mode, " -0xc0ffee ")) {
                 p.nextToken();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('x'");
             }
         }
@@ -64,7 +64,7 @@ public class NonStandardNumberParsingTest
             try (JsonParser p = createParser(mode, " -0.123f ")) {
                 p.nextToken();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('f'");
             }
         }
@@ -76,7 +76,7 @@ public class NonStandardNumberParsingTest
             try (JsonParser p = createParser(mode, " -0.123d ")) {
                 p.nextToken();
                 fail("Should not pass");
-            } catch (JsonParseException e) {
+            } catch (StreamReadException e) {
                 verifyException(e, "Unexpected character ('d'");
             }
         }

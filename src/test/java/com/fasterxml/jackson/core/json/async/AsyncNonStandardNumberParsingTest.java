@@ -99,6 +99,65 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
     }
     */
 
+    /**
+     * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
+     */
+    public void testLeadingDotInDecimal() throws Exception {
+        final String JSON = "[ .123 ]";
+
+        // without enabling, should get an exception
+        AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Expected exception");
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character ('.'");
+        } finally {
+            p.close();
+        }
+    }
+
+    /*
+     * The format "+NNN" (as opposed to "NNN") is not valid JSON, so this should fail
+     */
+    public void testLeadingPlusSignInDecimalDefaultFail() throws Exception {
+        final String JSON = "[ +123 ]";
+
+        // without enabling, should get an exception
+        AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Expected exception");
+        } catch (Exception e) {
+            //the message does not match non-async parsers
+            verifyException(e, "Unrecognized token '+123'");
+        } finally {
+            p.close();
+        }
+    }
+
+    /**
+     * The format "NNN." (as opposed to "NNN") is not valid JSON, so this should fail
+     */
+    public void testTrailingDotInDecimal() throws Exception {
+        final String JSON = "[ 123. ]";
+
+        // without enabling, should get an exception
+        AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Expected exception");
+        } catch (Exception e) {
+            //the message does not match non-async parsers
+            verifyException(e, "Unexpected character (' '");
+        } finally {
+            p.close();
+        }
+    }
+
     private AsyncReaderWrapper createParser(JsonFactory f, String doc, int readBytes) throws IOException
     {
         return asyncForBytes(f, readBytes, _jsonDoc(doc), 1);

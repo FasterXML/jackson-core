@@ -80,6 +80,17 @@ public class NonStandardNumberParsingTest
         }
     }
 
+    public void test2DecimalPoints() throws Exception {
+        for (int mode : ALL_MODES) {
+            try (JsonParser p = createParser(mode, " -0.123.456 ")) {
+                p.nextToken();
+                fail("Should not pass");
+            } catch (JsonParseException e) {
+                verifyException(e, "Unexpected character ('.'");
+            }
+        }
+    }
+
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */

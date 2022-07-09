@@ -1746,7 +1746,9 @@ public class NonBlockingJsonParser
                 }
                 ch = _inputBuffer[_inputPtr++];
             } else if (ch == 'f' || ch == 'd' || ch == 'F' || ch == 'D') {
-                reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have trailing 'f' or 'd' markers");
+                reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+            } else if (ch == INT_PERIOD) {
+                reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
             } else {
                 loop = false;
             }

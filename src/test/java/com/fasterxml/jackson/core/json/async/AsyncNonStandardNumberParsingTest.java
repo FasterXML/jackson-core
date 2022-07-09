@@ -96,6 +96,22 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
+    public void test2DecimalPoints() throws Exception {
+        final String JSON = "[ -0.123.456 ]";
+
+        // without enabling, should get an exception
+        AsyncReaderWrapper p = createParser(DEFAULT_F, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Expected exception");
+        } catch (Exception e) {
+            verifyException(e, "Unexpected character ('.'");
+        } finally {
+            p.close();
+        }
+    }
+
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
      */

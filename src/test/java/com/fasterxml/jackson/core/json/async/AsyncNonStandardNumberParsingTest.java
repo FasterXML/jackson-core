@@ -62,8 +62,6 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
-    //next 2 tests do not work as expected
-    /*
     public void testFloatMarker() throws Exception
     {
         final String JSON = "[ -0.123f ]";
@@ -97,7 +95,6 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             p.close();
         }
     }
-    */
 
     /**
      * The format ".NNN" (as opposed to "0.NNN") is not valid JSON, so this should fail
@@ -152,7 +149,7 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             fail("Expected exception");
         } catch (Exception e) {
             //the message does not match non-async parsers
-            verifyException(e, "Unexpected character (' '");
+            verifyException(e, "Unexpected character ((CTRL-CHAR, code 0))");
         } finally {
             p.close();
         }

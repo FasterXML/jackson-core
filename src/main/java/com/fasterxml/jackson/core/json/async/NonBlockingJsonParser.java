@@ -1730,18 +1730,26 @@ public class NonBlockingJsonParser
         int outPtr = _textBuffer.getCurrentSegmentSize();
 
         // caller guarantees at least one char; also, sign-extension not needed here
-        int ch;
-        while (((ch = _inputBuffer[_inputPtr++]) >= INT_0) && (ch <= INT_9)) {
-            ++fractLen;
-            if (outPtr >= outBuf.length) {
-                outBuf = _textBuffer.expandCurrentSegment();
+        int ch = _inputBuffer[_inputPtr++];
+        boolean loop = true;
+        while (loop) {
+            if (ch >= INT_0 && ch <= INT_9) {
+                ++fractLen;
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.expandCurrentSegment();
+                }
+                outBuf[outPtr++] = (char) ch;
+                if (_inputPtr >= _inputEnd) {
+                    _textBuffer.setCurrentLength(outPtr);
+                    _fractLength = fractLen;
+                    return JsonToken.NOT_AVAILABLE;
+                }
+            } else if (ch == 'f' || ch == 'd' || ch == 'F' || ch == 'D') {
+                reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have trailing 'f' or 'd' markers");
+            } else {
+                loop = false;
             }
-            outBuf[outPtr++] = (char) ch;
-            if (_inputPtr >= _inputEnd) {
-                _textBuffer.setCurrentLength(outPtr);
-                _fractLength = fractLen;
-                return JsonToken.NOT_AVAILABLE;
-            }
+            ch = _inputBuffer[_inputPtr++];
         }
         
         // Ok, fraction done; what have we got next?

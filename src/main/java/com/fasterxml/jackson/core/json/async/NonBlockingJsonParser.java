@@ -1744,12 +1744,12 @@ public class NonBlockingJsonParser
                     _fractLength = fractLen;
                     return JsonToken.NOT_AVAILABLE;
                 }
+                ch = _inputBuffer[_inputPtr++];
             } else if (ch == 'f' || ch == 'd' || ch == 'F' || ch == 'D') {
                 reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have trailing 'f' or 'd' markers");
             } else {
                 loop = false;
             }
-            ch = _inputBuffer[_inputPtr++];
         }
         
         // Ok, fraction done; what have we got next?

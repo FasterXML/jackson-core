@@ -149,7 +149,7 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
             fail("Expected exception");
         } catch (Exception e) {
             //the message does not match non-async parsers
-            verifyException(e, "Unexpected character ((CTRL-CHAR, code 0))");
+            verifyException(e, "Unexpected character (' '");
         } finally {
             p.close();
         }

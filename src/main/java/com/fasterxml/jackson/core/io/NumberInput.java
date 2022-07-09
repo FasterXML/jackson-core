@@ -40,6 +40,11 @@ public final class NumberInput
      */
     public static int parseInt(char[] ch, int off, int len)
     {
+        if (len > 0 && ch[off] == '+') {
+            off++;
+            len--;
+        }
+
         int num = ch[off + len - 1] - '0';
         
         switch(len) {

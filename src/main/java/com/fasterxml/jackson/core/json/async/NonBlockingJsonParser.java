@@ -1730,17 +1730,27 @@ public class NonBlockingJsonParser
         int outPtr = _textBuffer.getCurrentSegmentSize();
 
         // caller guarantees at least one char; also, sign-extension not needed here
-        int ch;
-        while (((ch = _inputBuffer[_inputPtr++]) >= INT_0) && (ch <= INT_9)) {
-            ++fractLen;
-            if (outPtr >= outBuf.length) {
-                outBuf = _textBuffer.expandCurrentSegment();
-            }
-            outBuf[outPtr++] = (char) ch;
-            if (_inputPtr >= _inputEnd) {
-                _textBuffer.setCurrentLength(outPtr);
-                _fractLength = fractLen;
-                return JsonToken.NOT_AVAILABLE;
+        int ch = _inputBuffer[_inputPtr++];
+        boolean loop = true;
+        while (loop) {
+            if (ch >= INT_0 && ch <= INT_9) {
+                ++fractLen;
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.expandCurrentSegment();
+                }
+                outBuf[outPtr++] = (char) ch;
+                if (_inputPtr >= _inputEnd) {
+                    _textBuffer.setCurrentLength(outPtr);
+                    _fractLength = fractLen;
+                    return JsonToken.NOT_AVAILABLE;
+                }
+                ch = _inputBuffer[_inputPtr++];
+            } else if (ch == 'f' || ch == 'd' || ch == 'F' || ch == 'D') {
+                reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+            } else if (ch == INT_PERIOD) {
+                reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+            } else {
+                loop = false;
             }
         }
         

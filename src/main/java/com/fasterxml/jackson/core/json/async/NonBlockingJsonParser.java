@@ -1573,7 +1573,7 @@ public class NonBlockingJsonParser
     {
         if (ch <= INT_0) {
             if (ch == INT_0) {
-                return _finishNumberLeadingNegZeroes();
+                return _finishNumberLeadingPosZeroes();
             }
             reportUnexpectedNumberChar(ch, "expected digit (0-9) for valid numeric value");
         } else if (ch > INT_9) {

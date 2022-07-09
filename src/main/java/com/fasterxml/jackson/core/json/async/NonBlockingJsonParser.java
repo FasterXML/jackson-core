@@ -729,7 +729,7 @@ public class NonBlockingJsonParser
         case '#':
             return _finishHashComment(MINOR_VALUE_WS_AFTER_COMMA);
         case '+':
-            return _startNegativeNumber();
+            return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
         case '/':

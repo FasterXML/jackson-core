@@ -1581,7 +1581,7 @@ public class NonBlockingJsonParser
             reportUnexpectedNumberChar(ch, "expected digit (0-9) for valid numeric value");
         } else if (ch > INT_9) {
             if (ch == 'I') {
-                return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
+                return _finishNonStdToken(NON_STD_TOKEN_PLUS_INFINITY, 2);
             }
             reportUnexpectedNumberChar(ch, "expected digit (0-9) for valid numeric value");
         }

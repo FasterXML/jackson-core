@@ -1761,7 +1761,10 @@ public class ReaderBasedJsonParser
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !negative) {
             _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
-        _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+        final String message = negative ?
+                "expected digit (0-9) to follow minus sign, for valid numeric value" :
+                "expected digit (0-9) for valid numeric value";
+        _reportUnexpectedNumberChar(ch, message);
         return null;
     }
 

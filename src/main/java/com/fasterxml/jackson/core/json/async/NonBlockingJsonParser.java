@@ -1440,6 +1440,9 @@ public class NonBlockingJsonParser
         _numberNegative = false;
         if (_inputPtr >= _inputEnd) {
             _minorState = MINOR_NUMBER_PLUS;
+            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            }
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;

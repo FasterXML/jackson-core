@@ -1440,9 +1440,6 @@ public class NonBlockingJsonParser
         _numberNegative = false;
         if (_inputPtr >= _inputEnd) {
             _minorState = MINOR_NUMBER_PLUS;
-            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
-            }
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -1588,6 +1585,9 @@ public class NonBlockingJsonParser
             }
             reportUnexpectedNumberChar(ch, "expected digit (0-9) for valid numeric value");
         }
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+        }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = '+';
         outBuf[1] = (char) ch;
@@ -1702,6 +1702,9 @@ public class NonBlockingJsonParser
 
     protected JsonToken _finishNumberLeadingPosZeroes() throws IOException
     {
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+        }
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {

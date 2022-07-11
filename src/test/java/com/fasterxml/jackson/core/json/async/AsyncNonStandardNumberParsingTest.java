@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.json.async;
 
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
+import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
@@ -21,7 +22,7 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected exception");
-        } catch (Exception e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character ('x'");
         } finally {
             p.close();
@@ -38,7 +39,7 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         try {
             p.nextToken();
             fail("Expected exception");
-        } catch (Exception e) {
+        } catch (StreamReadException e) {
             verifyException(e, "Unexpected character ('X'");
         } finally {
             p.close();

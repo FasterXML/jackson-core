@@ -1,0 +1,42 @@
+package tools.jackson.core.io;
+
+import java.io.*;
+
+/**
+ * Helper class to support use of {@link DataOutput} for output, directly,
+ * without caller having to provide for implementation.
+ */
+public class DataOutputAsStream extends OutputStream
+{
+    protected final DataOutput _output;
+
+    public DataOutputAsStream(DataOutput out) {
+        super();
+        _output = out;
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+        _output.write(b);
+    }
+
+    @Override
+    public void write(byte b[]) throws IOException {
+        _output.write(b, 0, b.length);
+    }
+
+    @Override
+    public void write(byte b[], int offset, int length) throws IOException {
+        _output.write(b, offset, length);
+    }
+
+    // These are no-ops, base class impl works fine
+
+    /*
+    @Override
+    public void flush() { }
+
+    @Override
+    public void close() { }
+    */
+}

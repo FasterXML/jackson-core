@@ -2,8 +2,8 @@ package perf;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonFactory;
+import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
 
 // Tests from [jackson-core#382]
 public class ManualFuzzUTF32

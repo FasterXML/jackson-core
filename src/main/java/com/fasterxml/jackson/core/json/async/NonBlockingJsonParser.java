@@ -1576,6 +1576,9 @@ public class NonBlockingJsonParser
     {
         if (ch <= INT_0) {
             if (ch == INT_0) {
+                if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                    reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                }
                 return _finishNumberLeadingPosZeroes();
             }
             reportUnexpectedNumberChar(ch, "expected digit (0-9) for valid numeric value");
@@ -1651,9 +1654,6 @@ public class NonBlockingJsonParser
     }
 
     protected JsonToken _finishNumberLeadingPosZeroes() throws IOException {
-        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
-        }
         return _finishNumberLeadingPosNegZeroes(false);
     }
 

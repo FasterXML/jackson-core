@@ -549,12 +549,26 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
+    /**
+     * @since 2.14
+     *
+     * @param ch Character that was unexpected
+     * @param comment Additional failure comment to add, if any
+     *
+     * @throws JsonParseException
+     */
+    protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
         String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
         if (comment != null) {
             msg += ": "+comment;
         }
         _reportError(msg);
+        return null; // never gets here
+    }
+
+    @Deprecated // @since 2.14
+    protected void reportUnexpectedNumberChar(int ch, String comment) throws JsonParseException {
+        _reportUnexpectedNumberChar(ch, comment);
     }
 
     /**

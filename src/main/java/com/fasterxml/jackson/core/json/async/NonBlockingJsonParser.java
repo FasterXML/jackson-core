@@ -1382,12 +1382,12 @@ public class NonBlockingJsonParser
                 return _finishNumberLeadingNegZeroes();
             }
             // One special case: if first char is 0, must not be followed by a digit
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         } else if (ch > INT_9) {
             if (ch == 'I') {
                 return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
             }
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = '-';
@@ -1446,20 +1446,20 @@ public class NonBlockingJsonParser
         if (ch <= INT_0) {
             if (ch == INT_0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                    reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                    _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
                 }
                 return _finishNumberLeadingPosZeroes();
             }
             // One special case: if first char is 0, must not be followed by a digit
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
         } else if (ch > INT_9) {
             if (ch == 'I') {
                 return _finishNonStdToken(NON_STD_TOKEN_PLUS_INFINITY, 2);
             }
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
+            _reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = '+';
@@ -1541,7 +1541,7 @@ public class NonBlockingJsonParser
             // (colon not possible since this is within value, not after key)
             // 
             if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
-                reportUnexpectedNumberChar(ch,
+                _reportUnexpectedNumberChar(ch,
                         "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
             }
         } else { // leading zero case (zero followed by a digit)
@@ -1570,7 +1570,7 @@ public class NonBlockingJsonParser
                     return _finishNumberLeadingNegZeroes();
                 } else {
                     if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-                        reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
                     }
                     return _finishNumberLeadingPosZeroes();
                 }
@@ -1578,7 +1578,7 @@ public class NonBlockingJsonParser
             final String message = negative ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :
                 "expected digit (0-9) for valid numeric value";
-            reportUnexpectedNumberChar(ch, message);
+            _reportUnexpectedNumberChar(ch, message);
         } else if (ch > INT_9) {
             if (ch == 'I') {
                 final int token = negative ? NON_STD_TOKEN_MINUS_INFINITY : NON_STD_TOKEN_PLUS_INFINITY;
@@ -1587,10 +1587,10 @@ public class NonBlockingJsonParser
             final String message = negative ?
                     "expected digit (0-9) to follow minus sign, for valid numeric value" :
                     "expected digit (0-9) for valid numeric value";
-            reportUnexpectedNumberChar(ch, message);
+            _reportUnexpectedNumberChar(ch, message);
         }
         if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
-            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
         outBuf[0] = negative ? '-' : '+';
@@ -1627,7 +1627,7 @@ public class NonBlockingJsonParser
                 // (colon not possible since this is within value, not after key)
                 // 
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
-                    reportUnexpectedNumberChar(ch,
+                    _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
             } else { // Number between 0 and 9
@@ -1687,7 +1687,7 @@ public class NonBlockingJsonParser
                 // (colon not possible since this is within value, not after key)
                 //
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
-                    reportUnexpectedNumberChar(ch,
+                    _reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
                 }
             } else { // Number between 1 and 9; go integral
@@ -1771,7 +1771,7 @@ public class NonBlockingJsonParser
                     // must be followed by sequence of ints, one minimum
                     if (fractLen == 0) {
                         if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                            reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                            _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
                         }
                     }
                     break;
@@ -1827,7 +1827,7 @@ public class NonBlockingJsonParser
             // must be followed by sequence of ints, one minimum
             ch &= 0xFF;
             if (expLen == 0) {
-                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+                _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
             }
         }
         // push back the last char
@@ -1861,9 +1861,9 @@ public class NonBlockingJsonParser
                 }
                 ch = _inputBuffer[_inputPtr++];
             } else if (ch == 'f' || ch == 'd' || ch == 'F' || ch == 'D') {
-                reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
+                _reportUnexpectedNumberChar(ch, "JSON does not support parsing numbers that have 'f' or 'd' suffixes");
             } else if (ch == INT_PERIOD) {
-                reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
+                _reportUnexpectedNumberChar(ch, "Cannot parse number with more than one decimal point");
             } else {
                 loop = false;
             }
@@ -1873,7 +1873,7 @@ public class NonBlockingJsonParser
         // must be followed by sequence of ints, one minimum
         if (fractLen == 0) {
             if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
-                reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
             }
         }
         _fractLength = fractLen;
@@ -1934,7 +1934,7 @@ public class NonBlockingJsonParser
         // must be followed by sequence of ints, one minimum
         ch &= 0xFF;
         if (expLen == 0) {
-            reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+            _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
         }
         // push back the last char
         --_inputPtr;

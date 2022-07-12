@@ -133,6 +133,24 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
+    public void testLeadingDotInDecimalEnabled() throws Exception {
+        final String JSON = "[ .123 ]";
+        final JsonFactory factory = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)
+                .build();
+
+        AsyncReaderWrapper p = createParser(factory, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(0.123, p.getDoubleValue());
+            assertEquals("0.123", p.getDecimalValue().toString());
+            assertEquals(".123", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
     /*
      * The format "+NNN" (as opposed to "NNN") is not valid JSON, so this should fail
      */

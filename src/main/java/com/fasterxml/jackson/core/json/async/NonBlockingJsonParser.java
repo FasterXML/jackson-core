@@ -273,6 +273,8 @@ public class NonBlockingJsonParser
         case MINOR_VALUE_TOKEN_NON_STD:
             return _finishNonStdToken(_nonStdTokenType, _pending32);
 
+        case MINOR_NUMBER_PLUS:
+            return _finishNumberPlus(_inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_NUMBER_MINUS:
             return _finishNumberMinus(_inputBuffer[_inputPtr++] & 0xFF);
         case MINOR_NUMBER_ZERO:
@@ -626,6 +628,8 @@ public class NonBlockingJsonParser
         switch (ch) {
         case '#':
             return _finishHashComment(MINOR_VALUE_LEADING_WS);
+        case '+':
+            return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
         case '/': // c/c++ comments
@@ -724,6 +728,8 @@ public class NonBlockingJsonParser
         switch (ch) {
         case '#':
             return _finishHashComment(MINOR_VALUE_WS_AFTER_COMMA);
+        case '+':
+            return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
         case '/':
@@ -812,6 +818,8 @@ public class NonBlockingJsonParser
         switch (ch) {
         case '#':
             return _finishHashComment(MINOR_VALUE_LEADING_WS);
+        case '+':
+            return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
         case '/':
@@ -862,6 +870,8 @@ public class NonBlockingJsonParser
         switch (ch) {
         case '#':
             return _finishHashComment(MINOR_VALUE_WS_AFTER_COMMA);
+        case '+':
+            return _startPositiveNumber();
         case '-':
             return _startNegativeNumber();
         case '/':
@@ -1425,6 +1435,78 @@ public class NonBlockingJsonParser
         return _valueComplete(JsonToken.VALUE_NUMBER_INT);
     }
 
+    protected JsonToken _startPositiveNumber() throws IOException
+    {
+        _numberNegative = false;
+        if (_inputPtr >= _inputEnd) {
+            _minorState = MINOR_NUMBER_PLUS;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        int ch = _inputBuffer[_inputPtr++] & 0xFF;
+        if (ch <= INT_0) {
+            if (ch == INT_0) {
+                if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                    reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                }
+                return _finishNumberLeadingPosZeroes();
+            }
+            // One special case: if first char is 0, must not be followed by a digit
+            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
+        } else if (ch > INT_9) {
+            if (ch == 'I') {
+                return _finishNonStdToken(NON_STD_TOKEN_PLUS_INFINITY, 2);
+            }
+            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow plus sign, for valid numeric value");
+        }
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+        }
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        outBuf[0] = '+';
+        outBuf[1] = (char) ch;
+        if (_inputPtr >= _inputEnd) {
+            _minorState = MINOR_NUMBER_INTEGER_DIGITS;
+            _textBuffer.setCurrentLength(2);
+            _intLength = 1;
+            return (_currToken = JsonToken.NOT_AVAILABLE);
+        }
+        ch = _inputBuffer[_inputPtr];
+        int outPtr = 2;
+
+        while (true) {
+            if (ch < INT_0) {
+                if (ch == INT_PERIOD) {
+                    _intLength = outPtr-1;
+                    ++_inputPtr;
+                    return _startFloat(outBuf, outPtr, ch);
+                }
+                break;
+            }
+            if (ch > INT_9) {
+                if (ch == INT_e || ch == INT_E) {
+                    _intLength = outPtr-1;
+                    ++_inputPtr;
+                    return _startFloat(outBuf, outPtr, ch);
+                }
+                break;
+            }
+            if (outPtr >= outBuf.length) {
+                // NOTE: must expand, to ensure contiguous buffer, outPtr is the length
+                outBuf = _textBuffer.expandCurrentSegment();
+            }
+            outBuf[outPtr++] = (char) ch;
+            if (++_inputPtr >= _inputEnd) {
+                _minorState = MINOR_NUMBER_INTEGER_DIGITS;
+                _textBuffer.setCurrentLength(outPtr);
+                return (_currToken = JsonToken.NOT_AVAILABLE);
+            }
+            ch = _inputBuffer[_inputPtr] & 0xFF;
+        }
+        _intLength = outPtr-1;
+        _textBuffer.setCurrentLength(outPtr);
+        return _valueComplete(JsonToken.VALUE_NUMBER_INT);
+    }
+
     protected JsonToken _startNumberLeadingZero() throws IOException
     {
         int ptr = _inputPtr;
@@ -1472,19 +1554,46 @@ public class NonBlockingJsonParser
 
     protected JsonToken _finishNumberMinus(int ch) throws IOException
     {
+        return _finishNumberPlusMinus(ch, true);
+    }
+
+    protected JsonToken _finishNumberPlus(int ch) throws IOException
+    {
+        return _finishNumberPlusMinus(ch, false);
+    }
+
+    protected JsonToken _finishNumberPlusMinus(final int ch, final boolean negative) throws IOException
+    {
         if (ch <= INT_0) {
             if (ch == INT_0) {
-                return _finishNumberLeadingNegZeroes();
+                if (negative) {
+                    return _finishNumberLeadingNegZeroes();
+                } else {
+                    if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                        reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                    }
+                    return _finishNumberLeadingPosZeroes();
+                }
             }
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            final String message = negative ?
+                "expected digit (0-9) to follow minus sign, for valid numeric value" :
+                "expected digit (0-9) for valid numeric value";
+            reportUnexpectedNumberChar(ch, message);
         } else if (ch > INT_9) {
             if (ch == 'I') {
-                return _finishNonStdToken(NON_STD_TOKEN_MINUS_INFINITY, 2);
+                final int token = negative ? NON_STD_TOKEN_MINUS_INFINITY : NON_STD_TOKEN_PLUS_INFINITY;
+                return _finishNonStdToken(token, 2);
             }
-            reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+            final String message = negative ?
+                    "expected digit (0-9) to follow minus sign, for valid numeric value" :
+                    "expected digit (0-9) for valid numeric value";
+            reportUnexpectedNumberChar(ch, message);
+        }
+        if (!negative && !isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+            reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-        outBuf[0] = '-';
+        outBuf[0] = negative ? '-' : '+';
         outBuf[1] = (char) ch;
         _intLength = 1;
         return _finishNumberIntegralPart(outBuf, 2);
@@ -1541,20 +1650,27 @@ public class NonBlockingJsonParser
         }
     }
 
-    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException
-    {
+    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException {
+        return _finishNumberLeadingPosNegZeroes(true);
+    }
+
+    protected JsonToken _finishNumberLeadingPosZeroes() throws IOException {
+        return _finishNumberLeadingPosNegZeroes(false);
+    }
+
+    protected JsonToken _finishNumberLeadingPosNegZeroes(final boolean negative) throws IOException {
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_NUMBER_MINUSZERO;
+                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_ZERO;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
             int ch = _inputBuffer[_inputPtr++] & 0xFF;
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = '-';
+                    outBuf[0] = negative ? '-' : '+';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
@@ -1562,14 +1678,14 @@ public class NonBlockingJsonParser
             } else if (ch > INT_9) {
                 if (ch == INT_e || ch == INT_E) {
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = '-';
+                    outBuf[0] = negative ? '-' : '+';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
                 }
                 // Ok; unfortunately we have closing bracket/curly that are valid so need
                 // (colon not possible since this is within value, not after key)
-                // 
+                //
                 if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
                     reportUnexpectedNumberChar(ch,
                             "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
@@ -1585,7 +1701,7 @@ public class NonBlockingJsonParser
                 }
                 char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                 // trim out leading zero
-                outBuf[0] = '-';
+                outBuf[0] = negative ? '-' : '+';
                 outBuf[1] = (char) ch;
                 _intLength = 1;
                 return _finishNumberIntegralPart(outBuf, 2);
@@ -1595,8 +1711,7 @@ public class NonBlockingJsonParser
         }
     }
 
-    protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException
-    {
+    protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {
         int negMod = _numberNegative ? -1 : 0;
 
         while (true) {

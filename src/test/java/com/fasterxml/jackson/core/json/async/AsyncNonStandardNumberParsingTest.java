@@ -240,6 +240,25 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
+    public void testTrailingDotInDecimalEnabled() throws Exception {
+        final String JSON = "[ 123. ]";
+        final JsonFactory factory = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)
+                .build();
+
+        AsyncReaderWrapper p = createParser(factory, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            //may want to work on this to get this match JsonToken.VALUE_NUMBER_INT instead
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(123.0, p.getDoubleValue());
+            assertEquals("123", p.getDecimalValue().toString());
+            assertEquals("123.", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
     private AsyncReaderWrapper createParser(JsonFactory f, String doc, int readBytes) throws IOException
     {
         return asyncForBytes(f, readBytes, _jsonDoc(doc), 1);

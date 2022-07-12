@@ -762,12 +762,13 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    protected void _reportUnexpectedNumberChar(int ch, String comment) throws StreamReadException {
+    protected <T> T _reportUnexpectedNumberChar(int ch, String comment) throws StreamReadException {
         String msg = String.format("Unexpected character (%s) in numeric value", _getCharDesc(ch));
         if (comment != null) {
             msg += ": "+comment;
         }
         _reportError(msg);
+        return null; // never gets here
     }
 
     /**
@@ -780,8 +781,8 @@ public abstract class ParserMinimalBase extends JsonParser
      *
      * @throws StreamReadException Exception that describes problem with number validity
      */
-    protected void _reportInvalidNumber(String msg) throws StreamReadException {
-        _reportError("Invalid numeric value: "+msg);
+    protected <T> T _reportInvalidNumber(String msg) throws StreamReadException {
+        return _reportError("Invalid numeric value: "+msg);
     }
 
     protected void _reportOverflowByte(String numDesc, JsonToken inputType) throws InputCoercionException {
@@ -870,7 +871,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    protected void _reportUnexpectedChar(int ch, String comment) throws StreamReadException
+    protected <T> T _reportUnexpectedChar(int ch, String comment) throws StreamReadException
     {
         if (ch < 0) { // sanity check
             _reportInvalidEOF();
@@ -879,14 +880,14 @@ public abstract class ParserMinimalBase extends JsonParser
         if (comment != null) {
             msg += ": "+comment;
         }
-        _reportError(msg);
+        return _reportError(msg);
     }
 
-    protected void _reportInvalidEOF() throws StreamReadException {
-        _reportInvalidEOF(" in "+_currToken, _currToken);
+    protected <T> T _reportInvalidEOF() throws StreamReadException {
+        return _reportInvalidEOF(" in "+_currToken, _currToken);
     }
 
-    protected void _reportInvalidEOFInValue(JsonToken type) throws StreamReadException {
+    protected <T> T _reportInvalidEOFInValue(JsonToken type) throws StreamReadException {
         String msg;
         if (type == JsonToken.VALUE_STRING) {
             msg = " in a String value";
@@ -896,19 +897,19 @@ public abstract class ParserMinimalBase extends JsonParser
         } else {
             msg = " in a value";
         }
-        _reportInvalidEOF(msg, type);
+        return _reportInvalidEOF(msg, type);
     }
 
-    protected void _reportInvalidEOF(String msg, JsonToken currToken) throws StreamReadException {
+    protected <T> T _reportInvalidEOF(String msg, JsonToken currToken) throws StreamReadException {
         throw new UnexpectedEndOfInputException(this, currToken, "Unexpected end-of-input"+msg);
     }
 
-    protected void _reportMissingRootWS(int ch) throws StreamReadException {
-        _reportUnexpectedChar(ch, "Expected space separating root-level values");
+    protected <T> T _reportMissingRootWS(int ch) throws StreamReadException {
+        return _reportUnexpectedChar(ch, "Expected space separating root-level values");
     }
 
     // @since 3.0
-    protected void _reportBadInputStream(int readLen) throws StreamReadException
+    protected <T> T _reportBadInputStream(int readLen) throws StreamReadException
     {
         // 12-Jan-2021, tatu: May need to think about this bit more but for now
         //    do double-wrapping
@@ -917,7 +918,7 @@ public abstract class ParserMinimalBase extends JsonParser
     }
 
     // @since 3.0
-    protected void _reportBadReader(int readLen) throws StreamReadException
+    protected <T> T _reportBadReader(int readLen) throws StreamReadException
     {
         // 12-Jan-2021, tatu: May need to think about this bit more but for now
         //    do double-wrapping
@@ -925,10 +926,10 @@ public abstract class ParserMinimalBase extends JsonParser
 "Bad input source: Reader.read() returned 0 bytes when trying to read "+readLen+" bytes"));
     }
 
-    protected void _throwInvalidSpace(int i) throws StreamReadException {
+    protected <T> T _throwInvalidSpace(int i) throws StreamReadException {
         char c = (char) i;
         String msg = "Illegal character ("+_getCharDesc(c)+"): only regular white space (\\r, \\n, \\t) is allowed between tokens";
-        _reportError(msg);
+        return _reportError(msg);
     }
 
     protected final static String _getCharDesc(int ch)
@@ -993,19 +994,19 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************************
      */
 
-    protected void _reportError(String msg) throws StreamReadException {
+    protected <T> T _reportError(String msg) throws StreamReadException {
         throw _constructReadException(msg);
-    }
+   }
 
-    protected void _reportError(String msg, Object arg) throws StreamReadException {
+    protected <T> T _reportError(String msg, Object arg) throws StreamReadException {
         throw _constructReadException(String.format(msg, arg));
     }
 
-    protected void _reportError(String msg, Object arg1, Object arg2) throws StreamReadException {
+    protected <T> T _reportError(String msg, Object arg1, Object arg2) throws StreamReadException {
         throw _constructReadException(String.format(msg, arg1, arg2));
     }
 
-    protected void _reportError(String msg, Object arg1, Object arg2, Object arg3) throws StreamReadException {
+    protected <T> T _reportError(String msg, Object arg1, Object arg2, Object arg3) throws StreamReadException {
         throw _constructReadException(String.format(msg, arg1, arg2, arg3));
     }
 
@@ -1014,7 +1015,8 @@ public abstract class ParserMinimalBase extends JsonParser
         return WrappedIOException.construct(e, this);
     }
     
-    protected final void _throwInternal() {
+    protected <T> T _throwInternal() {
         VersionUtil.throwInternal();
+        return null; // never gets here
     }
 }

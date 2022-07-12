@@ -904,16 +904,16 @@ public abstract class ParserBase extends ParserMinimalBase
         return bits;
     }
     
-    protected void _reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex)
+    protected <T> T _reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex)
             throws StreamReadException {
-        _reportInvalidBase64Char(b64variant, ch, bindex, null);
+        return _reportInvalidBase64Char(b64variant, ch, bindex, null);
     }
 
     /*
      * @param bindex Relative index within base64 character unit; between 0
      *  and 3 (as unit has exactly 4 characters)
      */
-    protected void _reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex, String msg)
+    protected <T> T _reportInvalidBase64Char(Base64Variant b64variant, int ch, int bindex, String msg)
             throws StreamReadException
     {
         String base;
@@ -931,13 +931,13 @@ public abstract class ParserBase extends ParserMinimalBase
         if (msg != null) {
             base = base + ": " + msg;
         }
-        _reportError(base);
+        return _reportError(base);
     }
 
-    protected void _handleBase64MissingPadding(Base64Variant b64variant)
+    protected <T> T _handleBase64MissingPadding(Base64Variant b64variant)
             throws StreamReadException
     {
-        _reportError(b64variant.missingPaddingMessage());
+        return _reportError(b64variant.missingPaddingMessage());
     }
 
     /*

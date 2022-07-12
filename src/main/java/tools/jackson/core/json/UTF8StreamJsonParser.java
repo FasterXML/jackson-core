@@ -225,7 +225,7 @@ public class UTF8StreamJsonParser
             _closeInput();
             // Should never return 0, so let's fail
             if (count == 0) {
-                _reportBadInputStream(_inputBuffer.length);
+                return _reportBadInputStream(_inputBuffer.length);
             }
         }
         return false;
@@ -494,7 +494,7 @@ public class UTF8StreamJsonParser
     {
         if (_currToken != JsonToken.VALUE_STRING &&
                 (_currToken != JsonToken.VALUE_EMBEDDED_OBJECT || _binaryValue == null)) {
-            _reportError("Current token ("+_currToken+") not VALUE_STRING or VALUE_EMBEDDED_OBJECT, can not access as binary");
+            return _reportError("Current token ("+_currToken+") not VALUE_STRING or VALUE_EMBEDDED_OBJECT, can not access as binary");
         }
         // To ensure that we won't see inconsistent data, better clear up state...
         if (_tokenIncomplete) {
@@ -618,7 +618,7 @@ public class UTF8StreamJsonParser
                     ch = _inputBuffer[_inputPtr++] & 0xFF;
                     if (!b64variant.usesPaddingChar(ch)) {
                         if (_decodeBase64Escape(b64variant, ch, 3) != Base64Variant.BASE64_VALUE_PADDING) {
-                            _reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
+                            return _reportInvalidBase64Char(b64variant, ch, 3, "expected padding character '"+b64variant.getPaddingChar()+"'");
                         }
                     }
                     // Got 12 bits, only need 8, need to shift
@@ -725,7 +725,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_streamReadContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
+                return _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
             }
             i = _skipWS();
             // Was that a trailing comma?
@@ -923,7 +923,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_streamReadContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
+                return _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
             }
             i = _skipWS();
             // Was that a trailing comma?
@@ -1038,7 +1038,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_streamReadContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
+                return _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
             }
             i = _skipWS();
 
@@ -1123,7 +1123,7 @@ public class UTF8StreamJsonParser
         // Nope: do we then expect a comma?
         if (_streamReadContext.expectComma()) {
             if (i != INT_COMMA) {
-                _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
+                return _reportUnexpectedChar(i, "was expecting comma to separate "+_streamReadContext.typeDesc()+" entries");
             }
             i = _skipWS();
             // Was that a trailing comma?
@@ -1936,7 +1936,7 @@ public class UTF8StreamJsonParser
         }
         // Optionally may accept leading zeroes:
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_ZEROS_FOR_NUMBERS)) {
-            _reportInvalidNumber("Leading zeroes not allowed");
+            return _reportInvalidNumber("Leading zeroes not allowed");
         }
         // if so, just need to skip either all zeroes (if followed by number); or all but one (if non-number)
         ++_inputPtr; // Leading zero to be skipped
@@ -1989,7 +1989,7 @@ public class UTF8StreamJsonParser
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
                 if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS)) {
-                    _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
+                    return _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
                 }
             }
         }
@@ -2036,7 +2036,7 @@ public class UTF8StreamJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
-                _reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
+                return _reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
             }
         }
 
@@ -2303,7 +2303,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\"' for name", JsonToken.PROPERTY_NAME);
+                return _reportInvalidEOF(": was expecting closing '\"' for name", JsonToken.PROPERTY_NAME);
             }
         }
         int i = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2403,7 +2403,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
+                    return _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2444,7 +2444,7 @@ public class UTF8StreamJsonParser
         // Allow unquoted names only if feature enabled:
         if (!isEnabled(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)) {
             char c = (char) _decodeCharForError(ch);
-            _reportUnexpectedChar(c, "was expecting double-quote to start property name");
+            return _reportUnexpectedChar(c, "was expecting double-quote to start property name");
         }
         /* Also: note that although we use a different table here,
          * it does NOT handle UTF-8 decoding. It'll just pass those
@@ -2453,7 +2453,7 @@ public class UTF8StreamJsonParser
         final int[] codes = CharTypes.getInputCodeUtf8JsNames();
         // Also: must start with a valid character...
         if (codes[ch] != 0) {
-            _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start property name");
+            return _reportUnexpectedChar(ch, "was expecting either valid name character (for unquoted name) or double-quote (for quoted) to start property name");
         }
 
         // Ok, now; instead of ultra-optimizing parsing here (as with regular
@@ -2479,7 +2479,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
+                    return _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr] & 0xFF;
@@ -2510,7 +2510,7 @@ public class UTF8StreamJsonParser
     {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
-                _reportInvalidEOF(": was expecting closing '\'' for property name", JsonToken.PROPERTY_NAME);
+                return _reportInvalidEOF(": was expecting closing '\'' for property name", JsonToken.PROPERTY_NAME);
             }
         }
         int ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2588,7 +2588,7 @@ public class UTF8StreamJsonParser
             }
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
-                    _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
+                    return _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
                 }
             }
             ch = _inputBuffer[_inputPtr++] & 0xFF;
@@ -2720,8 +2720,7 @@ public class UTF8StreamJsonParser
                     ch &= 0x07;
                     needed = 3;
                 } else { // 5- and 6-byte chars not valid json chars
-                    _reportInvalidInitial(ch);
-                    needed = ch = 1; // never really gets this far
+                    return _reportInvalidInitial(ch);
                 }
                 if ((ix + needed) > byteLen) {
                     _reportInvalidEOF(" in property name", JsonToken.PROPERTY_NAME);
@@ -3213,17 +3212,16 @@ public class UTF8StreamJsonParser
             if (isEnabled(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)) {
                 return resetAsNaN(match, neg ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
             }
-            _reportError("Non-standard token '%s': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow",
+            return _reportError("Non-standard token '%s': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow",
                     match);
         }
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS) && hasSign && !neg) {
-            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+            return _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
         final String message = neg ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :
                 "expected digit (0-9) for valid numeric value";
-        _reportUnexpectedNumberChar(ch, message);
-        return null;
+        return _reportUnexpectedNumberChar(ch, message);
     }
 
     // NOTE: first character already decoded
@@ -3961,16 +3959,16 @@ public class UTF8StreamJsonParser
     /**********************************************************************
      */
 
-    protected void _reportInvalidToken(String matchedPart, int ptr) throws JacksonException {
+    protected <T> T _reportInvalidToken(String matchedPart, int ptr) throws JacksonException {
         _inputPtr = ptr;
-        _reportInvalidToken(matchedPart, _validJsonTokenList());
+        return _reportInvalidToken(matchedPart, _validJsonTokenList());
     }
 
-    protected void _reportInvalidToken(String matchedPart) throws JacksonException {
-        _reportInvalidToken(matchedPart, _validJsonTokenList());
+    protected <T> T _reportInvalidToken(String matchedPart) throws JacksonException {
+        return _reportInvalidToken(matchedPart, _validJsonTokenList());
     }
 
-    protected void _reportInvalidToken(String matchedPart, String msg) throws JacksonException
+    protected <T> T _reportInvalidToken(String matchedPart, String msg) throws JacksonException
     {
         /* Let's just try to find what appears to be the token, using
          * regular Java identifier character rules. It's just a heuristic,
@@ -3994,30 +3992,30 @@ public class UTF8StreamJsonParser
                 break;
             }
         }
-        _reportError("Unrecognized token '%s': was expecting %s", sb, msg);
+        return _reportError("Unrecognized token '%s': was expecting %s", sb, msg);
     }
 
-    protected void _reportInvalidChar(int c) throws StreamReadException
+    protected <T> T _reportInvalidChar(int c) throws StreamReadException
     {
         // Either invalid WS or illegal UTF-8 start char
         if (c < INT_SPACE) {
             _throwInvalidSpace(c);
         }
-        _reportInvalidInitial(c);
+        return _reportInvalidInitial(c);
     }
 
-    protected void _reportInvalidInitial(int mask) throws StreamReadException {
-        _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
+    protected <T> T _reportInvalidInitial(int mask) throws StreamReadException {
+        return _reportError("Invalid UTF-8 start byte 0x"+Integer.toHexString(mask));
     }
 
-    protected void _reportInvalidOther(int mask) throws StreamReadException {
-        _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
+    protected <T> T _reportInvalidOther(int mask) throws StreamReadException {
+        return _reportError("Invalid UTF-8 middle byte 0x"+Integer.toHexString(mask));
     }
 
-    protected void _reportInvalidOther(int mask, int ptr) throws StreamReadException
+    protected <T> T _reportInvalidOther(int mask, int ptr) throws StreamReadException
     {
         _inputPtr = ptr;
-        _reportInvalidOther(mask);
+        return _reportInvalidOther(mask);
     }
 
     /*

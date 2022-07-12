@@ -1646,77 +1646,30 @@ public class NonBlockingJsonParser
         }
     }
 
-    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException
-    {
-        // In general, skip further zeroes (if allowed), look for legal follow-up
-        // numeric characters; likely legal separators, or, known illegal (letters).
-        while (true) {
-            if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_NUMBER_MINUSZERO;
-                return (_currToken = JsonToken.NOT_AVAILABLE);
-            }
-            int ch = _inputBuffer[_inputPtr++] & 0xFF;
-            if (ch < INT_0) {
-                if (ch == INT_PERIOD) {
-                    char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = '-';
-                    outBuf[1] = '0';
-                    _intLength = 1;
-                    return _startFloat(outBuf, 2, ch);
-                }
-            } else if (ch > INT_9) {
-                if (ch == INT_e || ch == INT_E) {
-                    char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = '-';
-                    outBuf[1] = '0';
-                    _intLength = 1;
-                    return _startFloat(outBuf, 2, ch);
-                }
-                // Ok; unfortunately we have closing bracket/curly that are valid so need
-                // (colon not possible since this is within value, not after key)
-                // 
-                if ((ch != INT_RBRACKET) && (ch != INT_RCURLY)) {
-                    reportUnexpectedNumberChar(ch,
-                            "expected digit (0-9), decimal point (.) or exponent indicator (e/E) to follow '0'");
-                }
-            } else { // Number between 1 and 9; go integral
-                // although not guaranteed, seems likely valid separator (white space,
-                // comma, end bracket/curly); next time token needed will verify
-                if ((_features & FEAT_MASK_LEADING_ZEROS) == 0) {
-                    reportInvalidNumber("Leading zeroes not allowed");
-                }
-                if (ch == INT_0) { // coalesce multiple leading zeroes into just one
-                    continue;
-                }
-                char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                // trim out leading zero
-                outBuf[0] = '-';
-                outBuf[1] = (char) ch;
-                _intLength = 1;
-                return _finishNumberIntegralPart(outBuf, 2);
-            }
-            --_inputPtr;
-            return _valueCompleteInt(0, "0");
-        }
+    protected JsonToken _finishNumberLeadingNegZeroes() throws IOException {
+        return _finishNumberLeadingPosNegZeroes(true);
     }
 
-    protected JsonToken _finishNumberLeadingPosZeroes() throws IOException
-    {
+    protected JsonToken _finishNumberLeadingPosZeroes() throws IOException {
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
             reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
         }
+        return _finishNumberLeadingPosNegZeroes(false);
+    }
+
+    protected JsonToken _finishNumberLeadingPosNegZeroes(final boolean negative) throws IOException {
         // In general, skip further zeroes (if allowed), look for legal follow-up
         // numeric characters; likely legal separators, or, known illegal (letters).
         while (true) {
             if (_inputPtr >= _inputEnd) {
-                _minorState = MINOR_NUMBER_ZERO;
+                _minorState = negative ? MINOR_NUMBER_MINUSZERO : MINOR_NUMBER_ZERO;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
             int ch = _inputBuffer[_inputPtr++] & 0xFF;
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = '+';
+                    outBuf[0] = negative ? '-' : '+';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
@@ -1724,7 +1677,7 @@ public class NonBlockingJsonParser
             } else if (ch > INT_9) {
                 if (ch == INT_e || ch == INT_E) {
                     char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
-                    outBuf[0] = '+';
+                    outBuf[0] = negative ? '-' : '+';
                     outBuf[1] = '0';
                     _intLength = 1;
                     return _startFloat(outBuf, 2, ch);
@@ -1747,7 +1700,7 @@ public class NonBlockingJsonParser
                 }
                 char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
                 // trim out leading zero
-                outBuf[0] = '+';
+                outBuf[0] = negative ? '-' : '+';
                 outBuf[1] = (char) ch;
                 _intLength = 1;
                 return _finishNumberIntegralPart(outBuf, 2);
@@ -1757,8 +1710,7 @@ public class NonBlockingJsonParser
         }
     }
 
-    protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException
-    {
+    protected JsonToken _finishNumberIntegralPart(char[] outBuf, int outPtr) throws IOException {
         int negMod = _numberNegative ? -1 : 0;
 
         while (true) {

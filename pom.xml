@@ -6,7 +6,7 @@
   <!-- do_not_remove: published-with-gradle-metadata -->
   <modelVersion>4.0.0</modelVersion> 
   <parent>
-    <groupId>com.fasterxml.jackson</groupId>
+    <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>

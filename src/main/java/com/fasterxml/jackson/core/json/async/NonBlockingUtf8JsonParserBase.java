@@ -68,6 +68,10 @@ public abstract class NonBlockingUtf8JsonParserBase
     /* AsyncInputFeeder impl
     /**********************************************************************
      */
+
+    public final boolean needMoreInput() {
+        return (_inputPtr >=_inputEnd) && !_endOfInput;
+    }
     
     public void endOfInput() {
         _endOfInput = true;

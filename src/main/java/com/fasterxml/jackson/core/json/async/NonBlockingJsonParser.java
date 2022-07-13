@@ -1226,7 +1226,7 @@ public class NonBlockingJsonParser
                 _pending32 = matched;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            int ch = _inputBuffer[_inputPtr];
+            int ch = getByteFromBuffer(_inputPtr);
             if (matched == end) { // need to verify trailing separator
                 if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
                     return _valueComplete(result);
@@ -1266,7 +1266,7 @@ public class NonBlockingJsonParser
                 _minorState = MINOR_VALUE_TOKEN_NON_STD;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            int ch = _inputBuffer[_inputPtr];
+            int ch = getByteFromBuffer(_inputPtr);
             if (matched == end) { // need to verify trailing separator
                 if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
                     return _valueNonStdNumberComplete(type);
@@ -1358,7 +1358,7 @@ public class NonBlockingJsonParser
 
         int outPtr = 1;
 
-        ch = _inputBuffer[_inputPtr] & 0xFF;
+        ch = getByteFromBuffer(_inputPtr) & 0xFF;
         while (true) {
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
@@ -1387,7 +1387,7 @@ public class NonBlockingJsonParser
                 _textBuffer.setCurrentLength(outPtr);
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            ch = _inputBuffer[_inputPtr] & 0xFF;
+            ch = getByteFromBuffer(_inputPtr) & 0xFF;
         }
         _intLength = outPtr;
         _textBuffer.setCurrentLength(outPtr);
@@ -1423,7 +1423,7 @@ public class NonBlockingJsonParser
             _intLength = 1;
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
-        ch = _inputBuffer[_inputPtr];
+        ch = getByteFromBuffer(_inputPtr);
         int outPtr = 2;
 
         while (true) {
@@ -1453,7 +1453,7 @@ public class NonBlockingJsonParser
                 _textBuffer.setCurrentLength(outPtr);
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            ch = _inputBuffer[_inputPtr] & 0xFF;
+            ch = getByteFromBuffer(_inputPtr) & 0xFF;
         }
         _intLength = outPtr-1;
         _textBuffer.setCurrentLength(outPtr);
@@ -1495,7 +1495,7 @@ public class NonBlockingJsonParser
             _intLength = 1;
             return (_currToken = JsonToken.NOT_AVAILABLE);
         }
-        ch = _inputBuffer[_inputPtr];
+        ch = getByteFromBuffer(_inputPtr);
         int outPtr = 2;
 
         while (true) {
@@ -1525,7 +1525,7 @@ public class NonBlockingJsonParser
                 _textBuffer.setCurrentLength(outPtr);
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            ch = _inputBuffer[_inputPtr] & 0xFF;
+            ch = getByteFromBuffer(_inputPtr) & 0xFF;
         }
         _intLength = outPtr-1;
         _textBuffer.setCurrentLength(outPtr);
@@ -1544,7 +1544,7 @@ public class NonBlockingJsonParser
         // the very first char after first zero since the most common case is that
         // there is a separator
 
-        int ch = _inputBuffer[ptr++] & 0xFF;
+        int ch = getByteFromBuffer(ptr++) & 0xFF;
         // one early check: leading zeroes may or may not be allowed
         if (ch < INT_0) {
             if (ch == INT_PERIOD) {
@@ -1745,7 +1745,7 @@ public class NonBlockingJsonParser
                 _textBuffer.setCurrentLength(outPtr);
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            int ch = _inputBuffer[_inputPtr] & 0xFF;
+            int ch = getByteFromBuffer(_inputPtr) & 0xFF;
             if (ch < INT_0) {
                 if (ch == INT_PERIOD) {
                     _intLength = outPtr+negMod;
@@ -2303,7 +2303,7 @@ public class NonBlockingJsonParser
                 _minorState = MINOR_FIELD_UNQUOTED_NAME;
                 return (_currToken = JsonToken.NOT_AVAILABLE);
             }
-            int ch = _inputBuffer[_inputPtr] & 0xFF;
+            int ch = getByteFromBuffer(_inputPtr) & 0xFF;
             if (codes[ch] != 0) {
                 break;
             }
@@ -2647,14 +2647,14 @@ public class NonBlockingJsonParser
                 ptr = _inputPtr;
                 break;
             case 2: // 2-byte UTF
-                c = _decodeUTF8_2(c, _inputBuffer[ptr++]);
+                c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
                 break;
             case 3: // 3-byte UTF
-                c = _decodeUTF8_3(c, _inputBuffer[ptr++], _inputBuffer[ptr++]);
+                c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
                 break;
             case 4: // 4-byte UTF
-                c = _decodeUTF8_4(c, _inputBuffer[ptr++], _inputBuffer[ptr++],
-                        _inputBuffer[ptr++]);
+                c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
+                        getByteFromBuffer(ptr++));
                 // Let's add first part right away:
                 outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                 if (outPtr >= outBuf.length) {
@@ -2772,14 +2772,14 @@ public class NonBlockingJsonParser
                 ptr = _inputPtr;
                 break;
             case 2: // 2-byte UTF
-                c = _decodeUTF8_2(c, _inputBuffer[ptr++]);
+                c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
                 break;
             case 3: // 3-byte UTF
-                c = _decodeUTF8_3(c, _inputBuffer[ptr++], _inputBuffer[ptr++]);
+                c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
                 break;
             case 4: // 4-byte UTF
-                c = _decodeUTF8_4(c, _inputBuffer[ptr++], _inputBuffer[ptr++],
-                        _inputBuffer[ptr++]);
+                c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
+                        getByteFromBuffer(ptr++));
                 // Let's add first part right away:
                 outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
                 if (outPtr >= outBuf.length) {

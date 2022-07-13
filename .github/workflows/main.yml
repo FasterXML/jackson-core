@@ -18,6 +18,9 @@ on:
     paths-ignore:
     - "README.md"
     - "release-notes/*"
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -60,7 +63,7 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
       if: github.event_name != 'pull_request' && matrix.java_version == '8'
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./target/site/jacoco/jacoco.xml

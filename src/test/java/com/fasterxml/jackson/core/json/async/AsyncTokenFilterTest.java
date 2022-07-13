@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json.async;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.async.AsyncTestBase;
@@ -50,6 +51,28 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nonBlockingParser.close();
     }
 
+    public void testFilteredNonBlockingByteBufferParserAllContent() throws IOException
+    {
+        NonBlockingByteBufferJsonParser nonBlockingParser =
+                (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
+        FilteringParserDelegate filteredParser = new FilteringParserDelegate(nonBlockingParser,
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(INPUT_BYTES);
+        nonBlockingParser.feedInput(byteBuffer);
+        int expectedIdx = 0;
+        while (expectedIdx < EXPECTED_TOKENS.length) {
+            // grab next token
+            JsonToken actual = filteredParser.nextToken();
+
+            // make sure it's the right one and mark it as seen.
+            assertToken(EXPECTED_TOKENS[expectedIdx], actual);
+            expectedIdx++;
+        }
+
+        filteredParser.close();
+        nonBlockingParser.close();
+    }
+
     public void testSkipChildrenFailOnSplit() throws IOException
     {
         NonBlockingJsonParser nbParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
@@ -57,6 +80,28 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
                 TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
         nbParser.feedInput(INPUT_BYTES, 0, 5);
+
+        assertToken(JsonToken.START_OBJECT, nbParser.nextToken());
+        try {
+            nbParser.skipChildren();
+            fail("Should not pass!");
+        } catch (JsonParseException e) {
+            verifyException(e, "not enough content available");
+            verifyException(e, "skipChildren()");
+        }
+        nbParser.close();
+        filteredParser.close();
+    }
+
+    public void testSkipChildrenFailOnSplitByteBuffer() throws IOException
+    {
+        NonBlockingByteBufferJsonParser nbParser =
+                (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
+        @SuppressWarnings("resource")
+        FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
+                TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(INPUT_BYTES, 0, 5);
+        nbParser.feedInput(byteBuffer);
 
         assertToken(JsonToken.START_OBJECT, nbParser.nextToken());
         try {

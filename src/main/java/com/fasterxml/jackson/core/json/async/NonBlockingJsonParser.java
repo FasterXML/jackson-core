@@ -1979,22 +1979,21 @@ public class NonBlockingJsonParser
         // decoding. Rather, we'll assume that part is ok (if not it will be
         // caught later on), and just handle quotes and backslashes here.
 
-        final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
         int ptr = _inputPtr;
 
-        int q0 = input[ptr++] & 0xFF;
+        int q0 = getByteFromBuffer(ptr++) & 0xFF;
         if (codes[q0] == 0) {
-            int i = input[ptr++] & 0xFF;
+            int i = getByteFromBuffer(ptr++) & 0xFF;
             if (codes[i] == 0) {
                 int q = (q0 << 8) | i;
-                i = input[ptr++] & 0xFF;
+                i = getByteFromBuffer(ptr++) & 0xFF;
                 if (codes[i] == 0) {
                     q = (q << 8) | i;
-                    i = input[ptr++] & 0xFF;
+                    i = getByteFromBuffer(ptr++) & 0xFF;
                     if (codes[i] == 0) {
                         q = (q << 8) | i;
-                        i = input[ptr++] & 0xFF;
+                        i = getByteFromBuffer(ptr++) & 0xFF;
                         if (codes[i] == 0) {
                             _quad1 = q;
                             return _parseMediumName(ptr, i);
@@ -2032,20 +2031,19 @@ public class NonBlockingJsonParser
 
     private final String _parseMediumName(int ptr, int q2) throws IOException
     {
-        final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
 
         // Ok, got 5 name bytes so far
-        int i = input[ptr++] & 0xFF;
+        int i = getByteFromBuffer(ptr++) & 0xFF;
         if (codes[i] == 0) {
             q2 = (q2 << 8) | i;
-            i = input[ptr++] & 0xFF;
+            i = getByteFromBuffer(ptr++) & 0xFF;
             if (codes[i] == 0) {
                 q2 = (q2 << 8) | i;
-                i = input[ptr++] & 0xFF;
+                i = getByteFromBuffer(ptr++) & 0xFF;
                 if (codes[i] == 0) {
                     q2 = (q2 << 8) | i;
-                    i = input[ptr++] & 0xFF;
+                    i = getByteFromBuffer(ptr++) & 0xFF;
                     if (codes[i] == 0) {
                         return _parseMediumName2(ptr, i, q2);
                     }
@@ -2076,11 +2074,10 @@ public class NonBlockingJsonParser
 
     private final String _parseMediumName2(int ptr, int q3, final int q2) throws IOException
     {
-        final byte[] input = _inputBuffer;
         final int[] codes = _icLatin1;
 
         // Got 9 name bytes so far
-        int i = input[ptr++] & 0xFF;
+        int i = getByteFromBuffer(ptr++) & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 9 bytes
                 _inputPtr = ptr;
@@ -2089,7 +2086,7 @@ public class NonBlockingJsonParser
             return null;
         }
         q3 = (q3 << 8) | i;
-        i = input[ptr++] & 0xFF;
+        i = getByteFromBuffer(ptr++) & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 10 bytes
                 _inputPtr = ptr;
@@ -2098,7 +2095,7 @@ public class NonBlockingJsonParser
             return null;
         }
         q3 = (q3 << 8) | i;
-        i = input[ptr++] & 0xFF;
+        i = getByteFromBuffer(ptr++) & 0xFF;
         if (codes[i] != 0) {
             if (i == INT_QUOTE) { // 11 bytes
                 _inputPtr = ptr;
@@ -2107,7 +2104,7 @@ public class NonBlockingJsonParser
             return null;
         }
         q3 = (q3 << 8) | i;
-        i = input[ptr++] & 0xFF;
+        i = getByteFromBuffer(ptr++) & 0xFF;
         if (i == INT_QUOTE) { // 12 bytes
             _inputPtr = ptr;
             return _findName(_quad1, q2, q3, 4);

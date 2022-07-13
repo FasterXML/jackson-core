@@ -1906,11 +1906,146 @@ public abstract class NonBlockingUtf8JsonParserBase
     /**********************************************************************
      */
 
-    protected abstract String _fastParseName() throws IOException;
+    private final String _fastParseName() throws IOException
+    {
+        // If so, can also unroll loops nicely
+        // This may seem weird, but here we do NOT want to worry about UTF-8
+        // decoding. Rather, we'll assume that part is ok (if not it will be
+        // caught later on), and just handle quotes and backslashes here.
 
-    protected abstract String _parseMediumName(int ptr, int q2) throws IOException;
+        final int[] codes = _icLatin1;
+        int ptr = _inputPtr;
 
-    protected abstract String _parseMediumName2(int ptr, int q3, final int q2) throws IOException;
+        int q0 = getByteFromBuffer(ptr++) & 0xFF;
+        if (codes[q0] == 0) {
+            int i = getByteFromBuffer(ptr++) & 0xFF;
+            if (codes[i] == 0) {
+                int q = (q0 << 8) | i;
+                i = getByteFromBuffer(ptr++) & 0xFF;
+                if (codes[i] == 0) {
+                    q = (q << 8) | i;
+                    i = getByteFromBuffer(ptr++) & 0xFF;
+                    if (codes[i] == 0) {
+                        q = (q << 8) | i;
+                        i = getByteFromBuffer(ptr++) & 0xFF;
+                        if (codes[i] == 0) {
+                            _quad1 = q;
+                            return _parseMediumName(ptr, i);
+                        }
+                        if (i == INT_QUOTE) { // 4 byte/char case or broken
+                            _inputPtr = ptr;
+                            return _findName(q, 4);
+                        }
+                        return null;
+                    }
+                    if (i == INT_QUOTE) { // 3 byte/char case or broken
+                        _inputPtr = ptr;
+                        return _findName(q, 3);
+                    }
+                    return null;
+                }
+                if (i == INT_QUOTE) { // 2 byte/char case or broken
+                    _inputPtr = ptr;
+                    return _findName(q, 2);
+                }
+                return null;
+            }
+            if (i == INT_QUOTE) { // one byte/char case or broken
+                _inputPtr = ptr;
+                return _findName(q0, 1);
+            }
+            return null;
+        }
+        if (q0 == INT_QUOTE) {
+            _inputPtr = ptr;
+            return "";
+        }
+        return null;
+    }
+
+    private final String _parseMediumName(int ptr, int q2) throws IOException
+    {
+        final int[] codes = _icLatin1;
+
+        // Ok, got 5 name bytes so far
+        int i = getByteFromBuffer(ptr++) & 0xFF;
+        if (codes[i] == 0) {
+            q2 = (q2 << 8) | i;
+            i = getByteFromBuffer(ptr++) & 0xFF;
+            if (codes[i] == 0) {
+                q2 = (q2 << 8) | i;
+                i = getByteFromBuffer(ptr++) & 0xFF;
+                if (codes[i] == 0) {
+                    q2 = (q2 << 8) | i;
+                    i = getByteFromBuffer(ptr++) & 0xFF;
+                    if (codes[i] == 0) {
+                        return _parseMediumName2(ptr, i, q2);
+                    }
+                    if (i == INT_QUOTE) { // 8 bytes
+                        _inputPtr = ptr;
+                        return _findName(_quad1, q2, 4);
+                    }
+                    return null;
+                }
+                if (i == INT_QUOTE) { // 7 bytes
+                    _inputPtr = ptr;
+                    return _findName(_quad1, q2, 3);
+                }
+                return null;
+            }
+            if (i == INT_QUOTE) { // 6 bytes
+                _inputPtr = ptr;
+                return _findName(_quad1, q2, 2);
+            }
+            return null;
+        }
+        if (i == INT_QUOTE) { // 5 bytes
+            _inputPtr = ptr;
+            return _findName(_quad1, q2, 1);
+        }
+        return null;
+    }
+
+    private final String _parseMediumName2(int ptr, int q3, final int q2) throws IOException
+    {
+        final int[] codes = _icLatin1;
+
+        // Got 9 name bytes so far
+        int i = getByteFromBuffer(ptr++) & 0xFF;
+        if (codes[i] != 0) {
+            if (i == INT_QUOTE) { // 9 bytes
+                _inputPtr = ptr;
+                return _findName(_quad1, q2, q3, 1);
+            }
+            return null;
+        }
+        q3 = (q3 << 8) | i;
+        i = getByteFromBuffer(ptr++) & 0xFF;
+        if (codes[i] != 0) {
+            if (i == INT_QUOTE) { // 10 bytes
+                _inputPtr = ptr;
+                return _findName(_quad1, q2, q3, 2);
+            }
+            return null;
+        }
+        q3 = (q3 << 8) | i;
+        i = getByteFromBuffer(ptr++) & 0xFF;
+        if (codes[i] != 0) {
+            if (i == INT_QUOTE) { // 11 bytes
+                _inputPtr = ptr;
+                return _findName(_quad1, q2, q3, 3);
+            }
+            return null;
+        }
+        q3 = (q3 << 8) | i;
+        i = getByteFromBuffer(ptr++) & 0xFF;
+        if (i == INT_QUOTE) { // 12 bytes
+            _inputPtr = ptr;
+            return _findName(_quad1, q2, q3, 4);
+        }
+        // Could continue
+        return null;
+    }
 
     /**
      * Slower parsing method which is generally branched to when

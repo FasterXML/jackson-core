@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.json.async;
 
 import com.fasterxml.jackson.core.async.ByteBufferFeeder;
+import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 
@@ -25,6 +26,11 @@ public class NonBlockingByteBufferJsonParser
     public NonBlockingByteBufferJsonParser(IOContext ctxt, int parserFeatures,
                                            ByteQuadsCanonicalizer sym) {
         super(ctxt, parserFeatures, sym);
+    }
+
+    @Override
+    public NonBlockingInputFeeder getNonBlockingInputFeeder() {
+        return this;
     }
 
     @Override

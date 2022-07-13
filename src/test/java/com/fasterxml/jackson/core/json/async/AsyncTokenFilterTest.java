@@ -34,6 +34,8 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     public void testFilteredNonBlockingParserAllContent() throws IOException
     {
         NonBlockingJsonParser nonBlockingParser = (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser();
+        assertNotNull(nonBlockingParser.getNonBlockingInputFeeder());
+
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nonBlockingParser,
                 TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
         nonBlockingParser.feedInput(INPUT_BYTES, 0, INPUT_BYTES.length);
@@ -55,6 +57,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     {
         NonBlockingByteBufferJsonParser nonBlockingParser =
                 (NonBlockingByteBufferJsonParser) JSON_F.createNonBlockingByteBufferParser();
+        assertNotNull(nonBlockingParser.getNonBlockingInputFeeder());
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nonBlockingParser,
                 TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
         ByteBuffer byteBuffer = ByteBuffer.wrap(INPUT_BYTES);

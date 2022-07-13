@@ -61,7 +61,7 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
       if: github.event_name != 'pull_request' && matrix.java_version == '8'
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./target/site/jacoco/jacoco.xml

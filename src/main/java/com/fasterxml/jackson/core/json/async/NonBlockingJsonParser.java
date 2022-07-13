@@ -2558,9 +2558,8 @@ public class NonBlockingJsonParser
         final int[] codes = _icUTF8;
 
         final int max = Math.min(_inputEnd, (ptr + outBuf.length));
-        final byte[] inputBuffer = _inputBuffer;
         while (ptr < max) {
-            int c = inputBuffer[ptr] & 0xFF;
+            int c = getByteFromBuffer(ptr) & 0xFF;
             if (codes[c] != 0) {
                 if (c == INT_QUOTE) {
                     _inputPtr = ptr+1;
@@ -2583,7 +2582,6 @@ public class NonBlockingJsonParser
 
         // Here we do want to do full decoding, hence:
         final int[] codes = _icUTF8;
-        final byte[] inputBuffer = _inputBuffer;
 
         char[] outBuf = _textBuffer.getBufferWithoutReset();
         int outPtr = _textBuffer.getCurrentSegmentSize();
@@ -2607,7 +2605,7 @@ public class NonBlockingJsonParser
                 }
                 final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
                 while (ptr < max) {
-                    c = inputBuffer[ptr++] & 0xFF;
+                    c = getByteFromBuffer(ptr++) & 0xFF;
                     if (codes[c] != 0) {
                         break ascii_loop;
                     }
@@ -2685,9 +2683,8 @@ public class NonBlockingJsonParser
         final int[] codes = _icUTF8;
 
         final int max = Math.min(_inputEnd, (ptr + outBuf.length));
-        final byte[] inputBuffer = _inputBuffer;
         while (ptr < max) {
-            int c = inputBuffer[ptr] & 0xFF;
+            int c = getByteFromBuffer(ptr) & 0xFF;
             if (c == INT_APOS) {
                 _inputPtr = ptr+1;
                 _textBuffer.setCurrentLength(outPtr);
@@ -2709,7 +2706,6 @@ public class NonBlockingJsonParser
     {
         int c;
         final int[] codes = _icUTF8;
-        final byte[] inputBuffer = _inputBuffer;
 
         char[] outBuf = _textBuffer.getBufferWithoutReset();
         int outPtr = _textBuffer.getCurrentSegmentSize();
@@ -2732,7 +2728,7 @@ public class NonBlockingJsonParser
                 }
                 final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
                 while (ptr < max) {
-                    c = inputBuffer[ptr++] & 0xFF;
+                    c = getByteFromBuffer(ptr++) & 0xFF;
                     if ((codes[c] != 0) && (c != INT_QUOTE)) {
                         break ascii_loop;
                     }

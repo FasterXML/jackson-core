@@ -2484,13 +2484,253 @@ public abstract class NonBlockingUtf8JsonParserBase
     /**********************************************************************
      */
 
-    protected abstract JsonToken _startString() throws IOException;
+    protected JsonToken _startString() throws IOException
+    {
+        int ptr = _inputPtr;
+        int outPtr = 0;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        final int[] codes = _icUTF8;
 
-    protected abstract JsonToken _finishRegularString() throws IOException;
+        final int max = Math.min(_inputEnd, (ptr + outBuf.length));
+        while (ptr < max) {
+            int c = getByteFromBuffer(ptr) & 0xFF;
+            if (codes[c] != 0) {
+                if (c == INT_QUOTE) {
+                    _inputPtr = ptr+1;
+                    _textBuffer.setCurrentLength(outPtr);
+                    return _valueComplete(JsonToken.VALUE_STRING);
+                }
+                break;
+            }
+            ++ptr;
+            outBuf[outPtr++] = (char) c;
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        _inputPtr = ptr;
+        return _finishRegularString();
+    }
 
-    protected abstract JsonToken _startAposString() throws IOException;
+    private final JsonToken _finishRegularString() throws IOException
+    {
+        int c;
 
-    protected abstract JsonToken _finishAposString() throws IOException;
+        // Here we do want to do full decoding, hence:
+        final int[] codes = _icUTF8;
+
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        int ptr = _inputPtr;
+        final int safeEnd = _inputEnd - 5; // longest escape is 6 chars
+
+        main_loop:
+        while (true) {
+            // Then the tight ASCII non-funny-char loop:
+            ascii_loop:
+            while (true) {
+                if (ptr >= _inputEnd) {
+                    _inputPtr = ptr;
+                    _minorState = MINOR_VALUE_STRING;
+                    _textBuffer.setCurrentLength(outPtr);
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.finishCurrentSegment();
+                    outPtr = 0;
+                }
+                final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
+                while (ptr < max) {
+                    c = getByteFromBuffer(ptr++) & 0xFF;
+                    if (codes[c] != 0) {
+                        break ascii_loop;
+                    }
+                    outBuf[outPtr++] = (char) c;
+                }
+            }
+            // Ok: end marker, escape or multi-byte?
+            if (c == INT_QUOTE) {
+                _inputPtr = ptr;
+                _textBuffer.setCurrentLength(outPtr);
+                return _valueComplete(JsonToken.VALUE_STRING);
+            }
+            // If possibly split, use off-lined longer version
+            if (ptr >= safeEnd) {
+                _inputPtr = ptr;
+                _textBuffer.setCurrentLength(outPtr);
+                if (!_decodeSplitMultiByte(c, codes[c], ptr < _inputEnd)) {
+                    _minorStateAfterSplit = MINOR_VALUE_STRING;
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                outBuf = _textBuffer.getBufferWithoutReset();
+                outPtr = _textBuffer.getCurrentSegmentSize();
+                ptr = _inputPtr;
+                continue main_loop;
+            }
+            // otherwise use inlined
+            switch (codes[c]) {
+                case 1: // backslash
+                    _inputPtr = ptr;
+                    c = _decodeFastCharEscape(); // since we know it's not split
+                    ptr = _inputPtr;
+                    break;
+                case 2: // 2-byte UTF
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    break;
+                case 3: // 3-byte UTF
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    break;
+                case 4: // 4-byte UTF
+                    c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
+                            getByteFromBuffer(ptr++));
+                    // Let's add first part right away:
+                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
+                    if (outPtr >= outBuf.length) {
+                        outBuf = _textBuffer.finishCurrentSegment();
+                        outPtr = 0;
+                    }
+                    c = 0xDC00 | (c & 0x3FF);
+                    // And let the other char output down below
+                    break;
+                default:
+                    if (c < INT_SPACE) {
+                        // Note: call can now actually return (to allow unquoted linefeeds)
+                        _throwUnquotedSpace(c, "string value");
+                    } else {
+                        // Is this good enough error message?
+                        _reportInvalidChar(c);
+                    }
+            }
+            // Need more room?
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
+            // Ok, let's add char to output:
+            outBuf[outPtr++] = (char) c;
+        }
+    }
+
+    protected JsonToken _startAposString() throws IOException
+    {
+        int ptr = _inputPtr;
+        int outPtr = 0;
+        char[] outBuf = _textBuffer.emptyAndGetCurrentSegment();
+        final int[] codes = _icUTF8;
+
+        final int max = Math.min(_inputEnd, (ptr + outBuf.length));
+        while (ptr < max) {
+            int c = getByteFromBuffer(ptr) & 0xFF;
+            if (c == INT_APOS) {
+                _inputPtr = ptr+1;
+                _textBuffer.setCurrentLength(outPtr);
+                return _valueComplete(JsonToken.VALUE_STRING);
+            }
+
+            if (codes[c] != 0) {
+                break;
+            }
+            ++ptr;
+            outBuf[outPtr++] = (char) c;
+        }
+        _textBuffer.setCurrentLength(outPtr);
+        _inputPtr = ptr;
+        return _finishAposString();
+    }
+
+    private final JsonToken _finishAposString() throws IOException
+    {
+        int c;
+        final int[] codes = _icUTF8;
+
+        char[] outBuf = _textBuffer.getBufferWithoutReset();
+        int outPtr = _textBuffer.getCurrentSegmentSize();
+        int ptr = _inputPtr;
+        final int safeEnd = _inputEnd - 5; // longest escape is 6 chars
+
+        main_loop:
+        while (true) {
+            ascii_loop:
+            while (true) {
+                if (ptr >= _inputEnd) {
+                    _inputPtr = ptr;
+                    _minorState = MINOR_VALUE_APOS_STRING;
+                    _textBuffer.setCurrentLength(outPtr);
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                if (outPtr >= outBuf.length) {
+                    outBuf = _textBuffer.finishCurrentSegment();
+                    outPtr = 0;
+                }
+                final int max = Math.min(_inputEnd, (ptr + (outBuf.length - outPtr)));
+                while (ptr < max) {
+                    c = getByteFromBuffer(ptr++) & 0xFF;
+                    if ((codes[c] != 0) && (c != INT_QUOTE)) {
+                        break ascii_loop;
+                    }
+                    if (c == INT_APOS) {
+                        _inputPtr = ptr;
+                        _textBuffer.setCurrentLength(outPtr);
+                        return _valueComplete(JsonToken.VALUE_STRING);
+                    }
+                    outBuf[outPtr++] = (char) c;
+                }
+            }
+            // Escape or multi-byte?
+            // If possibly split, use off-lined longer version
+            if (ptr >= safeEnd) {
+                _inputPtr = ptr;
+                _textBuffer.setCurrentLength(outPtr);
+                if (!_decodeSplitMultiByte(c, codes[c], ptr < _inputEnd)) {
+                    _minorStateAfterSplit = MINOR_VALUE_APOS_STRING;
+                    return (_currToken = JsonToken.NOT_AVAILABLE);
+                }
+                outBuf = _textBuffer.getBufferWithoutReset();
+                outPtr = _textBuffer.getCurrentSegmentSize();
+                ptr = _inputPtr;
+                continue main_loop;
+            }
+            // otherwise use inlined
+            switch (codes[c]) {
+                case 1: // backslash
+                    _inputPtr = ptr;
+                    c = _decodeFastCharEscape(); // since we know it's not split
+                    ptr = _inputPtr;
+                    break;
+                case 2: // 2-byte UTF
+                    c = _decodeUTF8_2(c, getByteFromBuffer(ptr++));
+                    break;
+                case 3: // 3-byte UTF
+                    c = _decodeUTF8_3(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++));
+                    break;
+                case 4: // 4-byte UTF
+                    c = _decodeUTF8_4(c, getByteFromBuffer(ptr++), getByteFromBuffer(ptr++),
+                            getByteFromBuffer(ptr++));
+                    // Let's add first part right away:
+                    outBuf[outPtr++] = (char) (0xD800 | (c >> 10));
+                    if (outPtr >= outBuf.length) {
+                        outBuf = _textBuffer.finishCurrentSegment();
+                        outPtr = 0;
+                    }
+                    c = 0xDC00 | (c & 0x3FF);
+                    // And let the other char output down below
+                    break;
+                default:
+                    if (c < INT_SPACE) {
+                        // Note: call can now actually return (to allow unquoted linefeeds)
+                        _throwUnquotedSpace(c, "string value");
+                    } else {
+                        // Is this good enough error message?
+                        _reportInvalidChar(c);
+                    }
+            }
+            // Need more room?
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
+            // Ok, let's add char to output:
+            outBuf[outPtr++] = (char) c;
+        }
+    }
     
     private final boolean _decodeSplitMultiByte(int c, int type, boolean gotNext)
             throws IOException

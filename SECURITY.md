@@ -1,6 +1,6 @@
 # Security Policy
 
-Last Updated: 2019-11-26
+Last Updated: 2022-07-13
 
 ## Supported Versions
 

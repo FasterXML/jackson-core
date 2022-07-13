@@ -1162,12 +1162,11 @@ public class NonBlockingJsonParser
     {
         int ptr = _inputPtr;
         if ((ptr + 4) < _inputEnd) { // yes, can determine efficiently
-            byte[] buf = _inputBuffer;
-            if ((buf[ptr++] == 'a') 
-                   && (buf[ptr++] == 'l')
-                   && (buf[ptr++] == 's')
-                   && (buf[ptr++] == 'e')) {
-                int ch = buf[ptr] & 0xFF;
+            if ((getByteFromBuffer(ptr++) == 'a')
+                   && (getByteFromBuffer(ptr++) == 'l')
+                   && (getByteFromBuffer(ptr++) == 's')
+                   && (getByteFromBuffer(ptr++) == 'e')) {
+                int ch = getByteFromBuffer(ptr) & 0xFF;
                 if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
                     _inputPtr = ptr;
                     return _valueComplete(JsonToken.VALUE_FALSE);
@@ -1182,11 +1181,10 @@ public class NonBlockingJsonParser
     {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
-            byte[] buf = _inputBuffer;
-            if ((buf[ptr++] == 'r') 
-                   && (buf[ptr++] == 'u')
-                   && (buf[ptr++] == 'e')) {
-                int ch = buf[ptr] & 0xFF;
+            if ((getByteFromBuffer(ptr++) == 'r')
+                   && (getByteFromBuffer(ptr++) == 'u')
+                   && (getByteFromBuffer(ptr++) == 'e')) {
+                int ch = getByteFromBuffer(ptr) & 0xFF;
                 if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
                     _inputPtr = ptr;
                     return _valueComplete(JsonToken.VALUE_TRUE);
@@ -1201,11 +1199,10 @@ public class NonBlockingJsonParser
     {
         int ptr = _inputPtr;
         if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
-            byte[] buf = _inputBuffer;
-            if ((buf[ptr++] == 'u') 
-                   && (buf[ptr++] == 'l')
-                   && (buf[ptr++] == 'l')) {
-                int ch = buf[ptr] & 0xFF;
+            if ((getByteFromBuffer(ptr++) == 'u')
+                   && (getByteFromBuffer(ptr++) == 'l')
+                   && (getByteFromBuffer(ptr++) == 'l')) {
+                int ch = getByteFromBuffer(ptr) & 0xFF;
                 if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
                     _inputPtr = ptr;
                     return _valueComplete(JsonToken.VALUE_NULL);

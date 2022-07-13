@@ -1092,11 +1092,60 @@ public abstract class NonBlockingUtf8JsonParserBase
     /**********************************************************************
      */
 
-    protected abstract JsonToken _startFalseToken() throws IOException;
+    protected JsonToken _startFalseToken() throws IOException
+    {
+        int ptr = _inputPtr;
+        if ((ptr + 4) < _inputEnd) { // yes, can determine efficiently
+            if ((getByteFromBuffer(ptr++) == 'a')
+                    && (getByteFromBuffer(ptr++) == 'l')
+                    && (getByteFromBuffer(ptr++) == 's')
+                    && (getByteFromBuffer(ptr++) == 'e')) {
+                int ch = getByteFromBuffer(ptr) & 0xFF;
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return _valueComplete(JsonToken.VALUE_FALSE);
+                }
+            }
+        }
+        _minorState = MINOR_VALUE_TOKEN_FALSE;
+        return _finishKeywordToken("false", 1, JsonToken.VALUE_FALSE);
+    }
 
-    protected abstract JsonToken _startTrueToken() throws IOException;
+    protected JsonToken _startTrueToken() throws IOException
+    {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
+            if ((getByteFromBuffer(ptr++) == 'r')
+                    && (getByteFromBuffer(ptr++) == 'u')
+                    && (getByteFromBuffer(ptr++) == 'e')) {
+                int ch = getByteFromBuffer(ptr) & 0xFF;
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return _valueComplete(JsonToken.VALUE_TRUE);
+                }
+            }
+        }
+        _minorState = MINOR_VALUE_TOKEN_TRUE;
+        return _finishKeywordToken("true", 1, JsonToken.VALUE_TRUE);
+    }
 
-    protected abstract JsonToken _startNullToken() throws IOException;
+    protected JsonToken _startNullToken() throws IOException
+    {
+        int ptr = _inputPtr;
+        if ((ptr + 3) < _inputEnd) { // yes, can determine efficiently
+            if ((getByteFromBuffer(ptr++) == 'u')
+                    && (getByteFromBuffer(ptr++) == 'l')
+                    && (getByteFromBuffer(ptr++) == 'l')) {
+                int ch = getByteFromBuffer(ptr) & 0xFF;
+                if (ch < INT_0 || (ch == INT_RBRACKET) || (ch == INT_RCURLY)) { // expected/allowed chars
+                    _inputPtr = ptr;
+                    return _valueComplete(JsonToken.VALUE_NULL);
+                }
+            }
+        }
+        _minorState = MINOR_VALUE_TOKEN_NULL;
+        return _finishKeywordToken("null", 1, JsonToken.VALUE_NULL);
+    }
 
     protected JsonToken _finishKeywordToken(String expToken, int matched,
                                             JsonToken result) throws IOException

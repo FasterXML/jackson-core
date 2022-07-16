@@ -26,7 +26,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
     final static byte[] JSON_DOC = utf8Bytes(String.format(
             "[\"%s\", \"%s\",\n\"%s\",\"%s\" ]", TEXT1, TEXT2, TEXT3, TEXT4));
 
-    static class WorkUnit {
+    class WorkUnit {
         private int stage = 0;
 
         private AsyncReaderWrapper parser;
@@ -41,7 +41,7 @@ public class AsyncConcurrencyTest extends AsyncTestBase
             try {
                 switch (stage++) {
                 case 0:
-                    parser = asyncForBytes(JSON_F, 100, JSON_DOC, 0);
+                    parser = createParser();
                     break;
                 case 1:
                     _assert(JsonToken.START_ARRAY);
@@ -158,5 +158,9 @@ public class AsyncConcurrencyTest extends AsyncTestBase
         if (compl < (EXP_COMPL-10) || compl > EXP_COMPL) {
             fail("Expected about "+EXP_COMPL+" completed rounds, got: "+compl);
         }
+    }
+
+    protected AsyncReaderWrapper createParser() throws IOException {
+        return asyncForBytes(JSON_F, 100, JSON_DOC, 0);
     }
 }

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.core.testsupport;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.ByteBufferFeeder;
-import com.fasterxml.jackson.core.json.async.NonBlockingByteBufferJsonParser;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

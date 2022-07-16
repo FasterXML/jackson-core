@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.async.ByteArrayFeeder;
-import com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 
 /**
  * Helper class used with async parser

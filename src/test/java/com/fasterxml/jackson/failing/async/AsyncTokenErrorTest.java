@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 
 public class AsyncTokenErrorTest extends AsyncTestBase
 {
-    private final JsonFactory JSON_F = new JsonFactory();
+    protected final JsonFactory JSON_F = new JsonFactory();
 
     public void testInvalidKeywordsStartOk() throws Exception
     {
@@ -113,7 +113,7 @@ public class AsyncTokenErrorTest extends AsyncTestBase
         p.close();
     }
 
-    private AsyncReaderWrapper _createParser(String doc) throws IOException
+    protected AsyncReaderWrapper _createParser(String doc) throws IOException
     {
         return asyncForBytes(JSON_F, 1, _jsonDoc(doc), 1);
     }

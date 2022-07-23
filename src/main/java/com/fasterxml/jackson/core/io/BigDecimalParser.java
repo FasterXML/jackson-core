@@ -33,18 +33,11 @@ public final class BigDecimalParser
     }
 
     public static BigDecimal parse(char[] chars, int off, int len) {
-        if (off > 0 || len != chars.length) {
-            chars = Arrays.copyOfRange(chars, off, off+len);
-        }
-        return parse(chars);
-    }
-
-    public static BigDecimal parse(char[] chars) {
-        final int len = chars.length;
         try {
             if (len < 500) {
-                return new BigDecimal(chars);
+                return new BigDecimal(chars, off, len);
             }
+            chars = Arrays.copyOfRange(chars, off, off+len);
             return new BigDecimalParser(chars).parseBigDecimal(len / 10);
         } catch (NumberFormatException e) {
             String desc = e.getMessage();
@@ -53,15 +46,19 @@ public final class BigDecimalParser
                 desc = "Not a valid number representation";
             }
             String stringToReport;
-            if (chars.length <= MAX_CHARS_TO_REPORT) {
-                stringToReport = new String(chars);
+            if (len <= MAX_CHARS_TO_REPORT) {
+                stringToReport = new String(chars, off, len);
             } else {
-                stringToReport = new String(Arrays.copyOfRange(chars, 0, MAX_CHARS_TO_REPORT))
+                stringToReport = new String(Arrays.copyOfRange(chars, off, MAX_CHARS_TO_REPORT))
                     + "(truncated, full length is " + chars.length + " chars)";
             }
             throw new NumberFormatException("Value \"" + stringToReport
                     + "\" can not be represented as `java.math.BigDecimal`, reason: " + desc);
         }
+    }
+
+    public static BigDecimal parse(char[] chars) {
+        return parse(chars, 0, chars.length);
     }
 
     private BigDecimal parseBigDecimal(final int splitLen) {

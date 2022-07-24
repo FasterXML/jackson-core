@@ -1576,11 +1576,13 @@ public class NonBlockingJsonParser
                 }
             } else if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
                 if (negative) {
+                    _inputPtr--;
                     return _finishNumberLeadingNegZeroes();
                 } else {
                     if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
                         _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
                     }
+                    _inputPtr--;
                     return _finishNumberLeadingPosZeroes();
                 }
             }

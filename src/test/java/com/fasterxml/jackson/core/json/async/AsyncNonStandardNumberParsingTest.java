@@ -220,6 +220,39 @@ public class AsyncNonStandardNumberParsingTest extends AsyncTestBase
         }
     }
 
+    public void testLeadingPlusSignInDecimalEnabled3() throws Exception {
+        final String JSON = "[ +123.123 ]";
+
+        JsonFactory jsonFactory =
+                JsonFactory.builder().enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS).build();
+        AsyncReaderWrapper p = createParser(jsonFactory, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(123.123, p.getDoubleValue());
+            assertEquals("123.123", p.getDecimalValue().toString());
+            assertEquals("+123.123", p.currentText());
+        } finally {
+            p.close();
+        }
+    }
+
+    public void testLeadingPlusSignNoLeadingZeroDisabled() throws Exception {
+        final String JSON = "[ +.123 ]";
+
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)
+                .build();
+        AsyncReaderWrapper p = createParser(jsonFactory, JSON, 1);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        try {
+            p.nextToken();
+            fail("Expected exception");
+        } catch (StreamReadException e) {
+            verifyException(e, "Unexpected character ('.'");
+        }
+    }
+
     /**
      * The format "NNN." (as opposed to "NNN") is not valid JSON, so this should fail
      */

@@ -22,23 +22,19 @@ import java.util.Arrays;
 public final class BigDecimalParser
 {
     private final static int MAX_CHARS_TO_REPORT = 1000;
-    private final char[] chars;
 
-    BigDecimalParser(char[] chars) {
-        this.chars = chars;
-    }
+    private BigDecimalParser() {}
 
     public static BigDecimal parse(String valueStr) {
         return parse(valueStr.toCharArray());
     }
 
-    public static BigDecimal parse(char[] chars, int off, int len) {
+    public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
             if (len < 500) {
                 return new BigDecimal(chars, off, len);
             }
-            chars = Arrays.copyOfRange(chars, off, off+len);
-            return new BigDecimalParser(chars).parseBigDecimal(len / 10);
+            return parseBigDecimal(chars, off, len, len / 10);
         } catch (NumberFormatException e) {
             String desc = e.getMessage();
             // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:
@@ -61,17 +57,17 @@ public final class BigDecimalParser
         return parse(chars, 0, chars.length);
     }
 
-    private BigDecimal parseBigDecimal(final int splitLen) {
+    private static BigDecimal parseBigDecimal(final char[] chars, final int off, final int len, final int splitLen) {
         boolean numHasSign = false;
         boolean expHasSign = false;
         boolean neg = false;
-        int numIdx = 0;
+        int numIdx = off;
         int expIdx = -1;
         int dotIdx = -1;
         int scale = 0;
-        final int len = chars.length;
+        final int endIdx = off + len;
 
-        for (int i = 0; i < len; i++) {
+        for (int i = off; i < endIdx; i++) {
             char c = chars[i];
             switch (c) {
             case '+':
@@ -127,25 +123,25 @@ public final class BigDecimalParser
         int exp = 0;
         if (expIdx >= 0) {
             numEndIdx = expIdx;
-            String expStr = new String(chars, expIdx + 1, len - expIdx - 1);
+            String expStr = new String(chars, expIdx + 1, endIdx - expIdx - 1);
             exp = Integer.parseInt(expStr);
             scale = adjustScale(scale, exp);
         } else {
-            numEndIdx = len;
+            numEndIdx = endIdx;
         }
 
         BigDecimal res;
 
         if (dotIdx >= 0) {
             int leftLen = dotIdx - numIdx;
-            BigDecimal left = toBigDecimalRec(numIdx, leftLen, exp, splitLen);
+            BigDecimal left = toBigDecimalRec(chars, numIdx, leftLen, exp, splitLen);
 
             int rightLen = numEndIdx - dotIdx - 1;
-            BigDecimal right = toBigDecimalRec(dotIdx + 1, rightLen, exp - rightLen, splitLen);
+            BigDecimal right = toBigDecimalRec(chars, dotIdx + 1, rightLen, exp - rightLen, splitLen);
 
             res = left.add(right);
         } else {
-            res = toBigDecimalRec(numIdx, numEndIdx - numIdx, exp, splitLen);
+            res = toBigDecimalRec(chars, numIdx, numEndIdx - numIdx, exp, splitLen);
         }
 
         if (scale != 0) {
@@ -159,7 +155,7 @@ public final class BigDecimalParser
         return res;
     }
 
-    private int adjustScale(int scale, long exp) {
+    private static int adjustScale(int scale, long exp) {
         long adjScale = scale - exp;
         if (adjScale > Integer.MAX_VALUE || adjScale < Integer.MIN_VALUE) {
             throw new NumberFormatException(
@@ -169,11 +165,12 @@ public final class BigDecimalParser
         return (int) adjScale;
     }
 
-    private BigDecimal toBigDecimalRec(int off, int len, int scale, int splitLen) {
+    private static BigDecimal toBigDecimalRec(final char[] chars, final int off, final int len,
+                                              final int scale, final int splitLen) {
         if (len > splitLen) {
             int mid = len / 2;
-            BigDecimal left = toBigDecimalRec(off, mid, scale + len - mid, splitLen);
-            BigDecimal right = toBigDecimalRec(off + mid, len - mid, scale, splitLen);
+            BigDecimal left = toBigDecimalRec(chars, off, mid, scale + len - mid, splitLen);
+            BigDecimal right = toBigDecimalRec(chars, off + mid, len - mid, scale, splitLen);
 
             return left.add(right);
         }

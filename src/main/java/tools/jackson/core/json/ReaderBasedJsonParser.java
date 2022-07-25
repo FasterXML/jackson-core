@@ -768,7 +768,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod(false, false);
+            t = _parseFloatThatStartsWithPeriod(false);
             break;
         case '0':
         case '1':
@@ -970,7 +970,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod(false, false);
+            t = _parseFloatThatStartsWithPeriod(false);
             break;
         case '0':
         case '1':
@@ -1049,7 +1049,7 @@ public class ReaderBasedJsonParser
             }
             return;
         case '.': // [core#61]]
-            _nextToken = _parseFloatThatStartsWithPeriod(false, false);
+            _nextToken = _parseFloatThatStartsWithPeriod(false);
             return;
         case '0':
         case '1':
@@ -1094,7 +1094,7 @@ public class ReaderBasedJsonParser
             }
             break;
         case '.': // [core#61]
-            t = _parseFloatThatStartsWithPeriod(false, false);
+            t = _parseFloatThatStartsWithPeriod(false);
             break;
         case '0':
         case '1':
@@ -1163,7 +1163,7 @@ public class ReaderBasedJsonParser
              * and could be indicated by a more specific error message.
              */
         case '.': // [core#61]]
-            return (_currToken = _parseFloatThatStartsWithPeriod(false, false));
+            return (_currToken = _parseFloatThatStartsWithPeriod(false));
         case '0':
         case '1':
         case '2':
@@ -1305,8 +1305,8 @@ public class ReaderBasedJsonParser
     /**********************************************************************
      */
 
-    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg,
-            final boolean hasSign)
+
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg)
         throws JacksonException
     {
         // [core#611]: allow optionally leading decimal point
@@ -1484,7 +1484,7 @@ public class ReaderBasedJsonParser
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
             if (ch == INT_PERIOD) {
-                return _parseFloatThatStartsWithPeriod(negative, true);
+                return _parseFloatThatStartsWithPeriod(negative);
             }
             return _handleInvalidNumberStart(ch, negative, true);
         }

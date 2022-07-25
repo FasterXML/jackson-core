@@ -1587,6 +1587,17 @@ public class NonBlockingJsonParser
                     }
                     return _finishNumberLeadingPosZeroes();
                 }
+            } else if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS)) {
+                if (negative) {
+                    _inputPtr--;
+                    return _finishNumberLeadingNegZeroes();
+                } else {
+                    if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS)) {
+                        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                    }
+                    _inputPtr--;
+                    return _finishNumberLeadingPosZeroes();
+                }
             }
             final String message = negative ?
                 "expected digit (0-9) to follow minus sign, for valid numeric value" :

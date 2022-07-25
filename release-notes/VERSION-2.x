@@ -16,6 +16,9 @@ JSON library.
 
 2.14.0 (not yet released)
 
+#478: Provide implementation of async JSON parser fed by `ByteBufferFeeder`
+ (requested by Arjen P)
+ (contributed by @pjfanning)
 #577: Improve performance of floating-point number parsing
  (contributed by @pjfanning)
 #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"

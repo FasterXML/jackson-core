@@ -2,42 +2,50 @@ package tools.jackson.core.json.async;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 
-import tools.jackson.core.*;
-import tools.jackson.core.async.ByteArrayFeeder;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.async.ByteBufferFeeder;
+import tools.jackson.core.async.NonBlockingInputFeeder;
 import tools.jackson.core.io.IOContext;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 
 /**
  * Non-blocking parser implementation for JSON content that takes its input
- * via {@code byte[]} passed.
+ * via {@link java.nio.ByteBuffer} instance(s) passed.
  *<p>
  * NOTE: only supports parsing of UTF-8 encoded content (and 7-bit US-ASCII since
  * it is strict subset of UTF-8): other encodings are not supported.
  */
-public class NonBlockingJsonParser
-    extends NonBlockingUtf8JsonParserBase
-    implements ByteArrayFeeder
+public class NonBlockingByteBufferJsonParser
+        extends NonBlockingUtf8JsonParserBase
+        implements ByteBufferFeeder
 {
-    private byte[] _inputBuffer = NO_BYTES;
+    private ByteBuffer _inputBuffer = ByteBuffer.wrap(NO_BYTES);
 
-    public NonBlockingJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+    public NonBlockingByteBufferJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int stdFeatures, int formatReadFeatures, ByteQuadsCanonicalizer sym) {
         super(readCtxt, ctxt, stdFeatures, formatReadFeatures, sym);
     }
 
     @Override
-    public ByteArrayFeeder nonBlockingInputFeeder() {
+    public NonBlockingInputFeeder nonBlockingInputFeeder() {
         return this;
     }
 
     @Override
-    public void feedInput(final byte[] buf, final int start, final int end) throws JacksonException
-    {
+    public void feedInput(final ByteBuffer byteBuffer) throws JacksonException {
         // Must not have remaining input
         if (_inputPtr < _inputEnd) {
             _reportError("Still have %d undecoded bytes, should not call 'feedInput'", _inputEnd - _inputPtr);
         }
+
+        final int start = byteBuffer.position();
+        final int end = byteBuffer.limit();
+
         if (end < start) {
             _reportError("Input end (%d) may not be before start (%d)", end, start);
         }
@@ -53,7 +61,7 @@ public class NonBlockingJsonParser
 
         // And then update buffer settings
         _currBufferStart = start;
-        _inputBuffer = buf;
+        _inputBuffer = byteBuffer;
         _inputPtr = start;
         _inputEnd = end;
         _origBufferLen = end - start;
@@ -63,8 +71,9 @@ public class NonBlockingJsonParser
     public int releaseBuffered(final OutputStream out) throws JacksonException {
         final int avail = _inputEnd - _inputPtr;
         if (avail > 0) {
+            final WritableByteChannel channel = Channels.newChannel(out);
             try {
-                out.write(_inputBuffer, _inputPtr, avail);
+                channel.write(_inputBuffer);
             } catch (IOException e) {
                 throw _wrapIOFailure(e);
             }
@@ -74,16 +83,16 @@ public class NonBlockingJsonParser
 
     @Override
     protected byte getNextSignedByteFromBuffer() {
-        return _inputBuffer[_inputPtr++];
+        return _inputBuffer.get(_inputPtr++);
     }
 
     @Override
     protected int getNextUnsignedByteFromBuffer() {
-        return _inputBuffer[_inputPtr++] & 0xFF;
+        return _inputBuffer.get(_inputPtr++) & 0xFF;
     }
 
     @Override
     protected byte getByteFromBuffer(final int ptr) {
-        return _inputBuffer[ptr];
+        return _inputBuffer.get(ptr);
     }
 }

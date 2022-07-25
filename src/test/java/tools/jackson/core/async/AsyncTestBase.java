@@ -3,8 +3,10 @@ package tools.jackson.core.async;
 import java.nio.charset.StandardCharsets;
 
 import tools.jackson.core.*;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 import tools.jackson.core.testsupport.AsyncReaderWrapperForByteArray;
+import tools.jackson.core.testsupport.AsyncReaderWrapperForByteBuffer;
 
 public abstract class AsyncTestBase extends BaseTest
 {
@@ -20,6 +22,15 @@ public abstract class AsyncTestBase extends BaseTest
             byte[] bytes, int padding)
     {
         return new AsyncReaderWrapperForByteArray(f.createNonBlockingByteArrayParser(ObjectReadContext.empty()),
+                bytesPerRead, bytes, padding);
+    }
+
+    public static AsyncReaderWrapper asyncForByteBuffer(JsonFactory f,
+                                                        int bytesPerRead,
+                                                        byte[] bytes, int padding)
+        throws JacksonException
+    {
+        return new AsyncReaderWrapperForByteBuffer(f.createNonBlockingByteBufferParser(ObjectReadContext.empty()),
                 bytesPerRead, bytes, padding);
     }
 

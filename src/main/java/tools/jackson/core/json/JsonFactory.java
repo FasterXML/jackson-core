@@ -12,6 +12,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.base.TextualTSFactory;
 import tools.jackson.core.io.*;
 import tools.jackson.core.json.async.NonBlockingJsonParser;
+import tools.jackson.core.json.async.NonBlockingByteBufferJsonParser;
 import tools.jackson.core.sym.BinaryNameMatcher;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
 import tools.jackson.core.sym.CharsToNameCanonicalizer;
@@ -328,7 +329,6 @@ public class JsonFactory
 
     @Override
     public JsonParser createNonBlockingByteArrayParser(ObjectReadContext readCtxt)
-            throws JacksonException
     {
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
@@ -338,10 +338,21 @@ public class JsonFactory
                 can);
     }
 
+    @Override
+    public JsonParser createNonBlockingByteBufferParser(ObjectReadContext readCtxt)
+    {
+        IOContext ioCtxt = _createNonBlockingContext(null);
+        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
+        return new NonBlockingByteBufferJsonParser(readCtxt, ioCtxt,
+                readCtxt.getStreamReadFeatures(_streamReadFeatures),
+                readCtxt.getFormatReadFeatures(_formatReadFeatures),
+                can);
+    }
+
     protected IOContext _createNonBlockingContext(Object srcRef) {
         return new IOContext(_getBufferRecycler(),
                 ContentReference.rawReference(srcRef), false);
-    }    
+    }
 
     /*
     /**********************************************************************

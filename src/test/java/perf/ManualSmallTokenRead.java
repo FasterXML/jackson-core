@@ -7,7 +7,7 @@ import tools.jackson.core.json.JsonFactory;
  * Manually run micro-benchmark for checking performance of tokenizing
  * simple tokens (false, true, null).
  */
-public class ManualSmallTokenRead extends ParserTestBase
+public class ManualSmallTokenRead extends ManualPerfTestBase
 {
     protected final JsonFactory _factory;
     

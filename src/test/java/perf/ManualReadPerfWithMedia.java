@@ -3,7 +3,7 @@ package perf;
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
-public class ManualReadPerfWithMedia extends ParserTestBase
+public class ManualReadPerfWithMedia extends ManualPerfTestBase
 {
     protected final JsonFactory _factory;
     

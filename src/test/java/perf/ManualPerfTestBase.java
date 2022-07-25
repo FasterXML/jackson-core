@@ -1,6 +1,6 @@
 package perf;
 
-abstract class ParserTestBase
+abstract class ManualPerfTestBase
 {
     protected int hash;
 

@@ -1534,10 +1534,21 @@ public abstract class NonBlockingUtf8JsonParserBase
                     }
                     return _finishNumberLeadingPosZeroes();
                 }
+            } else if (ch == INT_PERIOD && isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                if (negative) {
+                    _inputPtr--;
+                    return _finishNumberLeadingNegZeroes();
+                } else {
+                    if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                        _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+                    }
+                    _inputPtr--;
+                    return _finishNumberLeadingPosZeroes();
+                }
             }
             final String message = negative ?
-                "expected digit (0-9) to follow minus sign, for valid numeric value" :
-                "expected digit (0-9) for valid numeric value";
+                    "expected digit (0-9) to follow minus sign, for valid numeric value" :
+                    "expected digit (0-9) for valid numeric value";
             _reportUnexpectedNumberChar(ch, message);
         } else if (ch > INT_9) {
             if (ch == 'I') {

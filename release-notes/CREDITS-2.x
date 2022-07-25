@@ -192,6 +192,8 @@ Sam Smith (Oracle Security Researcher)
 Philippe Marschall (marschall@github)
   * Requested #480: `SerializableString` value can not directly render to Writer
   (2.10.0)
+  * Contributed #798: Avoid copy when parsing `BigDecimal`
+  (2.14.0)
 
 David Nault (dnault@github)
   * Reported #531: Non-blocking parser reports incorrect locations when fed with

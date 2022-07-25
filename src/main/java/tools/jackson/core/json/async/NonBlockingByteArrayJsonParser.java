@@ -15,13 +15,13 @@ import tools.jackson.core.sym.ByteQuadsCanonicalizer;
  * NOTE: only supports parsing of UTF-8 encoded content (and 7-bit US-ASCII since
  * it is strict subset of UTF-8): other encodings are not supported.
  */
-public class NonBlockingJsonParser
+public class NonBlockingByteArrayJsonParser
     extends NonBlockingUtf8JsonParserBase
     implements ByteArrayFeeder
 {
     private byte[] _inputBuffer = NO_BYTES;
 
-    public NonBlockingJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
+    public NonBlockingByteArrayJsonParser(ObjectReadContext readCtxt, IOContext ctxt,
             int stdFeatures, int formatReadFeatures, ByteQuadsCanonicalizer sym) {
         super(readCtxt, ctxt, stdFeatures, formatReadFeatures, sym);
     }

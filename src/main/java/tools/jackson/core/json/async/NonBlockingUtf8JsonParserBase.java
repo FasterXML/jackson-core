@@ -143,9 +143,9 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MAJOR_ROOT:
             return _startValue(ch);
 
-        case MAJOR_OBJECT_PROPERTY_FIRST: // expect field-name or end-object
+        case MAJOR_OBJECT_PROPERTY_FIRST: // expect property-name or end-object
             return _startName(ch);
-        case MAJOR_OBJECT_PROPERTY_NEXT: // expect comma + field-name or end-object
+        case MAJOR_OBJECT_PROPERTY_NEXT: // expect comma + property-name or end-object
             return _startNameAfterComma(ch);
 
         case MAJOR_OBJECT_VALUE: // expect colon, followed by value
@@ -202,11 +202,11 @@ public abstract class NonBlockingUtf8JsonParserBase
         case MINOR_PROPERTY_LEADING_COMMA:
             return _startNameAfterComma(getNextUnsignedByteFromBuffer());
 
-        // Field name states
+        // Property name states
         case MINOR_PROPERTY_NAME:
             return _parseEscapedName(_quadLength,  _pending32, _pendingBytes);
         case MINOR_PROPERTY_NAME_ESCAPE:
-            return _finishFieldWithEscape();
+            return _finishPropertyWithEscape();
         case MINOR_PROPERTY_APOS_NAME:
             return _finishAposName(_quadLength,  _pending32, _pendingBytes);
         case MINOR_PROPERTY_UNQUOTED_NAME:
@@ -2376,7 +2376,7 @@ public abstract class NonBlockingUtf8JsonParserBase
         return _fieldComplete(name);
     }
 
-    protected final JsonToken _finishFieldWithEscape() throws JacksonException
+    protected final JsonToken _finishPropertyWithEscape() throws JacksonException
     {
         // First: try finishing what wasn't yet:
         int ch = _decodeSplitEscaped(_quoted32, _quotedDigits);

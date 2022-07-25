@@ -11,7 +11,7 @@ import java.util.Locale;
 import tools.jackson.core.*;
 import tools.jackson.core.base.TextualTSFactory;
 import tools.jackson.core.io.*;
-import tools.jackson.core.json.async.NonBlockingJsonParser;
+import tools.jackson.core.json.async.NonBlockingByteArrayJsonParser;
 import tools.jackson.core.json.async.NonBlockingByteBufferJsonParser;
 import tools.jackson.core.sym.BinaryNameMatcher;
 import tools.jackson.core.sym.ByteQuadsCanonicalizer;
@@ -332,7 +332,7 @@ public class JsonFactory
     {
         IOContext ioCtxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
-        return new NonBlockingJsonParser(readCtxt, ioCtxt,
+        return new NonBlockingByteArrayJsonParser(readCtxt, ioCtxt,
                 readCtxt.getStreamReadFeatures(_streamReadFeatures),
                 readCtxt.getFormatReadFeatures(_formatReadFeatures),
                 can);

@@ -93,7 +93,7 @@ public class MinimalPrettyPrinter
      * colon to separate the two, without additional spaces.
      */
     @Override
-    public void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException
+    public void writeObjectNameValueSeparator(JsonGenerator g) throws JacksonException
     {
         g.writeRaw(_separators.getObjectNameValueSeparator());
     }

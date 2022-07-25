@@ -103,14 +103,14 @@ public class JsonReadFeaturesTest
         JsonFactory f = streamFactoryBuilder()
                 .configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS, true)
                 .build();
-        String FIELD = "a\tb";
+        String PROP_NAME = "a\tb";
         String VALUE = "\t";
-        String JSON = "{ "+quote(FIELD)+" : "+quote(VALUE)+"}";
+        String JSON = "{ "+q(PROP_NAME)+" : "+q(VALUE)+"}";
         JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        assertEquals(FIELD, p.getText());
+        assertEquals(PROP_NAME, p.getText());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(VALUE, p.getText());
         assertToken(JsonToken.END_OBJECT, p.nextToken());

@@ -2522,7 +2522,7 @@ public class UTF8StreamJsonParser
         int currQuad = 0;
         int currQuadBytes = 0;
 
-        // Copied from parseEscapedFieldName, with minor mods:
+        // Copied from parseEscapedName, with minor mods:
 
         final int[] codes = _icLatin1;
 

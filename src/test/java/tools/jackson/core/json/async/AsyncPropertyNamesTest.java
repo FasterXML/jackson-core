@@ -8,7 +8,7 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.testsupport.AsyncReaderWrapper;
 
-public class AsyncFieldNamesTest extends AsyncTestBase
+public class AsyncPropertyNamesTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
@@ -17,18 +17,18 @@ public class AsyncFieldNamesTest extends AsyncTestBase
             .build();
 
     // Mainly to test "fast" parse for shortish names
-    public void testSimpleFieldNames() throws IOException
+    public void testSimpleNames() throws IOException
     {
         for (String name : new String[] { "", "a", "ab", "abc", "abcd",
                 "abcd1", "abcd12", "abcd123", "abcd1234",
                 "abcd1234a",  "abcd1234ab",  "abcd1234abc",  "abcd1234abcd",
                 "abcd1234abcd1"
             }) {
-            _testSimpleFieldName(name);
+            _testSimpleName(name);
         }
     }
 
-    private void _testSimpleFieldName(String fieldName) throws IOException
+    private void _testSimpleName(String fieldName) throws IOException
     {
         // use long buffer to ensure fast decoding may be used
         AsyncReaderWrapper r = asyncForBytes(JSON_F, 99,
@@ -46,24 +46,24 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         assertEquals(1, loc.getColumnNr());
     }
 
-    public void testEscapedFieldNames() throws IOException
+    public void testEscapedNames() throws IOException
     {
-        _testEscapedFieldNames("\\'foo\\'", "'foo'");
-        _testEscapedFieldNames("\\'foobar\\'", "'foobar'");
-        _testEscapedFieldNames("\\'foo \\u0026 bar\\'", "'foo & bar'");
-        _testEscapedFieldNames("Something \\'longer\\'?", "Something 'longer'?");
-        _testEscapedFieldNames("\\u00A7", "\u00A7");
-        _testEscapedFieldNames("\\u4567", "\u4567");
-        _testEscapedFieldNames("Unicode: \\u00A7 and \\u4567?", "Unicode: \u00A7 and \u4567?");
+        _testEscapedNames("\\'foo\\'", "'foo'");
+        _testEscapedNames("\\'foobar\\'", "'foobar'");
+        _testEscapedNames("\\'foo \\u0026 bar\\'", "'foo & bar'");
+        _testEscapedNames("Something \\'longer\\'?", "Something 'longer'?");
+        _testEscapedNames("\\u00A7", "\u00A7");
+        _testEscapedNames("\\u4567", "\u4567");
+        _testEscapedNames("Unicode: \\u00A7 and \\u4567?", "Unicode: \u00A7 and \u4567?");
     }
 
-    private void _testEscapedFieldNames(String nameEncoded, String nameExp) throws IOException
+    private void _testEscapedNames(String nameEncoded, String nameExp) throws IOException
     {
         byte[] doc;
         StringWriter w;
 
-        nameEncoded = aposToQuotes(nameEncoded);
-        nameExp = aposToQuotes(nameExp);
+        nameEncoded = a2q(nameEncoded);
+        nameExp = a2q(nameExp);
 
         w = new StringWriter();
         w.append("{\"");

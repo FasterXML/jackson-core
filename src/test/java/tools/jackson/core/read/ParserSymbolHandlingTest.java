@@ -72,10 +72,10 @@ public class ParserSymbolHandlingTest
 
     private void _testSymbolsWithNullOnlyNameBytes(JsonFactory f, boolean useBytes) throws Exception
     {
-        final String FIELD1 = "\u0000";
-        final String FIELD2 = FIELD1 + FIELD1;
-        final String FIELD3 = FIELD2 + FIELD1;
-        final String FIELD4 = FIELD3 + FIELD1;
+        final String NAME_1 = "\u0000";
+        final String NAME_2 = NAME_1 + NAME_1;
+        final String NAME_3 = NAME_2 + NAME_1;
+        final String NAME_4 = NAME_3 + NAME_1;
         final String QUOTED_NULL = "\\u0000";
 
         final String INPUT = a2q(String.format("{'%s':1, '%s':2, '%s':3, '%s':4}",
@@ -89,22 +89,22 @@ public class ParserSymbolHandlingTest
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(FIELD1, p.currentName());
+        _assertNullStrings(NAME_1, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(1, p.getIntValue());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(FIELD2, p.currentName());
+        _assertNullStrings(NAME_2, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(2, p.getIntValue());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(FIELD3, p.currentName());
+        _assertNullStrings(NAME_3, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(3, p.getIntValue());
 
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
-        _assertNullStrings(FIELD4, p.currentName());
+        _assertNullStrings(NAME_4, p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(4, p.getIntValue());
 

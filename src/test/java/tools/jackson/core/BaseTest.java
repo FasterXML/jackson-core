@@ -521,6 +521,7 @@ public abstract class BaseTest
     /**********************************************************************
      */
 
+    @Deprecated
     protected static String quote(String str) {
         return q(str);
     }
@@ -529,6 +530,7 @@ public abstract class BaseTest
         return '"'+str+'"';
     }
 
+    @Deprecated
     protected static String aposToQuotes(String json) {
         return a2q(json);
     }

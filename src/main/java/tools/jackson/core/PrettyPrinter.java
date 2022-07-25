@@ -126,7 +126,7 @@ public interface PrettyPrinter
      * @throws WrappedIOException if there is an underlying I/O problem
      * @throws StreamWriteException for problems in encoding token stream
      */
-    void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException;
+    void writeObjectNameValueSeparator(JsonGenerator g) throws JacksonException;
 
     // // // Array handling
 

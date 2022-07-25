@@ -25,14 +25,14 @@ public class Separators implements Serializable
         this(':', ',', ',');
     }
 
-    public Separators(char objectFieldValueSeparator,
+    public Separators(char objectNameValueSeparator,
             char objectEntrySeparator, char arrayValueSeparator) {
-        _objectNameValueSeparator = objectFieldValueSeparator;
+        _objectNameValueSeparator = objectNameValueSeparator;
         _objectEntrySeparator = objectEntrySeparator;
         _arrayElementSeparator = arrayValueSeparator;
     }
-    
-    public Separators withObjectFieldValueSeparator(char sep) {
+
+    public Separators withObjectNameValueSeparator(char sep) {
         return (_objectNameValueSeparator == sep) ? this
                 : new Separators(sep, _objectEntrySeparator, _arrayElementSeparator);
     }

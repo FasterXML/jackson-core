@@ -254,7 +254,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
             _cfgPrettyPrinter.writeArrayValueSeparator(this);
             break;
         case JsonWriteContext.STATUS_OK_AFTER_COLON:
-            _cfgPrettyPrinter.writeObjectFieldValueSeparator(this);
+            _cfgPrettyPrinter.writeObjectNameValueSeparator(this);
             break;
         case JsonWriteContext.STATUS_OK_AFTER_SPACE:
             _cfgPrettyPrinter.writeRootValueSeparator(this);

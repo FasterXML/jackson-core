@@ -10,9 +10,9 @@ public class JsonPointerParserFilteringTest extends tools.jackson.core.BaseTest
 {
     private final JsonFactory JSON_F = new JsonFactory();
 
-    final String SIMPLEST_INPUT = aposToQuotes("{'a':1,'b':2,'c':3}");
+    final String SIMPLEST_INPUT = a2q("{'a':1,'b':2,'c':3}");
 
-    final String SIMPLE_INPUT = aposToQuotes("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
+    final String SIMPLE_INPUT = a2q("{'a':1,'b':[1,2,3],'c':{'d':{'a':true}},'d':null}");
 
     public void testSimplestWithPath() throws Exception
     {
@@ -80,6 +80,6 @@ public class JsonPointerParserFilteringTest extends tools.jackson.core.BaseTest
             throw e;
         }
 
-        assertEquals(aposToQuotes(exp), w.toString());
+        assertEquals(a2q(exp), w.toString());
     }
 }

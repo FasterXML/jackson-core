@@ -171,7 +171,7 @@ public class PrettyPrinterTest
             @Override
             public PrettyPrinter getPrettyPrinter() {
                 return new MinimalPrettyPrinter().setSeparators(Separators.createDefaultInstance()
-                        .withObjectFieldValueSeparator('=')
+                        .withObjectNameValueSeparator('=')
                         .withObjectEntrySeparator(';')
                         .withArrayValueSeparator('|'));
             }
@@ -197,7 +197,7 @@ public class PrettyPrinterTest
             @Override
             public PrettyPrinter getPrettyPrinter() {
                 return new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
-                        .withObjectFieldValueSeparator('=')
+                        .withObjectNameValueSeparator('=')
                         .withObjectEntrySeparator(';')
                         .withArrayValueSeparator('|'));
             }
@@ -219,7 +219,7 @@ public class PrettyPrinterTest
             @Override
             public PrettyPrinter getPrettyPrinter() {
                 return new DefaultPrettyPrinter().withSeparators(Separators.createDefaultInstance()
-                        .withObjectFieldValueSeparator('=')
+                        .withObjectNameValueSeparator('=')
                         .withObjectEntrySeparator(';')
                         .withArrayValueSeparator('|'))
                     .withoutSpacesInObjectEntries();

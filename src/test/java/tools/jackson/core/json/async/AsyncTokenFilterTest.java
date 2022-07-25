@@ -13,7 +13,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
 {
     private final JsonFactory JSON_F = newStreamFactory();
 
-    private final static String INPUT_STRING = aposToQuotes("{'a': 1, 'b': [2, {'c': 3}]}");
+    private final static String INPUT_STRING = a2q("{'a': 1, 'b': [2, {'c': 3}]}");
     private final static byte[] INPUT_BYTES = utf8Bytes(INPUT_STRING);
     private final static TokenFilter TOKEN_FILTER = new TokenFilter() {
         @Override
@@ -25,7 +25,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
     // Passes if (but only if) all content is actually available
     public void testFilteredNonBlockingParserAllContent()
     {
-        NonBlockingJsonParser nbParser = _nonBlockingParser();
+        NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
                 TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
         nbParser.feedInput(INPUT_BYTES, 0, INPUT_BYTES.length);
@@ -43,7 +43,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
 
     public void testSkipChildrenFailOnSplit()
     {
-        NonBlockingJsonParser nbParser = _nonBlockingParser();
+        NonBlockingByteArrayJsonParser nbParser = _nonBlockingParser();
         FilteringParserDelegate filteredParser = new FilteringParserDelegate(nbParser,
                 TOKEN_FILTER, Inclusion.INCLUDE_ALL_AND_PATH, true);
         nbParser.feedInput(INPUT_BYTES, 0, 5);
@@ -60,7 +60,7 @@ public class AsyncTokenFilterTest extends AsyncTestBase
         nbParser.close();
     }
 
-    private NonBlockingJsonParser _nonBlockingParser() {
-        return (NonBlockingJsonParser) JSON_F.createNonBlockingByteArrayParser(ObjectReadContext.empty());
+    private NonBlockingByteArrayJsonParser _nonBlockingParser() {
+        return (NonBlockingByteArrayJsonParser) JSON_F.createNonBlockingByteArrayParser(ObjectReadContext.empty());
     }
 }

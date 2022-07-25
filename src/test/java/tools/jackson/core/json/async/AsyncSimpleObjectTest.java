@@ -28,7 +28,7 @@ public class AsyncSimpleObjectTest extends AsyncTestBase
     public void testBooleans()
     {
         final JsonFactory f = JSON_F;
-        byte[] data = _jsonDoc(aposToQuotes(
+        byte[] data = _jsonDoc(a2q(
 "{ 'a':true, 'b':false, 'acdc':true, '"+UNICODE_SHORT_NAME+"':true, 'a1234567':false,"
 +"'"+UNICODE_LONG_NAME+"':   true }"));
         // first, no offsets

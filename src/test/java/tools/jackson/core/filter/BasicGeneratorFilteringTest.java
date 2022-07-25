@@ -247,7 +247,7 @@ public class BasicGeneratorFilteringTest extends BaseTest
         assertEquals(1, gen.getMatchCount());
     }
 
-    // Alternative take, using slightly different calls for FIELD_NAME, START_ARRAY
+    // Alternative take, using slightly different calls for PROPERTY_NAME, START_ARRAY
     public void testSingleMatchFilteringWithPathAlternate1() throws Exception {
         _testSingleMatchFilteringWithPathAlternate1(false);
         _testSingleMatchFilteringWithPathAlternate1(true);

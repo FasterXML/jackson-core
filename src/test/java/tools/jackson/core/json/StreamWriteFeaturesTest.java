@@ -113,7 +113,7 @@ public class StreamWriteFeaturesTest
         JsonGenerator g = f.createGenerator(ObjectWriteContext.empty(), sw);
         g.writeNumber(ENG);
         g.close();
-        assertEquals(quote("100"), sw.toString());
+        assertEquals(q("100"), sw.toString());
 
         // also, as bytes
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -121,7 +121,7 @@ public class StreamWriteFeaturesTest
         g.writeNumber(ENG);
         g.close();
         try {
-            assertEquals(quote("100"), bos.toString("UTF-8"));
+            assertEquals(q("100"), bos.toString("UTF-8"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

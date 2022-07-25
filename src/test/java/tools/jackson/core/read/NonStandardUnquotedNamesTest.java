@@ -8,7 +8,7 @@ import tools.jackson.core.json.JsonReadFeature;
 public class NonStandardUnquotedNamesTest
     extends tools.jackson.core.BaseTest
 {
-    private final JsonFactory UNQUOTED_FIELDS_F = JsonFactory.builder()
+    private final JsonFactory UNQUOTED_NAMES_F = JsonFactory.builder()
             .enable(JsonReadFeature.ALLOW_UNQUOTED_PROPERTY_NAMES)
             .build();
 
@@ -42,7 +42,7 @@ public class NonStandardUnquotedNamesTest
         fullChars[3999] = 'a';
         fullChars[4000] = 256;
 
-        JsonParser p = UNQUOTED_FIELDS_F.createParser(ObjectReadContext.empty(),
+        JsonParser p = UNQUOTED_NAMES_F.createParser(ObjectReadContext.empty(),
                 new java.io.StringReader(new String(fullChars)));
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         try {
@@ -73,7 +73,7 @@ public class NonStandardUnquotedNamesTest
         String JSON = "{ @type : \"mytype\", #color : 123, *error* : true, "
             +" hyphen-ated : \"yes\", me+my : null"
             +"}";
-        JsonParser p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
+        JsonParser p = createParser(UNQUOTED_NAMES_F, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
 
@@ -124,7 +124,7 @@ public class NonStandardUnquotedNamesTest
         }
         sb.append("]");
         String JSON = sb.toString();
-        JsonParser p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
+        JsonParser p = createParser(UNQUOTED_NAMES_F, mode, JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         for (int i = 0; i < REPS; ++i) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -140,7 +140,7 @@ public class NonStandardUnquotedNamesTest
     private void _testSimpleUnquoted(int mode) throws Exception
     {
         String JSON = "{ a : 1, _foo:true, $:\"money!\", \" \":null }";
-        JsonParser p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
+        JsonParser p = createParser(UNQUOTED_NAMES_F, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
@@ -166,7 +166,7 @@ public class NonStandardUnquotedNamesTest
         // Another thing, as per [Issue#102]: numbers
 
         JSON = "{ 123:true,4:false }";
-        p = createParser(UNQUOTED_FIELDS_F, mode, JSON);
+        p = createParser(UNQUOTED_NAMES_F, mode, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertToken(JsonToken.PROPERTY_NAME, p.nextToken());

@@ -17,7 +17,7 @@ public class TestWithTonsaSymbols
      * assuming the name vocabulary is unbounded), let's do something
      * just slightly below it.
      */
-    final static int FIELD_COUNT = 5000;
+    final static int PROP_COUNT = 5000;
 
     public void testStreamReaderParser() throws Exception {
         _testWith(true);
@@ -37,7 +37,7 @@ public class TestWithTonsaSymbols
         throws Exception
     {
         JsonFactory f = new JsonFactory();
-        String doc = buildDoc(FIELD_COUNT);
+        String doc = buildDoc(PROP_COUNT);
 
         // And let's do this multiple times: just so that symbol table
         // state is different between runs.
@@ -46,7 +46,7 @@ public class TestWithTonsaSymbols
                 f.createParser(ObjectReadContext.empty(), new ByteArrayInputStream(doc.getBytes("UTF-8")))
                 : f.createParser(ObjectReadContext.empty(), new StringReader(doc));
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            for (int i = 0; i < FIELD_COUNT; ++i) {
+            for (int i = 0; i < PROP_COUNT; ++i) {
                 assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                 assertEquals(fieldNameFor(i), p.currentName());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());

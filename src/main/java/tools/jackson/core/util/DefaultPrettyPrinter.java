@@ -81,7 +81,7 @@ public class DefaultPrettyPrinter
 
     protected Separators _separators;
 
-    protected String _objectFieldValueSeparatorWithSpaces;
+    protected String _nameValueSeparatorWithSpaces;
 
     /*
     /**********************************************************************
@@ -130,7 +130,7 @@ public class DefaultPrettyPrinter
         _nesting = base._nesting;
 
         _separators = base._separators;
-        _objectFieldValueSeparatorWithSpaces = base._objectFieldValueSeparatorWithSpaces;
+        _nameValueSeparatorWithSpaces = base._nameValueSeparatorWithSpaces;
 
         _rootSeparator = rootSeparator;
     }
@@ -228,7 +228,7 @@ public class DefaultPrettyPrinter
      */
     public DefaultPrettyPrinter withSeparators(Separators separators) {
         _separators = separators;
-        _objectFieldValueSeparatorWithSpaces = " " + separators.getObjectNameValueSeparator() + " ";
+        _nameValueSeparatorWithSpaces = " " + separators.getObjectNameValueSeparator() + " ";
         return this;
     }
 
@@ -286,10 +286,10 @@ public class DefaultPrettyPrinter
      * (white-space) decoration.
      */
     @Override
-    public void writeObjectFieldValueSeparator(JsonGenerator g) throws JacksonException
+    public void writeObjectNameValueSeparator(JsonGenerator g) throws JacksonException
     {
         if (_spacesInObjectEntries) {
-            g.writeRaw(_objectFieldValueSeparatorWithSpaces);
+            g.writeRaw(_nameValueSeparatorWithSpaces);
         } else {
             g.writeRaw(_separators.getObjectNameValueSeparator());
         }

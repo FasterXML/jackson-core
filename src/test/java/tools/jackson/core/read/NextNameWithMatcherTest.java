@@ -18,17 +18,17 @@ public class NextNameWithMatcherTest
     private final List<String> NAMES_1 = Arrays.asList("enabled", "a", "longerName", "otherStuff3");
     private final List<String> NAMES_1_CASE_MISMATCH = Arrays.asList("ENABLED", "A", "LongerName", "otherStuff3");
 
-    private final List<Named> FIELDS_1 = namedFromStrings(NAMES_1);
+    private final List<Named> NAMED_LIST_1 = namedFromStrings(NAMES_1);
 
-    private final PropertyNameMatcher MATCHER_CS_1 = JSON_F.constructNameMatcher(FIELDS_1, true);
-    private final PropertyNameMatcher MATCHER_CI_1 = JSON_F.constructCINameMatcher(FIELDS_1, true,
+    private final PropertyNameMatcher MATCHER_CS_1 = JSON_F.constructNameMatcher(NAMED_LIST_1, true);
+    private final PropertyNameMatcher MATCHER_CI_1 = JSON_F.constructCINameMatcher(NAMED_LIST_1, true,
             new Locale("en", "US"));
 
-    private final String DOC_1 = aposToQuotes(
+    private final String DOC_1 = a2q(
             "{ 'a' : 4, 'enabled' : true, 'longerName' : 'Billy-Bob Burger', 'extra' : [ 0], 'otherStuff3' : 0.25 }"
             );
     
-    private final String DOC_1_CASE_MISMATCH = aposToQuotes(
+    private final String DOC_1_CASE_MISMATCH = a2q(
             "{ 'A' : 4, 'ENABLED' : true, 'LongerName' : 'Billy-Bob Burger', 'extra' : [0 ], 'otherStuff3' : 0.25 }");
 
     public void testSimpleCaseSensitive() throws Exception

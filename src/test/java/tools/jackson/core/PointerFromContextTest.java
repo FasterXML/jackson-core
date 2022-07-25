@@ -16,7 +16,7 @@ public class PointerFromContextTest extends BaseTest
 
     public void testViaParser() throws Exception
     {
-        final String SIMPLE = aposToQuotes("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
+        final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
                 +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), SIMPLE);
 
@@ -145,7 +145,7 @@ public class PointerFromContextTest extends BaseTest
 
     public void testParserWithRoot() throws Exception
     {
-        final String JSON = aposToQuotes("{'a':1,'b':3}\n"
+        final String JSON = a2q("{'a':1,'b':3}\n"
                 +"{'a':5,'c':[1,2]}\n[1,2]\n");
         JsonParser p = JSON_F.createParser(ObjectReadContext.empty(), JSON);
         // before pointing to anything, we have no path to point to

@@ -50,14 +50,14 @@ public class SeparatorsTest {
   @Test
   public void testWithObjectFieldValueSeparatorWithDigit() {
     Separators separators = new Separators('5', '5', '5');
-    Separators separatorsTwo = separators.withObjectFieldValueSeparator('5');
+    Separators separatorsTwo = separators.withObjectNameValueSeparator('5');
 
     assertEquals('5', separatorsTwo.getArrayValueSeparator());
     assertSame(separatorsTwo, separators);
     assertEquals('5', separatorsTwo.getObjectEntrySeparator());
     assertEquals('5', separatorsTwo.getObjectNameValueSeparator());
 
-    separatorsTwo = separators.withObjectFieldValueSeparator('6');
+    separatorsTwo = separators.withObjectNameValueSeparator('6');
 
     assertEquals('5', separatorsTwo.getArrayValueSeparator());
     assertNotSame(separatorsTwo, separators);

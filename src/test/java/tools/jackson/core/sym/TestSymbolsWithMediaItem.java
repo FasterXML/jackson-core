@@ -7,7 +7,7 @@ import tools.jackson.core.json.JsonFactory;
 
 public class TestSymbolsWithMediaItem extends tools.jackson.core.BaseTest
 {
-    private final String JSON = aposToQuotes(
+    private final String JSON = a2q(
             "{'media' : {\n"
             +"      'uri' : 'http://foo.com',"
             +"      'title' : 'Test title 1',"

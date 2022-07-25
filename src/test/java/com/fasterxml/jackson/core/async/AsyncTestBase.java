@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapper;
 import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapperForByteArray;
+import com.fasterxml.jackson.core.testsupport.AsyncReaderWrapperForByteBuffer;
 
 public abstract class AsyncTestBase extends BaseTest
 {
@@ -20,6 +21,14 @@ public abstract class AsyncTestBase extends BaseTest
             byte[] bytes, int padding) throws IOException
     {
         return new AsyncReaderWrapperForByteArray(f.createNonBlockingByteArrayParser(),
+                bytesPerRead, bytes, padding);
+    }
+
+    public static AsyncReaderWrapper asyncForByteBuffer(JsonFactory f,
+                                                        int bytesPerRead,
+                                                        byte[] bytes, int padding) throws IOException
+    {
+        return new AsyncReaderWrapperForByteBuffer(f.createNonBlockingByteBufferParser(),
                 bytesPerRead, bytes, padding);
     }
 

@@ -154,7 +154,41 @@ public abstract class TokenStreamFactory
     public abstract JsonParser createParser(String content) throws IOException;
     public abstract JsonParser createParser(URL url) throws IOException;
 
+    /**
+     * Optional method for constructing parser for non-blocking parsing
+     * via {@link com.fasterxml.jackson.core.async.ByteArrayFeeder}
+     * interface (accessed using {@link JsonParser#getNonBlockingInputFeeder()}
+     * from constructed instance).
+     *<p>
+     * If this factory does not support non-blocking parsing (either at all,
+     * or from byte array),
+     * will throw {@link UnsupportedOperationException}.
+     *<p>
+     * Note that JSON-backed factory only supports parsing of UTF-8 encoded JSON content
+     * (and US-ASCII since it is proper subset); other encodings are not supported
+     * at this point.
+     *
+     * @since 2.9
+     */
     public abstract JsonParser createNonBlockingByteArrayParser() throws IOException;
+
+    /**
+     * Optional method for constructing parser for non-blocking parsing
+     * via {@link com.fasterxml.jackson.core.async.ByteBufferFeeder}
+     * interface (accessed using {@link JsonParser#getNonBlockingInputFeeder()}
+     * from constructed instance).
+     *<p>
+     * If this factory does not support non-blocking parsing (either at all,
+     * or from byte array),
+     * will throw {@link UnsupportedOperationException}.
+     *<p>
+     * Note that JSON-backed factory only supports parsing of UTF-8 encoded JSON content
+     * (and US-ASCII since it is proper subset); other encodings are not supported
+     * at this point.
+     *
+     * @since 2.14
+     */
+    public abstract JsonParser createNonBlockingByteBufferParser() throws IOException;
 
     /*
     /**********************************************************************

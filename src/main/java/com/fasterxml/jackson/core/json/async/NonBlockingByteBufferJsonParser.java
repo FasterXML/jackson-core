@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.core.json.async;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import com.fasterxml.jackson.core.async.ByteArrayFeeder;
+import com.fasterxml.jackson.core.async.ByteBufferFeeder;
+import com.fasterxml.jackson.core.async.NonBlockingInputFeeder;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 
 /**
  * Non-blocking parser implementation for JSON content.
@@ -13,28 +17,32 @@ import com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
  * NOTE: only supports parsing of UTF-8 encoded content (and 7-bit US-ASCII since
  * it is strict subset of UTF-8): other encodings are not supported.
  */
-public class NonBlockingJsonParser
-    extends NonBlockingUtf8JsonParserBase
-    implements ByteArrayFeeder
-{
-    private byte[] _inputBuffer = NO_BYTES;
+public class NonBlockingByteBufferJsonParser
+        extends NonBlockingUtf8JsonParserBase
+        implements ByteBufferFeeder {
 
-    public NonBlockingJsonParser(IOContext ctxt, int parserFeatures,
-                                 ByteQuadsCanonicalizer sym) {
+    private ByteBuffer _inputBuffer = ByteBuffer.wrap(NO_BYTES);
+
+    public NonBlockingByteBufferJsonParser(IOContext ctxt, int parserFeatures,
+                                           ByteQuadsCanonicalizer sym) {
         super(ctxt, parserFeatures, sym);
     }
 
     @Override
-    public ByteArrayFeeder getNonBlockingInputFeeder() {
+    public NonBlockingInputFeeder getNonBlockingInputFeeder() {
         return this;
     }
 
     @Override
-    public void feedInput(final byte[] buf, final int start, final int end) throws IOException {
+    public void feedInput(final ByteBuffer byteBuffer) throws IOException {
         // Must not have remaining input
         if (_inputPtr < _inputEnd) {
             _reportError("Still have %d undecoded bytes, should not call 'feedInput'", _inputEnd - _inputPtr);
         }
+
+        final int start = byteBuffer.position();
+        final int end = byteBuffer.limit();
+
         if (end < start) {
             _reportError("Input end (%d) may not be before start (%d)", end, start);
         }
@@ -50,7 +58,7 @@ public class NonBlockingJsonParser
 
         // And then update buffer settings
         _currBufferStart = start;
-        _inputBuffer = buf;
+        _inputBuffer = byteBuffer;
         _inputPtr = start;
         _inputEnd = end;
         _origBufferLen = end - start;
@@ -60,23 +68,24 @@ public class NonBlockingJsonParser
     public int releaseBuffered(final OutputStream out) throws IOException {
         final int avail = _inputEnd - _inputPtr;
         if (avail > 0) {
-            out.write(_inputBuffer, _inputPtr, avail);
+            final WritableByteChannel channel = Channels.newChannel(out);
+            channel.write(_inputBuffer);
         }
         return avail;
     }
 
     @Override
     protected byte getNextSignedByteFromBuffer() {
-        return _inputBuffer[_inputPtr++];
+        return _inputBuffer.get(_inputPtr++);
     }
 
     @Override
     protected int getNextUnsignedByteFromBuffer() {
-        return _inputBuffer[_inputPtr++] & 0xFF;
+        return _inputBuffer.get(_inputPtr++) & 0xFF;
     }
 
     @Override
     protected byte getByteFromBuffer(final int ptr) {
-        return _inputBuffer[ptr];
+        return _inputBuffer.get(ptr);
     }
 }

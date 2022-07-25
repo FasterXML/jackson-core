@@ -47,6 +47,8 @@ JSON library.
  (contributed by @pjfanning)
 #788: `JsonPointer.empty()` should NOT indicate match of a property
   with key of ""
+#798: Avoid copy when parsing `BigDecimal`
+ (contributed by Philippe M)
 
 2.13.3 (14-May-2022)
 

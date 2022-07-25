@@ -29,13 +29,12 @@ public final class BigDecimalParser
         return parse(valueStr.toCharArray());
     }
 
-    public static BigDecimal parse(char[] chars, int off, int len) {
+    public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
             if (len < 500) {
                 return new BigDecimal(chars, off, len);
             }
-            chars = Arrays.copyOfRange(chars, off, off+len);
-            return parseBigDecimal(chars, len / 10);
+            return parseBigDecimal(chars, off, len, len / 10);
         } catch (NumberFormatException e) {
             String desc = e.getMessage();
             // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:
@@ -58,17 +57,17 @@ public final class BigDecimalParser
         return parse(chars, 0, chars.length);
     }
 
-    private static BigDecimal parseBigDecimal(final char[] chars, final int splitLen) {
+    private static BigDecimal parseBigDecimal(final char[] chars, final int off, final int len, final int splitLen) {
         boolean numHasSign = false;
         boolean expHasSign = false;
         boolean neg = false;
-        int numIdx = 0;
+        int numIdx = off;
         int expIdx = -1;
         int dotIdx = -1;
         int scale = 0;
-        final int len = chars.length;
+        final int endIdx = off + len;
 
-        for (int i = 0; i < len; i++) {
+        for (int i = off; i < endIdx; i++) {
             char c = chars[i];
             switch (c) {
             case '+':
@@ -124,11 +123,11 @@ public final class BigDecimalParser
         int exp = 0;
         if (expIdx >= 0) {
             numEndIdx = expIdx;
-            String expStr = new String(chars, expIdx + 1, len - expIdx - 1);
+            String expStr = new String(chars, expIdx + 1, endIdx - expIdx - 1);
             exp = Integer.parseInt(expStr);
             scale = adjustScale(scale, exp);
         } else {
-            numEndIdx = len;
+            numEndIdx = endIdx;
         }
 
         BigDecimal res;

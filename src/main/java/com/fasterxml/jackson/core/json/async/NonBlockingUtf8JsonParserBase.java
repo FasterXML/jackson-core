@@ -15,6 +15,8 @@ import java.io.IOException;
  *<p>
  * NOTE: only supports parsing of UTF-8 encoded content (and 7-bit US-ASCII since
  * it is strict subset of UTF-8): other encodings are not supported.
+ *
+ * @since 2.9
  */
 public abstract class NonBlockingUtf8JsonParserBase
     extends NonBlockingJsonParserBase

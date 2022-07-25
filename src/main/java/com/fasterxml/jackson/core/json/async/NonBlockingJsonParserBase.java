@@ -14,6 +14,8 @@ import static com.fasterxml.jackson.core.JsonTokenId.*;
 
 /**
  * Intermediate base class for non-blocking JSON parsers.
+ *
+ * @since 2.9
  */
 public abstract class NonBlockingJsonParserBase
     extends ParserBase

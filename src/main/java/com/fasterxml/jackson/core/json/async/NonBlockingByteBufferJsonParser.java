@@ -12,15 +12,18 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 /**
- * Non-blocking parser implementation for JSON content.
+ * Non-blocking parser implementation for JSON content that takes its input
+ * via {@link java.nio.ByteBuffer} instance(s) passed.
  *<p>
  * NOTE: only supports parsing of UTF-8 encoded content (and 7-bit US-ASCII since
  * it is strict subset of UTF-8): other encodings are not supported.
+ *
+ * @since 2.14
  */
 public class NonBlockingByteBufferJsonParser
         extends NonBlockingUtf8JsonParserBase
-        implements ByteBufferFeeder {
-
+        implements ByteBufferFeeder
+{
     private ByteBuffer _inputBuffer = ByteBuffer.wrap(NO_BYTES);
 
     public NonBlockingByteBufferJsonParser(IOContext ctxt, int parserFeatures,

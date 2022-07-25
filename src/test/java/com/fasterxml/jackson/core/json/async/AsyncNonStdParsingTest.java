@@ -361,7 +361,7 @@ public class AsyncNonStdParsingTest extends AsyncTestBase
     {
         // first: verify that we get an exception
         JsonFactory f = new JsonFactory();
-        final String JSON = quote("\\'");
+        final String JSON = q("\\'");
         AsyncReaderWrapper p = createParser(f, JSON, offset, readSize);
         try {      
             p.nextToken();

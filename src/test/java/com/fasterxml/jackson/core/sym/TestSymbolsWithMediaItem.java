@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 
 public class TestSymbolsWithMediaItem extends com.fasterxml.jackson.core.BaseTest
 {
-    private final String JSON = aposToQuotes(
+    private final String JSON = a2q(
             "{'media' : {\n"
             +"      'uri' : 'http://foo.com',"
             +"      'title' : 'Test title 1',"

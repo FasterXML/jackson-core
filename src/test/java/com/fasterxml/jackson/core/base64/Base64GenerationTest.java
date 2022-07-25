@@ -99,13 +99,13 @@ public class Base64GenerationTest
         g = JSON_F.createGenerator(sw);
         g.writeEmbeddedObject(WIKIPEDIA_BASE64_AS_BYTES);
         g.close();
-        assertEquals(quote(WIKIPEDIA_BASE64_ENCODED), sw.toString());
+        assertEquals(q(WIKIPEDIA_BASE64_ENCODED), sw.toString());
 
         ByteArrayOutputStream bytes =  new ByteArrayOutputStream(100);
         g = JSON_F.createGenerator(bytes);
         g.writeEmbeddedObject(WIKIPEDIA_BASE64_AS_BYTES);
         g.close();
-        assertEquals(quote(WIKIPEDIA_BASE64_ENCODED), bytes.toString("UTF-8"));
+        assertEquals(q(WIKIPEDIA_BASE64_ENCODED), bytes.toString("UTF-8"));
     }
 
     /*
@@ -179,7 +179,7 @@ public class Base64GenerationTest
     {
         final byte[] INPUT = TEXT4.getBytes("UTF-8");
         for (Base64Variant variant : VARIANTS) {
-            final String EXP_OUTPUT = "[" + quote(variant.encode(INPUT))+"]";
+            final String EXP_OUTPUT = "[" + q(variant.encode(INPUT))+"]";
             for (boolean passLength : new boolean[] { true, false }) {
                 for (int chunkSize : new int[] { 1, 2, 3, 4, 7, 11, 29, 5000 }) {
 //System.err.println(""+variant+", length "+passLength+", chunk "+chunkSize);

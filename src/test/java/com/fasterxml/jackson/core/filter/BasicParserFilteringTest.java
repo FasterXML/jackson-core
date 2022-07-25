@@ -456,7 +456,7 @@ public class BasicParserFilteringTest extends BaseTest
 
     public void testValueOmitsFieldName1() throws Exception
     {
-        String jsonString = aposToQuotes("{'a':123,'array':[1,2]}");
+        String jsonString = a2q("{'a':123,'array':[1,2]}");
         JsonParser p0 = JSON_F.createParser(jsonString);
         FilteringParserDelegate p = new FilteringParserDelegate(p0,
             new NoArraysFilter(),
@@ -464,7 +464,7 @@ public class BasicParserFilteringTest extends BaseTest
             true // multipleMatches
         );
         String result = readAndWrite(JSON_F, p);
-        assertEquals(aposToQuotes("{'a':123}"), result);
+        assertEquals(a2q("{'a':123}"), result);
         assertEquals(1, p.getMatchCount());
     }
 

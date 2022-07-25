@@ -322,7 +322,7 @@ public class NextXxxAccessTest
 
     private void _textNextText(int mode) throws Exception
     {
-        final String DOC = aposToQuotes("{'a':'123','b':5,'c':[false,'foo']}");
+        final String DOC = a2q("{'a':'123','b':5,'c':[false,'foo']}");
         JsonParser p = createParser(mode, DOC);
         assertNull(p.nextTextValue());
         assertToken(JsonToken.START_OBJECT, p.currentToken());
@@ -357,7 +357,7 @@ public class NextXxxAccessTest
 
     private void _textNextInt(int mode) throws Exception
     {
-        final String DOC = aposToQuotes("{'a':'123','b':5,'c':[false,456]}");
+        final String DOC = a2q("{'a':'123','b':5,'c':[false,456]}");
         JsonParser p = createParser(mode, DOC);
         assertEquals(0, p.nextIntValue(0));
         assertToken(JsonToken.START_OBJECT, p.currentToken());
@@ -393,7 +393,7 @@ public class NextXxxAccessTest
 
     private void _textNextLong(int mode) throws Exception
     {
-        final String DOC = aposToQuotes("{'a':'xyz','b':-59,'c':[false,-1]}");
+        final String DOC = a2q("{'a':'xyz','b':-59,'c':[false,-1]}");
         JsonParser p = createParser(mode, DOC);
         assertEquals(0L, p.nextLongValue(0L));
         assertToken(JsonToken.START_OBJECT, p.currentToken());
@@ -429,7 +429,7 @@ public class NextXxxAccessTest
 
     private void _textNextBoolean(int mode) throws Exception
     {
-        final String DOC = aposToQuotes("{'a':'xyz','b':true,'c':[false,0]}");
+        final String DOC = a2q("{'a':'xyz','b':true,'c':[false,0]}");
         JsonParser p = createParser(mode, DOC);
         assertNull(p.nextBooleanValue());
         assertToken(JsonToken.START_OBJECT, p.currentToken());

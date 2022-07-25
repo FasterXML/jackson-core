@@ -84,7 +84,7 @@ public class Base64BinaryParsingTest
         for (int mode : ALL_MODES) {
 
             // First: illegal padding
-            JsonParser p = createParser(mode, quote("a==="));
+            JsonParser p = createParser(mode, q("a==="));
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             try {
                 p.getBinaryValue(Base64Variants.MIME);
@@ -95,7 +95,7 @@ public class Base64BinaryParsingTest
             p.close();
 
             // second: invalid space within
-            p = createParser(mode, quote("ab de"));
+            p = createParser(mode, q("ab de"));
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             try {
                 p.getBinaryValue(Base64Variants.MIME);
@@ -106,7 +106,7 @@ public class Base64BinaryParsingTest
             p.close();
 
             // third: something else
-            p = createParser(mode, quote("ab#?"));
+            p = createParser(mode, q("ab#?"));
             assertToken(JsonToken.VALUE_STRING, p.nextToken());
             try {
                 p.getBinaryValue(Base64Variants.MIME);
@@ -136,7 +136,7 @@ public class Base64BinaryParsingTest
     {
         final Base64Variant b64 = Base64Variants.MODIFIED_FOR_URL;
         final String encoded = b64.encode(input, false);
-        JsonParser p = createParser(mode, quote(encoded));
+        JsonParser p = createParser(mode, q(encoded));
         // 1 byte -> 2 encoded chars; 2 bytes -> 3 encoded chars
         assertEquals(input.length+1, encoded.length());
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
@@ -146,13 +146,13 @@ public class Base64BinaryParsingTest
     }
 
     public void testFailDueToMissingPadding() throws IOException {
-        final String DOC1 = quote("fQ"); // 1 bytes, no padding
+        final String DOC1 = q("fQ"); // 1 bytes, no padding
         _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM);
         _testFailDueToMissingPadding(DOC1, MODE_INPUT_STREAM_THROTTLED);
         _testFailDueToMissingPadding(DOC1, MODE_READER);
         _testFailDueToMissingPadding(DOC1, MODE_DATA_INPUT);
 
-        final String DOC2 = quote("A/A"); // 2 bytes, no padding
+        final String DOC2 = q("A/A"); // 2 bytes, no padding
         _testFailDueToMissingPadding(DOC2, MODE_INPUT_STREAM);
         _testFailDueToMissingPadding(DOC2, MODE_INPUT_STREAM_THROTTLED);
         _testFailDueToMissingPadding(DOC2, MODE_READER);
@@ -393,7 +393,7 @@ public class Base64BinaryParsingTest
 
         // First, try with embedded linefeed half-way through:
 
-        String DOC = quote("VGVz\\ndCE="); // note: must double-quote to get linefeed
+        String DOC = q("VGVz\\ndCE="); // note: must double-quote to get linefeed
         JsonParser p = createParser(mode, DOC);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         byte[] b = p.getBinaryValue();
@@ -405,7 +405,7 @@ public class Base64BinaryParsingTest
 
         // and then with escaped chars
 //            DOC = quote("V\\u0047V\\u007AdCE="); // note: must escape backslash...
-        DOC = quote("V\\u0047V\\u007AdCE="); // note: must escape backslash...
+        DOC = q("V\\u0047V\\u007AdCE="); // note: must escape backslash...
         p = createParser(mode, DOC);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         b = p.getBinaryValue();
@@ -419,7 +419,7 @@ public class Base64BinaryParsingTest
     private void _testEscapedPadding(int mode) throws IOException
     {
         // Input: "Test!" -> "VGVzdCE="
-        final String DOC = quote("VGVzdCE\\u003d");
+        final String DOC = q("VGVzdCE\\u003d");
 
         // 06-Sep-2018, tatu: actually one more, test escaping of padding
         JsonParser p = createParser(mode, DOC);
@@ -440,7 +440,7 @@ public class Base64BinaryParsingTest
         p.close();
 
         // and then different padding; "X" -> "WA=="
-        final String DOC2 = quote("WA\\u003D\\u003D");
+        final String DOC2 = q("WA\\u003D\\u003D");
         p = createParser(mode, DOC2);
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals("X", new String(p.getBinaryValue(), "US-ASCII"));

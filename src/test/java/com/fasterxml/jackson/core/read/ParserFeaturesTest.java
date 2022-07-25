@@ -114,7 +114,7 @@ public class ParserFeaturesTest
 
         String FIELD = "a\tb";
         String VALUE = "\t";
-        String JSON = "{ "+quote(FIELD)+" : "+quote(VALUE)+"}";
+        String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}";
         JsonParser p = useStream ? createParserUsingStream(f, JSON, "UTF-8") : createParserUsingReader(f, JSON);
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());

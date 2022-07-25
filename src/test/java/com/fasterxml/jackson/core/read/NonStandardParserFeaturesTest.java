@@ -72,7 +72,7 @@ public class NonStandardParserFeaturesTest
     private void _testNonStandardBackslashQuoting(int mode) throws Exception
     {
         // first: verify that we get an exception
-        final String JSON = quote("\\'");
+        final String JSON = q("\\'");
         JsonParser p = createParser(STD_F, mode, JSON);
         try {      
             p.nextToken();

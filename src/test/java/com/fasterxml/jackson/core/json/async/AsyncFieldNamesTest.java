@@ -61,8 +61,8 @@ public class AsyncFieldNamesTest extends AsyncTestBase
         byte[] doc;
         StringWriter w;
 
-        nameEncoded = aposToQuotes(nameEncoded);
-        nameExp = aposToQuotes(nameExp);
+        nameEncoded = a2q(nameEncoded);
+        nameExp = a2q(nameExp);
 
         w = new StringWriter();
         w.append("{\"");

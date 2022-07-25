@@ -439,7 +439,7 @@ public abstract class BaseTest
 
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g) throws IOException
     {
-        JsonParser p = f.createParser(aposToQuotes(doc));
+        JsonParser p = f.createParser(a2q(doc));
         
         while (p.nextToken() != null) {
             g.copyCurrentStructure(p);
@@ -538,6 +538,7 @@ public abstract class BaseTest
     /**********************************************************
      */
 
+    @Deprecated // use q instead
     protected static String quote(String str) {
         return q(str);
     }
@@ -546,6 +547,7 @@ public abstract class BaseTest
         return '"'+str+'"';
     }
 
+    @Deprecated // use a2q instead
     protected static String aposToQuotes(String json) {
         return a2q(json);
     }

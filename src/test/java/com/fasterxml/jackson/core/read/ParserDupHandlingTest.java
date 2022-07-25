@@ -15,7 +15,7 @@ public class ParserDupHandlingTest
     };
     {
         for (int i = 0; i < DUP_DOCS.length; ++i) {
-            DUP_DOCS[i] = aposToQuotes(DUP_DOCS[i]);
+            DUP_DOCS[i] = a2q(DUP_DOCS[i]);
         }
     }
 

@@ -119,7 +119,7 @@ public class TestCharEscaping
         // test to try to tease out various edge conditions
         for (int i = 0; i < 16; ++i) {
             final String base = "1234567890abcdef".substring(0, i);
-            final String inputKey = quote(base + "\\\"");
+            final String inputKey = q(base + "\\\"");
             final String expKey = base + "\"";
             // note: append spaces so there's no buffer boundary issue
             JsonParser p = createParser(JSON_F, readMode, "{"+inputKey+" : 123456789}       ");
@@ -195,7 +195,7 @@ public class TestCharEscaping
 
     private void _testInvalidEscape(int readMode) throws Exception
     {
-        String DOC = quote("\\u\u0080...");
+        String DOC = q("\\u\u0080...");
         JsonParser p = createParser(JSON_F, readMode, DOC);
 
         assertToken(JsonToken.VALUE_STRING, p.nextToken());

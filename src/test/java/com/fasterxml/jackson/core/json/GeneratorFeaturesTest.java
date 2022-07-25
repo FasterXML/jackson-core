@@ -141,14 +141,14 @@ public class GeneratorFeaturesTest
         JsonGenerator g = f.createGenerator(sw);
         g.writeNumber(ENG);
         g.close();
-        assertEquals(quote("100"), sw.toString());
+        assertEquals(q("100"), sw.toString());
 
         // also, as bytes
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         g = f.createGenerator(bos);
         g.writeNumber(ENG);
         g.close();
-        assertEquals(quote("100"), bos.toString("UTF-8"));
+        assertEquals(q("100"), bos.toString("UTF-8"));
     }
 
     // [core#315]

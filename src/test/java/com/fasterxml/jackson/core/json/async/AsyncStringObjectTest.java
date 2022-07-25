@@ -19,7 +19,7 @@ public class AsyncStringObjectTest extends AsyncTestBase
 
     public void testBasicFieldsNames() throws IOException
     {
-        final String json = aposToQuotes(String.format("{'%s':'%s','%s':'%s','%s':'%s'}",
+        final String json = a2q(String.format("{'%s':'%s','%s':'%s','%s':'%s'}",
             UNICODE_SHORT_NAME, UNICODE_LONG_NAME,
             UNICODE_LONG_NAME, UNICODE_SHORT_NAME,
             ASCII_SHORT_NAME, ASCII_SHORT_NAME));

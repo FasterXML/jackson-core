@@ -33,7 +33,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
 
     private void _testWithName(String name) throws IOException
     {
-        byte[] doc = _jsonDoc("{"+quote(name)+":13}");
+        byte[] doc = _jsonDoc("{"+q(name)+":13}");
         AsyncReaderWrapper p = asyncForBytes(JSON_F, 37, doc, 0);
 
         assertNull(p.currentToken());
@@ -53,7 +53,7 @@ public class AsyncParserNamesTest extends AsyncTestBase
     {
         final String STR1 = "a";
 
-        byte[] doc = _jsonDoc("{ "+quote(STR1)+":1, \"foobar\":2, \"longername\":3 }");
+        byte[] doc = _jsonDoc("{ "+q(STR1)+":1, \"foobar\":2, \"longername\":3 }");
         JsonFactory f = JSON_F;
         AsyncReaderWrapper p = asyncForBytes(f, 5, doc, 0);
         final ByteQuadsCanonicalizer symbols1 = ((NonBlockingJsonParserBase) p.parser()).symbolTableForTests();

@@ -233,7 +233,7 @@ public class SimpleParserTest extends BaseTest
     {
         // InputData has some limitations to take into consideration
         boolean isInputData = (mode == MODE_DATA_INPUT);
-        String DOC = aposToQuotes(
+        String DOC = a2q(
             "[ 1, 3, [ true, null ], 3, { 'a\\\\b':'quoted: \\'stuff\\'' }, [ [ ] ], { } ]"
         );
         JsonParser p = createParser(mode, DOC);

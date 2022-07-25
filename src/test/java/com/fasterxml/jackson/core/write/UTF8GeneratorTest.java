@@ -46,7 +46,7 @@ public class UTF8GeneratorTest extends BaseTest
     // for [core#115]
     public void testSurrogatesWithRaw() throws Exception
     {
-        final String VALUE = quote("\ud83d\ude0c");
+        final String VALUE = q("\ud83d\ude0c");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         JsonGenerator g = JSON_F.createGenerator(out);
         g.writeStartArray();

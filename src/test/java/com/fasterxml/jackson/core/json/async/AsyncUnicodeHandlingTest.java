@@ -59,7 +59,7 @@ public class AsyncUnicodeHandlingTest extends AsyncTestBase
             }
         }
         final String TEXT = sb.toString();
-        final String quoted = quote(TEXT);
+        final String quoted = q(TEXT);
         byte[] data = _jsonDoc(quoted);
         AsyncReaderWrapper r = asyncForBytes(f, readSize, data, 0);
 

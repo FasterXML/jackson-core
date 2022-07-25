@@ -138,7 +138,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
 
         String json = bytes.toString("UTF-8");
         assertEquals(String.format("[%s]",
-                quote(String.format(VALUE_TEMPLATE, "\\u2028", "\\u2029"))),
+                q(String.format(VALUE_TEMPLATE, "\\u2028", "\\u2029"))),
                 json);
     }
 
@@ -226,7 +226,7 @@ public class TestCustomEscaping extends com.fasterxml.jackson.core.BaseTest
         g.writeEndObject();
         g.close();
         String json = bytes.toString("UTF-8");
-        assertEquals("{"+quote(STR_OUT)+":"+quote(STR_OUT)+"}", json);
+        assertEquals("{"+q(STR_OUT)+":"+q(STR_OUT)+"}", json);
     }
 
     private void _writeString(JsonGenerator g, String str, boolean stringAsChars) throws Exception

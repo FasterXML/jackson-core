@@ -18,7 +18,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
     public void testStuffInObject() throws Exception
     {
-        byte[] data = _jsonDoc(aposToQuotes(
+        byte[] data = _jsonDoc(a2q(
                 "{'foobar':[1,2,-999],'emptyObject':{},'emptyArray':[], 'other':{'':null} }"));
 
         JsonFactory f = JSON_F;
@@ -82,7 +82,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
     public void testStuffInArray() throws Exception
     {
-        byte[] data = _jsonDoc(aposToQuotes("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
+        byte[] data = _jsonDoc(a2q("[true,{'moreStuff':0},[null],{'extraOrdinary':23}]"));
         JsonFactory f = JSON_F;
 
         _testStuffInArray(f, data, 0, 100);
@@ -128,7 +128,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
     
     public void testStuffInArray2() throws Exception
     {
-        byte[] data = _jsonDoc(aposToQuotes(String.format(
+        byte[] data = _jsonDoc(a2q(String.format(
                 "[{'%s':true},{'%s':false},{'%s':true},{'%s':false}]",
                 SHORT_NAME, LONG_NAME, LONG_NAME, SHORT_NAME)));
         JsonFactory f = JSON_F;
@@ -183,7 +183,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
     public void testMismatchedArray() throws Exception
     {
-        byte[] data = _jsonDoc(aposToQuotes("[  }"));
+        byte[] data = _jsonDoc(a2q("[  }"));
 
         JsonFactory f = JSON_F;
         _testMismatchedArray(f, data, 0, 99);
@@ -210,7 +210,7 @@ public class AsyncSimpleNestedTest extends AsyncTestBase
 
     public void testMismatchedObject() throws Exception
     {
-        byte[] data = _jsonDoc(aposToQuotes("{ ]"));
+        byte[] data = _jsonDoc(a2q("{ ]"));
 
         JsonFactory f = JSON_F;
         _testMismatchedObject(f, data, 0, 99);

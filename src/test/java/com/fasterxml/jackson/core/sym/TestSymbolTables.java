@@ -146,7 +146,7 @@ public class TestSymbolTables extends com.fasterxml.jackson.core.BaseTest
     public void testByteBasedSymbolTable() throws Exception
     {
         // combination of short, medium1/2, long names...
-        final String JSON = aposToQuotes("{'abc':1, 'abc\\u0000':2, '\\u0000abc':3, "
+        final String JSON = a2q("{'abc':1, 'abc\\u0000':2, '\\u0000abc':3, "
                 // then some medium
                 +"'abc123':4,'abcd1234':5,"
                 +"'abcd1234a':6,'abcd1234abcd':7,"

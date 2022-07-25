@@ -14,7 +14,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
 
     public void testMissingLinefeedEscaping() throws Exception
     {
-        byte[] doc = _jsonDoc(aposToQuotes("['Linefeed: \n.']"));
+        byte[] doc = _jsonDoc(a2q("['Linefeed: \n.']"));
         _testMissingLinefeedEscaping(doc, 0, 99);
         _testMissingLinefeedEscaping(doc, 0, 5);
         _testMissingLinefeedEscaping(doc, 0, 3);
@@ -57,7 +57,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
     
     private void _testSimpleEscaping(int offset, int readSize) throws Exception
     {
-        byte[] doc = _jsonDoc(aposToQuotes("['LF=\\n']"));
+        byte[] doc = _jsonDoc(a2q("['LF=\\n']"));
 
         AsyncReaderWrapper r = asyncForBytes(JSON_F, readSize, doc, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
@@ -67,7 +67,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
 
         // Note: must split Strings, so that javac won't try to handle
         // escape and inline null char
-        doc = _jsonDoc(aposToQuotes("['NULL:\\u0000!']"));
+        doc = _jsonDoc(a2q("['NULL:\\u0000!']"));
         r = asyncForBytes(JSON_F, readSize, doc, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         assertToken(JsonToken.VALUE_STRING, r.nextToken());
@@ -75,7 +75,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
         r.close();
 
         // Then just a single char escaping
-        doc = _jsonDoc(aposToQuotes("['\\u0123']"));
+        doc = _jsonDoc(a2q("['\\u0123']"));
         r = asyncForBytes(JSON_F, readSize, doc, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         assertToken(JsonToken.VALUE_STRING, r.nextToken());
@@ -83,7 +83,7 @@ public class AsyncCharEscapingTest extends AsyncTestBase
         r.close();
 
         // And then double sequence
-        doc = _jsonDoc(aposToQuotes("['\\u0041\\u0043']"));
+        doc = _jsonDoc(a2q("['\\u0041\\u0043']"));
         r = asyncForBytes(JSON_F, readSize, doc, offset);
         assertToken(JsonToken.START_ARRAY, r.nextToken());
         assertToken(JsonToken.VALUE_STRING, r.nextToken());

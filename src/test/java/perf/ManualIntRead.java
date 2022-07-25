@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
  * Manually run micro-benchmark for checking performance of tokenizing
  * simple tokens (false, true, null).
  */
-public class ManualIntRead extends ParserTestBase
+public class ManualIntRead extends ManualPerfTestBase
 {
     protected final JsonFactory _factory;
     
@@ -26,7 +26,7 @@ public class ManualIntRead extends ParserTestBase
             System.exit(1);
         }
         final JsonFactory f = new JsonFactory();
-        final String jsonStr = aposToQuotes(
+        final String jsonStr = a2q(
 "{'data':[1,-2,138,-78,0,12435,-12,-9],'last':12345}"
                 );
         new ManualIntRead(f, jsonStr).test("char[]", "byte[]", jsonStr.length());

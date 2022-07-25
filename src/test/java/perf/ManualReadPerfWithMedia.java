@@ -2,7 +2,7 @@ package perf;
 
 import com.fasterxml.jackson.core.*;
 
-public class ManualReadPerfWithMedia extends ParserTestBase
+public class ManualReadPerfWithMedia extends ManualPerfTestBase
 {
     protected final JsonFactory _factory;
     

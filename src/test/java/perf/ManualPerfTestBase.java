@@ -1,6 +1,6 @@
 package perf;
 
-abstract class ParserTestBase
+abstract class ManualPerfTestBase
 {
     protected int hash;
 
@@ -84,7 +84,7 @@ abstract class ParserTestBase
 
     protected abstract void testRead2(int reps) throws Exception;
 
-    protected static String aposToQuotes(String json) {
+    protected static String a2q(String json) {
         return json.replace("'", "\"");
     }
 }

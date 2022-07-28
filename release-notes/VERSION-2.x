@@ -19,7 +19,8 @@ JSON library.
 #478: Provide implementation of async JSON parser fed by `ByteBufferFeeder`
  (requested by Arjen P)
  (contributed by @pjfanning)
-#577: Improve performance of floating-point number parsing
+#577: Allow use of faster floating-point number parsing (Schubfach) with
+  `StreamReadFeature.USE_FAST_DOUBLE_PARSER`
  (contributed by @pjfanning)
 #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
  (contributed by Ilya G)
@@ -29,7 +30,8 @@ JSON library.
   floating-point values or not
  (contributed Doug R)
 #745: Change minimum Java version to 8
-#749: Improve performance of writing floating-point numbers
+#749: Allow use of faster floating-point number serialization
+  (`StreamWriteFeature.USE_FAST_DOUBLE_WRITER`)
  (contributed by @pjfanning)
 #751: Remove workaround for old issue with a particular double
  (contributed by @pjfanning)
@@ -44,6 +46,7 @@ JSON library.
 #763: `JsonFactory.createParser()` with `File` may leak `InputStream`s
 #764: `JsonFactory.createGenerator()` with `File` may leak `OutputStream`s
 #773: Add option to accept non-standard trailing decimal point
+  (`JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS`)
  (contributed by @pjfanning)
 #774: Add a feature to allow leading plus sign
   (`JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS`)

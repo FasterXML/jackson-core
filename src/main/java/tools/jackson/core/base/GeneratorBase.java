@@ -152,20 +152,20 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    //public void writeStartArray()
-    //public void writeEndArray()
-    //public void writeStartObject()
-    //public void writeEndObject()
+    //public JsonGenerator writeStartArray()
+    //public JsonGenerator writeEndArray()
+    //public JsonGenerator writeStartObject()
+    //public JsonGenerator writeEndObject()
 
     @Override
-    public void writeStartArray(Object forValue, int size) throws JacksonException {
-        writeStartArray(forValue);
+    public JsonGenerator writeStartArray(Object forValue, int size) throws JacksonException {
+        return writeStartArray(forValue);
     }
 
     @Override
-    public void writeStartObject(Object forValue, int size) throws JacksonException
+    public JsonGenerator writeStartObject(Object forValue, int size) throws JacksonException
     {
-        writeStartObject(forValue);
+        return writeStartObject(forValue);
     }
 
     /*
@@ -174,47 +174,48 @@ public abstract class GeneratorBase extends JsonGenerator
     /**********************************************************************
      */
 
-    @Override public void writeName(SerializableString name) throws JacksonException {
-        writeName(name.getValue());
+    @Override
+    public JsonGenerator writeName(SerializableString name) throws JacksonException {
+        return writeName(name.getValue());
     }
 
-    //public abstract void writeString(String text);
+    //public abstract JsonGenerator writeString(String text);
 
-    //public abstract void writeString(char[] text, int offset, int len);
+    //public abstract JsonGenerator writeString(char[] text, int offset, int len);
 
     @Override
-    public void writeString(Reader reader, int len) throws JacksonException {
+    public JsonGenerator writeString(Reader reader, int len) throws JacksonException {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
-    
-    //public abstract void writeRaw(String text);
 
-    //public abstract void writeRaw(char[] text, int offset, int len);
+    //public abstract JsonGenerator writeRaw(String text);
+
+    //public abstract JsonGenerator writeRaw(char[] text, int offset, int len);
 
     @Override
-    public void writeString(SerializableString text) throws JacksonException {
-        writeString(text.getValue());
+    public JsonGenerator writeString(SerializableString text) throws JacksonException {
+        return writeString(text.getValue());
     }
 
-    @Override public void writeRawValue(String text) throws JacksonException {
+    @Override public JsonGenerator writeRawValue(String text) throws JacksonException {
         _verifyValueWrite("write raw value");
-        writeRaw(text);
+        return writeRaw(text);
     }
 
-    @Override public void writeRawValue(String text, int offset, int len) throws JacksonException {
+    @Override public JsonGenerator writeRawValue(String text, int offset, int len) throws JacksonException {
         _verifyValueWrite("write raw value");
-        writeRaw(text, offset, len);
+        return writeRaw(text, offset, len);
     }
 
-    @Override public void writeRawValue(char[] text, int offset, int len) throws JacksonException {
+    @Override public JsonGenerator writeRawValue(char[] text, int offset, int len) throws JacksonException {
         _verifyValueWrite("write raw value");
-        writeRaw(text, offset, len);
+        return writeRaw(text, offset, len);
     }
 
-    @Override public void writeRawValue(SerializableString text) throws JacksonException {
+    @Override public JsonGenerator writeRawValue(SerializableString text) throws JacksonException {
         _verifyValueWrite("write raw value");
-        writeRaw(text);
+        return writeRaw(text);
     }
 
     @Override
@@ -249,7 +250,7 @@ public abstract class GeneratorBase extends JsonGenerator
      */
 
     @Override
-    public void writePOJO(Object value) throws JacksonException {
+    public JsonGenerator writePOJO(Object value) throws JacksonException {
         if (value == null) {
             // important: call method that does check value write:
             writeNull();
@@ -259,16 +260,18 @@ public abstract class GeneratorBase extends JsonGenerator
             // state would advance causing exception later on
             _objectWriteContext.writeValue(this, value);
         }
+        return this;
     }
 
     @Override
-    public void writeTree(TreeNode rootNode) throws JacksonException {
+    public JsonGenerator writeTree(TreeNode rootNode) throws JacksonException {
         // As with 'writeObject()', we are not to check if write would work
         if (rootNode == null) {
             writeNull();
         } else {
             _objectWriteContext.writeTree(this, rootNode);
         }
+        return this;
     }
 
     /*

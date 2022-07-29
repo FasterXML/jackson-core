@@ -220,13 +220,15 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
     @Override
-    public void writeStartArray(Object currentValue, int size) throws JacksonException {
+    public JsonGenerator writeStartArray(Object currentValue, int size) throws JacksonException {
         writeStartArray(currentValue);
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object currentValue, int size) throws JacksonException {
+    public JsonGenerator writeStartObject(Object currentValue, int size) throws JacksonException {
         writeStartObject(currentValue);
+        return this;
     }
 
     /*
@@ -236,8 +238,9 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
 
    @Override
-    public void writePropertyId(long id) throws JacksonException {
+    public JsonGenerator writePropertyId(long id) throws JacksonException {
         writeName(Long.toString(id));
+        return this;
     }
 
     /*

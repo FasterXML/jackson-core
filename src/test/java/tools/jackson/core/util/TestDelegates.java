@@ -342,10 +342,11 @@ public class TestDelegates extends tools.jackson.core.BaseTest
         StringWriter sw = new StringWriter();
         JsonGenerator g = new JsonGeneratorDelegate(JSON_F.createGenerator(ObjectWriteContext.empty(), sw), false) {
             @Override
-            public void writeName(String name) {
+            public JsonGenerator writeName(String name) {
                 super.writeName(name+"-test");
                 super.writeBoolean(true);
                 super.writeName(name);
+                return this;
             }
         };
         p.nextToken();

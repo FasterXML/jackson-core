@@ -140,23 +140,23 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
     
     @Override
-    public void writeStartArray() throws JacksonException
+    public JsonGenerator writeStartArray() throws JacksonException
     {
         // First things first: whole-sale skipping easy
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, null, false);
-            return;
+            return this;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) { // include the whole sub-tree?
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, null, true);
             delegate.writeStartArray();
-            return;
+            return this;
         }
         // Ok; regular checking state then
         _itemFilter = _filterContext.checkValue(_itemFilter);
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, null, false);
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             _itemFilter = _itemFilter.filterStartArray();
@@ -172,24 +172,25 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, null, false);
         }
+        return this;
     }
 
     @Override
-    public void writeStartArray(Object currValue) throws JacksonException
+    public JsonGenerator writeStartArray(Object currValue) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
-            return;
+            return this;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
             delegate.writeStartArray(currValue);
-            return;
+            return this;
         }
         _itemFilter = _filterContext.checkValue(_itemFilter);
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             _itemFilter = _itemFilter.filterStartArray();
@@ -205,24 +206,25 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, false);
         }
+        return this;
     }
 
     @Override
-    public void writeStartArray(Object currValue, int size) throws JacksonException
+    public JsonGenerator writeStartArray(Object currValue, int size) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
-            return;
+            return this;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, true);
             delegate.writeStartArray(currValue, size);
-            return;
+            return this;
         }
         _itemFilter = _filterContext.checkValue(_itemFilter);
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildArrayContext(null, currValue, false);
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             _itemFilter = _itemFilter.filterStartArray();
@@ -234,34 +236,36 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         } else {
             _filterContext = _filterContext.createChildArrayContext(_itemFilter, currValue, false);
         }
+        return this;
     }
 
     @Override
-    public void writeEndArray() throws JacksonException
+    public JsonGenerator writeEndArray() throws JacksonException
     {
         _filterContext = _filterContext.closeArray(delegate);
 
         if (_filterContext != null) {
             _itemFilter = _filterContext.getFilter();
         }
+        return this;
     }
 
     @Override
-    public void writeStartObject() throws JacksonException
+    public JsonGenerator writeStartObject() throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, null, false);
-            return;
+            return this;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, null, true);
             delegate.writeStartObject();
-            return;
+            return this;
         }
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
-            return;
+            return this;
         }
         
         if (f != TokenFilter.INCLUDE_ALL) {
@@ -278,24 +282,25 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         } else { // filter out
             _filterContext = _filterContext.createChildObjectContext(f, null, false);
         }
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object currValue) throws JacksonException
+    public JsonGenerator writeStartObject(Object currValue) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
-            return;
+            return this;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, true);
             delegate.writeStartObject(currValue);
-            return;
+            return this;
         }
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
-            return;
+            return this;
         }
 
         if (f != TokenFilter.INCLUDE_ALL) {
@@ -312,24 +317,25 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         } else { // filter out
             _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
         }
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object currValue, int size) throws JacksonException
+    public JsonGenerator writeStartObject(Object currValue, int size) throws JacksonException
     {
         if (_itemFilter == null) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, false);
-            return;
+            return this;
         }
         if (_itemFilter == TokenFilter.INCLUDE_ALL) {
             _filterContext = _filterContext.createChildObjectContext(_itemFilter, currValue, true);
             delegate.writeStartObject(currValue, size);
-            return;
+            return this;
         }
 
         TokenFilter f = _filterContext.checkValue(_itemFilter);
         if (f == null) {
-            return;
+            return this;
         }
 
         if (f != TokenFilter.INCLUDE_ALL) {
@@ -342,61 +348,65 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
         } else { // filter out
             _filterContext = _filterContext.createChildObjectContext(f, currValue, false);
         }
+        return this;
     }
 
     @Override
-    public void writeEndObject() throws JacksonException
+    public JsonGenerator writeEndObject() throws JacksonException
     {
         _filterContext = _filterContext.closeObject(delegate);
         if (_filterContext != null) {
             _itemFilter = _filterContext.getFilter();
         }
+        return this;
     }
 
     @Override
-    public void writeName(String name) throws JacksonException
+    public JsonGenerator writeName(String name) throws JacksonException
     {
         TokenFilter state = _filterContext.setPropertyName(name);
         if (state == null) {
             _itemFilter = null;
-            return;
+            return this;
         }
         if (state == TokenFilter.INCLUDE_ALL) {
             _itemFilter = state;
             delegate.writeName(name);
-            return;
+            return this;
         }
         state = state.includeProperty(name);
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {
             _checkPropertyParentPath();
         }
+        return this;
     }
 
     @Override
-    public void writeName(SerializableString name) throws JacksonException
+    public JsonGenerator writeName(SerializableString name) throws JacksonException
     {
         TokenFilter state = _filterContext.setPropertyName(name.getValue());
         if (state == null) {
             _itemFilter = null;
-            return;
+            return this;
         }
         if (state == TokenFilter.INCLUDE_ALL) {
             _itemFilter = state;
             delegate.writeName(name);
-            return;
+            return this;
         }
         state = state.includeProperty(name.getValue());
         _itemFilter = state;
         if (state == TokenFilter.INCLUDE_ALL) {
             _checkPropertyParentPath();
         }
+        return this;
     }
 
     // 02-Dec-2019, tatu: Not sure what else to do... so use default impl from base class
     @Override
-    public void writePropertyId(long id) throws JacksonException {
-        writeName(Long.toString(id));
+    public JsonGenerator writePropertyId(long id) throws JacksonException {
+        return writeName(Long.toString(id));
     }
 
     /*
@@ -406,106 +416,112 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeString(String value) throws JacksonException
+    public JsonGenerator writeString(String value) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeString(value)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeString(value);
+        return this;
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len) throws JacksonException
+    public JsonGenerator writeString(char[] text, int offset, int len) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             String value = new String(text, offset, len);
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeString(value)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeString(text, offset, len);
+        return this;
     }
 
     @Override
-    public void writeString(SerializableString value) throws JacksonException
+    public JsonGenerator writeString(SerializableString value) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeString(value.getValue())) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeString(value);
+        return this;
     }
 
     @Override
-    public void writeString(Reader reader, int len) throws JacksonException {
+    public JsonGenerator writeString(Reader reader, int len) throws JacksonException {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 // [core#609]: do need to implement, but with 2.10.x TokenFilter no
                 // useful method to call so will be mostly unfiltered
                 if (!state.includeString(reader, len)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeString(reader, len);
+        return this;
     }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException
+    public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawUTF8String(text, offset, length);
         }
+        return this;
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length) throws JacksonException
+    public JsonGenerator writeUTF8String(byte[] text, int offset, int length) throws JacksonException
     {
         // not exact match, but best we can do
         if (_checkRawValueWrite()) {
             delegate.writeUTF8String(text, offset, length);
         }
+        return this;
     }
 
     /*
@@ -515,75 +531,84 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeRaw(String text) throws JacksonException
+    public JsonGenerator writeRaw(String text) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text);
         }
+        return this;
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len) throws JacksonException
+    public JsonGenerator writeRaw(String text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text, offset, len);
         }
+        return this;
     }
 
     @Override
-    public void writeRaw(SerializableString text) throws JacksonException
+    public JsonGenerator writeRaw(SerializableString text) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text);
         }
+        return this;
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws JacksonException
+    public JsonGenerator writeRaw(char[] text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(text, offset, len);
         }
+        return this;
     }
 
     @Override
-    public void writeRaw(char c) throws JacksonException
+    public JsonGenerator writeRaw(char c) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRaw(c);
         }
+        return this;
     }
 
     @Override
-    public void writeRawValue(String text) throws JacksonException
+    public JsonGenerator writeRawValue(String text) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawValue(text);
         }
+        return this;
     }
 
     @Override
-    public void writeRawValue(String text, int offset, int len) throws JacksonException
+    public JsonGenerator writeRawValue(String text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawValue(text, offset, len);
         }
+        return this;
     }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len) throws JacksonException
+    public JsonGenerator writeRawValue(char[] text, int offset, int len) throws JacksonException
     {
         if (_checkRawValueWrite()) {
             delegate.writeRawValue(text, offset, len);
         }
+        return this;
     }
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws JacksonException
+    public JsonGenerator writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws JacksonException
     {
         if (_checkBinaryWrite()) {
             delegate.writeBinary(b64variant, data, offset, len);
         }
+        return this;
     }
 
     @Override
@@ -602,234 +627,245 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeNumber(short v) throws JacksonException
+    public JsonGenerator writeNumber(short v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNumber(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(v);
+        return this;
     }
 
     @Override
-    public void writeNumber(int v) throws JacksonException
+    public JsonGenerator writeNumber(int v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNumber(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(v);
+        return this;
     }
 
     @Override
-    public void writeNumber(long v) throws JacksonException
+    public JsonGenerator writeNumber(long v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNumber(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(v);
+        return this;
     }
 
     @Override
-    public void writeNumber(BigInteger v) throws JacksonException
+    public JsonGenerator writeNumber(BigInteger v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNumber(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(v);
+        return this;
     }
 
     @Override
-    public void writeNumber(double v) throws JacksonException
+    public JsonGenerator writeNumber(double v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNumber(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(v);
+        return this;
     }
 
     @Override
-    public void writeNumber(float v) throws JacksonException
+    public JsonGenerator writeNumber(float v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNumber(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(v);
+        return this;
     }
 
     @Override
-    public void writeNumber(BigDecimal v) throws JacksonException
+    public JsonGenerator writeNumber(BigDecimal v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNumber(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(v);
+        return this;
     }
 
     @Override
-    public void writeNumber(String encodedValue) throws JacksonException, UnsupportedOperationException
+    public JsonGenerator writeNumber(String encodedValue) throws JacksonException, UnsupportedOperationException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeRawValue()) { // close enough?
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(encodedValue);
+        return this;
     }
 
     @Override
-    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws JacksonException, UnsupportedOperationException
+    public JsonGenerator writeNumber(char[] encodedValueBuffer, int offset, int length) throws JacksonException, UnsupportedOperationException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeRawValue()) { // close enough?
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNumber(encodedValueBuffer, offset, length);
+        return this;
     }
 
     @Override
-    public void writeBoolean(boolean v) throws JacksonException
+    public JsonGenerator writeBoolean(boolean v) throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeBoolean(v)) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeBoolean(v);
+        return this;
     }
 
     @Override
-    public void writeNull() throws JacksonException
+    public JsonGenerator writeNull() throws JacksonException
     {
         if (_itemFilter == null) {
-            return;
+            return this;
         }
         if (_itemFilter != TokenFilter.INCLUDE_ALL) {
             TokenFilter state = _filterContext.checkValue(_itemFilter);
             if (state == null) {
-                return;
+                return this;
             }
             if (state != TokenFilter.INCLUDE_ALL) {
                 if (!state.includeNull()) {
-                    return;
+                    return this;
                 }
             }
             _checkParentPath();
         }
         delegate.writeNull();
+        return this;
     }
 
     /*
@@ -839,11 +875,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
      */
 
     @Override
-    public void writeOmittedProperty(String propertyName) throws JacksonException {
+    public JsonGenerator writeOmittedProperty(String propertyName) throws JacksonException {
         // Hmmh. Not sure how this would work but...
         if (_itemFilter != null) {
             delegate.writeOmittedProperty(propertyName);
         }
+        return this;
     }
 
     /*
@@ -856,24 +893,27 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
     //   Let's try to use current state as a clue at least...
     
     @Override
-    public void writeObjectId(Object id) throws JacksonException {
+    public JsonGenerator writeObjectId(Object id) throws JacksonException {
         if (_itemFilter != null) {
             delegate.writeObjectId(id);
         }
+        return this;
     }
 
     @Override
-    public void writeObjectRef(Object id) throws JacksonException {
+    public JsonGenerator writeObjectRef(Object id) throws JacksonException {
         if (_itemFilter != null) {
             delegate.writeObjectRef(id);
         }
+        return this;
     }
     
     @Override
-    public void writeTypeId(Object id) throws JacksonException {
+    public JsonGenerator writeTypeId(Object id) throws JacksonException {
         if (_itemFilter != null) {
             delegate.writeTypeId(id);
         }
+        return this;
     }
 
     /*
@@ -886,12 +926,12 @@ public class FilteringGeneratorDelegate extends JsonGeneratorDelegate
 
     /*
     @Override
-    public void writeObject(Object pojo) {
+    public JsonGenerator writeObject(Object pojo) {
 ...
     }
     
     @Override
-    public void writeTree(TreeNode rootNode) {
+    public JsonGenerator writeTree(TreeNode rootNode) {
 ...    
     }
     */

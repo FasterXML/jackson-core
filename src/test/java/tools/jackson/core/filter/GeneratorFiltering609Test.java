@@ -33,7 +33,7 @@ public class GeneratorFiltering609Test
         }
 
         @Override
-        public void writeString(String text) {
+        public JsonGenerator writeString(String text) {
             if (text == null) {
                 writeNull();
             } else if (maxStringLength <= 0 || maxStringLength >= text.length()) {
@@ -42,16 +42,18 @@ public class GeneratorFiltering609Test
                 StringReader textReader = new StringReader(text);
                 super.writeString(textReader, maxStringLength);
             }
+            return this;
         }
 
         @Override
-        public void writeName(String name) {
+        public JsonGenerator writeName(String name) {
             if (maxStringLength <= 0 || maxStringLength >= name.length()) {
                 super.writeName(name);
             } else {
                 String truncatedName = name.substring(0, maxStringLength);
                 super.writeName(truncatedName);
             }
+            return this;
         }
 
     }

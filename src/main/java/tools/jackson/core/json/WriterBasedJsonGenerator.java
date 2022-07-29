@@ -140,17 +140,18 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeName(String name) throws JacksonException
+    public JsonGenerator writeName(String name) throws JacksonException
     {
         int status = _streamWriteContext.writeName(name);
         if (status == JsonWriteContext.STATUS_EXPECT_VALUE) {
             _reportError("Cannot write a property name, expecting a value");
         }
         _writeName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
+        return this;
     }
 
     @Override
-    public void writeName(SerializableString name) throws JacksonException
+    public JsonGenerator writeName(SerializableString name) throws JacksonException
     {
         // Object is a value, need to verify it's allowed
         int status = _streamWriteContext.writeName(name.getValue());
@@ -158,6 +159,7 @@ public class WriterBasedJsonGenerator
             _reportError("Cannot write a property name, expecting a value");
         }
         _writeName(name, (status == JsonWriteContext.STATUS_OK_AFTER_COMMA));
+        return this;
     }
 
     protected final void _writeName(String name, boolean commaBefore) throws JacksonException
@@ -241,7 +243,7 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeStartArray() throws JacksonException
+    public JsonGenerator writeStartArray() throws JacksonException
     {
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(null);
@@ -253,10 +255,11 @@ public class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '[';
         }
+        return this;
     }
 
     @Override
-    public void writeStartArray(Object forValue) throws JacksonException
+    public JsonGenerator writeStartArray(Object forValue) throws JacksonException
     {
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(forValue);
@@ -268,10 +271,11 @@ public class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '[';
         }
+        return this;
     }
 
     @Override
-    public void writeStartArray(Object forValue, int len) throws JacksonException
+    public JsonGenerator writeStartArray(Object forValue, int len) throws JacksonException
     {
         _verifyValueWrite("start an array");
         _streamWriteContext = _streamWriteContext.createChildArrayContext(forValue);
@@ -283,10 +287,11 @@ public class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '[';
         }
+        return this;
     }
     
     @Override
-    public void writeEndArray() throws JacksonException
+    public JsonGenerator writeEndArray() throws JacksonException
     {
         if (!_streamWriteContext.inArray()) {
             _reportError("Current context not Array but "+_streamWriteContext.typeDesc());
@@ -300,10 +305,11 @@ public class WriterBasedJsonGenerator
             _outputBuffer[_outputTail++] = ']';
         }
         _streamWriteContext = _streamWriteContext.clearAndGetParent();
+        return this;
     }
 
     @Override
-    public void writeStartObject() throws JacksonException
+    public JsonGenerator writeStartObject() throws JacksonException
     {
         _verifyValueWrite("start an object");
         _streamWriteContext = _streamWriteContext.createChildObjectContext(null);
@@ -315,10 +321,11 @@ public class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '{';
         }
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object forValue) throws JacksonException
+    public JsonGenerator writeStartObject(Object forValue) throws JacksonException
     {
         _verifyValueWrite("start an object");
         JsonWriteContext ctxt = _streamWriteContext.createChildObjectContext(forValue);
@@ -331,10 +338,11 @@ public class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '{';
         }
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object forValue, int size) throws JacksonException
+    public JsonGenerator writeStartObject(Object forValue, int size) throws JacksonException
     {
         _verifyValueWrite("start an object");
         JsonWriteContext ctxt = _streamWriteContext.createChildObjectContext(forValue);
@@ -347,10 +355,11 @@ public class WriterBasedJsonGenerator
             }
             _outputBuffer[_outputTail++] = '{';
         }
+        return this;
     }
 
     @Override
-    public void writeEndObject() throws JacksonException
+    public JsonGenerator writeEndObject() throws JacksonException
     {
         if (!_streamWriteContext.inObject()) {
             _reportError("Current context not Object but "+_streamWriteContext.typeDesc());
@@ -364,6 +373,7 @@ public class WriterBasedJsonGenerator
             _outputBuffer[_outputTail++] = '}';
         }
         _streamWriteContext = _streamWriteContext.clearAndGetParent();
+        return this;
     }
 
     // Specialized version of <code>_writeName</code>, off-lined
@@ -421,12 +431,12 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeString(String text) throws JacksonException
+    public JsonGenerator writeString(String text) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
         if (text == null) {
             _writeNull();
-            return;
+            return this;
         }
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -438,15 +448,15 @@ public class WriterBasedJsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+        return this;
     }
 
     @Override
-    public void writeString(Reader reader, int len) throws JacksonException
+    public JsonGenerator writeString(Reader reader, int len) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
         if (reader == null) {
-            _reportError("null reader");
-            return; // just to block warnings by lgtm.com
+            return _reportError("null reader");
         }
         int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
         // Add leading quote
@@ -480,10 +490,11 @@ public class WriterBasedJsonGenerator
         if (toRead > 0 && len >= 0) {
             _reportError("Didn't read enough from reader");
         }
+        return this;
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len) throws JacksonException
+    public JsonGenerator writeString(char[] text, int offset, int len) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
@@ -496,10 +507,11 @@ public class WriterBasedJsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+        return this;
     }
 
     @Override
-    public void writeString(SerializableString sstr) throws JacksonException
+    public JsonGenerator writeString(SerializableString sstr) throws JacksonException
     {
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
@@ -509,13 +521,14 @@ public class WriterBasedJsonGenerator
         int len = sstr.appendQuoted(_outputBuffer, _outputTail);
         if (len < 0) {
             _writeString2(sstr);
-            return;
+            return this;
         }
         _outputTail += len;
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+        return this;
     }
 
     private void _writeString2(SerializableString sstr) throws JacksonException
@@ -545,15 +558,15 @@ public class WriterBasedJsonGenerator
     }
     
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException {
+    public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException {
         // could add support for buffering if we really want it...
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length) throws JacksonException {
+    public JsonGenerator writeUTF8String(byte[] text, int offset, int length) throws JacksonException {
         // could add support for buffering if we really want it...
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     /*
@@ -563,7 +576,7 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeRaw(String text) throws JacksonException
+    public JsonGenerator writeRaw(String text) throws JacksonException
     {
         // Nothing to check, can just output as is
         int len = text.length();
@@ -580,10 +593,11 @@ public class WriterBasedJsonGenerator
         } else {
             writeRawLong(text);
         }
+        return this;
     }
 
     @Override
-    public void writeRaw(String text, int start, int len) throws JacksonException
+    public JsonGenerator writeRaw(String text, int start, int len) throws JacksonException
     {
         // Nothing to check, can just output as is
         int room = _outputEnd - _outputTail;
@@ -599,21 +613,22 @@ public class WriterBasedJsonGenerator
         } else {            	
             writeRawLong(text.substring(start, start+len));
         }
+        return this;
     }
 
-    // @since 2.1
     @Override
-    public void writeRaw(SerializableString text) throws JacksonException {
+    public JsonGenerator writeRaw(SerializableString text) throws JacksonException {
         int len = text.appendUnquoted(_outputBuffer, _outputTail);
         if (len < 0) {
             writeRaw(text.getValue());
-            return;
+            return this;
         }
         _outputTail += len;
+        return this;
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws JacksonException
+    public JsonGenerator writeRaw(char[] text, int offset, int len) throws JacksonException
     {
         // Only worth buffering if it's a short write?
         if (len < SHORT_WRITE) {
@@ -623,7 +638,7 @@ public class WriterBasedJsonGenerator
             }
             System.arraycopy(text, offset, _outputBuffer, _outputTail, len);
             _outputTail += len;
-            return;
+            return this;
         }
         // Otherwise, better just pass through:
         _flushBuffer();
@@ -632,15 +647,17 @@ public class WriterBasedJsonGenerator
         } catch (IOException e) {
             throw _wrapIOFailure(e);
         }
+        return this;
     }
 
     @Override
-    public void writeRaw(char c) throws JacksonException
+    public JsonGenerator writeRaw(char c) throws JacksonException
     {
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = c;
+        return this;
     }
 
     private void writeRawLong(String text) throws JacksonException
@@ -675,7 +692,7 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
+    public JsonGenerator writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
         throws JacksonException
     {
         _verifyValueWrite(WRITE_BINARY);
@@ -690,6 +707,7 @@ public class WriterBasedJsonGenerator
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
+        return this;
     }
 
     @Override
@@ -733,18 +751,19 @@ public class WriterBasedJsonGenerator
      */
 
     @Override
-    public void writeNumber(short s) throws JacksonException
+    public JsonGenerator writeNumber(short s) throws JacksonException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedShort(s);
-            return;
+            return this;
         }
         // up to 5 digits and possible minus sign
         if ((_outputTail + 6) >= _outputEnd) {
             _flushBuffer();
         }
         _outputTail = NumberOutput.outputInt(s, _outputBuffer, _outputTail);
+        return this;
     }
 
     private void _writeQuotedShort(short s) throws JacksonException {
@@ -757,18 +776,19 @@ public class WriterBasedJsonGenerator
     }    
 
     @Override
-    public void writeNumber(int i) throws JacksonException
+    public JsonGenerator writeNumber(int i) throws JacksonException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedInt(i);
-            return;
+            return this;
         }
         // up to 10 digits and possible minus sign
         if ((_outputTail + 11) >= _outputEnd) {
             _flushBuffer();
         }
         _outputTail = NumberOutput.outputInt(i, _outputBuffer, _outputTail);
+        return this;
     }
 
     private void _writeQuotedInt(int i) throws JacksonException {
@@ -781,18 +801,19 @@ public class WriterBasedJsonGenerator
     }    
 
     @Override
-    public void writeNumber(long l) throws JacksonException
+    public JsonGenerator writeNumber(long l) throws JacksonException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedLong(l);
-            return;
+            return this;
         }
         if ((_outputTail + 21) >= _outputEnd) {
             // up to 20 digits, minus sign
             _flushBuffer();
         }
         _outputTail = NumberOutput.outputLong(l, _outputBuffer, _outputTail);
+        return this;
     }
 
     private void _writeQuotedLong(long l) throws JacksonException {
@@ -807,7 +828,7 @@ public class WriterBasedJsonGenerator
     // !!! 05-Aug-2008, tatus: Any ways to optimize these?
 
     @Override
-    public void writeNumber(BigInteger value) throws JacksonException
+    public JsonGenerator writeNumber(BigInteger value) throws JacksonException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (value == null) {
@@ -817,38 +838,41 @@ public class WriterBasedJsonGenerator
         } else {
             writeRaw(value.toString());
         }
+        return this;
     }
 
     @Override
-    public void writeNumber(double d) throws JacksonException
+    public JsonGenerator writeNumber(double d) throws JacksonException
     {
         final boolean useFast = isEnabled(StreamWriteFeature.USE_FAST_DOUBLE_WRITER);
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(d) && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
             writeString(NumberOutput.toString(d, useFast));
-            return;
+            return this;
         }
         // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
         writeRaw(NumberOutput.toString(d, useFast));
+        return this;
     }
 
     @Override
-    public void writeNumber(float f) throws JacksonException
+    public JsonGenerator writeNumber(float f) throws JacksonException
     {
         final boolean useFast = isEnabled(StreamWriteFeature.USE_FAST_DOUBLE_WRITER);
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(f) && JsonWriteFeature.WRITE_NAN_AS_STRINGS.enabledIn(_formatWriteFeatures))) {
             writeString(NumberOutput.toString(f, useFast));
-            return;
+            return this;
         }
         // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
         writeRaw(NumberOutput.toString(f, useFast));
+        return this;
     }
 
     @Override
-    public void writeNumber(BigDecimal value) throws JacksonException
+    public JsonGenerator writeNumber(BigDecimal value) throws JacksonException
     {
         // Don't really know max length for big decimal, no point checking
         _verifyValueWrite(WRITE_NUMBER);
@@ -859,10 +883,11 @@ public class WriterBasedJsonGenerator
         } else {
             writeRaw(_asString(value));
         }
+        return this;
     }
 
     @Override
-    public void writeNumber(String encodedValue) throws JacksonException
+    public JsonGenerator writeNumber(String encodedValue) throws JacksonException
     {
         _verifyValueWrite(WRITE_NUMBER);
         if (encodedValue == null) {
@@ -872,16 +897,18 @@ public class WriterBasedJsonGenerator
         } else {
             writeRaw(encodedValue);
         }
+        return this;
     }
 
     @Override
-    public void writeNumber(char[] encodedValueBuffer, int offset, int length) throws JacksonException {
+    public JsonGenerator writeNumber(char[] encodedValueBuffer, int offset, int length) throws JacksonException {
         _verifyValueWrite(WRITE_NUMBER);
         if (_cfgNumbersAsStrings) {
             _writeQuotedRaw(encodedValueBuffer, offset, length);
         } else {
             writeRaw(encodedValueBuffer, offset, length);
         }
+        return this;
     }
 
     private void _writeQuotedRaw(String value) throws JacksonException
@@ -911,7 +938,7 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeBoolean(boolean state) throws JacksonException
+    public JsonGenerator writeBoolean(boolean state) throws JacksonException
     {
         _verifyValueWrite(WRITE_BOOLEAN);
         if ((_outputTail + 5) >= _outputEnd) {
@@ -932,12 +959,14 @@ public class WriterBasedJsonGenerator
             buf[++ptr] = 'e';
         }
         _outputTail = ptr+1;
+        return this;
     }
 
     @Override
-    public void writeNull() throws JacksonException {
+    public JsonGenerator writeNull() throws JacksonException {
         _verifyValueWrite(WRITE_NULL);
         _writeNull();
+        return this;
     }
 
     /*

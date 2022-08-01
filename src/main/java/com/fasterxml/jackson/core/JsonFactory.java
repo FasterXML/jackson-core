@@ -8,6 +8,8 @@ import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 
+import aQute.bnd.annotation.spi.ServiceProvider;
+
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
@@ -42,6 +44,7 @@ import com.fasterxml.jackson.core.util.JacksonFeature;
  * @author Tatu Saloranta
  */
 @SuppressWarnings("resource")
+@ServiceProvider(JsonFactory.class) // will be `TokenStreamFactory` in 3.x
 public class JsonFactory
     extends TokenStreamFactory
     implements Versioned,

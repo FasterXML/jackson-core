@@ -38,7 +38,6 @@
        still use Moditect to get JDK9+ module info support; need newer bundle plugin as well
        (can just defaults from `jackson-parent`)
       -->
-
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>
@@ -46,6 +45,9 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
+
+      <!-- Bnd annotations for generating extra OSGi metadata. -->
+      <version.bnd.annotation>6.3.1</version.bnd.annotation>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
@@ -142,6 +144,16 @@ com.fasterxml.jackson.core.*;version=${project.version}
   </build>
 
   <dependencies>
+    <!--  31-Jul-2022, tatu: [core#768] OSGi metadata -->
+    <dependency>
+      <groupId>biz.aQute.bnd</groupId>
+      <artifactId>biz.aQute.bnd.annotation</artifactId>
+      <version>${version.bnd.annotation}</version>
+      <optional>true</optional>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--  plus test dependencies -->
     <dependency>
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>

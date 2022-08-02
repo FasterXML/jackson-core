@@ -45,6 +45,8 @@ JSON library.
  (contributed by Evan G)
 #763: `JsonFactory.createParser()` with `File` may leak `InputStream`s
 #764: `JsonFactory.createGenerator()` with `File` may leak `OutputStream`s
+#768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
+ (requested by Chris R)
 #773: Add option to accept non-standard trailing decimal point
   (`JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS`)
  (contributed by @pjfanning)

@@ -318,3 +318,7 @@ Illia Ovchynnikov (wingsofovnia@github)
 Evan Galpin (egalpin@github)
   * Contributed #762: Make `JsonPointer` `java.io.Serializable`
   (2.14.0)
+
+Chris Rankin (chrisr3@github)
+  * Requested #768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
+  (2.14.0)

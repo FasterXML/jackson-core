@@ -563,8 +563,17 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeRaw(String text, int start, int len) throws IOException
+    public void writeRaw(String text, int offset, int len) throws IOException
     {
+        final int end = offset + len;
+
+        // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
+        if ((offset < 0) || (len < 0) || end > text.length()) {
+            _reportError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for String of length %d",
+offset, len, text.length()));
+        }
+
         // Nothing to check, can just output as is
         int room = _outputEnd - _outputTail;
 
@@ -574,10 +583,10 @@ public class WriterBasedJsonGenerator
         }
         // But would it nicely fit in? If yes, it's easy
         if (room >= len) {
-            text.getChars(start, start+len, _outputBuffer, _outputTail);
+            text.getChars(offset, end, _outputBuffer, _outputTail);
             _outputTail += len;
         } else {            	
-            writeRawLong(text.substring(start, start+len));
+            writeRawLong(text.substring(offset, end));
         }
     }
 
@@ -593,21 +602,28 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws IOException
+    public void writeRaw(char[] cbuf, int offset, int len) throws IOException
     {
+        // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
+        if ((offset < 0) || (len < 0) || (offset+len) > cbuf.length) {
+            _reportError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
+offset, len, cbuf.length));
+        }
+
         // Only worth buffering if it's a short write?
         if (len < SHORT_WRITE) {
             int room = _outputEnd - _outputTail;
             if (len > room) {
                 _flushBuffer();
             }
-            System.arraycopy(text, offset, _outputBuffer, _outputTail, len);
+            System.arraycopy(cbuf, offset, _outputBuffer, _outputTail, len);
             _outputTail += len;
             return;
         }
         // Otherwise, better just pass through:
         _flushBuffer();
-        _writer.write(text, offset, len);
+        _writer.write(cbuf, offset, len);
     }
 
     @Override

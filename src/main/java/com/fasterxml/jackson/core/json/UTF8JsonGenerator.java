@@ -670,19 +670,19 @@ public class UTF8JsonGenerator
     @Override
     public void writeRaw(String text, int offset, int len) throws IOException
     {
-        final char[] buf = _charBuffer;
-
+        final int end = offset+len;
         // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
-        if ((offset < 0) || (len < 0) || (offset+len) > text.length()) {
+        if ((offset < 0) || (len < 0) || (end > text.length())) {
             _reportError(String.format(
 "Invalid 'offset' (%d) and/or 'len' (%d) arguments for String of length %d",
 offset, len, text.length()));
         }
 
+        final char[] buf = _charBuffer;
         final int cbufLen = buf.length;
         // minor optimization: see if we can just get and copy
         if (len <= cbufLen) {
-            text.getChars(offset, offset+len, buf, 0);
+            text.getChars(offset, end, buf, 0);
             writeRaw(buf, 0, len);
             return;
         }
@@ -745,6 +745,13 @@ offset, len, text.length()));
     @Override
     public final void writeRaw(char[] cbuf, int offset, int len) throws IOException
     {
+        // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
+        if ((offset < 0) || (len < 0) || (offset+len) > cbuf.length) {
+            _reportError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
+offset, len, cbuf.length));
+        }
+
         // First: if we have 3 x charCount spaces, we know it'll fit just fine
         {
             int len3 = len+len+len;

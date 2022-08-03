@@ -671,8 +671,15 @@ public class UTF8JsonGenerator
     public void writeRaw(String text, int offset, int len) throws IOException
     {
         final char[] buf = _charBuffer;
-        final int cbufLen = buf.length;
 
+        // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
+        if ((offset < 0) || (len < 0) || (offset+len) > text.length()) {
+            _reportError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for String of length %d",
+offset, len, text.length()));
+        }
+
+        final int cbufLen = buf.length;
         // minor optimization: see if we can just get and copy
         if (len <= cbufLen) {
             text.getChars(offset, offset+len, buf, 0);

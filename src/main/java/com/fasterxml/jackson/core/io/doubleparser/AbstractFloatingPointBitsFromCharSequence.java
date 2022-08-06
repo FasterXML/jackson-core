@@ -10,7 +10,7 @@
 package com.fasterxml.jackson.core.io.doubleparser;
 
 /**
- * Parses a {@code FloatValue} from a {@link CharSequence}.
+ * Parses a {@code FloatingPointLiteral} from a {@link CharSequence}.
  * <p>
  * This class should have a type parameter for the return value of its parse
  * methods. Unfortunately Java does not support type parameters for primitive
@@ -18,29 +18,12 @@ package com.fasterxml.jackson.core.io.doubleparser;
  * fit a {@code double} value or a {@code float} value.
  * <p>
  * See {@link com.fasterxml.jackson.core.io.doubleparser} for the grammar of
- * {@code FloatValue}.
+ * {@code FloatingPointLiteral}.
  */
-abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValueParser {
+abstract class AbstractFloatingPointBitsFromCharSequence extends AbstractFloatValueParser {
 
     private boolean isDigit(char c) {
         return '0' <= c && c <= '9';
-    }
-
-    /**
-     * Creates a new {@link NumberFormatException} for the provided string.
-     *
-     * @param str        a string containing a {@code FloatValue} production
-     * @param startIndex start index (inclusive) of the {@code FloatValue} production in str
-     * @param endIndex   end index (exclusive) of the {@code FloatValue} production in str
-     * @return a new  {@link NumberFormatException}
-     */
-    private NumberFormatException newNumberFormatException(CharSequence str, int startIndex, int endIndex) {
-        if (endIndex - startIndex > 64) {
-            // str can be up to Integer.MAX_VALUE characters long
-            return new NumberFormatException("For input string of length " + (endIndex - startIndex));
-        } else {
-            return new NumberFormatException("For input string: \"" + str.subSequence(startIndex, endIndex) + "\"");
-        }
     }
 
     /**
@@ -62,8 +45,8 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
      * @param endIndex       end index (exclusive)
      * @param isNegative     true if the float value is negative
      * @param hasLeadingZero true if we have consumed the optional leading zero
-     * @return a float value
-     * @throws NumberFormatException on parsing failure
+     * @return the bit pattern of the parsed value, if the input is legal;
+     * otherwise, {@code -1L}.
      */
     private long parseDecFloatLiteral(CharSequence str, int index, int startIndex, int endIndex, boolean isNegative, boolean hasLeadingZero) {
         // Parse significand
@@ -83,7 +66,7 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
             } else if (ch == '.') {
                 illegal |= virtualIndexOfPoint >= 0;
                 virtualIndexOfPoint = index;
-                for (;index < endIndex - 8;index += 8) {
+                for (; index < endIndex - 8; index += 8) {
                     int eightDigits = tryToParseEightDigits(str, index + 1);
                     if (eightDigits < 0) {
                         break;
@@ -99,12 +82,12 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
         final int significandEndIndex = index;
         int exponent;
         if (virtualIndexOfPoint < 0) {
-            digitCount = index - significandStartIndex;
-            virtualIndexOfPoint = index;
+            digitCount = significandEndIndex - significandStartIndex;
+            virtualIndexOfPoint = significandEndIndex;
             exponent = 0;
         } else {
-            digitCount = index - significandStartIndex - 1;
-            exponent = virtualIndexOfPoint - index + 1;
+            digitCount = significandEndIndex - significandStartIndex - 1;
+            exponent = virtualIndexOfPoint - significandEndIndex + 1;
         }
 
         // Parse exponent number
@@ -130,12 +113,18 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
             exponent += expNumber;
         }
 
-        // Skip trailing whitespace and check if FloatValue is complete
+        // Skip optional FloatTypeSuffix
+        // ------------------------
+        if (index < endIndex && (ch == 'd' || ch == 'D' || ch == 'f' || ch == 'F')) {
+            index++;
+        }
+
+        // Skip trailing whitespace and check if FloatingPointLiteral is complete
         // ------------------------
         index = skipWhitespace(str, index, endIndex);
         if (illegal || index < endIndex
                 || !hasLeadingZero && digitCount == 0) {
-            throw newNumberFormatException(str, startIndex, endIndex);
+            return PARSE_ERROR;
         }
 
         // Re-parse significand in case of a potential overflow
@@ -168,31 +157,34 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
     }
 
     /**
-     * Parses a {@code FloatValue} production with optional leading and trailing
+     * Parses a {@code FloatingPointLiteral} production with optional leading and trailing
      * white space.
      * <blockquote>
      * <dl>
-     * <dt><i>FloatValueWithWhiteSpace:</i></dt>
-     * <dd><i>[WhiteSpace] FloatValue [WhiteSpace]</i></dd>
+     * <dt><i>FloatingPointLiteralWithWhiteSpace:</i></dt>
+     * <dd><i>[WhiteSpace] FloatingPointLiteral [WhiteSpace]</i></dd>
      * </dl>
      * </blockquote>
      * See {@link com.fasterxml.jackson.core.io.doubleparser} for the grammar of
-     * {@code FloatValue}.
+     * {@code FloatingPointLiteral}.
      *
-     * @param str    a string containing a {@code FloatValueWithWhiteSpace}
-     * @param offset start offset of {@code FloatValueWithWhiteSpace} in {@code str}
-     * @param length length of {@code FloatValueWithWhiteSpace} in {@code str}
-     * @return the parsed value
-     * @throws NumberFormatException on parsing failure
+     * @param str    a string containing a {@code FloatingPointLiteralWithWhiteSpace}
+     * @param offset start offset of {@code FloatingPointLiteralWithWhiteSpace} in {@code str}
+     * @param length length of {@code FloatingPointLiteralWithWhiteSpace} in {@code str}
+     * @return the bit pattern of the parsed value, if the input is legal;
+     * otherwise, {@code -1L}.
      */
-    long parseFloatValue(CharSequence str, int offset, int length) throws NumberFormatException {
+    public long parseFloatingPointLiteral(CharSequence str, int offset, int length) {
         final int endIndex = offset + length;
+        if (offset < 0 || endIndex > str.length()) {
+            return PARSE_ERROR;
+        }
 
         // Skip leading whitespace
         // -------------------
         int index = skipWhitespace(str, offset, endIndex);
         if (index == endIndex) {
-            throw new NumberFormatException("empty String");
+            return PARSE_ERROR;
         }
         char ch = str.charAt(index);
 
@@ -202,7 +194,7 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
         if (isNegative || ch == '+') {
             ch = ++index < endIndex ? str.charAt(index) : 0;
             if (ch == 0) {
-                throw newNumberFormatException(str, offset, endIndex);
+                return PARSE_ERROR;
             }
         }
 
@@ -225,6 +217,13 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
         }
 
         return parseDecFloatLiteral(str, index, offset, endIndex, isNegative, hasLeadingZero);
+        /*
+        if (FALL_BACK_TO_BIGDECIMAL) {
+            return parseDecFloatLiteralBigDecimal(str, index, offset, endIndex, isNegative, hasLeadingZero);
+        } else {
+            return parseDecFloatLiteralDecimal(str, index, offset, endIndex, isNegative, hasLeadingZero);
+        }
+        */
     }
 
     /**
@@ -247,14 +246,15 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
      * @param startIndex the start index of the string
      * @param endIndex   the end index of the string
      * @param isNegative if the resulting number is negative
-     * @return a double representation
+     * @return the bit pattern of the parsed value, if the input is legal;
+     * otherwise, {@code -1L}.
      */
     private long parseHexFloatLiteral(
             CharSequence str, int index, int startIndex, int endIndex, boolean isNegative) {
 
         // Parse HexSignificand
         // ------------
-        long significand = 0;// digits is treated as an unsigned long
+        long significand = 0;// significand is treated as an unsigned long
         int exponent = 0;
         final int significandStartIndex = index;
         int virtualIndexOfPoint = -1;
@@ -318,13 +318,19 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
             exponent += expNumber;
         }
 
-        // Skip trailing whitespace and check if FloatValue is complete
+        // Skip optional FloatTypeSuffix
+        // ------------------------
+        if (index < endIndex && (ch == 'd' || ch == 'D' || ch == 'f' || ch == 'F')) {
+            index++;
+        }
+
+        // Skip trailing whitespace and check if FloatingPointLiteral is complete
         // ------------------------
         index = skipWhitespace(str, index, endIndex);
         if (illegal || index < endIndex
                 || digitCount == 0 && str.charAt(virtualIndexOfPoint) != '.'
                 || !hasExponent) {
-            throw newNumberFormatException(str, startIndex, endIndex);
+            return PARSE_ERROR;
         }
 
         // Re-parse significand in case of a potential overflow
@@ -388,7 +394,7 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
                 return negative ? negativeInfinity() : positiveInfinity();
             }
         }
-        throw newNumberFormatException(str, index, endIndex);
+        return PARSE_ERROR;
     }
 
     /**
@@ -420,7 +426,7 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
                 return nan();
             }
         }
-        throw newNumberFormatException(str, index, endIndex);
+        return PARSE_ERROR;
     }
 
     /**
@@ -488,7 +494,8 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
      * @param isSignificandTruncated         whether the significand is truncated
      * @param exponentOfTruncatedSignificand the exponent value of the truncated
      *                                       significand
-     * @return the float value in the specialized type wrapped in a {@code long}
+     * @return the bit pattern of the parsed value, if the input is legal;
+     * otherwise, {@code -1L}.
      */
     abstract long valueOfFloatLiteral(
             CharSequence str, int startIndex, int endIndex,
@@ -510,11 +517,11 @@ abstract class AbstractFloatValueFromCharSequence extends AbstractFloatValuePars
      * @param isSignificandTruncated         whether the significand is truncated
      * @param exponentOfTruncatedSignificand the exponent value of the truncated
      *                                       significand
-     * @return the float value in the specialized type wrapped in a {@code long}
+     * @return the bit pattern of the parsed value, if the input is legal;
+     * otherwise, {@code -1L}.
      */
     abstract long valueOfHexLiteral(
             CharSequence str, int startIndex, int endIndex,
             boolean isNegative, long significand, int exponent,
             boolean isSignificandTruncated, int exponentOfTruncatedSignificand);
-
 }

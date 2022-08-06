@@ -12,13 +12,13 @@ package com.fasterxml.jackson.core.io.doubleparser;
 /**
  * Parses a {@code double} from a {@link CharSequence}.
  */
-public final class DoubleFromCharSequence extends AbstractFloatValueFromCharSequence {
+final class DoubleBitsFromCharSequence extends AbstractFloatingPointBitsFromCharSequence {
 
 
     /**
      * Creates a new instance.
      */
-    public DoubleFromCharSequence() {
+    public DoubleBitsFromCharSequence() {
 
     }
 
@@ -30,22 +30,6 @@ public final class DoubleFromCharSequence extends AbstractFloatValueFromCharSequ
     @Override
     long negativeInfinity() {
         return Double.doubleToRawLongBits(Double.NEGATIVE_INFINITY);
-    }
-
-    /**
-     * Parses a {@code FloatValue} from a {@link CharSequence} and converts it
-     * into a {@code double} value.
-     * <p>
-     * See {@link com.fasterxml.jackson.core.io.doubleparser} for the syntax of {@code FloatValue}.
-     *
-     * @param str    the string to be parsed
-     * @param offset the start offset of the {@code FloatValue} in {@code str}
-     * @param length the length of {@code FloatValue} in {@code str}
-     * @return the parsed double value
-     * @throws NumberFormatException if the string can not be parsed
-     */
-    public double parseDouble(CharSequence str, int offset, int length) throws NumberFormatException {
-        return Double.longBitsToDouble(parseFloatValue(str, offset, length));
     }
 
     @Override

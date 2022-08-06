@@ -15,11 +15,11 @@ import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA
 import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.fullMultiplication;
 
 /**
- * This class complements {@code FastDoubleMath} with methods for
- * converting {@code FloatValue} productions to floats.
+ * This class complements {@link FastDoubleMath} with methods for
+ * converting {@code FloatingPointLiteral} productions to floats.
  * <p>
  * See {@link com.fasterxml.jackson.core.io.doubleparser} for a description of
- * {@code FloatValue}.
+ * {@code FloatingPointLiteral}.
  */
 class FastFloatMath {
     /**

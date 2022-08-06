@@ -111,4 +111,23 @@ public class FastDoubleParser {
     public static long parseDoubleBits(CharSequence str, int offset, int length) {
         return new DoubleBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
     }
+
+    /**
+     * Parses a {@code FloatingPointLiteral} from a {@code byte}-Array and converts it
+     * into a bit pattern that encodes a {@code double} value.
+     * <p>
+     * See {@link com.fasterxml.jackson.core.io.doubleparser} for the syntax of {@code FloatingPointLiteral}.
+     * <p>
+     * See {@link #parseDoubleBits(CharSequence, int, int)} for a usage example.
+     *
+     * @param str    the string to be parsed, a byte array with characters
+     *               in ISO-8859-1, ASCII or UTF-8 encoding
+     * @param offset The index of the first character to parse
+     * @param length The number of characters to parse
+     * @return the bit pattern of the parsed value, if the input is legal;
+     * otherwise, {@code -1L}.
+     */
+    public static long parseDoubleBits(char[] str, int offset, int length) {
+        return new DoubleBitsFromCharArray().parseFloatingPointLiteral(str, offset, length);
+    }
 }

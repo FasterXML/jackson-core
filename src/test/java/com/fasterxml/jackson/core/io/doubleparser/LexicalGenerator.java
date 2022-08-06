@@ -85,7 +85,7 @@ class LexicalGenerator {
             path = FileSystems.getDefault().getPath(args[0]);
         }
         Random rng = new Random(0);
-        LexicalGenerator gen = new LexicalGenerator(false, false);
+        LexicalGenerator gen = new LexicalGenerator(false, true);
         Set<String> produced = new HashSet<>();
         try (BufferedWriter w = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             while (produced.size() < 100_000) {
@@ -128,45 +128,45 @@ class LexicalGenerator {
      */
     private int produceRandomDecimalFloatingPointLiteral(int remaining, Random rng, StringBuilder buf) {
         switch (rng.nextInt(4)) {
-            case 0:
+        case 0:
+            remaining = produceRandomDigits(remaining, rng, buf);
+            buf.append('.');
+            remaining--;
+            if (rng.nextBoolean()) {
                 remaining = produceRandomDigits(remaining, rng, buf);
-                buf.append('.');
-                remaining--;
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomDigits(remaining, rng, buf);
-                }
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomExponentPart(remaining, rng, buf);
-                }
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
-                }
-                break;
-            case 1:
-                buf.append('.');
-                remaining--;
-                remaining = produceRandomDigits(remaining, rng, buf);
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomExponentPart(remaining, rng, buf);
-                }
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
-                }
-                break;
-            case 2:
-                remaining = produceRandomDigits(remaining, rng, buf);
+            }
+            if (rng.nextBoolean()) {
                 remaining = produceRandomExponentPart(remaining, rng, buf);
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
-                }
-                break;
-            case 3:
-                remaining = produceRandomDigits(remaining, rng, buf);
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomExponentPart(remaining, rng, buf);
-                }
+            }
+            if (rng.nextBoolean()) {
                 remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
-                break;
+            }
+            break;
+        case 1:
+            buf.append('.');
+            remaining--;
+            remaining = produceRandomDigits(remaining, rng, buf);
+            if (rng.nextBoolean()) {
+                remaining = produceRandomExponentPart(remaining, rng, buf);
+            }
+            if (rng.nextBoolean()) {
+                remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
+            }
+            break;
+        case 2:
+            remaining = produceRandomDigits(remaining, rng, buf);
+            remaining = produceRandomExponentPart(remaining, rng, buf);
+            if (rng.nextBoolean()) {
+                remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
+            }
+            break;
+        case 3:
+            remaining = produceRandomDigits(remaining, rng, buf);
+            if (rng.nextBoolean()) {
+                remaining = produceRandomExponentPart(remaining, rng, buf);
+            }
+            remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
+            break;
         }
         return remaining;
     }
@@ -200,16 +200,16 @@ class LexicalGenerator {
      */
     private int produceRandomDigits(int remaining, Random rng, StringBuilder buf) {
         switch (rng.nextInt(2)) {
-            case 0:
-                remaining = produceRandomDigit(remaining, rng, buf);
-                break;
-            case 1:
-                remaining = produceRandomDigit(remaining, rng, buf);
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomDigitsAndUnderscores(remaining, rng, buf);
-                }
-                remaining = produceRandomDigit(remaining, rng, buf);
-                break;
+        case 0:
+            remaining = produceRandomDigit(remaining, rng, buf);
+            break;
+        case 1:
+            remaining = produceRandomDigit(remaining, rng, buf);
+            if (rng.nextBoolean()) {
+                remaining = produceRandomDigitsAndUnderscores(remaining, rng, buf);
+            }
+            remaining = produceRandomDigit(remaining, rng, buf);
+            break;
         }
 
         return remaining;
@@ -224,20 +224,20 @@ class LexicalGenerator {
      */
     private int produceRandomDigitsAndUnderscores(int remaining, Random rng, StringBuilder buf) {
         switch (rng.nextInt(2)) {
-            case 0:
+        case 0:
+            remaining = produceRandomDigitOrUnderscore(remaining, rng, buf);
+            int todo = rng.nextInt(Math.max(remaining, 1));
+            for (int i = 0; i < todo; i++) {
                 remaining = produceRandomDigitOrUnderscore(remaining, rng, buf);
-                int todo = rng.nextInt(Math.max(remaining, 1));
-                for (int i = 0; i < todo; i++) {
-                    remaining = produceRandomDigitOrUnderscore(remaining, rng, buf);
-                }
-                break;
-            case 1:
-                remaining = produceRandomDigit(remaining, rng, buf);
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomDigitsAndUnderscores(remaining, rng, buf);
-                }
-                remaining = produceRandomDigit(remaining, rng, buf);
-                break;
+            }
+            break;
+        case 1:
+            remaining = produceRandomDigit(remaining, rng, buf);
+            if (rng.nextBoolean()) {
+                remaining = produceRandomDigitsAndUnderscores(remaining, rng, buf);
+            }
+            remaining = produceRandomDigit(remaining, rng, buf);
+            break;
         }
         return remaining;
     }
@@ -256,8 +256,8 @@ class LexicalGenerator {
     }
 
     /**
-     * This method produces nothing because
-     * FloatTypeSuffix is not accepted by {@link Double#parseDouble(String)}.
+     * This method only produces something {@code produceFloatTypeSuffix}
+     * is set to true.
      *
      * <dl>
      * <dt><i>FloatTypeSuffix:</i>
@@ -268,18 +268,18 @@ class LexicalGenerator {
     private int produceRandomFloatTypeSuffix(int remaining, Random rng, StringBuilder buf) {
         if (produceFloatTypeSuffix) {
             switch (rng.nextInt(4)) {
-                case 0:
-                    buf.append('f');
-                    break;
-                case 1:
-                    buf.append('F');
-                    break;
-                case 2:
-                    buf.append('d');
-                    break;
-                case 3:
-                    buf.append('D');
-                    break;
+            case 0:
+                buf.append('f');
+                break;
+            case 1:
+                buf.append('F');
+                break;
+            case 2:
+                buf.append('d');
+                break;
+            case 3:
+                buf.append('D');
+                break;
             }
             remaining--;
         }
@@ -288,27 +288,27 @@ class LexicalGenerator {
 
     private int produceRandomFloatValue(int remaining, Random rng, StringBuilder buf) {
         switch (rng.nextInt(4)) {
-            case 0:
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomSign(remaining, rng, buf);
-                }
-                remaining = produceRandomNaNOrInfinity(remaining, rng, buf);
-                break;
-            case 1:
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomSign(remaining, rng, buf);
-                }
-                remaining = produceRandomDecimalFloatingPointLiteral(remaining, rng, buf);
-                break;
-            case 2:
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomSign(remaining, rng, buf);
-                }
-                remaining = produceRandomHexFloatingPointLiteral(remaining, rng, buf);
-                break;
-            case 3:
-                remaining = produceRandomSignedInteger(remaining, rng, buf);
-                break;
+        case 0:
+            if (rng.nextBoolean()) {
+                remaining = produceRandomSign(remaining, rng, buf);
+            }
+            remaining = produceRandomNaNOrInfinity(remaining, rng, buf);
+            break;
+        case 1:
+            if (rng.nextBoolean()) {
+                remaining = produceRandomSign(remaining, rng, buf);
+            }
+            remaining = produceRandomDecimalFloatingPointLiteral(remaining, rng, buf);
+            break;
+        case 2:
+            if (rng.nextBoolean()) {
+                remaining = produceRandomSign(remaining, rng, buf);
+            }
+            remaining = produceRandomHexFloatingPointLiteral(remaining, rng, buf);
+            break;
+        case 3:
+            remaining = produceRandomSignedInteger(remaining, rng, buf);
+            break;
         }
         return remaining;
     }
@@ -371,24 +371,24 @@ class LexicalGenerator {
      */
     private int produceRandomHexSignificand(int remaining, Random rng, StringBuilder buf) {
         switch (rng.nextInt(3)) {
-            case 0:
-                remaining = produceRandomHexNumeral(remaining, rng, buf);
-                break;
-            case 1:
-                remaining = produceRandomHexNumeral(remaining, rng, buf);
-                buf.append('.');
-                remaining--;
-                break;
-            case 2:
-                buf.append(rng.nextBoolean() ? "0x" : "0X");
-                remaining--;
-                if (rng.nextBoolean()) {
-                    remaining = produceRandomHexDigits(remaining, rng, buf);
-                }
-                buf.append('.');
-                remaining--;
+        case 0:
+            remaining = produceRandomHexNumeral(remaining, rng, buf);
+            break;
+        case 1:
+            remaining = produceRandomHexNumeral(remaining, rng, buf);
+            buf.append('.');
+            remaining--;
+            break;
+        case 2:
+            buf.append(rng.nextBoolean() ? "0x" : "0X");
+            remaining--;
+            if (rng.nextBoolean()) {
                 remaining = produceRandomHexDigits(remaining, rng, buf);
-                break;
+            }
+            buf.append('.');
+            remaining--;
+            remaining = produceRandomHexDigits(remaining, rng, buf);
+            break;
         }
         return remaining;
     }

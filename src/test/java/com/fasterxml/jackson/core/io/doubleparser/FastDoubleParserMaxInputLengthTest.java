@@ -106,7 +106,7 @@ public class FastDoubleParserMaxInputLengthTest {
         private int startIndex;
         private int endIndex;
 
-        MaxLengthCharSequence(String str) {
+        private MaxLengthCharSequence(String str) {
             this.str = str;
             this.startIndex = 0;
             this.endIndex = Integer.MAX_VALUE;

@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class FastDoubleSwarSwarTest extends AbstractFastDoubleSwarTest {
+public class EightDigitsSwarTest extends AbstractEightDigitsTest {
     @Override
     void testDec(String s, int offset, int expected) {
         char[] chars = s.toCharArray();

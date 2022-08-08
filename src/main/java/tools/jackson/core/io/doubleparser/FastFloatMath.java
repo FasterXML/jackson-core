@@ -9,17 +9,14 @@
 
 package tools.jackson.core.io.doubleparser;
 
-import static tools.jackson.core.io.doubleparser.FastDoubleMath.DOUBLE_MIN_EXPONENT_POWER_OF_TEN;
-import static tools.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_128;
-import static tools.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_64;
-import static tools.jackson.core.io.doubleparser.FastDoubleMath.fullMultiplication;
+import static tools.jackson.core.io.doubleparser.FastDoubleMath.*;
 
 /**
- * This class complements {@code FastDoubleMath} with methods for
- * converting {@code FloatValue} productions to floats.
+ * This class complements {@link FastDoubleMath} with methods for
+ * converting {@code FloatingPointLiteral} productions to floats.
  * <p>
  * See {@link tools.jackson.core.io.doubleparser} for a description of
- * {@code FloatValue}.
+ * {@code FloatingPointLiteral}.
  */
 class FastFloatMath {
     /**

@@ -9,9 +9,9 @@
 
 package tools.jackson.core.io.doubleparser;
 
-public class FastDoubleParserNumericallyGeneratedTest extends AbstractNumericallyGeneratedTest {
+public class FastDoubleParserFromCharArrayNumericallyGeneratedTest extends AbstractDoubleNumericallyGeneratedTest {
     @Override
     protected double parse(String str) {
-        return FastDoubleParser.parseDouble(str);
+        return FastDoubleParser.parseDouble(str.toCharArray());
     }
 }

@@ -9,16 +9,18 @@
 
 package tools.jackson.core.io.doubleparser;
 
-public class FastFloatParserHandPickedTest extends AbstractFloatHandPickedTest {
-
-
+public class FastFloatParserFromCharArrayHandPickedTest extends AbstractFloatHandPickedTest {
     @Override
     float parse(CharSequence str) {
-        return FastFloatParser.parseFloat(str);
+        char[] chars = new char[str.length()];
+        for (int i = 0; i < chars.length; i++) {
+            chars[i] = str.charAt(i);
+        }
+        return FastFloatParser.parseFloat(chars);
     }
 
     @Override
     protected float parse(String str, int offset, int length) {
-        return FastFloatParser.parseFloat(str, offset, length);
+        return FastFloatParser.parseFloat(str.toCharArray(), offset, length);
     }
 }

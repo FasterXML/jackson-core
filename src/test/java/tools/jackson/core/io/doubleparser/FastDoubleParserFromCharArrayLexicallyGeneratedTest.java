@@ -1,17 +1,17 @@
-/*
- * @(#)FastDoubleParserLexcicallyGeneratedTest.java
- * Copyright © 2021. Werner Randelshofer, Switzerland. MIT License.
+/**
+ * References:
+ * <dl>
+ *     <dt>This class has been derived from "FastDoubleParser".</dt>
+ *     <dd>Copyright (c) Werner Randelshofer. Apache 2.0 License.
+ *         <a href="https://github.com/wrandelshofer/FastDoubleParser">github.com</a>.</dd>
+ * </dl>
  */
 
 package tools.jackson.core.io.doubleparser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FastDoubleParserFromCharSequenceLexicallyGeneratedTest extends AbstractLexicallyGeneratedTest {
-    protected double parse(String str) {
-        return FastDoubleParser.parseDouble(str);
-    }
-
+public class FastDoubleParserFromCharArrayLexicallyGeneratedTest extends AbstractLexicallyGeneratedTest {
     @Override
     protected void testAgainstJdk(String str) {
         double expected = 0.0;
@@ -25,7 +25,7 @@ public class FastDoubleParserFromCharSequenceLexicallyGeneratedTest extends Abst
         double actual = 0;
         boolean actualFailed = false;
         try {
-            actual = FastDoubleParser.parseDouble(str);
+            actual = FastDoubleParser.parseDouble(str.toCharArray());
         } catch (NumberFormatException t) {
             actualFailed = true;
         }

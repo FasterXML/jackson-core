@@ -9,12 +9,12 @@
 
 package tools.jackson.core.io.doubleparser;
 
+import org.junit.jupiter.api.DynamicNode;
+import org.junit.jupiter.api.TestFactory;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.jupiter.api.DynamicNode;
-import org.junit.jupiter.api.TestFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -44,7 +44,7 @@ public class ParseSignificandWithSwarTest {
     public void doLegalTest(String s) {
         double actual = significandToDouble(s.getBytes(StandardCharsets.ISO_8859_1));
         double expected = Double.parseDouble(s);
-//        System.out.println(expected + " == " + actual);
+        System.out.println(expected + " == " + actual);
         assertEquals(expected, actual);
     }
 

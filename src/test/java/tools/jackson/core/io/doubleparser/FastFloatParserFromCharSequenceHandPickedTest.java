@@ -9,8 +9,9 @@
 
 package tools.jackson.core.io.doubleparser;
 
-public class FastFloatParserFromCharSequenceHandPickedTest extends AbstractFloatHandPickedTest
-{
+public class FastFloatParserFromCharSequenceHandPickedTest extends AbstractFloatHandPickedTest {
+
+
     @Override
     float parse(CharSequence str) {
         return FastFloatParser.parseFloat(str);

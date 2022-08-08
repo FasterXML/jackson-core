@@ -9,8 +9,9 @@
 
 package tools.jackson.core.io.doubleparser;
 
-public class FastDoubleParserHandPickedTest extends AbstractDoubleHandPickedTest
-{
+public class FastDoubleParserFromCharSequenceHandPickedTest extends AbstractDoubleHandPickedTest {
+
+
     @Override
     double parse(CharSequence str) {
         return FastDoubleParser.parseDouble(str);

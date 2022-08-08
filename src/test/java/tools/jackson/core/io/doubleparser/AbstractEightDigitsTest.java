@@ -17,12 +17,16 @@ import java.util.List;
 
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-public abstract class AbstractFastDoubleSwarTest {
+public abstract class AbstractEightDigitsTest {
     @TestFactory
     List<DynamicNode> dynamicTestsIllegalEightDecDigitsLiterals() {
         return Arrays.asList(
                 dynamicTest("1234567x", () -> testDec("1234567x", 0, -1)),
                 dynamicTest("x7654321", () -> testDec("x7654321", 0, -1)),
+                dynamicTest("123456/7", () -> testDec("123456/7", 0, -1)),
+                dynamicTest("7/654321", () -> testDec("7/654321", 0, -1)),
+                dynamicTest("12345:67", () -> testDec("12345:67", 0, -1)),
+                dynamicTest("76:54321", () -> testDec("76:54321", 0, -1)),
 
                 dynamicTest("x12345678xx", () -> testDec("x12345678xx", 2, -1))
         );

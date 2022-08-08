@@ -9,9 +9,8 @@
 
 package tools.jackson.core.io.doubleparser;
 
-public class FastFloatParserFromCharSequenceNumericallyGeneratedTest extends AbstractFloatNumericallyGeneratedTest {
-    @Override
-    protected float parse(String str) {
-        return FastFloatParser.parseFloat(str);
-    }
+/**
+ * Tests class {@link FastDoubleMath}.
+ */
+public class FastFloatMathTest {
 }

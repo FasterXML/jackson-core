@@ -9,12 +9,12 @@
 
 package tools.jackson.core.io.doubleparser;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -106,7 +106,7 @@ public class FastDoubleParserMaxInputLengthTest {
         private int startIndex;
         private int endIndex;
 
-        MaxLengthCharSequence(String str) {
+        private MaxLengthCharSequence(String str) {
             this.str = str;
             this.startIndex = 0;
             this.endIndex = Integer.MAX_VALUE;

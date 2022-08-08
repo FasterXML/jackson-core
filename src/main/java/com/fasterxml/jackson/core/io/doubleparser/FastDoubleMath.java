@@ -773,7 +773,7 @@ class FastDoubleMath {
      * @param y uint64 factor y
      * @return uint128 product of x and y
      */
-    static UInt128 fullMultiplication(long x, long y) {
+    static UInt128 fullMultiplication(long x, long y) {//before Java 18
         long x0 = x & 0xffffffffL, x1 = x >>> 32;
         long y0 = y & 0xffffffffL, y1 = y >>> 32;
         long p11 = x1 * y1, p01 = x0 * y1;
@@ -1106,9 +1106,14 @@ class FastDoubleMath {
     static class UInt128 {
         final long high, low;
 
-        UInt128(long high, long low) {
+        private UInt128(long high, long low) {
             this.high = high;
             this.low = low;
         }
+    }
+
+    public static long clamp(long value, long min, long max) {
+        //noinspection ManualMinMaxCalculation
+        return value < min ? min : (value > max ? max : value);
     }
 }

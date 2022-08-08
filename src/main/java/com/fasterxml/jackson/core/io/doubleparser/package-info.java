@@ -5,7 +5,10 @@
  *     <dd>Copyright (c) Werner Randelshofer. Apache 2.0 License.
  *         <a href="https://github.com/wrandelshofer/FastDoubleParser">github.com</a>.</dd>
  * </dl>
- * Provides parsers that parse a {@code FloatValue} from a
+ */
+
+/**
+ * Provides parsers that parse a {@code FloatingPointLiteral} from a
  * {@link java.lang.CharSequence}, {@code char} array, or {@code byte} array
  * ({@code str});.
  * <p>
@@ -13,11 +16,11 @@
  * Whitespace is removed as if by the {@link java.lang.String#trim()} method;
  * that is, characters in the range [U+0000,U+0020].
  * <p>
- * The rest of {@code str} should constitute a  {@code FloatValue} as described
+ * The rest of {@code str} should constitute a  {@code FloatingPointLiteral} as described
  * by the lexical syntax rules shown below:
  * <blockquote>
  * <dl>
- * <dt><i>FloatValue:</i></dt>
+ * <dt><i>FloatingPointLiteral:</i></dt>
  * <dd><i>[Sign]</i> {@code NaN}</dd>
  * <dd><i>[Sign]</i> {@code Infinity}</dd>
  * <dd><i>[Sign] DecimalFloatingPointLiteral</i></dd>
@@ -27,7 +30,7 @@
  *
  * <dl>
  * <dt><i>HexFloatingPointLiteral</i>:
- * <dd><i>HexSignificand BinaryExponent</i>
+ * <dd><i>HexSignificand BinaryExponent [FloatTypeSuffix]</i>
  * </dl>
  *
  * <dl>
@@ -59,7 +62,7 @@
  *
  * <dl>
  * <dt><i>DecimalFloatingPointLiteral:</i>
- * <dd><i>DecSignificand [DecExponent]</i>
+ * <dd><i>DecSignificand [DecExponent] [FloatTypeSuffix]</i>
  * </dl>
  *
  * <dl>
@@ -112,6 +115,12 @@
  * <dd><i>(one of)</i>
  * <dd>{@code 0 1 2 3 4 5 6 7 8 9 a b c d e f A B C D E F}
  * </dl>
+ *
+ * <dl>
+ * <dt><i>FloatTypeSuffix:</i>
+ * <dd><i>(one of)</i>
+ * <dd>{@code f F d D}
+ * </dl>
  * </blockquote>
  * <p>
  * References:
@@ -119,7 +128,5 @@
  *     <dt>The Java® Language Specification, Java SE 18 Edition, Chapter 3. Lexical Structure, 3.10.2. Floating-Point Literals </dt>
  *     <dd><a href="https://docs.oracle.com/javase/specs/jls/se18/html/jls-3.html#jls-3.10.2">docs.oracle.com</a></dd>
  * </dl>
- *
- * @since 2.14
  */
 package com.fasterxml.jackson.core.io.doubleparser;

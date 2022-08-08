@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -20,76 +21,11 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 abstract class AbstractDoubleHandPickedTest {
-
-    /**
-     * Tests input classes that execute different code branches in the parse
-     * methods of {@link AbstractFloatValueFromCharSequence}.
-     * <p>
-     * This test must achieve 100 % line coverage of the tested class.
-     */
-    @TestFactory
-    List<DynamicNode> dynamicTestsDecFloatLiteralParserInputClasses() {
-        return Arrays.asList(
-                dynamicTest("parseFloatValue(): Significand without whitespace", () -> testLegalInput("3")),
-                dynamicTest("parseFloatValue(): Significand with leading whitespace", () -> testLegalInput("   3")),
-                dynamicTest("parseFloatValue(): Significand with trailing whitespace", () -> testLegalInput("3   ")),
-                dynamicTest("parseFloatValue(): Empty String", () -> testIllegalInput("")),
-                dynamicTest("parseFloatValue(): Blank String", () -> testIllegalInput("   ")),
-                dynamicTest("parseFloatValue(): Very long non-blank String", () -> testIllegalInput("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")),
-                dynamicTest("parseFloatValue(): Plus Sign", () -> testIllegalInput("+")),
-                dynamicTest("parseFloatValue(): Negative Sign", () -> testIllegalInput("-")),
-                dynamicTest("parseFloatValue(): Infinity", () -> testLegalInput("Infinity")),
-                dynamicTest("parseFloatValue(): NaN", () -> testLegalInput("NaN")),
-                dynamicTest("parseInfinity(): Infinit (missing last char)", () -> testIllegalInput("Infinit")),
-                dynamicTest("parseInfinity(): InfinitY (bad last char)", () -> testIllegalInput("InfinitY")),
-                dynamicTest("parseNaN(): Na (missing last char)", () -> testIllegalInput("Na")),
-                dynamicTest("parseNaN(): Nan (bad last char)", () -> testIllegalInput("Nan")),
-                dynamicTest("parseFloatValue(): Leading zero", () -> testLegalInput("03")),
-                dynamicTest("parseFloatValue(): Leading zero x", () -> testIllegalInput("0x3")),
-                dynamicTest("parseFloatValue(): Leading zero X", () -> testIllegalInput("0X3")),
-
-                dynamicTest("parseDecFloatLiteral(): With decimal point", () -> testLegalInput("3.")),
-                dynamicTest("parseDecFloatLiteral(): Without decimal point", () -> testLegalInput("3")),
-                dynamicTest("parseDecFloatLiteral(): 7 digits after decimal point", () -> testLegalInput("3.1234567")),
-                dynamicTest("parseDecFloatLiteral(): 8 digits after decimal point", () -> testLegalInput("3.12345678")),
-                dynamicTest("parseDecFloatLiteral(): 9 digits after decimal point", () -> testLegalInput("3.123456789")),
-                dynamicTest("parseDecFloatLiteral(): 1 digit + 7 chars after decimal point", () -> testIllegalInput("3.1abcdefg")),
-                dynamicTest("parseDecFloatLiteral(): With 'e' at end", () -> testIllegalInput("3e")),
-                dynamicTest("parseDecFloatLiteral(): With 'E' at end", () -> testIllegalInput("3E")),
-                dynamicTest("parseDecFloatLiteral(): With 'e' + whitespace at end", () -> testIllegalInput("3e   ")),
-                dynamicTest("parseDecFloatLiteral(): With 'E' + whitespace  at end", () -> testIllegalInput("3E   ")),
-                dynamicTest("parseDecFloatLiteral(): With 'e+' at end", () -> testIllegalInput("3e+")),
-                dynamicTest("parseDecFloatLiteral(): With 'E-' at end", () -> testIllegalInput("3E-")),
-                dynamicTest("parseDecFloatLiteral(): With 'e+9' at end", () -> testLegalInput("3e+9")),
-                dynamicTest("parseDecFloatLiteral(): With 20 significand digits", () -> testLegalInput("12345678901234567890")),
-                dynamicTest("parseDecFloatLiteral(): With 20 significand digits + non-ascii char", () -> testIllegalInput("12345678901234567890￡")),
-                dynamicTest("parseDecFloatLiteral(): With 20 significand digits with decimal point", () -> testLegalInput("1234567890.1234567890")),
-
-                dynamicTest("parseHexFloatLiteral(): With decimal point", () -> testIllegalInput("0x3.")),
-                dynamicTest("parseHexFloatLiteral(): Without decimal point", () -> testIllegalInput("0X3")),
-                dynamicTest("parseHexFloatLiteral(): 7 digits after decimal point", () -> testIllegalInput("0x3.1234567")),
-                dynamicTest("parseHexFloatLiteral(): 8 digits after decimal point", () -> testIllegalInput("0X3.12345678")),
-                dynamicTest("parseHexFloatLiteral(): 9 digits after decimal point", () -> testIllegalInput("0x3.123456789")),
-                dynamicTest("parseHexFloatLiteral(): 1 digit + 7 chars after decimal point", () -> testIllegalInput("0X3.1abcdefg")),
-                dynamicTest("parseHexFloatLiteral(): With 'p' at end", () -> testIllegalInput("0X3p")),
-                dynamicTest("parseHexFloatLiteral(): With 'P' at end", () -> testIllegalInput("0x3P")),
-                dynamicTest("parseHexFloatLiteral(): With 'p' + whitespace at end", () -> testIllegalInput("0X3p   ")),
-                dynamicTest("parseHexFloatLiteral(): With 'P' + whitespace  at end", () -> testIllegalInput("0x3P   ")),
-                dynamicTest("parseHexFloatLiteral(): With 'p+' at end", () -> testIllegalInput("0X3p+")),
-                dynamicTest("parseHexFloatLiteral(): With 'P-' at end", () -> testIllegalInput("0x3P-")),
-                dynamicTest("parseHexFloatLiteral(): With 'p+9' at end", () -> testLegalInput("0X3p+9")),
-                dynamicTest("parseHexFloatLiteral(): With 20 significand digits", () -> testLegalInput("0x12345678901234567890p0")),
-                dynamicTest("parseHexFloatLiteral(): With 20 significand digits + non-ascii char", () -> testIllegalInput("0x12345678901234567890￡p0")),
-                dynamicTest("parseHexFloatLiteral(): With 20 significand digits with decimal point", () -> testLegalInput("0x1234567890.1234567890P0"))
-        );
-    }
+    ///-----------old tests----------
 
     /**
      * Tests input classes that execute different code branches in
@@ -100,13 +36,13 @@ abstract class AbstractDoubleHandPickedTest {
     @TestFactory
     List<DynamicNode> dynamicTestsDecFloatLiteralClingerInputClasses() {
         return Arrays.asList(
-                dynamicTest("Inside Clinger fast path \"1000000000000000000e-340\")", () -> testLegalInput("1000000000000000000e-325")),
-                //
+                dynamicTest("Inside Clinger fast path \"1000000000000000000e-325\")", () -> testLegalInput("1000000000000000000e-325")),
                 dynamicTest("Inside Clinger fast path (max_clinger_significand, max_clinger_exponent)", () -> testLegalInput("9007199254740991e22")),
                 dynamicTest("Outside Clinger fast path (max_clinger_significand, max_clinger_exponent + 1)", () -> testLegalInput("9007199254740991e23")),
                 dynamicTest("Outside Clinger fast path (max_clinger_significand + 1, max_clinger_exponent)", () -> testLegalInput("9007199254740992e22")),
                 dynamicTest("Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", () -> testLegalInput("1e-22")),
                 dynamicTest("Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", () -> testLegalInput("1e-23")),
+                dynamicTest("Outside Clinger fast path, semi-fast path, 9999999999999999999", () -> testLegalInput("1e23")),
                 dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 1e23", () -> testLegalInput("1e23")),
                 dynamicTest("Outside Clinger fast path, mantissa overflows in semi-fast path, 7.2057594037927933e+16", () -> testLegalInput("7.2057594037927933e+16")),
                 dynamicTest("Outside Clinger fast path, bail-out in semi-fast path, 7.3177701707893310e+15", () -> testLegalInput("7.3177701707893310e+15"))
@@ -272,6 +208,18 @@ abstract class AbstractDoubleHandPickedTest {
         );
     }
 
+    @SuppressWarnings("UnpredictableBigDecimalConstructorCall")
+    @TestFactory
+    List<DynamicNode> dynamicTestsLegalBigDecimalValuesWithUnlimitedPrecision() {
+        return Arrays.asList(
+                dynamicTest("-65.625", () -> testLegalInput("-65.625", -65.625)),
+                dynamicTest(new BigDecimal(0.1).toString(), () -> testLegalInput(new BigDecimal(0.1).toString(), 0.1)),
+                dynamicTest(new BigDecimal(-Double.MIN_VALUE).toString(), () -> testLegalInput(new BigDecimal(-Double.MIN_VALUE).toString(), -Double.MIN_VALUE)),
+                dynamicTest(new BigDecimal(-Double.MAX_VALUE).toString(), () -> testLegalInput(new BigDecimal(-Double.MAX_VALUE).toString(), -Double.MAX_VALUE))
+
+        );
+    }
+
     @TestFactory
     List<DynamicNode> dynamicTestsLegalHexFloatLiterals() {
         return Arrays.asList(
@@ -357,15 +305,7 @@ abstract class AbstractDoubleHandPickedTest {
     }
 
     private void testIllegalInputWithPrefixAndSuffix(String str, int offset, int length) {
-        try {
-            parse(str, offset, length);
-            fail();
-        } catch (IllegalArgumentException e) {
-            String message = e.getMessage();
-            assertFalse(message.contains(str.substring(0, offset)), "Message must not contain prefix. message=" + message);
-            assertFalse(message.contains(str.substring(offset + length)), "Message must not contain suffix. message=" + message);
-            assertTrue(message.contains(str.substring(offset, offset + length)), "Message must contain body. message=" + message);
-        }
+        assertThrows(NumberFormatException.class, () -> parse(str, offset, length));
     }
 
     private void testLegalDecInput(double expected) {

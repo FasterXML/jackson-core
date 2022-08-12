@@ -14,8 +14,6 @@ import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -46,27 +44,14 @@ abstract class AbstractLexicallyGeneratedTest {
      * (Make sure to take a note of the seed value if
      * tests failed.)
      */
-    public static final long SEED = 0;//System.nanoTime();
-
-    @TestFactory
-    @Disabled
-    Stream<DynamicTest> dynamicTestsRandomStringFrom10SyntaxRuleWithoutWhitespace() {
-        Random rng = new Random(SEED);
-        LexicalGenerator gen = new LexicalGenerator(false, true);
-        return IntStream.range(1, 10_000).mapToObj(i -> {
-                    String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(10, rng);
-                    return dynamicTest(i + ": " + str,
-                            () -> testAgainstJdk(str));
-                }
-        );
-    }
+    public static final long SEED = System.nanoTime();
 
     @TestFactory
     @Disabled
     Stream<DynamicTest> dynamicTestsRandomStringFrom1SyntaxRuleWithoutWhitespace() {
         Random rng = new Random(SEED);
         LexicalGenerator gen = new LexicalGenerator(false, true);
-        return IntStream.range(1, 10_000).mapToObj(i -> {
+        return IntStream.range(0, 100).mapToObj(i -> {
                     String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(1, rng);
                     return dynamicTest(i + ": " + str,
                             () -> testAgainstJdk(str));
@@ -76,11 +61,50 @@ abstract class AbstractLexicallyGeneratedTest {
 
     @TestFactory
     @Disabled
-    Stream<DynamicTest> dynamicTestsRandomStringFrom40SyntaxRuleWithoutWhitespace() {
+    Stream<DynamicTest> dynamicTestsRandomStringFrom2SyntaxRuleWithoutWhitespace() {
         Random rng = new Random(SEED);
         LexicalGenerator gen = new LexicalGenerator(false, true);
-        return IntStream.range(1, 10_000).mapToObj(i -> {
-                    String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(40, rng);
+        return IntStream.range(0, 10_000).mapToObj(i -> {
+                    String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(2, rng);
+                    return dynamicTest(i + ": " + str,
+                            () -> testAgainstJdk(str));
+                }
+        );
+    }
+
+    @TestFactory
+    @Disabled
+    Stream<DynamicTest> dynamicTestsRandomStringFrom3SyntaxRuleWithoutWhitespace() {
+        Random rng = new Random(SEED);
+        LexicalGenerator gen = new LexicalGenerator(false, true);
+        return IntStream.range(0, 10_000).mapToObj(i -> {
+                    String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(3, rng);
+                    return dynamicTest(i + ": " + str,
+                            () -> testAgainstJdk(str));
+                }
+        );
+    }
+
+    @TestFactory
+    @Disabled
+    Stream<DynamicTest> dynamicTestsRandomStringFrom4SyntaxRuleWithoutWhitespace() {
+        Random rng = new Random(SEED);
+        LexicalGenerator gen = new LexicalGenerator(false, true);
+        return IntStream.range(0, 10_000).mapToObj(i -> {
+                    String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(4, rng);
+                    return dynamicTest(i + ": " + str,
+                            () -> testAgainstJdk(str));
+                }
+        );
+    }
+
+    @TestFactory
+    @Disabled
+    Stream<DynamicTest> dynamicTestsRandomStringFrom10SyntaxRuleWithoutWhitespace() {
+        Random rng = new Random(SEED);
+        LexicalGenerator gen = new LexicalGenerator(false, true);
+        return IntStream.range(0, 10_000).mapToObj(i -> {
+                    String str = gen.produceRandomInputStringFromLexicalRuleWithoutWhitespace(10, rng);
                     return dynamicTest(i + ": " + str,
                             () -> testAgainstJdk(str));
                 }
@@ -102,13 +126,38 @@ abstract class AbstractLexicallyGeneratedTest {
 
     @TestFactory
     @Disabled
-    List<DynamicNode> dynamicTestsAllSingleCharacterInputs() {
-        ArrayList<DynamicNode> list = new ArrayList<>();
-        for (int codePoint = 0; codePoint <= Character.MAX_VALUE; codePoint++) {
-            String str = "" + (char) codePoint;
-            list.add(dynamicTest("0x" + Integer.toHexString(codePoint), () -> testAgainstJdk(str)));
-        }
-        return list;
+    Stream<DynamicNode> dynamicTestsAsciiCharacterInputsUpTo4Characters() {
+        int maxLength = 4;
+        Random rng = new Random();
+        return IntStream.range(0, 10_000).mapToObj(i -> {
+            char[] ch = new char[4];
+            int n = rng.nextInt(maxLength) + 1;
+            for (int j = 0; j < n; j++) {
+                ch[j] = nextAsciiChar(rng);
+            }
+            StringBuilder str = new StringBuilder();
+            StringBuilder title = new StringBuilder(Integer.toString(n));
+            title.append(':');
+            for (int j = 0; j < 4; j++) {
+                char c = ch[j];
+                if (c >= ' ') {
+                    if (Character.isISOControl(c) || Character.isWhitespace(c)) {
+                        title.append("&#x").append(Integer.toHexString(c)).append(';');
+                        str.append(c);
+                    } else {
+                        title.append((char) c);
+                        str.append(c);
+                    }
+                }
+            }
+            return dynamicTest(title.toString(), () -> testAgainstJdk(str.toString()));
+        });
+    }
+
+    private static char nextAsciiChar(Random rng) {
+        //U+0020 SPACE
+        //U+007F DELETE
+        return (char) (rng.nextInt(0x7f - 0x20) + 0x20);
     }
 
     /**

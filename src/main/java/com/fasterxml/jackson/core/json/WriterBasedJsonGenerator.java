@@ -568,7 +568,8 @@ public class WriterBasedJsonGenerator
         final int end = offset + len;
 
         // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
-        if ((offset < 0) || (len < 0) || end > text.length()) {
+        // ... note that "end < 0" may occur with int overflow
+        if ((offset < 0) || (len < 0) || (end < 0) || end > text.length()) {
             _reportError(String.format(
 "Invalid 'offset' (%d) and/or 'len' (%d) arguments for String of length %d",
 offset, len, text.length()));
@@ -605,7 +606,9 @@ offset, len, text.length()));
     public void writeRaw(char[] cbuf, int offset, int len) throws IOException
     {
         // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
-        if ((offset < 0) || (len < 0) || (offset+len) > cbuf.length) {
+        // ... note that "end < 0" may occur with int overflow
+        final int end = offset + len;
+        if ((offset < 0) || (len < 0) || (end < 0) || (end > cbuf.length)) {
             _reportError(String.format(
 "Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
 offset, len, cbuf.length));

@@ -211,6 +211,30 @@ public class NumberParsingTest
         assertEquals(Integer.MAX_VALUE+1, NumberInput.parseLong(""+(Integer.MAX_VALUE+1)));
     }
 
+    // Found by oss-fuzzer
+    public void testVeryLongIntRootValue() throws Exception
+    {
+        // For some reason running multiple will tend to hide the issue;
+        // possibly due to re-use of some buffers
+        _testVeryLongIntRootValue(newStreamFactory(), MODE_DATA_INPUT);
+    }
+
+    private void _testVeryLongIntRootValue(JsonFactory jsonF, int mode) throws Exception
+    {
+        StringBuilder sb = new StringBuilder(250);
+        sb.append("-2");
+        for (int i = 0; i < 220; ++i) {
+            sb.append('0');
+        }
+        sb.append(' '); // mostly important for DataInput
+        String DOC = sb.toString();
+
+        try (JsonParser p = createParser(jsonF, mode, DOC)) {
+            assertToken(p.nextToken(), JsonToken.VALUE_NUMBER_INT);
+            assertNotNull(p.getBigIntegerValue());
+        }
+    }
+
     /*
     /**********************************************************************
     /* Tests, Long

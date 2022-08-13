@@ -1114,6 +1114,10 @@ public class UTF8DataInputJsonParser
         // With this, we have a nice and tight loop:
         while (c <= INT_9 && c >= INT_0) {
             ++intLen;
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
             outBuf[outPtr++] = (char) c;
             c = _inputData.readUnsignedByte();
         }

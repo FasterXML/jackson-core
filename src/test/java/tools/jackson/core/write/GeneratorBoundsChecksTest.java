@@ -95,6 +95,12 @@ public class GeneratorBoundsChecksTest
             ByteBackedOperation oper) throws Exception {
         final byte[] BYTES10 = new byte[10];
         _testBoundsWithByteArrayInput(genc, oper, BYTES10, -1, 1);
+        _testBoundsWithByteArrayInput(genc, oper, BYTES10, 4, -1);
+        _testBoundsWithByteArrayInput(genc, oper, BYTES10, 4, -6);
+        _testBoundsWithByteArrayInput(genc, oper, BYTES10, 9, 5);
+        // and the integer overflow, too
+        _testBoundsWithByteArrayInput(genc, oper, BYTES10, Integer.MAX_VALUE, 4);
+        _testBoundsWithByteArrayInput(genc, oper, BYTES10, Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
 
     private void _testBoundsWithByteArrayInput(GeneratorCreator genc,
@@ -159,6 +165,11 @@ public class GeneratorBoundsChecksTest
             CharBackedOperation oper) throws Exception {
         final char[] CHARS10 = new char[10];
         _testBoundsWithCharArrayInput(genc, oper, CHARS10, -1, 1);
+        _testBoundsWithCharArrayInput(genc, oper, CHARS10, 4, -1);
+        _testBoundsWithCharArrayInput(genc, oper, CHARS10, 4, -6);
+        _testBoundsWithCharArrayInput(genc, oper, CHARS10, 9, 5);
+        _testBoundsWithCharArrayInput(genc, oper, CHARS10, Integer.MAX_VALUE, 4);
+        _testBoundsWithCharArrayInput(genc, oper, CHARS10, Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
 
     private void _testBoundsWithCharArrayInput(GeneratorCreator genc,
@@ -217,6 +228,11 @@ public class GeneratorBoundsChecksTest
             StringBackedOperation oper) throws Exception {
         final String STRING10 = new String(new char[10]);
         _testBoundsWithStringInput(genc, oper, STRING10, -1, 1);
+        _testBoundsWithStringInput(genc, oper, STRING10, 4, -1);
+        _testBoundsWithStringInput(genc, oper, STRING10, 4, -6);
+        _testBoundsWithStringInput(genc, oper, STRING10, 9, 5);
+        _testBoundsWithStringInput(genc, oper, STRING10, Integer.MAX_VALUE, 4);
+        _testBoundsWithStringInput(genc, oper, STRING10, Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
 
     private void _testBoundsWithStringInput(GeneratorCreator genc,

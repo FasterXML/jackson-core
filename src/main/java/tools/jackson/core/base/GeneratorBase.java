@@ -362,6 +362,57 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
 
     /*
     /**********************************************************************
+    /* Helper methods: input parameter validation
+    /**********************************************************************
+     */
+
+    protected void _checkRangeBoundsForByteArray(int offset, int len, int dataLen)
+        throws JacksonException
+    {
+        // Note: we are checking that:
+        //
+        // !(offset < 0)
+        // !(len < 0)
+        // !((offset + len) < 0) // int overflow!
+        // !((offset + len) > dataLen)
+
+        final int end = offset+len;
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportArgumentError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `byte[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    protected void _checkRangeBoundsForCharArray(int offset, int len, int dataLen)
+        throws JacksonException
+    {
+        final int end = offset+len;
+        // Note: we are checking same things as with other bounds-checks
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportArgumentError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    protected void _checkRangeBoundsForString(int offset, int len, int dataLen)
+        throws JacksonException
+    {
+        final int end = offset+len;
+        // Note: we are checking same things as with other bounds-checks
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportArgumentError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `String` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    /*
+    /**********************************************************************
     /* Helper methods: error reporting
     /**********************************************************************
      */

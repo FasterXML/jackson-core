@@ -632,14 +632,7 @@ public class WriterBasedJsonGenerator
     @Override
     public JsonGenerator writeRaw(char[] cbuf, int offset, int len) throws JacksonException
     {
-        // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
-        // ... note that "end < 0" may occur with int overflow
-        final int end = offset + len;
-        if ((offset < 0) || (len < 0) || (end < 0) || (end > cbuf.length)) {
-            _reportError(String.format(
-"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
-offset, len, cbuf.length));
-        }
+        _checkRangeBoundsForCharArray(offset, len, cbuf.length);
 
         // Only worth buffering if it's a short write?
         if (len < SHORT_WRITE) {

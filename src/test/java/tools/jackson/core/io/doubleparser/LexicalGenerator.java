@@ -132,40 +132,46 @@ class LexicalGenerator {
             remaining = produceRandomDigits(remaining, rng, buf);
             buf.append('.');
             remaining--;
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomDigits(remaining, rng, buf);
             }
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomExponentPart(remaining, rng, buf);
             }
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
             }
             break;
         case 1:
             buf.append('.');
             remaining--;
-            remaining = produceRandomDigits(remaining, rng, buf);
-            if (rng.nextBoolean()) {
+            if (remaining > 0) {
+                remaining = produceRandomDigits(remaining, rng, buf);
+            }
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomExponentPart(remaining, rng, buf);
             }
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
             }
             break;
         case 2:
             remaining = produceRandomDigits(remaining, rng, buf);
-            remaining = produceRandomExponentPart(remaining, rng, buf);
-            if (rng.nextBoolean()) {
+            if (remaining > 0) {
+                remaining = produceRandomExponentPart(remaining, rng, buf);
+            }
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
             }
             break;
         case 3:
             remaining = produceRandomDigits(remaining, rng, buf);
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomExponentPart(remaining, rng, buf);
             }
-            remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
+            if (remaining > 0) {
+                remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
+            }
             break;
         }
         return remaining;
@@ -205,10 +211,12 @@ class LexicalGenerator {
             break;
         case 1:
             remaining = produceRandomDigit(remaining, rng, buf);
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomDigitsAndUnderscores(remaining, rng, buf);
             }
-            remaining = produceRandomDigit(remaining, rng, buf);
+            if (remaining > 0) {
+                remaining = produceRandomDigit(remaining, rng, buf);
+            }
             break;
         }
 
@@ -226,17 +234,21 @@ class LexicalGenerator {
         switch (rng.nextInt(2)) {
         case 0:
             remaining = produceRandomDigitOrUnderscore(remaining, rng, buf);
-            int todo = rng.nextInt(Math.max(remaining, 1));
-            for (int i = 0; i < todo; i++) {
-                remaining = produceRandomDigitOrUnderscore(remaining, rng, buf);
+            if (remaining > 0) {
+                int todo = rng.nextInt(Math.max(remaining, 1));
+                for (int i = 0; i < todo; i++) {
+                    remaining = produceRandomDigitOrUnderscore(remaining, rng, buf);
+                }
             }
             break;
         case 1:
             remaining = produceRandomDigit(remaining, rng, buf);
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomDigitsAndUnderscores(remaining, rng, buf);
             }
-            remaining = produceRandomDigit(remaining, rng, buf);
+            if (remaining > 0) {
+                remaining = produceRandomDigit(remaining, rng, buf);
+            }
             break;
         }
         return remaining;
@@ -289,22 +301,28 @@ class LexicalGenerator {
     private int produceRandomFloatValue(int remaining, Random rng, StringBuilder buf) {
         switch (rng.nextInt(4)) {
         case 0:
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomSign(remaining, rng, buf);
             }
-            remaining = produceRandomNaNOrInfinity(remaining, rng, buf);
+            if (remaining > 0 && remaining > 0) {
+                remaining = produceRandomNaNOrInfinity(remaining, rng, buf);
+            }
             break;
         case 1:
             if (rng.nextBoolean()) {
                 remaining = produceRandomSign(remaining, rng, buf);
             }
-            remaining = produceRandomDecimalFloatingPointLiteral(remaining, rng, buf);
+            if (remaining > 0) {
+                remaining = produceRandomDecimalFloatingPointLiteral(remaining, rng, buf);
+            }
             break;
         case 2:
             if (rng.nextBoolean()) {
                 remaining = produceRandomSign(remaining, rng, buf);
             }
-            remaining = produceRandomHexFloatingPointLiteral(remaining, rng, buf);
+            if (remaining > 0) {
+                remaining = produceRandomHexFloatingPointLiteral(remaining, rng, buf);
+            }
             break;
         case 3:
             remaining = produceRandomSignedInteger(remaining, rng, buf);
@@ -348,15 +366,21 @@ class LexicalGenerator {
 
     private int produceRandomHexFloatingPointLiteral(int remaining, Random rng, StringBuilder buf) {
         remaining = produceRandomHexSignificand(remaining, rng, buf);
-        remaining = produceRandomBinaryExponent(remaining, rng, buf);
-        remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
+        if (remaining > 0) {
+            remaining = produceRandomBinaryExponent(remaining, rng, buf);
+        }
+        if (remaining > 0) {
+            remaining = produceRandomFloatTypeSuffix(remaining, rng, buf);
+        }
         return remaining;
     }
 
     private int produceRandomHexNumeral(int remaining, Random rng, StringBuilder buf) {
         buf.append(rng.nextBoolean() ? "0x" : "0X");
         remaining--;
-        remaining = produceRandomHexDigits(remaining, rng, buf);
+        if (remaining > 0) {
+            remaining = produceRandomHexDigits(remaining, rng, buf);
+        }
         return remaining;
     }
 
@@ -382,12 +406,14 @@ class LexicalGenerator {
         case 2:
             buf.append(rng.nextBoolean() ? "0x" : "0X");
             remaining--;
-            if (rng.nextBoolean()) {
+            if (remaining > 0 && rng.nextBoolean()) {
                 remaining = produceRandomHexDigits(remaining, rng, buf);
             }
-            buf.append('.');
-            remaining--;
-            remaining = produceRandomHexDigits(remaining, rng, buf);
+            if (remaining > 0 && rng.nextBoolean()) {
+                buf.append('.');
+                remaining--;
+                remaining = produceRandomHexDigits(remaining, rng, buf);
+            }
             break;
         }
         return remaining;
@@ -403,8 +429,12 @@ class LexicalGenerator {
     public String produceRandomInputStringFromLexicalRuleWithWhitespace(int remaining, Random rng) {
         StringBuilder buf = new StringBuilder();
         remaining = produceRandomWhitespaces(remaining, rng, buf);
-        remaining = produceRandomFloatValue(remaining, rng, buf);
-        remaining = produceRandomWhitespaces(remaining, rng, buf);
+        if (remaining > 0) {
+            remaining = produceRandomFloatValue(remaining, rng, buf);
+        }
+        if (remaining > 0) {
+            remaining = produceRandomWhitespaces(remaining, rng, buf);
+        }
         return buf.toString();
     }
 
@@ -452,7 +482,9 @@ class LexicalGenerator {
         if (rng.nextBoolean()) {
             remaining = produceRandomSign(remaining, rng, buf);
         }
-        remaining = produceRandomDigits(remaining, rng, buf);
+        if (remaining > 0) {
+            remaining = produceRandomDigits(remaining, rng, buf);
+        }
         return remaining;
     }
 

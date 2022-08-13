@@ -565,15 +565,7 @@ public class WriterBasedJsonGenerator
     @Override
     public void writeRaw(String text, int offset, int len) throws IOException
     {
-        final int end = offset + len;
-
-        // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
-        // ... note that "end < 0" may occur with int overflow
-        if ((offset < 0) || (len < 0) || (end < 0) || end > text.length()) {
-            _reportError(String.format(
-"Invalid 'offset' (%d) and/or 'len' (%d) arguments for String of length %d",
-offset, len, text.length()));
-        }
+        _checkRangeBoundsForString(offset, len, text.length());
 
         // Nothing to check, can just output as is
         int room = _outputEnd - _outputTail;
@@ -584,10 +576,10 @@ offset, len, text.length()));
         }
         // But would it nicely fit in? If yes, it's easy
         if (room >= len) {
-            text.getChars(offset, end, _outputBuffer, _outputTail);
+            text.getChars(offset, offset+len, _outputBuffer, _outputTail);
             _outputTail += len;
         } else {            	
-            writeRawLong(text.substring(offset, end));
+            writeRawLong(text.substring(offset, offset+len));
         }
     }
 

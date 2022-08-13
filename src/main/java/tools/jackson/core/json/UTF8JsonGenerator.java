@@ -689,20 +689,13 @@ public class UTF8JsonGenerator
     @Override
     public JsonGenerator writeRaw(String text, int offset, int len) throws JacksonException
     {
-        final int end = offset+len;
-        // 03-Aug-2022, tatu: Maybe need to do bounds checks first (found by Fuzzer)
-        // ... note that "end < 0" may occur with int overflow
-        if ((offset < 0) || (len < 0) || (end < 0) || (end > text.length())) {
-            _reportError(String.format(
-"Invalid 'offset' (%d) and/or 'len' (%d) arguments for String of length %d",
-offset, len, text.length()));
-        }
+        _checkRangeBoundsForString(offset, len, text.length());
 
         final char[] buf = _charBuffer;
         final int cbufLen = buf.length;
         // minor optimization: see if we can just get and copy
         if (len <= cbufLen) {
-            text.getChars(offset, end, buf, 0);
+            text.getChars(offset, offset+len, buf, 0);
             writeRaw(buf, 0, len);
             return this;
         }
@@ -917,6 +910,8 @@ offset, len, cbuf.length));
             byte[] data, int offset, int len)
         throws JacksonException
     {
+        _checkRangeBoundsForByteArray(offset, len, data.length);
+
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
         if (_outputTail >= _outputEnd) {

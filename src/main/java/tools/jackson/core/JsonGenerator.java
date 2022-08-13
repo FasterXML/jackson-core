@@ -2004,7 +2004,7 @@ public abstract class JsonGenerator
 
     /**
      * Helper method used for constructing and throwing
-     * {@link StreamWriteException} with given base message.
+     * {@link StreamWriteException} with given message.
      *<p>
      * Note that sub-classes may override this method to add more detail
      * or use a {@link StreamWriteException} sub-class.
@@ -2024,6 +2024,26 @@ public abstract class JsonGenerator
 
     protected <T> T _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Operation not supported by generator of type "+getClass().getName());
+    }
+
+    /**
+     * Helper method used for constructing and throwing
+     * {@link StreamWriteException} with given message, in cases where
+     * argument(s) used for a call (usually one of {@code writeXxx()} methods)
+     * is invalid.
+     * Default implementation simply delegates to {@link #_reportError(String)}.
+     *
+     * @param <T> Bogus type parameter to "return anything" so that compiler
+     *   won't complain when chaining calls
+     *
+     * @param msg Message to construct exception with
+     *
+     * @return Does not return at all as exception is always thrown, but nominally returns "anything"
+     *
+     * @throws StreamWriteException that was constructed with given message
+     */
+    protected <T> T _reportArgumentError(String msg) throws StreamWriteException {
+        return _reportError(msg);
     }
 
     // @since 3.0

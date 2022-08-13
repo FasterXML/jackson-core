@@ -58,11 +58,12 @@ public class GeneratorBoundsChecksTest
         }
     };
     
-    public void testBoundsWithByteArrayInput() throws Exception
-    {
-        if (true) return;
-        _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR);
-        _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR);
+    public void testBoundsWithByteArrayInputFromBytes() throws Exception {
+//        _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR);
+    }
+
+    public void testBoundsWithByteArrayInputFromChars() throws Exception {
+//        _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR);
     }
 
     private void _testBoundsWithByteArrayInput(GeneratorCreator genc) throws Exception {
@@ -105,10 +106,11 @@ public class GeneratorBoundsChecksTest
         }
     };
     
-    public void testBoundsWithCharArrayInput() throws Exception
-    {
-        if (true) return;
+    public void testBoundsWithCharArrayInputFromBytes() throws Exception {
         _testBoundsWithCharArrayInput(BYTE_GENERATOR_CREATOR);
+    }
+
+    public void testBoundsWithCharArrayInputFromChars() throws Exception {
         _testBoundsWithCharArrayInput(CHAR_GENERATOR_CREATOR);
     }
 
@@ -143,24 +145,35 @@ public class GeneratorBoundsChecksTest
     /**********************************************************************
      */
 
-    // // // Individual generator calls to check, String-backed
+    // // // Individual generator calls to check, String-backed.
+    // // //
+    // // // Only two methods (and one seems to delegate to the other)
 
     private final StringBackedOperation WRITE_RAW_FROM_STRING = new StringBackedOperation() {
+        @Override
+        public void call(JsonGenerator g, String data, int offset, int len) throws Exception {
+            g.writeRaw(data, offset, len);
+        }
+    };
+
+    private final StringBackedOperation WRITE_RAWVALUE_FROM_STRING = new StringBackedOperation() {
         @Override
         public void call(JsonGenerator g, String data, int offset, int len) throws Exception {
             g.writeRawValue(data, offset, len);
         }
     };
     
-    public void testBoundsWithStringInput() throws Exception
-    {
-        if (true) return;
+    public void testBoundsWithStringInputFromBytes() throws Exception {
         _testBoundsWithStringInput(BYTE_GENERATOR_CREATOR);
+    }
+
+    public void testBoundsWithStringInputFromChar() throws Exception {
         _testBoundsWithStringInput(CHAR_GENERATOR_CREATOR);
     }
 
     private void _testBoundsWithStringInput(GeneratorCreator genc) throws Exception {
         _testBoundsWithStringInput(genc, WRITE_RAW_FROM_STRING);
+        _testBoundsWithStringInput(genc, WRITE_RAWVALUE_FROM_STRING);
     }
 
     private void _testBoundsWithStringInput(GeneratorCreator genc,

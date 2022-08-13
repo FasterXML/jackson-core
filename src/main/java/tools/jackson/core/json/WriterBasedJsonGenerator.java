@@ -706,6 +706,8 @@ offset, len, cbuf.length));
     public JsonGenerator writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
         throws JacksonException
     {
+        _checkRangeBoundsForByteArray(offset, len, data.length);
+
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
         if (_outputTail >= _outputEnd) {

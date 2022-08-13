@@ -629,16 +629,17 @@ public class UTF8JsonGenerator
         _outputBuffer[_outputTail++] = _quoteChar;
         return this;
     }
-    
+
     @Override
-    public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException
+    public JsonGenerator writeRawUTF8String(byte[] text, int offset, int len) throws JacksonException
     {
+        _checkRangeBoundsForByteArray(offset, len, text.length);
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
-        _writeBytes(text, offset, length);
+        _writeBytes(text, offset, len);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -649,6 +650,7 @@ public class UTF8JsonGenerator
     @Override
     public JsonGenerator writeUTF8String(byte[] text, int offset, int len) throws JacksonException
     {
+        _checkRangeBoundsForByteArray(offset, len, text.length);
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();

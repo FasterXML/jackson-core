@@ -615,14 +615,15 @@ public class UTF8JsonGenerator
     }
     
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
+    public void writeRawUTF8String(byte[] text, int offset, int len) throws IOException
     {
+        _checkRangeBoundsForByteArray(offset, len, text.length);
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
         _outputBuffer[_outputTail++] = _quoteChar;
-        _writeBytes(text, offset, length);
+        _writeBytes(text, offset, len);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
         }
@@ -632,6 +633,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeUTF8String(byte[] text, int offset, int len) throws IOException
     {
+        _checkRangeBoundsForByteArray(offset, len, text.length);
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();

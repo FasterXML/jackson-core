@@ -54,17 +54,38 @@ public class GeneratorBoundsChecksTest
             g.writeBinary(data, offset, len);
         }
     };
-    
+
+    private final ByteBackedOperation WRITE_RAW_UTF8_FROM_BYTES = new ByteBackedOperation() {
+        @Override
+        public void call(JsonGenerator g, byte[] data, int offset, int len) throws Exception {
+            g.writeRawUTF8String(data, offset, len);
+        }
+    };
+
+    private final ByteBackedOperation WRITE_UTF8_STRING_FROM_BYTES = new ByteBackedOperation() {
+        @Override
+        public void call(JsonGenerator g, byte[] data, int offset, int len) throws Exception {
+            g.writeUTF8String(data, offset, len);
+        }
+    };
+
     public void testBoundsWithByteArrayInputFromBytes() throws Exception {
-//        _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR);
+        _testBoundsWithByteArrayInput(BYTE_GENERATOR_CREATOR, true);
     }
 
     public void testBoundsWithByteArrayInputFromChars() throws Exception {
-//        _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR);
+        _testBoundsWithByteArrayInput(CHAR_GENERATOR_CREATOR, false);
     }
 
-    private void _testBoundsWithByteArrayInput(GeneratorCreator genc) throws Exception {
+    private void _testBoundsWithByteArrayInput(GeneratorCreator genc, boolean byteBacked)
+            throws Exception {
         _testBoundsWithByteArrayInput(genc, WRITE_BINARY_FROM_BYTES);
+        // NOTE: byte[] writes of pre-encoded UTF-8 not supported for Writer-backed
+        // generator, so:
+        if (byteBacked) {
+            _testBoundsWithByteArrayInput(genc, WRITE_RAW_UTF8_FROM_BYTES);
+            _testBoundsWithByteArrayInput(genc, WRITE_UTF8_STRING_FROM_BYTES);
+        }
     }
 
     private void _testBoundsWithByteArrayInput(GeneratorCreator genc,
@@ -83,7 +104,7 @@ public class GeneratorBoundsChecksTest
             } catch (StreamWriteException e) {
                 verifyException(e, "Invalid 'offset'");
                 verifyException(e, "'len'");
-                verifyException(e, "arguments for String of length "+data.length);
+                verifyException(e, "arguments for `byte[]` of length "+data.length);
             }
         }
     }
@@ -96,7 +117,21 @@ public class GeneratorBoundsChecksTest
 
     // // // Individual generator calls to check, char[]-backed
 
+    private final CharBackedOperation WRITE_NUMBER_FROM_CHARS = new CharBackedOperation() {
+        @Override
+        public void call(JsonGenerator g, char[] data, int offset, int len) throws Exception {
+            g.writeNumber(data, offset, len);
+        }
+    };
+
     private final CharBackedOperation WRITE_RAW_FROM_CHARS = new CharBackedOperation() {
+        @Override
+        public void call(JsonGenerator g, char[] data, int offset, int len) throws Exception {
+            g.writeRaw(data, offset, len);
+        }
+    };
+
+    private final CharBackedOperation WRITE_RAWVALUE_FROM_CHARS = new CharBackedOperation() {
         @Override
         public void call(JsonGenerator g, char[] data, int offset, int len) throws Exception {
             g.writeRawValue(data, offset, len);
@@ -112,7 +147,9 @@ public class GeneratorBoundsChecksTest
     }
 
     private void _testBoundsWithCharArrayInput(GeneratorCreator genc) throws Exception {
+        _testBoundsWithCharArrayInput(genc, WRITE_NUMBER_FROM_CHARS);
         _testBoundsWithCharArrayInput(genc, WRITE_RAW_FROM_CHARS);
+        _testBoundsWithCharArrayInput(genc, WRITE_RAWVALUE_FROM_CHARS);
     }
 
     private void _testBoundsWithCharArrayInput(GeneratorCreator genc,

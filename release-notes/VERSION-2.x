@@ -57,6 +57,8 @@ JSON library.
   with key of ""
 #798: Avoid copy when parsing `BigDecimal`
  (contributed by Philippe M)
+#811: Add explicit bounds checks for `JsonGenerator` methods that take
+  `byte[]`/`char[]`/String-with-offsets input
 
 2.13.3 (14-May-2022)
 

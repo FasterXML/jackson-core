@@ -42,14 +42,6 @@
  * </dl>
  *
  * <dl>
- * <dt><i>HexSignificand:</i>
- * <dd><i>HexNumeral</i>
- * <dd><i>HexNumeral</i> {@code .}
- * <dd>{@code 0x} <i>[HexDigits]</i> {@code .} <i>HexDigits</i>
- * <dd>{@code 0X} <i>[HexDigits]</i> {@code .} <i>HexDigits</i>
- * </dl>
- *
- * <dl>
  * <dt><i>BinaryExponent:</i>
  * <dd><i>BinaryExponentIndicator SignedInteger</i>
  * </dl>

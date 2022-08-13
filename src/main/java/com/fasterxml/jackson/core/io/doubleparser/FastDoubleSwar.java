@@ -132,9 +132,9 @@ class FastDoubleSwar {
         }
 
         // The last 2 multiplications are independent of each other.
-        val = (val * (1 + (10 << 8))) >>> 8;
-        val = (((val & 0xff_000000ffL) * (100 + (100_0000L << 32)))
-                + (((val >>> 16) & 0xff_000000ffL) * (1 + (1_0000L << 32)))) >>> 32;
+        val = val * (1 + (10 << 8)) >>> 8;
+        val = (val & 0xff_000000ffL) * (100 + (100_0000L << 32))
+                + (val >>> 16 & 0xff_000000ffL) * (1 + (1_0000L << 32)) >>> 32;
         return (int) val;
     }
 

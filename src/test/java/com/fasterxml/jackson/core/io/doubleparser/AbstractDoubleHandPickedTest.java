@@ -89,6 +89,10 @@ abstract class AbstractDoubleHandPickedTest {
                 dynamicTest("0x123.456789abcde", () -> testIllegalInput("0x123.456789abcde")),
                 dynamicTest(".", () -> testIllegalInput(".")),
                 dynamicTest("0x.", () -> testIllegalInput("0x.")),
+                dynamicTest("0x", () -> testIllegalInput("0x")),
+                dynamicTest("0x1", () -> testIllegalInput("0x1")),
+                dynamicTest("0xp1", () -> testIllegalInput("0xp1")),
+                dynamicTest("0x1.", () -> testIllegalInput("0x1.")),
                 dynamicTest(".e2", () -> testIllegalInput(".e2"))
         );
     }

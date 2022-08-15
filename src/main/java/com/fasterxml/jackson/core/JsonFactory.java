@@ -1138,6 +1138,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException, JsonParseException {
+        _checkRangeBoundsForByteArray(data, offset, len);
         IOContext ctxt = _createContext(_createContentReference(data, offset, len), true);
         // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
@@ -1188,6 +1189,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+        _checkRangeBoundsForCharArray(content, offset, len);
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
             return createParser(new CharArrayReader(content, offset, len));
         }

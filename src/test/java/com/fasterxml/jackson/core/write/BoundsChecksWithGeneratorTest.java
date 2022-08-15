@@ -109,6 +109,7 @@ public class BoundsChecksWithGeneratorTest
         try (JsonGenerator gen = genc.create()) {
             try {
                 oper.call(gen, data, offset, len);
+                fail("Should not pass");
             } catch (StreamWriteException e) {
                 if (data == null) {
                     verifyException(e, "Invalid `byte[]` argument: `null`");
@@ -183,6 +184,7 @@ public class BoundsChecksWithGeneratorTest
         try (JsonGenerator gen = genc.create()) {
             try {
                 oper.call(gen, data, offset, len);
+                fail("Should not pass");
             } catch (StreamWriteException e) {
                 if (data == null) {
                     verifyException(e, "Invalid `char[]` argument: `null`");
@@ -251,6 +253,7 @@ public class BoundsChecksWithGeneratorTest
         try (JsonGenerator gen = genc.create()) {
             try {
                 oper.call(gen, data, offset, len);
+                fail("Should not pass");
             } catch (StreamWriteException e) {
                 if (data == null) {
                     verifyException(e, "Invalid `String` argument: `null`");

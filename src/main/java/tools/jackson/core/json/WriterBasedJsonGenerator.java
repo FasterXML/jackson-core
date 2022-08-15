@@ -599,7 +599,7 @@ public class WriterBasedJsonGenerator
     @Override
     public JsonGenerator writeRaw(String text, int offset, int len) throws JacksonException
     {
-        _checkRangeBoundsForString(offset, len, text.length());
+        _checkRangeBoundsForString(text, offset, len);
 
         // Nothing to check, can just output as is
         int room = _outputEnd - _outputTail;
@@ -632,7 +632,7 @@ public class WriterBasedJsonGenerator
     @Override
     public JsonGenerator writeRaw(char[] cbuf, int offset, int len) throws JacksonException
     {
-        _checkRangeBoundsForCharArray(offset, len, cbuf.length);
+        _checkRangeBoundsForCharArray(cbuf, offset, len);
 
         // Only worth buffering if it's a short write?
         if (len < SHORT_WRITE) {
@@ -699,7 +699,7 @@ public class WriterBasedJsonGenerator
     public JsonGenerator writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
         throws JacksonException
     {
-        _checkRangeBoundsForByteArray(offset, len, data.length);
+        _checkRangeBoundsForByteArray(data, offset, len);
 
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes

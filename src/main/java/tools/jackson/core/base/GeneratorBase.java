@@ -366,17 +366,23 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
     /**********************************************************************
      */
 
-    protected void _checkRangeBoundsForByteArray(int offset, int len, int dataLen)
+    protected void _checkRangeBoundsForByteArray(byte[] data, int offset, int len)
         throws JacksonException
     {
+        if (data == null) {
+            _reportArgumentError("Invalid `byte[]` argument: `null`");
+        }
+        final int dataLen = data.length;
+        final int end = offset+len;
+
         // Note: we are checking that:
         //
         // !(offset < 0)
         // !(len < 0)
         // !((offset + len) < 0) // int overflow!
-        // !((offset + len) > dataLen)
+        // !((offset + len) > dataLen) == !((datalen - (offset+len)) < 0)
 
-        final int end = offset+len;
+        // All can be optimized by OR'ing and checking for negative:
         int anyNegs = offset | len | end | (dataLen - end);
         if (anyNegs < 0) {
             _reportArgumentError(String.format(
@@ -385,9 +391,13 @@ offset, len, dataLen));
         }
     }
 
-    protected void _checkRangeBoundsForCharArray(int offset, int len, int dataLen)
+    protected void _checkRangeBoundsForCharArray(char[] data, int offset, int len)
         throws JacksonException
     {
+        if (data == null) {
+            _reportArgumentError("Invalid `char[]` argument: `null`");
+        }
+        final int dataLen = data.length;
         final int end = offset+len;
         // Note: we are checking same things as with other bounds-checks
         int anyNegs = offset | len | end | (dataLen - end);
@@ -398,9 +408,13 @@ offset, len, dataLen));
         }
     }
 
-    protected void _checkRangeBoundsForString(int offset, int len, int dataLen)
+    protected void _checkRangeBoundsForString(String data, int offset, int len)
         throws JacksonException
     {
+        if (data == null) {
+            _reportArgumentError("Invalid `String` argument: `null`");
+        }
+        final int dataLen = data.length();
         final int end = offset+len;
         // Note: we are checking same things as with other bounds-checks
         int anyNegs = offset | len | end | (dataLen - end);

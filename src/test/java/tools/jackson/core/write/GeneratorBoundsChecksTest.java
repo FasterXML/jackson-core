@@ -101,6 +101,8 @@ public class GeneratorBoundsChecksTest
         // and the integer overflow, too
         _testBoundsWithByteArrayInput(genc, oper, BYTES10, Integer.MAX_VALUE, 4);
         _testBoundsWithByteArrayInput(genc, oper, BYTES10, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        // and null checks too
+        _testBoundsWithByteArrayInput(genc, oper, null, 0, 3);
     }
 
     private void _testBoundsWithByteArrayInput(GeneratorCreator genc,
@@ -111,9 +113,13 @@ public class GeneratorBoundsChecksTest
             try {
                 oper.call(gen, data, offset, len);
             } catch (StreamWriteException e) {
-                verifyException(e, "Invalid 'offset'");
-                verifyException(e, "'len'");
-                verifyException(e, "arguments for `byte[]` of length "+data.length);
+                if (data == null) {
+                    verifyException(e, "Invalid `byte[]` argument: `null`");
+                } else {
+                    verifyException(e, "Invalid 'offset'");
+                    verifyException(e, "'len'");
+                    verifyException(e, "arguments for `byte[]` of length "+data.length);
+                }
             }
         }
     }
@@ -170,6 +176,7 @@ public class GeneratorBoundsChecksTest
         _testBoundsWithCharArrayInput(genc, oper, CHARS10, 9, 5);
         _testBoundsWithCharArrayInput(genc, oper, CHARS10, Integer.MAX_VALUE, 4);
         _testBoundsWithCharArrayInput(genc, oper, CHARS10, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        _testBoundsWithCharArrayInput(genc, oper, null, 0, 3);
     }
 
     private void _testBoundsWithCharArrayInput(GeneratorCreator genc,
@@ -180,9 +187,13 @@ public class GeneratorBoundsChecksTest
             try {
                 oper.call(gen, data, offset, len);
             } catch (StreamWriteException e) {
-                verifyException(e, "Invalid 'offset'");
-                verifyException(e, "'len'");
-                verifyException(e, "arguments for `char[]` of length "+data.length);
+                if (data == null) {
+                    verifyException(e, "Invalid `char[]` argument: `null`");
+                } else {
+                    verifyException(e, "Invalid 'offset'");
+                    verifyException(e, "'len'");
+                    verifyException(e, "arguments for `char[]` of length "+data.length);
+                }
             }
         }
     }
@@ -233,6 +244,7 @@ public class GeneratorBoundsChecksTest
         _testBoundsWithStringInput(genc, oper, STRING10, 9, 5);
         _testBoundsWithStringInput(genc, oper, STRING10, Integer.MAX_VALUE, 4);
         _testBoundsWithStringInput(genc, oper, STRING10, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        _testBoundsWithStringInput(genc, oper, null, 0, 3);
     }
 
     private void _testBoundsWithStringInput(GeneratorCreator genc,
@@ -243,9 +255,13 @@ public class GeneratorBoundsChecksTest
             try {
                 oper.call(gen, data, offset, len);
             } catch (StreamWriteException e) {
-                verifyException(e, "Invalid 'offset'");
-                verifyException(e, "'len'");
-                verifyException(e, "arguments for `String` of length "+data.length());
+                if (data == null) {
+                    verifyException(e, "Invalid `String` argument: `null`");
+                } else {
+                    verifyException(e, "Invalid 'offset'");
+                    verifyException(e, "'len'");
+                    verifyException(e, "arguments for `String` of length "+data.length());
+                }
             }
         }
     }

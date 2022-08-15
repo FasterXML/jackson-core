@@ -6,7 +6,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamWriteException;
 import tools.jackson.core.json.JsonFactory;
 
-public class GeneratorBoundsChecksTest
+public class BoundsChecksWithGeneratorTest
     extends BaseTest
 {
     final static JsonFactory JSON_F = new JsonFactory();

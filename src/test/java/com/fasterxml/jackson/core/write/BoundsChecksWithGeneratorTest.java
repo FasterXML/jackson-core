@@ -5,7 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 
-public class GeneratorBoundsChecksTest
+public class BoundsChecksWithGeneratorTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     final static JsonFactory JSON_F = new JsonFactory();

@@ -617,7 +617,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int len) throws IOException
     {
-        _checkRangeBoundsForByteArray(offset, len, text.length);
+        _checkRangeBoundsForByteArray(text, offset, len);
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -633,7 +633,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeUTF8String(byte[] text, int offset, int len) throws IOException
     {
-        _checkRangeBoundsForByteArray(offset, len, text.length);
+        _checkRangeBoundsForByteArray(text, offset, len);
         _verifyValueWrite(WRITE_STRING);
         if (_outputTail >= _outputEnd) {
             _flushBuffer();
@@ -672,7 +672,7 @@ public class UTF8JsonGenerator
     @Override
     public void writeRaw(String text, int offset, int len) throws IOException
     {
-        _checkRangeBoundsForString(offset, len, text.length());
+        _checkRangeBoundsForString(text, offset, len);
 
         final char[] buf = _charBuffer;
         final int cbufLen = buf.length;
@@ -741,7 +741,7 @@ public class UTF8JsonGenerator
     @Override
     public final void writeRaw(char[] cbuf, int offset, int len) throws IOException
     {
-        _checkRangeBoundsForCharArray(offset, len, cbuf.length);
+        _checkRangeBoundsForCharArray(cbuf, offset, len);
 
         // First: if we have 3 x charCount spaces, we know it'll fit just fine
         {
@@ -884,7 +884,7 @@ public class UTF8JsonGenerator
             byte[] data, int offset, int len)
         throws IOException, JsonGenerationException
     {
-        _checkRangeBoundsForByteArray(offset, len, data.length);
+        _checkRangeBoundsForByteArray(data, offset, len);
 
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes

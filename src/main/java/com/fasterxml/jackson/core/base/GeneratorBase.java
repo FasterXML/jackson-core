@@ -505,9 +505,13 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
      */
 
     // @since 2.14
-    protected void _checkRangeBoundsForByteArray(int offset, int len, int dataLen)
+    protected void _checkRangeBoundsForByteArray(byte[] data, int offset, int len)
         throws IOException
     {
+        if (data == null) {
+            _reportError("Invalid `byte[]` argument: `null`");
+        }
+        final int dataLen = data.length;
         final int end = offset+len;
 
         // Note: we are checking that:
@@ -527,9 +531,13 @@ offset, len, dataLen));
     }
 
     // @since 2.14
-    protected void _checkRangeBoundsForCharArray(int offset, int len, int dataLen)
+    protected void _checkRangeBoundsForCharArray(char[] data, int offset, int len)
         throws IOException
     {
+        if (data == null) {
+            _reportError("Invalid `char[]` argument: `null`");
+        }
+        final int dataLen = data.length;
         final int end = offset+len;
         // Note: we are checking same things as with other bounds-checks
         int anyNegs = offset | len | end | (dataLen - end);
@@ -541,9 +549,13 @@ offset, len, dataLen));
     }
 
     // @since 2.14
-    protected void _checkRangeBoundsForString(int offset, int len, int dataLen)
+    protected void _checkRangeBoundsForString(String data, int offset, int len)
         throws IOException
     {
+        if (data == null) {
+            _reportError("Invalid `String` argument: `null`");
+        }
+        final int dataLen = data.length();
         final int end = offset+len;
         // Note: we are checking same things as with other bounds-checks
         int anyNegs = offset | len | end | (dataLen - end);

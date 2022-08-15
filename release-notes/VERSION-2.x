@@ -59,6 +59,8 @@ JSON library.
  (contributed by Philippe M)
 #811: Add explicit bounds checks for `JsonGenerator` methods that take
   `byte[]`/`char[]`/String-with-offsets input
+#812: Add explicit bounds checks for `JsonFactory.createParser()` methods
+  that take `byte[]`/`char[]`-with-offsets input
 
 2.13.3 (14-May-2022)
 
@@ -67,7 +69,7 @@ JSON library.
 
 2.13.2 (06-Mar-2022)
 
-#732: Update Maven wrapper
+0#732: Update Maven wrapper
  (contributed by Andrey S)
 #739: `JsonLocation` in 2.13 only uses identity comparison for "content reference"
  (reported by Vlad T)

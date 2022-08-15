@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 
 import tools.jackson.core.async.ByteArrayFeeder;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.WrappedIOException;
 import tools.jackson.core.io.*;
 import tools.jackson.core.json.JsonFactory;
@@ -1485,6 +1486,66 @@ public abstract class TokenStreamFactory
         }
     }
 
+    /*
+    /**********************************************************************
+    /* Range check helper methods
+    /**********************************************************************
+     */
+
+    protected void _checkRangeBoundsForByteArray(byte[] data, int offset, int len)
+        throws JacksonException
+    {
+        if (data == null) {
+            _reportRangeError("Invalid `byte[]` argument: `null`");
+        }
+        final int dataLen = data.length;
+        final int end = offset+len;
+
+        // Note: we are checking that:
+        //
+        // !(offset < 0)
+        // !(len < 0)
+        // !((offset + len) < 0) // int overflow!
+        // !((offset + len) > dataLen) == !((datalen - (offset+len)) < 0)
+
+        // All can be optimized by OR'ing and checking for negative:
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportRangeError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `byte[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    protected void _checkRangeBoundsForCharArray(char[] data, int offset, int len)
+        throws JacksonException
+    {
+        if (data == null) {
+            _reportRangeError("Invalid `char[]` argument: `null`");
+        }
+        final int dataLen = data.length;
+        final int end = offset+len;
+        // Note: we are checking same things as with other bounds-checks
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportRangeError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    protected <T> T _reportRangeError(String msg) throws JacksonException
+    {
+        // In 2.x we used `IllegalArgumentException`: in 3.0 upgrade to StreamReadException
+        throw new StreamReadException((JsonParser) null, msg);
+    }
+
+    /*
+    /**********************************************************************
+    /* Error reporting methods
+    /**********************************************************************
+     */
+    
     protected JacksonException _wrapIOFailure(IOException e) {
         return WrappedIOException.construct(e, this);
     }

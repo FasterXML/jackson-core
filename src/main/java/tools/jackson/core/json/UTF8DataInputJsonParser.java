@@ -1169,6 +1169,11 @@ public class UTF8DataInputJsonParser
 
         // And then see if we get other parts
         if (c == INT_PERIOD) { // yes, fraction
+            // May have rather long integral part so need to check there's space:
+            if (outPtr >= outBuf.length) {
+                outBuf = _textBuffer.finishCurrentSegment();
+                outPtr = 0;
+            }
             outBuf[outPtr++] = (char) c;
 
             fract_loop:

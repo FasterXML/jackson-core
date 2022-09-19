@@ -46,8 +46,11 @@ com.fasterxml.jackson.core.*;version=${project.version}
     <packageVersion.dir>com/fasterxml/jackson/core/json</packageVersion.dir>
     <packageVersion.package>${project.groupId}.json</packageVersion.package>
 
-      <!-- Bnd annotations for generating extra OSGi metadata. -->
-      <version.bnd.annotation>6.3.1</version.bnd.annotation>
+    <!-- Bnd annotations for generating extra OSGi metadata. -->
+    <version.bnd.annotation>6.3.1</version.bnd.annotation>
+
+    <!-- for Reproducible Builds -->
+    <project.build.outputTimestamp>2022-09-18T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

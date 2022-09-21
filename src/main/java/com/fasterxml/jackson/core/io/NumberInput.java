@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser;
 import com.fasterxml.jackson.core.io.doubleparser.FastFloatParser;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public final class NumberInput
 {
@@ -385,5 +386,15 @@ public final class NumberInput
 
     public static BigDecimal parseBigDecimal(char[] ch) throws NumberFormatException {
         return BigDecimalParser.parse(ch);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @return a BigInteger
+     * @throws NumberFormatException if string cannot be represented by a BigInteger
+     * @since v2.14
+     */
+    public static BigInteger parseBigInteger(String s) throws NumberFormatException {
+        return new BigInteger(s);
     }
 }

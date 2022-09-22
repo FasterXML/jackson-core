@@ -13,6 +13,11 @@ public class FastBigDecimalParserTest extends com.fasterxml.jackson.core.BaseTes
         testParse("-12345678900987654321");
         testParse("1234567890.0987654321");
         testParse("-1234567890.0987654321");
+    }
+
+    public void testParseExp() {
+        testParse("1.23456789E-3");
+        testParse("1234567890.0987654321E-127");
         testParse("1E+3");
         testParse("1E-3");
         testParse("-1E+3");

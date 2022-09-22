@@ -46,11 +46,16 @@ public final class FastBigDecimalParser
             if (c == '.') {
                 fracPos = pos;
                 c = buf[++pos];
-                while (c >= '0' && c <= '9' && pos < limit) {
+                while (c >= '0' && c <= '9') {
                     fracLen++;
-                    c = buf[pos++];
+                    pos++;
+                    if (pos >= limit) {
+                        break;
+                    }
+                    c = buf[pos];
                 }
-            } else if ((c | 0x20) == 'e') {
+            }
+            if ((c | 0x20) == 'e') {
                 ePos = pos;
                 c = buf[++pos];
                 final boolean isNegExp = c == '-';
@@ -97,7 +102,9 @@ public final class FastBigDecimalParser
             } else {
                 int intLimit = fracPos - offset;
                 if (isNeg) intLimit++;
-                final int parseLimit = ePos > 0 ? ePos : limit;
+                final int parseLimit = ePos > 0 ? ePos - 1 : limit;
+                System.out.println("1> " + toBigDecimal(buf, offset, intLimit, isNeg, scale));
+                System.out.println("2> " + toBigDecimal(buf, fracPos + 1, parseLimit, isNeg, scale + fracLen));
                 return toBigDecimal(buf, offset, intLimit, isNeg, scale)
                         .add(toBigDecimal(buf, fracPos + 1, parseLimit, isNeg, scale + fracLen));
             }

@@ -22,5 +22,7 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
         assertEquals(new BigDecimal("123"), BigDecimalParser.xparse("123"));
         assertEquals(new BigDecimal("-123"), BigDecimalParser.xparse("-123"));
         assertEquals(new BigDecimal("123.456"), BigDecimalParser.xparse("123.456"));
+        assertEquals(new BigDecimal("-123.456"), BigDecimalParser.xparse("-123.456"));
+        assertEquals(new BigDecimal("-1234567890.0987654321"), BigDecimalParser.xparse("-1234567890.0987654321"));
     }
 }

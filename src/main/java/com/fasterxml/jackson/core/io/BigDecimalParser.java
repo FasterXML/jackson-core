@@ -194,22 +194,59 @@ public final class BigDecimalParser
             limit--;
         }
         int pos = offset;
+        int intLen = 0;
+        int fracLen = 0;
+        int fracPos = 0;
+        int ePos = 0;
         int scale = 0;
         while (pos < limit) {
-            if ((buf[pos] | 0x20) == 'e') {
-                char c = buf[pos + 1];
+            char c = buf[pos];
+            if (c == '.') {
+                fracPos = pos;
+                c = buf[++pos];
+                while (c >= '0' && c <= '9' && pos < limit) {
+                    fracLen++;
+                    c = buf[pos++];
+                }
+            } else if ((c | 0x20) == 'e') {
+                ePos = pos;
+                c = buf[++pos];
                 final boolean isNegExp = c == '-';
                 if (isNegExp || c == '+') {
                     c = buf[pos++];
                 }
-                //TODO check that all chars are digits
+                if (c < '0' || c > '9') {
+                    throw new NumberFormatException("unexpected character '" + c + "' at position " + pos);
+                }
                 long exp = c - '0';
                 //TODO finish getting exp
+            } else if (c < '0' || c > '9') {
+                throw new NumberFormatException("unexpected character '" + c + "' at position " + pos);
             } else {
+                intLen++;
                 pos++;
             }
         }
-        return toBigDecimal(buf, offset, len, isNeg, scale);
+        if (fracLen != 0) {
+            if ((intLen + fracLen) < 19) {
+                int from = offset;
+                long x = buf[from++] - '0';
+                while (from < fracPos) {
+                    x = x * 10 + (buf[from++] - '0');
+                }
+                from++;
+                while (from < limit) {
+                    x = x * 10 + (buf[from++] - '0');
+                }
+                if (isNeg) x = -x;
+                return BigDecimal.valueOf(x, scale + fracLen);
+            } else {
+                return toBigDecimal(buf, offset, (fracPos - offset), isNeg, scale)
+                        .add(toBigDecimal(buf, fracPos + 1, limit, isNeg, scale + fracLen));
+            }
+        } else {
+            return toBigDecimal(buf, offset, len, isNeg, scale);
+        }
     }
 
     private static BigDecimal toBigDecimal(final char[] buf, final int p, final int limit,
@@ -217,11 +254,9 @@ public final class BigDecimalParser
         final int len = limit - p;
         if (len < 19) {
             int pos = p;
-            long x = buf[pos] - '0';
-            pos++;
+            long x = buf[pos++] - '0';
             while (pos < limit) {
-                x = x * 10 + (buf[pos] - '0');
-                pos++;
+                x = x * 10 + (buf[pos++] - '0');
             }
             if (isNeg) x = -x;
             return BigDecimal.valueOf(x, scale);
@@ -244,8 +279,7 @@ public final class BigDecimalParser
         long x1 = buf[pos] - '0';
         pos++;
         while (pos < firstBlockLimit) {
-            x1 = x1 * 10 + (buf[pos] - '0');
-            pos++;
+            x1 = x1 * 10 + (buf[pos++] - '0');
         }
         long x2 =
                 (buf[pos] * 10 + buf[pos + 1]) * 10000000000000000L +
@@ -274,8 +308,7 @@ public final class BigDecimalParser
         final int firstBlockLimit = len % 9 + p;
         int pos = p;
         while (pos < firstBlockLimit) {
-            x = x * 10 + (buf[pos] - '0');
-            pos++;
+            x = x * 10 + (buf[pos++] - '0');
         }
         magnitude[last] = Math.toIntExact(x);
         int first = last;

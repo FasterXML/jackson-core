@@ -238,7 +238,7 @@ public final class BigDecimalParser
                                               final boolean isNeg, final int scale) {
         final int len = limit - p;
         final int last = Math.toIntExact(len * 445861642L >> 32); // (len * Math.log(10) / Math.log(1L << 32))
-        final int[] magnitude = new int[32]; //possibly, find a way so that these arrays can be reused
+        final int[] magnitude = new int[32]; //TODO possibly, find a way so that these arrays can be reused
 
         long x = 0L;
         final int firstBlockLimit = len % 9 + p;
@@ -260,9 +260,9 @@ public final class BigDecimalParser
             first = Math.max(first - 1, 0);
             int i = last;
             while (i >= first) {
-                final long temp = (magnitude[i] & 0xFFFFFFFFL) * 1000000000 + x;
-                magnitude[i] = Math.toIntExact(temp);
-                x = temp >>> 32;
+                x += (magnitude[i] & 0xFFFFFFFFL) * 1000000000;
+                magnitude[i] = Math.toIntExact(x);
+                x >>>= 32;
                 i--;
             }
         }

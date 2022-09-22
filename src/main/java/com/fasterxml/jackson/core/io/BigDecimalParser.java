@@ -218,6 +218,7 @@ public final class BigDecimalParser
                     throw new NumberFormatException("unexpected character '" + c + "' at position " + pos);
                 }
                 long exp = c - '0';
+                pos++;
                 while (pos < limit) {
                     c = buf[pos++];
                     if (c < '0' || c > '9') {
@@ -259,7 +260,7 @@ public final class BigDecimalParser
             }
         } else {
             final int parseLen = ePos > 0 ? (ePos - offset) : len;
-            return toBigDecimal(buf, offset, len, isNeg, scale);
+            return toBigDecimal(buf, offset, parseLen, isNeg, scale);
         }
     }
 

@@ -102,9 +102,7 @@ public final class FastBigDecimalParser
             } else {
                 int intLimit = fracPos - offset;
                 if (isNeg) intLimit++;
-                final int parseLimit = ePos > 0 ? ePos - 1 : limit;
-                System.out.println("1> " + toBigDecimal(buf, offset, intLimit, isNeg, scale));
-                System.out.println("2> " + toBigDecimal(buf, fracPos + 1, parseLimit, isNeg, scale + fracLen));
+                final int parseLimit = ePos > 0 ? ePos : limit;
                 return toBigDecimal(buf, offset, intLimit, isNeg, scale)
                         .add(toBigDecimal(buf, fracPos + 1, parseLimit, isNeg, scale + fracLen));
             }

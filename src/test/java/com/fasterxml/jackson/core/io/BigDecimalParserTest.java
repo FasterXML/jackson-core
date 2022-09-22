@@ -27,6 +27,7 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
         testXParse("-12345678900987654321");
         testXParse("1234567890.0987654321");
         testXParse("-1234567890.0987654321");
+        testXParse("1E+3");
     }
 
     private void testXParse(String s) {

@@ -212,13 +212,23 @@ public final class BigDecimalParser
                 c = buf[++pos];
                 final boolean isNegExp = c == '-';
                 if (isNegExp || c == '+') {
-                    c = buf[pos++];
+                    c = buf[++pos];
                 }
                 if (c < '0' || c > '9') {
                     throw new NumberFormatException("unexpected character '" + c + "' at position " + pos);
                 }
                 long exp = c - '0';
-                //TODO finish getting exp
+                while (pos < limit) {
+                    c = buf[pos++];
+                    if (c < '0' || c > '9') {
+                        throw new NumberFormatException("unexpected character '" + c + "' at position " + pos);
+                    }
+                    exp = exp * 10 + (c - '0');
+                }
+                if (exp > 2147483648L) throw new NumberFormatException("invalid exponent " + exp);
+                else if (isNegExp) scale = Math.toIntExact(exp);
+                else if (exp == 2147483648L) throw new NumberFormatException("invalid exponent " + -exp);
+                else scale = Math.toIntExact(-exp);
             } else if (c < '0' || c > '9') {
                 throw new NumberFormatException("unexpected character '" + c + "' at position " + pos);
             } else {
@@ -234,7 +244,8 @@ public final class BigDecimalParser
                     x = x * 10 + (buf[from++] - '0');
                 }
                 from++;
-                while (from < limit) {
+                final int parseLimit = ePos > 0 ? ePos : limit;
+                while (from < parseLimit) {
                     x = x * 10 + (buf[from++] - '0');
                 }
                 if (isNeg) x = -x;
@@ -242,10 +253,12 @@ public final class BigDecimalParser
             } else {
                 int intLimit = fracPos - offset;
                 if (isNeg) intLimit++;
+                final int parseLimit = ePos > 0 ? ePos : limit;
                 return toBigDecimal(buf, offset, intLimit, isNeg, scale)
-                        .add(toBigDecimal(buf, fracPos + 1, limit, isNeg, scale + fracLen));
+                        .add(toBigDecimal(buf, fracPos + 1, parseLimit, isNeg, scale + fracLen));
             }
         } else {
+            final int parseLen = ePos > 0 ? (ePos - offset) : len;
             return toBigDecimal(buf, offset, len, isNeg, scale);
         }
     }

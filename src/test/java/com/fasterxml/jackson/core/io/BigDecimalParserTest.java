@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import java.math.BigDecimal;
+
 public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
     public void testLongStringParse() {
         final int len = 1500;
@@ -14,5 +16,11 @@ public class BigDecimalParserTest extends com.fasterxml.jackson.core.BaseTest {
             assertTrue("exception message starts as expected?", nfe.getMessage().startsWith("Value \"AAAAA"));
             assertTrue("exception message value contains truncated", nfe.getMessage().contains("truncated"));
         }
+    }
+
+    public void testXParse() {
+        assertEquals(new BigDecimal("123"), BigDecimalParser.xparse("123"));
+        assertEquals(new BigDecimal("-123"), BigDecimalParser.xparse("-123"));
+        assertEquals(new BigDecimal("123.456"), BigDecimalParser.xparse("123.456"));
     }
 }

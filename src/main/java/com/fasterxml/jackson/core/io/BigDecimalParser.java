@@ -182,6 +182,36 @@ public final class BigDecimalParser
         return len == 0 ? BigDecimal.ZERO : new BigDecimal(chars, off, len).movePointRight(scale);
     }
 
+    public static BigDecimal xparse(final String str) {
+        return xparse(str.toCharArray(), 0, str.length());
+    }
+
+    public static BigDecimal xparse(final char[] buf, int offset, int len) {
+        final boolean isNeg = buf[offset] == '-';
+        int limit = offset + len;
+        if (isNeg) {
+            offset++;
+            limit--;
+        }
+        int pos = offset;
+        int scale = 0;
+        while (pos < limit) {
+            if ((buf[pos] | 0x20) == 'e') {
+                char c = buf[pos + 1];
+                final boolean isNegExp = c == '-';
+                if (isNegExp || c == '+') {
+                    c = buf[pos++];
+                }
+                //TODO check that all chars are digits
+                long exp = c - '0';
+                //TODO finish getting exp
+            } else {
+                pos++;
+            }
+        }
+        return toBigDecimal(buf, offset, len, isNeg, scale);
+    }
+
     private static BigDecimal toBigDecimal(final char[] buf, final int p, final int limit,
                                            final boolean isNeg, final int scale) {
         final int len = limit - p;

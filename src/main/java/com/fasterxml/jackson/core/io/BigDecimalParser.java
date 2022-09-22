@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 // Based on a great idea of Eric Obermühlner to use a tree of smaller BigDecimals for parsing
@@ -37,7 +38,7 @@ public final class BigDecimalParser
             return parseBigDecimal(chars, off, len, len / 10);
 
         // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
-        //    operatons by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
+        //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
         } catch (ArithmeticException | NumberFormatException e) {
             String desc = e.getMessage();
             // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:
@@ -179,5 +180,103 @@ public final class BigDecimalParser
         }
 
         return len == 0 ? BigDecimal.ZERO : new BigDecimal(chars, off, len).movePointRight(scale);
+    }
+
+    private static BigDecimal toBigDecimal(final char[] buf, final int p, final int limit,
+                                           final boolean isNeg, final int scale) {
+        final int len = limit - p;
+        if (len < 19) {
+            int pos = p;
+            long x = buf[pos] - '0';
+            pos++;
+            while (pos < limit) {
+                x = x * 10 + (buf[pos] - '0');
+                pos++;
+            }
+            if (isNeg) x = -x;
+            return BigDecimal.valueOf(x, scale);
+        } else if (len <= 36) {
+            return toBigDecimal36(buf, p, limit, isNeg, scale);
+        } else if (len <= 308) {
+            return toBigDecimal308(buf, p, limit, isNeg, scale);
+        } else {
+            final int mid = len >> 1;
+            final int midPos = limit - mid;
+            return toBigDecimal(buf, p, midPos, isNeg, scale - mid)
+                    .add(toBigDecimal(buf, midPos, limit, isNeg, scale));
+        }
+    }
+
+    private static BigDecimal toBigDecimal36(final char[] buf, final int p, final int limit,
+                                             final boolean isNeg, final int scale) {
+        final int firstBlockLimit = limit - 18;
+        int pos = p;
+        long x1 = buf[pos] - '0';
+        pos++;
+        while (pos < firstBlockLimit) {
+            x1 = x1 * 10 + (buf[pos] - '0');
+            pos++;
+        }
+        long x2 =
+                (buf[pos] * 10 + buf[pos + 1]) * 10000000000000000L +
+                        ((buf[pos + 2] * 10 + buf[pos + 3]) * 1000000 +
+                                (buf[pos + 4] * 10 + buf[pos + 5]) * 10000 +
+                                (buf[pos + 6] * 10 + buf[pos + 7]) * 100 +
+                                (buf[pos + 8] * 10 + buf[pos + 9])) * 100000000L +
+                        ((buf[pos + 10] * 10 + buf[pos + 11]) * 1000000 +
+                                (buf[pos + 12] * 10 + buf[pos + 13]) * 10000 +
+                                (buf[pos + 14] * 10 + buf[pos + 15]) * 100 +
+                                buf[pos + 16] * 10 + buf[pos + 17]) - 5333333333333333328L; // 5333333333333333328L == '0' * 111111111111111111L
+        if (isNeg) {
+            x1 = -x1;
+            x2 = -x2;
+        }
+        return BigDecimal.valueOf(x1, scale - 18).add(BigDecimal.valueOf(x2, scale));
+    }
+
+    private static BigDecimal toBigDecimal308(final char[] buf, final int p, final int limit,
+                                              final boolean isNeg, final int scale) {
+        final int len = limit - p;
+        final int last = Math.toIntExact(len * 445861642L >> 32); // (len * Math.log(10) / Math.log(1L << 32))
+        final int[] magnitude = new int[32]; //possibly, find a way so that these arrays can be reused
+
+        long x = 0L;
+        final int firstBlockLimit = len % 9 + p;
+        int pos = p;
+        while (pos < firstBlockLimit) {
+            x = x * 10 + (buf[pos] - '0');
+            pos++;
+        }
+        magnitude[last] = Math.toIntExact(x);
+        int first = last;
+        while (pos < limit) {
+            x =
+                (buf[pos] * 10 + buf[pos + 1]) * 10000000L +
+                        ((buf[pos + 2] * 10 + buf[pos + 3]) * 100000 +
+                                (buf[pos + 4] * 10 + buf[pos + 5]) * 1000 +
+                                (buf[pos + 6] * 10 + buf[pos + 7]) * 10 +
+                                buf[pos + 8]) - 5333333328L; // 5333333328L == '0' * 111111111L
+            pos += 9;
+            first = Math.max(first - 1, 0);
+            int i = last;
+            while (i >= first) {
+                final long temp = (magnitude[i] & 0xFFFFFFFFL) * 1000000000 + x;
+                magnitude[i] = Math.toIntExact(temp);
+                x = temp >>> 32;
+                i--;
+            }
+        }
+        final byte[] bs = new byte[last + 1 << 2];
+        int i = 0;
+        while (i <= last) {
+            int w = magnitude[i];
+            int j = i << 2;
+            bs[j] = (byte) (w >> 24);
+            bs[j + 1] = (byte) (w >> 16);
+            bs[j + 2] = (byte) (w >> 8);
+            bs[j + 3] = (byte) w;
+            i++;
+        }
+        return new BigDecimal(new BigInteger(isNeg ? -1 : 1, bs), scale);
     }
 }

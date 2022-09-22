@@ -188,10 +188,9 @@ public final class BigDecimalParser
 
     public static BigDecimal xparse(final char[] buf, int offset, int len) {
         final boolean isNeg = buf[offset] == '-';
-        int limit = offset + len;
+        final int limit = offset + len;
         if (isNeg) {
             offset++;
-            limit--;
         }
         int pos = offset;
         int intLen = 0;
@@ -241,7 +240,9 @@ public final class BigDecimalParser
                 if (isNeg) x = -x;
                 return BigDecimal.valueOf(x, scale + fracLen);
             } else {
-                return toBigDecimal(buf, offset, (fracPos - offset), isNeg, scale)
+                int intLimit = fracPos - offset;
+                if (isNeg) intLimit++;
+                return toBigDecimal(buf, offset, intLimit, isNeg, scale)
                         .add(toBigDecimal(buf, fracPos + 1, limit, isNeg, scale + fracLen));
             }
         } else {

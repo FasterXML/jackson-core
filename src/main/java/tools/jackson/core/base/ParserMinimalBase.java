@@ -186,6 +186,7 @@ public abstract class ParserMinimalBase extends JsonParser
      */
 
     protected ParserMinimalBase(ObjectReadContext readCtxt) {
+        super();
         _objectReadContext = readCtxt;
         _streamReadFeatures = readCtxt.getStreamReadFeatures(STREAM_READ_FEATURE_DEFAULTS);
     }

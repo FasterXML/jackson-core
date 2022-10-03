@@ -29,13 +29,15 @@ public class UTF8JsonGenerator
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
 
+    private final static byte[] HEX_CHARS_UPPER = CharTypes.copyHexBytes(true);
+    private final static byte[] HEX_CHARS_LOWER = CharTypes.copyHexBytes(false);
 
     private final static byte[] NULL_BYTES = { 'n', 'u', 'l', 'l' };
     private final static byte[] TRUE_BYTES = { 't', 'r', 'u', 'e' };
     private final static byte[] FALSE_BYTES = { 'f', 'a', 'l', 's', 'e' };
 
     private byte[] getHexChars() {
-        return CharTypes.copyHexBytes(_writeHexUppercase);
+        return _writeHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
     }
 
     /*
@@ -199,16 +201,6 @@ public class UTF8JsonGenerator
     public int getOutputBuffered() {
         // Assuming tail is always valid, set to 0 on close
         return _outputTail;
-    }
-
-    @Override
-    public JsonGenerator enable(Feature f) {
-        return super.enable(f);
-    }
-
-    @Override
-    public JsonGenerator disable(Feature f) {
-        return super.disable(f);
     }
 
     /*

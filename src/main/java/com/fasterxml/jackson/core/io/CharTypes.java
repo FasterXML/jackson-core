@@ -288,8 +288,16 @@ public final class CharTypes
         }
     }
 
+    public static char[] copyHexChars() {
+        return copyHexChars(true);
+    }
+
     public static char[] copyHexChars(boolean uppercase) {
         return (uppercase) ? HC.clone() : HClower.clone();
+    }
+
+    public static byte[] copyHexBytes() {
+        return copyHexBytes(true);
     }
 
     public static byte[] copyHexBytes(boolean uppercase) {

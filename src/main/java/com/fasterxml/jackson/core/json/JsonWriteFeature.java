@@ -79,6 +79,8 @@ public enum JsonWriteFeature
      * writer libraries, such as JSON.stringify from Javascript.
      *<p>
      * Feature is enabled by default.
+     *
+     * @since 2.14
      */
     @SuppressWarnings("deprecation")
     WRITE_HEX_UPPER_CASE(true, JsonGenerator.Feature.WRITE_HEX_UPPER_CASE),

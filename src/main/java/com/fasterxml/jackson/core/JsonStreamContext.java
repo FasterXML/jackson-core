@@ -305,11 +305,6 @@ public abstract class JsonStreamContext
     }
 
     /**
-     * Uppercase Hex letters
-     */
-    public boolean uppercaseHex() { return true; }
-    
-    /**
      * Overridden to provide developer readable "JsonPath" representation
      * of the context.
      *

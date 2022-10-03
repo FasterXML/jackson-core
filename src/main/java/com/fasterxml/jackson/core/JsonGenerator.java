@@ -260,8 +260,8 @@ public abstract class JsonGenerator
          *<p>
          * Feature is enabled by default.
          *
-         *
-         * @deprecated Since 2.10 use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_HEX_UPPER_CASE} instead
+         * @since 2.14
+         * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_HEX_UPPER_CASE} instead
          */
         @Deprecated
         WRITE_HEX_UPPER_CASE(true);

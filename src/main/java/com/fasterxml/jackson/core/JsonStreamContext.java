@@ -336,7 +336,7 @@ public abstract class JsonStreamContext
             String currentName = getCurrentName();
             if (currentName != null) {
                 sb.append('"');
-                CharTypes.appendQuoted(sb, currentName, uppercaseHex());
+                CharTypes.appendQuoted(sb, currentName);
                 sb.append('"');
             } else {
                 sb.append('?');

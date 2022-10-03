@@ -204,7 +204,7 @@ public class JsonWriteContext extends JsonStreamContext
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this,
-                    (_dups == null) ? null : _dups.child());
+                    (_dups == null) ? null : _dups.child(), _cfgUppercaseHex);
             return ctxt;
         }
         return ctxt.reset(TYPE_ARRAY);
@@ -215,7 +215,7 @@ public class JsonWriteContext extends JsonStreamContext
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonWriteContext(TYPE_ARRAY, this,
-                    (_dups == null) ? null : _dups.child(), currValue);
+                    (_dups == null) ? null : _dups.child(), currValue, _cfgUppercaseHex);
             return ctxt;
         }
         return ctxt.reset(TYPE_ARRAY, currValue);
@@ -225,7 +225,7 @@ public class JsonWriteContext extends JsonStreamContext
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this,
-                    (_dups == null) ? null : _dups.child());
+                    (_dups == null) ? null : _dups.child(), _cfgUppercaseHex);
             return ctxt;
         }
         return ctxt.reset(TYPE_OBJECT);
@@ -236,7 +236,7 @@ public class JsonWriteContext extends JsonStreamContext
         JsonWriteContext ctxt = _child;
         if (ctxt == null) {
             _child = ctxt = new JsonWriteContext(TYPE_OBJECT, this,
-                    (_dups == null) ? null : _dups.child(), currValue);
+                    (_dups == null) ? null : _dups.child(), currValue, _cfgUppercaseHex);
             return ctxt;
         }
         return ctxt.reset(TYPE_OBJECT, currValue);

@@ -37,7 +37,7 @@ public class UTF8JsonGenerator
     private final static byte[] FALSE_BYTES = { 'f', 'a', 'l', 's', 'e' };
 
     private byte[] getHexChars() {
-        return _writeHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
+        return _cfgWriteHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
     }
 
     /*

@@ -23,7 +23,7 @@ public class WriterBasedJsonGenerator
     protected final static char[] HEX_CHARS_LOWER = CharTypes.copyHexChars(false);
 
     private char[] getHexChars() {
-        return _writeHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
+        return _cfgWriteHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
     }
 
     /*

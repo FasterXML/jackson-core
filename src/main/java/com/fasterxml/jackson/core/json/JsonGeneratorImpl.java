@@ -106,7 +106,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     /**
      * Write Hex values with uppercase letters
      *
-     * @since 2.15
+     * @since 2.14
      */
     protected boolean _cfgWriteHexUppercase;
 

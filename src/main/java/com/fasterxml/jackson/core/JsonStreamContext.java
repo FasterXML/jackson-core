@@ -303,6 +303,11 @@ public abstract class JsonStreamContext
     public JsonLocation getStartLocation(Object srcRef) {
         return JsonLocation.NA;
     }
+
+    /**
+     * Uppercase Hex letters
+     */
+    public boolean uppercaseHex() { return true; }
     
     /**
      * Overridden to provide developer readable "JsonPath" representation
@@ -331,7 +336,7 @@ public abstract class JsonStreamContext
             String currentName = getCurrentName();
             if (currentName != null) {
                 sb.append('"');
-                CharTypes.appendQuoted(sb, currentName);
+                CharTypes.appendQuoted(sb, currentName, uppercaseHex());
                 sb.append('"');
             } else {
                 sb.append('?');

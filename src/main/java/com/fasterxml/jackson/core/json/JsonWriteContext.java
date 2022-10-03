@@ -59,6 +59,11 @@ public class JsonWriteContext extends JsonStreamContext
      */
     protected boolean _gotName;
 
+    /**
+     * Use uppercase letters for hex codes.
+     */
+    protected boolean _cfgUppercaseHex = true;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -73,6 +78,15 @@ public class JsonWriteContext extends JsonStreamContext
         _index = -1;
     }
 
+    protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups, boolean uppercaseHex) {
+        super();
+        _type = type;
+        _parent = parent;
+        _dups = dups;
+        _index = -1;
+        _cfgUppercaseHex = uppercaseHex;
+    }
+
     /* @since 2.10 */
     protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups,
             Object currValue) {
@@ -82,6 +96,18 @@ public class JsonWriteContext extends JsonStreamContext
         _dups = dups;
         _index = -1;
         _currentValue = currValue;
+    }
+
+    /* @since 2.10 */
+    protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups,
+                               Object currValue, boolean uppercaseHex) {
+        super();
+        _type = type;
+        _parent = parent;
+        _dups = dups;
+        _index = -1;
+        _currentValue = currValue;
+        _cfgUppercaseHex = uppercaseHex;
     }
 
     /**
@@ -147,7 +173,12 @@ public class JsonWriteContext extends JsonStreamContext
     public void setCurrentValue(Object v) {
         _currentValue = v;
     }
-    
+
+    @Override
+    public boolean uppercaseHex() {
+        return _cfgUppercaseHex;
+    }
+
     /*
     /**********************************************************
     /* Factory methods
@@ -163,7 +194,10 @@ public class JsonWriteContext extends JsonStreamContext
     public static JsonWriteContext createRootContext() { return createRootContext(null); }
 
     public static JsonWriteContext createRootContext(DupDetector dd) {
-        return new JsonWriteContext(TYPE_ROOT, null, dd);
+        return createRootContext(dd, true);
+    }
+    public static JsonWriteContext createRootContext(DupDetector dd, boolean uppercaseHex) {
+        return new JsonWriteContext(TYPE_ROOT, null, dd, uppercaseHex);
     }
 
     public JsonWriteContext createChildArrayContext() {

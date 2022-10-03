@@ -74,6 +74,11 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected int _maximumNonEscapedChar;
 
     /**
+     * Write Hax values with uppercase letters
+     */
+    protected boolean _writeHexUppercase;
+
+    /**
      * Definition of custom character escapes to use for generators created
      * by this factory, if any. If null, standard data format specific
      * escapes are used.
@@ -117,6 +122,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
             // inlined `setHighestNonEscapedChar()`
             _maximumNonEscapedChar = 127;
         }
+        _writeHexUppercase = Feature.WRITE_HEX_UPPER_CASE.enabledIn(features);
         _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
 
@@ -143,6 +149,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         super.enable(f);
         if (f == Feature.QUOTE_FIELD_NAMES) {
             _cfgUnqNames = false;
+        } else if ( f == Feature.WRITE_HEX_UPPER_CASE) {
+            _writeHexUppercase = true;
         }
         return this;
     }
@@ -153,6 +161,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         super.disable(f);
         if (f == Feature.QUOTE_FIELD_NAMES) {
             _cfgUnqNames = true;
+        } else if ( f == Feature.WRITE_HEX_UPPER_CASE) {
+            _writeHexUppercase = false;
         }
         return this;
     }
@@ -162,6 +172,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures) {
         super._checkStdFeatureChanges(newFeatureFlags, changedFeatures);
         _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(newFeatureFlags);
+        _writeHexUppercase = Feature.WRITE_HEX_UPPER_CASE.enabledIn(newFeatureFlags);
     }
 
     @Override

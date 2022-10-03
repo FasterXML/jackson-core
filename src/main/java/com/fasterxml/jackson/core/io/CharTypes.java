@@ -5,6 +5,7 @@ import java.util.Arrays;
 public final class CharTypes
 {
     protected final static char[] HC = "0123456789ABCDEF".toCharArray();
+    protected final static char[] HClower = "0123456789abcdef".toCharArray();
     protected final static byte[] HB;
     static {
         int len = HC.length;
@@ -251,8 +252,21 @@ public final class CharTypes
      *
      * @param content Unescaped String value to append with escaping applied
      */
-    public static void appendQuoted(StringBuilder sb, String content)
-    {
+    public static void appendQuoted(StringBuilder sb, String content) {
+        appendQuoted(sb, content, true);
+    }
+
+    /**
+     * Helper method for appending JSON-escaped version of contents
+     * into specific {@link StringBuilder}, using default JSON specification
+     * mandated minimum escaping rules.
+     *
+     * @param sb Buffer to append escaped contents in
+     *
+     * @param content Unescaped String value to append with escaping applied
+     * @param uppercaseHex If we want to uppercase hex letters.
+     */
+    public static void appendQuoted(StringBuilder sb, String content, boolean uppercaseHex) {
         final int[] escCodes = sOutputEscapes128;
         int escLen = escCodes.length;
         for (int i = 0, len = content.length(); i < len; ++i) {
@@ -276,8 +290,14 @@ public final class CharTypes
                 sb.append('0');
                 sb.append('0');
                 int value = c;  // widening
-                sb.append(HC[value >> 4]);
-                sb.append(HC[value & 0xF]);
+                if (uppercaseHex) {
+                    sb.append(HC[value >> 4]);
+                    sb.append(HC[value & 0xF]);
+                } else {
+                    sb.append(HClower[value >> 4]);
+                    sb.append(HClower[value & 0xF]);
+
+                }
             } else { // "named", i.e. prepend with slash
                 sb.append((char) escCode);
             }

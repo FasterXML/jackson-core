@@ -443,7 +443,7 @@ public abstract class BaseTest
 
     protected void writeJsonDoc(JsonFactory f, String doc, JsonGenerator g)
     {
-        JsonParser p = f.createParser(ObjectReadContext.empty(), aposToQuotes(doc));
+        JsonParser p = f.createParser(ObjectReadContext.empty(), a2q(doc));
         
         while (p.nextToken() != null) {
             g.copyCurrentStructure(p);
@@ -521,18 +521,8 @@ public abstract class BaseTest
     /**********************************************************************
      */
 
-    @Deprecated
-    protected static String quote(String str) {
-        return q(str);
-    }
-
     protected static String q(String str) {
         return '"'+str+'"';
-    }
-
-    @Deprecated
-    protected static String aposToQuotes(String json) {
-        return a2q(json);
     }
 
     protected static String a2q(String json) {

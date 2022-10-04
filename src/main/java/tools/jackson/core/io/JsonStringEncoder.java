@@ -21,9 +21,9 @@ public final class JsonStringEncoder
     /**********************************************************************
      */
 
-    private final static char[] HC = CharTypes.copyHexChars();
+    private final static char[] HC = CharTypes.copyHexChars(true);
 
-    private final static byte[] HB = CharTypes.copyHexBytes();
+    private final static byte[] HB = CharTypes.copyHexBytes(true);
 
     private final static int SURR1_FIRST = 0xD800;
     private final static int SURR1_LAST = 0xDBFF;

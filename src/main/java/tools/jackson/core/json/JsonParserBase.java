@@ -1,6 +1,5 @@
 package tools.jackson.core.json;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 
 import tools.jackson.core.*;

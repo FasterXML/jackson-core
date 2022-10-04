@@ -19,7 +19,12 @@ public class WriterBasedJsonGenerator
 {
     protected final static int SHORT_WRITE = 32;
 
-    protected final static char[] HEX_CHARS = CharTypes.copyHexChars();
+    protected final static char[] HEX_CHARS_UPPER = CharTypes.copyHexChars(true);
+    protected final static char[] HEX_CHARS_LOWER = CharTypes.copyHexChars(false);
+
+    private char[] getHexChars() {
+        return _cfgWriteHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
+    }
 
     /*
     /**********************************************************************
@@ -1915,6 +1920,7 @@ public class WriterBasedJsonGenerator
             return;
         }
         if (escCode != CharacterEscapes.ESCAPE_CUSTOM) { // std, \\uXXXX
+            char[] HEX_CHARS = getHexChars();
             if (_outputTail >= 6) { // fits, prepend to buffer
                 char[] buf = _outputBuffer;
                 int ptr = _outputTail - 6;
@@ -2015,6 +2021,7 @@ public class WriterBasedJsonGenerator
             return ptr;
         }
         if (escCode != CharacterEscapes.ESCAPE_CUSTOM) { // std, \\uXXXX
+            char[] HEX_CHARS = getHexChars();
             if (ptr > 5 && ptr < end) { // fits, prepend to buffer
                 ptr -= 6;
                 buffer[ptr++] = '\\';
@@ -2101,6 +2108,7 @@ public class WriterBasedJsonGenerator
             }
             int ptr = _outputTail;
             char[] buf = _outputBuffer;
+            char[] HEX_CHARS = getHexChars();
             buf[ptr++] = '\\';
             buf[ptr++] = 'u';
             // We know it's a control char, so only the last 2 chars are non-0

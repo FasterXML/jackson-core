@@ -305,4 +305,45 @@ public class StreamWriteFeaturesTest
             assertEquals("{\"double\":NaN} {\"float\":NaN}", result);
         }
     }
+
+    // [core#717]: configurable hex digits; lower-case
+    public void testHexLowercase() throws Exception {
+        JsonFactory f = JsonFactory.builder()
+                .disable(JsonWriteFeature.WRITE_HEX_UPPER_CASE)
+                .build();
+        _testHexOutput(f, false, "\u001b", q("\\u001b"));
+        _testHexOutput(f, true, "\u001b", q("\\u001b"));
+    }
+
+    // [core#717]: configurable hex digits; upper-case (default)
+    public void testHexUppercase() throws Exception
+    {
+        JsonFactory f = JsonFactory.builder()
+                .enable(JsonWriteFeature.WRITE_HEX_UPPER_CASE)
+                .build();
+        _testHexOutput(f, false, "\u001b", q("\\u001B"));
+        _testHexOutput(f, true, "\u001b", q("\\u001B"));
+    }
+
+    private void _testHexOutput(JsonFactory f, boolean useBytes,
+            String input, String exp) throws Exception
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        StringWriter sw = new StringWriter();
+        JsonGenerator g;
+        if (useBytes) {
+            g = f.createGenerator(ObjectWriteContext.empty(), bytes);
+        } else {
+            g = f.createGenerator(ObjectWriteContext.empty(), sw);
+        }
+
+        g.writeString(input);
+        g.flush();
+        g.close();
+
+        String result = useBytes ? utf8String(bytes) : sw.toString();
+        assertEquals(exp, result);
+
+        g.close();
+    }
 }

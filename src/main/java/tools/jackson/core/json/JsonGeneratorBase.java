@@ -109,6 +109,12 @@ public abstract class JsonGeneratorBase extends GeneratorBase
      */
     protected final boolean _cfgNumbersAsStrings;
 
+    /**
+     * Whether to write Hex values with upper-case letters (true)
+     * or lower-case (false)
+     */
+    protected boolean _cfgWriteHexUppercase;
+
     /*
     /**********************************************************************
     /* Output state
@@ -143,6 +149,7 @@ public abstract class JsonGeneratorBase extends GeneratorBase
         _maximumNonEscapedChar = maxNonEscaped;
         _cfgUnqNames = !JsonWriteFeature.QUOTE_PROPERTY_NAMES.enabledIn(formatWriteFeatures);
         _cfgNumbersAsStrings = JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS.enabledIn(formatWriteFeatures);
+        _cfgWriteHexUppercase = JsonWriteFeature.WRITE_HEX_UPPER_CASE.enabledIn(formatWriteFeatures);
         _rootValueSeparator = rootValueSeparator;
 
         _cfgPrettyPrinter = pp;

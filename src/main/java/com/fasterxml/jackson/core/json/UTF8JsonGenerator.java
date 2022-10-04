@@ -29,11 +29,16 @@ public class UTF8JsonGenerator
     // intermediate copies only made up to certain length...
     private final static int MAX_BYTES_TO_BUFFER = 512;
 
-    private final static byte[] HEX_CHARS = CharTypes.copyHexBytes();
+    private final static byte[] HEX_CHARS_UPPER = CharTypes.copyHexBytes(true);
+    private final static byte[] HEX_CHARS_LOWER = CharTypes.copyHexBytes(false);
 
     private final static byte[] NULL_BYTES = { 'n', 'u', 'l', 'l' };
     private final static byte[] TRUE_BYTES = { 't', 'r', 'u', 'e' };
     private final static byte[] FALSE_BYTES = { 'f', 'a', 'l', 's', 'e' };
+
+    private byte[] getHexChars() {
+        return _cfgWriteHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
+    }
 
     /*
     /**********************************************************
@@ -2136,6 +2141,7 @@ public class UTF8JsonGenerator
      */
     private final int _outputMultiByteChar(int ch, int outputPtr) throws IOException
     {
+        byte[] HEX_CHARS = getHexChars();
         byte[] bbuf = _outputBuffer;
         if (ch >= SURR1_FIRST && ch <= SURR2_LAST) { // yes, outside of BMP; add an escape
             // 23-Nov-2015, tatu: As per [core#223], may or may not want escapes;
@@ -2175,6 +2181,7 @@ public class UTF8JsonGenerator
     private int _writeGenericEscape(int charToEscape, int outputPtr) throws IOException
     {
         final byte[] bbuf = _outputBuffer;
+        byte[] HEX_CHARS = getHexChars();
         bbuf[outputPtr++] = BYTE_BACKSLASH;
         bbuf[outputPtr++] = BYTE_u;
         if (charToEscape > 0xFF) {

@@ -102,6 +102,14 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
      */
     protected boolean _cfgUnqNames;
 
+
+    /**
+     * Write Hex values with uppercase letters
+     *
+     * @since 2.14
+     */
+    protected boolean _cfgWriteHexUppercase;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -117,6 +125,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
             // inlined `setHighestNonEscapedChar()`
             _maximumNonEscapedChar = 127;
         }
+        _cfgWriteHexUppercase = Feature.WRITE_HEX_UPPER_CASE.enabledIn(features);
         _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);
     }
 
@@ -143,6 +152,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         super.enable(f);
         if (f == Feature.QUOTE_FIELD_NAMES) {
             _cfgUnqNames = false;
+        } else if ( f == Feature.WRITE_HEX_UPPER_CASE) {
+            _cfgWriteHexUppercase = true;
         }
         return this;
     }
@@ -153,6 +164,8 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
         super.disable(f);
         if (f == Feature.QUOTE_FIELD_NAMES) {
             _cfgUnqNames = true;
+        } else if ( f == Feature.WRITE_HEX_UPPER_CASE) {
+            _cfgWriteHexUppercase = false;
         }
         return this;
     }
@@ -162,6 +175,7 @@ public abstract class JsonGeneratorImpl extends GeneratorBase
     protected void _checkStdFeatureChanges(int newFeatureFlags, int changedFeatures) {
         super._checkStdFeatureChanges(newFeatureFlags, changedFeatures);
         _cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(newFeatureFlags);
+        _cfgWriteHexUppercase = Feature.WRITE_HEX_UPPER_CASE.enabledIn(newFeatureFlags);
     }
 
     @Override

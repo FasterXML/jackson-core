@@ -147,7 +147,7 @@ public class JsonWriteContext extends JsonStreamContext
     public void setCurrentValue(Object v) {
         _currentValue = v;
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods

@@ -303,7 +303,7 @@ public abstract class JsonStreamContext
     public JsonLocation getStartLocation(Object srcRef) {
         return JsonLocation.NA;
     }
-    
+
     /**
      * Overridden to provide developer readable "JsonPath" representation
      * of the context.

@@ -288,6 +288,10 @@ public final class CharTypes
         }
     }
 
+    /**
+     * @deprecated Since 2.14
+     */
+    @Deprecated // since 2.14
     public static char[] copyHexChars() {
         return copyHexChars(true);
     }
@@ -296,6 +300,10 @@ public final class CharTypes
         return (uppercase) ? HC.clone() : HClower.clone();
     }
 
+    /**
+     * @deprecated Since 2.14
+     */
+    @Deprecated // since 2.14
     public static byte[] copyHexBytes() {
         return copyHexBytes(true);
     }

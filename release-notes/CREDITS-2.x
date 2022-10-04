@@ -310,6 +310,10 @@ Nik Everett (nik9000@github)
   * Contributed  #715: Allow TokenFilters to keep empty arrays and objects
   (2.14.0)
 
+Richard Kwasnicki (Richie94@github)
+  * Contributed #717: Hex capitalization for JsonWriter should be configurable
+  (2.14.0)
+
 Illia Ovchynnikov (wingsofovnia@github)
   * Reported #759: JsonGenerator to provide current value to the context before
    starting objects

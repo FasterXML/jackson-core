@@ -575,6 +575,10 @@ public abstract class BaseTest
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
+    protected static String fromUTF8(ByteArrayOutputStream bytes) {
+        return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
+    }
+
     protected void fieldNameFor(StringBuilder sb, int index)
     {
         /* let's do something like "f1.1" to exercise different

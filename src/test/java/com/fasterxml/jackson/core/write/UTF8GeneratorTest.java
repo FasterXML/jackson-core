@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
+import java.io.ByteArrayOutputStream;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
@@ -8,10 +10,6 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 import com.fasterxml.jackson.core.util.BufferRecycler;
-
-import java.io.ByteArrayOutputStream;
-
-import static com.fasterxml.jackson.core.json.JsonWriteFeature.WRITE_HEX_UPPER_CASE;
 
 public class UTF8GeneratorTest extends BaseTest
 {
@@ -116,33 +114,4 @@ public class UTF8GeneratorTest extends BaseTest
         assertNull(p.nextToken());
         p.close();
     }
-
-    public void testHexLowercase() throws Exception
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        JsonFactory factory = JsonFactory.builder().disable(WRITE_HEX_UPPER_CASE).build();
-        JsonGenerator gen = factory.createGenerator(bytes);
-        String str = "\u001b";
-        gen.writeString(str);
-        gen.flush();
-        gen.close();
-
-        String result = bytes.toString();
-        assertEquals("\"\\u001b\"", result);
-    }
-
-    public void testHexUppercase() throws Exception
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        JsonFactory factory = JsonFactory.builder().enable(WRITE_HEX_UPPER_CASE).build();
-        JsonGenerator gen = factory.createGenerator(bytes);
-        String str = "\u001b";
-        gen.writeString(str);
-        gen.flush();
-        gen.close();
-
-        String result = bytes.toString();
-        assertEquals("\"\\u001B\"", result);
-    }
-
 }

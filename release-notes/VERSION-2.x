@@ -26,6 +26,9 @@ JSON library.
  (contributed by Ilya G)
 #715: Allow TokenFilters to keep empty arrays and objects
  (contributed by Nik E)
+#717: Hex capitalization for JsonWriter should be configurable (add
+  `JsonWriteFeature.WRITE_HEX_UPPER_CASE`)
+ (contributed Richard K)
 #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
  (contributed Doug R)

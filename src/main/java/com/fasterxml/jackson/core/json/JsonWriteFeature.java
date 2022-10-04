@@ -75,10 +75,11 @@ public enum JsonWriteFeature
     /**
      * Feature that specifies that hex values are encoded with capital letters.
      *<p>
-     * Can be disabled to have a better possibility to compare between other Json
+     * Can be disabled to have a better possibility to compare between other JSON
      * writer libraries, such as JSON.stringify from Javascript.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default for backwards compatibility with earlier
+     * versions.
      *
      * @since 2.14
      */

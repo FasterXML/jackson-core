@@ -48,7 +48,7 @@ public class GeneratorBasicTest
                             new ByteArrayInputStream(bout.toByteArray()));
                 
                     JsonToken t = jp.nextToken();
-                    assertNotNull("Document \""+bout.toString("UTF-8")+"\" yielded no tokens", t);
+                    assertNotNull("Document \""+utf8String(bout)+"\" yielded no tokens", t);
                     assertEquals(JsonToken.VALUE_STRING, t);
                     assertEquals(input, jp.getText());
                     assertEquals(null, jp.nextToken());
@@ -152,7 +152,7 @@ public class GeneratorBasicTest
          gen.writeNumber(-13);
          gen.close();
 
-         String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
+         String docStr = useBytes ? utf8String(bytes) : sw.toString();
          try (JsonParser jp = createParserUsingReader(docStr)) {
              assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
              assertEquals(1, jp.getIntValue());
@@ -193,7 +193,7 @@ public class GeneratorBasicTest
         gen.writeEndObject();
         gen.close();
 
-        String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
+        String docStr = useBytes ? utf8String(bytes) : sw.toString();
         
         assertEquals("{\"short\":3,\"int\":3,\"long\":3,\"big\":1707,\"double\":0.25,\"float\":-0.25,\"decimal\":17.07}",
                 docStr.trim());
@@ -340,7 +340,7 @@ public class GeneratorBasicTest
                     gen.writeRaw(" ");
                 }
                 gen.close();
-                docStr = bytes.toString("UTF-8");
+                docStr = utf8String(bytes);
                 p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();
@@ -396,7 +396,7 @@ public class GeneratorBasicTest
                     gen.writeRaw(" ");
                 }
                 gen.close();
-                docStr = bytes.toString("UTF-8");
+                docStr = utf8String(bytes);
                 p = JSON_F.createParser(ObjectReadContext.empty(), bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();
@@ -412,7 +412,7 @@ public class GeneratorBasicTest
             JsonToken t = null;
             try {
                 t = p.nextToken();
-            } catch (Exception e) {
+            } catch (JacksonException e) {
                 fail("Problem with number "+VALUE+", document ["+docStr+"]: "+e.getMessage());
             }
             assertNotNull("Document \""+docStr+"\" yielded no tokens", t);

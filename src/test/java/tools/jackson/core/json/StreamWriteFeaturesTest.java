@@ -120,11 +120,7 @@ public class StreamWriteFeaturesTest
         g = f.createGenerator(ObjectWriteContext.empty(), bos);
         g.writeNumber(ENG);
         g.close();
-        try {
-            assertEquals(q("100"), bos.toString("UTF-8"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        assertEquals(q("100"), utf8String(bos));
     }
 
     // [core#315]

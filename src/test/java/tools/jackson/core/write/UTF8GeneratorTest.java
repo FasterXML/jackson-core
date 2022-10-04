@@ -99,7 +99,7 @@ public class UTF8GeneratorTest extends BaseTest
 
         gen.writeName("escapes");
 
-        final byte[] raw = SAMPLE_WITH_QUOTES.toString().getBytes("UTF-8");
+        final byte[] raw = utf8Bytes(SAMPLE_WITH_QUOTES);
         gen.writeUTF8String(raw, 0, raw.length);
 
         gen.writeEndObject();

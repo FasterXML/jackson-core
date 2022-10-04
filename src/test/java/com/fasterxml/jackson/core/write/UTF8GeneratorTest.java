@@ -120,10 +120,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testHexLowercase() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(new BufferRecycler(),
-                ContentReference.rawReference(bytes), true);
-        JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
-        gen.disable(JsonGenerator.Feature.WRITE_HEX_UPPER_CASE);
+        JsonFactory factory = JsonFactory.builder().disable(WRITE_HEX_UPPER_CASE).build();
+        JsonGenerator gen = factory.createGenerator(bytes);
         String str = "\u001b";
         gen.writeString(str);
         gen.flush();
@@ -136,10 +134,8 @@ public class UTF8GeneratorTest extends BaseTest
     public void testHexUppercase() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        IOContext ioc = new IOContext(new BufferRecycler(),
-                ContentReference.rawReference(bytes), true);
-        JsonGenerator gen = new UTF8JsonGenerator(ioc, 0, null, bytes, '"');
-        gen.enable(JsonGenerator.Feature.WRITE_HEX_UPPER_CASE);
+        JsonFactory factory = JsonFactory.builder().enable(WRITE_HEX_UPPER_CASE).build();
+        JsonGenerator gen = factory.createGenerator(bytes);
         String str = "\u001b";
         gen.writeString(str);
         gen.flush();

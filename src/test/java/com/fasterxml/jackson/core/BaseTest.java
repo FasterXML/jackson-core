@@ -575,7 +575,7 @@ public abstract class BaseTest
         return str.getBytes(StandardCharsets.UTF_8);
     }
 
-    protected static String fromUTF8(ByteArrayOutputStream bytes) {
+    protected static String utf8String(ByteArrayOutputStream bytes) {
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
@@ -623,11 +623,7 @@ public abstract class BaseTest
     }
 
     protected int[] calcQuads(String word) {
-        try {
-            return calcQuads(word.getBytes("UTF-8"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return calcQuads(utf8Bytes(word));
     }
 
     protected int[] calcQuads(byte[] wordBytes) {

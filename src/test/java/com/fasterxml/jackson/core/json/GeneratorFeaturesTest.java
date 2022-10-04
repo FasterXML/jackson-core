@@ -148,7 +148,7 @@ public class GeneratorFeaturesTest
         g = f.createGenerator(bos);
         g.writeNumber(ENG);
         g.close();
-        assertEquals(q("100"), bos.toString("UTF-8"));
+        assertEquals(q("100"), utf8String(bos));
     }
 
     // [core#315]
@@ -234,7 +234,7 @@ public class GeneratorFeaturesTest
         g.writeEndArray();
         g.close();
 
-        return useBytes ? bytes.toString("UTF-8") : sw.toString();
+        return useBytes ? utf8String(bytes) : sw.toString();
     }
 
     // for [core#246]
@@ -283,7 +283,7 @@ public class GeneratorFeaturesTest
         gen.writeEndObject();
         gen.close();
 
-        String json = useBytes ? bytes.toString("UTF-8") : sw.toString();
+        String json = useBytes ? utf8String(bytes) : sw.toString();
         assertEquals(exp, json);
     }
 
@@ -390,7 +390,7 @@ public class GeneratorFeaturesTest
         g.flush();
         g.close();
 
-        String result = useBytes ? fromUTF8(bytes) : sw.toString();
+        String result = useBytes ? utf8String(bytes) : sw.toString();
         assertEquals(exp, result);
 
         g.close();

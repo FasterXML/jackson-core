@@ -45,7 +45,7 @@ public class GeneratorBasicTest
                     JsonParser jp = JSON_F.createParser(new ByteArrayInputStream(bout.toByteArray()));
                 
                     JsonToken t = jp.nextToken();
-                    assertNotNull("Document \""+bout.toString("UTF-8")+"\" yielded no tokens", t);
+                    assertNotNull("Document \""+utf8String(bout)+"\" yielded no tokens", t);
                     assertEquals(JsonToken.VALUE_STRING, t);
                     assertEquals(input, jp.getText());
                     assertEquals(null, jp.nextToken());
@@ -149,7 +149,7 @@ public class GeneratorBasicTest
          gen.writeNumber(-13);
          gen.close();
 
-         String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
+         String docStr = useBytes ? utf8String(bytes) : sw.toString();
 
          try {
              JsonParser jp = createParserUsingReader(docStr);
@@ -195,7 +195,7 @@ public class GeneratorBasicTest
         gen.writeEndObject();
         gen.close();
 
-        String docStr = useBytes ? bytes.toString("UTF-8") : sw.toString();
+        String docStr = useBytes ? utf8String(bytes) : sw.toString();
         
         assertEquals("{\"short\":3,\"int\":3,\"long\":3,\"big\":1707,\"double\":0.25,\"float\":-0.25,\"decimal\":17.07}",
                 docStr.trim());
@@ -342,7 +342,7 @@ public class GeneratorBasicTest
                     gen.writeRaw(" ");
                 }
                 gen.close();
-                docStr = bytes.toString("UTF-8");
+                docStr = utf8String(bytes);
                 p = JSON_F.createParser(bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();
@@ -398,7 +398,7 @@ public class GeneratorBasicTest
                     gen.writeRaw(" ");
                 }
                 gen.close();
-                docStr = bytes.toString("UTF-8");
+                docStr = utf8String(bytes);
                 p = JSON_F.createParser(bytes.toByteArray());
             } else {
                 StringWriter sw = new StringWriter();

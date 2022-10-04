@@ -248,7 +248,7 @@ public class GeneratorMiscTest
         g = JSON_F.createGenerator(bytes);
         g.writeEmbeddedObject(null);
         g.close();
-        assertEquals("null", bytes.toString("UTF-8"));
+        assertEquals("null", utf8String(bytes));
 
         // also, for fun, try illegal unknown thingy
 

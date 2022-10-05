@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.core.fuzz;
 
 import tools.jackson.core.BaseTest;
 import tools.jackson.core.JsonPointer;

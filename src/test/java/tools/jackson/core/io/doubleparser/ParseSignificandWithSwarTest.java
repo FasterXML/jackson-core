@@ -44,7 +44,7 @@ public class ParseSignificandWithSwarTest {
     public void doLegalTest(String s) {
         double actual = significandToDouble(s.getBytes(StandardCharsets.ISO_8859_1));
         double expected = Double.parseDouble(s);
-        System.out.println(expected + " == " + actual);
+//        System.out.println(expected + " == " + actual);
         assertEquals(expected, actual);
     }
 

@@ -64,6 +64,8 @@ JSON library.
   `byte[]`/`char[]`/String-with-offsets input
 #812: Add explicit bounds checks for `JsonFactory.createParser()` methods
   that take `byte[]`/`char[]`-with-offsets input
+#818: Calling `JsonPointer.compile(...)` on very deeply nested expression
+  throws `StackOverflowErrror`
 
 2.13.4 (03-Sep-2022)
 

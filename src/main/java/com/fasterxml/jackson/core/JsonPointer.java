@@ -576,7 +576,16 @@ public class JsonPointer implements Serializable
             ++i;
             // quoting is different; offline this case
             if (c == '~' && i < end) { // possibly, quote
-                return _parseQuotedTail(input, i);
+                // 04-Oct-2022, tatu: Let's decode escaped segment
+                //   instead of recursive call
+                StringBuilder sb = new StringBuilder(32);
+                i = _extractEscapedSegment(input, i, sb);
+                final String segment = sb.toString();
+                if (i < 0) { // end!
+                    return new JsonPointer(input, segment, EMPTY);
+                }
+                return new JsonPointer(input, segment,
+                        _parseTail(input.substring(i)));
             }
             // otherwise, loop on
         }
@@ -585,17 +594,21 @@ public class JsonPointer implements Serializable
     }
 
     /**
-     * Method called to parse tail of pointer path, when a potentially
-     * escaped character has been seen.
+     * Method called to extract the next segment of the path, in case
+     * where we seem to have encountered a (tilde-)escaped character
+     * within segment.
      * 
      * @param input Full input for the tail being parsed
      * @param i Offset to character after tilde
+     * @param sb StringBuilder into which unquoted segment is added
      *
-     * @return Pointer instance constructed
+     * @return Offset at which slash was encountered, if any, or -1
+     *    if expression ended without seeing unescaped slash
      */
-    protected static JsonPointer _parseQuotedTail(String input, int i) {
+    protected static int _extractEscapedSegment(String input, int i,
+            StringBuilder sb)
+    {
         final int end = input.length();
-        StringBuilder sb = new StringBuilder(Math.max(16, end));
         if (i > 2) {
             sb.append(input, 1, i-1);
         }
@@ -603,8 +616,7 @@ public class JsonPointer implements Serializable
         while (i < end) {
             char c = input.charAt(i);
             if (c == '/') { // end is nigh!
-                return new JsonPointer(input, sb.toString(),
-                        _parseTail(input.substring(i)));
+                return i;
             }
             ++i;
             if (c == '~' && i < end) {
@@ -614,7 +626,18 @@ public class JsonPointer implements Serializable
             sb.append(c);
         }
         // end of the road, last segment
-        return new JsonPointer(input, sb.toString(), EMPTY);
+        return -1;
+    }
+
+    private static void _appendEscape(StringBuilder sb, char c) {
+        if (c == '0') {
+            c = '~';
+        } else if (c == '1') {
+            c = '/';
+        } else {
+            sb.append('~');
+        }
+        sb.append(c);
     }
 
     protected JsonPointer _constructHead()
@@ -640,17 +663,6 @@ public class JsonPointer implements Serializable
         String str = _asString;
         return new JsonPointer(str.substring(0, str.length() - suffixLength), _matchingPropertyName,
                 _matchingElementIndex, next._constructHead(suffixLength, last));
-    }
-
-    private static void _appendEscape(StringBuilder sb, char c) {
-        if (c == '0') {
-            c = '~';
-        } else if (c == '1') {
-            c = '/';
-        } else {
-            sb.append('~');
-        }
-        sb.append(c);
     }
 
     /*

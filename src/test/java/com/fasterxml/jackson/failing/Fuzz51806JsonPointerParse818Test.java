@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.JsonPointer;
 
 // For https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=51806
 // (reported as [core#818]
-public class Fuzz51806JsonPointerParseTest extends BaseTest
+public class Fuzz51806JsonPointerParse818Test extends BaseTest
 {
     // Before fix, looks like this is enough to cause StackOverflowError
     private final static int TOO_DEEP_PATH = 6000;

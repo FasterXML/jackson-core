@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.core.fuzz;
 
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonPointer;

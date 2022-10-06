@@ -12,7 +12,6 @@ package com.fasterxml.jackson.core.io.doubleparser;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
 
-import java.nio.charset.StandardCharsets;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.Stream;

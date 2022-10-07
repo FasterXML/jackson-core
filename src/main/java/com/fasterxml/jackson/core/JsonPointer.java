@@ -80,6 +80,11 @@ public class JsonPointer implements Serializable
 
     protected final int _matchingElementIndex;
 
+    /**
+     * @since 2.14
+     */
+    protected int _hashCode;
+
     /*
     /**********************************************************
     /* Construction
@@ -287,6 +292,19 @@ public class JsonPointer implements Serializable
     /* Public API
     /**********************************************************
      */
+
+    /**
+     * Functionally same as:
+     *<code>
+     *  toString().length()
+     *</code>
+     * but more efficient as it avoids likely String allocation.
+     *
+     * @since 2.14
+     */
+    public int length() {
+        return _asString.length() - _asStringOffset;
+    }
 
     public boolean matches() { return _nextSegment == null; }
     public String getMatchingProperty() { return _matchingPropertyName; }
@@ -537,13 +555,49 @@ public class JsonPointer implements Serializable
         return _asString.substring(_asStringOffset);
     }
 
-    @Override public int hashCode() { return _asString.hashCode(); }
+    @Override public int hashCode() {
+        int h = _hashCode;
+        if (h == 0) {
+            // Alas, this is bit wasteful, creating temporary String, but
+            // without JDK exposing hash code calculation for a sub-string
+            // can't do much
+            h = toString().hashCode();
+            if (h == 0) {
+                h = -1;
+            }
+            _hashCode = h;
+        }
+        return h;
+    }
 
     @Override public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
         if (!(o instanceof JsonPointer)) return false;
-        return _asString.equals(((JsonPointer) o)._asString);
+        JsonPointer other = (JsonPointer) o;
+        // 07-Oct-2022, tatu: Ugh.... this gets way more complicated as we MUST
+        //   compare logical representation so cannot simply compare offset
+        //   and String
+        return _compare(_asString, _asStringOffset,
+                other._asString, other._asStringOffset);
+    }
+
+    private final boolean _compare(String str1, int offset1,
+            String str2, int offset2) {
+        final int end1 = str1.length();
+
+        // Different lengths? Not equal
+        if ((end1 - offset1) != (str2.length() - offset2)) {
+            return false;
+        }
+
+        for (; offset1 < end1; ) {
+            if (str1.charAt(offset1++) != str2.charAt(offset2++)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /*
@@ -594,7 +648,8 @@ public class JsonPointer implements Serializable
         while (i < end) {
             char c = fullPath.charAt(i);
             if (c == '/') { // common case, got a segment
-                parent = new PointerParent(parent, startOffset, fullPath.substring(startOffset + 1, i));
+                parent = new PointerParent(parent, startOffset,
+                        fullPath.substring(startOffset + 1, i));
                 startOffset = i;
                 ++i;
                 continue;
@@ -608,7 +663,7 @@ public class JsonPointer implements Serializable
                 i = _extractEscapedSegment(fullPath, i, sb);
                 final String segment = sb.toString();
                 if (i < 0) { // end!
-                    return _buildPath(fullPath, segment, parent);
+                    return _buildPath(fullPath, startOffset, segment, parent);
                 }
                 parent = new PointerParent(parent, startOffset, segment);
                 startOffset = i;
@@ -618,12 +673,12 @@ public class JsonPointer implements Serializable
             // otherwise, loop on
         }
         // end of the road, no escapes
-        return _buildPath(fullPath, fullPath.substring(1), parent);
+        return _buildPath(fullPath, startOffset, fullPath.substring(startOffset + 1), parent);
     }
 
-    private static JsonPointer _buildPath(final String fullPath, String segment,
-            PointerParent parent) {
-        JsonPointer curr = new JsonPointer(fullPath, 0, segment, EMPTY);
+    private static JsonPointer _buildPath(final String fullPath, int fullPathOffset,
+            String segment, PointerParent parent) {
+        JsonPointer curr = new JsonPointer(fullPath, fullPathOffset, segment, EMPTY);
         for (; parent != null; parent = parent.parent) {
             curr = new JsonPointer(fullPath, parent.fullPathOffset, parent.segment, curr);
         }
@@ -685,10 +740,11 @@ public class JsonPointer implements Serializable
             return EMPTY;
         }
         // and from that, length of suffix to drop
-        int suffixLength = last._asString.length();
+        int suffixLength = last.length();
         JsonPointer next = _nextSegment;
         // !!! TODO 07-Oct-2022, tatu: change to iterative, not recursive
-        return new JsonPointer(_asString.substring(0, _asString.length() - suffixLength), 0,
+        String fullString = toString();
+        return new JsonPointer(fullString.substring(0, fullString.length() - suffixLength), 0,
                 _matchingPropertyName,
                 _matchingElementIndex, next._constructHead(suffixLength, last));
     }
@@ -699,7 +755,7 @@ public class JsonPointer implements Serializable
             return EMPTY;
         }
         JsonPointer next = _nextSegment;
-        String str = _asString;
+        String str = toString();
         // !!! TODO 07-Oct-2022, tatu: change to iterative, not recursive
         return new JsonPointer(str.substring(0, str.length() - suffixLength), 0,
                 _matchingPropertyName,

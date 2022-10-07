@@ -55,6 +55,15 @@ public class JsonPointerTest extends BaseTest
         assertEquals(INPUT, ptr.toString());
     }
 
+    public void testSimpleTail() throws Exception
+    {
+        final String INPUT = "/root/leaf";
+        JsonPointer ptr = JsonPointer.compile(INPUT);
+
+        assertEquals("/leaf", ptr.tail().toString());
+        assertEquals("", ptr.tail().tail().toString());
+    }
+
     public void testWonkyNumber173() throws Exception
     {
         JsonPointer ptr = JsonPointer.compile("/1e0");
@@ -72,11 +81,20 @@ public class JsonPointerTest extends BaseTest
 
     public void testLast()
     {
-        final String INPUT = "/Image/15/name";
+        String INPUT = "/Image/name";
 
         JsonPointer ptr = JsonPointer.compile(INPUT);
         JsonPointer leaf = ptr.last();
 
+        assertEquals("/name", leaf.toString());
+        assertEquals("name", leaf.getMatchingProperty());
+
+        INPUT = "/Image/15/name";
+
+        ptr = JsonPointer.compile(INPUT);
+        leaf = ptr.last();
+
+        assertEquals("/name", leaf.toString());
         assertEquals("name", leaf.getMatchingProperty());
     }
 

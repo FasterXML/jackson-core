@@ -660,7 +660,7 @@ public class JsonPointer implements Serializable
                 // 04-Oct-2022, tatu: Let's decode escaped segment
                 //   instead of recursive call
                 StringBuilder sb = new StringBuilder(32);
-                i = _extractEscapedSegment(fullPath, i, sb);
+                i = _extractEscapedSegment(fullPath, startOffset+1, i, sb);
                 final String segment = sb.toString();
                 if (i < 0) { // end!
                     return _buildPath(fullPath, startOffset, segment, parent);
@@ -691,18 +691,22 @@ public class JsonPointer implements Serializable
      * within segment.
      * 
      * @param input Full input for the tail being parsed
+     * @param firstCharOffset Offset of the first character of segment (one
+     *    after slash)
      * @param i Offset to character after tilde
      * @param sb StringBuilder into which unquoted segment is added
      *
      * @return Offset at which slash was encountered, if any, or -1
      *    if expression ended without seeing unescaped slash
      */
-    protected static int _extractEscapedSegment(String input, int i,
+    protected static int _extractEscapedSegment(String input, int firstCharOffset,
+            int i,
             StringBuilder sb)
     {
         final int end = input.length();
-        if (i > 2) {
-            sb.append(input, 1, i-1);
+        final int toCopy = i - 1 - firstCharOffset;
+        if (toCopy > 0) {
+            sb.append(input, firstCharOffset, i-1);
         }
         _appendEscape(sb, input.charAt(i++));
         while (i < end) {

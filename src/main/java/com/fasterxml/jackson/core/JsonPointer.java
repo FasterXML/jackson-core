@@ -65,9 +65,17 @@ public class JsonPointer implements Serializable
     /**
      * We will retain representation of the pointer, as a String,
      * so that {@link #toString} should be as efficient as possible.
+     *<p>
+     * NOTE: starting with 2.14, there is no accompanying
+     * {@link #_asStringOffset} that MUST be considered with this String;
      */
     protected final String _asString;
 
+    /**
+     * @since 2.14
+     */
+    protected final int _asStringOffset;
+    
     protected final String _matchingPropertyName;
 
     protected final int _matchingElementIndex;
@@ -88,11 +96,15 @@ public class JsonPointer implements Serializable
         _matchingPropertyName = null;
         _matchingElementIndex = -1;
         _asString = "";
+        _asStringOffset = 0;
     }
 
     // Constructor used for creating non-empty Segments
-    protected JsonPointer(String fullString, String segment, JsonPointer next) {
+    protected JsonPointer(String fullString, int fullStringOffset,
+            String segment, JsonPointer next)
+    {
         _asString = fullString;
+        _asStringOffset = fullStringOffset;
         _nextSegment = next;
         // Ok; may always be a property
         _matchingPropertyName = segment;
@@ -100,9 +112,10 @@ public class JsonPointer implements Serializable
         _matchingElementIndex = _parseIndex(segment);
     }
 
-    // @since 2.5
-    protected JsonPointer(String fullString, String segment, int matchIndex, JsonPointer next) {
+    protected JsonPointer(String fullString, int fullStringOffset,
+            String segment, int matchIndex, JsonPointer next) {
         _asString = fullString;
+        _asStringOffset = fullStringOffset;
         _nextSegment = next;
         _matchingPropertyName = segment;
         _matchingElementIndex = matchIndex;
@@ -199,11 +212,11 @@ public class JsonPointer implements Serializable
                 if (seg == null) { // is this legal?
                     seg = "";
                 }
-                tail = new JsonPointer(_fullPath(tail, seg), seg, tail);
+                tail = new JsonPointer(_fullPath(tail, seg), 0, seg, tail);
             } else if (context.inArray() || includeRoot) {
                 int ix = context.getCurrentIndex();
                 String ixStr = String.valueOf(ix);
-                tail = new JsonPointer(_fullPath(tail, ixStr), ixStr, ix, tail);
+                tail = new JsonPointer(_fullPath(tail, ixStr), 0, ixStr, ix, tail);
             }
             // NOTE: this effectively drops ROOT node(s); should have 1 such node,
             // as the last one, but we don't have to care (probably some paths have
@@ -517,7 +530,13 @@ public class JsonPointer implements Serializable
     /**********************************************************
      */
 
-    @Override public String toString() { return _asString; }
+    @Override public String toString() {
+        if (_asStringOffset <= 0) {
+            return _asString;
+        }
+        return _asString.substring(_asStringOffset);
+    }
+
     @Override public int hashCode() { return _asString.hashCode(); }
 
     @Override public boolean equals(Object o) {
@@ -605,9 +624,9 @@ public class JsonPointer implements Serializable
 
     private static JsonPointer _buildPath(String fullPath, String segment,
             PointerParent parent) {
-        JsonPointer curr = new JsonPointer(fullPath, segment, EMPTY);
+        JsonPointer curr = new JsonPointer(fullPath, 0, segment, EMPTY);
         for (; parent != null; parent = parent.parent) {
-            curr = new JsonPointer(parent.fullPath, parent.segment, curr);
+            curr = new JsonPointer(parent.fullPath, 0, parent.segment, curr);
         }
         return curr;
     }
@@ -669,7 +688,8 @@ public class JsonPointer implements Serializable
         // and from that, length of suffix to drop
         int suffixLength = last._asString.length();
         JsonPointer next = _nextSegment;
-        return new JsonPointer(_asString.substring(0, _asString.length() - suffixLength), _matchingPropertyName,
+        return new JsonPointer(_asString.substring(0, _asString.length() - suffixLength), 0,
+                _matchingPropertyName,
                 _matchingElementIndex, next._constructHead(suffixLength, last));
     }
 
@@ -680,7 +700,8 @@ public class JsonPointer implements Serializable
         }
         JsonPointer next = _nextSegment;
         String str = _asString;
-        return new JsonPointer(str.substring(0, str.length() - suffixLength), _matchingPropertyName,
+        return new JsonPointer(str.substring(0, str.length() - suffixLength), 0,
+                _matchingPropertyName,
                 _matchingElementIndex, next._constructHead(suffixLength, last));
     }
 

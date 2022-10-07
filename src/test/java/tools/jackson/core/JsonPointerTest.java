@@ -55,6 +55,15 @@ public class JsonPointerTest extends BaseTest
         assertEquals(INPUT, ptr.toString());
     }
 
+    public void testSimpleTail() throws Exception
+    {
+        final String INPUT = "/root/leaf";
+        JsonPointer ptr = JsonPointer.compile(INPUT);
+
+        assertEquals("/leaf", ptr.tail().toString());
+        assertEquals("", ptr.tail().tail().toString());
+    }
+
     public void testWonkyNumber173() throws Exception
     {
         JsonPointer ptr = JsonPointer.compile("/1e0");
@@ -72,11 +81,20 @@ public class JsonPointerTest extends BaseTest
 
     public void testLast()
     {
-        final String INPUT = "/Image/15/name";
+        String INPUT = "/Image/name";
 
         JsonPointer ptr = JsonPointer.compile(INPUT);
         JsonPointer leaf = ptr.last();
 
+        assertEquals("/name", leaf.toString());
+        assertEquals("name", leaf.getMatchingProperty());
+
+        INPUT = "/Image/15/name";
+
+        ptr = JsonPointer.compile(INPUT);
+        leaf = ptr.last();
+
+        assertEquals("/name", leaf.toString());
         assertEquals("name", leaf.getMatchingProperty());
     }
 
@@ -120,6 +138,14 @@ public class JsonPointerTest extends BaseTest
         assertEquals(JsonPointer.compile("/foo/3"), JsonPointer.compile("/foo/3"));
         assertFalse(JsonPointer.empty().equals(JsonPointer.compile("/12")));
         assertFalse(JsonPointer.compile("/12").equals(JsonPointer.empty()));
+
+        assertEquals(JsonPointer.compile("/a/b/c").tail(),
+                JsonPointer.compile("/foo/b/c").tail());
+        
+        JsonPointer abcDef = JsonPointer.compile("/abc/def");
+        JsonPointer def = JsonPointer.compile("/def");
+        assertEquals(abcDef.tail(), def);
+        assertEquals(def, abcDef.tail());
 
         // expr != String
         assertFalse(JsonPointer.empty().equals("/"));
@@ -188,7 +214,7 @@ public class JsonPointerTest extends BaseTest
 
     public void testQuotedPath() throws Exception
     {
-        final String INPUT = "/w~1out/til~0de/a~1b";
+        final String INPUT = "/w~1out/til~0de/~1ab";
 
         JsonPointer ptr = JsonPointer.compile(INPUT);
         assertFalse(ptr.matches());
@@ -203,14 +229,14 @@ public class JsonPointerTest extends BaseTest
         assertEquals(-1, ptr.getMatchingIndex());
         assertEquals("til~de", ptr.getMatchingProperty());
         assertEquals("/til~0de", ptr.head().toString());
-        assertEquals("/til~0de/a~1b", ptr.toString());
+        assertEquals("/til~0de/~1ab", ptr.toString());
 
         ptr = ptr.tail();
         assertNotNull(ptr);
         assertFalse(ptr.matches());
         assertEquals(-1, ptr.getMatchingIndex());
-        assertEquals("a/b", ptr.getMatchingProperty());
-        assertEquals("/a~1b", ptr.toString());
+        assertEquals("/ab", ptr.getMatchingProperty());
+        assertEquals("/~1ab", ptr.toString());
         assertEquals("", ptr.head().toString());
 
         // done!

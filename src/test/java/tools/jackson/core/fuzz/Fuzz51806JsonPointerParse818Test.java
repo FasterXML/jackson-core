@@ -7,8 +7,11 @@ import tools.jackson.core.JsonPointer;
 // (reported as [core#818]
 public class Fuzz51806JsonPointerParse818Test extends BaseTest
 {
-    // Before fix, looks like this is enough to cause StackOverflowError
-    private final static int TOO_DEEP_PATH = 10_000;
+    // Before fix, StackOverflowError with 6_000 or so,
+    // and OOME with 20_000.
+    // After fixes will get progressively slower so limit size to
+    // keep test runs from making suite too slow
+    private final static int TOO_DEEP_PATH = 25_000;
 
     // Verify that a very deep/long (by number of segments) JsonPointer
     // may still be parsed ok, for "simple" case (no quoted chars)
@@ -28,6 +31,16 @@ public class Fuzz51806JsonPointerParse818Test extends BaseTest
         assertNotNull(p);
         // But also verify it didn't change
         assertEquals(pathExpr, p.toString());
+
+        // And then verify segment by segment, easiest way is to
+        // check that tail segment is proper substring
+        JsonPointer curr = p;
+
+        while ((curr = curr.tail()) != null) {
+            String act = curr.toString();
+            String exp = pathExpr.substring(pathExpr.length() - act.length());
+            assertEquals(exp, act);
+        }
     }
 
     private String _generatePath(int depth, boolean escaped) {

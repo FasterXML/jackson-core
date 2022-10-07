@@ -582,21 +582,21 @@ public class JsonPointer implements Serializable
         return NumberInput.parseInt(str);
     }
 
-    protected static JsonPointer _parseTail(String fullPath)
+    protected static JsonPointer _parseTail(final String fullPath)
     {
         PointerParent parent = null;
 
         // first char is the contextual slash, skip
         int i = 1;
-        int end = fullPath.length();
+        final int end = fullPath.length();
+        int startOffset = 0;
 
         while (i < end) {
             char c = fullPath.charAt(i);
             if (c == '/') { // common case, got a segment
-                parent = new PointerParent(parent, fullPath, fullPath.substring(1, i));
-                fullPath = fullPath.substring(i);
-                i = 1;
-                end = fullPath.length();
+                parent = new PointerParent(parent, startOffset, fullPath.substring(startOffset + 1, i));
+                startOffset = i;
+                ++i;
                 continue;
             }
             ++i;
@@ -610,10 +610,9 @@ public class JsonPointer implements Serializable
                 if (i < 0) { // end!
                     return _buildPath(fullPath, segment, parent);
                 }
-                parent = new PointerParent(parent, fullPath, segment);
-                fullPath = fullPath.substring(i);
-                i = 1;
-                end = fullPath.length();
+                parent = new PointerParent(parent, startOffset, segment);
+                startOffset = i;
+                ++i;
                 continue;
             }
             // otherwise, loop on
@@ -622,11 +621,11 @@ public class JsonPointer implements Serializable
         return _buildPath(fullPath, fullPath.substring(1), parent);
     }
 
-    private static JsonPointer _buildPath(String fullPath, String segment,
+    private static JsonPointer _buildPath(final String fullPath, String segment,
             PointerParent parent) {
         JsonPointer curr = new JsonPointer(fullPath, 0, segment, EMPTY);
         for (; parent != null; parent = parent.parent) {
-            curr = new JsonPointer(parent.fullPath, 0, parent.segment, curr);
+            curr = new JsonPointer(fullPath, parent.fullPathOffset, parent.segment, curr);
         }
         return curr;
     }
@@ -717,12 +716,12 @@ public class JsonPointer implements Serializable
      */
     private static class PointerParent {
         public final PointerParent parent;
-        public final String fullPath;
+        public final int fullPathOffset;
         public final String segment;
 
-        PointerParent(PointerParent pp, String fp, String sgm) {
+        PointerParent(PointerParent pp, int fpo, String sgm) {
             parent = pp;
-            fullPath = fp;
+            fullPathOffset = fpo;
             segment = sgm;
         }
     }

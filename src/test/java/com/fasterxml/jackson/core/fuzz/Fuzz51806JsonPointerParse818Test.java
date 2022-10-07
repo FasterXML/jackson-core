@@ -7,9 +7,11 @@ import com.fasterxml.jackson.core.JsonPointer;
 // (reported as [core#818]
 public class Fuzz51806JsonPointerParse818Test extends BaseTest
 {
-    // Before fix, looks like this is enough to cause StackOverflowError
-//    private final static int TOO_DEEP_PATH = 50_000;
-    private final static int TOO_DEEP_PATH = 10_000;
+    // Before fix, StackOverflowError with 6_000 or so,
+    // and OOME with 20_000.
+    // After fixes will get progressively slower so limit size to
+    // keep test runs from making suite too slow
+    private final static int TOO_DEEP_PATH = 25_000;
 
     // Verify that a very deep/long (by number of segments) JsonPointer
     // may still be parsed ok, for "simple" case (no quoted chars)

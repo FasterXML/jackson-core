@@ -1,7 +1,12 @@
-package tools.jackson.core;
+package tools.jackson.core.jsonptr;
+
+import tools.jackson.core.BaseTest;
+import tools.jackson.core.JsonPointer;
 
 public class JsonPointerTest extends BaseTest
 {
+    private final JsonPointer EMPTY_PTR = JsonPointer.empty();
+
     public void testSimplePath() throws Exception
     {
         final String INPUT = "/Image/15/name";
@@ -31,7 +36,7 @@ public class JsonPointerTest extends BaseTest
         assertEquals("name", ptr.getMatchingProperty());
         assertEquals("/name", ptr.toString());
         assertEquals("", ptr.head().toString());
-        assertSame(JsonPointer.EMPTY, ptr.head());
+        assertSame(EMPTY_PTR, ptr.head());
 
         // done!
         ptr = ptr.tail();
@@ -100,16 +105,14 @@ public class JsonPointerTest extends BaseTest
 
     public void testEmptyPointer()
     {
-        assertSame(JsonPointer.EMPTY, JsonPointer.empty());
-        assertSame(JsonPointer.EMPTY, JsonPointer.compile(""));
-        final JsonPointer empty = JsonPointer.empty();
-        assertEquals("", empty.toString());
+        assertSame(EMPTY_PTR, JsonPointer.compile(""));
+        assertEquals("", EMPTY_PTR.toString());
 
         // As per [core#788], should NOT match Property with "empty String"
-        assertFalse(empty.mayMatchProperty());
-        assertFalse(empty.mayMatchElement());
-        assertEquals(-1, empty.getMatchingIndex());
-        assertNull(empty.getMatchingProperty());
+        assertFalse(EMPTY_PTR.mayMatchProperty());
+        assertFalse(EMPTY_PTR.mayMatchElement());
+        assertEquals(-1, EMPTY_PTR.getMatchingIndex());
+        assertNull(EMPTY_PTR.getMatchingProperty());
     }
     
     public void testPointerWithEmptyPropertyName()
@@ -118,7 +121,7 @@ public class JsonPointerTest extends BaseTest
         // and NOT same as what empty point, "", is.
         JsonPointer ptr = JsonPointer.compile("/");
         assertNotNull(ptr);
-        assertNotSame(JsonPointer.EMPTY, ptr);
+        assertNotSame(EMPTY_PTR, ptr);
 
         assertEquals("/", ptr.toString());
         assertTrue(ptr.mayMatchProperty());

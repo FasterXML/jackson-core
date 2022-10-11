@@ -1,4 +1,4 @@
-package tools.jackson.core.fuzz;
+package tools.jackson.core.jsonptr;
 
 import tools.jackson.core.BaseTest;
 import tools.jackson.core.JsonPointer;

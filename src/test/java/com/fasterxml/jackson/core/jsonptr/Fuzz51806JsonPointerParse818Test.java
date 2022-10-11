@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core.fuzz;
+package com.fasterxml.jackson.core.jsonptr;
 
 import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.core.JsonPointer;

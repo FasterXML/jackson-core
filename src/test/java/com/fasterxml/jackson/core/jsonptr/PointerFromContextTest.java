@@ -1,6 +1,13 @@
-package com.fasterxml.jackson.core;
+package com.fasterxml.jackson.core.jsonptr;
 
 import java.io.StringWriter;
+
+import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonPointer;
+import com.fasterxml.jackson.core.JsonToken;
 
 public class PointerFromContextTest extends BaseTest
 {
@@ -12,6 +19,8 @@ public class PointerFromContextTest extends BaseTest
 
     private final JsonFactory JSON_F = new JsonFactory();
 
+    private final JsonPointer EMPTY_PTR = JsonPointer.empty();
+    
     public void testViaParser() throws Exception
     {
         final String SIMPLE = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
@@ -19,11 +28,11 @@ public class PointerFromContextTest extends BaseTest
         JsonParser p = JSON_F.createParser(SIMPLE);
 
         // by default should just get "empty"
-        assertSame(JsonPointer.EMPTY, p.getParsingContext().pathAsPointer());
+        assertSame(EMPTY_PTR, p.getParsingContext().pathAsPointer());
 
         // let's just traverse, then:
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertSame(JsonPointer.EMPTY, p.getParsingContext().pathAsPointer());
+        assertSame(EMPTY_PTR, p.getParsingContext().pathAsPointer());
 
         assertToken(JsonToken.FIELD_NAME, p.nextToken()); // a
         assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
@@ -91,7 +100,7 @@ public class PointerFromContextTest extends BaseTest
         assertEquals("/b", p.getParsingContext().pathAsPointer().toString());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertSame(JsonPointer.EMPTY, p.getParsingContext().pathAsPointer());
+        assertSame(EMPTY_PTR, p.getParsingContext().pathAsPointer());
 
         assertNull(p.nextToken());
         p.close();
@@ -101,11 +110,11 @@ public class PointerFromContextTest extends BaseTest
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);
-        assertSame(JsonPointer.EMPTY, g.getOutputContext().pathAsPointer());
+        assertSame(EMPTY_PTR, g.getOutputContext().pathAsPointer());
 
         g.writeStartArray();
         // no path yet
-        assertSame(JsonPointer.EMPTY, g.getOutputContext().pathAsPointer());
+        assertSame(EMPTY_PTR, g.getOutputContext().pathAsPointer());
         g.writeBoolean(true);
         assertEquals("/0", g.getOutputContext().pathAsPointer().toString());
 
@@ -130,7 +139,7 @@ public class PointerFromContextTest extends BaseTest
         assertEquals("/1", g.getOutputContext().pathAsPointer().toString());
 
         g.writeEndArray();
-        assertSame(JsonPointer.EMPTY, g.getOutputContext().pathAsPointer());
+        assertSame(EMPTY_PTR, g.getOutputContext().pathAsPointer());
         g.close();
         w.close();
     }
@@ -147,7 +156,7 @@ public class PointerFromContextTest extends BaseTest
                 +"{'a':5,'c':[1,2]}\n[1,2]\n");
         JsonParser p = JSON_F.createParser(JSON);
         // before pointing to anything, we have no path to point to
-        assertSame(JsonPointer.EMPTY, p.getParsingContext().pathAsPointer(true));
+        assertSame(EMPTY_PTR, p.getParsingContext().pathAsPointer(true));
 
         // but immediately after advancing we do
         assertToken(JsonToken.START_OBJECT, p.nextToken());
@@ -208,7 +217,7 @@ public class PointerFromContextTest extends BaseTest
     {
         StringWriter w = new StringWriter();
         JsonGenerator g = JSON_F.createGenerator(w);
-        assertSame(JsonPointer.EMPTY, g.getOutputContext().pathAsPointer(true));
+        assertSame(EMPTY_PTR, g.getOutputContext().pathAsPointer(true));
 
         g.writeStartArray();
         assertEquals("/0", g.getOutputContext().pathAsPointer(true).toString());

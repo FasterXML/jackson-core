@@ -1,12 +1,8 @@
 package com.fasterxml.jackson.core;
 
+import java.io.*;
+
 import com.fasterxml.jackson.core.io.NumberInput;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
 
 /**
  * Implementation of
@@ -16,6 +12,10 @@ import java.io.Serializable;
  * tree traversal (see {@link TreeNode#at}).
  * It may be used in future for filtering of streaming JSON content
  * as well (not implemented yet for 2.3).
+ *<p>
+ * Note that the implementation was largely rewritten for Jackson 2.14 to
+ * reduce memory usage by sharing backing "full path" representation for
+ * nested instances.
  *<p>
  * Instances are fully immutable and can be cached, shared between threads.
  * 
@@ -68,6 +68,8 @@ public class JsonPointer implements Serializable
      *<p>
      * NOTE: starting with 2.14, there is no accompanying
      * {@link #_asStringOffset} that MUST be considered with this String;
+     * this {@code String} may contain preceding path, as it is now full path
+     * of parent pointer, except for the outermost pointer instance.
      */
     protected final String _asString;
 
@@ -81,6 +83,10 @@ public class JsonPointer implements Serializable
     protected final int _matchingElementIndex;
 
     /**
+     * Lazily-calculated hash code: need to retain hash code now that we can no
+     * longer rely on {@link #_asString} being the exact full representation (it
+     * is often "more", including parent path).
+     *
      * @since 2.14
      */
     protected int _hashCode;
@@ -209,44 +215,69 @@ public class JsonPointer implements Serializable
                 context = context.getParent();
             }
         }
-        JsonPointer tail = null;
+
+        PointerSegment next = null;
+        int approxLength = 0;
 
         for (; context != null; context = context.getParent()) {
             if (context.inObject()) {
-                String seg = context.getCurrentName();
-                if (seg == null) { // is this legal?
-                    seg = "";
+                String propName = context.getCurrentName();
+                if (propName == null) { // is this legal?
+                    propName = "";
                 }
-                tail = new JsonPointer(_fullPath(tail, seg), 0, seg, tail);
+                approxLength += 2 + propName.length();
+                next = new PointerSegment(next, propName, -1);
+//                tail = new JsonPointer(_fullPath(tail, seg), 0, seg, tail);
             } else if (context.inArray() || includeRoot) {
                 int ix = context.getCurrentIndex();
-                String ixStr = String.valueOf(ix);
-                tail = new JsonPointer(_fullPath(tail, ixStr), 0, ixStr, ix, tail);
+                approxLength += 6;
+                next = new PointerSegment(next, null, ix);
+//                tail = new JsonPointer(_fullPath(tail, ixStr), 0, ixStr, ix, tail);
             }
             // NOTE: this effectively drops ROOT node(s); should have 1 such node,
             // as the last one, but we don't have to care (probably some paths have
             // no root, for example)
         }
-        if (tail == null) {
+        if (next == null) {
             return EMPTY;
         }
-        return tail;
-    }
 
-    private static String _fullPath(JsonPointer tail, String segment)
-    {
-        if (tail == null) {
-            StringBuilder sb = new StringBuilder(segment.length()+1);
-            sb.append('/');
-            _appendEscaped(sb, segment);
-            return sb.toString();
+        // And here the fun starts! We have the head, need to traverse
+        // to compose full path String
+//        final PointerSegment head = next;
+        StringBuilder pathBuilder = new StringBuilder(approxLength);
+        PointerSegment last = null;
+
+        for (; next != null; next = next.next) {
+            // Let's find the last segment as well, for reverse traversal
+            last = next;
+            next.pathOffset = pathBuilder.length();
+            pathBuilder.append('/');
+            if (next.property != null) {
+                _appendEscaped(pathBuilder, next.property);
+            } else {
+                pathBuilder.append(next.index);
+            }
         }
-        String tailDesc = tail._asString;
-        StringBuilder sb = new StringBuilder(segment.length() + 1 + tailDesc.length());
-        sb.append('/');
-        _appendEscaped(sb, segment);
-        sb.append(tailDesc);
-        return sb.toString();
+        final String fullPath = pathBuilder.toString();
+
+        // and then iteratively construct JsonPointer chain in reverse direction
+        // (from innermost back to outermost)
+        PointerSegment currSegment = last;
+        JsonPointer currPtr = EMPTY;
+
+        for (; currSegment != null; currSegment = currSegment.prev) {
+            if (currSegment.property != null) {
+                currPtr = new JsonPointer(fullPath, currSegment.pathOffset,
+                      currSegment.property, currPtr);
+            } else {
+                int index = currSegment.index;
+                currPtr = new JsonPointer(fullPath, currSegment.pathOffset,
+                        String.valueOf(index), index, currPtr);
+            }
+        }
+
+        return currPtr;
     }
 
     private static void _appendEscaped(StringBuilder sb, String segment)
@@ -788,6 +819,32 @@ public class JsonPointer implements Serializable
         }
     }
 
+    /**
+     * Helper class used to contain a single segment when constructing JsonPointer
+     * from context.
+     */
+    private static class PointerSegment {
+        public final PointerSegment next;
+        public final String property;
+        public final int index;
+
+        // Offset within external buffer, updated when constructing
+        public int pathOffset;
+
+        // And we actually need 2-way traversal, it turns out so:
+        public PointerSegment prev;
+
+        public PointerSegment(PointerSegment next, String pn, int ix) {
+            this.next = next;
+            property = pn;
+            index = ix;
+            // Ok not the cleanest thing but...
+            if (next != null) {
+                next.prev = this;
+            }
+        }
+    }
+    
     /*
     /**********************************************************
     /* Support for JDK serialization (2.14+)

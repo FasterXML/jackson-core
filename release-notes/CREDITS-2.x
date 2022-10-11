@@ -166,6 +166,8 @@ Doug Roper (htmldoug@github)
   * Contributed #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
   (2.14.0)
+  * Reported #736: `JsonPointer` quadratic memory use: OOME on deep inputs
+  (2.14.0)
 
 Alexander Eyers-Taylor (aeyerstaylor@github)
   * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com

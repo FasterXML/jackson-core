@@ -161,6 +161,25 @@ public class TestJDKSerializability extends BaseTest
         JsonPointer copy = jdkDeserialize(ser);
         assertNotSame(copy, original);
         assertEquals(original, copy);
+        assertEquals(original.hashCode(), copy.hashCode());
+
+        // 11-Oct-2022, tatu: Let's verify sub-path serializations too,
+        //   since 2.14 has rewritten internal implementation
+        JsonPointer branch = original.tail();
+        assertEquals("/15/name", branch.toString());
+        ser = jdkSerialize(branch);
+        copy = jdkDeserialize(ser);
+        assertEquals("/15/name", copy.toString());
+        assertEquals(branch, copy);
+        assertEquals(branch.hashCode(), copy.hashCode());
+
+        JsonPointer leaf = branch.tail();
+        assertEquals("/name", leaf.toString());
+        ser = jdkSerialize(leaf);
+        copy = jdkDeserialize(ser);
+        assertEquals("/name", copy.toString());
+        assertEquals(leaf, copy);
+        assertEquals(leaf.hashCode(), copy.hashCode());
     }
 
     public void testPointerSerializationEmpty() throws Exception

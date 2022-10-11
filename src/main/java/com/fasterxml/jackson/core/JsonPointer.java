@@ -227,12 +227,10 @@ public class JsonPointer implements Serializable
                 }
                 approxLength += 2 + propName.length();
                 next = new PointerSegment(next, propName, -1);
-//                tail = new JsonPointer(_fullPath(tail, seg), 0, seg, tail);
             } else if (context.inArray() || includeRoot) {
                 int ix = context.getCurrentIndex();
                 approxLength += 6;
                 next = new PointerSegment(next, null, ix);
-//                tail = new JsonPointer(_fullPath(tail, ixStr), 0, ixStr, ix, tail);
             }
             // NOTE: this effectively drops ROOT node(s); should have 1 such node,
             // as the last one, but we don't have to care (probably some paths have
@@ -244,7 +242,6 @@ public class JsonPointer implements Serializable
 
         // And here the fun starts! We have the head, need to traverse
         // to compose full path String
-//        final PointerSegment head = next;
         StringBuilder pathBuilder = new StringBuilder(approxLength);
         PointerSegment last = null;
 
@@ -295,29 +292,7 @@ public class JsonPointer implements Serializable
            sb.append(c);
         }
     }
-    
-    /* Factory method that composes a pointer instance, given a set
-     * of 'raw' segments: raw meaning that no processing will be done,
-     * no escaping may is present.
-     * 
-     * @param segments
-     * 
-     * @return Constructed path instance
-     */
-    /* TODO!
-    public static JsonPointer fromSegment(String... segments)
-    {
-        if (segments.length == 0) {
-            return EMPTY;
-        }
-        JsonPointer prev = null;
-                
-        for (String segment : segments) {
-            JsonPointer next = new JsonPointer()
-        }
-    }
-    */
-    
+
     /*
     /**********************************************************
     /* Public API
@@ -575,7 +550,7 @@ public class JsonPointer implements Serializable
 
     /*
     /**********************************************************
-    /* Standard method overrides
+    /* Standard method overrides (since 2.14)
     /**********************************************************
      */
 
@@ -853,38 +828,42 @@ public class JsonPointer implements Serializable
 
     // Since 2.14: needed for efficient JDK serializability
     private Object writeReplace() {
-        return new Serialization(_asString);
+        // 11-Oct-2022, tatu: very important, must serialize just contents!
+        return new Serialization(toString());
     }
 
     /**
      * This must only exist to allow both final properties and implementation of
-     * Externalizable/Serializable for JsonPointer
+     * Externalizable/Serializable for JsonPointer.
+     * Note that here we do not store offset but simply use (and expect use)
+     * full path, from which we need to decode actual structure.
      *
      * @since 2.14
      */
     static class Serialization implements Externalizable
     {
-        private String _asString;
+        private String _fullPath;
 
         public Serialization() { }
 
-        Serialization(String asString) {
-            _asString = asString;
+        Serialization(String fullPath) {
+            _fullPath = fullPath;
         }
 
         @Override
         public void writeExternal(ObjectOutput out) throws IOException {
-            out.writeUTF(_asString);
+            out.writeUTF(_fullPath);
         }
 
         @Override
         public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-            _asString = in.readUTF();
+            _fullPath = in.readUTF();
         }
 
         private Object readResolve() throws ObjectStreamException {
-            // NOTE: method handles canonicalization of "empty":
-            return compile(_asString);
+            // NOTE: method handles canonicalization of "empty", as well as other
+            // aspects of decoding.
+            return compile(_fullPath);
         }
     }
 }

@@ -72,6 +72,8 @@ Unreleased:
   that take `byte[]`/`char[]`-with-offsets input
 #818: Calling `JsonPointer.compile(...)` on very deeply nested expression
   throws `StackOverflowErrror`
+#822: Declare osgi.serviceloader.registrar requirement as optional
+ (contributed by Chris R)
 
 2.13.4 (03-Sep-2022)
 

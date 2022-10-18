@@ -23,6 +23,8 @@ import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeature;
 
+import static aQute.bnd.annotation.Resolution.OPTIONAL;
+
 /**
  * The main factory class of Jackson package, used to configure and
  * construct reader (aka parser, {@link JsonParser})
@@ -44,7 +46,7 @@ import com.fasterxml.jackson.core.util.JacksonFeature;
  * @author Tatu Saloranta
  */
 @SuppressWarnings("resource")
-@ServiceProvider(JsonFactory.class) // will be `TokenStreamFactory` in 3.x
+@ServiceProvider(value = JsonFactory.class, resolution = OPTIONAL) // will be `TokenStreamFactory` in 3.x
 public class JsonFactory
     extends TokenStreamFactory
     implements Versioned,

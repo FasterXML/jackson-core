@@ -328,3 +328,6 @@ Evan Galpin (egalpin@github)
 Chris Rankin (chrisr3@github)
   * Requested #768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
   (2.14.0)
+  * Contributed #822: Declare osgi.serviceloader.registrar requirement as optional
+  (2.14.0)
+

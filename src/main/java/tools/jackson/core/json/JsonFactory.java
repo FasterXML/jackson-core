@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 import aQute.bnd.annotation.spi.ServiceProvider;
+import aQute.bnd.annotation.Resolution;
 
 import tools.jackson.core.*;
 import tools.jackson.core.base.TextualTSFactory;
@@ -31,7 +32,7 @@ import tools.jackson.core.util.Named;
  * in 2.x, but moved here to denote its changed role as implementation, not base
  * class for factories.
  */
-@ServiceProvider(TokenStreamFactory.class)
+@ServiceProvider(value = TokenStreamFactory.class, resolution = Resolution.OPTIONAL)
 public class JsonFactory
     extends TextualTSFactory
     implements java.io.Serializable

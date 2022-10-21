@@ -3,19 +3,12 @@ package com.fasterxml.jackson.core.io;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-// Based on a great idea of Eric Obermühlner to use a tree of smaller BigDecimals for parsing
-// really big numbers with O(n^1.5) complexity instead of O(n^2) when using the constructor
-// for a decimal representation from JDK 8/11:
-//
-// https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f
-
 /**
- * Helper class used to implement more optimized parsing of {@link BigDecimal} for REALLY
- * big values (over 500 characters)
+ * Helper class used to implement more optimized parsing of {@link BigDecimal}.
  *<p>
- * Based on ideas from this
- * <a href="https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f">this
- * git commit</a>.
+ * This is basically a Java port of the BigDecimal parser code in
+ * <a href ="https://github.com/plokhotnyuk/jsoniter-scala/blob/master/jsoniter-scala-core/jvm/src/main/scala/com/github/plokhotnyuk/jsoniter_scala/core/JsonReader.scala">plokhotnyuk/jsoniter_scala</a>.
+ * jsoniter-scala code was partly inspired by <a href="https://github.com/eobermuhlner/big-math/commit/7a5419aac8b2adba2aa700ccf00197f97b2ad89f">eobermuhlner/big-math</a>.
  *
  * @since 2.15
  */
@@ -165,8 +158,7 @@ public final class FastBigDecimalParser
                                               final boolean isNeg, final int scale) {
         final int len = limit - p;
         final int last = Math.toIntExact(len * 445861642L >> 32); // (len * Math.log(10) / Math.log(1L << 32))
-        final int[] magnitude = new int[32]; //TODO possibly, find a way so that these arrays can be reused
-
+        final int[] magnitude = new int[32];
         long x = 0L;
         final int firstBlockLimit = len % 9 + p;
         int pos = p;
@@ -177,11 +169,11 @@ public final class FastBigDecimalParser
         int first = last;
         while (pos < limit) {
             x =
-                (buf[pos] * 10 + buf[pos + 1]) * 10000000L +
-                        ((buf[pos + 2] * 10 + buf[pos + 3]) * 100000 +
-                                (buf[pos + 4] * 10 + buf[pos + 5]) * 1000 +
-                                (buf[pos + 6] * 10 + buf[pos + 7]) * 10 +
-                                buf[pos + 8]) - 5333333328L; // 5333333328L == '0' * 111111111L
+                    (buf[pos] * 10 + buf[pos + 1]) * 10000000L +
+                            ((buf[pos + 2] * 10 + buf[pos + 3]) * 100000 +
+                                    (buf[pos + 4] * 10 + buf[pos + 5]) * 1000 +
+                                    (buf[pos + 6] * 10 + buf[pos + 7]) * 10 +
+                                    buf[pos + 8]) - 5333333328L; // 5333333328L == '0' * 111111111L
             pos += 9;
             first = Math.max(first - 1, 0);
             int i = last;

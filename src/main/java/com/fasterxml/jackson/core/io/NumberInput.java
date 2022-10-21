@@ -10,7 +10,7 @@ public final class NumberInput
 {
     // numbers with more than these characters are better parsed with BigDecimalParser
     // parsing numbers with many digits in Java is slower than O(n)
-    private final static int LARGE_INT_SIZE = 1500;
+    private final static int LARGE_INT_SIZE = 1250;
 
     /**
      * Formerly used constant for a value that was problematic on certain

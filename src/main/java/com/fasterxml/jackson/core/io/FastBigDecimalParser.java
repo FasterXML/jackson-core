@@ -165,7 +165,7 @@ public final class FastBigDecimalParser
         while (pos < firstBlockLimit) {
             x = x * 10 + (buf[pos++] - '0');
         }
-        magnitude[last] = Math.toIntExact(x);
+        magnitude[last] = (int) x;
         int first = last;
         while (pos < limit) {
             x =
@@ -179,7 +179,7 @@ public final class FastBigDecimalParser
             int i = last;
             while (i >= first) {
                 x += (magnitude[i] & 0xFFFFFFFFL) * 1000000000;
-                magnitude[i] = Math.toIntExact(x);
+                magnitude[i] = (int) x;
                 x >>>= 32;
                 i--;
             }

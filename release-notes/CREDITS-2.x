@@ -166,6 +166,8 @@ Doug Roper (htmldoug@github)
   * Contributed #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
   (2.14.0)
+  * Reported #736: `JsonPointer` quadratic memory use: OOME on deep inputs
+  (2.14.0)
 
 Alexander Eyers-Taylor (aeyerstaylor@github)
   * Reported #510: Fix ArrayIndexOutofBoundsException found by LGTM.com
@@ -310,6 +312,10 @@ Nik Everett (nik9000@github)
   * Contributed  #715: Allow TokenFilters to keep empty arrays and objects
   (2.14.0)
 
+Richard Kwasnicki (Richie94@github)
+  * Contributed #717: Hex capitalization for JsonWriter should be configurable
+  (2.14.0)
+
 Illia Ovchynnikov (wingsofovnia@github)
   * Reported #759: JsonGenerator to provide current value to the context before
    starting objects
@@ -322,3 +328,6 @@ Evan Galpin (egalpin@github)
 Chris Rankin (chrisr3@github)
   * Requested #768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
   (2.14.0)
+  * Contributed #822: Declare osgi.serviceloader.registrar requirement as optional
+  (2.14.0)
+

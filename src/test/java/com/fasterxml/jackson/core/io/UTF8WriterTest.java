@@ -31,7 +31,7 @@ public class UTF8WriterTest
         // and thus should have 3 times contents
         byte[] data = out.toByteArray();
         assertEquals(3*10, data.length);
-        String act = out.toString("UTF-8");
+        String act = utf8String(out);
         assertEquals(15, act.length());
 
         assertEquals(3 * str.length(), act.length());
@@ -53,7 +53,7 @@ public class UTF8WriterTest
         byte[] data = out.toByteArray();
         // one 2-byte encoded char
         assertEquals(ch.length+1, data.length);
-        String act = out.toString("UTF-8");
+        String act = utf8String(out);
         assertEquals(str, act);
     }
     

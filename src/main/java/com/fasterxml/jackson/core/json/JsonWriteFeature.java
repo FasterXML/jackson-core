@@ -72,6 +72,20 @@ public enum JsonWriteFeature
     @SuppressWarnings("deprecation")
     ESCAPE_NON_ASCII(false, JsonGenerator.Feature.ESCAPE_NON_ASCII),
 
+    /**
+     * Feature that specifies that hex values are encoded with capital letters.
+     *<p>
+     * Can be disabled to have a better possibility to compare between other JSON
+     * writer libraries, such as JSON.stringify from Javascript.
+     *<p>
+     * Feature is enabled by default for backwards compatibility with earlier
+     * versions.
+     *
+     * @since 2.14
+     */
+    @SuppressWarnings("deprecation")
+    WRITE_HEX_UPPER_CASE(true, JsonGenerator.Feature.WRITE_HEX_UPPER_CASE),
+
 //23-Nov-2015, tatu: for [core#223], if and when it gets implemented
     /*
      * Feature that specifies handling of UTF-8 content that contains

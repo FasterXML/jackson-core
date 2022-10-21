@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.write;
 
+import java.io.ByteArrayOutputStream;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringGeneratorDelegate;
 import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
@@ -8,8 +10,6 @@ import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.json.UTF8JsonGenerator;
 import com.fasterxml.jackson.core.util.BufferRecycler;
-
-import java.io.ByteArrayOutputStream;
 
 public class UTF8GeneratorTest extends BaseTest
 {
@@ -96,7 +96,7 @@ public class UTF8GeneratorTest extends BaseTest
 
         gen.writeFieldName("escapes");
 
-        final byte[] raw = SAMPLE_WITH_QUOTES.toString().getBytes("UTF-8");
+        final byte[] raw = utf8Bytes(SAMPLE_WITH_QUOTES);
         gen.writeUTF8String(raw, 0, raw.length);
 
         gen.writeEndObject();

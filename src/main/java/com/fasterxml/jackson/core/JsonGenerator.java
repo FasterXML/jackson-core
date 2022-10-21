@@ -250,8 +250,21 @@ public abstract class JsonGenerator
          * @deprecated Use {@link com.fasterxml.jackson.core.StreamWriteFeature#USE_FAST_DOUBLE_WRITER} instead
          */
         @Deprecated
-        USE_FAST_DOUBLE_WRITER(false)
-        ;
+        USE_FAST_DOUBLE_WRITER(false),
+
+        /**
+         * Feature that specifies that hex values are encoded with capital letters.
+         *<p>
+         * Can be disabled to have a better possibility to compare between other Json
+         * writer libraries, such as JSON.stringify from Javascript.
+         *<p>
+         * Feature is enabled by default.
+         *
+         * @since 2.14
+         * @deprecated Use {@link com.fasterxml.jackson.core.json.JsonWriteFeature#WRITE_HEX_UPPER_CASE} instead
+         */
+        @Deprecated
+        WRITE_HEX_UPPER_CASE(true);
 
         private final boolean _defaultState;
         private final int _mask;

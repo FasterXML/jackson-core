@@ -5,12 +5,16 @@ import java.util.Arrays;
 public final class CharTypes
 {
     protected final static char[] HC = "0123456789ABCDEF".toCharArray();
+    protected final static char[] HClower = "0123456789abcdef".toCharArray();
     protected final static byte[] HB;
+    protected final static byte[] HBlower;
     static {
         int len = HC.length;
         HB = new byte[len];
+        HBlower = new byte[len];
         for (int i = 0; i < len; ++i) {
             HB[i] = (byte) HC[i];
+            HBlower[i] = (byte) HClower[i];
         }
     }
 
@@ -242,6 +246,7 @@ public final class CharTypes
         return HC[ch];
     }
 
+
     /**
      * Helper method for appending JSON-escaped version of contents
      * into specific {@link StringBuilder}, using default JSON specification
@@ -251,8 +256,7 @@ public final class CharTypes
      *
      * @param content Unescaped String value to append with escaping applied
      */
-    public static void appendQuoted(StringBuilder sb, String content)
-    {
+    public static void appendQuoted(StringBuilder sb, String content) {
         final int[] escCodes = sOutputEscapes128;
         int escLen = escCodes.length;
         for (int i = 0, len = content.length(); i < len; ++i) {
@@ -284,12 +288,28 @@ public final class CharTypes
         }
     }
 
+    /**
+     * @deprecated Since 2.14
+     */
+    @Deprecated // since 2.14
     public static char[] copyHexChars() {
-        return (char[]) HC.clone();
+        return copyHexChars(true);
     }
 
+    public static char[] copyHexChars(boolean uppercase) {
+        return (uppercase) ? HC.clone() : HClower.clone();
+    }
+
+    /**
+     * @deprecated Since 2.14
+     */
+    @Deprecated // since 2.14
     public static byte[] copyHexBytes() {
-        return (byte[]) HB.clone();
+        return copyHexBytes(true);
+    }
+
+    public static byte[] copyHexBytes(boolean uppercase) {
+        return (uppercase) ? HB.clone() : HBlower.clone();
     }
 
     /**

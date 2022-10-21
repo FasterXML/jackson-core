@@ -156,7 +156,7 @@ public abstract class ParserMinimalBase extends JsonParser
     /**********************************************************
      */
 
-    protected ParserMinimalBase() { }
+    protected ParserMinimalBase() { super(); }
     protected ParserMinimalBase(int features) { super(features); }
 
     // NOTE: had base impl in 2.3 and before; but shouldn't

@@ -622,10 +622,16 @@ public final class TextBuffer
      */
     public int contentsAsInt(boolean neg) {
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
+            if (maxNumLen >= 0 && _inputLen > maxNumLen) {
+                throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+            }
             if (neg) {
                 return -NumberInput.parseInt(_inputBuffer, _inputStart+1, _inputLen-1);
             }
             return NumberInput.parseInt(_inputBuffer, _inputStart, _inputLen);
+        }
+        if (maxNumLen >= 0 && _currentSize > maxNumLen) {
+            throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
         }
         if (neg) {
             return -NumberInput.parseInt(_currentSegment, 1, _currentSize-1);
@@ -650,10 +656,16 @@ public final class TextBuffer
      */
     public long contentsAsLong(boolean neg) {
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
+            if (maxNumLen >= 0 && _inputLen > maxNumLen) {
+                throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+            }
             if (neg) {
                 return -NumberInput.parseLong(_inputBuffer, _inputStart+1, _inputLen-1);
             }
             return NumberInput.parseLong(_inputBuffer, _inputStart, _inputLen);
+        }
+        if (maxNumLen >= 0 && _currentSize > maxNumLen) {
+            throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
         }
         if (neg) {
             return -NumberInput.parseLong(_currentSegment, 1, _currentSize-1);

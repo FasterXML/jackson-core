@@ -931,7 +931,10 @@ public abstract class ParserBase extends ParserMinimalBase
             // Some long cases still...
             if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
                 // Probably faster to construct a String, call parse, than to use BigInteger
-                _numberLong = Long.parseLong(numStr);
+                if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
+                    throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+                }
+                _numberLong = NumberInput.parseLong(numStr);
                 _numTypesValid = NR_LONG;
             } else {
                 // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]
@@ -939,10 +942,16 @@ public abstract class ParserBase extends ParserMinimalBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
+                    if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
+                        throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+                    }
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
                     // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
+                    if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
+                        throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+                    }
                     _numberBigInt = null;
                     _numberString = numStr;
                     _numTypesValid = NR_BIGINT;
@@ -1110,9 +1119,14 @@ public abstract class ParserBase extends ParserMinimalBase
          */
     
         if ((_numTypesValid & NR_DOUBLE) != 0) {
-            // Let's actually parse from String representation, to avoid
-            // rounding errors that non-decimal floating operations could incur
-            _numberBigDecimal = NumberInput.parseBigDecimal(getText());
+            /* Let's actually parse from String representation, to avoid
+             * rounding errors that non-decimal floating operations could incur
+             */
+            final String numStr = getText();
+            if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
+                throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+            }
+            _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
             _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {

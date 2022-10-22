@@ -19,6 +19,8 @@ public abstract class TokenStreamFactory
 {
     private static final long serialVersionUID = 2;
 
+    protected int maxNumLen = -1;
+
     /*
     /**********************************************************************
     /* Capability introspection
@@ -202,6 +204,26 @@ public abstract class TokenStreamFactory
     public abstract JsonGenerator createGenerator(OutputStream out) throws IOException;
     public abstract JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException;
     public abstract JsonGenerator createGenerator(Writer w) throws IOException;
+
+    /**
+     * Set the max number of characters that are allowed when parsing numbers.
+     *
+     * @param maxNumLen max number of characters that are allowed
+     * @since 2.14
+     */
+    public void setMaxNumLen(int maxNumLen) {
+        this.maxNumLen = maxNumLen;
+    }
+
+    /**
+     * Get the max number of characters that are allowed when parsing numbers. Defaults to -1 (unlimited).
+     *
+     * @return max number of characters that are allowed
+     * @since 2.14
+     */
+    public int getMaxNumLen() {
+        return maxNumLen;
+    }
 
     /*
     /**********************************************************************

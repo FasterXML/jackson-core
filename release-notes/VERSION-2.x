@@ -14,11 +14,6 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-Unreleased:
-
-#736: `JsonPointer` quadratic memory use: OOME on deep inputs
- (reported by Doug R)
-
 2.14.0-rc2 (10-Oct-2022)
 2.14.0-rc1 (25-Sep-2022)
 
@@ -38,6 +33,8 @@ Unreleased:
 #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
  (contributed Doug R)
+#736: `JsonPointer` quadratic memory use: OOME on deep inputs
+ (reported by Doug R)
 #745: Change minimum Java version to 8
 #749: Allow use of faster floating-point number serialization
   (`StreamWriteFeature.USE_FAST_DOUBLE_WRITER`)
@@ -70,6 +67,8 @@ Unreleased:
   `byte[]`/`char[]`/String-with-offsets input
 #812: Add explicit bounds checks for `JsonFactory.createParser()` methods
   that take `byte[]`/`char[]`-with-offsets input
+#814: Use `BigDecimalParser` for BigInteger parsing very long numbers
+ (contributed by @pjfanning)
 #818: Calling `JsonPointer.compile(...)` on very deeply nested expression
   throws `StackOverflowErrror`
 #822: Declare osgi.serviceloader.registrar requirement as optional

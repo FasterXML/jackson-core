@@ -8,6 +8,10 @@ import tools.jackson.core.io.doubleparser.FastFloatParser;
 
 public final class NumberInput
 {
+    // numbers with more than these characters are better parsed with BigDecimalParser
+    // parsing numbers with many digits in Java is slower than O(n)
+    private final static int LARGE_INT_SIZE = 1250;
+
     /**
      * Constants needed for parsing longs from basic int parsing methods
      */
@@ -382,6 +386,9 @@ public final class NumberInput
      * @since v2.14
      */
     public static BigInteger parseBigInteger(String s) throws NumberFormatException {
+        if (s.length() > LARGE_INT_SIZE) {
+            return BigDecimalParser.parse(s).toBigInteger();
+        }
         return new BigInteger(s);
     }
 }

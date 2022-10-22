@@ -37,7 +37,7 @@ public final class BigDecimalParser
             return parseBigDecimal(chars, off, len, len / 10);
 
         // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
-        //    operatons by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
+        //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
         } catch (ArithmeticException | NumberFormatException e) {
             String desc = e.getMessage();
             // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:

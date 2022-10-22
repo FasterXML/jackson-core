@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
+import java.math.BigInteger;
+
 public class TestNumberInput
     extends com.fasterxml.jackson.core.BaseTest
 {
@@ -23,6 +25,21 @@ public class TestNumberInput
         final String exampleFloat2 = "7.006492321624086e-46";
         assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2)));
         assertEquals("1.4E-45", Float.toString(NumberInput.parseFloat(exampleFloat2, true)));
+    }
+
+    public void testParseLongBigInteger()
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < 1000; i++) {
+            stringBuilder.append(7);
+        }
+        String test1000 = stringBuilder.toString();
+        assertEquals(new BigInteger(test1000), NumberInput.parseBigInteger(test1000));
+        for (int i = 0; i < 1000; i++) {
+            stringBuilder.append(7);
+        }
+        String test2000 = stringBuilder.toString();
+        assertEquals(new BigInteger(test2000), NumberInput.parseBigInteger(test2000));
     }
 }
 

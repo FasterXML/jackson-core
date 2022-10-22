@@ -8,6 +8,10 @@ import java.math.BigInteger;
 
 public final class NumberInput
 {
+    // numbers with more than these characters are better parsed with BigDecimalParser
+    // parsing numbers with many digits in Java is slower than O(n)
+    private final static int LARGE_INT_SIZE = 1250;
+
     /**
      * Formerly used constant for a value that was problematic on certain
      * pre-1.8 JDKs.
@@ -395,6 +399,9 @@ public final class NumberInput
      * @since v2.14
      */
     public static BigInteger parseBigInteger(String s) throws NumberFormatException {
+        if (s.length() > LARGE_INT_SIZE) {
+            return BigDecimalParser.parse(s).toBigInteger();
+        }
         return new BigInteger(s);
     }
 }

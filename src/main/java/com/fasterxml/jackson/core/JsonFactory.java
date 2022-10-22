@@ -1682,8 +1682,10 @@ public class JsonFactory
      */
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
         try {
-            return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
+            JsonParser jsonParser = new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
                     _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+            jsonParser.setMaxNumLen(maxNumLen);
+            return jsonParser;
         } catch (IOException | RuntimeException e) {
             // 10-Jun-2022, tatu: For [core#763] may need to close InputStream here
             if (ctxt.isResourceManaged()) {
@@ -1717,8 +1719,10 @@ public class JsonFactory
      * @since 2.1
      */
     protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
-        return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
+        JsonParser jsonParser = new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures));
+        jsonParser.setMaxNumLen(maxNumLen);
+        return jsonParser;
     }
 
     /**
@@ -1739,9 +1743,11 @@ public class JsonFactory
      */
     protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
             boolean recyclable) throws IOException {
-        return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
+        JsonParser jsonParser = new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures),
                         data, offset, offset+len, recyclable);
+        jsonParser.setMaxNumLen(maxNumLen);
+        return jsonParser;
     }
 
     /**
@@ -1766,8 +1772,10 @@ public class JsonFactory
      */
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
-        return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
+        JsonParser parser = new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
                 _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+        parser.setMaxNumLen(maxNumLen);
+        return parser;
     }
 
     /**
@@ -1791,8 +1799,10 @@ public class JsonFactory
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
-        return new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
+        JsonParser jsonParser = new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
                 _objectCodec, can, firstByte);
+        jsonParser.setMaxNumLen(maxNumLen);
+        return jsonParser;
     }
 
     /*

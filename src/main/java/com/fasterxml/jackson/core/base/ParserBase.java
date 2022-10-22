@@ -251,6 +251,7 @@ public abstract class ParserBase extends ParserMinimalBase
         super(features);
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
+        _textBuffer.setMaxNumLen(maxNumLen);
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _parsingContext = JsonReadContext.createRootContext(dups);

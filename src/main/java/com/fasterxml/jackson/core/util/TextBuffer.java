@@ -513,18 +513,31 @@ public final class TextBuffer
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
+            if (maxNumLen >= 0 && _resultArray.length > maxNumLen) {
+                throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+            }
             return NumberInput.parseBigDecimal(_resultArray);
         }
         // Or a shared buffer?
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
+            if (maxNumLen >= 0 && _inputLen > maxNumLen) {
+                throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+            }
             return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen);
         }
         // Or if not, just a single buffer (the usual case)
         if ((_segmentSize == 0) && (_currentSegment != null)) {
+            if (maxNumLen >= 0 && _currentSize > maxNumLen) {
+                throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+            }
             return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize);
         }
         // If not, let's just get it aggregated...
-        return NumberInput.parseBigDecimal(contentsAsArray());
+        final char[] numArray = contentsAsArray();
+        if (maxNumLen >= 0 && numArray.length > maxNumLen) {
+            throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+        }
+        return NumberInput.parseBigDecimal(numArray);
     }
 
     /**
@@ -552,7 +565,11 @@ public final class TextBuffer
      * @since 2.14
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
-        return NumberInput.parseDouble(contentsAsString(), useFastParser);
+        final String numStr = contentsAsString();
+        if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
+            throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+        }
+        return NumberInput.parseDouble(numStr, useFastParser);
     }
 
     /**
@@ -581,7 +598,11 @@ public final class TextBuffer
      * @since 2.14
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
-        return NumberInput.parseFloat(contentsAsString(), useFastParser);
+        final String numStr = contentsAsString();
+        if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
+            throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+        }
+        return NumberInput.parseFloat(numStr, useFastParser);
     }
 
     /**

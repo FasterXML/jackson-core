@@ -128,16 +128,7 @@ tools.jackson.core.*;version=${project.version}
   </build>
 
   <dependencies>
-    <!--  31-Jul-2022, tatu: [core#768] OSGi metadata -->
-    <dependency>
-      <groupId>biz.aQute.bnd</groupId>
-      <artifactId>biz.aQute.bnd.annotation</artifactId>
-      <version>${version.bnd.annotation}</version>
-      <optional>true</optional>
-      <scope>provided</scope>
-    </dependency>
-
-    <!--  plus test dependencies -->
+    <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>

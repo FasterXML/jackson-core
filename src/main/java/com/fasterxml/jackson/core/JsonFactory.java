@@ -8,8 +8,6 @@ import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 
-import aQute.bnd.annotation.spi.ServiceProvider;
-
 import com.fasterxml.jackson.core.format.InputAccessor;
 import com.fasterxml.jackson.core.format.MatchStrength;
 import com.fasterxml.jackson.core.io.*;
@@ -22,8 +20,6 @@ import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.JacksonFeature;
-
-import static aQute.bnd.annotation.Resolution.OPTIONAL;
 
 /**
  * The main factory class of Jackson package, used to configure and
@@ -46,7 +42,6 @@ import static aQute.bnd.annotation.Resolution.OPTIONAL;
  * @author Tatu Saloranta
  */
 @SuppressWarnings("resource")
-@ServiceProvider(value = JsonFactory.class, resolution = OPTIONAL) // will be `TokenStreamFactory` in 3.x
 public class JsonFactory
     extends TokenStreamFactory
     implements Versioned,

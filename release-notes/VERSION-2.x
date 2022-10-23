@@ -14,11 +14,6 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-Unreleased:
-
-#736: `JsonPointer` quadratic memory use: OOME on deep inputs
- (reported by Doug R)
-
 2.14.0-rc2 (10-Oct-2022)
 2.14.0-rc1 (25-Sep-2022)
 
@@ -38,6 +33,8 @@ Unreleased:
 #733: Add `StreamReadCapability.EXACT_FLOATS` to indicate whether parser reports exact
   floating-point values or not
  (contributed Doug R)
+#736: `JsonPointer` quadratic memory use: OOME on deep inputs
+ (reported by Doug R)
 #745: Change minimum Java version to 8
 #749: Allow use of faster floating-point number serialization
   (`StreamWriteFeature.USE_FAST_DOUBLE_WRITER`)
@@ -54,8 +51,6 @@ Unreleased:
  (contributed by Evan G)
 #763: `JsonFactory.createParser()` with `File` may leak `InputStream`s
 #764: `JsonFactory.createGenerator()` with `File` may leak `OutputStream`s
-#768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
- (requested by Chris R)
 #773: Add option to accept non-standard trailing decimal point
   (`JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS`)
  (contributed by @pjfanning)
@@ -70,10 +65,12 @@ Unreleased:
   `byte[]`/`char[]`/String-with-offsets input
 #812: Add explicit bounds checks for `JsonFactory.createParser()` methods
   that take `byte[]`/`char[]`-with-offsets input
+#814: Use `BigDecimalParser` for BigInteger parsing very long numbers
+ (contributed by @pjfanning)
 #818: Calling `JsonPointer.compile(...)` on very deeply nested expression
   throws `StackOverflowErrror`
-#822: Declare osgi.serviceloader.registrar requirement as optional
- (contributed by Chris R)
+#828: Make `BigInteger` parsing lazy
+ (contributed by @pjfanning)
 
 2.13.4 (03-Sep-2022)
 

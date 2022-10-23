@@ -51,8 +51,6 @@ JSON library.
  (contributed by Evan G)
 #763: `JsonFactory.createParser()` with `File` may leak `InputStream`s
 #764: `JsonFactory.createGenerator()` with `File` may leak `OutputStream`s
-#768: Jackson bundles are missing OSGi's osgi.serviceloader metadata
- (requested by Chris R)
 #773: Add option to accept non-standard trailing decimal point
   (`JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS`)
  (contributed by @pjfanning)
@@ -71,8 +69,8 @@ JSON library.
  (contributed by @pjfanning)
 #818: Calling `JsonPointer.compile(...)` on very deeply nested expression
   throws `StackOverflowErrror`
-#822: Declare osgi.serviceloader.registrar requirement as optional
- (contributed by Chris R)
+#828: Make `BigInteger` parsing lazy
+ (contributed by @pjfanning)
 
 2.13.4 (03-Sep-2022)
 

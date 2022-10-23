@@ -388,9 +388,6 @@ public abstract class ParserMinimalBase extends JsonParser
                 if (_hasTextualNull(str)) {
                     return 0;
                 }
-                if (maxNumLen >= 0 && str.length() > maxNumLen) {
-                    throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
-                }
                 return NumberInput.parseAsInt(str, defaultValue);
             case ID_TRUE:
                 return 1;
@@ -431,9 +428,6 @@ public abstract class ParserMinimalBase extends JsonParser
                 final String str = getText();
                 if (_hasTextualNull(str)) {
                     return 0L;
-                }
-                if (maxNumLen >= 0 && str.length() > maxNumLen) {
-                    throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
                 }
                 return NumberInput.parseAsLong(str, defaultValue);
             case ID_TRUE:

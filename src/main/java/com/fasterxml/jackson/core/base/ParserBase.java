@@ -931,9 +931,6 @@ public abstract class ParserBase extends ParserMinimalBase
             // Some long cases still...
             if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
                 // Probably faster to construct a String, call parse, than to use BigInteger
-                if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
-                    throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
-                }
                 _numberLong = NumberInput.parseLong(numStr);
                 _numTypesValid = NR_LONG;
             } else {
@@ -983,7 +980,7 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         // First, converting from long ought to be easy
         if ((_numTypesValid & NR_LONG) != 0) {
-            // Let's verify it's lossless conversion by simple roundtrip
+            // Let's verify its lossless conversion by simple roundtrip
             int result = (int) _numberLong;
             if (((long) result) != _numberLong) {
                 reportOverflowInt(getText(), currentToken());

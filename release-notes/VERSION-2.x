@@ -73,6 +73,8 @@ JSON library.
   throws `StackOverflowErrror`
 #822: Declare osgi.serviceloader.registrar requirement as optional
  (contributed by Chris R)
+#828: Make `BigInteger` parsing lazy
+ (contributed by @pjfanning)
 
 2.13.4 (03-Sep-2022)
 

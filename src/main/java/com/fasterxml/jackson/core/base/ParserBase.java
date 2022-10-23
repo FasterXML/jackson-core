@@ -203,6 +203,14 @@ public abstract class ParserBase extends ParserMinimalBase
 
     protected BigDecimal _numberBigDecimal;
 
+    /**
+     * Textual number representation captured from input in cases lazy-parsing
+     * is desired.
+     *<p>
+     * As of 2.14 this only applies to {@link BigInteger}.
+     *
+     * @since 2.14
+     */
     protected String _numberString;
 
     // And then other information about value itself
@@ -609,7 +617,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 return _numberLong;
             }
             if ((_numTypesValid & NR_BIGINT) != 0) {
-                return getBigInteger();
+                return _getBigInteger();
             }
             _throwInternal();
         }
@@ -643,7 +651,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 return _numberLong;
             }
             if ((_numTypesValid & NR_BIGINT) != 0) {
-                return getBigInteger();
+                return _getBigInteger();
             }
             _throwInternal();
         }
@@ -733,7 +741,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 convertNumberToBigInteger();
             }
         }
-        return getBigInteger();
+        return _getBigInteger();
     }
     
     @Override
@@ -971,7 +979,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             _numberInt = result;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            final BigInteger bigInteger = getBigInteger();
+            final BigInteger bigInteger = _getBigInteger();
             if (BI_MIN_INT.compareTo(bigInteger) > 0
                     || BI_MAX_INT.compareTo(bigInteger) < 0) {
                 reportOverflowInt();
@@ -1000,7 +1008,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_INT) != 0) {
             _numberLong = (long) _numberInt;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            final BigInteger bigInteger = getBigInteger();
+            final BigInteger bigInteger = _getBigInteger();
             if (BI_MIN_LONG.compareTo(bigInteger) > 0
                     || BI_MAX_LONG.compareTo(bigInteger) < 0) {
                 reportOverflowLong();
@@ -1052,7 +1060,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             _numberDouble = _numberBigDecimal.doubleValue();
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberDouble = getBigInteger().doubleValue();
+            _numberDouble = _getBigInteger().doubleValue();
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberDouble = (double) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
@@ -1076,7 +1084,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             _numberFloat = _numberBigDecimal.floatValue();
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberFloat = getBigInteger().floatValue();
+            _numberFloat = _getBigInteger().floatValue();
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberFloat = (float) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
@@ -1098,12 +1106,11 @@ public abstract class ParserBase extends ParserMinimalBase
          */
     
         if ((_numTypesValid & NR_DOUBLE) != 0) {
-            /* Let's actually parse from String representation, to avoid
-             * rounding errors that non-decimal floating operations could incur
-             */
+            // Let's actually parse from String representation, to avoid
+            // rounding errors that non-decimal floating operations could incur
             _numberBigDecimal = NumberInput.parseBigDecimal(getText());
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberBigDecimal = new BigDecimal(getBigInteger());
+            _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberBigDecimal = BigDecimal.valueOf(_numberLong);
         } else if ((_numTypesValid & NR_INT) != 0) {
@@ -1114,6 +1121,23 @@ public abstract class ParserBase extends ParserMinimalBase
         _numTypesValid |= NR_BIGDECIMAL;
     }
 
+    /**
+     * Internal accessor that needs to be used for accessing number value of type
+     * {@link BigInteger} which -- as of 2.14 -- is typically lazily parsed.
+     *
+     * @since 2.14
+     */
+    protected BigInteger _getBigInteger() {
+        if (_numberBigInt != null) {
+            return _numberBigInt;
+        } else if (_numberString == null) {
+            throw new IllegalStateException("cannot get BigInteger from current parser state");
+        }
+        _numberBigInt = NumberInput.parseBigInteger(_numberString);
+        _numberString = null;
+        return _numberBigInt;
+    }
+ 
     /*
     /**********************************************************
     /* Internal/package methods: Error reporting
@@ -1332,7 +1356,7 @@ public abstract class ParserBase extends ParserMinimalBase
         }
         return Arrays.copyOf(arr, arr.length + more);
     }
-    
+
     /*
     /**********************************************************
     /* Stuff that was abstract and required before 2.8, but that
@@ -1350,15 +1374,4 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
-
-    private BigInteger getBigInteger() {
-        if (_numberBigInt != null) {
-            return _numberBigInt;
-        } else if (_numberString == null) {
-            throw new IllegalStateException("cannot get BigInteger from current parser state");
-        }
-        _numberBigInt = NumberInput.parseBigInteger(_numberString);
-        _numberString = null;
-        return _numberBigInt;
-    }
 }

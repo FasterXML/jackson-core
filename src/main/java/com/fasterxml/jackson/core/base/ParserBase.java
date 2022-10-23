@@ -1140,6 +1140,23 @@ public abstract class ParserBase extends ParserMinimalBase
         _numberString = null;
         return _numberBigInt;
     }
+
+    /**
+     * Internal accessor that needs to be used for accessing number value of type
+     * {@link BigDecimal} which -- as of 2.14 -- is typically lazily parsed.
+     *
+     * @since 2.14
+     */
+    protected BigDecimal _getBigDecimal() {
+        if (_numberBigDecimal != null) {
+            return _numberBigDecimal;
+        } else if (_numberString == null) {
+            throw new IllegalStateException("cannot get BigDecimal from current parser state");
+        }
+        _numberBigDecimal = NumberInput.parseBigDecimal(_numberString);
+        _numberString = null;
+        return _numberBigDecimal;
+    }
  
     /*
     /**********************************************************
@@ -1378,25 +1395,4 @@ public abstract class ParserBase extends ParserMinimalBase
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
 
-    private BigInteger _getBigInteger() {
-        if (_numberBigInt != null) {
-            return _numberBigInt;
-        } else if (_numberString == null) {
-            throw new IllegalStateException("cannot get BigInteger from current parser state");
-        }
-        _numberBigInt = NumberInput.parseBigInteger(_numberString);
-        _numberString = null;
-        return _numberBigInt;
-    }
-
-    private BigDecimal _getBigDecimal() {
-        if (_numberBigDecimal != null) {
-            return _numberBigDecimal;
-        } else if (_numberString == null) {
-            throw new IllegalStateException("cannot get BigDecimal from current parser state");
-        }
-        _numberBigDecimal = NumberInput.parseBigDecimal(_numberString);
-        _numberString = null;
-        return _numberBigDecimal;
-    }
 }

@@ -609,7 +609,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 return _numberLong;
             }
             if ((_numTypesValid & NR_BIGINT) != 0) {
-                return getBigInteger();
+                return _getBigInteger();
             }
             _throwInternal();
         }
@@ -617,7 +617,7 @@ public abstract class ParserBase extends ParserMinimalBase
         // And then floating point types. But here optimal type
         // needs to be big decimal, to avoid losing any data?
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            return getBigDecimal();
+            return _getBigDecimal();
         }
         if ((_numTypesValid & NR_FLOAT) != 0) {
             return _numberFloat;
@@ -643,7 +643,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 return _numberLong;
             }
             if ((_numTypesValid & NR_BIGINT) != 0) {
-                return getBigInteger();
+                return _getBigInteger();
             }
             _throwInternal();
         }
@@ -652,7 +652,7 @@ public abstract class ParserBase extends ParserMinimalBase
             _parseNumericValue(NR_BIGDECIMAL);
         }
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            return getBigDecimal();
+            return _getBigDecimal();
         }
         if ((_numTypesValid & NR_FLOAT) != 0) {
             return _numberFloat;
@@ -733,7 +733,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 convertNumberToBigInteger();
             }
         }
-        return getBigInteger();
+        return _getBigInteger();
     }
     
     @Override
@@ -783,7 +783,7 @@ public abstract class ParserBase extends ParserMinimalBase
                 convertNumberToBigDecimal();
             }
         }
-        return getBigDecimal();
+        return _getBigDecimal();
     }
 
     /*
@@ -972,7 +972,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             _numberInt = result;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            final BigInteger bigInteger = getBigInteger();
+            final BigInteger bigInteger = _getBigInteger();
             if (BI_MIN_INT.compareTo(bigInteger) > 0
                     || BI_MAX_INT.compareTo(bigInteger) < 0) {
                 reportOverflowInt();
@@ -985,7 +985,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             _numberInt = (int) _numberDouble;
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            final BigDecimal bigDecimal = getBigDecimal();
+            final BigDecimal bigDecimal = _getBigDecimal();
             if (BD_MIN_INT.compareTo(bigDecimal) > 0
                 || BD_MAX_INT.compareTo(bigDecimal) < 0) {
                 reportOverflowInt();
@@ -1002,7 +1002,7 @@ public abstract class ParserBase extends ParserMinimalBase
         if ((_numTypesValid & NR_INT) != 0) {
             _numberLong = (long) _numberInt;
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            final BigInteger bigInteger = getBigInteger();
+            final BigInteger bigInteger = _getBigInteger();
             if (BI_MIN_LONG.compareTo(bigInteger) > 0
                     || BI_MAX_LONG.compareTo(bigInteger) < 0) {
                 reportOverflowLong();
@@ -1015,7 +1015,7 @@ public abstract class ParserBase extends ParserMinimalBase
             }
             _numberLong = (long) _numberDouble;
         } else if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            final BigDecimal bigDecimal = getBigDecimal();
+            final BigDecimal bigDecimal = _getBigDecimal();
             if (BD_MIN_LONG.compareTo(bigDecimal) > 0
                 || BD_MAX_LONG.compareTo(bigDecimal) < 0) {
                 reportOverflowLong();
@@ -1031,7 +1031,7 @@ public abstract class ParserBase extends ParserMinimalBase
     {
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
             // here it'll just get truncated, no exceptions thrown
-            _numberBigInt = getBigDecimal().toBigInteger();
+            _numberBigInt = _getBigDecimal().toBigInteger();
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberBigInt = BigInteger.valueOf(_numberLong);
         } else if ((_numTypesValid & NR_INT) != 0) {
@@ -1053,9 +1053,9 @@ public abstract class ParserBase extends ParserMinimalBase
          */
     
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            _numberDouble = getBigDecimal().doubleValue();
+            _numberDouble = _getBigDecimal().doubleValue();
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberDouble = getBigInteger().doubleValue();
+            _numberDouble = _getBigInteger().doubleValue();
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberDouble = (double) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
@@ -1077,9 +1077,9 @@ public abstract class ParserBase extends ParserMinimalBase
          */
 
         if ((_numTypesValid & NR_BIGDECIMAL) != 0) {
-            _numberFloat = getBigDecimal().floatValue();
+            _numberFloat = _getBigDecimal().floatValue();
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberFloat = getBigInteger().floatValue();
+            _numberFloat = _getBigInteger().floatValue();
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberFloat = (float) _numberLong;
         } else if ((_numTypesValid & NR_INT) != 0) {
@@ -1106,7 +1106,7 @@ public abstract class ParserBase extends ParserMinimalBase
              */
             _numberBigDecimal = NumberInput.parseBigDecimal(getText());
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
-            _numberBigDecimal = new BigDecimal(getBigInteger());
+            _numberBigDecimal = new BigDecimal(_getBigInteger());
         } else if ((_numTypesValid & NR_LONG) != 0) {
             _numberBigDecimal = BigDecimal.valueOf(_numberLong);
         } else if ((_numTypesValid & NR_INT) != 0) {
@@ -1354,7 +1354,7 @@ public abstract class ParserBase extends ParserMinimalBase
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
 
-    private BigInteger getBigInteger() {
+    private BigInteger _getBigInteger() {
         if (_numberBigInt != null) {
             return _numberBigInt;
         } else if (_numberString == null) {
@@ -1365,7 +1365,7 @@ public abstract class ParserBase extends ParserMinimalBase
         return _numberBigInt;
     }
 
-    private BigDecimal getBigDecimal() {
+    private BigDecimal _getBigDecimal() {
         if (_numberBigDecimal != null) {
             return _numberBigDecimal;
         } else if (_numberString == null) {

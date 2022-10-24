@@ -361,6 +361,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
+        _maxNumLen = b._maxNumLen;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -1684,7 +1685,7 @@ public class JsonFactory
         try {
             JsonParser jsonParser = new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
                     _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
-            jsonParser.setMaxNumLen(maxNumLen);
+            jsonParser.setMaxNumLen(_maxNumLen);
             return jsonParser;
         } catch (IOException | RuntimeException e) {
             // 10-Jun-2022, tatu: For [core#763] may need to close InputStream here
@@ -1721,7 +1722,7 @@ public class JsonFactory
     protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
         JsonParser jsonParser = new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures));
-        jsonParser.setMaxNumLen(maxNumLen);
+        jsonParser.setMaxNumLen(_maxNumLen);
         return jsonParser;
     }
 
@@ -1746,7 +1747,7 @@ public class JsonFactory
         JsonParser jsonParser = new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures),
                         data, offset, offset+len, recyclable);
-        jsonParser.setMaxNumLen(maxNumLen);
+        jsonParser.setMaxNumLen(_maxNumLen);
         return jsonParser;
     }
 
@@ -1774,7 +1775,7 @@ public class JsonFactory
     {
         JsonParser parser = new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
                 _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
-        parser.setMaxNumLen(maxNumLen);
+        parser.setMaxNumLen(_maxNumLen);
         return parser;
     }
 
@@ -1801,7 +1802,7 @@ public class JsonFactory
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         JsonParser jsonParser = new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
                 _objectCodec, can, firstByte);
-        jsonParser.setMaxNumLen(maxNumLen);
+        jsonParser.setMaxNumLen(_maxNumLen);
         return jsonParser;
     }
 

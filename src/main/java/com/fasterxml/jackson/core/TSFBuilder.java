@@ -76,6 +76,13 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * additional processing on output during content generation.
      */
     protected OutputDecorator _outputDecorator;
+
+    /**
+     * Optional maximum number length (in characters). Defaults to -1 (unlimited).
+     *
+     * @since 2.14
+     */
+    protected int _maxNumLen = -1;
     
     /*
     /**********************************************************************
@@ -259,6 +266,18 @@ public abstract class TSFBuilder<F extends JsonFactory,
 
     public B outputDecorator(OutputDecorator dec) {
         _outputDecorator = dec;
+        return _this();
+    }
+
+    /**
+     * Sets the maximum number length (in characters). Defaults to -1 (unlimited).
+     *
+     * @param maxNumLen maximum number length (in characters)
+     * @return this factory
+     * @since 2.14
+     */
+    public B maxNumLen(int maxNumLen) {
+        _maxNumLen = maxNumLen;
         return _this();
     }
 

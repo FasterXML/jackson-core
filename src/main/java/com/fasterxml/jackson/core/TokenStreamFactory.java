@@ -19,7 +19,12 @@ public abstract class TokenStreamFactory
 {
     private static final long serialVersionUID = 2;
 
-    protected int maxNumLen = -1;
+    /**
+     * Optional maximum number length (in characters). Defaults to -1 (unlimited).
+     *
+     * @since 2.14
+     */
+    protected int _maxNumLen = -1;
 
     /*
     /**********************************************************************
@@ -212,7 +217,7 @@ public abstract class TokenStreamFactory
      * @since 2.14
      */
     public void setMaxNumLen(int maxNumLen) {
-        this.maxNumLen = maxNumLen;
+        this._maxNumLen = maxNumLen;
     }
 
     /**
@@ -222,7 +227,7 @@ public abstract class TokenStreamFactory
      * @since 2.14
      */
     public int getMaxNumLen() {
-        return maxNumLen;
+        return _maxNumLen;
     }
 
     /*

@@ -71,6 +71,8 @@ JSON library.
   throws `StackOverflowErrror`
 #828: Make `BigInteger` parsing lazy
  (contributed by @pjfanning)
+#830: Make `BigDecimal` parsing lazy
+ (contributed by @pjfanning)
 
 2.13.4 (03-Sep-2022)
 

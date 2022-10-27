@@ -78,11 +78,11 @@ public abstract class TSFBuilder<F extends JsonFactory,
     protected OutputDecorator _outputDecorator;
 
     /**
-     * Optional maximum number length (in characters). Defaults to -1 (unlimited).
+     * Optional StreamReadConfig.
      *
      * @since 2.14
      */
-    protected int _maxNumLen = -1;
+    protected StreamReadConfig _streamReadConfig;
     
     /*
     /**********************************************************************
@@ -102,6 +102,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     {
         this(base._factoryFeatures,
                 base._parserFeatures, base._generatorFeatures);
+        _streamReadConfig = base._streamReadConfig;
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -270,14 +271,14 @@ public abstract class TSFBuilder<F extends JsonFactory,
     }
 
     /**
-     * Sets the maximum number length (in characters). Defaults to -1 (unlimited).
+     * Sets the configuration for streaming reads.
      *
-     * @param maxNumLen maximum number length (in characters)
+     * @param streamReadConfig configuration for streaming reads
      * @return this factory
      * @since 2.14
      */
-    public B maxNumLen(int maxNumLen) {
-        _maxNumLen = maxNumLen;
+    public B streamReadConfig(StreamReadConfig streamReadConfig) {
+        _streamReadConfig = streamReadConfig;
         return _this();
     }
 

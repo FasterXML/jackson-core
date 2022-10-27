@@ -406,8 +406,6 @@ public abstract class JsonParser
      */
     protected transient RequestPayload _requestPayload;
 
-    protected int maxNumLen = -1;
-
     /*
     /**********************************************************
     /* Construction, configuration, initialization
@@ -438,26 +436,6 @@ public abstract class JsonParser
      * @param oc Codec to assign, if any; {@code null} if none
      */
     public abstract void setCodec(ObjectCodec oc);
-
-    /**
-     * Set the max number of characters that are allowed when parsing numbers.
-     *
-     * @param maxNumLen max number of characters that are allowed
-     * @since 2.14
-     */
-    public void setMaxNumLen(int maxNumLen) {
-        this.maxNumLen = maxNumLen;
-    }
-
-    /**
-     * Get the max number of characters that are allowed when parsing numbers. Defaults to -1 (unlimited).
-     *
-     * @return max number of characters that are allowed
-     * @since 2.14
-     */
-    public int getMaxNumLen() {
-        return maxNumLen;
-    }
 
     /**
      * Method that can be used to get access to object that is used

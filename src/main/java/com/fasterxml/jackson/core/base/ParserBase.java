@@ -251,7 +251,6 @@ public abstract class ParserBase extends ParserMinimalBase
         super(features);
         _ioContext = ctxt;
         _textBuffer = ctxt.constructTextBuffer();
-        _textBuffer.setMaxNumLen(maxNumLen);
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         _parsingContext = JsonReadContext.createRootContext(dups);
@@ -939,15 +938,15 @@ public abstract class ParserBase extends ParserMinimalBase
                     _reportTooLongIntegral(expType, numStr);
                 }
                 if ((expType == NR_DOUBLE) || (expType == NR_FLOAT)) {
-                    if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
-                        throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+                    if (getMaxNumLen() >= 0 && numStr.length() > getMaxNumLen()) {
+                        throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());
                     }
                     _numberDouble = NumberInput.parseDouble(numStr, isEnabled(Feature.USE_FAST_DOUBLE_PARSER));
                     _numTypesValid = NR_DOUBLE;
                 } else {
                     // nope, need the heavy guns... (rare case) - since Jackson v2.14, BigInteger parsing is lazy
-                    if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
-                        throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+                    if (getMaxNumLen() >= 0 && numStr.length() > getMaxNumLen()) {
+                        throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());
                     }
                     _numberBigInt = null;
                     _numberString = numStr;
@@ -1120,8 +1119,8 @@ public abstract class ParserBase extends ParserMinimalBase
              * rounding errors that non-decimal floating operations could incur
              */
             final String numStr = getText();
-            if (maxNumLen >= 0 && numStr.length() > maxNumLen) {
-                throw new NumberFormatException("number length exceeds the max number length of " + maxNumLen);
+            if (getMaxNumLen() >= 0 && numStr.length() > getMaxNumLen()) {
+                throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());
             }
             _numberBigDecimal = NumberInput.parseBigDecimal(numStr);
         } else if ((_numTypesValid & NR_BIGINT) != 0) {
@@ -1406,5 +1405,9 @@ public abstract class ParserBase extends ParserMinimalBase
 
     // Can't declare as deprecated, for now, but shouldn't be needed
     protected void _finishString() throws IOException { }
+
+    protected int getMaxNumLen() {
+        return _ioContext.getStreamReadConfig().getMaxNumberLength();
+    }
 
 }

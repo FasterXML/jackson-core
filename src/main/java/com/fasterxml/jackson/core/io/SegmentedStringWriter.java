@@ -19,7 +19,7 @@ public final class SegmentedStringWriter extends Writer
 
     public SegmentedStringWriter(BufferRecycler br) {
         super();
-        _buffer = new TextBuffer(br);
+        _buffer = new TextBuffer(null, br);
     }
 
     /*

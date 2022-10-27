@@ -337,6 +337,7 @@ public class JsonFactory
         _generatorFeatures = src._generatorFeatures;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
+        _streamReadConfig = src._streamReadConfig;
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -361,7 +362,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
-        _maxNumLen = b._maxNumLen;
+        _streamReadConfig = b._streamReadConfig;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -386,6 +387,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
+        _streamReadConfig = b._streamReadConfig;
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;
@@ -1683,10 +1685,8 @@ public class JsonFactory
      */
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
         try {
-            JsonParser jsonParser = new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
+            return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
                     _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
-            jsonParser.setMaxNumLen(_maxNumLen);
-            return jsonParser;
         } catch (IOException | RuntimeException e) {
             // 10-Jun-2022, tatu: For [core#763] may need to close InputStream here
             if (ctxt.isResourceManaged()) {
@@ -1720,10 +1720,8 @@ public class JsonFactory
      * @since 2.1
      */
     protected JsonParser _createParser(Reader r, IOContext ctxt) throws IOException {
-        JsonParser jsonParser = new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
+        return new ReaderBasedJsonParser(ctxt, _parserFeatures, r, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures));
-        jsonParser.setMaxNumLen(_maxNumLen);
-        return jsonParser;
     }
 
     /**
@@ -1744,11 +1742,9 @@ public class JsonFactory
      */
     protected JsonParser _createParser(char[] data, int offset, int len, IOContext ctxt,
             boolean recyclable) throws IOException {
-        JsonParser jsonParser = new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
+        return new ReaderBasedJsonParser(ctxt, _parserFeatures, null, _objectCodec,
                 _rootCharSymbols.makeChild(_factoryFeatures),
                         data, offset, offset+len, recyclable);
-        jsonParser.setMaxNumLen(_maxNumLen);
-        return jsonParser;
     }
 
     /**
@@ -1773,10 +1769,8 @@ public class JsonFactory
      */
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException
     {
-        JsonParser parser = new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
+        return new ByteSourceJsonBootstrapper(ctxt, data, offset, len).constructParser(_parserFeatures,
                 _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
-        parser.setMaxNumLen(_maxNumLen);
-        return parser;
     }
 
     /**
@@ -1800,10 +1794,8 @@ public class JsonFactory
         // at least handle possible UTF-8 BOM
         int firstByte = ByteSourceJsonBootstrapper.skipUTF8BOM(input);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
-        JsonParser jsonParser = new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
+        return new UTF8DataInputJsonParser(ctxt, _parserFeatures, input,
                 _objectCodec, can, firstByte);
-        jsonParser.setMaxNumLen(_maxNumLen);
-        return jsonParser;
     }
 
     /*
@@ -1986,7 +1978,7 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
-        return new IOContext(_getBufferRecycler(), contentRef, resourceManaged);
+        return new IOContext(_streamReadConfig, _getBufferRecycler(), contentRef, resourceManaged);
     }
 
     /**
@@ -2001,7 +1993,7 @@ public class JsonFactory
      */
     @Deprecated // @since 2.13
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
-        return new IOContext(_getBufferRecycler(),
+        return new IOContext(_streamReadConfig, _getBufferRecycler(),
                 _createContentReference(rawContentRef),
                 resourceManaged);
     }
@@ -2019,7 +2011,7 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
-        return new IOContext(_getBufferRecycler(),
+        return new IOContext(_streamReadConfig, _getBufferRecycler(),
                 _createContentReference(srcRef),
                 false);
     }

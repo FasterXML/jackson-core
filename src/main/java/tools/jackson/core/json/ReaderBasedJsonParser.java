@@ -1789,7 +1789,13 @@ public class ReaderBasedJsonParser
         case '\t':
             return;
         case '\r':
-            _skipCR();
+            // 29-Oct-2022, tatu: [core#834] requires change here, we MUST NOT
+            //    force a read. As such let's simply push back the \r without
+            //    further ado; it is enough to know there is valid WS separating
+            //  NOTE: may need to revisit handling of plain \n to keep Location
+            //    info more uniform. But has to do for now.
+            // _skipCR();
+            --_inputPtr;
             return;
         case '\n':
             ++_currInputRow;

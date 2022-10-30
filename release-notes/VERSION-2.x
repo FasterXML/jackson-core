@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released:
+
+#834: ReaderBaseJsonParser._verifyRootSpace() can cause buffer boundary failure
+
 2.14.0-rc3 (28-Oct-2022)
 2.14.0-rc2 (10-Oct-2022)
 2.14.0-rc1 (25-Sep-2022)

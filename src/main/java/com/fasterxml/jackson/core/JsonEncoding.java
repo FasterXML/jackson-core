@@ -22,7 +22,7 @@ public enum JsonEncoding {
         UTF32_BE("UTF-32BE", true, 32),
         UTF32_LE("UTF-32LE", false, 32)
         ;
-    
+
     private final String _javaName;
 
     private final boolean _bigEndian;

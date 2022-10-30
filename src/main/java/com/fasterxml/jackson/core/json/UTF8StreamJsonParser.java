@@ -1768,7 +1768,10 @@ public class UTF8StreamJsonParser
         case '\t':
             return;
         case '\r':
-            _skipCR();
+            // 29-Oct-2022, tatu: [core#834] While issue is only relevant for char-backed
+            //   sources, let's unify handling to keep behavior uniform.
+            // _skipCR();
+            --_inputPtr;
             return;
         case '\n':
             ++_currInputRow;

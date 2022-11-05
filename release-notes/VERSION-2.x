@@ -14,13 +14,7 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
-Not yet released:
-
-#834: ReaderBaseJsonParser._verifyRootSpace() can cause buffer boundary failure
-
-2.14.0-rc3 (28-Oct-2022)
-2.14.0-rc2 (10-Oct-2022)
-2.14.0-rc1 (25-Sep-2022)
+2.14.0 (05-Nov-2022)
 
 #478: Provide implementation of async JSON parser fed by `ByteBufferFeeder`
  (requested by Arjen P)
@@ -78,6 +72,7 @@ Not yet released:
  (contributed by @pjfanning)
 #830: Make `BigDecimal` parsing lazy
  (contributed by @pjfanning)
+#834: ReaderBaseJsonParser._verifyRootSpace() can cause buffer boundary failure
 
 2.13.4 (03-Sep-2022)
 

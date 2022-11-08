@@ -14,6 +14,10 @@ JSON library.
 === Releases ===
 ------------------------------------------------------------------------
 
+2.15.0 (not yet released)
+
+No changes since 2.14
+
 2.14.0 (05-Nov-2022)
 
 #478: Provide implementation of async JSON parser fed by `ByteBufferFeeder`

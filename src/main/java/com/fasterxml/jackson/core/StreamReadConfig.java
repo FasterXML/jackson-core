@@ -3,7 +3,7 @@ package com.fasterxml.jackson.core;
 /**
  * The configuration for streaming reads.
  *
- * @since 2.14
+ * @since 2.15
  */
 public class StreamReadConfig {
 
@@ -15,7 +15,7 @@ public class StreamReadConfig {
      * Sets the maximum number length (in chars). The default is 1000 (since Jackson 2.14)
      * @param maxNumLen the maximum number length (in chars)
      * @return this config
-     * @since 2.14
+     * @since 2.15
      */
     public StreamReadConfig maxNumberLength(int maxNumLen) {
         _maxNumLen = maxNumLen;

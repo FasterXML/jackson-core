@@ -80,7 +80,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     /**
      * Optional StreamReadConfig.
      *
-     * @since 2.14
+     * @since 2.15
      */
     protected StreamReadConfig _streamReadConfig;
     
@@ -275,7 +275,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
      *
      * @param streamReadConfig configuration for streaming reads
      * @return this factory
-     * @since 2.14
+     * @since 2.15
      */
     public B streamReadConfig(StreamReadConfig streamReadConfig) {
         _streamReadConfig = streamReadConfig;

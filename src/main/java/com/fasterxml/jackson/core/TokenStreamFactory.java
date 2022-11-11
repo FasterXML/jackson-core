@@ -22,7 +22,7 @@ public abstract class TokenStreamFactory
     /**
      * Optional StreamReadConfig.
      *
-     * @since 2.14
+     * @since 2.15
      */
     protected StreamReadConfig _streamReadConfig;
 

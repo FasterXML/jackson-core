@@ -141,7 +141,7 @@ public class IOContext
 
     /**
      * @return configuration for streaming reads
-     * @since 2.14
+     * @since 2.15
      */
     public StreamReadConfig getStreamReadConfig() {
         return _streamReadConfig;

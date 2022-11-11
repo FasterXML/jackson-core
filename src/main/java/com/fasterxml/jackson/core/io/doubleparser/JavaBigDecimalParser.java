@@ -120,37 +120,6 @@ public class JavaBigDecimalParser {
     }
 
     /**
-     * Convenience method for calling {@link #parseBigDecimal(byte[], int, int)}.
-     *
-     * @param str the string to be parsed, a byte array with characters
-     *            in ISO-8859-1, ASCII or UTF-8 encoding
-     * @return the parsed double value
-     * @throws NumberFormatException if the string can not be parsed
-     */
-    public static BigDecimal parseBigDecimal(byte[] str) throws NumberFormatException {
-        return parseBigDecimal(str, 0, str.length);
-    }
-
-    /**
-     * Parses a {@code FloatingPointLiteral} from a {@code byte}-Array and converts it
-     * into a {@code double} value.
-     *
-     * @param str    the string to be parsed, a byte array with characters
-     *               in ISO-8859-1, ASCII or UTF-8 encoding
-     * @param offset The index of the first byte to parse
-     * @param length The number of bytes to parse
-     * @return the parsed double value
-     * @throws NumberFormatException if the string can not be parsed
-     */
-    public static BigDecimal parseBigDecimal(byte[] str, int offset, int length) throws NumberFormatException {
-        BigDecimal result = new JavaBigDecimalFromByteArray().parseFloatingPointLiteral(str, offset, length);
-        if (result == null) {
-            throw new NumberFormatException("Illegal input");
-        }
-        return result;
-    }
-
-    /**
      * Convenience method for calling {@link #parseBigDecimal(char[], int, int)}.
      *
      * @param str the string to be parsed
@@ -204,23 +173,6 @@ public class JavaBigDecimalParser {
      */
     public static BigDecimal parseBigDecimalOrNull(CharSequence str, int offset, int length) {
         return new JavaBigDecimalFromCharSequence().parseFloatingPointLiteral(str, offset, length);
-    }
-
-    /**
-     * Parses a {@code FloatingPointLiteral} from a {@code byte}-Array and converts it
-     * into a bit pattern that encodes a {@code double} value.
-     * <p>
-     * See {@link #parseBigDecimalOrNull(CharSequence, int, int)} for a usage example.
-     *
-     * @param str    the string to be parsed, a byte array with characters
-     *               in ISO-8859-1, ASCII or UTF-8 encoding
-     * @param offset The index of the first byte to parse
-     * @param length The number of bytes to parse
-     * @return the bit pattern of the parsed value, if the input is legal;
-     * otherwise, {@code -1L}.
-     */
-    public static BigDecimal parseBigDecimalOrNull(byte[] str, int offset, int length) {
-        return new JavaBigDecimalFromByteArray().parseFloatingPointLiteral(str, offset, length);
     }
 
     /**

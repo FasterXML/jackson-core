@@ -194,37 +194,6 @@ public class JavaDoubleParser {
     }
 
     /**
-     * Convenience method for calling {@link #parseDouble(byte[], int, int)}.
-     *
-     * @param str the string to be parsed, a byte array with characters
-     *            in ISO-8859-1, ASCII or UTF-8 encoding
-     * @return the parsed double value
-     * @throws NumberFormatException if the string can not be parsed
-     */
-    public static double parseDouble(byte[] str) throws NumberFormatException {
-        return parseDouble(str, 0, str.length);
-    }
-
-    /**
-     * Parses a {@code FloatingPointLiteral} from a {@code byte}-Array and converts it
-     * into a {@code double} value.
-     *
-     * @param str    the string to be parsed, a byte array with characters
-     *               in ISO-8859-1, ASCII or UTF-8 encoding
-     * @param offset The index of the first byte to parse
-     * @param length The number of bytes to parse
-     * @return the parsed double value
-     * @throws NumberFormatException if the string can not be parsed
-     */
-    public static double parseDouble(byte[] str, int offset, int length) throws NumberFormatException {
-        long bitPattern = new JavaDoubleBitsFromByteArray().parseFloatingPointLiteral(str, offset, length);
-        if (bitPattern == AbstractFloatValueParser.PARSE_ERROR) {
-            throw new NumberFormatException("Illegal input");
-        }
-        return Double.longBitsToDouble(bitPattern);
-    }
-
-    /**
      * Convenience method for calling {@link #parseDouble(char[], int, int)}.
      *
      * @param str the string to be parsed
@@ -278,23 +247,6 @@ public class JavaDoubleParser {
      */
     public static long parseDoubleBits(CharSequence str, int offset, int length) {
         return new JavaDoubleBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
-    }
-
-    /**
-     * Parses a {@code FloatingPointLiteral} from a {@code byte}-Array and converts it
-     * into a bit pattern that encodes a {@code double} value.
-     * <p>
-     * See {@link #parseDoubleBits(CharSequence, int, int)} for a usage example.
-     *
-     * @param str    the string to be parsed, a byte array with characters
-     *               in ISO-8859-1, ASCII or UTF-8 encoding
-     * @param offset The index of the first byte to parse
-     * @param length The number of bytes to parse
-     * @return the bit pattern of the parsed value, if the input is legal;
-     * otherwise, {@code -1L}.
-     */
-    public static long parseDoubleBits(byte[] str, int offset, int length) {
-        return new JavaDoubleBitsFromByteArray().parseFloatingPointLiteral(str, offset, length);
     }
 
     /**

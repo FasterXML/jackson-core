@@ -10,15 +10,15 @@
 package com.fasterxml.jackson.core.io.doubleparser;
 
 /**
- * Parses a {@code float} from a {@link CharSequence}.
+ * Parses a {@code float} from a {@code char} array.
  */
-class FloatBitsFromCharSequence extends AbstractFloatingPointBitsFromCharSequence {
+final class JavaFloatBitsFromCharArray extends AbstractJavaFloatingPointBitsFromCharArray {
 
 
     /**
      * Creates a new instance.
      */
-    public FloatBitsFromCharSequence() {
+    public JavaFloatBitsFromCharArray() {
 
     }
 
@@ -38,19 +38,18 @@ class FloatBitsFromCharSequence extends AbstractFloatingPointBitsFromCharSequenc
     }
 
     @Override
-    long valueOfFloatLiteral(CharSequence str, int startIndex, int endIndex, boolean isNegative,
+    long valueOfFloatLiteral(char[] str, int startIndex, int endIndex, boolean isNegative,
                              long significand, int exponent, boolean isSignificandTruncated,
                              int exponentOfTruncatedSignificand) {
-        float d = FastFloatMath.decFloatLiteralToFloat(isNegative, significand, exponent, isSignificandTruncated, exponentOfTruncatedSignificand);
-        return Float.floatToRawIntBits(Float.isNaN(d) ? Float.parseFloat(str.subSequence(startIndex, endIndex).toString()) : d);
+        float result = FastFloatMath.decFloatLiteralToFloat(isNegative, significand, exponent, isSignificandTruncated, exponentOfTruncatedSignificand);
+        return Float.isNaN(result) ? (long) Float.floatToRawIntBits(Float.parseFloat(new String(str, startIndex, endIndex - startIndex))) : Float.floatToRawIntBits(result);
     }
 
     @Override
     long valueOfHexLiteral(
-            CharSequence str, int startIndex, int endIndex, boolean isNegative, long significand, int exponent,
+            char[] str, int startIndex, int endIndex, boolean isNegative, long significand, int exponent,
             boolean isSignificandTruncated, int exponentOfTruncatedSignificand) {
         float d = FastFloatMath.hexFloatLiteralToFloat(isNegative, significand, exponent, isSignificandTruncated, exponentOfTruncatedSignificand);
-        return Float.floatToRawIntBits(Float.isNaN(d) ? Float.parseFloat(str.subSequence(startIndex, endIndex).toString()) : d);
+        return Float.floatToRawIntBits(Float.isNaN(d) ? Float.parseFloat(new String(str, startIndex, endIndex - startIndex)) : d);
     }
-
 }

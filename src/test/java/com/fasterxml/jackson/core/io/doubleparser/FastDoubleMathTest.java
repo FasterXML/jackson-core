@@ -35,7 +35,7 @@ public class FastDoubleMathTest {
     }
 
     @TestFactory
-    List<DynamicNode> dynamicTestsTryDecFloatToDouble() {
+    public List<DynamicNode> dynamicTestsTryDecFloatToDouble() {
         return Arrays.asList(
                 dynamicTest("Inside Clinger fast path \"1000000000000000000e-340\")", () -> testTryDecFloatToDouble(false, 1000000000000000000L, -325, 1000000000000000000e-325)),
                 //
@@ -57,4 +57,6 @@ public class FastDoubleMathTest {
         double actual = FastDoubleMath.tryDecFloatToDouble(isNegative, significand, power);
         assertEquals(expected, actual);
     }
+
+
 }

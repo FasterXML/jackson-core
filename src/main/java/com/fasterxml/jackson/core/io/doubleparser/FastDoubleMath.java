@@ -10,7 +10,7 @@
 package com.fasterxml.jackson.core.io.doubleparser;
 
 /**
- * This class provides the mathematical functions needed by {@link FastDoubleParser}.
+ * This class provides the mathematical functions needed by {@link JavaDoubleParser}.
  * <p>
  * References:
  * <dl>
@@ -773,7 +773,7 @@ class FastDoubleMath {
      * @param y uint64 factor y
      * @return uint128 product of x and y
      */
-    static UInt128 fullMultiplication(long x, long y) {//before Java 18
+    static UInt128 fullMultiplication(long x, long y) {
         long x0 = x & 0xffffffffL, x1 = x >>> 32;
         long y0 = y & 0xffffffffL, y1 = y >>> 32;
         long p11 = x1 * y1, p01 = x0 * y1;
@@ -787,6 +787,7 @@ class FastDoubleMath {
                 // Add LOW PART and lower half of MIDDLE PART
                 (middle << 32) | (p00 & 0xffffffffL));
     }
+
 
     /**
      * Tries to compute {@code significand * 10^power} exactly using
@@ -1008,7 +1009,6 @@ class FastDoubleMath {
             }
 
             // We have to take a slow path.
-            //return Double.parseDouble(str.toString());
             result = Double.NaN;
 
         } else if (DOUBLE_MIN_EXPONENT_POWER_OF_TEN <= exponent && exponent <= DOUBLE_MAX_EXPONENT_POWER_OF_TEN) {
@@ -1112,8 +1112,43 @@ class FastDoubleMath {
         }
     }
 
-    public static long clamp(long value, long min, long max) {
-        //noinspection ManualMinMaxCalculation
-        return value < min ? min : (value > max ? max : value);
+    /**
+     * Returns {@code a * 10}.
+     * <p>
+     * We compute {@code (a + a * 4) * 2}, which is {@code (a + (a << 2)) << 1}.
+     * <p>
+     * Expected assembly code on x64:
+     * <pre>
+     * lea     rax, [rdi+rdi*4]
+     * add     rax, rax
+     * </pre>
+     * Expected assembly code on aarch64:
+     * <pre>
+     * add     x0, x0, x0, lsl 2
+     * lsl     x0, x0, 1
+     * </pre>
+     */
+    public static long mul10L(long a) {
+        return (a + (a << 2)) << 1;
+    }
+
+    /**
+     * Returns {@code a * 10}.
+     * <p>
+     * We compute {@code (a + a * 4) * 2}, which is {@code (a + (a << 2)) << 1}.
+     * <p>
+     * Expected assembly code on x64:
+     * <pre>
+     * lea     eax, [rdi+rdi*4]
+     * add     eax, eax
+     * </pre>
+     * Expected assembly code on aarch64:
+     * <pre>
+     * add     w0, w0, w0, lsl 2
+     * lsl     w0, w0, 1
+     * </pre>
+     */
+    public static int mul10(int a) {
+        return (a + (a << 2)) << 1;
     }
 }

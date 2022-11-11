@@ -9,16 +9,18 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
+import java.nio.charset.StandardCharsets;
+
 /**
- * Parses a {@code float} from a {@code char} array.
+ * Parses a {@code float} from a {@code byte} array.
  */
-class FloatBitsFromCharArray extends AbstractFloatingPointBitsFromCharArray {
+final class JavaFloatBitsFromByteArray extends AbstractJavaFloatingPointBitsFromByteArray {
 
 
     /**
      * Creates a new instance.
      */
-    public FloatBitsFromCharArray() {
+    public JavaFloatBitsFromByteArray() {
 
     }
 
@@ -38,18 +40,19 @@ class FloatBitsFromCharArray extends AbstractFloatingPointBitsFromCharArray {
     }
 
     @Override
-    long valueOfFloatLiteral(char[] str, int startIndex, int endIndex, boolean isNegative,
+    long valueOfFloatLiteral(byte[] str, int startIndex, int endIndex, boolean isNegative,
                              long significand, int exponent, boolean isSignificandTruncated,
                              int exponentOfTruncatedSignificand) {
         float result = FastFloatMath.decFloatLiteralToFloat(isNegative, significand, exponent, isSignificandTruncated, exponentOfTruncatedSignificand);
-        return Float.isNaN(result) ? (long) Float.floatToRawIntBits(Float.parseFloat(new String(str, startIndex, endIndex - startIndex))) : Float.floatToRawIntBits(result);
+        return Float.floatToRawIntBits(Float.isNaN(result) ? Float.parseFloat(new String(str, startIndex, endIndex - startIndex, StandardCharsets.ISO_8859_1)) : result);
     }
 
     @Override
     long valueOfHexLiteral(
-            char[] str, int startIndex, int endIndex, boolean isNegative, long significand, int exponent,
+            byte[] str, int startIndex, int endIndex, boolean isNegative, long significand, int exponent,
             boolean isSignificandTruncated, int exponentOfTruncatedSignificand) {
         float d = FastFloatMath.hexFloatLiteralToFloat(isNegative, significand, exponent, isSignificandTruncated, exponentOfTruncatedSignificand);
-        return Float.floatToRawIntBits(Float.isNaN(d) ? Float.parseFloat(new String(str, startIndex, endIndex - startIndex)) : d);
+        return Float.floatToRawIntBits(Float.isNaN(d) ? Float.parseFloat(new String(str, startIndex, endIndex - startIndex, StandardCharsets.ISO_8859_1)) : d);
     }
+
 }

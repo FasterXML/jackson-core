@@ -9,7 +9,9 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
-final class TestData {
+import java.util.Objects;
+
+public final class TestData {
     private final String title;
     private final String input;
     private final int charOffset;
@@ -20,13 +22,13 @@ final class TestData {
     private final float expectedFloatValue;
     private final boolean valid;
 
-    TestData(String title,
-             String input,
-             int charOffset, int charLength,
-             int byteOffset, int byteLength,
-             double expectedDoubleValue,
-             float expectedFloatValue,
-             boolean valid) {
+    public TestData(String title,
+                    String input,
+                    int charOffset, int charLength,
+                    int byteOffset, int byteLength,
+                    double expectedDoubleValue,
+                    float expectedFloatValue,
+                    boolean valid) {
         this.title = title;
         this.input = input;
         this.charOffset = charOffset;
@@ -101,4 +103,44 @@ final class TestData {
     public boolean valid() {
         return valid;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        TestData that = (TestData) obj;
+        return Objects.equals(this.title, that.title) &&
+                Objects.equals(this.input, that.input) &&
+                this.charOffset == that.charOffset &&
+                this.charLength == that.charLength &&
+                this.byteOffset == that.byteOffset &&
+                this.byteLength == that.byteLength &&
+                Double.doubleToLongBits(this.expectedDoubleValue) == Double.doubleToLongBits(that.expectedDoubleValue) &&
+                Float.floatToIntBits(this.expectedFloatValue) == Float.floatToIntBits(that.expectedFloatValue) &&
+                this.valid == that.valid;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, input, charOffset, charLength, byteOffset, byteLength, expectedDoubleValue, expectedFloatValue, valid);
+    }
+
+    @Override
+    public String toString() {
+        return "TestData[" +
+                "title=" + title + ", " +
+                "input=" + input + ", " +
+                "charOffset=" + charOffset + ", " +
+                "charLength=" + charLength + ", " +
+                "byteOffset=" + byteOffset + ", " +
+                "byteLength=" + byteLength + ", " +
+                "expectedDoubleValue=" + expectedDoubleValue + ", " +
+                "expectedFloatValue=" + expectedFloatValue + ", " +
+                "valid=" + valid + ']';
+    }
+
 }

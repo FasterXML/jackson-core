@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class AbstractFastXParserTest {
-    static List<TestData> createTestDataForInfinity() {
+public abstract class AbstractJavaFloatValueParserTest extends AbstractFloatValueParserTest {
+    protected List<TestData> createTestDataForNan() {
         return Arrays.asList(
                 new TestData("NaN", Double.NaN, Float.NaN),
                 new TestData("+NaN", Double.NaN, Float.NaN),
@@ -28,7 +28,7 @@ public abstract class AbstractFastXParserTest {
         );
     }
 
-    static List<TestData> createTestDataForNaN() {
+    protected List<TestData> createTestDataForInfinity() {
         return Arrays.asList(
                 new TestData("Infinity", Double.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
                 new TestData("+Infinity", Double.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
@@ -43,55 +43,7 @@ public abstract class AbstractFastXParserTest {
         );
     }
 
-    static List<TestData> createDataForLimits() {
-        return Arrays.asList(
-                new TestData("Double Dec Limit a", Double.toString(Double.MIN_VALUE), Double.MIN_VALUE, (float) Double.MIN_VALUE),
-                new TestData("Double Dec Limit b", Double.toString(Double.MAX_VALUE), Double.MAX_VALUE, (float) Double.MAX_VALUE),
-                new TestData("Double Dec Limit c", Double.toString(Math.nextUp(0.0)), Math.nextUp(0.0), (float) Math.nextUp(0.0)),
-                new TestData("Double Dec Limit d", Double.toString(Math.nextDown(0.0)), Math.nextDown(0.0), (float) Math.nextDown(0.0)),
-                new TestData("Float Dec Limit a", Float.toString(Float.MIN_VALUE), 1.4E-45, Float.MIN_VALUE),
-                new TestData("Float Dec Limit b", Float.toString(Float.MAX_VALUE), 3.4028235E38, Float.MAX_VALUE),
-                new TestData("Float Dec Limit c", Float.toString(Math.nextUp(0.0f)), 1.4E-45, Math.nextUp(0.0f)),
-                new TestData("Float Dec Limit d", Float.toString(Math.nextDown(0.0f)), -1.4E-45, Math.nextDown(0.0f)),
-
-                new TestData("Double Hex Limit a", Double.toHexString(Double.MIN_VALUE), Double.MIN_VALUE, (float) Double.MIN_VALUE),
-                new TestData("Double Hex Limit b", Double.toHexString(Double.MAX_VALUE), Double.MAX_VALUE, (float) Double.MAX_VALUE),
-                new TestData("Double Hex Limit c", Double.toHexString(Math.nextUp(0.0)), Math.nextUp(0.0), 0f),
-                new TestData("Double Hex Limit d", Double.toHexString(Math.nextDown(0.0)), Math.nextDown(0.0), -0f),
-
-                new TestData("Float Hex Limit", Float.toHexString(Float.MIN_VALUE), Float.MIN_VALUE, Float.MIN_VALUE),
-                new TestData("Float Hex Limit", Float.toHexString(Float.MAX_VALUE), Float.MAX_VALUE, Float.MAX_VALUE),
-                new TestData("Float Hex Limit", Float.toHexString(Math.nextUp(0.0f)), Math.nextUp(0.0f), Math.nextUp(0.0f)),
-                new TestData("Float Hex Limit", Float.toHexString(Math.nextDown(0.0f)), Math.nextDown(0.0f), Math.nextDown(0.0f))
-        );
-    }
-
-    static List<TestData> createDataForClingerInputClasses() {
-        return Arrays.asList(
-                new TestData("Dec Double: Inside Clinger fast path \"1000000000000000000e-325\")", "1000000000000000000e-325", 1000000000000000000e-325d, 0f),
-                new TestData("Dec Double: Inside Clinger fast path (max_clinger_significand, max_clinger_exponent)", "9007199254740991e22", 9007199254740991e22d, 9007199254740991e22f),
-                new TestData("Dec Double: Outside Clinger fast path (max_clinger_significand, max_clinger_exponent + 1)", "9007199254740991e23", 9007199254740991e23d, Float.POSITIVE_INFINITY),
-                new TestData("Dec Double: Outside Clinger fast path (max_clinger_significand + 1, max_clinger_exponent)", "9007199254740992e22", 9007199254740992e22d, 9007199254740992e22f),
-                new TestData("Dec Double: Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", "1e-22", 1e-22d, 1e-22f),
-                new TestData("Dec Double: Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", "1e-23", 1e-23d, 1e-23f),
-                new TestData("Dec Double: Outside Clinger fast path, semi-fast path, 9999999999999999999", "1e23", 1e23d, 1e23f),
-                new TestData("Dec Double: Outside Clinger fast path, bail-out in semi-fast path, 1e23", "1e23", 1e23d, 1e23f),
-                new TestData("Dec Double: Outside Clinger fast path, mantissa overflows in semi-fast path, 7.2057594037927933e+16", "7.2057594037927933e+16", 7.2057594037927933e+16d, 7.2057594037927933e+16f),
-                new TestData("Dec Double: Outside Clinger fast path, bail-out in semi-fast path, 7.3177701707893310e+15", "7.3177701707893310e+15", 7.3177701707893310e+15d, 7.3177701707893310e+15f),
-                new TestData("Hex Double: Inside Clinger fast path (max_clinger_significand)", "0x1fffffffffffffp74", 0x1fffffffffffffp74, 0x1fffffffffffffp74f),
-                new TestData("Hex Double: Inside Clinger fast path (max_clinger_significand), negative", "-0x1fffffffffffffp74", -0x1fffffffffffffp74, -0x1fffffffffffffp74f),
-                new TestData("Hex Double: Outside Clinger fast path (max_clinger_significand, max_clinger_exponent + 1)", "0x1fffffffffffffp74", 0x1fffffffffffffp74, 0x1fffffffffffffp74f),
-                new TestData("Hex Double: Outside Clinger fast path (max_clinger_significand + 1, max_clinger_exponent)", "0x20000000000000p74", 0x20000000000000p74, 0x20000000000000p74f),
-                new TestData("Hex Double: Inside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent)", "0x1p-74", 0x1p-74, 0x1p-74f),
-                new TestData("Hex Double: Outside Clinger fast path (min_clinger_significand + 1, min_clinger_exponent - 1)", "0x1p-75", 0x1p-75, 0x1p-75f),
-                new TestData("-2.97851206854973E-75", -2.97851206854973E-75, -0f),
-                new TestData("3.0286208942000664E-69", 3.0286208942000664E-69, 0f),
-                new TestData("3.7587182468424695418288325e-309", 3.7587182468424695418288325e-309, 0f),
-                new TestData("10000000000000000000000000000000000000000000e+308", Double.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
-        );
-    }
-
-    static List<TestData> createDataForBadStrings() {
+    protected List<TestData> createDataForBadStrings() {
         return Arrays.asList(
                 new TestData("empty", ""),
                 new TestData("+"),
@@ -121,8 +73,10 @@ public abstract class AbstractFastXParserTest {
         );
     }
 
-    static List<TestData> createDataForLegalDecStrings() {
+    protected List<TestData> createDataForLegalDecStrings() {
         return Arrays.asList(
+                new TestData("0", 0, 0f),
+                new TestData("00", 0, 0f),
                 new TestData("1", 1, 1f),
                 new TestData("1.2", 1.2, 1.2f),
                 new TestData("1.2e3", 1.2e3, 1.2e3f),
@@ -182,12 +136,11 @@ public abstract class AbstractFastXParserTest {
                 new TestData("   1.2e3   ", 1.2e3, 1.2e3f),
                 new TestData("1234567890", 1234567890d, 1234567890f),
                 new TestData("000000000", 0d, 0f),
-                new TestData("0000.0000", 0d, 0f),
                 new TestData("0000.0000", 0d, 0f)
         );
     }
 
-    static List<TestData> createDataForLegalHexStrings() {
+    List<TestData> createDataForLegalHexStrings() {
         return Arrays.asList(
                 new TestData("0xap2", 0xap2, 0xap2f),
 
@@ -210,14 +163,7 @@ public abstract class AbstractFastXParserTest {
         );
     }
 
-    static List<TestData> createDataForLegalCroppedStrings() {
-        return Arrays.asList(
-                new TestData("x1y", 1, 1f, 1, 1),
-                new TestData("xx-0x1p2yyy", -0x1p2, -0x1p2f, 2, 6)
-        );
-    }
-
-    static List<TestData> createTestDataForInputClassesInMethodParseFloatValue() {
+    protected List<TestData> createTestDataForInputClassesInMethodParseFloatValue() {
         return Arrays.asList(
                 new TestData("parseFloatValue(): charOffset too small", "3.14", -1, 4, -1, 4, 3d, 3f, false),
                 new TestData("parseFloatValue(): charOffset too big", "3.14", 8, 4, 8, 4, 3d, 3f, false),
@@ -227,7 +173,7 @@ public abstract class AbstractFastXParserTest {
                 new TestData("parseFloatValue(): Significand with trailing whitespace", "3   ", 0, 4, 0, 4, 3d, 3f, true),
                 new TestData("parseFloatValue(): Empty String", "", 0, 0, 0, 0, 0d, 0f, false),
                 new TestData("parseFloatValue(): Blank String", "   ", 0, 3, 0, 3, 0d, 0f, false),
-                new TestData("parseFloatValue(): Very long non-blank String", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0, 66, 0, 66, 0d, 0f, false),
+                new TestData("parseFloatValue(): Very long non-blank String", Strings.repeat("a",66), 0, 66, 0, 66, 0d, 0f, false),
                 new TestData("parseFloatValue(): Plus Sign", "+", 0, 1, 0, 1, 0d, 0f, false),
                 new TestData("parseFloatValue(): Negative Sign", "-", 0, 1, 0, 1, 0d, 0f, false),
                 new TestData("parseFloatValue(): Infinity", "Infinity", 0, 8, 0, 8, Double.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, true),
@@ -237,6 +183,7 @@ public abstract class AbstractFastXParserTest {
                 new TestData("parseNaN(): Na (missing last char)", "Na", 0, 2, 0, 2, 0d, 0f, false),
                 new TestData("parseNaN(): Nan (bad last char)", "Nan", 0, 3, 0, 3, 0d, 0f, false),
                 new TestData("parseFloatValue(): Leading zero", "03", 0, 2, 0, 2, 3d, 3f, true),
+                new TestData("parseFloatValue(): Leading zeroes", "003", 0, 3, 0, 3, 3d, 3f, true),
                 new TestData("parseFloatValue(): Leading zero x", "0x3", 0, 3, 0, 3, 0d, 0f, false),
                 new TestData("parseFloatValue(): Leading zero X", "0X3", 0, 3, 0, 3, 0d, 0f, false),
 
@@ -291,17 +238,27 @@ public abstract class AbstractFastXParserTest {
         );
     }
 
-    static List<TestData> createAllTestData() {
+    protected List<TestData> createDataForLegalCroppedStrings() {
+        return Arrays.asList(
+                new TestData("x1y", 1, 1f, 1, 1),
+                new TestData("xx-0x1p2yyy", -0x1p2, -0x1p2f, 2, 6)
+        );
+    }
+
+    List<TestData> createAllTestData() {
         List<TestData> list = new ArrayList<>();
-        list.addAll(createTestDataForNaN());
         list.addAll(createTestDataForInfinity());
-        list.addAll(createDataForLimits());
+        list.addAll(createTestDataForNan());
+        list.addAll(createDataForDecimalLimits());
+        list.addAll(createDataForHexadecimalLimits());
         list.addAll(createDataForBadStrings());
         list.addAll(createDataForLegalDecStrings());
         list.addAll(createDataForLegalHexStrings());
-        list.addAll(createDataForClingerInputClasses());
+        list.addAll(createDataForDecimalClingerInputClasses());
+        list.addAll(createDataForHexadecimalClingerInputClasses());
         list.addAll(createDataForLegalCroppedStrings());
         list.addAll(createTestDataForInputClassesInMethodParseFloatValue());
+        list.addAll(createDataForSignificandDigitsInputClasses());
         return list;
     }
 

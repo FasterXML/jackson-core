@@ -9,16 +9,13 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.DOUBLE_MIN_EXPONENT_POWER_OF_TEN;
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_128;
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_64;
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.fullMultiplication;
+import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.*;
 
 /**
  * This class complements {@link FastDoubleMath} with methods for
  * converting {@code FloatingPointLiteral} productions to floats.
  * <p>
- * See {@link com.fasterxml.jackson.core.io.doubleparser} for a description of
+ * See {@link JavaDoubleParser} for a description of
  * {@code FloatingPointLiteral}.
  */
 class FastFloatMath {

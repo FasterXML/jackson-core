@@ -23,9 +23,9 @@ No changes since 2.14
 #478: Provide implementation of async JSON parser fed by `ByteBufferFeeder`
  (requested by Arjen P)
  (contributed by @pjfanning)
-#577: Allow use of faster floating-point number parsing (Schubfach) with
+#577: Allow use of faster floating-point number parsing with
   `StreamReadFeature.USE_FAST_DOUBLE_PARSER`
- (contributed by @pjfanning)
+ (contributed by @wrandelshofer and @pjfanning)
 #684: Add "JsonPointer#appendProperty" and "JsonPointer#appendIndex"
  (contributed by Ilya G)
 #715: Allow TokenFilters to keep empty arrays and objects

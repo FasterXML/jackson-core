@@ -10,19 +10,24 @@
 package com.fasterxml.jackson.core.io.doubleparser;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
- * Provides static method for parsing a {@code double} from a
+ * Provides static method for parsing a {@link BigDecimal} from a
  * {@link CharSequence}, {@code char} array or {@code byte} array.
  * <p>
  * <b>Syntax</b>
  * <p>
- * Leading and trailing whitespace characters in {@code str} are ignored.
- * Whitespace is removed as if by the {@link String#trim()} method;
- * that is, characters in the range [U+0000,U+0020].
- * <p>
- * The rest of {@code str} should constitute a Java {@code FloatingPointLiteral}
- * as described by the lexical syntax rules shown below:
+ * Parses a {@code BigDecimalString} that is compatible with
+ * the grammar specified in {@link BigDecimal#BigDecimal(String)}.
+ * The range of the input values is limited as follows:
+ * <ol>
+ *     <li>The significand is limited to 536,870,919 digits.
+ *     <li>The exponent is limited to the range from
+ *     {@link Integer#MIN_VALUE} (exclusive) to
+ *     {@link Integer#MAX_VALUE} (inclusive)</li></li>
+ * </ol>
+ * Formal specification of the grammar:
  * <blockquote>
  * <dl>
  * <dt><i>BigDecimalString:</i></dt>
@@ -68,11 +73,32 @@ import java.math.BigDecimal;
  * <dd><i>[Sign] Digits</i>
  * </dl>
  *
- *
  * <dl>
  * <dt><i>Digits:</i>
  * <dd><i>Digit {Digit}</i>
  * </dl>
+ * <p>
+ * Expected character lengths for values produced by {@link BigDecimal#toString}:
+ * <ul>
+ *     <li>{@code Significand}: 1 to 1_292_782_621 digits.
+ *     <p>
+ *     The significand of a {@link BigDecimal} uses a {@link BigInteger}
+ *     to represent its significand. A {@link BigInteger} can work with up to
+ *     {@code (1L << 28) - 4 = 2_147_483_616} significant bytes. A decimal digit
+ *     needs about {@code 3.322265625} bits. This would allow for 5_171_130_447L
+ *     digits. However, we can not have Strings that are longer than
+ *     {@link Integer#MAX_VALUE} - 4.
+ *     <p>
+ *     However the constructor {@link BigInteger#BigInteger(String)}
+ *     checks if the number of bits is less than {@code (1L << 32) - 31}.
+ *     This yields the final limit of 1_292_782_621 decimal digits.
+ *     </li>
+ *     <li>{@code SignedInteger} in exponent: 1 to 10 digits. Exponents
+ *     with more digits would yield to a {@link BigDecimal#scale()} that
+ *     does not fit into a {@code int}-value.</li>
+ *     <li>{@code BigDecimalString}: 1 to 536_870_919+4+10=536_870_933 characters,
+ *     e.g. "-1.234567890....12345E-2147483647"</li>
+ * </ul>
  * <p>
  * References:
  * <dl>
@@ -112,7 +138,7 @@ public class JavaBigDecimalParser {
      * @throws NumberFormatException if the string can not be parsed
      */
     public static BigDecimal parseBigDecimal(CharSequence str, int offset, int length) throws NumberFormatException {
-        BigDecimal result = new JavaBigDecimalFromCharSequence().parseFloatingPointLiteral(str, offset, length);
+        BigDecimal result = new JavaBigDecimalFromCharSequence().parseBigDecimalString(str, offset, length);
         if (result == null) {
             throw new NumberFormatException("Illegal input");
         }
@@ -144,7 +170,7 @@ public class JavaBigDecimalParser {
      * @throws NumberFormatException if the string can not be parsed
      */
     public static BigDecimal parseBigDecimal(char[] str, int offset, int length) throws NumberFormatException {
-        BigDecimal result = new JavaBigDecimalFromCharArray().parseFloatingPointLiteral(str, offset, length);
+        BigDecimal result = new JavaBigDecimalFromCharArray().parseBigDecimalString(str, offset, length);
         if (result == null) {
             throw new NumberFormatException("Illegal input");
         }
@@ -172,7 +198,7 @@ public class JavaBigDecimalParser {
      * otherwise, {@code -1L}.
      */
     public static BigDecimal parseBigDecimalOrNull(CharSequence str, int offset, int length) {
-        return new JavaBigDecimalFromCharSequence().parseFloatingPointLiteral(str, offset, length);
+        return new JavaBigDecimalFromCharSequence().parseBigDecimalString(str, offset, length);
     }
 
     /**
@@ -189,6 +215,6 @@ public class JavaBigDecimalParser {
      * otherwise, {@code -1L}.
      */
     public static BigDecimal parseBigDecimalOrNull(char[] str, int offset, int length) {
-        return new JavaBigDecimalFromCharArray().parseFloatingPointLiteral(str, offset, length);
+        return new JavaBigDecimalFromCharArray().parseBigDecimalString(str, offset, length);
     }
 }

@@ -57,7 +57,7 @@ public class EightDigitsSwarTest extends AbstractEightDigitsTest {
 
     private static void testDecUtf16(String s, int offset, int expected) {
         char[] chars = s.toCharArray();
-        int actual = FastDoubleSwar.tryToParseEightDigitsUtf16(chars, offset);
+        int actual = FastDoubleSwar.tryToParseEightDigits(chars, offset);
         assertEquals(expected, actual);
         long first = chars[offset + 0] | ((long) chars[offset + 1] << 16) | ((long) chars[offset + 2] << 32) | ((long) chars[offset + 3] << 48);
         long second = chars[offset + 4] | ((long) chars[offset + 5] << 16) | ((long) chars[offset + 6] << 32) | ((long) chars[offset + 7] << 48);
@@ -74,7 +74,7 @@ public class EightDigitsSwarTest extends AbstractEightDigitsTest {
             assertEquals(expected, actual);
         }
         char[] chars = s.toCharArray();
-        actual = FastDoubleSwar.tryToParseEightHexDigitsUtf16(chars, offset);
+        actual = FastDoubleSwar.tryToParseEightHexDigits(chars, offset);
         if (expected < 0) {
             assertTrue(actual < 0);
         } else {
@@ -97,7 +97,7 @@ public class EightDigitsSwarTest extends AbstractEightDigitsTest {
             assertEquals(expected, actual);
         }
 
-        actual = FastDoubleSwar.tryToParseEightHexDigitsUtf8(s.getBytes(StandardCharsets.UTF_8), offset);
+        actual = FastDoubleSwar.tryToParseEightHexDigits(s.getBytes(StandardCharsets.UTF_8), offset);
         if (expected < 0) {
             assertTrue(actual < 0);
         } else {

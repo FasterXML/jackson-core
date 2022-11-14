@@ -47,7 +47,7 @@ class FastDoubleSwar {
      */
 
     @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
-    public static int tryToParseEightDigitsUtf16(char[] a, int offset) {
+    public static int tryToParseEightDigits(char[] a, int offset) {
         // Note: Performance of MemorySegment is awful unless it gets compiled by C2.
         /*
         MemorySegment seg = MemorySegment.ofArray(a);
@@ -66,8 +66,7 @@ class FastDoubleSwar {
         return FastDoubleSwar.tryToParseEightDigitsUtf16(first, second);
     }
 
-    @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
-    public static int tryToParseFourDigitsUtf16(char[] a, int offset) {
+    public static int tryToParseFourDigits(char[] a, int offset) {
         /*
         // Note: Performance of MemorySegment is awful unless it gets compiled by C2.
         MemorySegment seg = MemorySegment.ofArray(a);
@@ -81,8 +80,7 @@ class FastDoubleSwar {
         return FastDoubleSwar.tryToParseFourDigitsUtf16(first);
     }
 
-    @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
-    public static int parseEightDigitsUtf16(char[] a, int offset) {
+    public static int parseEightDigits(char[] a, int offset) {
         /*
         // Note: Performance of MemorySegment is awful unless it gets compiled by C2.
         MemorySegment seg = MemorySegment.ofArray(a);
@@ -210,6 +208,19 @@ class FastDoubleSwar {
                 + (int) (fval * 0x03e8_0064_000a_0001L >>> 48) * 10000;
     }
 
+    public static boolean isEightDigitsUtf16(long first, long second) {
+        long fval = first - 0x0030_0030_0030_0030L;
+        long sval = second - 0x0030_0030_0030_0030L;
+
+        // Create a predicate for all bytes which are smaller than '0' (0x0030)
+        // or greater than '9' (0x0039).
+        // We have 0x007f - 0x0039 = 0x0046.
+        // The predicate is true if the hsb of a byte is set: (predicate & 0xff80) != 0.
+        long fpre = first + 0x0046_0046_0046_0046L | fval;
+        long spre = second + 0x0046_0046_0046_0046L | sval;
+        return ((fpre | spre) & 0xff80_ff80_ff80_ff80L) == 0L;
+    }
+
     public static int tryToParseFourDigitsUtf16(long first) {
         long fval = first - 0x0030_0030_0030_0030L;
 
@@ -246,15 +257,67 @@ class FastDoubleSwar {
         return tryToParseEightDigitsUtf8((long) readLongFromByteArrayLittleEndian(a, offset));
     }
 
-    public static int tryToParseFourDigitsUtf8(byte[] a, int offset) {
+
+
+    public static boolean isEightDigits(byte[] a, int offset) {
+        return isEightDigitsUtf8(readLongFromByteArrayLittleEndian(a, offset));
+    }
+
+    public static boolean isEightDigits(char[] a, int offset) {
+        long first = a[offset]
+                | (long) a[offset + 1] << 16
+                | (long) a[offset + 2] << 32
+                | (long) a[offset + 3] << 48;
+        long second = a[offset + 4]
+                | (long) a[offset + 5] << 16
+                | (long) a[offset + 6] << 32
+                | (long) a[offset + 7] << 48;
+
+        return isEightDigitsUtf16(first, second);
+    }
+
+    public static boolean isEightDigits(CharSequence a, int offset) {
+        boolean success = true;
+        for (int i = 0; i < 8; i++) {
+            char ch = a.charAt(i + offset);
+            success &= '0' <= ch && ch <= '9';
+        }
+        return success;
+    }
+
+    public static int tryToParseFourDigits(byte[] a, int offset) {
         return tryToParseFourDigitsUtf8((int) readIntFromByteArrayLittleEndian(a, offset));
     }
 
-    public static int parseEightDigitsUtf8(byte[] a, int offset) {
+    public static int parseEightDigits(byte[] a, int offset) {
         return parseEightDigitsUtf8((long) readLongFromByteArrayLittleEndian(a, offset));
     }
 
-    public static int parseFourDigitsUtf8(byte[] a, int offset) {
+    public static int parseUpTo7Digits(byte[] str, int from, int to) {
+        int result = 0;
+        for (; from < to; from++) {
+            result = 10 * (result) + str[from] - '0';
+        }
+        return result;
+    }
+
+    public static int parseUpTo7Digits(char[] str, int from, int to) {
+        int result = 0;
+        for (; from < to; from++) {
+            result = 10 * (result) + str[from] - '0';
+        }
+        return result;
+    }
+
+    public static int parseUpTo7Digits(CharSequence str, int from, int to) {
+        int result = 0;
+        for (; from < to; from++) {
+            result = 10 * (result) + str.charAt(from) - '0';
+        }
+        return result;
+    }
+
+    public static int parseFourDigits(byte[] a, int offset) {
         return parseFourDigitsUtf8((int) readIntFromByteArrayLittleEndian(a, offset));
     }
 
@@ -292,6 +355,18 @@ class FastDoubleSwar {
         val = (val & 0xff_000000ffL) * (100 + (100_0000L << 32))
                 + (val >>> 16 & 0xff_000000ffL) * (1 + (1_0000L << 32)) >>> 32;
         return (int) val;
+    }
+
+    public static int countUpToEightDigitsUtf8(long chunk) {
+        long val = chunk - 0x3030303030303030L;
+        long predicate = ((chunk + 0x4646464646464646L) | val) & 0x8080808080808080L;
+        return predicate == 0L ? 8 : Long.numberOfTrailingZeros(predicate) >> 3;
+    }
+
+    public static boolean isEightDigitsUtf8(long chunk) {
+        long val = chunk - 0x3030303030303030L;
+        long predicate = ((chunk + 0x4646464646464646L) | val) & 0x8080808080808080L;
+        return predicate == 0L;
     }
 
     public static int tryToParseFourDigitsUtf8(int chunk) {
@@ -341,7 +416,7 @@ class FastDoubleSwar {
      * @return the parsed number,
      * returns a negative value if {@code value} does not contain 8 hex digits
      */
-    public static long tryToParseEightHexDigitsUtf16(char[] chars, int offset) {
+    public static long tryToParseEightHexDigits(char[] chars, int offset) {
         // Performance: We extract the chars in two steps so that we
         //              can benefit from out of order execution in the CPU.
         long first = (long) chars[offset] << 48
@@ -386,6 +461,55 @@ class FastDoubleSwar {
     }
 
     /**
+     * Tries to parse four hex digits from a long using the
+     * 'SIMD within a register technique' (SWAR).
+     *
+     * @param chunk contains 4 utf-16 characters in big endian order
+     * @return the parsed number,
+     * returns a negative value if {@code value} does not contain 8 digits
+     */
+    public static long tryToParseFourHexDigitsUtf16(long chunk) {
+        // The following code is based on the technique presented in the paper
+        // by Leslie Lamport.
+
+
+        // Subtract character '0' (0x0030) from each of the four characters
+        long vec = chunk - 0x0030_0030_0030_0030L;
+
+        // Create a predicate for all bytes which are greater than '9'-'0' (0x0009).
+        // The predicate is true if the hsb of a byte is set: (predicate & 0xa000) != 0.
+        long gt_09 = vec + (0x0009_0009_0009_0009L ^ 0x7fff_7fff_7fff_7fffL);
+        gt_09 = gt_09 & 0x8000_8000_8000_8000L;
+        // Create a predicate for all bytes which are greater or equal 'a'-'0' (0x0030).
+        // The predicate is true if the hsb of a byte is set.
+        long ge_30 = vec + (0x0030_0030_0030_0030L ^ 0x7fff_7fff_7fff_7fffL);
+        ge_30 = ge_30 & 0x8000_8000_8000_8000L;
+
+        // Create a predicate for all bytes which are smaller equal than 'f'-'0' (0x0037).
+        long le_37 = 0x0037_0037_0037_0037L + (vec ^ 0x7fff_7fff_7fff_7fffL);
+        // Not needed, because we are going to and this value with ge_30 anyway.
+        //le_37 = le_37 & 0x8000_8000_8000_8000L;
+
+
+        // If a character is greater than '9' then it must be greater equal 'a'
+        // and smaller equal 'f'.
+        if (gt_09 != (ge_30 & le_37)) {
+            return -1;
+        }
+
+        // Expand the predicate to a char mask
+        long gt_09mask = (gt_09 >>> 15) * 0xffffL;
+
+        // Subtract 'a'-'0'+10 (0x0027) from all bytes that are greater than 0x09.
+        long v = vec & ~gt_09mask | vec - (0x0027_0027_0027_0027L & gt_09mask);
+
+        // Compact all nibbles
+        long v2 = v | v >>> 12;
+        long v5 = (v2 | v2 >>> 24) & 0xffffL;
+
+        return v5;
+    }
+    /**
      * Tries to parse eight hex digits from a byte array using the
      * 'SIMD within a register technique' (SWAR).
      *
@@ -393,9 +517,10 @@ class FastDoubleSwar {
      * @param offset the offset of the first character in {@code a}
      *               returns a negative value if {@code value} does not contain 8 digits
      */
-    public static long tryToParseEightHexDigitsUtf8(byte[] a, int offset) {
+    public static long tryToParseEightHexDigits(byte[] a, int offset) {
         return tryToParseEightHexDigitsUtf8((long) readLongFromByteArrayBigEndian(a, offset));
     }
+
 
     /**
      * Tries to parse eight digits from a long using the
@@ -448,55 +573,7 @@ class FastDoubleSwar {
 
         return v5;
     }
-    /**
-     * Tries to parse four hex digits from a long using the
-     * 'SIMD within a register technique' (SWAR).
-     *
-     * @param chunk contains 4 utf-16 characters in big endian order
-     * @return the parsed number,
-     * returns a negative value if {@code value} does not contain 8 digits
-     */
-    public static long tryToParseFourHexDigitsUtf16(long chunk) {
-        // The following code is based on the technique presented in the paper
-        // by Leslie Lamport.
 
-
-        // Subtract character '0' (0x0030) from each of the four characters
-        long vec = chunk - 0x0030_0030_0030_0030L;
-
-        // Create a predicate for all bytes which are greater than '9'-'0' (0x0009).
-        // The predicate is true if the hsb of a byte is set: (predicate & 0xa000) != 0.
-        long gt_09 = vec + (0x0009_0009_0009_0009L ^ 0x7fff_7fff_7fff_7fffL);
-        gt_09 = gt_09 & 0x8000_8000_8000_8000L;
-        // Create a predicate for all bytes which are greater or equal 'a'-'0' (0x0030).
-        // The predicate is true if the hsb of a byte is set.
-        long ge_30 = vec + (0x0030_0030_0030_0030L ^ 0x7fff_7fff_7fff_7fffL);
-        ge_30 = ge_30 & 0x8000_8000_8000_8000L;
-
-        // Create a predicate for all bytes which are smaller equal than 'f'-'0' (0x0037).
-        long le_37 = 0x0037_0037_0037_0037L + (vec ^ 0x7fff_7fff_7fff_7fffL);
-        // Not needed, because we are going to and this value with ge_30 anyway.
-        //le_37 = le_37 & 0x8000_8000_8000_8000L;
-
-
-        // If a character is greater than '9' then it must be greater equal 'a'
-        // and smaller equal 'f'.
-        if (gt_09 != (ge_30 & le_37)) {
-            return -1;
-        }
-
-        // Expand the predicate to a char mask
-        long gt_09mask = (gt_09 >>> 15) * 0xffffL;
-
-        // Subtract 'a'-'0'+10 (0x0027) from all bytes that are greater than 0x09.
-        long v = vec & ~gt_09mask | vec - (0x0027_0027_0027_0027L & gt_09mask);
-
-        // Compact all nibbles
-        long v2 = v | v >>> 12;
-        long v5 = (v2 | v2 >>> 24) & 0xffffL;
-
-        return v5;
-    }
     public static long readLongFromByteArrayLittleEndian(byte[] a, int offset) {
         return ((a[offset + 7] & 0xffL) << 56)
                 | ((a[offset + 6] & 0xffL) << 48)
@@ -509,10 +586,24 @@ class FastDoubleSwar {
     }
 
     public static int readIntFromByteArrayLittleEndian(byte[] a, int offset) {
-        return   ((a[offset + 3] & 0xff) << 24)
+        return ((a[offset + 3] & 0xff) << 24)
                 | ((a[offset + 2] & 0xff) << 16)
                 | ((a[offset + 1] & 0xff) << 8)
                 | (a[offset] & 0xff);
+    }
+
+    public static int readIntFromByteArrayBigEndian(byte[] a, int offset) {
+        return ((a[offset] & 0xff) << 24)
+                | ((a[offset + 1] & 0xff) << 16)
+                | ((a[offset + 2] & 0xff) << 8)
+                | (a[offset + 3] & 0xff);
+    }
+
+    public static void writeIntFromByteArrayBigEndian(byte[] a, int offset, int v) {
+        a[offset] = (byte) (v >>> 24);
+        a[offset + 1] = (byte) (v >>> 16);
+        a[offset + 2] = (byte) (v >>> 8);
+        a[offset + 3] = (byte) v;
     }
 
     public static long readLongFromByteArrayBigEndian(byte[] a, int offset) {

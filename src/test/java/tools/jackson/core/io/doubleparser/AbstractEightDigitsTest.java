@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 public abstract class AbstractEightDigitsTest {
     @TestFactory
-    List<DynamicNode> dynamicTestsIllegalEightDecDigitsLiterals() {
+    public List<DynamicNode> dynamicTestsIllegalEightDecDigitsLiterals() {
         return Arrays.asList(
                 dynamicTest("1234567x", () -> testDec("1234567x", 0, -1)),
                 dynamicTest("x7654321", () -> testDec("x7654321", 0, -1)),
@@ -33,7 +33,7 @@ public abstract class AbstractEightDigitsTest {
     }
 
     @TestFactory
-    List<DynamicNode> dynamicTestsIllegalEightHexDigitsLiterals() {
+    public List<DynamicNode> dynamicTestsIllegalEightHexDigitsLiterals() {
         return Arrays.asList(
                 dynamicTest("1234567x", () -> testHex("1234567x", 0, -1L)),
                 dynamicTest("x7654321", () -> testHex("x7654321", 0, -1L)),
@@ -43,7 +43,7 @@ public abstract class AbstractEightDigitsTest {
     }
 
     @TestFactory
-    List<DynamicNode> dynamicTestsLegalEightDecDigitsLiterals() {
+    public List<DynamicNode> dynamicTestsLegalEightDecDigitsLiterals() {
         return Arrays.asList(
                 dynamicTest("12345678", () -> testDec("12345678", 0, 12345678)),
                 dynamicTest("87654321", () -> testDec("87654321", 0, 87654321)),
@@ -55,7 +55,7 @@ public abstract class AbstractEightDigitsTest {
     }
 
     @TestFactory
-    List<DynamicNode> dynamicTestsLegalEightHexDigitsLiterals() {
+    public List<DynamicNode> dynamicTestsLegalEightHexDigitsLiterals() {
         return Arrays.asList(
                 dynamicTest("12345678", () -> testHex("12345678", 0, 0x12345678L)),
                 dynamicTest("87654321", () -> testHex("87654321", 0, 0x87654321L)),

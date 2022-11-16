@@ -9,8 +9,10 @@
 
 package tools.jackson.core.io.doubleparser;
 
+import static tools.jackson.core.io.doubleparser.FastIntegerMath.fullMultiplication;
+
 /**
- * This class provides the mathematical functions needed by {@link FastDoubleParser}.
+ * This class provides the mathematical functions needed by {@link JavaDoubleParser}.
  * <p>
  * References:
  * <dl>
@@ -759,34 +761,6 @@ class FastDoubleMath {
 
     }
 
-    /**
-     * Computes {@code uint128 product = (uint64)x * (uint64)y}.
-     * <p>
-     * References:
-     * <dl>
-     *     <dt>Getting the high part of 64 bit integer multiplication</dt>
-     *     <dd><a href="https://stackoverflow.com/questions/28868367/getting-the-high-part-of-64-bit-integer-multiplication">
-     *         stackoverflow</a></dd>
-     * </dl>
-     *
-     * @param x uint64 factor x
-     * @param y uint64 factor y
-     * @return uint128 product of x and y
-     */
-    static UInt128 fullMultiplication(long x, long y) {//before Java 18
-        long x0 = x & 0xffffffffL, x1 = x >>> 32;
-        long y0 = y & 0xffffffffL, y1 = y >>> 32;
-        long p11 = x1 * y1, p01 = x0 * y1;
-        long p10 = x1 * y0, p00 = x0 * y0;
-
-        // 64-bit product + two 32-bit values
-        long middle = p10 + (p00 >>> 32) + (p01 & 0xffffffffL);
-        return new UInt128(
-                // 64-bit product + two 32-bit values
-                p11 + (middle >>> 32) + (p01 >>> 32),
-                // Add LOW PART and lower half of MIDDLE PART
-                (middle << 32) | (p00 & 0xffffffffL));
-    }
 
     /**
      * Tries to compute {@code significand * 10^power} exactly using
@@ -872,7 +846,7 @@ class FastDoubleMath {
         // We want the most significant 64 bits of the product. We know
         // this will be non-zero because the most significant bit of digits is
         // 1.
-        UInt128 product = fullMultiplication(significand, factorMantissa);
+        FastIntegerMath.UInt128 product = fullMultiplication(significand, factorMantissa);
         long lower = product.low;
         long upper = product.high;
         // We know that upper has at most one leading zero because
@@ -1008,7 +982,6 @@ class FastDoubleMath {
             }
 
             // We have to take a slow path.
-            //return Double.parseDouble(str.toString());
             result = Double.NaN;
 
         } else if (DOUBLE_MIN_EXPONENT_POWER_OF_TEN <= exponent && exponent <= DOUBLE_MAX_EXPONENT_POWER_OF_TEN) {
@@ -1101,19 +1074,5 @@ class FastDoubleMath {
             outDouble = Double.NaN;
         }
         return outDouble;
-    }
-
-    static class UInt128 {
-        final long high, low;
-
-        private UInt128(long high, long low) {
-            this.high = high;
-            this.low = low;
-        }
-    }
-
-    public static long clamp(long value, long min, long max) {
-        //noinspection ManualMinMaxCalculation
-        return value < min ? min : (value > max ? max : value);
     }
 }

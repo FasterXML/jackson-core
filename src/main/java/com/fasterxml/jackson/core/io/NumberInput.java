@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser;
-import com.fasterxml.jackson.core.io.doubleparser.FastFloatParser;
+import com.fasterxml.jackson.core.io.doubleparser.JavaDoubleParser;
+import com.fasterxml.jackson.core.io.doubleparser.JavaFloatParser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -355,7 +355,7 @@ public final class NumberInput
      * @since v2.14
      */
     public static double parseDouble(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? FastDoubleParser.parseDouble(s) : Double.parseDouble(s);
+        return useFastParser ? JavaDoubleParser.parseDouble(s) : Double.parseDouble(s);
     }
 
     /**
@@ -377,7 +377,7 @@ public final class NumberInput
      * @since v2.14
      */
     public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? FastFloatParser.parseFloat(s) : Float.parseFloat(s);
+        return useFastParser ? JavaFloatParser.parseFloat(s) : Float.parseFloat(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {

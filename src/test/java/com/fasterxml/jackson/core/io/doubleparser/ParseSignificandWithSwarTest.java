@@ -44,12 +44,11 @@ public class ParseSignificandWithSwarTest {
     public void doLegalTest(String s) {
         double actual = significandToDouble(s.getBytes(StandardCharsets.ISO_8859_1));
         double expected = Double.parseDouble(s);
-//        System.out.println(expected + " == " + actual);
         assertEquals(expected, actual);
     }
 
     @TestFactory
-    List<DynamicNode> dynamicTestsIllegalInput() {
+    public List<DynamicNode> dynamicTestsIllegalInput() {
         List<DynamicNode> list = new ArrayList<>();
         String str = "12345678";
         for (int i = 0; i < 7; i++) {
@@ -63,7 +62,7 @@ public class ParseSignificandWithSwarTest {
     }
 
     @TestFactory
-    List<DynamicNode> dynamicTestsLegalInput() {
+    public List<DynamicNode> dynamicTestsLegalInput() {
         List<DynamicNode> list = new ArrayList<>();
         String str = "12345678";
         for (int i = -1; i < 8; i++) {
@@ -104,7 +103,7 @@ public class ParseSignificandWithSwarTest {
         // as mentioned here  https://kholdstare.github.io/technical/2020/05/26/faster-integer-parsing.html
 
 
-        long asciiFloat = FastDoubleSwar.readLongFromByteArrayLittleEndian(str, 0);
+        long asciiFloat = (long) FastDoubleSwar.readLongFromByteArrayLittleEndian(str, 0);
 
         // Create a mask, that contains 0x80 at every '.' character and 0x00 everywhere else.
         long masked = asciiFloat ^ DECIMAL_POINT_MASK;

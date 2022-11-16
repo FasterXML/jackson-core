@@ -25,17 +25,17 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 public class FastDoubleMathTest {
     @Test
     public void testFullMultiplication() {
-        FastDoubleMath.UInt128 actual = FastDoubleMath.fullMultiplication(0x123456789ABCDEF0L, 0x10L);
+        FastIntegerMath.UInt128 actual = FastIntegerMath.fullMultiplication(0x123456789ABCDEF0L, 0x10L);
         assertEquals(1L, actual.high);
         assertEquals(0x23456789abcdef00L, actual.low);
 
-        actual = FastDoubleMath.fullMultiplication(0x123456789ABCDEF0L, -0x10L);
+        actual = FastIntegerMath.fullMultiplication(0x123456789ABCDEF0L, -0x10L);
         assertEquals(0x123456789abcdeeeL, actual.high);
         assertEquals(0xdcba987654321100L, actual.low);
     }
 
     @TestFactory
-    List<DynamicNode> dynamicTestsTryDecFloatToDouble() {
+    public List<DynamicNode> dynamicTestsTryDecFloatToDouble() {
         return Arrays.asList(
                 dynamicTest("Inside Clinger fast path \"1000000000000000000e-340\")", () -> testTryDecFloatToDouble(false, 1000000000000000000L, -325, 1000000000000000000e-325)),
                 //
@@ -57,4 +57,6 @@ public class FastDoubleMathTest {
         double actual = FastDoubleMath.tryDecFloatToDouble(isNegative, significand, power);
         assertEquals(expected, actual);
     }
+
+
 }

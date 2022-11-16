@@ -9,16 +9,14 @@
 
 package com.fasterxml.jackson.core.io.doubleparser;
 
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.DOUBLE_MIN_EXPONENT_POWER_OF_TEN;
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_128;
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.MANTISSA_64;
-import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.fullMultiplication;
+import static com.fasterxml.jackson.core.io.doubleparser.FastDoubleMath.*;
+import static com.fasterxml.jackson.core.io.doubleparser.FastIntegerMath.fullMultiplication;
 
 /**
  * This class complements {@link FastDoubleMath} with methods for
  * converting {@code FloatingPointLiteral} productions to floats.
  * <p>
- * See {@link com.fasterxml.jackson.core.io.doubleparser} for a description of
+ * See {@link JavaDoubleParser} for a description of
  * {@code FloatingPointLiteral}.
  */
 class FastFloatMath {
@@ -201,7 +199,7 @@ class FastFloatMath {
         // We want the most significant 64 bits of the product. We know
         // this will be non-zero because the most significant bit of i is
         // 1.
-        FastDoubleMath.UInt128 product = fullMultiplication(digits, factorMantissa);
+        FastIntegerMath.UInt128 product = fullMultiplication(digits, factorMantissa);
         long lower = product.low;
         long upper = product.high;
         // We know that upper has at most one leading zero because

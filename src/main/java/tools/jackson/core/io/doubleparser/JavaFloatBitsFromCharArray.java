@@ -10,49 +10,46 @@
 package tools.jackson.core.io.doubleparser;
 
 /**
- * Parses a {@code double} from a {@code char} array.
+ * Parses a {@code float} from a {@code char} array.
  */
-final class DoubleBitsFromCharArray extends AbstractFloatingPointBitsFromCharArray {
+final class JavaFloatBitsFromCharArray extends AbstractJavaFloatingPointBitsFromCharArray {
 
 
     /**
      * Creates a new instance.
      */
-    public DoubleBitsFromCharArray() {
+    public JavaFloatBitsFromCharArray() {
 
     }
 
     @Override
     long nan() {
-        return Double.doubleToRawLongBits(Double.NaN);
+        return Float.floatToRawIntBits(Float.NaN);
     }
 
     @Override
     long negativeInfinity() {
-        return Double.doubleToRawLongBits(Double.NEGATIVE_INFINITY);
+        return Float.floatToRawIntBits(Float.NEGATIVE_INFINITY);
     }
 
     @Override
     long positiveInfinity() {
-        return Double.doubleToRawLongBits(Double.POSITIVE_INFINITY);
+        return Float.floatToRawIntBits(Float.POSITIVE_INFINITY);
     }
 
     @Override
     long valueOfFloatLiteral(char[] str, int startIndex, int endIndex, boolean isNegative,
                              long significand, int exponent, boolean isSignificandTruncated,
                              int exponentOfTruncatedSignificand) {
-        double d = FastDoubleMath.tryDecFloatToDoubleTruncated(isNegative, significand, exponent, isSignificandTruncated,
-                exponentOfTruncatedSignificand);
-        return Double.doubleToRawLongBits(Double.isNaN(d) ? Double.parseDouble(new String(str, startIndex, endIndex - startIndex)) : d);
+        float result = FastFloatMath.decFloatLiteralToFloat(isNegative, significand, exponent, isSignificandTruncated, exponentOfTruncatedSignificand);
+        return Float.isNaN(result) ? (long) Float.floatToRawIntBits(Float.parseFloat(new String(str, startIndex, endIndex - startIndex))) : Float.floatToRawIntBits(result);
     }
 
     @Override
     long valueOfHexLiteral(
             char[] str, int startIndex, int endIndex, boolean isNegative, long significand, int exponent,
             boolean isSignificandTruncated, int exponentOfTruncatedSignificand) {
-        double d = FastDoubleMath.tryHexFloatToDoubleTruncated(isNegative, significand, exponent, isSignificandTruncated,
-                exponentOfTruncatedSignificand);
-        return Double.doubleToRawLongBits(Double.isNaN(d) ? Double.parseDouble(new String(str, startIndex, endIndex - startIndex)) : d);
+        float d = FastFloatMath.hexFloatLiteralToFloat(isNegative, significand, exponent, isSignificandTruncated, exponentOfTruncatedSignificand);
+        return Float.floatToRawIntBits(Float.isNaN(d) ? Float.parseFloat(new String(str, startIndex, endIndex - startIndex)) : d);
     }
-
 }

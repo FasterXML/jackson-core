@@ -3,8 +3,8 @@ package tools.jackson.core.io;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import tools.jackson.core.io.doubleparser.FastDoubleParser;
-import tools.jackson.core.io.doubleparser.FastFloatParser;
+import tools.jackson.core.io.doubleparser.JavaDoubleParser;
+import tools.jackson.core.io.doubleparser.JavaFloatParser;
 
 public final class NumberInput
 {
@@ -342,7 +342,7 @@ public final class NumberInput
      * @since v2.14
      */
     public static double parseDouble(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? FastDoubleParser.parseDouble(s) : Double.parseDouble(s);
+        return useFastParser ? JavaDoubleParser.parseDouble(s) : Double.parseDouble(s);
     }
 
     /**
@@ -364,7 +364,7 @@ public final class NumberInput
      * @since v2.14
      */
     public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
-        return useFastParser ? FastFloatParser.parseFloat(s) : Float.parseFloat(s);
+        return useFastParser ? JavaFloatParser.parseFloat(s) : Float.parseFloat(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {

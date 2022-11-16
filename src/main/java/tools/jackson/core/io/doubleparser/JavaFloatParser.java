@@ -12,13 +12,15 @@ package tools.jackson.core.io.doubleparser;
 /**
  * Provides static method for parsing a {@code float} from a
  * {@link CharSequence}, {@code char} array or {@code byte} array.
+ * <p>
+ * See {@link JavaDoubleParser} for a description of the supported grammar.
  */
-public class FastFloatParser {
+public class JavaFloatParser {
 
     /**
      * Don't let anyone instantiate this class.
      */
-    private FastFloatParser() {
+    private JavaFloatParser() {
 
     }
 
@@ -36,8 +38,6 @@ public class FastFloatParser {
     /**
      * Parses a {@code FloatingPointLiteral} from a {@link CharSequence} and converts it
      * into a {@code float} value.
-     * <p>
-     * See {@link tools.jackson.core.io.doubleparser} for the syntax of {@code FloatingPointLiteral}.
      *
      * @param str    the string to be parsed
      * @param offset the start offset of the {@code FloatingPointLiteral} in {@code str}
@@ -46,7 +46,7 @@ public class FastFloatParser {
      * @throws NumberFormatException if the string can not be parsed
      */
     public static float parseFloat(CharSequence str, int offset, int length) throws NumberFormatException {
-        long bitPattern = new FloatBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
+        long bitPattern = new JavaFloatBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
         if (bitPattern == AbstractFloatValueParser.PARSE_ERROR) {
             throw new NumberFormatException("Illegal input");
         }
@@ -67,8 +67,6 @@ public class FastFloatParser {
     /**
      * Parses a {@code FloatingPointLiteral} from a {@code byte}-Array and converts it
      * into a {@code float} value.
-     * <p>
-     * See {@link tools.jackson.core.io.doubleparser} for the syntax of {@code FloatingPointLiteral}.
      *
      * @param str    the string to be parsed, a byte array with characters
      *               in ISO-8859-1, ASCII or UTF-8 encoding
@@ -78,7 +76,7 @@ public class FastFloatParser {
      * @throws NumberFormatException if the string can not be parsed
      */
     public static float parseFloat(char[] str, int offset, int length) throws NumberFormatException {
-        long bitPattern = new FloatBitsFromCharArray().parseFloatingPointLiteral(str, offset, length);
+        long bitPattern = new JavaFloatBitsFromCharArray().parseFloatingPointLiteral(str, offset, length);
         if (bitPattern == AbstractFloatValueParser.PARSE_ERROR) {
             throw new NumberFormatException("Illegal input");
         }
@@ -88,8 +86,6 @@ public class FastFloatParser {
     /**
      * Parses a {@code FloatingPointLiteral} from a {@link CharSequence} and converts it
      * into a bit pattern that encodes a {@code float} value.
-     * <p>
-     * See {@link tools.jackson.core.io.doubleparser} for the syntax of {@code FloatingPointLiteral}.
      * <p>
      * Usage example:
      * <pre>
@@ -108,14 +104,12 @@ public class FastFloatParser {
      * otherwise, {@code -1L}.
      */
     public static long parseFloatBits(CharSequence str, int offset, int length) {
-        return new FloatBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
+        return new JavaFloatBitsFromCharSequence().parseFloatingPointLiteral(str, offset, length);
     }
 
     /**
      * Parses a {@code FloatingPointLiteral} from a {@code byte}-Array and converts it
      * into a bit pattern that encodes a {@code float} value.
-     * <p>
-     * See {@link tools.jackson.core.io.doubleparser} for the syntax of {@code FloatingPointLiteral}.
      * <p>
      * See {@link #parseFloatBits(CharSequence, int, int)} for a usage example.
      *
@@ -127,6 +121,6 @@ public class FastFloatParser {
      * otherwise, {@code -1L}.
      */
     public static long parseFloatBits(char[] str, int offset, int length) {
-        return new FloatBitsFromCharArray().parseFloatingPointLiteral(str, offset, length);
+        return new JavaFloatBitsFromCharArray().parseFloatingPointLiteral(str, offset, length);
     }
 }

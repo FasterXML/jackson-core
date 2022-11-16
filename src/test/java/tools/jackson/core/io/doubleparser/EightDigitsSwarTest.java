@@ -16,19 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EightDigitsSwarTest extends AbstractEightDigitsTest {
     @Override
-    void testDec(String s, int offset, int expected) {
-        char[] chars = s.toCharArray();
+    public void testDec(String s, int offset, int expected) {
+        testDecUtf16(s, offset, expected);
+        testDecUtf8(s, offset, expected);
+    }
 
-        int actual = FastDoubleSwar.tryToParseEightDigitsUtf16(chars, offset);
-        assertEquals(expected, actual);
-
-
-        long first = chars[offset + 0] | ((long) chars[offset + 1] << 16) | ((long) chars[offset + 2] << 32) | ((long) chars[offset + 3] << 48);
-        long second = chars[offset + 4] | ((long) chars[offset + 5] << 16) | ((long) chars[offset + 6] << 32) | ((long) chars[offset + 7] << 48);
-        actual = FastDoubleSwar.tryToParseEightDigitsUtf16(first, second);
-        assertEquals(expected, actual);
-
-
+    private static void testDecUtf8(String s, int offset, int expected) {
+        int actual;
         byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
         actual = FastDoubleSwar.tryToParseEightDigitsUtf8(bytes, offset);
         assertEquals(expected, actual);
@@ -61,17 +55,33 @@ public class EightDigitsSwarTest extends AbstractEightDigitsTest {
         assertEquals(expected, actual);
     }
 
-    @Override
-    void testHex(String s, int offset, long expected) {
+    private static void testDecUtf16(String s, int offset, int expected) {
         char[] chars = s.toCharArray();
-        long actual = FastDoubleSwar.tryToParseEightHexDigitsUtf16(chars, offset);
+        int actual = FastDoubleSwar.tryToParseEightDigits(chars, offset);
+        assertEquals(expected, actual);
+        long first = chars[offset + 0] | ((long) chars[offset + 1] << 16) | ((long) chars[offset + 2] << 32) | ((long) chars[offset + 3] << 48);
+        long second = chars[offset + 4] | ((long) chars[offset + 5] << 16) | ((long) chars[offset + 6] << 32) | ((long) chars[offset + 7] << 48);
+        actual = FastDoubleSwar.tryToParseEightDigitsUtf16(first, second);
+        assertEquals(expected, actual);
+    }
+
+    @Override
+    public void testHex(String s, int offset, long expected) {
+        long actual = FastDoubleSwar.tryToParseEightHexDigits(s, offset);
+        if (expected < 0) {
+            assertTrue(actual < 0);
+        } else {
+            assertEquals(expected, actual);
+        }
+        char[] chars = s.toCharArray();
+        actual = FastDoubleSwar.tryToParseEightHexDigits(chars, offset);
         if (expected < 0) {
             assertTrue(actual < 0);
         } else {
             assertEquals(expected, actual);
         }
 
-        long first = (long) chars[offset + 0] << 48
+        long first = (long) chars[offset] << 48
                 | (long) chars[offset + 1] << 32
                 | (long) chars[offset + 2] << 16
                 | (long) chars[offset + 3];
@@ -87,7 +97,7 @@ public class EightDigitsSwarTest extends AbstractEightDigitsTest {
             assertEquals(expected, actual);
         }
 
-        actual = FastDoubleSwar.tryToParseEightHexDigitsUtf8(s.getBytes(StandardCharsets.UTF_8), offset);
+        actual = FastDoubleSwar.tryToParseEightHexDigits(s.getBytes(StandardCharsets.UTF_8), offset);
         if (expected < 0) {
             assertTrue(actual < 0);
         } else {

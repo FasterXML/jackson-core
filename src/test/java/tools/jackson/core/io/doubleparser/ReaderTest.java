@@ -22,7 +22,7 @@ class ReaderTest {
     @Test
     void verifyDoubles() {
         for (int i = 0; i < LEN; i++) {
-            double fd = FastDoubleParser.parseDouble(DOUBLE_STRINGS[i]);
+            double fd = JavaDoubleParser.parseDouble(DOUBLE_STRINGS[i]);
             double jd = Double.parseDouble(DOUBLE_STRINGS[i]);
             assertEquals(jd, fd);
         }
@@ -31,7 +31,7 @@ class ReaderTest {
     @Test
     void verifyFloats() {
         for (int i = 0; i < LEN; i++) {
-            float ff = FastFloatParser.parseFloat(FLOAT_STRINGS[i]);
+            float ff = JavaFloatParser.parseFloat(FLOAT_STRINGS[i]);
             float jf = Float.parseFloat(FLOAT_STRINGS[i]);
             assertEquals(jf, ff);
         }

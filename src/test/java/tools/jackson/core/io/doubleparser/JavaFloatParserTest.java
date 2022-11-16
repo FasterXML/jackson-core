@@ -20,57 +20,57 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 /**
- * Tests class {@link FastDoubleParser}
+ * Tests class {@link JavaDoubleParser}
  */
-public class FastFloatParserTest extends AbstractFastXParserTest {
+public class JavaFloatParserTest extends AbstractJavaFloatValueParserTest {
     @TestFactory
-    Stream<DynamicNode> dynamicTestsParseDoubleCharSequence() {
+    public Stream<DynamicNode> dynamicTestsParseDoubleCharSequence() {
         return createAllTestData().stream()
                 .filter(t -> t.charLength() == t.input().length()
                         && t.charOffset() == 0)
                 .map(t -> dynamicTest(t.title(),
-                        () -> test(t, u -> FastFloatParser.parseFloat(u.input()))));
+                        () -> test(t, u -> JavaFloatParser.parseFloat(u.input()))));
     }
 
     @TestFactory
-    Stream<DynamicNode> dynamicTestsParseDoubleCharSequenceIntInt() {
+    public Stream<DynamicNode> dynamicTestsParseDoubleCharSequenceIntInt() {
         return createAllTestData().stream()
                 .map(t -> dynamicTest(t.title(),
-                        () -> test(t, u -> FastFloatParser.parseFloat(u.input(), u.charOffset(), u.charLength()))));
+                        () -> test(t, u -> JavaFloatParser.parseFloat(u.input(), u.charOffset(), u.charLength()))));
     }
 
     @TestFactory
-    Stream<DynamicNode> dynamicTestsParseDoubleCharArray() {
+    public Stream<DynamicNode> dynamicTestsParseDoubleCharArray() {
         return createAllTestData().stream()
                 .filter(t -> t.charLength() == t.input().length()
                         && t.charOffset() == 0)
                 .map(t -> dynamicTest(t.title(),
-                        () -> test(t, u -> FastFloatParser.parseFloat(u.input().toCharArray()))));
+                        () -> test(t, u -> JavaFloatParser.parseFloat(u.input().toString().toCharArray()))));
     }
 
     @TestFactory
-    Stream<DynamicNode> dynamicTestsParseDoubleCharArrayIntInt() {
+    public Stream<DynamicNode> dynamicTestsParseDoubleCharArrayIntInt() {
         return createAllTestData().stream()
                 .map(t -> dynamicTest(t.title(),
-                        () -> test(t, u -> FastFloatParser.parseFloat(u.input().toCharArray(), u.charOffset(), u.charLength()))));
+                        () -> test(t, u -> JavaFloatParser.parseFloat(u.input().toString().toCharArray(), u.charOffset(), u.charLength()))));
     }
 
     @TestFactory
-    Stream<DynamicNode> dynamicTestsParseDoubleBitsCharSequenceIntInt() {
+    public Stream<DynamicNode> dynamicTestsParseDoubleBitsCharSequenceIntInt() {
         return createAllTestData().stream()
                 .map(t -> dynamicTest(t.title(),
-                        () -> testBits(t, u -> FastFloatParser.parseFloatBits(u.input(), u.charOffset(), u.charLength()))));
+                        () -> testBits(t, u -> JavaFloatParser.parseFloatBits(u.input(), u.charOffset(), u.charLength()))));
     }
 
     @TestFactory
-    Stream<DynamicNode> dynamicTestsParseDoubleBitsCharArrayIntInt() {
+    public Stream<DynamicNode> dynamicTestsParseDoubleBitsCharArrayIntInt() {
         return createAllTestData().stream()
                 .map(t -> dynamicTest(t.title(),
-                        () -> testBits(t, u -> FastFloatParser.parseFloatBits(u.input().toCharArray(), u.charOffset(), u.charLength()))));
+                        () -> testBits(t, u -> JavaFloatParser.parseFloatBits(u.input().toString().toCharArray(), u.charOffset(), u.charLength()))));
     }
 
-    private void test(TestData d, ToFloatFunction<TestData> f) {
-        byte[] bytes = d.input().getBytes(StandardCharsets.UTF_8);
+    private void test(FloatTestData d, ToFloatFunction<FloatTestData> f) {
+        byte[] bytes = d.input().toString().getBytes(StandardCharsets.UTF_8);
         if (!d.valid()) {
             try {
                 assertEquals(-1L, f.applyAsFloat(d));
@@ -83,8 +83,7 @@ public class FastFloatParserTest extends AbstractFastXParserTest {
         }
     }
 
-    private void testBits(TestData d, ToLongFunction<TestData> f) {
-        byte[] bytes = d.input().getBytes(StandardCharsets.UTF_8);
+    private void testBits(FloatTestData d, ToLongFunction<FloatTestData> f) {
         if (!d.valid()) {
             assertEquals(-1L, f.applyAsLong(d));
         } else {

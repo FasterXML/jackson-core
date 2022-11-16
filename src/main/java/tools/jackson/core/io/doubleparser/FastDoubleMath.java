@@ -9,7 +9,7 @@
 
 package tools.jackson.core.io.doubleparser;
 
-import static org.example.jackson.bench.doubleparser.FastIntegerMath.fullMultiplication;
+import static tools.jackson.core.io.doubleparser.FastIntegerMath.fullMultiplication;
 
 /**
  * This class provides the mathematical functions needed by {@link JavaDoubleParser}.

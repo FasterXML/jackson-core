@@ -9,8 +9,8 @@
 
 package tools.jackson.core.io.doubleparser;
 
-import static org.example.jackson.bench.doubleparser.FastDoubleMath.*;
-import static org.example.jackson.bench.doubleparser.FastIntegerMath.fullMultiplication;
+import static tools.jackson.core.io.doubleparser.FastDoubleMath.*;
+import static tools.jackson.core.io.doubleparser.FastIntegerMath.fullMultiplication;
 
 /**
  * This class complements {@link FastDoubleMath} with methods for

@@ -29,7 +29,6 @@ Project contains versions 2.0 and above: source code for earlier (1.x) versions 
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-core)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-core.svg)](https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core) |
 | Code coverage (2.13) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-core/coverage.svg?branch=2.13)](https://codecov.io/github/FasterXML/jackson-core?branch=2.13) |
-| CodeQ (LGTM.com) | [![LGTM alerts](https://img.shields.io/lgtm/alerts/g/FasterXML/jackson-core.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-core/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/FasterXML/jackson-core.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-core/context:java) |
 | CodeQ (ClusterFuzz) | [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-core.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-core) |
 
 # Get it!
@@ -105,21 +104,6 @@ instance of which is constructed by `JsonFactory`:
 An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 -----
-
-## Support
-
-### Community support
-
-Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](../../../jackson#participation-contributing) for full details.
-
-### Enterprise support
-
-Available as part of the Tidelift Subscription.
-
-The maintainers of `jackson-core` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
-
------
-
 ## Compatibility
 
 ### JDK
@@ -137,6 +121,20 @@ List is incomplete due to recent addition of compatibility checker.
 * 2.14: Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
+
+-----
+
+## Support
+
+### Community support
+
+Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](../../../jackson#participation-contributing) for full details.
+
+### Enterprise support
+
+Available as part of the Tidelift Subscription.
+
+The maintainers of `jackson-core` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
 
 -----
 

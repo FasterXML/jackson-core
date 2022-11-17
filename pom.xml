@@ -43,6 +43,13 @@
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
 
+   <!-- 16-Nov-2022, tatu: [core#838] Verify Android SDK compatibility.
+         Baseline compatibility:
+         * Jackson 2.13 compatible with Android SDK 19 and up
+      -->
+    <version.android.sdk>19</version.android.sdk>
+    <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
+
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},
 com.fasterxml.jackson.core.*;version=${project.version}
     </osgi.export>
@@ -141,6 +148,24 @@ com.fasterxml.jackson.core.*;version=${project.version}
       <plugin>
         <groupId>de.jjohannes</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
+      </plugin>
+
+      <!-- 16-Nov-2022, tatu: [core#838] add verification of compatibility
+	   wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
+           To be run from CI, but manually with:
+              mvn clean package animal-sniffer:check
+	-->
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>animal-sniffer-maven-plugin</artifactId>
+	<version>1.22</version>
+	<configuration>
+          <signature>
+            <groupId>com.toasttab.android</groupId>
+            <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
+            <version>${version.android.sdk.signature}</version>
+          </signature>
+	</configuration>
       </plugin>
     </plugins>
   </build>

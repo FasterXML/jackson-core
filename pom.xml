@@ -42,9 +42,9 @@
     <!-- 16-Nov-2022, tatu: [core#838] Verify Android SDK compatibility.
          Baseline compatibility:
          * Jackson 2.13 compatible with Android SDK 19 and up
-         * Jackson 2.14 compatible with Android SDK 19 and up
+         * Jackson 2.14 compatible with Android SDK 26 and up
       -->
-    <version.android.sdk>19</version.android.sdk>
+    <version.android.sdk>26</version.android.sdk>
     <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
 
     <osgi.export>com.fasterxml.jackson.core;version=${project.version},

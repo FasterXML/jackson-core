@@ -120,6 +120,26 @@ The maintainers of `jackson-core` and thousands of other packages are working wi
 
 -----
 
+## Compatibility
+
+### JDK
+
+Jackson-core package baseline JDK requirement:
+
+* Versions 2.0 - 2.13 require JDK 6
+* Versions 2.14 and above require JDK 8
+
+### Android
+
+List is incomplete due to recent addition of compatibility checker.
+
+* 2.13: Android SDK 19+
+* 2.14: Android SDK 26+
+
+for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
+
+-----
+
 # Further reading
 
 ## Differences from Jackson 1.x

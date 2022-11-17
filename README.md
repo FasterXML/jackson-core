@@ -104,21 +104,6 @@ instance of which is constructed by `JsonFactory`:
 An example can be found from [Reading and Writing Event Streams](http://www.cowtowncoder.com/blog/archives/2009/01/entry_132.html)
 
 -----
-
-## Support
-
-### Community support
-
-Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](../../../jackson#participation-contributing) for full details.
-
-### Enterprise support
-
-Available as part of the Tidelift Subscription.
-
-The maintainers of `jackson-core` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
-
------
-
 ## Compatibility
 
 ### JDK
@@ -136,6 +121,20 @@ List is incomplete due to recent addition of compatibility checker.
 * 2.14: Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
+
+-----
+
+## Support
+
+### Community support
+
+Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](../../../jackson#participation-contributing) for full details.
+
+### Enterprise support
+
+Available as part of the Tidelift Subscription.
+
+The maintainers of `jackson-core` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-core?utm_source=maven-com-fasterxml-jackson-core-jackson-core&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
 
 -----
 

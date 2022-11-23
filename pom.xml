@@ -167,6 +167,48 @@ com.fasterxml.jackson.core.*;version=${project.version}
           </signature>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+          <createDependencyReducedPom>true</createDependencyReducedPom>
+        </configuration>
+        <executions>
+          <execution>
+            <id>shade-jackson-core</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>ch.randelshofer:fastdoubleparser</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/11/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/11/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/17/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/17/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>META-INF/versions/19/ch/randelshofer/fastdoubleparser</pattern>
+                  <shadedPattern>META-INF/versions/19/com/fasterxml/jackson/core/io/doubleparser</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

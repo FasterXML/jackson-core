@@ -72,7 +72,7 @@ jobs:
             ./mvnw help:evaluate \
               -Dexpression=project.artifactId -q -DforceStdout)-$( \
             ./mvnw help:evaluate \
-              -Dexpression=project.version -q -DforceStdout)*.jar"
+              -Dexpression=project.version -q -DforceStdout)"
           echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
 
           cd ./target
@@ -80,6 +80,12 @@ jobs:
             sha256sum $ARTIFACT_NAME*.jar | \
             base64 -w0 \
           )" >> "$GITHUB_OUTPUT"
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./target/*.jar
+          name: package
+          if-no-files-found: warn
       - name: Generate code coverage
         if: github.event_name != 'pull_request' && matrix.java_version == '8'
         run: ./mvnw -B -q -ff -ntp test

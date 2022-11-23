@@ -61,7 +61,7 @@ jobs:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
           # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-        run: ./mvnw -B -q -ff -DskipTests -ntp source:jar install
+        run: ./mvnw -B -q -ff -DskipTests -ntp source:jar deploy
       # Until generator_generic_slsa3@v1.2.3, calculate hashes from ./target
       # https://github.com/slsa-framework/slsa-github-generator/issues/1225
       - name: Generate hash
@@ -80,12 +80,6 @@ jobs:
             sha256sum $ARTIFACT_NAME*.jar | \
             base64 -w0 \
           )" >> "$GITHUB_OUTPUT"
-      - name: Upload package
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./target/*.jar
-          name: package
-          if-no-files-found: warn
       - name: Generate code coverage
         if: github.event_name != 'pull_request' && matrix.java_version == '8'
         run: ./mvnw -B -q -ff -ntp test

@@ -30,6 +30,9 @@ jobs:
         os: ["ubuntu-20.04"]
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+      artifact_name: ${{ steps.hash.outputs.artifact_name }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -59,6 +62,24 @@ jobs:
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
           # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
         run: ./mvnw -B -q -ff -DskipTests -ntp source:jar install
+      # Until generator_generic_slsa3@v1.2.3, calculate hashes from ./target
+      # https://github.com/slsa-framework/slsa-github-generator/issues/1225
+      - name: Generate hash
+        id: hash
+        if: github.event_name != 'pull_request' && matrix.java_version == '8'
+        run: |
+          ARTIFACT_NAME="$( \
+            ./mvnw help:evaluate \
+              -Dexpression=project.artifactId -q -DforceStdout)-$( \
+            ./mvnw help:evaluate \
+              -Dexpression=project.version -q -DforceStdout)*.jar"
+          echo "artifact_name=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+
+          cd ./target
+          echo "hashes=$( \
+            sha256sum $ARTIFACT_NAME*.jar | \
+            base64 -w0 \
+          )" >> "$GITHUB_OUTPUT"
       - name: Generate code coverage
         if: github.event_name != 'pull_request' && matrix.java_version == '8'
         run: ./mvnw -B -q -ff -ntp test
@@ -69,3 +90,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./target/site/jacoco/jacoco.xml
           flags: unittests
+
+  provenance:
+    needs: [build]
+    permissions:
+      actions: read # To read the workflow path.
+      id-token: write # To sign the provenance.
+      contents: write # To add assets to a release.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.2.2
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      provenance-name: "${{ needs.build.outputs.artifact_name }}.intoto.jsonl"
+      upload-assets: true # Optional: Upload to a new release

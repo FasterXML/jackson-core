@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
-import com.fasterxml.jackson.core.io.doubleparser.JavaDoubleParser;
-import com.fasterxml.jackson.core.io.doubleparser.JavaFloatParser;
+import ch.randelshofer.fastdoubleparser.JavaDoubleParser;
+import ch.randelshofer.fastdoubleparser.JavaFloatParser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

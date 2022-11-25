@@ -9,7 +9,7 @@ public class NumberOverflowTest
     extends com.fasterxml.jackson.core.BaseTest
 {
     private final JsonFactory FACTORY = JsonFactory.builder()
-            .streamReadConfig(new StreamReadConfig().maxNumberLength(1000000))
+            .streamReadConfig(new StreamReadConfig().withMaxNumberLength(1000000))
             .build();
 
     // NOTE: this should be long enough to trigger perf problems

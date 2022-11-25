@@ -9,7 +9,15 @@ public class StreamReadConfig {
 
     private static final int DEFAULT_MAX_NUM_LEN = 1000;
 
-    private int _maxNumLen = DEFAULT_MAX_NUM_LEN;
+    private int _maxNumLen;
+
+    public StreamReadConfig() {
+        _maxNumLen = DEFAULT_MAX_NUM_LEN;
+    }
+
+    private StreamReadConfig(int maxNumLen) {
+        _maxNumLen = maxNumLen;
+    }
 
     /**
      * Sets the maximum number length (in chars). The default is 1000 (since Jackson 2.14)
@@ -17,9 +25,8 @@ public class StreamReadConfig {
      * @return this config
      * @since 2.15
      */
-    public StreamReadConfig maxNumberLength(int maxNumLen) {
-        _maxNumLen = maxNumLen;
-        return this;
+    public StreamReadConfig withMaxNumberLength(int maxNumLen) {
+        return new StreamReadConfig(maxNumLen);
     }
 
     public int getMaxNumberLength() {

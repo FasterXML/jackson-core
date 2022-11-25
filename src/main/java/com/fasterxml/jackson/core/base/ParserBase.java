@@ -1115,9 +1115,8 @@ public abstract class ParserBase extends ParserMinimalBase
          */
     
         if ((_numTypesValid & NR_DOUBLE) != 0) {
-            /* Let's actually parse from String representation, to avoid
-             * rounding errors that non-decimal floating operations could incur
-             */
+            // Let's actually parse from String representation, to avoid
+            // rounding errors that non-decimal floating operations could incur
             final String numStr = getText();
             if (getMaxNumLen() >= 0 && numStr.length() > getMaxNumLen()) {
                 throw new NumberFormatException("number length exceeds the max number length of " + getMaxNumLen());

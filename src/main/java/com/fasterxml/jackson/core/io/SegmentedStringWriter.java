@@ -2,6 +2,7 @@ package com.fasterxml.jackson.core.io;
 
 import java.io.*;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -19,7 +20,9 @@ public final class SegmentedStringWriter extends Writer
 
     public SegmentedStringWriter(BufferRecycler br) {
         super();
-        _buffer = new TextBuffer(null, br);
+        _buffer = new TextBuffer(
+                StreamReadConstraints.builder().withMaxNumberLength(Integer.MAX_VALUE).build(),
+                br);
     }
 
     /*

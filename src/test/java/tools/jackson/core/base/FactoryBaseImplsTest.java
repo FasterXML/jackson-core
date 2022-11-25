@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.io.Writer;
 
 import tools.jackson.core.*;
-import tools.jackson.core.Version;
 import tools.jackson.core.io.IOContext;
 
 // Bit different "test" class, used to check that intermediate base types

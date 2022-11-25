@@ -6,7 +6,7 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SerializedString;
 
 /**
- * {@link tools.jackson.core.TokenStreamFactory.TSFBuilder}
+ * {@link tools.jackson.core.TSFBuilder}
  * implementation for constructing {@link JsonFactory}
  * instances for reading/writing JSON encoded content.
  */

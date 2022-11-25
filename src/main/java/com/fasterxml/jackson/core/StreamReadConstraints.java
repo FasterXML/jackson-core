@@ -16,7 +16,7 @@ public class StreamReadConstraints {
 
         /**
          * Sets the maximum number length (in chars or bytes, depending on input context).
-         * The default is 1000 (since Jackson 2.14)
+         * The default is 1000 (since Jackson 2.14).
          * @param maxNumLen the maximum number length (in chars or bytes, depending on input context)
          * @return this builder
          * @since 2.15

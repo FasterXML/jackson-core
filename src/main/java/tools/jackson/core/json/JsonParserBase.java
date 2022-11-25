@@ -267,7 +267,7 @@ public abstract class JsonParserBase
             // Some long cases still...
             if (NumberInput.inLongRange(buf, offset, len, _numberNegative)) {
                 // Probably faster to construct a String, call parse, than to use BigInteger
-                _numberLong = Long.parseLong(numStr);
+                _numberLong = NumberInput.parseLong(numStr);
                 _numTypesValid = NR_LONG;
             } else {
                 // 16-Oct-2018, tatu: Need to catch "too big" early due to [jackson-core#488]

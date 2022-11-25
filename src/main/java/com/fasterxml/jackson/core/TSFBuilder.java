@@ -82,7 +82,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
      *
      * @since 2.15
      */
-    protected StreamReadConfig _streamReadConfig;
+    protected StreamReadConstraints _streamReadConstraints;
     
     /*
     /**********************************************************************
@@ -102,7 +102,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     {
         this(base._factoryFeatures,
                 base._parserFeatures, base._generatorFeatures);
-        _streamReadConfig = base._streamReadConfig;
+        _streamReadConstraints = base._streamReadConstraints;
     }
 
     protected TSFBuilder(int factoryFeatures,
@@ -271,14 +271,14 @@ public abstract class TSFBuilder<F extends JsonFactory,
     }
 
     /**
-     * Sets the configuration for streaming reads.
+     * Sets the constraints for streaming reads.
      *
-     * @param streamReadConfig configuration for streaming reads
+     * @param streamReadConstraints constraints for streaming reads
      * @return this factory
      * @since 2.15
      */
-    public B streamReadConfig(StreamReadConfig streamReadConfig) {
-        _streamReadConfig = streamReadConfig;
+    public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
+        _streamReadConstraints = streamReadConstraints;
         return _this();
     }
 

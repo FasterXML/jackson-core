@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.core.io;
 
 import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.StreamReadConfig;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.util.BufferRecycler;
 import com.fasterxml.jackson.core.util.TextBuffer;
 
@@ -61,7 +61,7 @@ public class IOContext
      */
     protected final BufferRecycler _bufferRecycler;
 
-    protected final StreamReadConfig _streamReadConfig;
+    protected final StreamReadConstraints _streamReadConstraints;
 
     /**
      * Reference to the allocated I/O buffer for low-level input reading,
@@ -118,10 +118,12 @@ public class IOContext
      *
      * @since 2.13
      */
-    public IOContext(StreamReadConfig streamReadConfig, BufferRecycler br,
+    public IOContext(StreamReadConstraints streamReadConstraints, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
     {
-        _streamReadConfig = streamReadConfig == null ? new StreamReadConfig() : streamReadConfig;
+        _streamReadConstraints = streamReadConstraints == null ?
+                StreamReadConstraints.builder().build() :
+                streamReadConstraints;
         _bufferRecycler = br;
         _contentReference = contentRef;
         _sourceRef = contentRef.getRawContent();
@@ -143,8 +145,8 @@ public class IOContext
      * @return configuration for streaming reads
      * @since 2.15
      */
-    public StreamReadConfig getStreamReadConfig() {
-        return _streamReadConfig;
+    public StreamReadConstraints getStreamReadConfig() {
+        return _streamReadConstraints;
     }
 
     public void setEncoding(JsonEncoding enc) {
@@ -191,7 +193,7 @@ public class IOContext
      */
 
     public TextBuffer constructTextBuffer() {
-        return new TextBuffer(_streamReadConfig, _bufferRecycler);
+        return new TextBuffer(_streamReadConstraints, _bufferRecycler);
     }
 
     /**

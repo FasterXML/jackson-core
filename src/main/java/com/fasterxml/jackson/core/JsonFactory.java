@@ -337,7 +337,7 @@ public class JsonFactory
         _generatorFeatures = src._generatorFeatures;
         _inputDecorator = src._inputDecorator;
         _outputDecorator = src._outputDecorator;
-        _streamReadConfig = src._streamReadConfig;
+        _streamReadConstraints = src._streamReadConstraints;
 
         // JSON-specific
         _characterEscapes = src._characterEscapes;
@@ -362,7 +362,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
-        _streamReadConfig = b._streamReadConfig;
+        _streamReadConstraints = b._streamReadConstraints;
 
         // JSON-specific
         _characterEscapes = b._characterEscapes;
@@ -387,7 +387,7 @@ public class JsonFactory
         _generatorFeatures = b._streamWriteFeatures;
         _inputDecorator = b._inputDecorator;
         _outputDecorator = b._outputDecorator;
-        _streamReadConfig = b._streamReadConfig;
+        _streamReadConstraints = b._streamReadConstraints;
 
         // JSON-specific: need to assign even if not really used
         _characterEscapes = null;
@@ -1978,7 +1978,7 @@ public class JsonFactory
         if (contentRef == null) {
             contentRef = ContentReference.unknown();
         }
-        return new IOContext(_streamReadConfig, _getBufferRecycler(), contentRef, resourceManaged);
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(), contentRef, resourceManaged);
     }
 
     /**
@@ -1993,7 +1993,7 @@ public class JsonFactory
      */
     @Deprecated // @since 2.13
     protected IOContext _createContext(Object rawContentRef, boolean resourceManaged) {
-        return new IOContext(_streamReadConfig, _getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(rawContentRef),
                 resourceManaged);
     }
@@ -2011,7 +2011,7 @@ public class JsonFactory
     protected IOContext _createNonBlockingContext(Object srcRef) {
         // [jackson-core#479]: allow recycling for non-blocking parser again
         // now that access is thread-safe
-        return new IOContext(_streamReadConfig, _getBufferRecycler(),
+        return new IOContext(_streamReadConstraints, _getBufferRecycler(),
                 _createContentReference(srcRef),
                 false);
     }

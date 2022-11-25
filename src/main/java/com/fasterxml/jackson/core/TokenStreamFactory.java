@@ -24,7 +24,7 @@ public abstract class TokenStreamFactory
      *
      * @since 2.15
      */
-    protected StreamReadConfig _streamReadConfig;
+    protected StreamReadConstraints _streamReadConstraints;
 
     /*
     /**********************************************************************

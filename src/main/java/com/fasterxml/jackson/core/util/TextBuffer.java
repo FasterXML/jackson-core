@@ -4,7 +4,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
-import com.fasterxml.jackson.core.StreamReadConfig;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 /**
@@ -50,7 +50,7 @@ public final class TextBuffer
 
     private final BufferRecycler _allocator;
 
-    private final StreamReadConfig _streamReadConfig;
+    private final StreamReadConstraints _streamReadConstraints;
 
     /*
     /**********************************************************
@@ -123,14 +123,16 @@ public final class TextBuffer
     /**********************************************************
      */
 
-    public TextBuffer(StreamReadConfig streamReadConfig, BufferRecycler allocator) {
-        _streamReadConfig = streamReadConfig == null ? new StreamReadConfig() : streamReadConfig;
+    public TextBuffer(StreamReadConstraints streamReadConstraints, BufferRecycler allocator) {
+        _streamReadConstraints = streamReadConstraints == null ?
+                StreamReadConstraints.builder().build() :
+                streamReadConstraints;
         _allocator = allocator;
     }
 
     // @since 2.10
-    protected TextBuffer(StreamReadConfig streamReadConfig, BufferRecycler allocator, char[] initialSegment) {
-        this(streamReadConfig, allocator);
+    protected TextBuffer(StreamReadConstraints streamReadConstraints, BufferRecycler allocator, char[] initialSegment) {
+        this(streamReadConstraints, allocator);
         _currentSegment = initialSegment;
         _currentSize = initialSegment.length;
         _inputStart = -1;
@@ -148,7 +150,7 @@ public final class TextBuffer
      * @since 2.10
      */
     public static TextBuffer fromInitial(char[] initialSegment) {
-        return new TextBuffer(new StreamReadConfig(), null, initialSegment);
+        return new TextBuffer(null, null, initialSegment);
     }
 
     /**
@@ -495,33 +497,33 @@ public final class TextBuffer
     {
         // Already got a pre-cut array?
         if (_resultArray != null) {
-            if (_streamReadConfig.getMaxNumberLength() >= 0 && _resultArray.length > _streamReadConfig.getMaxNumberLength()) {
+            if (_streamReadConstraints.getMaxNumberLength() >= 0 && _resultArray.length > _streamReadConstraints.getMaxNumberLength()) {
                 throw new NumberFormatException(
-                        "number length exceeds the max number length of " + _streamReadConfig.getMaxNumberLength());
+                        "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
             }
             return NumberInput.parseBigDecimal(_resultArray);
         }
         // Or a shared buffer?
         if ((_inputStart >= 0) && (_inputBuffer != null)) {
-            if (_streamReadConfig.getMaxNumberLength() >= 0 && _inputLen > _streamReadConfig.getMaxNumberLength()) {
+            if (_streamReadConstraints.getMaxNumberLength() >= 0 && _inputLen > _streamReadConstraints.getMaxNumberLength()) {
                 throw new NumberFormatException(
-                        "number length exceeds the max number length of " + _streamReadConfig.getMaxNumberLength());
+                        "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
             }
             return NumberInput.parseBigDecimal(_inputBuffer, _inputStart, _inputLen);
         }
         // Or if not, just a single buffer (the usual case)
         if ((_segmentSize == 0) && (_currentSegment != null)) {
-            if (_streamReadConfig.getMaxNumberLength() >= 0 && _currentSize > _streamReadConfig.getMaxNumberLength()) {
+            if (_streamReadConstraints.getMaxNumberLength() >= 0 && _currentSize > _streamReadConstraints.getMaxNumberLength()) {
                 throw new NumberFormatException(
-                        "number length exceeds the max number length of " + _streamReadConfig.getMaxNumberLength());
+                        "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
             }
             return NumberInput.parseBigDecimal(_currentSegment, 0, _currentSize);
         }
         // If not, let's just get it aggregated...
         final char[] numArray = contentsAsArray();
-        if (_streamReadConfig.getMaxNumberLength() >= 0 && numArray.length > _streamReadConfig.getMaxNumberLength()) {
+        if (_streamReadConstraints.getMaxNumberLength() >= 0 && numArray.length > _streamReadConstraints.getMaxNumberLength()) {
             throw new NumberFormatException(
-                    "number length exceeds the max number length of " + _streamReadConfig.getMaxNumberLength());
+                    "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
         }
         return NumberInput.parseBigDecimal(numArray);
     }
@@ -552,9 +554,9 @@ public final class TextBuffer
      */
     public double contentsAsDouble(final boolean useFastParser) throws NumberFormatException {
         final String numStr = contentsAsString();
-        if (_streamReadConfig.getMaxNumberLength() >= 0 && numStr.length() > _streamReadConfig.getMaxNumberLength()) {
+        if (_streamReadConstraints.getMaxNumberLength() >= 0 && numStr.length() > _streamReadConstraints.getMaxNumberLength()) {
             throw new NumberFormatException(
-                    "number length exceeds the max number length of " + _streamReadConfig.getMaxNumberLength());
+                    "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
         }
         return NumberInput.parseDouble(numStr, useFastParser);
     }
@@ -586,9 +588,9 @@ public final class TextBuffer
      */
     public float contentsAsFloat(final boolean useFastParser) throws NumberFormatException {
         final String numStr = contentsAsString();
-        if (_streamReadConfig.getMaxNumberLength() >= 0 && numStr.length() > _streamReadConfig.getMaxNumberLength()) {
+        if (_streamReadConstraints.getMaxNumberLength() >= 0 && numStr.length() > _streamReadConstraints.getMaxNumberLength()) {
             throw new NumberFormatException(
-                    "number length exceeds the max number length of " + _streamReadConfig.getMaxNumberLength());
+                    "number length exceeds the max number length of " + _streamReadConstraints.getMaxNumberLength());
         }
         return NumberInput.parseFloat(numStr, useFastParser);
     }

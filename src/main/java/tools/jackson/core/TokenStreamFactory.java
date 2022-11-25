@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
+
 import tools.jackson.core.async.ByteArrayFeeder;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.exc.WrappedIOException;
@@ -191,6 +193,11 @@ public abstract class TokenStreamFactory
          */
         protected int _formatWriteFeatures;
 
+        /**
+         * StreamReadConstraints to use.
+         */
+        protected StreamReadConstraints _streamReadConstraints;
+
         // // // Construction
 
         protected TSFBuilder(int formatReadF, int formatWriteF) {
@@ -206,6 +213,7 @@ public abstract class TokenStreamFactory
             this(base._factoryFeatures,
                     base._streamReadFeatures, base._streamWriteFeatures,
                     base._formatReadFeatures, base._formatWriteFeatures);
+            _streamReadConstraints = base._streamReadConstraints;
         }
 
         protected TSFBuilder(int factoryFeatures,
@@ -308,6 +316,19 @@ public abstract class TokenStreamFactory
             return state ? enable(f) : disable(f);
         }
 
+        // // // Other configuration
+
+        /**
+         * Sets the constraints for streaming reads.
+         *
+         * @param streamReadConstraints constraints for streaming reads
+         * @return this builder
+         */
+        public B streamReadConstraints(StreamReadConstraints streamReadConstraints) {
+            _streamReadConstraints = streamReadConstraints;
+            return _this();
+        }
+
         // // // Other methods
 
         /**
@@ -356,7 +377,7 @@ public abstract class TokenStreamFactory
      * Currently enabled {@link TokenStreamFactory.Feature}s features as a bitmask.
      */
     protected final int _factoryFeatures;
-    
+
     /**
      * Currently enabled {@link StreamReadFeature}s as a bitmask.
      */
@@ -376,13 +397,18 @@ public abstract class TokenStreamFactory
      * Set of format-specific write features enabled, as bitmask.
      */
     protected final int _formatWriteFeatures;
-    
+
+    /**
+     * Active StreamReadConstraints to use.
+     */
+    protected final StreamReadConstraints _streamReadConstraints;    
+
     /*
     /**********************************************************************
     /* Construction
     /**********************************************************************
      */
-    
+
     /**
      * Default constructor used to create factory instances.
      * Creation of a factory instance is a light-weight operation,
@@ -402,6 +428,7 @@ public abstract class TokenStreamFactory
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURE_FLAGS;
         _formatReadFeatures = formatReadFeatures;
         _formatWriteFeatures = formatWriteFeatures;
+        _streamReadConstraints = null;
     }
 
     /**
@@ -422,6 +449,7 @@ public abstract class TokenStreamFactory
         _streamWriteFeatures = baseBuilder.streamWriteFeaturesMask();
         _formatReadFeatures = baseBuilder.formatReadFeaturesMask();
         _formatWriteFeatures = baseBuilder.formatWriteFeaturesMask();
+        _streamReadConstraints = baseBuilder._streamReadConstraints;
     }
 
     /**
@@ -437,6 +465,7 @@ public abstract class TokenStreamFactory
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatReadFeatures = src._formatReadFeatures;
         _formatWriteFeatures = src._formatWriteFeatures;
+        _streamReadConstraints = src._streamReadConstraints;
     }
 
     /**

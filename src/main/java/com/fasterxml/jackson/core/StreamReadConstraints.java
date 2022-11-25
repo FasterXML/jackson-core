@@ -3,7 +3,10 @@ package com.fasterxml.jackson.core;
 /**
  * The constraints for streaming reads.
  */
-public class StreamReadConstraints {
+public class StreamReadConstraints
+    implements java.io.Serializable
+{
+    private static final long serialVersionUID = 3L;
 
     private static final int DEFAULT_MAX_NUM_LEN = 1000;
 
@@ -17,7 +20,6 @@ public class StreamReadConstraints {
          * The default is 1000 (since Jackson 2.14).
          * @param maxNumLen the maximum number length (in chars or bytes, depending on input context)
          * @return this builder
-         * @since 2.15
          */
         public StreamReadConstraints.Builder withMaxNumberLength(int maxNumLen) {
             _maxNumLen = maxNumLen;

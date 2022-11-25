@@ -312,8 +312,8 @@ public abstract class TokenStreamFactory
         int anyNegs = offset | len | end | (dataLen - end);
         if (anyNegs < 0) {
             _reportRangeError(String.format(
-"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `byte[]` of length %d",
-offset, len, dataLen));
+                    "Invalid 'offset' (%d) and/or 'len' (%d) arguments for `byte[]` of length %d",
+                    offset, len, dataLen));
         }
     }
 
@@ -330,8 +330,8 @@ offset, len, dataLen));
         int anyNegs = offset | len | end | (dataLen - end);
         if (anyNegs < 0) {
             _reportRangeError(String.format(
-"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
-offset, len, dataLen));
+                    "Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
+                    offset, len, dataLen));
         }
     }
 

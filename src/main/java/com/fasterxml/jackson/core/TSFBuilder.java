@@ -30,7 +30,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * by default.
      */
     protected final static int DEFAULT_PARSER_FEATURE_FLAGS = JsonParser.Feature.collectDefaults();
-    
+
     /**
      * Bitfield (set of flags) of all generator features that are enabled
      * by default.
@@ -83,7 +83,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
      * @since 2.15
      */
     protected StreamReadConstraints _streamReadConstraints;
-    
+
     /*
     /**********************************************************************
     /* Construction
@@ -189,7 +189,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
         _streamWriteFeatures &= ~f.mappedFeature().getMask();
         return _this();
     }
-    
+
     public B disable(StreamWriteFeature first, StreamWriteFeature... other) {
         _streamWriteFeatures &= ~first.mappedFeature().getMask();
         for (StreamWriteFeature f : other) {
@@ -230,7 +230,7 @@ public abstract class TSFBuilder<F extends JsonFactory,
     public B configure(JsonReadFeature f, boolean state) {
         return _failNonJSON(f);
     }
-    
+
     private B _failNonJSON(Object feature) {
         throw new IllegalArgumentException("Feature "+feature.getClass().getName()
                 +"#"+feature.toString()+" not supported for non-JSON backend");

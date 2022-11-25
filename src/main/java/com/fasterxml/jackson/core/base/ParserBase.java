@@ -919,7 +919,7 @@ public abstract class ParserBase extends ParserMinimalBase
 
     private void _parseSlowInt(int expType) throws IOException
     {
-        String numStr = _textBuffer.contentsAsString();
+        final String numStr = _textBuffer.contentsAsString();
         try {
             int len = _intLength;
             char[] buf = _textBuffer.getTextBuffer();

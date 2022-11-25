@@ -25,7 +25,7 @@ import tools.jackson.core.util.Named;
  * token readers ("parsers") and writers ("generators") for handling
  * JSON-encoded content.
  *<p>
- * Note that this class used to reside at main {@code com.fasterxml.jackson.core}
+ * Note that this class used to reside at main {@code tools.jackson.core}
  * in 2.x, but moved here to denote its changed role as implementation, not base
  * class for factories.
  */

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.core;
+package tools.jackson.core;
 
 /**
  * The constraints for streaming reads.

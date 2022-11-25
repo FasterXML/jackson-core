@@ -19,12 +19,12 @@
  *  </li>
  *<li>{@link tools.jackson.core.ObjectReadContext} is included so that
  *  reference to the object capable of deserializing
- *  Objects from token streams (usually, <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
+ *  Objects from token streams (usually, <code>tools.jackson.databind.ObjectMapper</code>)
  *  can be exposed, without adding direct dependency to implementation.
  *  </li>
  *<li>{@link tools.jackson.core.ObjectWriteContext} is included so that
  *  reference to the object capable of serializing
- *  Objects from token streams (usually, <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
+ *  Objects from token streams (usually, <code>tools.jackson.databind.ObjectMapper</code>)
  *  can be exposed, without adding direct dependency to implementation.
  *  </li>
  *</ul>

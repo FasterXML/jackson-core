@@ -14,11 +14,9 @@ public class BufferRecyclers
      * System property that is checked to see if recycled buffers (see {@link BufferRecycler})
      * should be tracked, for purpose of forcing release of all such buffers, typically
      * during major classloading.
-     *
-     * @since 2.9.6
      */
     public final static String SYSTEM_PROPERTY_TRACK_REUSABLE_BUFFERS
-        = "com.fasterxml.jackson.core.util.BufferRecyclers.trackReusableBuffers";
+        = "tools.jackson.core.util.BufferRecyclers.trackReusableBuffers";
 
     /*
     /**********************************************************

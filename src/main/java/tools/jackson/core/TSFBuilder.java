@@ -1,7 +1,5 @@
 package tools.jackson.core;
 
-import com.fasterxml.jackson.core.StreamReadConstraints;
-
 /**
  * Since factory instances are immutable, a Builder class is needed for creating
  * configurations for differently configured factory instances.

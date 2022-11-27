@@ -20,9 +20,7 @@ public final class SegmentedStringWriter extends Writer
 
     public SegmentedStringWriter(BufferRecycler br) {
         super();
-        _buffer = new TextBuffer(
-                StreamReadConstraints.builder().withMaxNumberLength(Integer.MAX_VALUE).build(),
-                br);
+        _buffer = new TextBuffer(StreamReadConstraints.UNLIMITED, br);
     }
 
     /*

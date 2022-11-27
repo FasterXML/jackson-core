@@ -111,12 +111,13 @@ public class IOContext
 
     /**
      * Main constructor to use.
-     * 
+     *
+     * @param streamReadConstraints constraints for streaming reads
      * @param br BufferRecycler to use, if any ({@code null} if none)
      * @param contentRef Input source reference for location reporting
      * @param managedResource Whether input source is managed (owned) by Jackson library
      *
-     * @since 2.13
+     * @since 2.15
      */
     public IOContext(StreamReadConstraints streamReadConstraints, BufferRecycler br,
                      ContentReference contentRef, boolean managedResource)
@@ -130,7 +131,14 @@ public class IOContext
         _managedResource = managedResource;
     }
 
-    @Deprecated // since 2.14
+    /**
+     * @param br BufferRecycler to use, if any ({@code null} if none)
+     * @param contentRef Input source reference for location reporting
+     * @param managedResource Whether input source is managed (owned) by Jackson library
+     *
+     * @since 2.13
+     */
+    @Deprecated // since 2.15
     public IOContext(BufferRecycler br, ContentReference contentRef, boolean managedResource)
     {
         this(null, br, contentRef, managedResource);
@@ -142,7 +150,7 @@ public class IOContext
     }
 
     /**
-     * @return configuration for streaming reads
+     * @return constraints for streaming reads
      * @since 2.15
      */
     public StreamReadConstraints streamReadConstraints() {

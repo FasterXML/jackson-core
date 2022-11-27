@@ -11,6 +11,8 @@ public class StreamReadConstraints {
 
     private final int _maxNumLen;
 
+    public static final StreamReadConstraints UNLIMITED = new StreamReadConstraints(Integer.MAX_VALUE);
+
     public static final class Builder {
         private int _maxNumLen = StreamReadConstraints.DEFAULT_MAX_NUM_LEN;
 

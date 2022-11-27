@@ -1406,7 +1406,7 @@ public abstract class ParserBase extends ParserMinimalBase
     protected void _finishString() throws IOException { }
 
     protected int getMaxNumLen() {
-        return _ioContext.getStreamReadConfig().getMaxNumberLength();
+        return _ioContext.streamReadConstraints().getMaxNumberLength();
     }
 
 }

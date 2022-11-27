@@ -145,7 +145,7 @@ public class IOContext
      * @return configuration for streaming reads
      * @since 2.15
      */
-    public StreamReadConstraints getStreamReadConfig() {
+    public StreamReadConstraints streamReadConstraints() {
         return _streamReadConstraints;
     }
 
